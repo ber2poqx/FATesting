@@ -1,0 +1,15 @@
+Package: flatcolor
+Version: 2.4.1-1
+Type: theme
+Name: Theme Flatcolor
+Description: Optional Theme. Dynamic Horizontal Menu.
+ Works excelent in all browsers.
+ Fine in IOS. (one touch -> hover), (two touch -> click).
+ Ok in Android Tablets, smartphones.. (The click event has been converted to a Dashboard menu).
+ The blue number circles can be removed by setting the $circle to '' in renderer.php.
+Author: Joe Hunt <joe.hunt.consulting@gmail.com>
+Homepage: www.frontaccounting.com
+Maintenance: Joe Hunt <joe.hunt.consulting@gmail.com>
+InstallPath: themes/flatcolor
+Filename: flatcolor-2.4.1-1
+
