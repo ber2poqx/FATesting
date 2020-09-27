@@ -21,3 +21,4 @@ config.php
 config_db.php
 !index.php
 /headoffice
+/js
