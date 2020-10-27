@@ -8,7 +8,7 @@
 /company
 /tmp
 /lang
-/modules
+/modules/_cache
 /themes
 !/themes/default
 !/themes/aqua
@@ -20,5 +20,5 @@ installed_extensions.php
 config.php
 config_db.php
 !index.php
-/headoffice
-/js
+/js/ext4
+/js/ext620
