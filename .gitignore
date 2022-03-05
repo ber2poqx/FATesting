@@ -70,3 +70,4 @@ modules/repgen/repgen_test_sel.php
 sqltools_20220210084255_9716.log
 sqltools_20220223085737_6424.log
 README.md
+.vscode/settings.json
