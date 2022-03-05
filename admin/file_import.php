@@ -37,6 +37,19 @@ function can_import() {
 
     if (isset($_FILES['impCSVS']) && $_FILES['impCSVS']['name'] == '') {
         display_error(_("Please select a file to import."));
+        unset($_POST['impCSVS']);
+        return false;
+    }
+
+    if ($_FILES['impCSVS']['type'] != "application/vnd.ms-excel") {
+        display_error(_("Only CSV files can be imported."));
+        unset($_POST['impCSVS']);
+        return false;
+    }
+
+    if ($_FILES['impCSVS']['size'] > 80) {
+        display_error(_("The file size is too large. Please select a smaller file."));
+        unset($_POST['impCSVS']);
         return false;
     }
 
@@ -48,7 +61,7 @@ function delete_attach() {
     if (import_file_exists($_POST['trans_type'])) {
 
         $row = get_attachment_by_type($_POST['trans_type']);
-        $dir =  company_path()."/attachments";
+        $dir = company_path()."/attachments";
 	    
         if (file_exists($dir."/".$row['unique_name'])) {
             unlink($dir."/".$row['unique_name']);
@@ -89,6 +102,7 @@ if (isset($_POST['import']) && can_import()) {
     );
 
     @fclose($fp);
+    unset($_POST['impCSVS']);
     
     display_notification_centered(_("CSV File Successfully Uploaded!")); 
 }
@@ -112,7 +126,7 @@ if ($action == 'import') {
         ), 'label', null, true, '', true
     );
 
-    label_row("CSV Import File:", "<input type='file' id='impCSVS' name='impCSVS'>");
+    label_row("Select CSV File:", "<input type='file' id='impCSVS' name='impCSVS'>");
 
     end_table(1);
 

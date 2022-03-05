@@ -594,7 +594,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	alloc_in_openning($invoice_no, $invoice->customer_id, $invoice->ob_total_amount_paid, $invoice->amortization, $date_);
 
 
-	add_cust_allocation($invoice->ob_total_amount_paid, ST_CUSTPAYMENT, $invoice_no, ST_SALESINVOICE, $invoice_no, $invoice->customer_id, $date_);
+	add_cust_allocation($invoice->ob_total_amount_paid, ST_SALESINVOICE, $invoice_no, ST_SALESINVOICE, $invoice_no, $invoice->customer_id, $date_);
     update_debtor_trans_allocation( ST_SALESINVOICE, $invoice_no, $invoice->customer_id);
 
 
@@ -1107,13 +1107,13 @@ function alloc_in_openning($trans_no, $debtor_no, $alloc, $amortization, $date_)
             $debtor_no,
             $amort_sched["id"],
             ST_SALESINVOICE,
-            ST_CUSTPAYMENT,
+            ST_SALESINVOICE,
             $amount,
             0,
             0,
             0,
             date2sql($date_),
-            0
+            $trans_no
         );
 
         $total_exist_payment -= $amount;

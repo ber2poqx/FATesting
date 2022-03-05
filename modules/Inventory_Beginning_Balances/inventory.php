@@ -22,6 +22,10 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 include_once($path_to_root . "/includes/sweetalert.inc");
 include_once($path_to_root . "/admin/db/attachments_db.inc");
 
+if (isset($_POST['download']) && can_download()) {
+	download_file();
+}
+
 $js = '';
 
 if (user_use_date_picker())  {
@@ -97,6 +101,19 @@ function can_import() {
     return true;
 }
 
+function can_download() {
+
+	$row = get_attachment_by_type(ST_INVADJUST);
+
+	if ($row['filename'] == "") {
+		display_error(_("No File Uploaded for Inventory Opening!"));
+		unset($_POST['download']);
+		return false;
+	}
+
+	return true;
+}
+
 function handle_new_order() {
 
 	if (isset($_SESSION['adj_items'])) {
@@ -106,30 +123,21 @@ function handle_new_order() {
 
     $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
     $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
-	// $_POST['AdjDate'] = new_doc_date();
-
-	// if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
-	// 	$_POST['AdjDate'] = end_fiscalyear();
-	// }
 	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
 }
 
 function download_file() {
 
-	if (import_file_exists(ST_INVADJUST)) {
-
-		$row = get_attachment_by_type(ST_INVADJUST);
-
-		$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
-    	header("Content-type: ".$type);
-	    header('Content-Length: '.$row['filesize']);
-    	header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
-    	echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
-		exit();
-	}
-	else {
-		display_error(_("No File Uploaded for Inventory Opening!"));
-	}
+	$row = get_attachment_by_type(ST_INVADJUST);
+	
+	$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
+	header("Content-type: ".$type);
+	header('Content-Length: '.$row['filesize']);
+	header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
+	echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+	unset($_POST['download']);
+	@fclose();
+	exit();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -251,10 +259,6 @@ if (isset($_POST['import']) && can_import()) {
 	if ($CI > 0) {
 		display_notification("$CI :Inventory Opening Added.");
 	} 			
-}
-
-if (isset($_POST['download'])) {
-	download_file();
 }
 
 //-----------------------------------------------------------------------------------------------

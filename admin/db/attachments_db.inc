@@ -143,7 +143,7 @@ function import_file_exists($trans_type) {
 	
 	$res = db_query($sql, "Cant count attachments");
 	
-	if (db_num_rows($res) >= 0) {
+	if (db_num_rows($res) > 0) {
 		return true;
 	}
 	else {

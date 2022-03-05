@@ -389,13 +389,13 @@
 										$debtor_no,
 										$amort_sched["id"],
 										ST_SALESINVOICE,
-										ST_CUSTPAYMENT,
+										ST_SALESINVOICE,
 										$amount,
 										0,
 										0,
 										0,
 										$tran_date,
-										0
+										$trans_no
 									);
 
 									$total_exist_payment -= $amount;
@@ -411,7 +411,7 @@
 
 								add_cust_allocation(floatval(
 									$total_amount_paid), 
-									ST_CUSTPAYMENT, 
+									ST_SALESINVOICE, 
 									$trans_no, 
 									ST_SALESINVOICE, 
 									$trans_no, 
