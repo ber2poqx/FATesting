@@ -67,5 +67,6 @@ modules/repgen/repgen_test_sel.php
 .vs/ProjectSettings.json
 .vs/slnx.sqlite
 .vs/VSWorkspaceState.json
+.vscode/settings.json
 sqltools_20220210084255_9716.log
 sqltools_20220223085737_6424.log
