@@ -96,7 +96,7 @@ function write_supp_journal($trans_type, $trans_no, $supp_id, $date, $ref, $amou
 //--------------------------------------------------------------------------------
 // Write/update journal entries.
 //
-function write_journal_entries(&$cart)
+function write_journal_entries(&$cart, $interbranch = false)
 {
 	global $Refs;
 
@@ -108,7 +108,7 @@ function write_journal_entries(&$cart)
 
 	begin_transaction();
 
-	if (!$new)
+	if (!$new && $interbranch == false)
 	{
 		$msg = void_transaction($trans_type, $cart->order_id, Today(), _("Document reentered."));
 		if ($msg)
@@ -118,13 +118,17 @@ function write_journal_entries(&$cart)
 		}
 	}
 
-	$trans_id = $cart->order_id = get_next_trans_no($trans_type);
+	$trans_id = $cart->order_id = $interbranch ? max_journal_no() + 1 : 
+		get_next_trans_no($trans_type);
+		
 	$total = $cart->gl_items_total_debit();
 
 	$cart->write_gl();
 
 	add_journal($trans_type, $trans_id, $total,	$date_ , $cart->currency, $ref,
-		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date);
+		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date
+	);
+	
 
 	$Refs->save($trans_type, $trans_id, $ref);
 	if ($new) {

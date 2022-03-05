@@ -60,7 +60,7 @@ end_form();
 if (!isset($_POST['bank_account']))
 	$_POST['bank_account'] = "";
 
-$result = get_bank_trans_for_bank_account($_POST['bank_account'], $_POST['TransAfterDate'], $_POST['TransToDate']);	
+$result = get_bank_trans_for_bank_account($_POST['bank_account'], $_POST['TransAfterDate'], $_POST['TransToDate']);
 
 div_start('trans_tbl');
 $act = get_bank_account($_POST["bank_account"]);
@@ -109,7 +109,9 @@ while ($myrow = db_fetch($result))
 	label_cell(get_comments_string($myrow["type"], $myrow["trans_no"]));
 	label_cell(get_gl_view_str($myrow["type"], $myrow["trans_no"]));
 
-	label_cell(trans_editor_link($myrow["type"], $myrow["trans_no"]));
+	//Modified by spyrax10 3 Feb 2022
+	//label_cell(trans_editor_link($myrow["type"], $myrow["trans_no"]));
+	//
 
 	end_row();
  	if ($myrow["amount"] > 0 ) 

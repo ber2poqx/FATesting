@@ -14,12 +14,12 @@ include_once($path_to_root . "/includes/ui/items_cart.inc");
 
 //--------------------------------------------------------------------------------
 
-function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufacture_date='0000-00-00', $expire_date='0000-00-00', $lot_no='')
+function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufacture_date='', $expire_date='', $lot_no='', $chasis_no='')
 {
     if ($order->find_cart_item($new_item,$lot_no))
          display_error(_("For Part :") . $new_item . " " . "This item is already on this document. You can change the quantity on the existing line if necessary.");
 	else
-         $order->add_to_cart (count($order->line_items), $new_item, $new_item_qty, $standard_cost,null, $manufacture_date, $expire_date, $lot_no);
+         $order->add_to_cart(count($order->line_items), $new_item, $new_item_qty, $standard_cost,null, $manufacture_date, $expire_date, $lot_no, $chasis_no);
 }
 
 //--------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ function display_adjustment_items($title, &$order)
 		_("Unit"), _("Unit Cost"), _("Initial Value"), "");
 	} else {
 		$th = array(_("Item Code"), _("Item Description"), _("Quantity"),
-		_("Unit"),_("Manufacture Date"),_("Expire Date"),_("Lot No."), _("Unit Cost"), _("Total"), "");
+		_("Unit"),_("Serial/Engine No."),_("Chasis No."), _("Unit Cost"), _("Total"), "");
 		if ( count($order->line_items)) $th[] = '';
 	}
 
@@ -89,9 +89,10 @@ function display_adjustment_items($title, &$order)
 			label_cell($stock_item->units);
 
 			
-			label_cell($stock_item->manufacture_date, "nowrap align=center");
-			label_cell($stock_item->expire_date, "nowrap align=center");
+			//label_cell($stock_item->manufacture_date, "nowrap align=center");
+			//label_cell($stock_item->expire_date, "nowrap align=center");
 			label_cell($stock_item->lot_no, "nowrap align=center");
+			label_cell($stock_item->chasis_no, "nowrap align=center");
 	
 			amount_decimal_cell($stock_item->standard_cost);
 
@@ -157,6 +158,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1)
 		$_POST['manufacture_date'] =  $order->line_items[$line_no]->manufacture_date;
 		$_POST['expire_date'] =  $order->line_items[$line_no]->expire_date;
 		$_POST['lot_no'] =  $order->line_items[$line_no]->lot_no;
+		$_POST['chasis_no'] =  $order->line_items[$line_no]->chasis_no;
 		hidden('stock_id', $_POST['stock_id']);
 		label_cell($_POST['stock_id']);
 		label_cell($order->line_items[$line_no]->item_description, 'nowrap');
@@ -172,7 +174,11 @@ function adjustment_edit_item_controls(&$order, $line_no=-1)
 		if (list_updated('stock_id')) {
 			$Ajax->activate('items_table');
 		}
-
+		$_POST['manufacture_date']='';
+		$_POST['expire_date']='';
+		$_POST['lot_no']='';
+		$_POST['chasis_no']='';
+		$_POST['units']=''; 
 	}
 
    	$item_info = get_item_edit_info(get_post('stock_id'));
@@ -191,9 +197,12 @@ function adjustment_edit_item_controls(&$order, $line_no=-1)
 	label_cell(get_post('units'), '', 'units');
 
 
-	date_cells(null, 'manufacture_date', $_POST['manufacture_date']);
-	date_cells(null, 'expire_date', $_POST['expire_date']);
+	//date_cells(null, 'manufacture_date', $_POST['manufacture_date'],null,0,0,1001);
+	//date_cells(null, 'expire_date', $_POST['expire_date'], null,0,0,1001);
 	text_cells(null, "lot_no", $_POST['lot_no'], 15, 20);
+	hidden('manufacture_date');
+	hidden('expire_date');
+	text_cells(null, "chasis_no", $_POST['chasis_no'], 15, 20);
 
 	if ($order->fixed_asset) {
 		hidden('std_cost');

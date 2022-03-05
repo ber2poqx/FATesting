@@ -21,7 +21,10 @@
 	$charge - in bank currency
 */
 function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_account,
-	$date_, $ref, $amount, $discount, $memo_, $rate=0, $charge=0, $bank_amount=0)
+	$date_, $ref, $amount, $discount, $memo_, $rate=0, $charge=0, $bank_amount=0,
+	$penalty=0, $payment_type=null, $collection_type=null, $module_type=null, $cashier_id=0, $pay_type=null,
+	$check_date=null, $check_no=0, $bank_branch=null, $masterfile=null, $receipt_no=0, $prepared_by=null, $checked_by=null, $approved_by=null,
+	$discount1=0, $discount2=0)
 {
 	global $Refs;
 
@@ -52,16 +55,22 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	}
 
 	// do not use $rate here: global rate stored in exrate table is always used
+	set_global_connection();
+	//modify by jr
+	/*
 	$payment_no = write_customer_trans(ST_CUSTPAYMENT, $trans_no, $customer_id, $branch_id, 
 		$date_, $ref, $amount, $discount);
+	*/
+	$payment_no = write_customer_trans(ST_CUSTPAYMENT, $trans_no, $customer_id, $branch_id, $date_, $ref, $amount, $discount
+							,0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $payment_type, $collection_type, $module_type);
+
 
 	$bank_gl_account = get_bank_gl_account($bank_account);
 
 	$total = 0;
 
 	/* Bank account entry first */
-	$total += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $date_,
-		$bank_gl_account, 0, 0, '', ($bank_amount - $charge),  $bank['bank_curr_code'], PT_CUSTOMER, $customer_id);
+	$total += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $date_, $bank_gl_account, 0, 0, '', ($bank_amount - $charge),  $bank['bank_curr_code'], PT_CUSTOMER, $customer_id, "", $rate, null, null, 0, $masterfile);
 
 	if ($branch_id != ANY_NUMERIC) {
 
@@ -74,39 +83,93 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 		$debtors_account = $company_record["debtors_act"];
 		$discount_account = $company_record["default_prompt_payment_act"];
 	}
+	//added by jr 072821
+	if($module_type == "CLTN-CASH"){
+		if($payment_type == "adjmt"){
+			$debtors_account = $company_record["ar_customer_account"];
+		}else{
+			$debtors_account = $company_record["ar_cash_sales_account"];
+		}
+	}else if($module_type == "CLTN-AMORT"){
+		$term = get_mos_term($masterfile, $customer_id);
+		if($term <= 3) {
+			$debtors_account = $company_record["ar_reg_current_account"];
+		}
+	}
 
 	if (($discount + $amount) != 0)	{
-	/* Now Credit Debtors account with receipts + discounts */
-	$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_,
-		$debtors_account, 0, 0, -($discount + $amount), $customer_id,
-		"Cannot insert a GL transaction for the debtors account credit");
-	}
-	if ($discount != 0)	{
-		/* Now Debit discount account with discounts allowed*/
+		/* Now Credit Debtors account with receipts + discounts */
 		$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_,
-			$discount_account, 0, 0, $discount, $customer_id,
-			"Cannot insert a GL transaction for the payment discount debit");
+			$debtors_account, 0, 0, -($discount + $amount), $customer_id,
+			"Cannot insert a GL transaction for the debtors account credit",
+			$rate, null, null, 0, $masterfile);
+	}
+	//added by jr 071621
+	if($payment_type == "down"){
+		$discount_account = $company_record["discount_dp_act"];
+		$discount2_accnt = $company_record["dp_discount2_act"];
+
+		if($discount1 != 0){
+			$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_, $discount_account, 0, 0, $discount1, $customer_id,
+											"Cannot insert a GL transaction for the downpayment discount 1", $rate, null, null, 0, $masterfile);
+			$discount1 = 0;
+		}
+		if($discount2 != 0){
+			$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_, $discount2_accnt, 0, 0, $discount2, $customer_id,
+											"Cannot insert a GL transaction for the downpayment discount 2", $rate, null, null, 0, $masterfile);
+			$discount2 = 0;
+		}
+
+	}else{
+		if ($discount != 0)	{
+			/* Now Debit discount account with discounts allowed*/
+			$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_,
+				$discount_account, 0, 0, $discount, $customer_id,
+				"Cannot insert a GL transaction for the payment discount debit", $rate, null, null, 0, $masterfile);
+		}
 	}
 
 	if ($charge != 0)	{
 		/* Now Debit bank charge account with charges */
 		$charge_act = get_bank_charge_account($bank_account);
 		$total += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $date_,	$charge_act, 0, 0, '', 
-			$charge, $bank['bank_curr_code'], PT_CUSTOMER,  $customer_id);
+			$charge, $bank['bank_curr_code'], PT_CUSTOMER,  $customer_id, "", $rate, null, null, 0, $masterfile);
 	}
-
 
 	/*Post a balance post if $total != 0 due to variance in AR and bank posted values*/
 	if ($total != 0)
 	{
 		$variance_act = get_company_pref('exchange_diff_act');
 		add_gl_trans(ST_CUSTPAYMENT, $payment_no, $date_,	$variance_act, 0, 0, '',
-			-$total, null, PT_CUSTOMER,  $customer_id);
+			-$total, null, PT_CUSTOMER,  $customer_id, "", $rate, null, null, 0, $masterfile);
 	}
 
+	//modify by jr..
+	//y?????
 	/*now enter the bank_trans entry */
-	add_bank_trans(ST_CUSTPAYMENT, $payment_no, $bank_account, $ref,
+	/**add_bank_trans(
+		ST_CUSTPAYMENT, 
+		$payment_no, 
+		$bank_account,
+		$ref,
+		0,
+		$date_, 
+		2,
+		0,
+		0,
+		4,
+		$bank_amount - $charge, 
+		PT_CUSTOMER, 
+		$customer_id
+	);
+	**/
+	/*original function ---- jr
+		add_bank_trans(ST_CUSTPAYMENT, $payment_no, $bank_account, $ref,
 		$date_, $bank_amount - $charge, PT_CUSTOMER, $customer_id);
+	*/
+
+	add_bank_trans(ST_CUSTPAYMENT, $payment_no, $bank_account, $ref, $date_, $bank_amount - $charge, PT_CUSTOMER, $customer_id,
+					$cashier_id, $pay_type, $check_date, $check_no, $bank_branch, $masterfile, $receipt_no, $prepared_by, $checked_by, $approved_by);
 
 	add_comments(ST_CUSTPAYMENT, $payment_no, $date_, $memo_);
 
@@ -166,3 +229,16 @@ function get_cust_bank_charge($type, $trans_no)
 	return $myrow['0'];
 }
 
+//prog jr for term checking on 
+function get_mos_term($trans_no, $debtor_no)
+{
+	$sql = "SELECT A.months_term
+		FROM ".TB_PREF."debtor_loans A 
+		WHERE A.months_term != 0
+			AND A.trans_no = ".db_escape($trans_no)."
+			AND A.debtor_no = ".db_escape($debtor_no);
+
+	$result = db_query($sql, "could not get loan term");
+	$row = db_fetch($result);
+	return $row[0];
+}

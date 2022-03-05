@@ -10,32 +10,51 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function add_customer($CustName, $cust_ref, $address, $tax_id, $curr_code,
+function add_customer($CustName, $cust_ref, $address, $barangay, $municipality, $province, $zip_code = null,
+    $tax_id, $age, $gender, $status, $spouse = null, $name_father, $name_mother, $collectors_name = null, $curr_code, $area,
 	$dimension_id, $dimension2_id, $credit_status, $payment_terms, $discount, $pymt_discount, 
-	$credit_limit, $sales_type, $notes)
+	$credit_limit, $sales_type, $notes, $interb_ref=0, $employee=0, $employee_id=0)
 {
-	$sql = "INSERT INTO ".TB_PREF."debtors_master (name, debtor_ref, address, tax_id,
-		dimension_id, dimension2_id, curr_code, credit_status, payment_terms, discount, 
-		pymt_discount,credit_limit, sales_type, notes) VALUES ("
+	$sql = "INSERT INTO ".TB_PREF."debtors_master (name, debtor_ref, address, barangay, municipality, province, zip_code, tax_id, age, gender, status, spouse, name_father, name_mother, collectors_name,
+		dimension_id, dimension2_id, curr_code, area, credit_status, payment_terms, discount, 
+		pymt_discount,credit_limit, sales_type, notes, interb_ref, employee, employee_id) VALUES ("
 		.db_escape($CustName) .", " .db_escape($cust_ref) .", "
-		.db_escape($address) . ", " . db_escape($tax_id) . ","
-		.db_escape($dimension_id) . ", " 
-		.db_escape($dimension2_id) . ", ".db_escape($curr_code) . ", 
-		" . db_escape($credit_status) . ", ".db_escape($payment_terms) . ", " . $discount . ", 
-		" . $pymt_discount . ", " . $credit_limit 
-		 .", ".db_escape($sales_type).", ".db_escape($notes) . ")";
+		.db_escape($address) . ", " .db_escape($barangay) . ", "
+		.db_escape($municipality) . ", ".db_escape($province) . ", "
+		.db_escape($zip_code, true) . ", " . db_escape($tax_id) . ", "
+		.db_escape($age) . ", " .db_escape($gender) . ", "
+		.db_escape($status) . ", " .db_escape($spouse, true) . ", "
+		.db_escape($name_father) . ", " .db_escape($name_mother) . "," 
+		.db_escape($collectors_name, true) . ", " .db_escape($dimension_id) . ", " 
+		.db_escape($dimension2_id) . ", " .db_escape($curr_code) . ","
+		.db_escape($area) . ", "  . db_escape($credit_status) . ", "
+		.db_escape($payment_terms) . ", " . $discount . ", " . $pymt_discount . ", " 
+		. $credit_limit .", " .db_escape($sales_type).", " .db_escape($notes).", " 
+		.db_escape($interb_ref). ", " .db_escape($employee) .", " .db_escape($employee_id).")";
+
 	db_query($sql,"The customer could not be added");
 }
 
-function update_customer($customer_id, $CustName, $cust_ref, $address, $tax_id, $curr_code,
+function update_customer($customer_id, $CustName, $cust_ref, $address, $barangay, $municipality, $province,
+    $tax_id, $age, $gender, $status, $spouse, $name_father, $name_mother, $curr_code, $area,
 	$dimension_id, $dimension2_id, $credit_status, $payment_terms, $discount, $pymt_discount,
-	$credit_limit, $sales_type, $notes)
+	$credit_limit, $sales_type, $notes, $employee, $employee_id)
 {
 	$sql = "UPDATE ".TB_PREF."debtors_master SET name=" . db_escape($CustName) . ", 
 		debtor_ref=" . db_escape($cust_ref) . ",
 		address=".db_escape($address) . ", 
+		barangay=".db_escape($barangay) . ",
+		municipality=".db_escape($municipality) . ",
+		province=".db_escape($province) . ",
 		tax_id=".db_escape($tax_id) . ", 
-		curr_code=".db_escape($curr_code) . ", 
+		age=".db_escape($age) . ", 
+		gender=".db_escape($gender) . ", 
+		status=".db_escape($status) . ", 
+		spouse=".db_escape($spouse) . ", 
+		name_father=".db_escape($name_father) . ", 
+		name_mother=".db_escape($name_mother) . ", 
+		curr_code=".db_escape($curr_code) . ",
+		area=".db_escape($area) . ",  
 		dimension_id=".db_escape($dimension_id) . ", 
 		dimension2_id=".db_escape($dimension2_id) . ", 
 		credit_status=".db_escape($credit_status) . ", 
@@ -44,7 +63,9 @@ function update_customer($customer_id, $CustName, $cust_ref, $address, $tax_id, 
 		pymt_discount=" . $pymt_discount . ", 
 		credit_limit=" . $credit_limit . ", 
 		sales_type = ".db_escape($sales_type) . ", 
-		notes=".db_escape($notes) ."
+		notes=".db_escape($notes) .",
+		employee=".db_escape($employee) .",
+		employee_id=".db_escape($employee_id) ."
 		WHERE debtor_no = ".db_escape($customer_id);
 
 	db_query($sql,"The customer could not be updated");
@@ -113,7 +134,6 @@ function get_customer_details($customer_id, $to=null, $all=true)
     return $customer_record;
 
 }
-
 
 function get_customer($customer_id)
 {
@@ -185,6 +205,18 @@ function get_customer_by_ref($reference)
 	return db_fetch($result);
 }
 
+//--ADDED BY ROBERT---//
+function check_customer_already_exist($CustName)
+{
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."debtors_master A
+			WHERE A.name = ".db_escape($CustName);
+	$result = db_query($sql, "check customer failed");
+	$count =  db_fetch($result);
+
+	return $count[0];
+}
+//----------------//
+
 //----------------------------------------------------------------------------------
 
 function get_customer_currency($customer_id=null, $branch_id=null)
@@ -209,12 +241,158 @@ function get_customers_search($customer)
 	else
 		$limit = 10;
 
-	$sql = "SELECT debtor_no, name, debtor_ref, address, tax_id FROM ".TB_PREF."debtors_master 
-	  WHERE (  name LIKE " . db_escape("%" . $customer. "%") . " OR 
-    		 debtor_ref LIKE " . db_escape("%" . $customer. "%") . " OR 
-	        address LIKE " . db_escape("%" . $customer. "%") . " OR 
-    	     tax_id LIKE " . db_escape("%" . $customer. "%").")
-	  ORDER BY name LIMIT 0,".(int)($limit);
+	$sql = "SELECT A.debtor_no, A.name, A.debtor_ref, A.address, A.tax_id, B.tax_group_id, C.description, C.collectors_id, D.phone,
+    E.real_name, F.name AS salestype, G.name AS taxgroup
+	FROM ".TB_PREF."debtors_master A
+	LEFT JOIN cust_branch B ON B.debtor_no=A.debtor_no
+	LEFT JOIN areas C ON C.area_code=A.area
+	LEFT JOIN crm_persons D ON D.ref=A.debtor_ref
+	LEFT JOIN users E ON E.user_id=C.collectors_id
+	LEFT JOIN sales_type F ON F.id=A.sales_type
+	lEFT JOIN tax_groups G ON G.id=B.tax_group_id
+	  WHERE (  A.name LIKE " . db_escape("%" . $customer. "%") . " OR 
+    		 A.debtor_ref LIKE " . db_escape("%" . $customer. "%") . " OR 
+	        A.address LIKE " . db_escape("%" . $customer. "%") . " OR 
+    	     A.tax_id LIKE " . db_escape("%" . $customer. "%").")
+	  ORDER BY A.name LIMIT 0,".(int)($limit);
 
 	return db_query($sql, "Failed in retreiving customer list.");
+}
+
+function get_Customer_AutoGenerated_Code()
+{
+	//modify by zhun to make function
+	//MOdified by Robert Dusal
+
+    global $db_connections;
+	$brchcode = $db_connections[user_company()]["branch_code"];
+
+	$sql = "SELECT LPAD(COALESCE(MAX(debtor_no) + 1, 1), 6, 0) FROM debtors_master";
+	$result = db_query($sql, "could not get customer code");
+    $row = db_fetch_row($result);
+	return $brchcode.''.$row[0];
+}
+
+//-------------:: added by jr ::---------------
+function check_customer_exist($customer_name)
+{
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."debtors_master A 
+			WHERE A.name = ".db_escape($customer_name);
+	$result = db_query($sql, "check customer failed");
+	$count =  db_fetch($result);
+
+	return $count[0];
+}
+
+function Get_CustomerFromOtherDB($debtor_ref, $branch_code)
+{
+	$db_coy = Get_db_coy($branch_code);
+    set_global_connection($db_coy);
+	
+	$sql = "SELECT A.*, B.salesman, B.tax_group_id, B.default_ship_via, B.bank_account, C.phone, C.phone2, C.fax, C.email 
+			FROM ".TB_PREF."debtors_master A 
+				LEFT JOIN ".TB_PREF."cust_branch B ON B.debtor_no = A.debtor_no 
+				LEFT JOIN ".TB_PREF."crm_persons C ON C.ref = A.debtor_ref 
+			WHERE A.debtor_ref = ".db_escape($debtor_ref);
+
+	$result = db_query($sql, "The customer from other database could not be retrieved");
+
+	set_global_connection();
+	return $result;
+}
+
+function search_CustomerFromOtherDB($customer, $branch_code)
+{
+	$db_coy = Get_db_coy($branch_code);
+    set_global_connection($db_coy);
+	
+	$sql = "SELECT A.*, B.salesman, B.tax_group_id, B.default_ship_via, B.bank_account, C.phone, C.phone2, C.fax, C.email, D.municipality munic, D.zipcode
+			FROM ".TB_PREF."debtors_master A 
+				LEFT JOIN ".TB_PREF."cust_branch B ON B.debtor_no = A.debtor_no 
+				LEFT JOIN ".TB_PREF."crm_persons C ON C.ref = A.debtor_ref 
+				LEFT JOIN ".TB_PREF."municipality_zipcode D ON D.muni_code = A.municipality 
+			WHERE A.name LIKE ".db_escape("%" . $customer. "%");
+
+	$result = db_query($sql, "The customer from other database could not be retrieved");
+
+	set_global_connection();
+	return $result;
+}
+
+function get_debtor_interb_ref($debtor_no)
+{
+	$sql = "SELECT A.interb_ref 
+		FROM ".TB_PREF."debtors_master A 
+		WHERE A.debtor_no = ".db_escape($debtor_no);
+
+	$result = db_query($sql, "could not get debtors table records ");
+	$ret = db_fetch($result);
+
+	return $ret[0];
+}
+
+function get_areas()
+{
+	$sql = "SELECT area_code, description, collectors_id 
+			FROM ".TB_PREF."areas A
+			WHERE !A.inactive";
+
+	return db_query($sql, "could not get areas table records");
+}
+
+function get_Collector_by_area($user_id)
+{
+	$sql = "SELECT A.user_id, A.real_name 
+			FROM ".TB_PREF."users A
+			WHERE A.role_id = '11'
+				AND A.user_id =".db_escape($user_id);
+
+	return db_query($sql, "could not get user table records");
+}
+
+function get_all_customer()
+{
+	$sql = "SELECT A.debtor_no, A.name, A.debtor_ref, A.address, A.tax_id, B.tax_group_id, C.description, D.phone,
+    			E.real_name, F.name AS salestype, G.name AS taxgroup
+		FROM ".TB_PREF."debtors_master A
+			LEFT JOIN ".TB_PREF."cust_branch B ON B.debtor_no=A.debtor_no
+			LEFT JOIN ".TB_PREF."areas C ON C.area_code=A.area
+			LEFT JOIN ".TB_PREF."crm_persons D ON D.ref=A.debtor_ref
+			LEFT JOIN ".TB_PREF."users E ON E.user_id=A.collectors_name
+			LEFT JOIN ".TB_PREF."sales_type F ON F.id=A.sales_type
+			lEFT JOIN ".TB_PREF."tax_groups G ON G.id=B.tax_group_id
+		ORDER BY A.name ";
+
+	return db_query($sql, "could not get all customers");
+}
+
+function get_debtor_per_customer($debtor_ref, $branch_code)
+{
+	$db_coy = Get_db_coy($branch_code);
+    set_global_connection($db_coy);
+
+	$sql = "SELECT A.trans_no, A.type
+		FROM ".TB_PREF."debtor_trans A
+			INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
+		WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM.")
+			AND (A.status != 'fully-paid' AND A.status != 'close')
+			AND A.payment_terms != 0
+			AND B.debtor_ref =".db_escape($debtor_ref)."
+		ORDER BY A.trans_no DESC ";
+
+	$result = db_query($sql, "could not get all customer loans");
+	return db_fetch($result);
+}
+
+//Added by spyrax10 5 Feb 2022
+
+function get_customer_branch_details($customer_id = '')
+{
+	$sql = "SELECT * 
+		FROM ".TB_PREF."cust_branch 
+		WHERE debtor_no = ".db_escape($customer_id);
+
+	$result = db_query($sql, "Cant get customer branch details!");
+
+	return db_fetch($result);
 }

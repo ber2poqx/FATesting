@@ -57,7 +57,9 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 				$_POST['cogs_account'], $_POST['inventory_account'], 
 				$_POST['adjustment_account'], $_POST['wip_account'],
 				$_POST['units'], $_POST['mb_flag'],	$_POST['dim1'],	$_POST['dim2'],
-				check_value('no_sale'), check_value('no_purchase'));
+				check_value('no_sale'), check_value('no_purchase'),
+				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
+				$_POST['repo_invty_act']);
 			display_notification(_('Selected item category has been updated'));
     	} 
     	else 
@@ -67,7 +69,9 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 				$_POST['cogs_account'], $_POST['inventory_account'], 
 				$_POST['adjustment_account'], $_POST['wip_account'], 
 				$_POST['units'], $_POST['mb_flag'],	$_POST['dim1'],	
-				$_POST['dim2'],	check_value('no_sale'), check_value('no_purchase'));
+				$_POST['dim2'],	check_value('no_sale'), check_value('no_purchase'),
+				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
+				$_POST['repo_invty_act']);
 			display_notification(_('New item category has been added'));
     	}
 		$Mode = 'RESET';
@@ -118,9 +122,9 @@ if ($fixed_asset) {
 		_("Asset Account"), _("Deprecation Cost Account"),
 		_("Depreciation/Disposal Account"), "", "");
 } else {
-	$th = array(_("Name"), _("Tax type"), _("Units"), _("Type"), _("Sales Act"),
-		_("Inventory Account"), _("COGS Account"), _("Adjustment Account"),
-		_("Assembly Account"), "", "");
+	$th = array(_("Name"), _("Tax type"), _("Units"), _("Type"), _("Cash Sales Account"), _("Installment Sales Account"),
+		_("Regular Credit Sales Account"), _("Inventory Account"), _("COGS Account"), _("Adjustment Account"),
+		_("Assembly Account"), _("Repo Invty Account"), "E", "D");
 }
 inactive_control_column($th);
 
@@ -138,12 +142,15 @@ while ($myrow = db_fetch($result))
 	if (!$fixed_asset)
 		label_cell($stock_types[$myrow["dflt_mb_flag"]]);
 	label_cell($myrow["dflt_sales_act"], "align=center");
+	label_cell($myrow["dflt_installment_sales_act"], "align=center");
+	label_cell($myrow["dflt_regular_sales_act"], "align=center");
 	label_cell($myrow["dflt_inventory_act"], "align=center");
 	label_cell($myrow["dflt_cogs_act"], "align=center");
 	label_cell($myrow["dflt_adjustment_act"], "align=center");
 	if (!$fixed_asset)
 		label_cell($myrow["dflt_wip_act"], "align=center");
 	inactive_control_cell($myrow["category_id"], $myrow["inactive"], 'stock_category', 'category_id');
+	label_cell($myrow["dflt_repo_invty_act"], "align=center");
  	edit_button_cell("Edit".$myrow["category_id"], _("Edit"));
  	delete_button_cell("Delete".$myrow["category_id"], _("Delete"));
 	end_row();
@@ -167,6 +174,8 @@ if ($selected_id != -1)
 		$_POST['description']  = $myrow["description"];
 		$_POST['tax_type_id']  = $myrow["dflt_tax_type"];
 		$_POST['sales_account']  = $myrow["dflt_sales_act"];
+		$_POST['installment_sales_account']  = $myrow["dflt_installment_sales_act"];
+		$_POST['regular_sales_account']  = $myrow["dflt_regular_sales_act"];
 		$_POST['cogs_account']  = $myrow["dflt_cogs_act"];
 		$_POST['inventory_account']  = $myrow["dflt_inventory_act"];
 		$_POST['adjustment_account']  = $myrow["dflt_adjustment_act"];
@@ -177,6 +186,7 @@ if ($selected_id != -1)
 		$_POST['dim2']  = $myrow["dflt_dim2"];
 		$_POST['no_sale']  = $myrow["dflt_no_sale"];
 		$_POST['no_purchase']  = $myrow["dflt_no_purchase"];
+		$_POST['repo_invty_act']  = $myrow["dflt_repo_invty_act"];
 	} 
 	hidden('selected_id', $selected_id);
 	hidden('category_id');
@@ -196,6 +206,12 @@ if ($selected_id != -1)
 
 	if (get_post('sales_account') == "")
 		$_POST['sales_account'] = $company_record["default_inv_sales_act"];
+
+	if (get_post('installment_sales_account') == "")
+		$_POST['installment_sales_account'] = $company_record["default_inv_sales_act"];
+
+	if (get_post('regular_sales_account') == "")
+		$_POST['regular_sales_account'] = $company_record["default_inv_sales_act"];
 
 	if (get_post('adjustment_account') == "")
 		$_POST['adjustment_account'] = $company_record["default_adj_act"];
@@ -225,7 +241,9 @@ else
 
 check_row(_("Exclude from purchases:"), 'no_purchase');
 
-gl_all_accounts_list_row(_("Sales Account:"), 'sales_account', $_POST['sales_account']);
+gl_all_accounts_list_row(_("Cash Sales Account:"), 'sales_account', $_POST['sales_account']);
+gl_all_accounts_list_row(_("Installment Sales Account:"), 'installment_sales_account', $_POST['installment_sales_account']);
+gl_all_accounts_list_row(_("Regular Credit Sales Account:"), 'regular_sales_account', $_POST['regular_sales_account']);
 
 if (is_service($_POST['mb_flag']))
 {
@@ -251,6 +269,9 @@ if (is_manufactured($_POST['mb_flag']))
 	gl_all_accounts_list_row(_("Item Assembly Costs Account:"), 'wip_account', $_POST['wip_account']);
 else
 	hidden('wip_account', $_POST['wip_account']);
+
+//added by jr for repo invty on 8-26-2021
+gl_all_accounts_list_row(_("Repo Inventory Account:"), 'repo_invty_act', $_POST['repo_invty_act']);
 
 $dim = get_company_pref('use_dimension');
 if ($dim >= 1)

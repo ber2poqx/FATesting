@@ -211,15 +211,21 @@ function post_void_supp_trans($type, $type_no)
 
 //----------------------------------------------------------------------------------------
 
-function get_sql_for_supplier_inquiry($filter, $after_date, $to_date, $supplier_id=ALL_TEXT)
+function get_sql_for_supplier_inquiry($filter, $after_date, $to_date, 
+	$supplier_id=ALL_TEXT, $po = '', $pr = '', $rr = '', $sup = '', $serv_stat)
 {
     $date_after = date2sql($after_date);
     $date_to = date2sql($to_date);
 
+	get_category_name(3);
     $sql = "SELECT trans.type, 
 		trans.trans_no,
 		trans.reference, 
+		'' as category,
+		'' as suppl_ref_no,
+		'' as po_no,
 		supplier.supp_name, 
+		'' as served_status,
 		trans.supp_reference,
     	trans.tran_date, 
 		trans.due_date,
@@ -239,7 +245,14 @@ function get_sql_for_supplier_inquiry($filter, $after_date, $to_date, $supplier_
 	$sql2 = "SELECT ".ST_SUPPRECEIVE." as type, 
 		trans.id as trans_no,
 		trans.reference, 
+		(SELECT sq1.description FROM ".TB_PREF."stock_category sq1 WHERE sq1.category_id = trans.category_id ) as category,
+		trans.suppl_ref_no,
+		po.reference as po_no,
 		supplier.supp_name, 
+		CASE 
+			WHEN po.served_status = 0 THEN 'Normal Served'
+			WHEN po.served_status = 1 THEN 'Overserved'
+			ELSE 'Wrong Served' END AS served_status,
 		po.requisition_no AS supp_reference,
     	delivery_date as tran_date, 
 		'' as due_date,
@@ -252,6 +265,31 @@ function get_sql_for_supplier_inquiry($filter, $after_date, $to_date, $supplier_
     	FROM ".TB_PREF."grn_batch as trans, ".TB_PREF."suppliers as supplier, ".TB_PREF."purch_orders as po
     	WHERE supplier.supplier_id = trans.supplier_id
     	AND trans.purch_order_no = po.order_no";
+
+	//PO #:
+	if ($po != "") {
+		$sql2 .= " AND po.reference = ".db_escape(trim($po));
+	}
+
+	//RR #:
+	if ($rr != "") {
+		$sql2 .= " AND trans.reference = ".db_escape(trim($rr));
+	}
+
+	//Supplier's Ref #:
+	if ($sup != "") {
+		$sql2 .= " AND trans.suppl_ref_no = ".db_escape(trim($sup));
+	}
+
+	//PR #:
+	if ($pr != "") {
+		$sql2 .= " AND po.requisition_no = ".db_escape(trim($pr));
+	}
+
+	//Served Status
+	if ($serv_stat != "") {
+		$sql2 .= " AND po.served_status = ".db_escape(trim($serv_stat));
+	}
 
 	if ($filter == '2')
 		$sql .= " AND ABS(trans.ov_amount + trans.ov_gst + trans.ov_discount) - trans.alloc>".FLOAT_COMP_DELTA;
@@ -295,5 +333,23 @@ function get_sql_for_supplier_inquiry($filter, $after_date, $to_date, $supplier_
 			$sql .= " AND trans.due_date < '$today' ";
    		}
    	}
+	$sql .= " ORDER BY trans_no DESC";
    	return $sql;
+}
+//------------Added by Herald Felisilda 10-20-2020 for Supplier's Re-order Level Module
+function get_only_supplier_reorderlevel_from_to($from_date, $to_date, $account)
+{
+    
+    $from = date2sql($from_date);
+    $to = date2sql($to_date);
+    
+    $sql = "SELECT SUM(amount) FROM ".TB_PREF."budget_trans
+		WHERE account=".db_escape($account)
+		." AND tran_date >= '$from' AND tran_date <= '$to'
+		 AND dimension_id = ".db_escape($dimension)
+		 ." AND dimension2_id = ".db_escape($dimension2);
+		 $result = db_query($sql,"No budget accounts were returned");
+		 
+		 $row = db_fetch_row($result);
+		 return $row[0];
 }

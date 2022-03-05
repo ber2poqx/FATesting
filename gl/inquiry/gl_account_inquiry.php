@@ -68,7 +68,9 @@ function gl_inquiry_controls()
 
     start_table(TABLESTYLE_NOBORDER);
 	start_row();
-    gl_all_accounts_list_cells(_("Account:"), 'account', null, false, false, _("All Accounts"));
+    gl_all_accounts_list_cells(_("Account:"), 'account', null, false, false, _("All Accounts"), 
+		true //Added by spyrax10 10 Feb 2022
+	); 
 	date_cells(_("from:"), 'TransFromDate', '', null, -user_transaction_days());
 	date_cells(_("to:"), 'TransToDate');
     end_row();
@@ -113,7 +115,7 @@ function show_results()
     	$_POST["account"], $_POST['Dimension'], $_POST['Dimension2'], null,
     	input_num('amount_min'), input_num('amount_max'), null, null, $_POST['Memo']);
 
-	$colspan = ($dim == 2 ? "7" : ($dim == 1 ? "6" : "5"));
+	$colspan = ($dim == 2 ? "7" : ($dim == 1 ? "10" : "9"));
 
 	if ($_POST["account"] != null)
 		display_heading($_POST["account"]. "&nbsp;&nbsp;&nbsp;".$act_name);
@@ -140,9 +142,9 @@ function show_results()
 		$dim_cols = array();
 	
 	if ($show_balances)
-	    $remaining_cols = array(_("Person/Item"), _("Debit"), _("Credit"), _("Balance"), _("Memo"), "");
+	    $remaining_cols = array(_("Person/Item"), _("MCode"), _("Masterfile"), _("Debit"), _("Credit"), _("Balance"), _("Memo"), "");
 	else
-	    $remaining_cols = array(_("Person/Item"), _("Debit"), _("Credit"), _("Memo"), "");
+	    $remaining_cols = array(_("Person/Item"), _("MCode"), _("Masterfile"), _("Debit"), _("Credit"), _("Memo"), "");
 	    
 	$th = array_merge($first_cols, $account_col, $dim_cols, $remaining_cols);
 			
@@ -181,19 +183,115 @@ function show_results()
 
     	$trandate = sql2date($myrow["tran_date"]);
 
-    	label_cell($systypes_array[$myrow["type"]]);
+		//Modified by spyrax10 26 Feb 2022
+		if ($myrow["type"] == ST_INVADJUST) {
+			if (is_invty_open_bal($myrow["type_no"], $myrow['reference'])) {
+				label_cell(_("Inventory Opening"));
+			}
+			else {
+				if (is_smo_repo($myrow['type_no'], ST_INVADJUST)) {
+					label_cell(_("Inventory Adjustment (Repo)"));
+				}
+				else {
+					label_cell("Inventory Adjustment (Brand New)");
+				}
+			}
+		}
+		else {
+			label_cell($systypes_array[$myrow["type"]]);
+		}
+		//
+
 		label_cell(get_gl_view_str($myrow["type"], $myrow["type_no"], $myrow["type_no"], true));
 		label_cell(get_trans_view_str($myrow["type"],$myrow["type_no"],$myrow['reference']));
     	label_cell($trandate);
     	
-    	if ($_POST["account"] == null)
-    	    label_cell($myrow["account"] . ' ' . get_gl_account_name($myrow["account"]));
+    	if ($_POST["account"] == null) {
+			
+			label_cell($myrow["account"] . ' ' . get_gl_account_name($myrow["account"]));
+		}
     	
 		if ($dim >= 1)
 			label_cell(get_dimension_string($myrow['dimension_id'], true));
 		if ($dim > 1)
 			label_cell(get_dimension_string($myrow['dimension2_id'], true));
-		label_cell(payment_person_name($myrow["person_type_id"],$myrow["person_id"]));
+
+		if($myrow["type"]==ST_MERCHANDISETRANSFER){
+		    $mt_header = get_mt_header($myrow["reference"]);
+		    label_cell(_("Branch [").$mt_header["mt_header_tolocation"]."] ".get_db_location_name($mt_header["mt_header_tolocation"]));
+		    label_cell($mt_header["mt_header_tolocation"]);
+		    label_cell(get_db_location_name($mt_header["mt_header_tolocation"]));
+		}elseif($myrow["type"]==ST_MERCHANDISETRANSFERREPO) {
+			$mt_header = get_mt_header($myrow["reference"]);
+		    label_cell(_("Branch [").$mt_header["mt_header_tolocation"]."] ".get_db_location_name($mt_header["mt_header_tolocation"]));
+		    label_cell($mt_header["mt_header_tolocation"]);
+		    label_cell(get_db_location_name($mt_header["mt_header_tolocation"]));
+		}elseif($myrow["type"]==ST_RRBRANCH){
+		    $mt_rrbranch_header = get_mt_rrbranch_header($myrow["reference"]);
+		    label_cell(_("Branch [").$mt_rrbranch_header["mt_header_fromlocation"]."] ".get_db_location_name($mt_rrbranch_header["mt_header_fromlocation"]));
+		    label_cell($mt_rrbranch_header["mt_header_fromlocation"]);
+		    label_cell(get_db_location_name($mt_rrbranch_header["mt_header_fromlocation"]));
+		}
+		else {
+
+			if ($myrow['type'] == ST_BANKDEPOSIT && $myrow['opening_balance'] == 1) {
+				label_cell("OPENING BALANCE");
+			}
+			else {
+				label_cell(payment_person_name($myrow["person_type_id"], $myrow["person_id"]));
+			}
+		
+			//Modified by spyrax10 11 Feb 2022
+			if ($myrow["person_id"] == '' ) {
+				label_cell($myrow['mcode']);
+			}
+			else {
+
+				if ($myrow['type'] == ST_BANKDEPOSIT && $myrow['opening_balance'] == 1) {
+					label_cell($myrow['mcode']);
+				}
+				else if (($myrow["type"] == ST_BANKPAYMENT || $myrow['type'] == ST_BANKDEPOSIT) 
+					&& !has_interbranch_entry($myrow["type_no"], $myrow["type"])) {
+						label_cell($myrow['mcode']);
+				}
+				else {
+					label_cell(payment_person_name_ver2($myrow["person_type_id"], $myrow["person_id"]));
+				}
+			}
+
+			if ($myrow["type"] == ST_BANKPAYMENT || $myrow['type'] == ST_BANKDEPOSIT) {
+				$masterfile = '';
+
+				if (!has_interbranch_entry($myrow["type_no"], $myrow["type"])) {
+					$masterfile = $myrow['master_file'];
+				}
+				else {
+					if ($myrow["person_type_id"] == PT_CUSTOMER) {
+						$masterfile = get_customer_name($myrow["person_id"]);
+					}
+					else if ($myrow["person_type_id"] == PT_SUPPLIER) {
+						$masterfile = get_supplier_name($myrow["person_id"]);
+					}
+					else if ($myrow["person_type_id"] == PT_EMPLOYEE) {
+						$masterfile = get_user_name($myrow["person_id"]);
+					}
+					else {
+						$masterfile = $myrow['master_file'];
+					}
+				}
+				
+				label_cell($masterfile);
+			}
+			else {
+				if ($myrow["person_name_masterfile"] == '') {
+					label_cell($myrow['master_file']);
+				}
+				else {
+					label_cell($myrow["person_name_masterfile"]);
+				}
+			}
+			//
+		}
 		display_debit_or_credit_cells($myrow["amount"]);
 		if ($show_balances)
 		    amount_cell($running_total);

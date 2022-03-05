@@ -20,15 +20,19 @@ global $systypes_array, $bank_account_types, $bank_transfer_types,
 
 $systypes_array = array (
 	ST_JOURNAL => _("Journal Entry"),
-	ST_BANKPAYMENT => _("Bank Payment"),
-	ST_BANKDEPOSIT => _("Bank Deposit"),
+	ST_BANKPAYMENT => _("Disbursement Entry"),	// Rename by Ronelle
+	ST_BANKDEPOSIT => _("Receipts Entry"),	// Rename by Ronelle
 	ST_BANKTRANSFER => _("Funds Transfer"),
 	ST_SALESINVOICE => _("Sales Invoice"),
 	ST_CUSTCREDIT => _("Customer Credit Note"),
 	ST_CUSTPAYMENT => _("Customer Payment"),
 	ST_CUSTDELIVERY => _("Delivery Note"),
 	ST_LOCTRANSFER => _("Location Transfer"),
-	ST_INVADJUST => _("Inventory Adjustment"),
+    ST_MERCHANDISETRANSFER => _("Merchandise Transfer"),
+    ST_MERCHANDISETRANSFERREPO => _("Merchandise Transfer - Repo"),
+    ST_RRBRANCH => _("Receiving Report - Branch"), //Added by Herald 02/22/2021
+    ST_COMPLIMENTARYITEM => _("Complimentary Items"), //Added by Herald 04/12/2021
+    ST_INVADJUST => _("Inventory Adjustment"),
 	ST_PURCHREQUEST => _("Purchase Request"),	// Added by Ronelle
 	ST_PURCHORDER => _("Purchase Order"),
 	ST_SUPPINVOICE => _("Supplier Invoice"),
@@ -44,7 +48,13 @@ $systypes_array = array (
 	ST_DIMENSION => _("Dimension"),
 	ST_CUSTOMER => _("Customer"),
 	ST_SUPPLIER => _("Supplier"),
-	);
+	ST_RECEIVECONSIGN => _("Receive Consignment"),	// Added by Ronelle
+	ST_ARINVCINSTLITM => _("A/R Installment Items Lending"), //progjr
+	ST_RRREPO => _("Receive Report Repossessed Items"), //progjr
+	ST_SALESRETURN => _("Sales Return"), // Added by Ronelle
+	ST_SITERMMOD => _("Sales Invoice Term Modification"),	// Added by Ronelle
+	ST_SALESINVOICEREPO => _("Sales Invoice Repossessed"),	// Added by Ronelle
+	ST_RESTRUCTURED => _("Sales Invoice Restructured"));	//Added by Albert
 
 $fa_systypes_array = array (
 	ST_INVADJUST => _("Fixed Assets Disposal"),
@@ -61,8 +71,11 @@ $type_shortcuts = array(
 	ST_CUSTPAYMENT => _("CP"),
 	ST_CUSTDELIVERY => _("DN"),
 	ST_LOCTRANSFER => _("IT"), // inventory transfer
-	ST_INVADJUST => _("IA"),
-	ST_PURCHREQUEST => _("PR"),	// Added by Ronelle
+    ST_MERCHANDISETRANSFER => _("MT"),
+    ST_MERCHANDISETRANSFER => _("MTREPO"), //Added by Herald 01/04/2022
+    ST_RRBRANCH => _("RRBR"), //Added by Herald 02/22/2021
+    ST_COMPLIMENTARYITEM => _("COMP"), //Added by Herald 02/22/2021
+    ST_PURCHREQUEST => _("PR"),	// Added by Ronelle
 	ST_PURCHORDER => _("PO"),
 	ST_SUPPINVOICE => _("PI"), // purchase invoice
 	ST_SUPPCREDIT => _("PC"),
@@ -74,8 +87,14 @@ $type_shortcuts = array(
 	ST_SALESORDER => _("SO"),
 	ST_SALESQUOTE => _("SQ"),
 	ST_COSTUPDATE => _("CU"),
-	ST_DIMENSION => _("Dim")
-);
+	ST_DIMENSION => _("Dim"),
+	ST_RECEIVECONSIGN => ("RCON"),
+	ST_ARINVCINSTLITM => ("ARINV"), //progjr
+	ST_RRREPO => ("RRREPO"),  //progjr
+	ST_SALESRETURN => ("SR"),  // Added by Ronelle
+	ST_SITERMMOD => ("SITM"),  // Added by Ronelle
+	ST_SALESINVOICEREPO => ("SIREPO"),  // Added by Ronelle
+	ST_RESTRUCTURED => ("SIREST"));
 
 
 //----------------------------------------------------------------------------------
@@ -154,8 +173,8 @@ $quick_actions = array(
 );
 
 $quick_entry_types = array(
-	QE_DEPOSIT => _("Bank Deposit"),
-	QE_PAYMENT => _("Bank Payment"),
+	QE_DEPOSIT => _("Receipts Entry"),	// Rename by Ronelle
+	QE_PAYMENT => _("Disbursement Entry"),	// Rename by Ronelle
 	QE_JOURNAL => _("Journal Entry"),
 	QE_SUPPINV => _("Supplier Invoice/Credit")
 );

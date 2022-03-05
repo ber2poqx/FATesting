@@ -1,4 +1,5 @@
 <?php
+
 /**********************************************************************
     Copyright (C) FrontAccounting, LLC.
 	Released under the terms of the GNU General Public License, GPL, 
@@ -8,7 +9,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
-***********************************************************************/
+ ***********************************************************************/
 //----------------------------------------------------------------------------------
 //	FrontAccounting system transaction types
 //
@@ -50,22 +51,39 @@ define('ST_CUSTOMER', 41);
 define('ST_SUPPLIER', 42);
 
 define('ST_PURCHREQUEST', 50);	// Added By Ronelle
+define('ST_RECEIVECONSIGN', 51);	// Added by Ronelle
+define('ST_MERCHANDISETRANSFER', 52);	// Added by Herald - 01/27/2021
+define('ST_MERCHANDISETRANSFERREPO', 59);	// Added by Herald - 12/12/2021 for Merchandise Transfer Repo
+define('ST_RRBRANCH', 53);	// Added by Herald - 02/26/2021
+define('ST_COMPLIMENTARYITEM', 54);	// Added by Herald - 04/12/2021
+define('ST_SALESRETURN', 55);	// Added by Ronelle - 5/21/2021
+define('ST_SITERMMOD', 56);	// Added by Ronelle - 8/7/2021
+define('ST_SALESINVOICEREPO', 57);	// Added by Ronelle - 8/7/2021
+define('ST_RESTRUCTURED', 58);	//Added by Albert 12/09/2021
+
+//for lending added by progjr on 3-13-2021
+define('ST_ARINVCINSTLITM', 70);
+define('ST_RRREPO', 80);
 
 // Don't include these defines in the $systypes_array.
 // They are used for documents only.
-define ('ST_STATEMENT', 91);
-define ('ST_CHEQUE', 92);
+define('ST_STATEMENT', 91);
+define('ST_CHEQUE', 92);
 
 // document inheritance
 $document_child_types = array(
-		ST_SALESQUOTE => ST_SALESORDER,
-		ST_SALESORDER => ST_CUSTDELIVERY,
-		ST_CUSTDELIVERY => ST_SALESINVOICE,
-		ST_SALESINVOICE => ST_CUSTCREDIT,
+	ST_SALESQUOTE => ST_SALESORDER,
+	ST_SALESORDER => ST_CUSTDELIVERY,
+	ST_CUSTDELIVERY => ST_SALESINVOICE,
+	// ST_CUSTDELIVERY => ST_SALESINVOICEREPO,
+	ST_SALESINVOICE => ST_CUSTCREDIT,
+	ST_SALESINVOICE => ST_SALESRETURN,
+	ST_SALESINVOICE => ST_SITERMMOD,
+	ST_SALESINVOICE => ST_RESTRUCTURED,
 
-		ST_PURCHORDER => ST_SUPPRECEIVE,
-		ST_SUPPRECEIVE => ST_SUPPINVOICE,
-		ST_SUPPINVOICE => ST_SUPPCREDIT,
+	ST_PURCHORDER => ST_SUPPRECEIVE,
+	ST_SUPPRECEIVE => ST_SUPPINVOICE,
+	ST_SUPPINVOICE => ST_SUPPCREDIT,
 );
 
 function get_child_type($type)
@@ -88,6 +106,16 @@ define('BT_TRANSFER', 0);
 define('BT_CHEQUE', 1);
 define('BT_CREDIT', 2);
 define('BT_CASH', 3);
+define('BT_CHECK', 4); //Added by robert
+
+//Added by robert
+define('CT_UNEMPLOYEE', 0);
+define('CT_EMPLOYEE', 1);
+
+define('DT_SINGLE', 'Single');
+define('DT_MARRIED', 'Married');
+define('DT_WIDOWED', 'Widowed');
+
 
 include_once($path_to_root . "/manufacturing/includes/manufacturing_db.inc");
 include_once($path_to_root . "/purchasing/includes/purchasing_db.inc");
@@ -102,62 +130,108 @@ define('PT_CUSTOMER', 2);
 define('PT_SUPPLIER', 3);
 define('PT_QUICKENTRY', 4);
 define('PT_DIMESION', 5);
+define('PT_EMPLOYEE', 6);
 
-function payment_person_currency($type, $person_id)  {
-	switch ($type)
-	{
-		case PT_MISC :
-		case PT_QUICKENTRY :
-		case PT_WORKORDER :
+function payment_person_currency($type, $person_id)
+{
+	switch ($type) {
+		case PT_MISC:
+		case PT_QUICKENTRY:
+		case PT_SUPPLIER:
+		case PT_WORKORDER:
 			return get_company_currency();
 
-		case PT_CUSTOMER :
+		case PT_CUSTOMER:
 			return get_customer_currency($person_id);
 
-		case PT_SUPPLIER :
-			return get_supplier_currency($person_id);
-
-		default :
+		case PT_EMPLOYEE:
+		    return get_employee_currency($person_id);
+		    
+		default:
 			return get_company_currency();
 	}
 }
 
-function payment_person_name($type, $person_id, $full=true) {
+function payment_person_name($type, $person_id, $full = true)
+{
 	global $payment_person_types;
 
-	switch ($type)
-	{
-		case PT_MISC :
+	switch ($type) {
+		case PT_MISC:
 			return $person_id;
-		case PT_QUICKENTRY :
+		case PT_QUICKENTRY:
 			$qe = get_quick_entry($person_id);
-			return ($full ? $payment_person_types[$type] . " ":"") . $qe["description"];
-		case PT_WORKORDER :
+			return ($full ? $payment_person_types[$type] . " " : "") . $qe["description"];
+		case PT_WORKORDER:
 			global $wo_cost_types;
-			return get_trans_view_str(ST_WORKORDER, $person_id, _('Work Order').' '.$person_id);
-		case PT_CUSTOMER :
-			return ($full ?$payment_person_types[$type] . " ":"") . sprintf("[%05s] %s", $person_id, get_customer_name($person_id));
-		case PT_SUPPLIER :
-			return ($full ? $payment_person_types[$type] . " ":"") . sprintf("[%05s] %s", $person_id, get_supplier_name($person_id));
-		default :
+			return get_trans_view_str(ST_WORKORDER, $person_id, _('Work Order') . ' ' . $person_id);
+		case PT_CUSTOMER:
+			return ($full ? $payment_person_types[$type] . " " : "") . sprintf("[%05s] %s", $person_id, get_customer_name($person_id));
+		case PT_SUPPLIER:
+			return ($full ? $payment_person_types[$type] . " " : "") . sprintf("[%05s] %s", $person_id, get_supplier_name($person_id));
+		case PT_EMPLOYEE:
+		    return ($full ? $payment_person_types[$type] . " " : "") . sprintf("[%05s] %s", $person_id, get_user_name($person_id));
+		default:
 			return '';
 	}
 }
 
-function payment_person_has_items($type) {
-	switch ($type)
-	{
-		case PT_MISC :
+//Added by spyrax10 17 Feb 2022
+function get_person_name($type, $person_id) {
+	global $payment_person_types;
+
+	switch ($type) {
+
+		case PT_CUSTOMER:
+			return get_customer_name($person_id);
+		case PT_SUPPLIER:
+			return get_supplier_name($person_id);
+		case PT_EMPLOYEE:
+		    return get_user_name($person_id);
+		default:
+			return '';
+	}
+}
+//
+
+function payment_person_name_ver2($type, $person_id, $full = false)
+{
+	global $payment_person_types;
+
+	switch ($type) {
+		case PT_MISC:
+			return $person_id;
+		case PT_QUICKENTRY:
+			$qe = get_quick_entry($person_id);
+			return ($full ? $payment_person_types[$type] . " " : "");
+		case PT_WORKORDER:
+			global $wo_cost_types;
+			return get_trans_view_str(ST_WORKORDER, $person_id, _('Work Order') . ' ' . $person_id);
+		case PT_CUSTOMER:
+			return ($full ? $payment_person_types . " " : "") . sprintf("%05s", $person_id, ($person_id));
+		case PT_SUPPLIER:
+			return ($full ? $payment_person_types . " " : "") . sprintf("%05s", $person_id, ($person_id));
+		case PT_EMPLOYEE:
+		    return ($full ? $payment_person_types . " " : "") . sprintf("%05s", $person_id, ($person_id));
+		default:
+			return '';
+	}
+}
+
+function payment_person_has_items($type)
+{
+	switch ($type) {
+		case PT_MISC:
 			return true;
-		case PT_QUICKENTRY :
+		case PT_QUICKENTRY:
 			return db_has_quick_entries();
-		case PT_WORKORDER : // 070305 changed to open workorders JH
+		case PT_WORKORDER: // 070305 changed to open workorders JH
 			return db_has_open_workorders();
-		case PT_CUSTOMER :
+		case PT_CUSTOMER:
 			return db_has_customers();
-		case PT_SUPPLIER :
+		case PT_SUPPLIER:
 			return db_has_suppliers();
-		default :
+		default:
 			display_db_error("Invalid type sent to has_items", "");
 			return false;
 	}
@@ -197,7 +271,7 @@ function get_class_type_convert($ctype)
 
 	if (isset($SysPrefs->use_oldstyle_convert) && $SysPrefs->use_oldstyle_convert == 1)
 		return (($ctype >= CL_INCOME || $ctype == CL_NONE) ? -1 : 1);
-	else	
+	else
 		return ((($ctype >= CL_LIABILITIES && $ctype <= CL_INCOME) || $ctype == CL_NONE) ? -1 : 1);
 }
 //----------------------------------------------------------------------------------
@@ -247,6 +321,7 @@ define('BO_UNKNOWN', 0);
 define('BO_COMPANY', 1);
 define('BO_CUSTBRANCH', 2);
 define('BO_SUPPLIER', 3);
+define('BO_EMPLOYEE', 4);
 
 include_once($path_to_root . '/includes/sysnames.inc');
 
@@ -277,4 +352,6 @@ defined('ICON_SUBMIT') || define('ICON_SUBMIT', 'ok.gif');
 defined('ICON_ESCAPE') || define('ICON_ESCAPE', 'escape.png');
 defined('ICON_ALLOC') || define('ICON_ALLOC', 'alloc.png');
 defined('ICON_CLOSED') || define('ICON_CLOSED', 'closed.png');
-
+//Added by spyrax10
+defined('ICON_TOGGLE') || define('ICON_TOGGLE', 'add.png');
+//

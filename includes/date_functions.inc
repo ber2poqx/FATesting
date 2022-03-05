@@ -703,3 +703,51 @@ function islamic_to_gregorian($i_y, $i_m, $i_d)
 	}
 	return array($y, $m, $d);
 }
+
+//Added by spyrax10
+function date_interval($months, DateTime $dateObject) 
+{
+    $next = new DateTime($dateObject->format('Y-m-d'));
+    $next->modify('last day of +'.$months.' month');
+
+    if($dateObject->format('d') > $next->format('d')) {
+        return $dateObject->diff($next);
+    } 
+	else {
+		return new DateInterval('P'.$months.'M'); 
+    }
+}
+
+function endCycle($d1, $months)
+{
+    $date = new DateTime($d1);
+
+    // call second function to add the months
+	if ($months < 0) {
+		$newDate = $date->sub(date_interval(abs($months), $date));
+		$newDate->sub(new DateInterval('P1D'));
+	}
+	else {
+		$newDate = $date->add(date_interval($months, $date));
+	}
+
+    // goes back 1 day from date, remove if you want same day of month
+    //$newDate->sub(new DateInterval('P1D')); 
+
+    //formats final date to Y-m-d form
+    $dateReturned = $newDate->format('Y-m-d'); 
+
+    return $dateReturned;
+}
+
+function get_month_year($date)
+{
+	return date("m-Y", strtotime($date));
+}
+
+function get_year($date)
+{
+	return date("Y", strtotime($date));
+}
+
+//

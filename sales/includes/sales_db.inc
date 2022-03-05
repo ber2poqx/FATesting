@@ -1,4 +1,5 @@
 <?php
+
 /**********************************************************************
     Copyright (C) FrontAccounting, LLC.
 	Released under the terms of the GNU General Public License, GPL, 
@@ -8,13 +9,14 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
-***********************************************************************/
+ ***********************************************************************/
 include_once($path_to_root . "/includes/banking.inc");
 include_once($path_to_root . "/includes/inventory.inc");
 include_once($path_to_root . "/includes/db/allocations_db.inc");
 include_once($path_to_root . "/sales/includes/db/sales_order_db.inc");
 include_once($path_to_root . "/sales/includes/db/sales_credit_db.inc");
 include_once($path_to_root . "/sales/includes/db/sales_invoice_db.inc");
+include_once($path_to_root . "/sales/includes/db/sales_invoice_repo_db.inc");
 include_once($path_to_root . "/sales/includes/db/sales_delivery_db.inc");
 include_once($path_to_root . "/sales/includes/db/sales_types_db.inc");
 include_once($path_to_root . "/sales/includes/db/sales_points_db.inc");
@@ -27,20 +29,71 @@ include_once($path_to_root . "/sales/includes/db/payment_db.inc");
 include_once($path_to_root . "/sales/includes/db/branches_db.inc");
 include_once($path_to_root . "/sales/includes/db/customers_db.inc");
 
+include_once($path_to_root . "/sales/includes/db/sales_invoice_ob_db.inc"); // Added by Ronelle 5/12/2021
+include_once($path_to_root . "/sales/includes/db/sales_return_db.inc"); // Added by Ronelle 6/1/2021
+include_once($path_to_root . "/sales/includes/db/sales_term_mod_db.inc"); // Added by Ronelle 8/19/2021
+include_once($path_to_root . "/sales/includes/db/sales_restructured_db.inc"); // Added by Albert 12/08/2022
 //----------------------------------------------------------------------------------------
 // add a debtor-related gl transaction
 // $date_ is display date (non-sql)
 // $amount is in CUSTOMER'S currency
 
-function add_gl_trans_customer($type, $type_no, $date_, $account, $dimension, $dimension2,
-	$amount, $customer_id, $err_msg="", $rate=0)
-{
+function add_gl_trans_customer(
+	$type,
+	$type_no,
+	$date_,
+	$account,
+	$dimension,
+	$dimension2,
+	$amount,
+	$customer_id,
+	$err_msg = "",
+	$rate = 0,
+	$mcode = null,
+	$master_file = null,
+	$hocbc = 0,
+	$loan_trans_no = 0
+) {
 	if ($err_msg == "")
 		$err_msg = "The customer GL transaction could not be inserted";
+	if ($loan_trans_no == 0){//modified by Albert
+		if (
+			$type == ST_SALESINVOICE
+			|| $type == ST_SALESINVOICEREPO
+			|| $type == ST_SALESRETURN
+			|| $type == ST_SITERMMOD
+			|| $type == ST_RESTRUCTURED
+		) {
+			$loan_trans_no = $type_no;
+		}
+	}
 
-	return add_gl_trans($type, $type_no, $date_, $account, $dimension, $dimension2, "", $amount,
+	//Added by spyrax10 28 Feb 2022
+	if ($type == ST_SALESRETURN && $account == 2151) {
+		$mcode = get_company_value(0, 'branch_code');
+		$master_file = get_company_value(0, 'name');
+	}
+	//
+
+	return add_gl_trans(
+		$type,
+		$type_no,
+		$date_,
+		$account,
+		$dimension,
+		$dimension2,
+		"",
+		$amount,
 		get_customer_currency($customer_id),
-		PT_CUSTOMER, $customer_id, $err_msg, $rate);
+		PT_CUSTOMER,
+		$customer_id,
+		$err_msg,
+		$rate,
+		$mcode,
+		$master_file,
+		$hocbc,
+		$loan_trans_no
+	);
 }
 
 //----------------------------------------------------------------------------------------
@@ -64,132 +117,303 @@ function round_to_nearest($price, $round_to)
 		$mod = ($round_to % $pow);
 	if ($mod != 0)
 		$price = ceil($price) - ($pow - $round_to) / $pow;
-	else	
-    	$price = ceil($price * ($pow / $round_to)) / ($pow / $round_to);
-    return $price;
-
+	else
+		$price = ceil($price * ($pow / $round_to)) / ($pow / $round_to);
+	return $price;
 }
 
-function get_price ($stock_id, $currency, $sales_type_id, $factor=null, $date=null)
+function get_price($stock_id, $currency, $sales_type_id, $factor = null, $date = null)
 {
 	if ($date == null)
-	    $date = new_doc_date();
+		$date = new_doc_date();
 
-	if ($factor === null) 
-	{
+	if ($factor === null) {
 		$myrow = get_sales_type($sales_type_id);
 		$factor = $myrow['factor'];
 	}
 
 	$add_pct = get_company_pref('add_pct');
 	$base_id = get_base_sales_type();
-    $home_curr = get_company_currency();
+	$home_curr = get_company_currency();
 	//	AND (sales_type_id = $sales_type_id	OR sales_type_id = $base_id)
 	$sql = "SELECT price, curr_abrev, sales_type_id
-		FROM ".TB_PREF."prices
-		WHERE stock_id = ".db_escape($stock_id)."
-			AND (curr_abrev = ".db_escape($currency)." OR curr_abrev = ".db_escape($home_curr).")";
+		FROM " . TB_PREF . "prices
+		WHERE stock_id = " . db_escape($stock_id) . "
+			AND (curr_abrev = " . db_escape($currency) . " OR curr_abrev = " . db_escape($home_curr) . ")";
 
 	$result = db_query($sql, "There was a problem retrieving the pricing information for the part $stock_id for customer");
 	$num_rows = db_num_rows($result);
-	$rate = round2(get_exchange_rate_from_home_currency($currency, $date),
-	    user_exrate_dec());
+	$rate = round2(
+		get_exchange_rate_from_home_currency($currency, $date),
+		user_exrate_dec()
+	);
 	$round_to = get_company_pref('round_to');
 	$prices = array();
-	while($myrow = db_fetch($result)) 
-	{
-	    $prices[$myrow['sales_type_id']][$myrow['curr_abrev']] = $myrow['price'];
+	while ($myrow = db_fetch($result)) {
+		$prices[$myrow['sales_type_id']][$myrow['curr_abrev']] = $myrow['price'];
 	}
 	$price = false;
-	if (isset($prices[$sales_type_id][$currency])) 
-	{
-	    $price = $prices[$sales_type_id][$currency];
-	}
-	elseif (isset($prices[$base_id][$currency])) 
-	{
-	    $price = $prices[$base_id][$currency] * $factor;
-	}
-	elseif (isset($prices[$sales_type_id][$home_curr])) 
-	{
-	    $price = $prices[$sales_type_id][$home_curr] / $rate;
-	}
-	elseif (isset($prices[$base_id][$home_curr])) 
-	{
-	    $price = $prices[$base_id][$home_curr] * $factor / $rate;
-	}
-	elseif ($num_rows == 0 && $add_pct != -1)
-	{
+	if (isset($prices[$sales_type_id][$currency])) {
+		$price = $prices[$sales_type_id][$currency];
+	} elseif (isset($prices[$base_id][$currency])) {
+		$price = $prices[$base_id][$currency] * $factor;
+	} elseif (isset($prices[$sales_type_id][$home_curr])) {
+		$price = $prices[$sales_type_id][$home_curr] / $rate;
+	} elseif (isset($prices[$base_id][$home_curr])) {
+		$price = $prices[$base_id][$home_curr] * $factor / $rate;
+	} elseif ($num_rows == 0 && $add_pct != -1) {
 		$price = get_calculated_price($stock_id, $add_pct);
 		if ($currency != $home_curr)
 			$price /= $rate;
 		if ($factor != 0)
 			$price *= $factor;
-	}	
+	}
 	if ($price === false)
 		return 0;
-	elseif ($round_to != 1)	
+	elseif ($round_to != 1)
 		return round_to_nearest($price, $round_to);
 	else
 		return round2($price, user_price_dec());
 }
 //----------------------------------------------------------------------------------------
+
+//-----------------------Robert Added For Cash Price Report------------------------------//
+function get_cash_price($stock_id, $currency, $scash_type_id, $factor = null, $date = null)
+{
+	if ($date == null)
+		$date = new_doc_date();
+
+	if ($factor === null) {
+		$myrow = get_cash_pricing_type($scash_type_id);
+		$factor = $myrow['factor'];
+	}
+
+	$add_pct = get_company_pref('add_pct');
+	$base_id = get_base_sales_type();
+	$home_curr = get_company_currency();
+	//	AND (sales_type_id = $sales_type_id	OR sales_type_id = $base_id)
+	$sql = "SELECT price, curr_abrev, scash_type_id
+		FROM " . TB_PREF . "cash_prices
+		WHERE stock_id = " . db_escape($stock_id) . "
+			AND (curr_abrev = " . db_escape($currency) . " OR curr_abrev = " . db_escape($home_curr) . ")";
+
+	$result = db_query($sql, "There was a problem retrieving the pricing information for the part $stock_id for customer");
+	$num_rows = db_num_rows($result);
+	$rate = round2(
+		get_exchange_rate_from_home_currency($currency, $date),
+		user_exrate_dec()
+	);
+	$round_to = get_company_pref('round_to');
+	$prices = array();
+	while ($myrow = db_fetch($result)) {
+		$prices[$myrow['scash_type_id']][$myrow['curr_abrev']] = $myrow['price'];
+	}
+	$price = false;
+	if (isset($prices[$scash_type_id][$currency])) {
+		$price = $prices[$scash_type_id][$currency];
+	} elseif (isset($prices[$base_id][$currency])) {
+		$price = $prices[$base_id][$currency] * $factor;
+	} elseif (isset($prices[$scash_type_id][$home_curr])) {
+		$price = $prices[$scash_type_id][$home_curr] / $rate;
+	} elseif (isset($prices[$base_id][$home_curr])) {
+		$price = $prices[$base_id][$home_curr] * $factor / $rate;
+	} elseif ($num_rows == 0 && $add_pct != -1) {
+		$price = get_calculated_price($stock_id, $add_pct);
+		if ($currency != $home_curr)
+			$price /= $rate;
+		if ($factor != 0)
+			$price *= $factor;
+	}
+	if ($price === false)
+		return 0;
+	elseif ($round_to != 1)
+		return round_to_nearest($price, $round_to);
+	else
+		return round2($price, user_price_dec());
+}
+//-------------------------------------------------------------------------//
+
+//-----------------------Robert Added For SRP Price Report------------------------------//
+function get_srp_price($stock_id, $currency, $srptype_id, $factor = null, $date = null)
+{
+	if ($date == null)
+		$date = new_doc_date();
+
+	if ($factor === null) {
+		$myrow = get_srp_type($srptype_id);
+		$factor = $myrow['factor'];
+	}
+
+	$add_pct = get_company_pref('add_pct');
+	$base_id = get_base_sales_type();
+	$home_curr = get_company_currency();
+	//	AND (sales_type_id = $sales_type_id	OR sales_type_id = $base_id)
+	$sql = "SELECT standard_cost, curr_abrev, srptype_id
+		FROM " . TB_PREF . "item_srp
+		WHERE stock_id = " . db_escape($stock_id) . "
+			AND (curr_abrev = " . db_escape($currency) . " OR curr_abrev = " . db_escape($home_curr) . ")";
+
+	$result = db_query($sql, "There was a problem retrieving the pricing information for the part $stock_id for customer");
+	$num_rows = db_num_rows($result);
+	$rate = round2(
+		get_exchange_rate_from_home_currency($currency, $date),
+		user_exrate_dec()
+	);
+	$round_to = get_company_pref('round_to');
+	$prices = array();
+	while ($myrow = db_fetch($result)) {
+		$prices[$myrow['srptype_id']][$myrow['curr_abrev']] = $myrow['standard_cost'];
+	}
+	$price = false;
+	if (isset($prices[$srptype_id][$currency])) {
+		$price = $prices[$srptype_id][$currency];
+	} elseif (isset($prices[$base_id][$currency])) {
+		$price = $prices[$base_id][$currency] * $factor;
+	} elseif (isset($prices[$srptype_id][$home_curr])) {
+		$price = $prices[$srptype_id][$home_curr] / $rate;
+	} elseif (isset($prices[$base_id][$home_curr])) {
+		$price = $prices[$base_id][$home_curr] * $factor / $rate;
+	} elseif ($num_rows == 0 && $add_pct != -1) {
+		$price = get_calculated_price($stock_id, $add_pct);
+		if ($currency != $home_curr)
+			$price /= $rate;
+		if ($factor != 0)
+			$price *= $factor;
+	}
+	if ($price === false)
+		return 0;
+	elseif ($round_to != 1)
+		return round_to_nearest($price, $round_to);
+	else
+		return round2($price, user_price_dec());
+}
+//-------------------------------------------------------------------------//
+
+//-----------------------Robert Added For System Cost Report------------------------------//
+function get_systemcost_price($stock_id, $cost_type_id, $factor = null, $date = null)
+{
+	if ($date == null)
+		$date = new_doc_date();
+
+	if ($factor === null) {
+		$myrow = get_sytem_cost_pricing_type($cost_type_id);
+		$factor = $myrow['factor'];
+	}
+
+	$add_pct = get_company_pref('add_pct');
+	$base_id = get_base_sales_type();
+	$home_curr = get_company_currency();
+	//	AND (sales_type_id = $sales_type_id	OR sales_type_id = $base_id)
+	$sql = "SELECT price, cost_type_id
+		FROM " . TB_PREF . "purch_data
+		WHERE stock_id = " . db_escape($stock_id);
+
+	$result = db_query($sql, "There was a problem retrieving the pricing information for the part $stock_id for customer");
+	$num_rows = db_num_rows($result);
+	$round_to = get_company_pref('round_to');
+	$prices = array();
+	while ($myrow = db_fetch($result)) {
+		$prices[$myrow['cost_type_id']] = $myrow['price'];
+	}
+	$price = false;
+	if (isset($prices[$cost_type_id])) {
+		$price = $prices[$cost_type_id];
+	} elseif (isset($prices[$base_id])) {
+		$price = $prices[$base_id] * $factor;
+	} elseif (isset($prices[$cost_type_id][$home_curr])) {
+		$price = $prices[$cost_type_id][$home_curr];
+	} elseif (isset($prices[$base_id][$home_curr])) {
+		$price = $prices[$base_id][$home_curr] * $factor;
+	} elseif ($num_rows == 0 && $add_pct != -1) {
+		$price = get_calculated_price($stock_id, $add_pct);
+		if ($currency != $home_curr)
+			$price /= $rate;
+		if ($factor != 0)
+			$price *= $factor;
+	}
+	if ($price === false)
+		return 0;
+	elseif ($round_to != 1)
+		return round_to_nearest($price, $round_to);
+	else
+		return round2($price, user_price_dec());
+}
+//-------------------------------------------------------------------------//
 //
 //	Get price for given item or kit.
 //  When $std==true price is calculated as a sum of all included stock items,
 //	otherwise all prices set for kits and items are accepted.
 //
-function get_kit_price($item_code, $currency, $sales_type_id, $factor=null, 
-	$date=null, $std = false)
-{
+function get_kit_price(
+	$item_code,
+	$currency,
+	$sales_type_id,
+	$factor = null,
+	$date = null,
+	$std = false
+) {
 	$kit_price = 0.00;
 	if (!$std) {
-		$kit_price = get_price( $item_code, $currency, $sales_type_id, 
-			$factor, $date);
+		$kit_price = get_price(
+			$item_code,
+			$currency,
+			$sales_type_id,
+			$factor,
+			$date
+		);
 
 		if ($kit_price !== 0) {
 			return $kit_price;
 		}
-	}	
+	}
 	// no price for kit found, get total value of all items
 	$kit = get_item_kit($item_code);
-	
-	while($item = db_fetch($kit)) {
+
+	while ($item = db_fetch($kit)) {
 		if ($item['item_code'] != $item['stock_id']) {
 			// foreign/kit code
-			$kit_price += $item['quantity'] * get_kit_price( $item['stock_id'], 
-				$currency, $sales_type_id, $factor, $date, $std);
-
+			$kit_price += $item['quantity'] * get_kit_price(
+				$item['stock_id'],
+				$currency,
+				$sales_type_id,
+				$factor,
+				$date,
+				$std
+			);
 		} else {
 			// stock item
-			$kit_price += $item['quantity'] * get_price( $item['stock_id'], 
-				$currency, $sales_type_id, $factor, $date);
+			$kit_price += $item['quantity'] * get_price(
+				$item['stock_id'],
+				$currency,
+				$sales_type_id,
+				$factor,
+				$date
+			);
 		}
 	}
 	return $kit_price;
 }
 
 //--------------------------------------------------------------------------------------------------
-function update_parent_line($doc_type, $line_id, $qty_dispatched, $auto=false)
+function update_parent_line($doc_type, $line_id, $qty_dispatched, $auto = false)
 {
 	$doc_type = get_parent_type($doc_type);
 
-        $qty_dispatched = (float)$qty_dispatched;
+	$qty_dispatched = (float)$qty_dispatched;
 
 	if ($doc_type == 0)
 		return false;
 	else {
-		if ($doc_type==ST_SALESORDER || $doc_type==ST_SALESQUOTE)
-		{
-			$sql = "UPDATE ".TB_PREF."sales_order_details
+		if ($doc_type == ST_SALESORDER || $doc_type == ST_SALESQUOTE) {
+			$sql = "UPDATE " . TB_PREF . "sales_order_details
 				SET qty_sent = qty_sent + $qty_dispatched";
 			if ($auto)
 				$sql .= ", quantity = quantity + $qty_dispatched";
-			$sql .= " WHERE id=".db_escape($line_id);
-		}
-		else
-			$sql = "UPDATE ".TB_PREF."debtor_trans_details
+			$sql .= " WHERE id=" . db_escape($line_id);
+		} else
+			$sql = "UPDATE " . TB_PREF . "debtor_trans_details
 				SET qty_done = qty_done + $qty_dispatched
-				WHERE id=".db_escape($line_id);
+				WHERE id=" . db_escape($line_id);
 	}
 	db_query($sql, "The parent document detail record could not be updated");
 	return true;
@@ -201,11 +425,11 @@ function update_parent_line($doc_type, $line_id, $qty_dispatched, $auto=false)
 function get_location(&$cart)
 {
 	$sql = "SELECT location.*
-		FROM ".TB_PREF."stock_moves move,"
-			.TB_PREF."locations location".
-		" WHERE type=".db_escape($cart->trans_type).
-		" AND trans_no=".key($cart->trans_no).
-		" AND qty!=0 ".
+		FROM " . TB_PREF . "stock_moves move,"
+		. TB_PREF . "locations location" .
+		" WHERE type=" . db_escape($cart->trans_type) .
+		" AND trans_no=" . key($cart->trans_no) .
+		" AND qty!=0 " .
 		" AND location.loc_code=move.loc_code";
 
 	$result = db_query($sql, 'Retreiving inventory location');
@@ -230,19 +454,29 @@ function read_sales_trans($doc_type, $trans_no, &$cart)
 		$cart->trans_no = $trans_no;
 	} else {
 		// read header data from first document
-		$myrow = get_customer_trans($trans_no[0],$doc_type);
-		if (count_array($trans_no)>1)
+		$myrow = get_customer_trans($trans_no[0], $doc_type);
+		if (count_array($trans_no) > 1)
 			$cart->trans_no = get_customer_trans_version($doc_type, $trans_no);
 		else
-			$cart->trans_no = array($trans_no[0]=>$myrow["version"]);
+			$cart->trans_no = array($trans_no[0] => $myrow["version"]);
 
-		$cart->set_sales_type($myrow["tpe"], $myrow["sales_type"], $myrow["tax_included"],0);
+		if ($doc_type != ST_SALESRETURN) {
+			$cart->set_sales_type($myrow["tpe"], $myrow["sales_type"], $myrow["tax_included"], 0);
+		}
 
-		$cart->set_customer($myrow["debtor_no"], $myrow["DebtorName"],
-			$myrow["curr_code"], $myrow["discount"], $myrow["payment_terms"]);
+		$cart->set_customer(
+			$myrow["debtor_no"],
+			$myrow["DebtorName"],
+			$myrow["curr_code"],
+			$doc_type != ST_SALESRETURN ? $myrow["discount"] : 0,
+			$myrow["payment_terms"]
+		);
 
-		$cart->set_branch($myrow["branch_code"], $myrow["tax_group_id"],
-			$myrow["tax_group_name"]);
+		$cart->set_branch(
+			$myrow["branch_code"],
+			$doc_type != ST_SALESRETURN ? $myrow["tax_group_id"] : 0,
+			$doc_type != ST_SALESRETURN ? $myrow["tax_group_name"] : 0
+		);
 
 		$cart->reference = $myrow["reference"];
 		$cart->prepaid = $myrow["prepaid"];
@@ -252,42 +486,95 @@ function read_sales_trans($doc_type, $trans_no, &$cart)
 		$cart->dimension_id = $myrow['dimension_id']; // added 2.1 Joe Hunt 2008-11-12
 		$cart->dimension2_id = $myrow['dimension2_id'];
 		$cart->Comments = '';
-		foreach ( $trans_no as $trans ) {
-			$cart->Comments .= get_comments_string($doc_type,$trans);
+		$cart->alloc = $myrow["alloc"];
+		if ($doc_type == ST_SALESINVOICE || $doc_type == ST_SALESINVOICEREPO) {
+			$debtor_loans = get_debtor_loans($trans_no[0], $doc_type == ST_SALESINVOICEREPO ? "repo" : "new");
+			$cart->warranty_code = $debtor_loans["warranty_code"];
+			$cart->fsc_series = $debtor_loans["fsc_series"];
+
+			$cart->lcp_amount = $debtor_loans["lcp_amount"];
+			$cart->dp_amount = $debtor_loans["downpayment_amount"];
+			$cart->amortization = $debtor_loans["amortization_amount"];
+			$cart->ar_amount = $debtor_loans["ar_amount"];
+			$cart->first_due_date = date('m/d/Y', strtotime($debtor_loans["firstdue_date"]));
+			$cart->maturity_date = date('m/d/Y', strtotime($debtor_loans["maturity_date"]));
+
+			$cart->payment_policy = $debtor_loans["installmentplcy_id"];
+			$cart->months_term = $debtor_loans["months_term"];
+			$cart->rebate = $debtor_loans["rebate"];
+			$cart->financing_rate = $debtor_loans["financing_rate"];
+			$cart->category_id = $debtor_loans["category_id"];
+			$cart->Location = $debtor_loans["orig_branch_code"];
+			$cart->dr_ref = $debtor_loans["delivery_ref_no"];
+			$cart->document_ref = $debtor_loans["invoice_ref_no"];
+			$cart->repo_type = $debtor_loans["invoice_type"];
+		}
+
+		if ($doc_type == ST_SALESRETURN) {
+			$sales_return = get_sales_return_replacement($trans_no[0]);
+			$cart->category_id = $sales_return["category_id"];
+			$cart->repo_type = $sales_return["sr_item_type"];
+		}
+
+		foreach ($trans_no as $trans) {
+			$cart->Comments .= get_comments_string($doc_type, $trans);
 		}
 
 		// FIX this should be calculated sum() for multiply parents
 
-		$cart->set_delivery($myrow["ship_via"], $myrow["br_name"],
-		$myrow["br_address"], $myrow["ov_freight"]);
+		if ($doc_type != ST_SALESRETURN) {
+			$cart->set_delivery(
+				$myrow["ship_via"],
+				$myrow["br_name"],
+				$myrow["br_address"],
+				$myrow["ov_freight"]
+			);
+		}
 
 		$location = 0;
 		$myrow = get_location($cart); // find location from movement
 
-		if($myrow!=null) {
+		if ($myrow != null) {
 			$cart->set_location($myrow['loc_code'], $myrow['location_name']);
 		}
 
-		$result = get_customer_trans_details($doc_type,$trans_no);
+		$result = get_customer_trans_details($doc_type, $trans_no);
 		if (db_num_rows($result) > 0) {
-			for($line_no=0; $myrow = db_fetch($result); $line_no++)	{
-				$cart->line_items[$line_no] = new line_details(
-					$myrow["stock_id"],$myrow["quantity"],
-					$myrow["unit_price"], $myrow["discount_percent"],
-					$myrow["qty_done"], $myrow["standard_cost"],
-					$myrow["StockDescription"],$myrow["id"], $myrow["debtor_trans_no"],
-					@$myrow["src_id"]);
+
+			for ($line_no = 0; $myrow = db_fetch($result); $line_no++) {
+				if ($myrow["item_type"] == "Regular") {
+					$cart->line_items[$line_no] = new line_details(
+						$myrow["stock_id"],
+						$myrow["quantity"],
+						$myrow["unit_price"],
+						$myrow["discount_percent"],
+						$myrow["qty_done"],
+						$myrow["standard_cost"],
+						$myrow["StockDescription"],
+						$myrow["id"],
+						$myrow["debtor_trans_no"],
+						@$myrow["src_id"],
+						$myrow["lot_no"],
+						$myrow["chassis_no"],
+						$myrow["color_code"],
+						$myrow["item_type"],
+						$myrow["discount1"],
+						$myrow["discount2"],
+						0, 	//lcp_price
+						$myrow["smi"],
+						$myrow["incentives"]
+					);
+				}
 			}
 		}
 		$cart->prepayments = get_payments_for($trans_no, $doc_type, $myrow["debtor_no"]);
-
 	} // !newdoc
 
 	return true;
 }
 //----------------------------------------------------------------------------------------
 
-function get_sales_child_lines($trans_type, $trans_no, $lines=true)
+function get_sales_child_lines($trans_type, $trans_no, $lines = true)
 {
 	if (!($ctype = get_child_type($trans_type)))
 		return false;
@@ -298,15 +585,15 @@ function get_sales_child_lines($trans_type, $trans_no, $lines=true)
 	$par_tbl = $trans_type == ST_SALESORDER ? "sales_order_details" : "debtor_trans_details";
 	$par_no = $trans_type == ST_SALESORDER ? "trans.order_no" : "trans.debtor_trans_no";
 
-	foreach($trans_no as $n => $trans) {
+	foreach ($trans_no as $n => $trans) {
 		$trans_no[$n] = db_escape($trans);
 	}
 	$sql = "SELECT child.*
 			FROM
-				".TB_PREF."debtor_trans_details child
-			LEFT JOIN ".TB_PREF."$par_tbl trans 
+				" . TB_PREF . "debtor_trans_details child
+			LEFT JOIN " . TB_PREF . "$par_tbl trans 
 				ON child.src_id=trans.id AND child.debtor_trans_type=$ctype
-			WHERE $par_no IN(". implode(',', array_values($trans_no)).")";
+			WHERE $par_no IN(" . implode(',', array_values($trans_no)) . ")";
 
 	if (!$lines)
 		$sql .= " GROUP BY child.debtor_trans_no";
@@ -326,10 +613,10 @@ function get_sales_child_numbers($trans_type, $trans_no)
 	return $trans;
 }
 
-function get_sales_parent_lines($trans_type, $trans_no, $lines=true)
+function get_sales_parent_lines($trans_type, $trans_no, $lines = true)
 {
-	$partype = get_parent_type($trans_type);
-
+	//modified by Albert 10/16/2021
+	$partype = get_parent_type($trans_type) == null ? ST_SALESINVOICEREPO : get_parent_type($trans_type);
 	if (!$partype)
 		return false;
 
@@ -337,19 +624,18 @@ function get_sales_parent_lines($trans_type, $trans_no, $lines=true)
 	$par_no = $partype == ST_SALESORDER ? "parent.order_no" : "parent.debtor_trans_no";
 	$sql = "SELECT parent.*
 			FROM
-				".TB_PREF."$par_tbl parent
-			LEFT JOIN ".TB_PREF."debtor_trans_details trans 
+				" . TB_PREF . "$par_tbl parent
+			LEFT JOIN " . TB_PREF . "debtor_trans_details trans 
 				ON trans.src_id=parent.id
 			WHERE
-				trans.debtor_trans_type=".db_escape($trans_type)
-				." AND trans.debtor_trans_no=".db_escape($trans_no);
+				trans.debtor_trans_type=" . db_escape($trans_type)
+		. " AND trans.debtor_trans_no=" . db_escape($trans_no);
 	if (!$lines)
 		$sql .= " GROUP BY $par_no";
-	
-	$sql .= " ORDER BY $par_no";
-	
-	return db_query($sql, "can't retrieve child trans");
 
+	$sql .= " ORDER BY $par_no";
+
+	return db_query($sql, "can't retrieve child trans");
 }
 
 function get_sales_parent_numbers($trans_type, $trans_no)
@@ -357,7 +643,7 @@ function get_sales_parent_numbers($trans_type, $trans_no)
 	$trans = array();
 	$res = get_sales_parent_lines($trans_type, $trans_no, false);
 	while ($line = db_fetch($res))
-		$trans[] = $line[$trans_type==ST_CUSTDELIVERY ? 'order_no' : 'debtor_trans_no'];
+		$trans[] = $line[$trans_type == ST_CUSTDELIVERY ? 'order_no' : 'debtor_trans_no'];
 	return $trans;
 }
 
@@ -373,10 +659,340 @@ function get_sales_child_documents($trans_type, $trans_no)
 	$childs = get_sales_child_numbers($trans_type, $trans_no, false);
 	if (!count_array($childs))
 		return false;
-		
-	$sql = "SELECT * FROM ".TB_PREF."debtor_trans
-		WHERE type=".get_child_type($trans_type)." AND trans_no IN(". implode(',', array_values($childs)).")";
 
-	return db_query($sql,"The related credit notes could not be retreived");
+	$sql = "SELECT * FROM " . TB_PREF . "debtor_trans
+		WHERE type=" . get_child_type($trans_type) . " AND trans_no IN(" . implode(',', array_values($childs)) . ")";
+
+	return db_query($sql, "The related credit notes could not be retreived");
 }
 
+/* Added by Ronelle 3/14/2021 Retrieving Sales Invoices */
+function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0)
+{
+	//Modified by spyrax10 21-Oct-2021
+	$sql = "SELECT
+				a.trans_no,
+				a.status,
+				a.reference,
+				b.name,
+				CASE
+                	WHEN a.payment_terms = 0
+                    	THEN 'CASH'
+                    ELSE
+                    	'INSTALLMENT'
+                END as payment_type,
+				c.invoice_type,
+				(SELECT sq1.description FROM " . TB_PREF . "stock_category sq1 WHERE sq1.category_id = c.category_id) as category,
+				a.tran_date,
+				c.payment_location,
+				c.months_term,
+				-- a.due_date,
+				-- (SELECT t1.trans_no FROM " . TB_PREF . "debtor_trans t1 WHERE t1.type = 13 AND t1.order_ = a.order_) as dr_no,
+                a.order_ as so_no,
+				c.ar_amount,
+				c.lcp_amount + DIS.discount AS lcp_amount,
+				c.downpayment_amount,
+				c.amortization_amount,
+				a.debtor_no, 
+				a.alloc,
+				a.type, 
+				cust.amt,
+				c.lcp_amount as lcp_2,
+				a.order_,
+				a.return_status,
+				a.restructured_status
+
+			FROM " . TB_PREF . "debtor_trans a
+				INNER JOIN " . TB_PREF . "debtors_master b ON b.debtor_no= a.debtor_no
+				INNER JOIN " . TB_PREF . "debtor_loans c ON c.trans_no = a.trans_no and  c.reference = a.reference 
+
+				LEFT JOIN (
+					SELECT X.id, X.trans_no_to, X.trans_type_to, X.person_id, SUM(X.amt) AS amt
+					FROM " . TB_PREF . "cust_allocations X
+					GROUP BY X.trans_no_to, X.trans_type_to, X.person_id
+				) cust ON a.trans_no = cust.trans_no_to AND a.type = cust.trans_type_to AND cust.person_id = a.debtor_no 
+
+				LEFT JOIN (
+					SELECT A.order_no, SUM(B.discount1 + B.discount2) AS discount
+					FROM " . TB_PREF . "sales_orders A 
+					INNER JOIN " . TB_PREF . "sales_order_details B ON A.order_no = B.order_no 
+					GROUP BY B.order_no
+				) DIS ON a.order_ = DIS.order_no
+			
+			WHERE
+				a.type = " . ST_SALESINVOICE . " AND a.opening_balances = " . db_escape($opening_balances) . "";
+
+	//Added by spyrax10
+	if ($trans_no != '') {
+		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);
+	}
+
+	if ($debtor_no != '') {
+		$sql .= " AND a.debtor_no = " . db_escape($debtor_no);
+	}
+	//Added by Albert
+	if ($category_id != -1) {
+		$sql .= " AND c.category_id = " . db_escape($category_id);
+	}
+	if ($payment_terms != -1) {
+		if ($payment_terms == 0)
+			$sql .= " AND a.payment_terms = 0 ";
+		else {
+			$sql .= " AND a.payment_terms > 0 ";
+		}
+	}
+
+	$sql .= " ORDER BY a.tran_date DESC, a.trans_no DESC ";
+	return $sql;
+}
+// Added by Albert
+function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0)
+{
+	$sql = "SELECT
+				a.trans_no,
+				a.status,
+				a.reference,
+				b.name,
+				CASE
+                	WHEN a.payment_terms = 0
+                    	THEN 'CASH'
+                    ELSE
+                    	'INSTALLMENT'
+                END as payment_type,
+				c.invoice_type,
+				(SELECT sq1.description FROM " . TB_PREF . "stock_category sq1 WHERE sq1.category_id = c.category_id) as category,
+				a.tran_date,
+				c.payment_location,
+				c.months_term,
+				-- a.due_date,
+				-- (SELECT t1.trans_no FROM " . TB_PREF . "debtor_trans t1 WHERE t1.type = 13 AND t1.order_ = a.order_) as dr_no,
+                a.order_ as so_no,
+				c.ar_amount,
+				c.lcp_amount + DIS.discount AS lcp_amount,
+				c.downpayment_amount,
+				c.amortization_amount,
+				a.debtor_no, 
+				a.alloc,
+				a.type, 
+				cust.amt,
+				c.lcp_amount as lcp_2,
+				a.order_,
+				a.return_status,
+				a.restructured_status
+
+			FROM " . TB_PREF . "debtor_trans a
+				INNER JOIN " . TB_PREF . "debtors_master b ON b.debtor_no= a.debtor_no
+				INNER JOIN " . TB_PREF . "debtor_loans c ON c.trans_no = a.trans_no and  c.reference = a.reference 
+
+				LEFT JOIN (
+					SELECT X.id, X.trans_no_to, X.trans_type_to, X.person_id, SUM(X.amt) AS amt
+					FROM " . TB_PREF . "cust_allocations X
+					GROUP BY X.trans_no_to, X.trans_type_to, X.person_id
+				) cust ON a.trans_no = cust.trans_no_to AND a.type = cust.trans_type_to AND cust.person_id = a.debtor_no 
+
+				LEFT JOIN (
+					SELECT A.order_no, SUM(B.discount1 + B.discount2) AS discount
+					FROM " . TB_PREF . "sales_orders A 
+					INNER JOIN " . TB_PREF . "sales_order_details B ON A.order_no = B.order_no 
+					GROUP BY B.order_no
+				) DIS ON a.order_ = DIS.order_no
+			WHERE
+				a.type = " . ST_SALESINVOICEREPO . " AND a.opening_balances = " . db_escape($opening_balances) . "";
+
+	//Added by spyrax10
+	if ($trans_no != '') {
+		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);
+	}
+	if ($debtor_no != '') {
+		$sql .= " AND a.debtor_no = " . db_escape($debtor_no);
+	}
+	//Added by Albert
+	if ($category_id != -1) {
+		$sql .= " AND c.category_id = " . db_escape($category_id);
+	}
+	if ($payment_terms != -1) {
+		if ($payment_terms == 0)
+			$sql .= " AND a.payment_terms = 0 ";
+		else {
+			$sql .= " AND a.payment_terms > 0 ";
+		}
+	}
+
+	$sql .= " ORDER BY a.tran_date DESC, a.trans_no DESC ";
+	return $sql;
+}
+
+/* */
+/*albert*/
+function get_sales_invoices_aropening($trans_no = 0, $opening_balances = 0)
+{
+	$sql = "SELECT
+				a.trans_no,
+				a.status,
+				a.reference,
+				b.name,
+				CASE
+                	WHEN a.payment_terms = 0
+                    	THEN 'CASH'
+                    ELSE
+                    	'INSTALLMENT'
+                END as payment_type,
+				c.invoice_type,
+				a.tran_date,
+				c.months_term,
+				-- a.due_date,
+				-- (SELECT t1.trans_no FROM " . TB_PREF . "debtor_trans t1 WHERE t1.type = 13 AND t1.order_ = a.order_) as dr_no,
+                a.order_ as so_no,
+				c.ar_amount,
+				c.lcp_amount,
+				c.downpayment_amount,
+				c.amortization_amount,
+				a.return_status, a.type,
+				a.restructured_status
+			FROM
+				" . TB_PREF . "debtor_trans a
+			INNER JOIN
+				" . TB_PREF . "debtors_master b
+			ON
+				b.debtor_no= a.debtor_no
+			INNER JOIN
+				" . TB_PREF . "debtor_loans c
+			ON
+				c.trans_no = a.trans_no
+			WHERE
+				a.type = 10 AND a.opening_balances = " . db_escape($opening_balances) . "
+			ORDER BY
+				a.trans_no DESC";
+	return $sql;
+}
+/* */
+/* Added by Ronelle 6/1/2021 Retrieving Sales Return Replacement */
+//Modified by spyrax10 2021-12-23
+function get_sales_return_replacement($trans_no = 0, $repo = "new")
+{
+	$sql = "SELECT
+				a.trans_no,
+				/*CASE 
+					WHEN c.status = 'Close' THEN 'CLOSED'
+					WHEN c.status = 'Closed' THEN 'CLOSED'
+				ELSE 'OPEN' END,*/
+				b.reference,
+				b.debtor_no,
+				b.tran_date,
+				a.trans_ref,
+				a.trans_no_ref,
+				a.trans_type_ref,
+				a.category_id,
+				a.sr_item_type,
+				a.payment_type,
+				a.total_payable,
+				a.total_receivable,
+				a.total_prev_lcp,
+				a.total_new_lcp,
+				a.total_prev_cost,
+				a.total_new_cost,
+				c.ov_amount - c.alloc AS ar_balance,
+				a.remarks,
+				DM.name, BR.br_name, BR.branch_ref
+
+			FROM " . TB_PREF . "sales_return_replacement a 
+			INNER JOIN " . TB_PREF . "debtor_trans b ON b.trans_no = a.trans_no
+			LEFT JOIN " . TB_PREF . "debtor_trans c ON b.reference = c.reference AND b.debtor_no = c.debtor_no
+			LEFT JOIN " . TB_PREF . "debtors_master DM ON b.debtor_no = DM.debtor_no
+			LEFT JOIN " . TB_PREF . "cust_branch BR ON DM.debtor_no = BR.debtor_no
+
+			WHERE b.type = 55";
+	if ($trans_no == 0) {
+		$sql .= " AND a.sr_item_type =" . db_escape($repo);
+	}
+	if ($trans_no != 0) {
+		$sql .= " AND a.trans_no=$trans_no";
+		$result = db_query($sql, 'cannot retrieve sales return replacement');
+		$num = db_num_rows($result);
+		if ($num > 1) {
+			display_warning("You have duplicate document in database: (type:Sales Return, number:$trans_no).");
+		} else if ($num == 1) {
+			return db_fetch($result);
+		} else
+			display_warning("You have missing or invalid sales document in database (type:Sales Return, number:$trans_no).");
+	}
+	$sql .= " ORDER BY a.trans_no DESC";
+	return $sql;
+}
+
+//Added by spyrax10
+//modified by Albert
+function get_SI_date($order_no)
+{
+	$sql = "SELECT DATE_FORMAT(A.tran_date, '%m/%d/%Y')
+		FROM " . TB_PREF . ".debtor_trans A
+		WHERE (A.type = 10 or A.type = 57) AND A.order_=" . db_escape($order_no);
+
+	$result = db_query($sql, "Can't get SI date! (spyrax10)");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+//Added by Albert 10/25/2021
+function get_account_specialist_remarks($order_no)
+{
+	$sql = "SELECT a.account_specialist_remarks
+		FROM " . TB_PREF . "sales_orders a
+		WHERE a.order_no = " . db_escape($order_no);
+
+	$result = db_query($sql, "Can't get Account Specialist Approval! (Albert)");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
+//Added by Prog6 (12/10/2021)
+function get_all_sale_target($year,$category,$type) 
+{
+    $sql = "SELECT 
+				  trgt.`id`
+				, trgt.`year`
+				, trgt.`jan`
+				, trgt.`feb`
+				, trgt.`mar`
+				, trgt.`apr`
+				, trgt.`may`
+				, trgt.`jun`
+				, trgt.`jul`
+				, trgt.`aug`
+				, trgt.`sep`
+				, trgt.`oct`
+				, trgt.`nov`
+				, trgt.`dece`
+				, trgt.`type`
+				, cat.description
+			FROM " . TB_PREF . "sales_target trgt
+				LEFT JOIN " . TB_PREF . "stock_category cat ON trgt.category_id = cat.category_id";	
+
+	if($category == -1)
+	{
+		$sql .= " WHERE trgt.category_id > '-1'";		
+	}
+	else
+		$sql .= " WHERE trgt.category_id = '$category'";
+
+
+	if($type == -1)
+	{
+		$sql .= " AND trgt.type_id > '-1'";
+	}
+	else		
+		$sql .= " AND trgt.type_id = '$type'";
+
+
+	if($year != "" || $year <> NULL)
+	{
+		$sql .= " AND trgt.year = '$year'";
+	}		
+		
+	
+
+	$sql .= " ORDER BY trgt.year DESC";
+    return $sql;
+	return $sql_category = $category;
+	return $sql_type = $type;
+	return $sql_year = $year;
+}

@@ -38,8 +38,14 @@ class setup_app extends application
 			"admin/fiscalyears.php?", 'SA_FISCALYEARS', MENU_MAINTENANCE);
 		$this->add_rapp_function(0, _("&Print Profiles"),
 			"admin/print_profiles.php?", 'SA_PRINTPROFILE', MENU_MAINTENANCE);
-
+		
 		$this->add_module(_("Miscellaneous"));
+		$this->add_lapp_function(1, _("Policy Builders"),
+			"admin/policy_builder.php?", 'SA_PLCYBUILDER', MENU_MAINTENANCE);
+		$this->add_lapp_function(1, _("Checkout Operator Builder"),
+			"admin/checkout_operator_builder.php?", 'SA_CHECKOPBLDR', MENU_MAINTENANCE);
+
+		$this->add_lapp_function(1, "","");
 		$this->add_lapp_function(1, _("Pa&yment Terms"),
 			"admin/payment_terms.php?", 'SA_PAYTERMS', MENU_MAINTENANCE);
 		$this->add_lapp_function(1, _("Shi&pping Company"),
@@ -52,18 +58,31 @@ class setup_app extends application
 			"admin/crm_categories.php?", 'SA_CRMCATEGORY', MENU_MAINTENANCE);
 
 		$this->add_module(_("Maintenance"));
+		
+		//for global area added by prog jr on 11-05-2020
+		$this->add_lapp_function(2, _("Branch &Area Setup"),
+			"admin/branch_areas.php?", 'SA_BRANCHAREA', MENU_MAINTENANCE);
+		$this->add_lapp_function(2, _("Branch &Policy Setup"),
+			"admin/branch_policy.php?", 'SA_BRANCHPLCY', MENU_SETTINGS);
+		$this->add_lapp_function(2, _("Company &Type Setup"),
+			"admin/company_type.php?", 'SA_COMPANYTYP', MENU_MAINTENANCE);
+
 		$this->add_lapp_function(2, _("&Void a Transaction"),
 			"admin/void_transaction.php?", 'SA_VOIDTRANSACTION', MENU_MAINTENANCE);
 		$this->add_lapp_function(2, _("View or &Print Transactions"),
 			"admin/view_print_transaction.php?", 'SA_VIEWPRINTTRANSACTION', MENU_MAINTENANCE);
 		$this->add_lapp_function(2, _("&Attach Documents"),
 			"admin/attachments.php?filterType=20", 'SA_ATTACHDOCUMENT', MENU_MAINTENANCE);
+		//Added by spyrax10 4 Mar 2022
+		$this->add_lapp_function(2, _("&Upload CSV File"),
+			"admin/file_import.php?NewFile=Yes", 'SA_ATTACHDOCUMENT', MENU_MAINTENANCE);
+		//
 		$this->add_lapp_function(2, _("System &Diagnostics"),
 			"admin/system_diagnostics.php?", 'SA_SOFTWAREUPGRADE', MENU_SYSTEM);
 
 		$this->add_rapp_function(2, _("&Backup and Restore"),
 			"admin/backups.php?", 'SA_BACKUP', MENU_SYSTEM);
-		$this->add_rapp_function(2, _("Create/Update &Companies"),
+		$this->add_rapp_function(2, _("Create/Update &Branches"),
 			"admin/create_coy.php?", 'SA_CREATECOMPANY', MENU_UPDATE);
 		$this->add_rapp_function(2, _("Install/Update &Languages"),
 			"admin/inst_lang.php?", 'SA_CREATELANGUAGE', MENU_UPDATE);

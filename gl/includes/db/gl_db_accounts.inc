@@ -9,19 +9,20 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_gl_account($account_code, $account_name, $account_type, $account_code2)
+function add_gl_account($account_code, $account_name, $account_type, $account_code2, $control)
 {
-	$sql = "INSERT INTO ".TB_PREF."chart_master (account_code, account_code2, account_name, account_type)
+	$sql = "INSERT INTO ".TB_PREF."chart_master (account_code, account_code2, account_name, account_type, control)
 		VALUES (".db_escape($account_code).", ".db_escape($account_code2).", "
-			.db_escape($account_name).", ".db_escape($account_type).")";
+			.db_escape($account_name).", ".db_escape($account_type).", ".db_escape($control).")";
 
 	return db_query($sql);
 }
 
-function update_gl_account($account_code, $account_name, $account_type, $account_code2)
+function update_gl_account($account_code, $account_name, $account_type, $account_code2, $control)
 {
     $sql = "UPDATE ".TB_PREF."chart_master SET account_name=".db_escape($account_name)
     .",account_type=".db_escape($account_type).", account_code2=".db_escape($account_code2)
+    .", control=".db_escape($control)
 		." WHERE account_code = ".db_escape($account_code);
 
 	return db_query($sql);
@@ -227,6 +228,29 @@ function is_subledger_account($account)
 	return $myrow[0];
 }
 
+/**** 
+	added by jr for gl trans table linking to person id A/R customer
+	in old front account Account receivable lang but now gi divide na in 3. installment,regular and cash and also for lending A/R
+	kung gi add pa siya sa cust branch ang control pwd ra unta nga wala na ni nga function.
+**/
+function check_customer_account($account)
+{
+	$sql = "SELECT 1 
+			FROM ".TB_PREF."sys_prefs
+			WHERE (name='ar_cash_sales_account' 
+					OR name='ar_reg_current_account' 
+					OR name='ar_customer_account' 
+					OR name='default_loan_rcvble') 
+				AND value = ".db_escape($account);
+
+	$result = db_query($sql,"Couldn't test AR account");
+	$myrow = db_fetch_row($result);
+	return $myrow[0];
+}
+
+/************** 
+----------------
+*******/
 function get_subaccount_data($code_id, $person_id)
 {
 	$sql = "SELECT debtor_ref as name, branch_code as id 
@@ -259,7 +283,93 @@ function get_subaccount_name($code_id, $person_id)
 
 	return  $row ? $row['ref'] : '';
 }
+function get_subaccount_code($trans_type, $trans_no)
+{
+	switch($trans_type)
+	{
+		case ST_SUPPINVOICE :
+		case ST_SUPPCREDIT :
+		case ST_SUPPAYMENT :
+			$sql = "SELECT trans.supplier_id as person_id, supp.supp_name as name FROM ".TB_PREF."supp_trans trans, ".TB_PREF."suppliers supp WHERE trans_no=".db_escape($trans_no)." AND type=".db_escape($trans_type)
+			." AND trans.supplier_id=supp.supplier_id";
+			break;
+		case ST_SUPPRECEIVE :
+			$sql = "SELECT trans.supplier_id as person_id, supp.supp_name as name
+			FROM ".TB_PREF."grn_batch trans, ".TB_PREF."suppliers supp
+			WHERE id=".db_escape($trans_no)
+			." AND trans.supplier_id=supp.supplier_id";
+			break; 
+		case ST_MERCHANDISETRANSFER: //Added by Herald for Merchandise Transfer
+		    
+		    global $def_coy;
+		    set_global_connection($def_coy);
+		    
+		    break;
+		case ST_SALESINVOICEREPO ://ADDED BY ALBERT
+		case ST_SALESINVOICE :
+		case ST_CUSTDELIVERY :
+		case ST_CUSTPAYMENT :
+		case ST_SALESRETURN :
+		case ST_SITERMMOD :
+		case ST_RESTRUCTURED : //ADDED BY ALBERT
+			$sql = "SELECT
+						a.debtor_no as person_id,
+						b.name
+					FROM ".TB_PREF."debtor_trans a
+					INNER JOIN ".TB_PREF."debtors_master b
+					ON b.debtor_no = a.debtor_no
+					WHERE a.type = ".db_escape($trans_type)." AND a.trans_no =" . db_escape($trans_no);
+			break;
+	}
+	$result = db_query($sql, 'cannot retrieve counterparty Code');
+	if (db_num_rows($result))
+	{
+		$row = db_fetch($result);
+		return sprintf("%05s", $row['person_id']);
+	}
 
+	return '';
+}
+function get_subaccount_fullname($trans_type, $trans_no)
+{
+	switch($trans_type)
+	{
+		case ST_SUPPINVOICE :
+		case ST_SUPPCREDIT :
+		case ST_SUPPAYMENT :
+			$sql = "SELECT trans.supplier_id as person_id, supp.supp_name as name FROM ".TB_PREF."supp_trans trans, ".TB_PREF."suppliers supp WHERE trans_no=".db_escape($trans_no)." AND type=".db_escape($trans_type)." AND trans.supplier_id=supp.supplier_id";
+			break;
+		case ST_SUPPRECEIVE :
+			$sql = "SELECT trans.supplier_id as person_id, supp.supp_name as name
+			FROM ".TB_PREF."grn_batch trans, ".TB_PREF."suppliers supp
+			WHERE id=".db_escape($trans_no)
+			." AND trans.supplier_id=supp.supplier_id";
+			break; 
+		case ST_SALESINVOICEREPO ://ADDED BY ALBERT
+		case ST_SALESINVOICE :
+		case ST_CUSTDELIVERY :
+		case ST_CUSTPAYMENT :
+		case ST_SALESRETURN :
+		case ST_SITERMMOD :
+		case ST_RESTRUCTURED ://ADDED BY ALBERT
+			$sql = "SELECT
+						a.debtor_no as person_id,
+						b.name
+					FROM ".TB_PREF."debtor_trans a
+					INNER JOIN ".TB_PREF."debtors_master b
+					ON b.debtor_no = a.debtor_no
+					WHERE a.type = ".db_escape($trans_type)." AND a.trans_no =" . db_escape($trans_no);
+			break;
+	}
+		$result = db_query($sql, 'cannot retrieve counterparty Fullname');
+	if (db_num_rows($result))
+	{
+		$row = db_fetch($result);
+		return sprintf("%s", $row['name']);
+	}
+
+	return '';
+}
 function gl_account_in_bank_accounts($acc)
 {
 	$sql= "SELECT COUNT(*) FROM ".TB_PREF."bank_accounts WHERE 
@@ -300,14 +410,14 @@ function get_chart_accounts_search($like, $skip=false)
 
 	if ($skip)
 		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM (".TB_PREF."chart_master chart,".TB_PREF."chart_types type) "
+			FROM (".TB_PREF."chart_master chart,".TB_PREF."chart_types AS type) "
 			."LEFT JOIN ".TB_PREF."bank_accounts acc "
 			."ON chart.account_code=acc.account_code
 				WHERE acc.account_code  IS NULL
 			AND chart.account_type=type.id ";
 	else		
 		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM ".TB_PREF."chart_master chart,".TB_PREF."chart_types type WHERE chart.account_type=type.id ";
+			FROM ".TB_PREF."chart_master chart,".TB_PREF."chart_types AS type WHERE chart.account_type=type.id ";
 	$sql .= "AND (
           	chart.account_name LIKE " . db_escape("%" . $like. "%") . " OR
           	chart.account_code LIKE " . db_escape("%" . $like. "%") . "
@@ -315,3 +425,46 @@ function get_chart_accounts_search($like, $skip=false)
     		ORDER BY chart.account_code LIMIT 0,".(int)($limit); // We only display 10 items.
 	return db_query($sql, "Failed in retreiving GL account list.");
 }
+//Added by Herald 05/12/2021 for Complimentary Items
+function get_chart_accounts_search_new($class_type,$like, $skip=false, $limit_flag=false)
+{
+    global $SysPrefs;
+    
+    if (isset($SysPrefs->max_rows_in_search))
+        $limit = $SysPrefs->max_rows_in_search;
+    else
+        $limit = 10;
+            
+            if ($skip)
+                $sql = "SELECT type.class_id, chart.account_code, chart.account_name, type.name, chart.inactive, type.id, class.class_name, class.ctype
+			FROM ".TB_PREF."chart_master chart 
+INNER JOIN ".TB_PREF."chart_types type ON chart.account_type=type.id 
+INNER JOIN ".TB_PREF."chart_class class ON type.class_id=class.cid "
+			    ."LEFT JOIN ".TB_PREF."bank_accounts acc "
+			        ."ON chart.account_code=acc.account_code
+
+				WHERE acc.account_code IS NULL AND (";
+			        else
+			    $sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id, type.class_id
+			FROM ".TB_PREF."chart_master chart INNER JOIN ".TB_PREF."chart_types type ON chart.account_type=type.id WHERE (";
+			
+			    if($class_type) $sql.=" chart.account_type=".db_escape($class_type).") AND (";
+			    $sql.=" chart.account_name LIKE " . db_escape("%" . $like. "%") . " OR
+			     chart.account_code LIKE " . db_escape("%" . $like. "%") . "
+			     ) AND (chart.account_code NOT LIKE " . db_escape("2151").")";
+			    $sql.=" ORDER BY type.class_id asc, chart.account_code asc";
+    if($limit_flag) $sql.=" LIMIT 0,".(int)($limit); // We only display 10 items.
+    return db_query($sql, "Failed in retreiving GL account list.");
+}
+
+function get_chart_accounts_class_type()
+{
+            
+            $sql = "SELECT *
+			FROM ".TB_PREF."chart_types type WHERE (";
+            
+            $sql.=" type.inactive=0)";
+            $sql.=" ORDER BY type.class_id asc";
+            return db_query($sql, "Failed in retreiving GL account list.");
+}
+

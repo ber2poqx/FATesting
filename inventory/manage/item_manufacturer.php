@@ -13,7 +13,7 @@ $page_security = 'SA_MANUFACTURER';
 $path_to_root = "../..";
 include($path_to_root . "/includes/session.inc");
 
-page(_($help_context = "Manufacturer Masterfile Setup"));
+page(_($help_context = "Made-In Masterfile Setup"));
 
 include_once($path_to_root . "/includes/ui.inc");
 
@@ -92,7 +92,7 @@ $result = get_all_manufacturer(check_value('show_inactive'));
 
 start_form();
 start_table(TABLESTYLE, "width='40%'");
-$th = array( _('ID'), _('Manufacturers'), "", "");
+$th = array( _('ID'), _('Made-In'), "", "");
 inactive_control_column($th);
 
 table_header($th);
@@ -150,7 +150,7 @@ if ($selected_id != '' && manufacturer_used($selected_id)){
 	//label_row(_("ID:"), $_POST['id']);
 	//text_row(_("Brand Code:"), 'code', null, 20, 20);
  }
-text_row(_("Manufacturer Name:"), 'description', null, 40, 40);
+text_row(_("Made-In Name:"), 'description', null, 40, 40);
 
 //number_list_row(_("Decimal Places:"), 'decimals', null, 0, 6, _("User Quantity Decimals"));
 

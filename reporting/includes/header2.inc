@@ -23,10 +23,10 @@
 
 		$this->row = $this->pageHeight - $this->topMargin;
 
-		$upper = $this->row - 2 * $this->lineHeight;
-		$lower = $this->bottomMargin + 8 * $this->lineHeight;
-		$iline1 = $upper - 7.5 * $this->lineHeight;
-		$iline2 = $iline1 - 8 * $this->lineHeight;
+		$upper = $this->row - 2.5 * $this->lineHeight;
+		$lower = $this->bottomMargin + 12 * $this->lineHeight;
+		$iline1 = $upper - 3.5 * $this->lineHeight;
+		$iline2 = $iline1 - 8 ;//* $this->lineHeight;
 		$iline3 = $iline2 - 1.5 * $this->lineHeight;
 		$iline4 = $iline3 - 1.5 * $this->lineHeight;
 		$iline5 = $iline4 - 3 * $this->lineHeight;
@@ -42,23 +42,23 @@
 		$mcol2 = $this->pageWidth - $ccol2;
 		$cols = count($this->cols);
 		$this->SetDrawColor(205, 205, 205);
-		$this->Line($iline1, 3);
+		$this->Line($iline1, 2);
 		$this->SetDrawColor(128, 128, 128);
 		$this->Line($iline1);
-		$this->rectangle($this->leftMargin, $iline2, $right - $this->leftMargin, $iline2 - $iline3, "F", null, array(222, 231, 236));   
-		$this->Line($iline2);
-		$this->Line($iline3);
-		$this->Line($iline4);
+		//$this->rectangle($this->leftMargin, $iline2, $right - $this->leftMargin, $iline2 - $iline3, "F", null, array(222, 231, 236));   
+		//$this->Line($iline2);
+		//$this->Line($iline3);
+		//$this->Line($iline4);
 		$this->rectangle($this->leftMargin, $iline5, $right - $this->leftMargin, $iline5 - $iline6, "F", null, array(222, 231, 236));   
 		$this->Line($iline5);
 		$this->Line($iline6);
 		$this->Line($iline7);
-		$this->LineTo($this->leftMargin, $iline2 ,$this->leftMargin, $iline4);
-		$col = $this->leftMargin;
-		for ($i = 0; $i < 5; $i++)
+		//$this->LineTo($this->leftMargin, $iline2 ,$this->leftMargin, $iline4);
+		//$col = $this->leftMargin;
+		/*for ($i = 0; $i < 5; $i++)
 		{
 			$this->LineTo($col += $width, $iline2,$col, $iline4);
-		}
+		}*/
 		$this->LineTo($this->leftMargin, $iline5 ,$this->leftMargin, $iline7);
 		if ($this->l['a_meta_dir'] == 'rtl') // avoid line overwrite in rtl language
 			$this->LineTo($this->cols[$cols - 2], $iline5 ,$this->cols[$cols - 2], $iline7);
@@ -71,7 +71,7 @@
 		$logo = company_path() . "/images/" . $this->company['coy_logo'];
 		if ($this->company['coy_logo'] != '' && file_exists($logo))
 		{
-			$this->AddImage($logo, $ccol, $this->row, 0, 40);
+			$this->AddImage($logo, $ccol, $this->row, 0, 50);
 		}
 		else
 		{
@@ -81,13 +81,14 @@
 			$this->Font();
 			$this->fontSize -= 4;
 		}
+
 		// Document title
 		$this->SetTextColor(190, 190, 190);
-		$this->fontSize += 10;
+		$this->fontSize += 8;
 		$this->Font('bold');
 		$this->TextWrap($mcol, $this->row, $this->pageWidth - $this->rightMargin - $mcol - 20, $this->title, 'right');
 		$this->Font();
-		$this->fontSize -= 10;
+		$this->fontSize -= 8;
 		$this->NewLine();
 		$this->SetTextColor(0, 0, 0);
 		$adrline = $this->row;
@@ -133,38 +134,48 @@
 		}
 		$this->Font();
 		$this->row = $adrline;
-		$this->NewLine(3);
-		$this->Text($mcol + 100, _("Date"));
+		//$this->NewLine();
+		$this->Text($mcol + 120, _("DATE:"));
 		$this->Text($mcol + 180, sql2date($this->formData['document_date']));
 
 		$this->NewLine();
-		$this->Text($mcol + 100, $this->formData['document_name']);
-		$this->Text($mcol + 180, $this->formData['document_number']);
-		$this->NewLine(2);
+		$this->Text($mcol + 120, $this->formData['document_name']);
+		$this->Text($mcol + 180, $this->formData['document_number']);		
+		
+		
+		//Supplier Reference number
+		$this->NewLine();
+		$this->Text($mcol + 120, $this->formData['PR_ref']); 
+		$this->Text($mcol + 180, $this->formData['requisition_no']); //PR number
+		$this->NewLine();
 	
-		if ($this->pageNumber > 1)
-			$this->Text($mcol + 180, _("Page") . ' ' . $this->pageNumber);
+		if ($this->pageNumber >= 1)
+			$this->Text($mcol + 210, _("Page:") . ' ' . $this->pageNumber);
 		$this->row = $iline1 - $this->lineHeight;
-		$this->fontSize -= 4;
+		$this->fontSize -= 2;		
 		$this->Text($ccol, $Addr1['title'], $icol);
 		$this->Text($mcol, $Addr2['title']);
-		$this->fontSize += 4;
+		$this->fontSize += 2;
 
 // address1
+		$this->Font('bold');
 		$temp = $this->row = $this->row - $this->lineHeight - 5;
-		$this->Text($ccol, $Addr1['name'], $icol);
+		$this->Text($ccol, $Addr1['name'], $icol);		
+		$this->Font();
 		$this->NewLine();
-		$this->TextWrapLines($ccol, $icol - $ccol, $Addr1['address']);
+		$this->TextWrapLines($ccol, $icol - $ccol, $Addr1['address']) ;
 
 // address2
-		$this->row = $temp;
+		$this->Font('bold');
+		$this->row = $temp;		
 		$this->Text($mcol, $Addr2['name']);
+		$this->Font();
 		$this->NewLine();
-		$this->TextWrapLines($mcol, $this->rightMargin - $mcol, $Addr2['address'], 'left', 0, 0, NULL, 1);
+		$this->TextWrapLines($mcol, $this->leftMargin - $mcol, $Addr2['address'], 'left', 0, 0, NULL, 1) ;
 
 		// Auxiliary document information
 		$col = $this->leftMargin;
-		foreach($aux_info as $info_header => $info_content)
+		/***foreach($aux_info as $info_header => $info_content)
 		{
 
 			$this->row = $iline2 - $this->lineHeight - 1;
@@ -172,11 +183,11 @@
 			$this->row = $iline3 - $this->lineHeight - 1;
 			$this->TextWrap($col, $this->row, $width, $info_content, 'C');
 			$col += $width;
-		}
+		}***/
 		// Payment terms
-		$this->row -= (2 * $this->lineHeight);
+		$this->row -= (1 * $this->lineHeight);
 		$this->Font('italic');
-		$this->TextWrap($ccol, $this->row, $right-$ccol, $Payment_Terms);
+		$this->TextWrap($ccol, $this->row, $right-$ccol, _("REMARKS:")/*** $Payment_Terms***/);
 		$this->Font();
 
 		// Line headers
@@ -189,7 +200,7 @@
 		$this->Font();
 
 		// Footer
-		$this->Font('italic');
+		//$this->Font('italic');
 		$this->row = $iline7 - $this->lineHeight - 6;
 
 		foreach ($Footer as $line => $txt)

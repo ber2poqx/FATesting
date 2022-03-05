@@ -11,9 +11,9 @@
 ***********************************************************************/
 $page_security = 'SA_TAXREP';
 // ----------------------------------------------------------------
-// $ Revision:	2.0 $
-// Creator:	Joe Hunt
-// date_:	2005-05-19
+// $ Revision:	7.0 $
+// Creator:	Prog6
+// date_:	2021-05-11
 // Title:	Sales Summary Report
 // ----------------------------------------------------------------
 $path_to_root="..";
@@ -22,43 +22,117 @@ include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
-
-//------------------------------------------------------------------
-
+include_once($path_to_root . "/sales/includes/sales_db.inc");
+include_once($path_to_root . "/taxes/tax_calc.inc");
+include_once($path_to_root . "/includes/banking.inc");
+include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_sales_summary_report();
 
-function getTaxTransactions($from, $to, $tax_id)
+function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model)
 {
-	$fromdate = date2sql($from);
-	$todate = date2sql($to);
+	$from = date2sql($from);
+	$to = date2sql($to);
 
-	$sql = "SELECT d.debtor_no, d.name AS cust_name, d.tax_id, dt.type, dt.trans_no,  
-			CASE WHEN dt.type=".ST_CUSTCREDIT." THEN (ov_amount+ov_freight+ov_discount)*-1 
-			ELSE (ov_amount+ov_freight+ov_discount) END *dt.rate AS total
-		FROM ".TB_PREF."debtor_trans dt
-			LEFT JOIN ".TB_PREF."debtors_master d ON d.debtor_no=dt.debtor_no
-		WHERE (dt.type=".ST_SALESINVOICE." OR dt.type=".ST_CUSTCREDIT.") ";
-	if ($tax_id)
-		$sql .= "AND tax_id<>'' ";
-	$sql .= "AND dt.tran_date >=".db_escape($fromdate)." AND dt.tran_date<=".db_escape($todate)."
-		ORDER BY d.debtor_no"; 
-    return db_query($sql,"No transactions were returned");
+	// $sql = "SELECT
+	// 	IB.name as Brand
+	// 	,SC.description as Category
+	// 	,IR.name as Subcategory
+	// 	,SO.from_stk_loc as Branch
+	// 	,SO.ord_date as Date
+	// 	,SO.doc_ref_no as Invoice
+	// 	,DM.name as Name
+	// 	,SOD.stk_code as Model
+	// 	,SOD.lot_no as Serial
+	// 	,SOD.chassis_no as Chassis
+	// 	,CASE 
+	// 		WHEN SO.payment_terms = 0 THEN 'Cash'    	
+	// 		ELSE 'Installment' END AS Type
+	// 	,SO.payment_terms as Term
+	// 	,SOD.quantity as Qty
+	// 	,SO.lcp_amount as LCP
+	// 	,SOD.unit_price as UnitCost
+	// 	,CASE
+	// 		WHEN SA.first_name IS NULL THEN 'Office Sales'
+	// 	    ELSE CONCAT(SA.first_name,' ',SA.last_name,' ',SA.suffix_name) END as SalesAgent
+	// 	FROM ".TB_PREF."sales_orders SO 
+	// 		INNER JOIN ".TB_PREF."sales_order_details SOD on SO.order_no = SOD.order_no
+	// 	    LEFT JOIN ".TB_PREF."stock_master SM on SOD.stk_code = SM.stock_id
+	// 	    LEFT JOIN ".TB_PREF."debtors_master DM on SO.debtor_no = DM.debtor_no
+	// 	    LEFT JOIN ".TB_PREF."item_importer IR on SM.importer = IR.id
+	// 	    LEFT JOIN ".TB_PREF."stock_category SC on SO.category_id = SC.category_id
+	// 	    LEFT JOIN ".TB_PREF."item_brand IB on SM.brand = IB.id
+	// 	    LEFT JOIN ".TB_PREF."sales_agent SA on SO.salesman_id = SA.id
+	// 	WHERE 
+	// 		SO.order_no = SOD.order_no
+	// 		AND SO.ord_date <= '$to'
+	// 		AND	SO.ord_date >='$from'";
+	$sql = "
+		SELECT ib6.name as Brand
+			,dt1.type
+		    ,sc10.description as Category
+		    ,ii7.name as Subcategory
+		    ,dt1.tran_date as `Date`
+		    ,dt1.reference as `Invoice`
+		    ,dm3.name as Name
+		    ,dtd4.stock_id as Model
+		    ,dtd4.lot_no as `Serial`
+		    ,dtd4.chassis_no as `Chassis`
+		    ,dl2.ar_amount as `grossAmnt`
+		    ,dl2.discount_downpayment as `discountdp`
+		    ,CASE
+		    	WHEN dl2.installmentplcy_id = 0 THEN 'CASH'
+		        ELSE 'INSTALLMENT' END AS `Type`
+		    ,dl2.months_term as Term
+		    ,dtd4.quantity as Qty
+		    ,dl2.lcp_amount as LCP
+		    ,dtd4.standard_cost as `UnitCost`
+		    ,CASE
+		    	WHEN so8.salesman_id IS NULL OR so8.salesman_id = 0 THEN 'Office Sales'
+		        WHEN so8.salesman_id = 0 THEN 'Office Sales'
+		        ELSE sn9.salesman_name END AS `SalesAgent`		    
+		FROM ".TB_PREF."debtor_trans_details dtd4
+		    INNER JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
+			LEFT JOIN ".TB_PREF."debtor_loans dl2 on dtd4.debtor_trans_no = dl2.trans_no
+		    LEFT JOIN ".TB_PREF."debtors_master dm3 on dt1.debtor_no = dm3.debtor_no
+		    LEFT JOIN ".TB_PREF."stock_master sm5 on sm5.stock_id = dtd4.stock_id
+		    LEFT JOIN ".TB_PREF."item_brand ib6 on sm5.brand = ib6.id
+		    LEFT JOIN ".TB_PREF."item_importer ii7 on sm5.importer = ii7.id
+		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.trans_no = so8.order_no
+		    LEFT JOIN ".TB_PREF."salesman sn9 on so8.salesman_id = sn9.salesman_code
+		    LEFT JOIN ".TB_PREF."stock_category sc10 on dl2.category_id = sc10.category_id
+		WHERE dt1.type = ".ST_SALESINVOICE."
+			AND dtd4.standard_cost <> 0
+			AND dt1.tran_date <= '$to'
+			AND	dt1.tran_date >='$from'";
+
+	if ($cat_id != ALL_TEXT)
+		$sql .= " AND so8.category_id =".db_escape($cat_id);
+	if ($brand_code != ALL_TEXT)
+		$sql .= " AND sm5.brand =".db_escape($brand_code);
+	if ($cust_id != ALL_TEXT)
+		$sql .= " AND dm3.debtor_no=".db_escape($cust_id);
+	if ($item_model != ALL_TEXT)
+		$sql .= " AND dtd4.stock_id =".db_escape($item_model);
+	if ($sales_type != ALL_TEXT)
+	{
+		if ($sales_type == 'CASH')
+		{
+			$sql .= " AND dl2.installmentplcy_id = '0'";
+		}
+		else
+		{
+			$sql .= " AND dl2.installmentplcy_id != '0'";
+		}
+	}
+
+	// if($terms != 'ALL')
+	// {
+	// 	//$sql .= " AND dl2.months_term = ".db_escape($terms);
+	// }
+
+	return db_query($sql,"No transactions were returned");
 }
-
-function getTaxes($type, $trans_no)
-{
-	$sql = "SELECT included_in_price, SUM(CASE WHEN trans_type=".ST_CUSTCREDIT." THEN -amount ELSE amount END * ex_rate) AS tax
-		FROM ".TB_PREF."trans_tax_details WHERE trans_type=$type AND trans_no=$trans_no GROUP BY included_in_price";
-
-    $result = db_query($sql,"No transactions were returned");
-    if ($result !== false)
-    	return db_fetch($result);
-    else
-    	return null;
-}    	
-
-//----------------------------------------------------------------------------------------------------
 
 function print_sales_summary_report()
 {
@@ -66,104 +140,177 @@ function print_sales_summary_report()
 	
 	$from = $_POST['PARAM_0'];
 	$to = $_POST['PARAM_1'];
-	$tax_id = $_POST['PARAM_2'];
-	$comments = $_POST['PARAM_3'];
-	$orientation = $_POST['PARAM_4'];
-	$destination = $_POST['PARAM_5'];
-	if ($tax_id == 0)
-		$tid = _('No');
-	else
-		$tid = _('Yes');
-
+	$cat_id = $_POST['PARAM_2'];
+	$brand_code = $_POST['PARAM_3'];
+	$cust_id = $_POST['PARAM_4'];
+	$sales_type = $_POST['PARAM_5'];
+	$item_model = $_POST['PARAM_6'];
+	//$months_term = $_POST['PARAM_7'];
+	$comments = $_POST['PARAM_7'];
+	$orientation = $_POST['PARAM_8'];
+	$destination = $_POST['PARAM_9'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
 	else
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+				
 	$orientation = ($orientation ? 'L' : 'P');
+	
+    $dec = user_price_dec();
+	
+	if ($cat_id < 0)
+		$cat_id = 0;
+	if ($cat_id == 0)
+		$cat = _('ALL');
+	else
+		$cat = get_category_name($cat_id);
 
-	$dec = user_price_dec();
+	if ($brand_code < 0)
+		$brand_code = 0;
+	if ($brand_code == 0)
+		$brd = _('ALL');
+	else
+		$brd = get_brand_descr($brand_code);
 
-	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", user_pagesize(), 9, $orientation);
+	if ($cust_id == ALL_TEXT)
+		$cust = _('ALL');
+	else
+		$cust = get_customer_name($cust_id);
 
-	$params =   array( 	0 => $comments,
-						1 => array('text' => _('Period'), 'from' => $from, 'to' => $to),
-						2 => array(  'text' => _('Tax Id Only'),'from' => $tid,'to' => ''));
+	if($sales_type == ALL_TEXT)
+	{
+		$type = _('ALL');
+	}
 
-	$cols = array(0, 130, 180, 270, 350, 500);
+	if($item_model == ALL_TEXT)
+	{
+		$model = _('ALL');
+	}
 
-	$headers = array(_('Customer'), _('Tax Id'), _('Total ex. Tax'), _('Tax'));
-	$aligns = array('left', 'left', 'right', 'right');
+	// if($months_term == 0)
+	// {
+	// 	$terms = _('ALL');
+	// }
+	// else 
+	// 	$terms = $months_term;
+	
+	$params = array(0 => $comments,
+		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
+		2 => array('text' => _('Category'), 'from' => $cat, 'to' => ''),
+		3 => array('text' => _('Brand'), 'from' => $brd, 'to' => ''),
+		4 => array('text' => _('Customer'), 'from' => $cust, 'to' => ''),
+		5 => array('text' => _('Sales type'), 'from' => $type, 'to' => ''),
+		6 => array('text' => _('Item model'), 'from' => $model, 'to' => ''));
+		// 7 => array('text' => _('Months Term'), 'from' => $terms, 'to' => ''));
+
+	//              brand    cat      sub-cat   date       SIno.
+	$cols = array(0,      45,     95,  	     140,      175, 
+
+	//       name     model     serial     chassis    type       term       qty
+		230,      290,       350,       410,       460,     490,     515,   
+
+	//      LCP     Cost     gross     discount     Agent
+		530,    570,     610,      655,        685,     0);
+
+	$headers = array(
+		_('Brand'), 
+		_('Category'),
+		_('Sub-category'), 
+		_('Date'),
+		_('Invoice #'),
+		_('Customer'),
+		_('Model'),
+		_('Serial #'),
+		_('Chassis #'),
+		_('Type'),
+		_('Term'),
+		_('Qty'),
+		_('LCP'),
+		_('Unit Cost'),
+		_('Gross Amount'),
+		_('Discount'),
+		_('Sales Agent'),
+		);
+
+	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
+	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'left');
+
+	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
+
     if ($orientation == 'L')
     	recalculate_cols($cols);
-
-	$rep->Font();
-	$rep->Info($params, $cols, $headers, $aligns);
+	
+	$rep->fontSize -= 2;
+    $rep->Info($params, $cols, $headers, $aligns, 
+		null, null, null, true, true, true);
+    $rep->SetHeaderType('SL_Summary_Header');
 	$rep->NewPage();
-	
-	$totalnet = 0.0;
-	$totaltax = 0.0;
-	$transactions = getTaxTransactions($from, $to, $tax_id);
 
-	$rep->TextCol(0, 4, _('Balances in Home Currency'));
-	$rep->NewLine(2);
-	
-	$custno = 0;
-	$tax = $total = 0;
-	$custname = $tax_id = "";
-	while ($trans=db_fetch($transactions))
-	{
-		if ($custno != $trans['debtor_no'])
-		{
-			if ($custno != 0)
-			{
-				$rep->TextCol(0, 1, $custname);
-				$rep->TextCol(1, 2,	$tax_id);
-				$rep->AmountCol(2, 3, $total, $dec);
-				$rep->AmountCol(3, 4, $tax, $dec);
-				$totalnet += $total;
-				$totaltax += $tax;
-				$total = $tax = 0;
-				$rep->NewLine();
+	$Tot_qty=0;
+	$Tot_lcp=0;
+	$Tot_ucost = 0;
+	$Tot_gross = 0;
+	$Tot_discount = 0;
+	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
 
-				if ($rep->row < $rep->bottomMargin + $rep->lineHeight)
-				{
-					$rep->Line($rep->row - 2);
-					$rep->NewPage();
-				}
-			}
-			$custno = $trans['debtor_no'];
-			$custname = $trans['cust_name'];
-			$tax_id = $trans['tax_id'];
-		}	
-		$taxes = getTaxes($trans['type'], $trans['trans_no']);
-		if ($taxes != null)
-		{
-			if ($taxes['included_in_price'])
-				$trans['total'] -= $taxes['tax'];
-			$tax += $taxes['tax'];
-		}	
-		$total += $trans['total']; 
-	}
-	if ($custno != 0)
+	While ($GRNs = db_fetch($res))
 	{
-		$rep->TextCol(0, 1, $custname);
-		$rep->TextCol(1, 2,	$tax_id);
-		$rep->AmountCol(2, 3, $total, $dec);
-		$rep->AmountCol(3, 4, $tax, $dec);
-		$totalnet += $total;
-		$totaltax += $tax;
+		
+		$dec2 = get_qty_dec($GRNs['Model']);
+
 		$rep->NewLine();
+		$rep->TextCol(0, 1, $GRNs['Brand']);
+		$rep->TextCol(1, 2, $GRNs['Category']);
+		$rep->TextCol(2, 3, $GRNs['Subcategory']);
+		$rep->TextCol(3, 4, sql2date($GRNs['Date']));
+		$rep->TextCol(4, 5, $GRNs['Invoice']);
+		$rep->TextCol(5, 6, $GRNs['Name']);
+		$rep->TextCol(6, 7, $GRNs['Model']);
+		$rep->TextCol(7, 8, $GRNs['Serial']);
+		$rep->TextCol(8, 9, $GRNs['Chassis']);
+		$rep->TextCol(9, 10, $GRNs['Type']);
+		$rep->TextCol(10, 11, $GRNs['Term']);
+		$rep->TextCol(11, 12, $GRNs['Qty']);
+		$rep->AmountCol2(12, 13, $GRNs['LCP']);
+		$rep->AmountCol2(13, 14, $GRNs['UnitCost']);
+		$rep->AmountCol2(14, 15, $GRNs['grossAmnt']);
+		$rep->AmountCol2(15, 16, $GRNs['discountdp']);
+		$rep->TextCol(16, 17, $GRNs['SalesAgent']);
+
+		$qty = $GRNs['Qty'];
+		$Tot_qty += $qty;
+
+		$lcp = $GRNs['LCP'];
+		$Tot_lcp += $lcp;
+
+		$ucost = $GRNs['UnitCost'];
+		$Tot_ucost += $ucost;
+
+		$grossAmnt = $GRNs['grossAmnt'];
+		$Tot_gross += $grossAmnt;
+
+		$discount = $GRNs['discountdp'];
+		$Tot_discount += $discount;
+
+		$rep->NewLine(0, 1);
 	}
-	$rep->Font('bold');
+
 	$rep->NewLine();
-	$rep->Line($rep->row + $rep->lineHeight);
-	$rep->TextCol(0, 2,	_("Total"));
-	$rep->AmountCol(2, 3, $totalnet, $dec);
-	$rep->AmountCol(3, 4, $totaltax, $dec);
-	$rep->Line($rep->row - 5);
-	$rep->Font();
+	$rep->Line($rep->row - 2);
 
-	$rep->End();
+	$rep->NewLine();
+	$rep->Font('bold');
+	$rep->fontSize -= 1;	
+	$rep->TextCol(0, 11, _('Total'));
+	$rep->AmountCol(11, 12, $Tot_qty);
+	$rep->AmountCol(12, 13, $Tot_lcp, $dec);
+	$rep->AmountCol(13, 14, $Tot_ucost, $dec);
+	$rep->AmountCol(14, 15, $Tot_gross, $dec);
+	$rep->AmountCol(15, 16, $Tot_discount, $dec);
+
+	$rep->Line($rep->row - 2);
+	//$rep->SetFooterType('compFooter');
+	$rep->fontSize -= 2;
+    $rep->End();
 }
-

@@ -13,7 +13,7 @@ $page_security = 'SA_SALESAREA';
 $path_to_root = "../..";
 include($path_to_root . "/includes/session.inc");
 
-page(_($help_context = "Sales Areas"));
+page(_($help_context = "Collector Area Setup"));
 
 include($path_to_root . "/includes/ui.inc");
 
@@ -31,16 +31,30 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 		set_focus('description');
 	}
 
+	if (strlen($_POST['collectors_id']) == 0) 
+	{
+		$input_error = 1;
+		display_error(_("The account specialist cannot be empty."));
+		set_focus('collectors_id');
+	}
+
+	if (strlen($_POST['collector_description']) == 0) 
+	{
+		$input_error = 1;
+		display_error(_("The collector description cannot be empty."));
+		set_focus('collector_description');
+	}
+
 	if ($input_error != 1)
 	{
     	if ($selected_id != -1) 
     	{
-    		update_sales_area($selected_id, $_POST['description']);
+    		update_sales_area($selected_id, $_POST['description'], $_POST['collectors_id'], $_POST['collector_description']);
 			$note = _('Selected sales area has been updated');
     	} 
     	else 
     	{
-    		add_sales_area($_POST['description']);
+    		add_sales_area($_POST['description'], $_POST['collectors_id'], $_POST['collector_description']);
 			$note = _('New sales area has been added');
     	}
     
@@ -56,7 +70,7 @@ if ($Mode == 'Delete')
 
 	// PREVENT DELETES IF DEPENDENT RECORDS IN 'debtors_master'
 
-	if (key_in_foreign_table($selected_id, 'cust_branch', 'area'))
+	if (key_in_foreign_table($selected_id, 'debtors_master', 'area'))
 	{
 		$cancel_delete = 1;
 		display_error(_("Cannot delete this area because customer branches have been created using this area."));
@@ -83,9 +97,9 @@ if ($Mode == 'RESET')
 $result = get_sales_areas(check_value('show_inactive'));
 
 start_form();
-start_table(TABLESTYLE, "width='30%'");
+start_table(TABLESTYLE, "width='50%'");
 
-$th = array(_("Area Name"), "", "");
+$th = array(_("ID"),_("Area Name"),  _("Account Specialist User ID"), _("Account Specialist Name"), _("Desciption"), "", "");
 inactive_control_column($th);
 
 table_header($th);
@@ -96,7 +110,12 @@ while ($myrow = db_fetch($result))
 	
 	alt_table_row_color($k);
 		
+	label_cell($myrow["area_code"]);
 	label_cell($myrow["description"]);
+	label_cell($myrow["collectors_id"]);
+	label_cell($myrow["real_name"]);
+	label_cell($myrow["collector_description"]);
+
 	
 	inactive_control_cell($myrow["area_code"], $myrow["inactive"], 'areas', 'area_code');
 
@@ -113,6 +132,7 @@ echo '<br>';
 
 start_table(TABLESTYLE2);
 
+//modified br robert
 if ($selected_id != -1) 
 {
  	if ($Mode == 'Edit') {
@@ -120,11 +140,17 @@ if ($selected_id != -1)
 		$myrow = get_sales_area($selected_id);
 
 		$_POST['description']  = $myrow["description"];
+		$_POST['collectors_id']  = $myrow["collectors_id"];
+		$_POST['collector_description']  = $myrow["collector_description"];
+
 	}
 	hidden("selected_id", $selected_id);
 } 
 
 text_row_ex(_("Area Name:"), 'description', 30); 
+collector_area_list_cells(_("Account Specialist:"), 'collectors_id', $_POST['collectors_id']); 
+text_row_ex(_("Desciption:"), 'collector_description', 30); 
+
 
 end_table(1);
 

@@ -13,7 +13,7 @@
 	item_codes table is used to store both multiply foreign codes (aliases) and 
 	sales kits definition.
 */
-function update_item_code($id, $item_code, $stock_id, $description, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0)
+function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0, $itemstatus=0)
 {
 	$sql = "UPDATE ".TB_PREF."item_codes SET
 	 	item_code = ".db_escape($item_code).",
@@ -25,7 +25,10 @@ function update_item_code($id, $item_code, $stock_id, $description, $category, $
 	 	brand = ".db_escape($brand).",
 	 	manufacturer = ".db_escape($manufacturer).",
 	 	distributor = ".db_escape($distributor).",
-	 	importer = ".db_escape($importer)."
+	 	importer = ".db_escape($importer).",
+		product_status = ".db_escape($itemstatus).",
+		pnp_color = ".db_escape($pnp_color).",
+		color = ".db_escape($color)."
         	WHERE ";
 			
 	if ($id == -1) // update with unknown $id i.e. from items table editor
@@ -37,13 +40,23 @@ function update_item_code($id, $item_code, $stock_id, $description, $category, $
 	db_query($sql,"an item code could not be updated");
 }
 
-function add_item_code($item_code, $stock_id, $description, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0)
+function add_item_code($item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0, $itemstatus=0)
 {
 	$sql = "INSERT INTO ".TB_PREF."item_codes
-			(item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer) 
+			(item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer, product_status, pnp_color, color) 
 			VALUES( ".db_escape($item_code).",".db_escape($stock_id).",
-	  		".db_escape($description).",".db_escape($category)
-	  		.",".db_escape($qty).",".db_escape($foreign).",".db_escape($brand).",".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).")";
+	  		".db_escape($description).",
+            ".db_escape($category).",  
+            ".db_escape($qty).", 
+            ".db_escape($foreign).", 
+            ".db_escape($brand).", 
+            ".db_escape($manufacturer).", 
+            ".db_escape($distributor).", 
+            ".db_escape($importer).", 
+            ".db_escape($itemstatus).", 
+            ".db_escape($pnp_color).",  
+            ".db_escape($color)."
+            )";
 
 	db_query($sql,"an item code could not be added");
 }
@@ -107,7 +120,7 @@ function delete_item_kit($item_code)
 
 function get_item_kit($item_code)
 {
-	$sql="SELECT DISTINCT kit.*, item.units, comp.description as comp_name 
+	$sql="SELECT DISTINCT kit.*, item.units, comp.description as comp_name, item.description as sdescription, comp.description as idescription, item.inventory_account, item.serialised, brand.name as brand_name
 		FROM "
 		.TB_PREF."item_codes kit,"
 		.TB_PREF."item_codes comp
@@ -115,6 +128,10 @@ function get_item_kit($item_code)
 		.TB_PREF."stock_master item
 		ON 
 			item.stock_id=comp.item_code
+		LEFT JOIN "
+		.TB_PREF."item_brand brand
+		ON 
+			item.brand=brand.id
 		WHERE
 			kit.stock_id=comp.item_code
 			AND kit.item_code=".db_escape($item_code);
@@ -122,6 +139,71 @@ function get_item_kit($item_code)
 	$result = db_query($sql,"item kit could not be retrieved");
 
 	return $result;
+}
+
+function get_item_serial_kit($item_code)
+{
+   
+    
+    $sql="SELECT icode.*, iserial.*, item.units, item.description as sdescription, icode.description as idescription, item.inventory_account FROM "
+		.TB_PREF."item_codes icode 
+LEFT JOIN "
+		.TB_PREF."stock_master item ON item.stock_id=icode.stock_id
+INNER JOIN "
+		.TB_PREF."item_serialise iserial ON icode.item_code=iserial.serialise_item_code    
+		WHERE iserial.serialise_id=".db_escape($item_code);
+                
+    $result = db_query($sql,"item could not be retrieved");
+                
+    return $result;
+}
+
+function get_MTitem_serial_kit($item_code)
+{
+    $sql="SELECT icode.*, iserial.*, item.units, item.description as sdescription, icode.description as idescription, item.inventory_account FROM ".TB_PREF."item_codes icode
+LEFT JOIN "
+            .TB_PREF."stock_master item ON item.stock_id=icode.stock_id
+INNER JOIN "
+                .TB_PREF."item_serialise iserial ON icode.item_code=iserial.serialise_item_code
+		WHERE iserial.serialise_id=".db_escape($item_code);
+                
+                $result = db_query($sql,"item could not be retrieved");
+                
+                return $result;
+}
+//Added by Herald 03/25/2021
+function get_item_supplier_id($stock_id){
+    global $def_coy;
+    set_global_connection($def_coy);
+    
+    $sql="SELECT supplier_id FROM "
+        .TB_PREF."purch_data supplier
+		WHERE supplier.stock_id=".db_escape($stock_id);
+                
+    $result = db_query($sql,"item supplier could not be retrieved");
+    return db_fetch($result);
+    //set_global_connection();
+    //return $result;
+                
+}
+//Added by Herald 03/05/2021 for RR Branch Search Serial
+function get_item_serial_mt($mt_details_id)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+    
+    $sql="SELECT icode.*, iserial.*, item.units, item.description as sdescription, icode.description as idescription FROM "
+        .TB_PREF."item_codes icode
+LEFT JOIN "
+        .TB_PREF."stock_master item ON item.stock_id=icode.stock_id
+INNER JOIN "
+        .TB_PREF."mt_details iserial ON icode.item_code=iserial.mt_details_item_code
+		WHERE iserial.mt_details_id=".$mt_details_id." LIMIT 1";
+                
+    $result = db_query($sql,"MT item could not be retrieved");
+    set_global_connection();
+    return $result;
+    
 }
 
 function get_item_code_dflts($stock_id)
@@ -184,4 +266,40 @@ function get_where_used($item_code)
 		. " WHERE stock_id=".db_escape($item_code)."
 			AND item_code!=".db_escape($item_code);
 	return db_query($sql, "where used query failed");
+}
+
+function get_adjustment_types($show_inactive)
+{
+	$sql = "SELECT * FROM ".TB_PREF."inventory_adjustment";
+	if (!$show_inactive) $sql .= " WHERE !inactive";
+	return db_query($sql,"could not get adjustment");
+}
+
+function get_adjustment_type($selected_id)
+{
+	$sql = "SELECT * FROM ".TB_PREF."inventory_adjustment WHERE adjust_id=".db_escape($selected_id);
+
+	$result = db_query($sql,"could not get adjustment type");
+	return db_fetch($result);
+}
+
+function add_adjustment_type($adjustment_name)
+{
+	$sql = "INSERT INTO ".TB_PREF."inventory_adjustment (adjustment_name)
+    VALUES (".db_escape($adjustment_name).")";
+   	db_query($sql,"The adjustment type could not be added");
+}
+
+function update_adjustment_type($selected_id, $adjustment_name)
+{
+	$sql = "UPDATE ".TB_PREF."inventory_adjustment SET 
+	 adjustment_name=".db_escape($adjustment_name)."
+	 WHERE adjust_id = ".db_escape($selected_id);
+   	db_query($sql,"The adjustment type could not be updated");
+}
+
+function delete_adjustment_type($selected_id)
+{
+	$sql="DELETE FROM ".TB_PREF."inventory_adjustment WHERE adjust_id=".db_escape($selected_id);
+	db_query($sql,"could not delete adjustment type");
 }

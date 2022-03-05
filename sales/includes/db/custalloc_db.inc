@@ -56,6 +56,7 @@ function update_debtor_trans_allocation($trans_type, $trans_no, $person_id)
 		WHERE trans.debtor_no=".db_escape($person_id)." AND ".($trans_type==ST_SALESORDER ?
 			   "trans.trans_type=".db_escape($trans_type)." AND order_no=".db_escape($trans_no)
 			:  "trans.type=".db_escape($trans_type)." AND trans_no=".db_escape($trans_no));
+	
 	db_query($sql, "The debtor transaction record could not be modified for the allocation against it");
 }
 
@@ -148,7 +149,8 @@ function get_allocatable_sales_orders($customer_id = null, $trans_no=null, $type
 		sorder.version,
 		amt,
 		sorder.debtor_no,
-		sorder.branch_code
+		sorder.branch_code,
+		'' as downpayment_amount
 		FROM ".TB_PREF."sales_orders as sorder
 			LEFT JOIN ".TB_PREF."debtors_master as debtor ON sorder.debtor_no = debtor.debtor_no
 			LEFT JOIN ".TB_PREF."cust_allocations as alloc 
@@ -191,8 +193,10 @@ function get_allocatable_to_cust_transactions($customer_id = null, $trans_no=nul
 		trans.version,
 		amt,
 		trans.debtor_no,
-		trans.branch_code
+		trans.branch_code,
+		dl.downpayment_amount
 	 FROM ".TB_PREF."debtor_trans as trans
+	 		LEFT JOIN ".TB_PREF."debtor_loans dl ON dl.trans_no = trans.trans_no
 			LEFT JOIN ".TB_PREF."cust_allocations as alloc
 				ON trans.trans_no = alloc.trans_no_to AND trans.type = alloc.trans_type_to AND alloc.person_id=trans.debtor_no,"
 	 		.TB_PREF."debtors_master as debtor

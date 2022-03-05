@@ -18,4 +18,7 @@ include_once($path_to_root . "/purchasing/includes/ui/invoice_ui.inc");
 include_once($path_to_root . "/purchasing/includes/ui/po_ui.inc");
 include_once($path_to_root . "/purchasing/includes/ui/grn_ui.inc");
 include_once($path_to_root . "/purchasing/includes/ui/pr_ui.inc");
+include_once($path_to_root . "/purchasing/includes/ui/prtpo_ui.inc");
+include_once($path_to_root . "/purchasing/includes/ui/consign_ui.inc");
+include_once($path_to_root . "/purchasing/includes/ui/copy_from_rcon_to_po_ui.inc");
 //--------------------------------------------------------------------------------------

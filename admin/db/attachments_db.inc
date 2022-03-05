@@ -119,4 +119,49 @@ function move_trans_attachments($type, $trans_from, $trans_to)
 	db_query($sql, 'cannot move atachments');
 }
 
+//Added by spyrax10 4 Mar 2022
+function max_attach_no() {
+
+	set_global_connection();
+
+	$sql = "SELECT MAX(A.trans_no) 
+		FROM " . TB_PREF . "attachments A ";
+		
+	$result = db_query($sql, "Can't get max attachments no! (spyrax10)");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
+function import_file_exists($trans_type) {
+
+	set_global_connection();
+
+	$sql = "SELECT COUNT(*)
+		FROM " . TB_PREF . "attachments A 
+		WHERE A.description = 'For Importing' 
+			AND A.type_no = " .db_escape($trans_type);
+	
+	$res = db_query($sql, "Cant count attachments");
+	
+	if (db_num_rows($res) >= 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+function get_attachment_by_type($trans_type) {
+
+	set_global_connection();
+
+	$sql = "SELECT * 
+		FROM ".TB_PREF."attachments 
+		WHERE description = 'For Importing' 
+			AND type_no = ".db_escape($trans_type);
+	
+	$result = db_query($sql, "Could not retrieve attachments");
+	return db_fetch($result);
+}
+//
 

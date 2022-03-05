@@ -187,3 +187,163 @@ function clean_user_themes($theme)
 	$_SESSION['wa_current_user']->prefs->theme = 'default';
 	return true;
 }
+
+//-----------------------------------------------------------------------------------------
+//added on feb 27,2021 by prog jr. for company type
+//
+
+function add_company_type($code, $desc)
+{
+	$sql = "INSERT INTO ".TB_PREF."company_type (type,description) VALUES (".db_escape($code).",".db_escape($desc).")";
+	db_query($sql, "could not add company type");		
+}
+
+function update_company_type($code, $desc)
+{
+
+	$sql = "UPDATE ".TB_PREF."company_type SET description = ".db_escape($desc).",
+			 WHERE id = ".db_escape($code);
+	
+	db_query($sql, "could not update company type");			
+}
+
+function get_all_company_type($all=false)
+{
+	$sql = "SELECT * FROM ".TB_PREF."company_type ";
+	if (!$all)
+		$sql .= " WHERE !inactive";
+	
+	return db_query($sql, "could not get all company type");
+} 
+
+function get_company_type($code)
+{
+	$sql = "SELECT * FROM ".TB_PREF."company_type WHERE type=".db_escape($code);
+	
+	$result = db_query($sql, "could not get company type");
+	
+	return db_fetch($result);
+}
+
+function get_company_type_desc($code)
+{
+	$sql = "SELECT description FROM ".TB_PREF."company_type WHERE type=".db_escape($code);
+	
+	$result = db_query($sql, "could not get company type");
+	
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
+function delete_company_type($code)
+{
+	$sql="DELETE FROM ".TB_PREF."company_type WHERE type=".db_escape($code);
+	db_query($sql,"The company type record could not be deleted");
+}
+
+/*
+------- added by progjr to get db connections on 03-25-2021 -----------------------
+*/
+
+function Get_db_coy($branch_code = null)
+{
+	global $db_connections;
+    $totalDB = count($db_connections);
+
+	if ($branch_code == null)
+		$branch_code = $db_connections[user_company()]["partner_code"];
+
+	for ($i = 0; $i < $totalDB; $i++)
+	{
+        if(strtoupper($db_connections[$i]['branch_code']) == strtoupper($branch_code)){
+            $db_coy = $i;
+			break;
+        }
+    }
+	return $db_coy;
+}
+
+//Added by Herald for Branch Loop
+function get_db_location_name($loc_code){
+    global $db_connections;
+    $br_name='';
+    
+    for ($i = 0; $i < count($db_connections); $i++)
+    {
+        if($db_connections[$i]["branch_code"]==$loc_code){
+            $br_name=$db_connections[$i]["name"];
+        }
+        
+    }
+    return $br_name;
+}
+//Added by Herald for Branch Loop to get address
+function get_db_location_address($loc_code){
+    global $db_connections;
+    $br_name='';
+    
+    for ($i = 0; $i < count($db_connections); $i++)
+    {
+        if($db_connections[$i]["branch_code"]==$loc_code){
+            $br_name=$db_connections[$i]["address"];
+        }
+        
+    }
+    return $br_name;
+}
+//Added by Herald 08/10/2021 for Branch Loop to get area Code
+function get_db_location_area($loc_code){
+    global $db_connections;
+    $br_area='';
+    
+    for ($i = 0; $i < count($db_connections); $i++)
+    {
+        if($db_connections[$i]["branch_code"]==$loc_code){
+            $br_area=$db_connections[$i]["branch_area"];
+        }
+        
+    }
+    return $br_area;
+}
+
+//Added by Herald 07/01/2021 for Branch Loop to get GL Code
+function get_db_location_glaccount($loc_code){
+    global $db_connections;
+    $br_glaccount='';
+    
+    for ($i = 0; $i < count($db_connections); $i++)
+    {
+        if($db_connections[$i]["branch_code"]==$loc_code){
+            $br_glaccount=$db_connections[$i]["gl_account"];
+        }
+        
+    }
+    return $br_glaccount;
+}
+
+//Added by spyrax10
+
+function get_company_value($company_id, $array_val = ''){
+    global $db_connections;
+    $value = '';
+    
+    for ($i = 0; $i < count($db_connections); $i++)
+    {
+        if($i == $company_id){
+			$value = $db_connections[$i][$array_val];  
+        }        
+    }
+    return $value;
+}
+
+function getCompDet($colName) 
+{
+	set_global_connection();
+
+	$sql = "SELECT A.value FROM sys_prefs A 
+		WHERE A.name =".db_escape($colName);
+	
+	$result = db_query($sql, "Can't get value in sys_pref! (spyrax10)");
+	$row = db_fetch_row($result);
+	return $row[0];
+}

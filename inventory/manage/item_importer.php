@@ -13,7 +13,7 @@ $page_security = 'SA_IMPORTER';
 $path_to_root = "../..";
 include($path_to_root . "/includes/session.inc");
 
-page(_($help_context = "Importer Masterfile Setup"));
+page(_($help_context = "Classification Masterfile Setup"));
 
 include_once($path_to_root . "/includes/ui.inc");
 
@@ -27,22 +27,35 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 
 	//initialise no input errors assumed initially before we test
 	$input_error = 0;
-
+	$name = $_REQUEST['description'];
+	$description = get_importer_name($name);
+	$result = db_fetch($description);
+	$db_count = $result["num"];
+	
 	
 	if (strlen($_POST['description']) == 0)
 	{
 		$input_error = 1;
-		display_error(_("The importer name cannot be empty."));
+		display_error(_("The classification name cannot be empty."));
+		set_focus('description');
+	}
+	
+	if($db_count != 0)
+	{
+		$input_error = 1;
+		display_warning(_("Item classification name already exist."));
 		set_focus('description');
 	}
 
 	if ($input_error !=1) {
+		if ($db_count == 0) {
     	write_importer($selected_id, $_POST['description']);
 		if($selected_id != '')
-			display_notification(_('Selected importer has been updated'));
+			display_notification(_('Selected classification has been updated'));
 		else
-			display_notification(_('New importer has been added'));
+			display_notification(_('New classification has been added'));
 		$Mode = 'RESET';
+		}
 	}
 }
 
@@ -55,13 +68,13 @@ if ($Mode == 'Delete')
 
 	if (importer_used($selected_id))
 	{
-		display_error(_("Cannot delete this importer because items have been created using this importer."));
+		display_error(_("Cannot delete this classification because items have been created using this classification."));
 
 	}
 	else
 	{
 		delete_importer($selected_id);
-		display_notification(_('Selected importer has been deleted'));
+		display_notification(_('Selected classification has been deleted'));
 	}
 	$Mode = 'RESET';
 }
@@ -81,7 +94,7 @@ $result = get_all_importer(check_value('show_inactive'));
 
 start_form();
 start_table(TABLESTYLE, "width='40%'");
-$th = array( _('ID'), _('Importer'), "", "");
+$th = array( _('ID'), _('Classification Name'), "", "");
 inactive_control_column($th);
 
 table_header($th);
@@ -139,7 +152,7 @@ if ($selected_id != '' && importer_used($selected_id)){
 	//label_row(_("ID:"), $_POST['id']);
 	//text_row(_("Brand Code:"), 'code', null, 20, 20);
  }
-text_row(_("Imported By Name:"), 'description', null, 40, 40);
+text_row(_("Classification Name:"), 'description', null, 40, 40);
 
 //number_list_row(_("Decimal Places:"), 'decimals', null, 0, 6, _("User Quantity Decimals"));
 

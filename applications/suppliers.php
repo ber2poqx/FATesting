@@ -16,16 +16,24 @@ class suppliers_app extends application
 		parent::__construct("AP", _($this->help_context = "&Purchases"));
 
 		$this->add_module(_("Transactions"));
+		if (user_company() == 0) {
+			$this->add_lapp_function(0, _("Branch Purchase Request"),
+			"purchasing/pr_branch.php?", 'SA_PR_BRANCH', MENU_TRANSACTION);
+			$this->add_lapp_function(0, _("Branch Purchase Orders"),
+				"purchasing/po_branch.php?", 'SA_PO_BRANCH', MENU_TRANSACTION);
+		}
 		$this->add_lapp_function(0, _("Purchase Request"),
 			"purchasing/purchase_request.php?", 'SA_PURCHASEREQUEST', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Purchase &Order Entry"),
 			"purchasing/po_entry_items.php?NewOrder=Yes", 'SA_PURCHASEORDER', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("&Outstanding Purchase Orders Maintenance"),
 			"purchasing/inquiry/po_search.php?", 'SA_GRN', MENU_TRANSACTION);
-		$this->add_lapp_function(0, _("Direct &GRN"),
+		$this->add_lapp_function(0, _("Receiving &Report Entry"),
 			"purchasing/po_entry_items.php?NewGRN=Yes", 'SA_GRN', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Direct Supplier &Invoice"),
 			"purchasing/po_entry_items.php?NewInvoice=Yes", 'SA_SUPPLIERINVOICE', MENU_TRANSACTION);
+		$this->add_lapp_function(0, _("Receive Consignment Item"),
+			"purchasing/rcon_po.php?", 'SA_RECEIVECONSIGN', MENU_TRANSACTION);
 
 		$this->add_rapp_function(0, _("&Payments to Suppliers"),
 			"purchasing/supplier_payment.php?", 'SA_SUPPLIERPAYMNT', MENU_TRANSACTION);
@@ -38,6 +46,7 @@ class suppliers_app extends application
 			"purchasing/allocations/supplier_allocation_main.php?", 'SA_SUPPLIERALLOC', MENU_TRANSACTION);
 
 		$this->add_module(_("Inquiries and Reports"));
+		
 		$this->add_lapp_function(1, _("Purchase Orders &Inquiry"),
 			"purchasing/inquiry/po_search_completed.php?", 'SA_SUPPTRANSVIEW', MENU_INQUIRY);
 		$this->add_lapp_function(1, _("Supplier Transaction &Inquiry"),
@@ -49,9 +58,17 @@ class suppliers_app extends application
 			"reporting/reports_main.php?Class=1", 'SA_SUPPTRANSVIEW', MENU_REPORT);
 
 		$this->add_module(_("Maintenance"));
-		$this->add_lapp_function(2, _("&Suppliers"),
+		$this->add_lapp_function(2, _("&Supplier Set-Up"),
 			"purchasing/manage/suppliers.php?", 'SA_SUPPLIER', MENU_ENTRY);
-
+		$this->add_rapp_function(2, _("System &Cost Setup"),
+			"purchasing/manage/supplier_costyps.php?", 'SA_SUPPLIERCOSTYP', MENU_MAINTENANCE);
+		$this->add_lapp_function(2, _("Suppliers &Group"),
+		    "purchasing/manage/suppliers_group.php?", 'SA_SUPPLIER_GROUP', MENU_MAINTENANCE);
+		$this->add_lapp_function(2, _("Suppliers &Request Set-Up"),
+		    "purchasing/manage/suppliers_request.php?", 'SA_SUPPLIER_GROUP', MENU_MAINTENANCE);
+		$this->add_lapp_function(2, _("Suppliers Re-order &Level Entry"),
+		    "purchasing/supplier_reorderlevel.php?", 'SA_SUPPLIERREORDERLEVEL', MENU_MAINTENANCE);
+		
 		$this->add_extensions();
 	}
 }

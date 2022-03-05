@@ -72,10 +72,13 @@ function credit_link($row)
 		return '';
 	if ($row["Outstanding"] > 0)
 	{
-		if ($row['type'] == ST_CUSTDELIVERY)
+		//Modified by spyrax10
+		/* Albert comment this 11/09/2021
+		if ($row['type'] == ST_CUSTDELIVERY && $row['Note'] != 'FREE ITEM')
 			return pager_link(_('Invoice'), "/sales/customer_invoice.php?DeliveryNumber=" 
 				.$row['trans_no'], ICON_DOC);
-		else if ($row['type'] == ST_SALESINVOICE)
+		 else */
+		if ($row['type'] == ST_SALESINVOICE)
 			return pager_link(_("Credit This") ,
 			"/sales/customer_credit_invoice.php?InvoiceNumber=". $row['trans_no'], ICON_CREDIT);
 	}	
@@ -99,8 +102,21 @@ function prt_link($row)
 		return print_document_link($row['trans_no']."-".$row['type'], _("Print Receipt"), true, ST_CUSTPAYMENT, ICON_PRINT);
   	elseif ($row['type'] == ST_BANKPAYMENT) // bank payment printout not defined yet.
 		return '';
+
+	else if($row['type'] == ST_CUSTDELIVERY)//Added by Prog6 6/15/2021
+	{
+		return pager_link(
+			_("Print Delivery Receipt"),
+			"/reports/prnt_delivery_receipt.php?trans_no=" . $row["trans_no"],
+			ICON_PRINT
+			);
+	}
  	else
- 		return print_document_link($row['trans_no']."-".$row['type'], _("Print"), true, $row['type'], ICON_PRINT);
+ 		if($row['type'] != ST_CUSTDELIVERY)
+ 		{
+ 			return print_document_link($row['trans_no']."-".$row['type'], _("Print Invoice"), true, $row['type'], ICON_PRINT);
+ 		}
+ 		
 }
 
 function check_overdue($row)
@@ -166,7 +182,18 @@ if ($_POST['filterType'] != '2')
 	date_cells(_("From:"), 'TransAfterDate', '', null, -user_transaction_days());
 	date_cells(_("To:"), 'TransToDate', '', null);
 }
-check_cells(_("Zero values"), 'show_voided');
+
+//Commented by spyrax10
+//check_cells(_("Zero values"), 'show_voided');
+
+//Added by spyrax10
+numeric_type_list(_("Delivery Note Type:"), 'del_type', 
+	array(
+		_('Main Unit'),
+		_('Free Item')
+	), null, true, _("All Delivery Note Types")
+);
+
 
 submit_cells('RefreshInquiry', _("Search"),'',_('Refresh Inquiry'), 'default');
 end_row();
@@ -190,13 +217,19 @@ if (get_post('RefreshInquiry') || list_updated('filterType'))
 	$Ajax->activate('_page_body');
 }
 //------------------------------------------------------------------------------------------------
-$sql = get_sql_for_customer_inquiry(get_post('TransAfterDate'), get_post('TransToDate'),
-	get_post('customer_id'), get_post('filterType'), check_value('show_voided'));
+$sql = get_sql_for_customer_inquiry(
+	get_post('TransAfterDate'), 
+	get_post('TransToDate'),
+	get_post('customer_id'), 
+	get_post('filterType'), get_post('del_type') //Added by spyrax10
+	//check_value('show_voided') //Commented by spyrax10
+);
 
 //------------------------------------------------------------------------------------------------
 //db_query("set @bal:=0");
 
 $cols = array(
+	//_("Delivery Note Type") => array('name'=>'Note'), //Added by spyrax10
 	_("Type") => array('fun'=>'systype_name', 'ord'=>''),
 	_("#") => array('fun'=>'trans_view', 'ord'=>'', 'align'=>'right'),
 	_("Order") => array('fun'=>'order_view', 'align'=>'right'), 
@@ -225,7 +258,7 @@ if ($_POST['filterType'] != '2')
 $table =& new_db_pager('trans_tbl', $sql, $cols);
 $table->set_marker('check_overdue', _("Marked items are overdue."));
 
-$table->width = "85%";
+$table->width = "90%";
 
 display_db_pager($table);
 

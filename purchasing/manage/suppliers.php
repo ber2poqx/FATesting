@@ -25,6 +25,7 @@ page(_($help_context = "Suppliers"), @$_REQUEST['popup'], false, "", $js);
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/includes/ui/contacts_view.inc");
 include_once($path_to_root . "/includes/ui/attachment.inc");
+include_once($path_to_root . "/purchasing/includes/db/supplier_group_db.inc");
 
 check_db_has_tax_groups(_("There are no tax groups defined in the system. At least one tax group is required before proceeding."));
 
@@ -56,6 +57,14 @@ function can_process()
 		return false;
 	}
 	return true;
+	
+	if (strlen($_POST['supplier_group']) == 0 || $_POST['supplier_group'] == "") 
+	{
+		display_error(_("The supplier Group must be entered."));
+		set_focus('supplier_group');
+		return false;
+	}
+	return true;
 }
 
 function handle_submit(&$supplier_id)
@@ -67,12 +76,12 @@ function handle_submit(&$supplier_id)
 	begin_transaction();
 	if ($supplier_id) 
 	{
-		update_supplier($_POST['supplier_id'], $_POST['supp_name'], $_POST['supp_ref'], $_POST['address'],
+		update_supplier($_POST['supplier_id'], $_POST['supp_name'], $_POST['supp_ref'], $_POST['supplier_group'], $_POST['SAPcode'], $_POST['address'],
 			$_POST['supp_address'], $_POST['gst_no'],
 			$_POST['website'], $_POST['supp_account_no'], $_POST['bank_account'], 
 			input_num('credit_limit', 0), $_POST['dimension_id'], $_POST['dimension2_id'], $_POST['curr_code'],
 			$_POST['payment_terms'], $_POST['payable_account'], $_POST['purchase_account'], $_POST['payment_discount_account'],
-			$_POST['notes'], $_POST['tax_group_id'], check_value('tax_included'));
+			$_POST['notes'], $_POST['tax_group_id'], check_value('tax_included'), $_POST['supplier_type']);
 		update_record_status($_POST['supplier_id'], $_POST['inactive'],
 			'suppliers', 'supplier_id');
 
@@ -81,16 +90,17 @@ function handle_submit(&$supplier_id)
 	} 
 	else 
 	{
-		add_supplier($_POST['supp_name'], $_POST['supp_ref'], $_POST['address'], $_POST['supp_address'],
+		add_supplier($_POST['supp_name'], $_POST['supp_ref'], $_POST['supplier_group'], $_POST['SAPcode'], $_POST['address'], $_POST['supp_address'],
 			$_POST['gst_no'], $_POST['website'], $_POST['supp_account_no'], $_POST['bank_account'], 
 			input_num('credit_limit',0), $_POST['dimension_id'], $_POST['dimension2_id'],
 			$_POST['curr_code'], $_POST['payment_terms'], $_POST['payable_account'], $_POST['purchase_account'],
-			$_POST['payment_discount_account'], $_POST['notes'], $_POST['tax_group_id'], check_value('tax_included'));
+			$_POST['payment_discount_account'], $_POST['notes'], $_POST['tax_group_id'], check_value('tax_included'), 
+			$_POST['supplier_type']);
 
 		$supplier_id = $_POST['supplier_id'] = db_insert_id();
 
 		add_crm_person($_POST['supp_ref'], $_POST['contact'], '', $_POST['address'], 
-			$_POST['phone'], $_POST['phone2'], $_POST['fax'], $_POST['email'], 
+			$_POST['phone'], $_POST['phone2'], $_POST['fax'], $_POST['email'], '',
 			$_POST['rep_lang'], '');
 
 		add_crm_contact('supplier', 'general', $supplier_id, db_insert_id());
@@ -156,6 +166,8 @@ function supplier_settings(&$supplier_id)
 
 		$_POST['supp_name'] = $myrow["supp_name"];
 		$_POST['supp_ref'] = $myrow["supp_ref"];
+		$_POST['supplier_group'] = $myrow["supplier_group"];
+		$_POST['SAPcode'] = $myrow["SAPcode"];
 		$_POST['address']  = $myrow["address"];
 		$_POST['supp_address']  = $myrow["supp_address"];
 
@@ -175,12 +187,13 @@ function supplier_settings(&$supplier_id)
 		$_POST['payment_discount_account'] = $myrow["payment_discount_account"];
 		$_POST['notes']  = $myrow["notes"];
 	 	$_POST['inactive'] = $myrow["inactive"];
+	 	$_POST['supplier_type'] = $myrow["supplier_type"];
 	} 
 	else 
 	{
 		if (list_updated('supplier_id') || !isset($_POST['supp_name'])) {
-			$_POST['supp_name'] = $_POST['supp_ref'] = $_POST['address'] = $_POST['supp_address'] = 
-				$_POST['tax_group_id'] = $_POST['website'] = $_POST['supp_account_no'] = $_POST['notes'] = '';
+			$_POST['supp_name'] = $_POST['supp_ref'] = $_POST['supplier_group'] = $_POST['SAPcode'] = $_POST['address'] = $_POST['supp_address'] = 
+				$_POST['tax_group_id'] = $_POST['website'] = $_POST['supp_account_no'] = $_POST['notes'] =   $_POST['supplier_type'] = '';
 			$_POST['dimension_id'] = 0;
 			$_POST['dimension2_id'] = 0;
 			$_POST['tax_included'] = 0;
@@ -201,8 +214,9 @@ function supplier_settings(&$supplier_id)
 
 	text_row(_("Supplier Name:"), 'supp_name', null, 42, 60);
 	text_row(_("Supplier Short Name:"), 'supp_ref', null, 30, 30);
-
-	text_row(_("GSTNo:"), 'gst_no', null, 42, 40);
+	supplier_group_list_row(_("Supplier Group:"), 'supplier_group', null);
+	text_row(_("SAPcode:"), 'SAPcode', null, 30, 30);
+	text_row(_("TIN No:"), 'gst_no', null, 42, 40);
 	link_row(_("Website:"), 'website', null, 35, 55);
 	if ($supplier_id && !is_new_supplier($supplier_id) && (key_in_foreign_table($_POST['supplier_id'], 'supp_trans', 'supplier_id') ||
 		key_in_foreign_table($_POST['supplier_id'], 'purch_orders', 'supplier_id'))) 
@@ -231,6 +245,8 @@ function supplier_settings(&$supplier_id)
 		hidden('tax_included');
 		label_row(_("Prices contain tax included:"), $_POST['tax_included'] ? _('Yes') : _('No'));
 	}
+
+	supllier_global_local_list_row(_("Supplier Type:"), 'supplier_type', null);
 
 	if (!$supplier_id) table_section(2);
 
@@ -299,8 +315,10 @@ if (db_has_suppliers())
 {
 	start_table(false, "", 3);
 	start_row();
-	supplier_list_cells(_("Select a supplier: "), 'supplier_id', null,
-		  _('New supplier'), true, check_value('show_inactive'));
+	
+	//Modified by spyrax10
+	supplier_list_cells(_("Select a supplier: "), 'supplier_id', null, _('New supplier'), true, check_value('show_inactive'), false, false, null);
+
 	check_cells(_("Show inactive:"), 'show_inactive', null, true);
 	end_row();
 	end_table();
@@ -322,7 +340,8 @@ tabbed_content_start('tabs', array(
 		'contacts' => array(_('&Contacts'), $supplier_id),
 		'transactions' => array(_('&Transactions'), (user_check_access('SA_SUPPTRANSVIEW') ? $supplier_id : null)),
 		'orders' => array(_('Purchase &Orders'), (user_check_access('SA_SUPPTRANSVIEW') ? $supplier_id : null)),
-		'attachments' => array(_('Attachments'), (user_check_access('SA_ATTACHDOCUMENT') ? $supplier_id : null)),
+        'reorder' => array(_('&Re-order Levels'), (user_check_access('SA_SUPPTRANSVIEW') ? $supplier_id : null)),
+        'attachments' => array(_('Attachments'), (user_check_access('SA_ATTACHDOCUMENT') ? $supplier_id : null)),
 	));
 	
 	switch (get_post('_tabs_sel')) {
@@ -342,6 +361,10 @@ tabbed_content_start('tabs', array(
 			$_GET['supplier_id'] = $supplier_id;
 			include_once($path_to_root."/purchasing/inquiry/po_search_completed.php");
 			break;
+		case 'reorder':
+		    $_GET['supplier_id'] = $supplier_id;
+		    include_once($path_to_root."/purchasing/supplier_reorderlevel.php");
+		    break;
 		case 'attachments':
 			$_GET['trans_no'] = $supplier_id;
 			$_GET['type_no']= ST_SUPPLIER;

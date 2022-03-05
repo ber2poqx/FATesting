@@ -1,0 +1,163 @@
+<?php
+/**********************************************************************
+    Copyright (C) FrontAccounting, LLC.
+	Released under the terms of the GNU General Public License, GPL, 
+	as published by the Free Software Foundation, either version 3 
+	of the License, or (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+    See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
+***********************************************************************/
+function write_supplier_group($selected, $description)
+{
+    if($selected!='' || $selected!=0)
+		$sql = "UPDATE ".TB_PREF."supplier_group SET
+	 	name = ".db_escape($description)."
+        	WHERE id = ".db_escape($selected);
+    else
+		$sql = "INSERT INTO ".TB_PREF."supplier_group (name) VALUES(".db_escape($description).")";
+
+	db_query($sql,"supplier group could not be updated");
+}
+
+function add_supplier_group($description){
+	$sql = "INSERT INTO ".TB_PREF."supplier_group (name) VALUES('".$description."')";
+
+	db_query($sql,"supplier group could not be updated");
+}
+
+function delete_supplier_group($id)
+{
+	$sql="DELETE FROM ".TB_PREF."supplier_group WHERE id=".db_escape($id);
+
+	db_query($sql,"this supplier group could not be deleted");
+}
+
+function get_supplier_group_rec($brandcode)
+{
+	$sql="SELECT * FROM ".TB_PREF."supplier_group WHERE id='".db_escape($brandcode)."'";
+
+	$result = db_query($sql,"the supplier group could not be retrieved");
+
+	return db_fetch($result);
+}
+function get_supplier_group($brandcode)
+{
+	$sql="SELECT * FROM ".TB_PREF."supplier_group where id='$brandcode'";
+
+	$result = db_query($sql,"the supplier group could not be retrieved");
+
+	return db_fetch($result);
+}
+
+function get_supplier_group_descr($id)
+{
+	$sql = "SELECT description FROM ".TB_PREF."supplier_group WHERE id=".db_escape($id);
+
+	$result = db_query($sql, "could not supplier group description");
+
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
+function supplier_group_used($id) {
+	$sql= "SELECT COUNT(*) FROM ".TB_PREF."suppliers WHERE supplier_group=".$id;
+	$result = db_query($sql, "could not query Suppliers");
+	$myrow = db_fetch_row($result);
+	return ($myrow[0] > 0);
+}
+
+
+function get_all_supplier_group($all=false) {
+    $sql = "SELECT * FROM ".TB_PREF."supplier_group";
+	if (!$all) $sql .= " WHERE !inactive";
+	$sql .= " ORDER BY name";
+    return  db_query($sql, "could not get supplier group");
+}
+
+function add_supplier_request($selected, $supplier_ref, $description, $location, $status='Pending')
+{
+	$db_coy = 0;
+    set_global_connection($db_coy);
+    if($selected!='' || $selected!=0)
+		$sql = "UPDATE ".TB_PREF."supplier_request SET
+	 	supp_name = ".db_escape($description)."
+        	WHERE id = ".db_escape($selected);
+    else
+		$sql = "INSERT INTO ".TB_PREF."supplier_request (supplier_ref, supp_name, location, status) VALUES(".db_escape($supplier_ref).", ".db_escape($description).",  ".db_escape($location).", ".db_escape($status).")";
+
+	db_query($sql,"supplier request could not be updated");
+}
+
+function get_supplier_request($brandcode)
+{
+	$db_coy = 0;
+    set_global_connection($db_coy);
+	$sql="SELECT * FROM ".TB_PREF."supplier_request where id='$brandcode'";
+
+	$result = db_query($sql,"the supplier request could not be retrieved");
+
+	return db_fetch($result);
+}
+
+function get_all_supplier_request($all=false, $location) 
+{
+	$db_coy = 0;
+    set_global_connection($db_coy);
+    global $db_connections;
+    $location = $db_connections[user_company()]["branch_code"];
+    $sql = "SELECT id, supplier_ref, supp_name, location, status AS STATUS, inactive FROM ".TB_PREF."supplier_request";
+	if (!$all) $sql .= " WHERE !inactive AND location='".$location."'";
+	$sql .= " ORDER BY supp_name";
+    return  db_query($sql, "could not get supplier request");
+}
+
+function delete_supplier_request($id)
+{
+	$db_coy = 0;
+    set_global_connection($db_coy);
+	$sql="DELETE FROM ".TB_PREF."supplier_request WHERE id=".db_escape($id);
+
+	db_query($sql,"this supplier group could not be deleted");
+}
+
+function supplier_request_used($id) 
+{
+	$db_coy = 0;
+    set_global_connection($db_coy);
+	$sql= "SELECT * FROM ".TB_PREF."supplier_request WHERE status = 1 AND id=".$id;
+	$result = db_query($sql, "could not query Suppliers");
+	$myrow = db_fetch_row($result);
+	return ($myrow[0] > 0);
+}
+
+function supplier_request_already_exist($description, $location)
+{
+	$db_coy = 0;
+    set_global_connection($db_coy);
+    global $db_connections;
+    $location = $db_connections[user_company()]["branch_code"];
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."supplier_request
+			WHERE supp_name = ".db_escape($description)." AND location = '".$location."'";
+	$result = db_query($sql, "check request failed");
+	$count =  db_fetch($result);
+
+	return $count[0];
+}
+
+function get_Supplier_AutoGenerated_Code()
+{
+	//Add by Robert Dusal
+	$db_coy = 0;
+    set_global_connection($db_coy);
+    //global $db_connections;
+	//$brchcode = $db_connections[user_company()]["branch_code"];
+	$sql = "SELECT LPAD(Auto_increment, 6, 0) AS id
+			FROM information_schema.TABLES
+			WHERE TABLE_NAME = 'supplier_request'";
+
+	$result = db_query($sql, "could not get supplier code");
+    $row = db_fetch_row($result);
+	return $row[0];
+}

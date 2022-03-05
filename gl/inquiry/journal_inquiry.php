@@ -64,16 +64,41 @@ function journal_pos($row)
 	return $row['gl_seq'] ? $row['gl_seq'] : '-';
 }
 
-function systype_name($dummy, $type)
+function systype_name($row, $type)
 {
 	global $systypes_array;
+
+	if ($row['trans_type'] == ST_INVADJUST) {
+		if (is_invty_open_bal($row['trans_no'], '')) {
+			return "Inventory Opening";
+		}
+		else {
+			if (is_smo_repo($row['trans_no'], ST_INVADJUST)) {
+				return "Inventory Adjustment (Repo)";
+			}
+			else {
+				return "Inventory Adjustment (Brand New)";
+			}
+		}
+	}
+	else {
+		return $systypes_array[$type];
+	}
 	
-	return $systypes_array[$type];
 }
 
 function person_link($row) 
 {
-    return payment_person_name($row["person_type_id"],$row["person_id"]);
+    
+    if($row['trans_type'] == ST_MERCHANDISETRANSFER){
+        $mt_header = get_mt_header($row["reference"]);
+        return 'Branch ['.$mt_header["mt_header_tolocation"].'] '.get_db_location_name($mt_header["mt_header_tolocation"]);
+    }elseif($row['trans_type'] == ST_RRBRANCH){
+        $mt_header = get_mt_rrbranch_header($row["reference"]);
+        return 'Branch ['.$mt_header["mt_header_fromlocation"].'] '.get_db_location_name($mt_header["mt_header_fromlocation"]);
+        
+    }else
+        return payment_person_name($row["person_type_id"],$row["person_id"]);
 }
 
 function view_link($row) 

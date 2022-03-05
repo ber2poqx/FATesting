@@ -25,33 +25,42 @@ include_once($path_to_root . "/includes/types.inc");
 //		- remove refs table and create view instead (need e.g. CREATE VIEW support in db_import/db_export)
 
 $refline_options = array(
-	ST_JOURNAL => array('date', 'user'),
-	ST_COSTUPDATE => array('date', 'user'),
+    ST_JOURNAL => array('date', 'user', 'branchcode'),
+    ST_COSTUPDATE => array('date', 'user', 'branchcode'),
 
-	ST_BANKPAYMENT => array('date', 'user'),
-	ST_BANKDEPOSIT => array('date', 'user'),
-	ST_BANKTRANSFER => array('date', 'user'),
-	ST_SUPPAYMENT => array('date', 'user'),
-	ST_CUSTPAYMENT => array('date', 'user'),
+    ST_BANKPAYMENT => array('date', 'user', 'branchcode'),
+    ST_BANKDEPOSIT => array('date', 'user', 'branchcode'),
+    ST_BANKTRANSFER => array('date', 'user', 'branchcode'),
+    ST_SUPPAYMENT => array('date', 'user', 'branchcode'),
+    ST_CUSTPAYMENT => array('date', 'user', 'branchcode'),
 
-	ST_SALESORDER => array('date', 'customer', 'branch', 'user', 'pos'),
-	ST_SALESQUOTE => array('date', 'customer', 'branch', 'user', 'pos'),
-	ST_SALESINVOICE => array('date', 'customer', 'branch', 'user', 'pos'),
-	ST_CUSTCREDIT => array('date', 'customer', 'branch', 'user', 'pos'),
-	ST_CUSTDELIVERY => array('date', 'customer', 'branch', 'user', 'pos'),
+    ST_SALESORDER => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
+    ST_SALESQUOTE => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
+    ST_SALESINVOICE => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
+    ST_CUSTCREDIT => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
+    ST_CUSTDELIVERY => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
 
-	ST_LOCTRANSFER => array('date', 'location', 'user'),
-	ST_INVADJUST => array('date', 'location', 'user'),
+    ST_LOCTRANSFER => array('date', 'location', 'user', 'branchcode'),
+    ST_MERCHANDISETRANSFER => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 02/10/2021
+    ST_MERCHANDISETRANSFERREPO => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 12/12/2021
+    ST_RRBRANCH => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 02/22/2021
+    ST_COMPLIMENTARYITEM => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 04/12/2021
+    ST_INVADJUST => array('date', 'location', 'user', 'branchcode'),
 
-	ST_PURCHORDER => array('date', 'location', 'supplier', 'user'),
-	ST_SUPPINVOICE => array('date', 'location', 'supplier', 'user'),
-	ST_SUPPCREDIT => array('date', 'location', 'supplier', 'user'),
-	ST_SUPPRECEIVE => array('date', 'location', 'supplier', 'user'),
+    ST_PURCHREQUEST => array('date', 'location', 'supplier', 'user', 'branchcode'),
+    ST_PURCHORDER => array('date', 'location', 'supplier', 'user', 'branchcode'),
+    ST_SUPPINVOICE => array('date', 'location', 'supplier', 'user', 'branchcode'),
+    ST_SUPPCREDIT => array('date', 'location', 'supplier', 'user', 'branchcode'),
+    ST_SUPPRECEIVE => array('date', 'location', 'supplier', 'user', 'branchcode'),
 
-	ST_WORKORDER => array('date', 'location', 'user'),
-	ST_MANUISSUE => array('date', 'location', 'user'),
+    ST_WORKORDER => array('date', 'location', 'user', 'branchcode'),
+    ST_MANUISSUE => array('date', 'location', 'user', 'branchcode'),
 	ST_MANURECEIVE => array('date', 'user'),
-	ST_DIMENSION => array('date','user'),
+	ST_DIMENSION => array('date','user', 'branchcode'),
+	ST_RECEIVECONSIGN => array('date', 'location', 'supplier', 'user', 'branchcode'),	// Added by Ronelle
+	
+	ST_ARINVCINSTLITM => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
+	ST_RRREPO => array('date', 'customer', 'user', 'branchcode'),
 );
 
 $refline_placeholders = array(
@@ -67,7 +76,8 @@ $refline_placeholders = array(
 //	'C' => 'customer',
 //	'B' => 'branch',
 //	'S' => 'supplier',
-//	'L' => 'location'
+	'L' => 'location',
+    'BR' => 'branchcode'
 );
 
 class references 
@@ -86,8 +96,8 @@ class references
 
 	function _parse_next($type, $template, $context=null)
 	{
-		global $refline_options, $refline_placeholders;
-
+	    global $refline_options, $refline_placeholders, $db_connections;
+		
 		// date based placeholders are always allowed, so default for non-array context is date
 		if (!isset($context))
 			$context = new_doc_date();
@@ -97,6 +107,7 @@ class references
 
 		$context['user'] = $_SESSION['wa_current_user']->user;
 		$context['pos'] = $_SESSION['wa_current_user']->pos;
+		$context['branchcode'] = $db_connections[user_company()]["branch_code"];
 		$out = '';
 
 		while(($start = strpos($template, '{')) !==false) {
@@ -152,7 +163,9 @@ class references
 
 						case 'UU':
 							$out .= sprintf('%02d', $context['user']);
-						break;
+						    break;
+						case 'BR':
+						    $out .= sprintf('%s', $context['branchcode']);
 					}
 				}
 			} elseif (is_numeric($ph)) {
@@ -312,7 +325,8 @@ class references
 		$location = @$context['location'] ? $context['location'] : '[a-z0-9]+';
  		$pos = @$context['pos'] ? $context['pos'] : '\d+';
 		$user = sprintf("%02d", $_SESSION['wa_current_user']->user);
-
+		$branchcode = @$context['branchcode'] ? $context['branchcode'] : '[a-z0-9]+';
+		
 		$regex = preg_replace(
 			array(
 				'/\\\{/',	// unquote placeholders
@@ -324,7 +338,8 @@ class references
 				'/\{FFFF\}/',
 				'/\{C\}/',
 				'/\{B\}/',
-				'/\{S\}/',
+			    '/\{BR\}/',
+			    '/\{S\}/',
 				'/\{L\}/',
 				'/\{UU\}/',
  				'/\{P\}/',
@@ -340,7 +355,8 @@ class references
 				$f_year4,
 				$cust,
 				$branch,
-				$supp,
+			    $branchcode,
+			    $supp,
 				$location,
 				$user,
  				$pos,

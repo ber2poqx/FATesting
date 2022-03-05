@@ -26,6 +26,7 @@ class BoxReports
 	var $ar_reports;
 	var $ctrl_handlers = array();
 
+
 	function __construct()
 	{
 		$this->ar_classes = array();
@@ -170,7 +171,7 @@ class BoxReports
 	{
 		global $path_to_root, $SysPrefs,
 			$type_shortcuts;
-
+		
 		$st = '';
 			switch ($type)
 			{
@@ -227,7 +228,27 @@ class BoxReports
 
 				case 'YES_NO':
 					return yesno_list($name);
+				//Added by spyrax10
+				case 'COA_COL':
+					return numeric_type_list(null, $name, 
+						array(
+							_('COA'),
+							_('COLLECTOR'),
+							_('AREA')
+						), null, true, '', '', false, true
+					);
 
+				case 'AGING_FILTER':
+					if (get_post('PARAM_2') == 2) {
+						return collector_area($name, null, _("All Collector"),  false, true);
+					}
+					else if (get_post('PARAM_2') == 3) {
+						return sales_areas_list($name, null, _("No Areas Filter"));
+					}
+					else {
+						return gl_account_list($name, null, _("No Account Filter"), true, false);
+					}
+				//
 				case 'PAYMENT_LINK':
 					return payment_services($name, null);
 
@@ -238,12 +259,30 @@ class BoxReports
 						$def = 1;
 					return array_selector($name, $def, $sel);
 
+				//Added by Prog6 =================================
+				case 'PDFDESTINATION':
+					$sel = array(_("PDF/Printer"), "Excel");
+					$def = 0;
+					//if (user_def_print_destination() == 1)
+					//	$def = 1;
+					return array_selector($name, $def, $sel);
+				//================================================
+
 				case 'ORIENTATION':
 					$sel = array(_("Portrait"), _("Landscape"));
 					$def = 0;
 					if (user_def_print_orientation() == 1)
 						$def = 1;
 					return array_selector($name, $def, $sel);
+
+				//Added by Prog6 =================================
+				case 'LANDSCAPE':
+					$sel = array(_("Portrait"), _("Landscape"));
+					$def = 1;
+					//if (user_def_print_orientation() == 1)
+					//	$def = 1;
+					return array_selector($name, $def, $sel);
+				//================================================
 
 				case 'COMPARE':
 					$sel = array(_("Accumulated"), _("Period Y-1"), _("Budget"));
@@ -273,8 +312,12 @@ class BoxReports
 				case 'ACCOUNTS_NO_FILTER': // not used
 					return gl_account_types_list($name);
 
+				case 'GL_ACCOUNTS_NO_FILTER':	
 				case 'GL_ACCOUNTS':
-					return gl_all_accounts_list($name);
+					if ($type == 'GL_ACCOUNTS_NO_FILTER')
+						return gl_all_accounts_list($name, null, false, _("All"));
+					else
+						return gl_all_accounts_list($name);
 
 				case 'BANK_ACCOUNTS_NO_FILTER':
 				case 'BANK_ACCOUNTS':
@@ -301,17 +344,26 @@ class BoxReports
 				case 'DIMENSIONS2':
 					return dimensions_list($name, null, true, _("No Dimension Filter"), false, true, 2);
 
+
+				case 'CUSTOMERS_LIST':
 				case 'CUSTOMERS_NO_FILTER':
 				case 'CUSTOMERS':
 					if ($type == 'CUSTOMERS_NO_FILTER')
 						return customer_list($name, null, _("No Customer Filter"));
+					else if ($type == 'CUSTOMERS_LIST')
+						return customer_list($name, null, _("All Customers"));
 					else
 						return customer_list($name);
 
+				case 'CUSTOMER_SL':
+					return sl_customer_list($name,null);
+
 				case 'SUPPLIERS_NO_FILTER':
 				case 'SUPPLIERS':
+
 					if ($type == 'SUPPLIERS_NO_FILTER')
-						return supplier_list($name, null, _("No Supplier Filter"));
+						return supplier_list($name, null, _("No Supplier Filter"), false, false, false, true, 
+							get_post('PARAM_1') == -1 ? null : get_post('PARAM_1')); //modified by spyrax10
 					else
 						return supplier_list($name);
 
@@ -377,6 +429,13 @@ class BoxReports
 						ORDER BY po.order_no DESC";
 					return combo_input($name, '', $sql, 'order_no', 'IName',array('order'=>false));
 
+				case 'DEBTOR':
+					$ref = ($SysPrefs->print_invoice_no() == 1 ? "debtor_no" : "debtor_ref");
+					$sql = "SELECT debtor_no, name as IName
+						FROM ".TB_PREF."debtors_master
+						ORDER BY name";
+					return combo_input($name, '', $sql, 'debtor_no', 'IName',array('order'=>false));
+
 				case 'REMITTANCE':
 					$BP = $type_shortcuts[ST_BANKPAYMENT];
 					$SP = $type_shortcuts[ST_SUPPAYMENT];
@@ -431,9 +490,102 @@ class BoxReports
 					return  locations_list($name, null, _("No Location Filter"), false, true);
 
 				case 'CATEGORIES':
-					return stock_categories_list($name, null, _("No Category Filter"));
+					return stock_categories_list($name, null, _("--Select--"), true); //Modified by spyrax10
 				case 'FCATEGORIES':
 					return stock_categories_list($name, null, _("No Category Filter"), false, true);
+
+				//Added by Prog6=====================================================
+				case 'CATEGORY_LIST':
+					return category_list($name, null, _("All Categories"));
+				case 'CATEGORY_LIST_FILTERED':
+					return category_list($name, null);
+				//===================================================================
+				
+				case 'BRAND':
+					return main_brand($name, null, _("--Select--"));
+				case 'FBRAND':
+					return main_brand($name, null, _("No Brand Filter"), false, true);
+
+				//Added by Prog6=====================================================
+				case 'BRAND_LIST':
+					return main_brand($name, null, _("All Brands"));
+				//===================================================================
+
+				//Added by Prog6=====================================================
+				case 'MONTHS_TERM':
+					return installment_policy_list($name, null, _("All Terms"), false, true);
+				//===================================================================
+
+				//Added by Robert=====================================================
+				case 'TRANST_TYPE':
+					return main_transaction_type($name, null, _("ALL TYPE"));
+
+				case 'STATUS_ORDER':
+					return main_status_order($name, null, _("ALL STATUS"));
+
+				case 'CASHIER_DCPR':
+					return sql_type_list(null, $name, 
+						get_dcpr_users(), 
+						'cashier_user_id', 'real_name', 'label', null, true, 
+						_("All Cashiers"), true
+					);
+
+				case 'COLLECTOR_COLLECTION':
+					return collector_area($name, null, _("All Collector"),  false, true);
+
+				case 'STOCK_LIST_REPORT':
+				return stock_items_list($name, null);
+
+				case 'INVTY_TYPE_REPORT':
+				return inventory_type_list_report($name, null);
+
+				case 'CASHTYPES':
+					return scash_types_list($name);
+
+				case 'SYSTEMTYPES':
+					return supp_cost_types_list($name);
+
+				case 'SRPTYPES':
+					return srp_types_list($name);
+
+				case 'SUPPLIERS_LIST_FOR_REPORT':
+				case 'SUPPLIERS_NO_FILTER_FOR_REPORT':
+				case 'SUPPLIERS_FOR_REPORT':
+					if ($type == 'SUPPLIERS_NO_FILTER_FOR_REPORT')
+						return supplier_list($name, null, _("No Supplier Filter"));
+					else if ($type == 'SUPPLIERS_LIST_FOR_REPORT')
+						return supplier_list($name, null, _("All Supplier"));
+					else
+						return supplier_list($name);
+
+				case 'CATEG_COLL':
+					return group_list_repo($name);
+
+				case 'MOVEMENT_TYPE':
+					return qty_list_movement($name);
+				//===================================================================
+
+				case 'MODEL_LIST':
+					return main_model($name, null, _("All Models"), false, true);
+				
+				case 'SUBCATEGORY':
+					return main_sub_category($name, null, _("--Select--"));
+				case 'FSUBCATEGORY':
+					return main_sub_category($name, null, _("No Sub-Category Filter"), false, true);
+					
+				case 'CLASSIFICATION':
+					return main_classification($name, null, _("--Select--"));
+				case 'FCLASSIFICATION':
+					return main_classification($name, null, _("No classification Filter"), false, true);
+
+				case 'MODEL':
+					return main_model($name, null, _("No Model Filter"));
+				case 'FMODEL':
+					return main_model($name, null, _("No Model Filter"), false, true);
+
+				case 'STATUS':
+					return main_status($name, null, _(""));
+
 				case 'FCLASS':
 					return fixed_asset_classes_list($name, null, _("No Class Filter"), false);
 				case 'SALESTYPES':

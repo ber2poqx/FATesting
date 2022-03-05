@@ -1,0 +1,55 @@
+@charset "ISO-8859-1";
+.task .x-grid-cell-inner {padding-left: 15px;}
+	/* style rows on mouseover */
+	.x-grid-row-over .x-grid-cell-inner {font-weight: bold;}
+	.x-grid-row-summary .x-grid-cell-inner {font-weight: bold;font-size: 11px;}
+	/* shared styles for the ActionColumn icons */
+	/*.buy-col .reply-col .noreply-col .cancel-col {height: 16px;width: 16px;cursor: pointer;}*/
+	.icon-grid {background: url(../js/ext4/examples/shared/icons/fam/grid.png) no-repeat 0 -1px;}
+    
+	/* shared styles for the ActionColumn icons */
+        /* custom icon for the "buy" ActionColumn icon */
+        .accept-col {
+            background-image: url(../js/ext4/examples/shared/icons/fam/accept.gif);
+        }
+        /* custom icon for the "alert" ActionColumn icon */
+        .alert-col {
+            background-image: url(../js/ext4/examples/shared/icons/fam/error.gif); height: 16px;width: 16px;
+        }
+        .reply-col {
+            background-image: url(../js/ext4/examples/shared/icons/report.png); height: 16px;width: 16px;
+        }
+		.edit-col {
+            background-image: url(../js/ext4/examples/shared/icons/report_edit.png); height: 16px;width: 16px;
+        }
+        .noreply-col {
+            background-image: url(../js/ext4/examples/shared/icons/shading.png); height: 16px;width: 16px;
+        }
+        .withimage-col {
+            background-image: url(../js/ext4/examples/shared/icons/image.png); height: 16px;width: 16px;
+        }
+        .cancel-col {
+            background-image: url(../js/ext4/examples/shared/icons/cancel.png); height: 16px;width: 16px;
+        }
+		.pdf-file {
+            background-image: url(../js/ext4/examples/shared/icons/page_white_acrobat.png); height: 16px;width: 16px;
+        }
+		.save {
+            background-image: url(../js/ext4/examples/shared/icons/application.png); height: 16px;width: 16px;
+        }
+        .windform {
+            background-image: url(../js/ext4/examples/shared/icons/application.png); height: 16px;width: 16px;
+        }
+		.new {
+            background-image: url(../js/ext4/examples/shared/icons/note_go.png); height: 16px;width: 16px;
+        }
+		.clear-search {
+            background-image: url(../js/ext4/examples/shared/icons/zoom.png); height: 16px;width: 16px;
+        }
+        .printer {
+            background-image: url(../js/ext4/examples/shared/icons/printer.png); height: 16px;width: 16px;
+        }
+        /*body{background: #333 !important;}*/
+        a{
+          text-decoration: none !important;
+        }

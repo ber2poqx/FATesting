@@ -16,11 +16,14 @@
 // $amount is in $currency currency
 // if $currency is not set, then defaults to no conversion
 
-function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension2, $memo_,
-	$amount, $currency=null, $person_type_id=null, $person_id=null,	$err_msg="", $rate=0)
+//Modified by spyrax10 24 Feb 2022 (added interbranch column)
+function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension2, $memo_, $amount, $currency = null, $person_type_id = null,
+	$person_id = null, $err_msg = "", $rate = 0, $mcode = null, $master_file = null, $hocbc = 0, 
+	$loan_trans_no = 0, $interbranch = 0)
 {
 	global $SysPrefs;
-
+	set_global_connection();
+	
 	$date = date2sql($date_);
 	if ($currency != null)
 	{
@@ -42,11 +45,19 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 		else
 			$memo_ = $_SESSION["wa_current_user"]->username . " - " . $memo_;
 	}
-	if (!is_subledger_account($account) || $account==get_company_pref('grn_clearing_act'))
-		$person_id = $person_type_id = null;
 	
+	//modified by jr for A/R accounts
+	if(!check_customer_account($account)){
+		if (!is_subledger_account($account) || $account==get_company_pref('grn_clearing_act'))
+			$person_id = $person_type_id = null;
+	}
+
+	/* Modified by Ronelle 2/22/2021 added columns mcode,master_file,hocbc_id */
+	/* modify by jr 11-18-2021 added column loan_trans_no for customer payment per invoice */
+
 	$sql = "INSERT INTO ".TB_PREF."gl_trans ( type, type_no, tran_date,
-		account, dimension_id, dimension2_id, memo_, amount";
+		account, dimension_id, dimension2_id, memo_, amount, mcode, master_file, hocbc_id, loan_trans_no, 
+		interbranch";
 
 	if ($person_type_id != null)
 		$sql .= ", person_type_id, person_id";
@@ -56,8 +67,10 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 	$sql .= "VALUES (".db_escape($type).", ".db_escape($trans_id).", '$date',
 		".db_escape($account).", ".db_escape($dimension).", "
 		.db_escape($dimension2).", ".db_escape($memo_).", "
-		.db_escape($amount_in_home_currency);
-
+		.db_escape($amount_in_home_currency).", ".db_escape($mcode).", "
+		.db_escape($master_file).", ".db_escape($hocbc) .", "
+		.db_escape($loan_trans_no) . "," . db_escape($interbranch);
+	/* */
 	if ($person_type_id != null)
 		$sql .= ", ".db_escape($person_type_id).", ". db_escape($person_id);
 
@@ -113,12 +126,13 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
     $to = date2sql($to_date);
 
     $sql = "SELECT gl.*, j.event_date, j.doc_date, a.gl_seq, u.user_id, st.supp_reference, gl.person_id subcode,
-            IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name, 
-            IFNULL(gl.person_id, IFNULL(sup.supplier_id, IFNULL(debt.debtor_no, bt.person_id))) as person_id,
-            IF(gl.person_id, gl.person_type_id, IF(sup.supplier_id,".  PT_SUPPLIER . "," .  "IF(debt.debtor_no," . PT_CUSTOMER . "," . 
+            IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
+            IFNULL(IFNULL(sup2.supp_name, debt.name), bt.person_id) as person_name_masterfile,
+            IFNULL(gl.person_id, IFNULL(grn.supplier_id, IFNULL(debt.debtor_no, bt.person_id))) as person_id,
+            IF(gl.person_id, gl.person_type_id, IF(grn.supplier_id,".  PT_SUPPLIER . "," .  "IF(debt.debtor_no," . PT_CUSTOMER . "," . 
             "IF(bt.person_id != '' AND !ISNULL(bt.person_id), bt.person_type_id, -1)))) as person_type_id,
             IFNULL(st.tran_date, IFNULL(dt.tran_date, IFNULL(bt.trans_date, IFNULL(grn.delivery_date, gl.tran_date)))) as doc_date,
-            coa.account_name, ref.reference, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo
+            coa.account_name, ref.reference, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo, bt.opening_balance
              FROM "
             .TB_PREF."gl_trans gl
             LEFT JOIN ".TB_PREF."voided v ON gl.type_no=v.id AND v.type=gl.type
@@ -128,6 +142,7 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
             LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
 
             LEFT JOIN ".TB_PREF."suppliers sup ON st.supplier_id=sup.supplier_id
+            LEFT JOIN ".TB_PREF."suppliers sup2 ON grn.supplier_id = sup2.supplier_id
             LEFT JOIN ".TB_PREF."cust_branch branch ON dt.branch_code=branch.branch_code
             LEFT JOIN ".TB_PREF."debtors_master debt ON dt.debtor_no=debt.debtor_no
 
@@ -188,6 +203,7 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
 
 function get_gl_trans($type, $trans_id)
 {
+	set_global_connection();
 	$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
 			COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
 			IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
@@ -650,4 +666,23 @@ function get_sql_for_journal_inquiry($filter, $from, $to, $ref='', $memo='', $al
 
     $sql .= " GROUP BY gl.tran_date, a.gl_seq, gl.type, gl.type_no";
     return $sql;
+}
+//Added by Herald 12/02/2021 for MT Header
+function get_mt_header($reference){
+    global $def_coy;
+    set_global_connection($def_coy);
+
+    $sql = "SELECT * FROM ".TB_PREF."mt_header  WHERE `mt_header_reference`=".db_escape($reference);
+    
+    $myrow= db_query($sql, 'cannot retrieve MT Header entry');
+    return db_fetch($myrow);
+}
+function get_mt_rrbranch_header($reference){
+    global $def_coy;
+    set_global_connection($def_coy);
+    
+    $sql = "SELECT * FROM ".TB_PREF."mt_header  WHERE `mt_header_rrbranch_reference`=".db_escape($reference);
+    
+    $myrow= db_query($sql, 'cannot retrieve MT Header entry');
+    return db_fetch($myrow);
 }

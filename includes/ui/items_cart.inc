@@ -11,6 +11,7 @@
 ***********************************************************************/
 include_once($path_to_root . "/includes/prefs/sysprefs.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
+include_once($path_to_root . "/includes/cost_and_pricing.inc");
 
 class items_cart
 {
@@ -34,10 +35,14 @@ class items_cart
 	var $currency;
 	var $rate;
 	var $source_ref;
+	//Added by spyrax10 10 Feb 2022
+	var $cashier; 
+	var $trans_db;
+	//
 	var $vat_category;
-
+    var $category_id; //Added by Herald 06/07/2021
 	var $tax_info;	// tax info for the GL transaction
-
+    //var $item_type; //Added by Herald 08/27/2021 for type=new or repo
 	var $fixed_asset;
 
 	function __construct($type, $trans_no=0)
@@ -45,20 +50,26 @@ class items_cart
 		$this->trans_type = $type;
 		$this->order_id = $trans_no;
 		$this->clear_items();
-		if (in_array($type, array(ST_LOCTRANSFER, ST_INVADJUST, ST_COSTUPDATE, ST_MANUISSUE, ST_MANURECEIVE, ST_JOURNAL)))
+		if (in_array($type, array(ST_MERCHANDISETRANSFER, ST_RRBRANCH, ST_LOCTRANSFER, ST_INVADJUST, ST_COSTUPDATE, ST_MANUISSUE, ST_MANURECEIVE, ST_JOURNAL)))
 			$this->currency = get_company_pref('curr_default');
 		$this->rate = 1;
 	}
 
 	// --------------- line item functions
 
-	function add_to_cart($line_no, $stock_id, $qty, $standard_cost, $description=null, $manufacture_date='0000-00-00', $expire_date='0000-00-00', $lot_no='')
+	function add_to_cart($line_no, $stock_id, $qty, $standard_cost, $description=null, $manufacture_date='0000-00-00', $expire_date='0000-00-00', 
+		$lot_no='',$chasis_no='', $color='', $color_code='', $mt_lines = 0, $type_out = 0, $transno_out = 0, $remarks = '', 
+		$item_type = 'new', $stock_ref = '', $mcode = '', $master_file = '', //Added by spyrax10
+		$line_item='')
 	{
 
 		if (isset($stock_id) && $stock_id != "" && isset($qty))
 		{
-			$this->line_items[$line_no] = new line_item($stock_id, $qty,
-				$standard_cost, $description, $manufacture_date, $expire_date, $lot_no);
+		    $this->line_items[$line_no] = new line_item($stock_id, $qty, $standard_cost, $description, $manufacture_date, $expire_date, 
+				$lot_no, $chasis_no, $color, $color_code, $mt_lines, 
+				$type_out, $transno_out, $remarks, $item_type, $stock_ref, $mcode, $master_file,
+				$line_item
+			);
 			return true;
 		}
 		else
@@ -70,6 +81,38 @@ class items_cart
 		return false;
 	}
 
+	//Added by spyrax10
+	function find_cart_serial($lot_no)
+	{
+		foreach($this->line_items as $line_no=>$line) {
+			if ($line->lot_no == $lot_no) {
+				return $this->line_items[$line_no];
+			}			
+		}
+		return null;
+	}
+
+	function find_cart_stock($stock_id)
+	{
+		foreach($this->line_items as $line_no=>$line) {
+			if ($line->stock_id == $stock_id) {
+				return $this->line_items[$line_no];
+			}			
+		}
+		return null;
+	}
+
+	function find_cart_chassis($chasis_no)
+	{
+		foreach($this->line_items as $line_no=>$line) {
+			if ($line->chasis_no == $chasis_no) {
+				return $this->line_items[$line_no];
+			}			
+		}
+		return null;
+	}
+	//
+
 	function find_cart_item($stock_id, $lot_no='')
 	{
 		foreach($this->line_items as $line_no=>$line) {
@@ -78,21 +121,61 @@ class items_cart
 		}
 		return null;
 	}
-
-	function update_cart_item($line_no, $qty, $standard_cost, $manufacture_date='0000-00-00',$expire_date='0000-00-00', $lot_no='')
+	//Added by Herald 12/19/2020
+	function find_cart_item_new($item_code, $lot_no='')
+	{
+	    foreach($this->line_items as $line_no=>$line) {
+	        if ($line->item_code == $item_code && $line->lot_no == $lot_no)
+	            return $this->line_items[$line_no];
+	    }
+	    return null;
+	}
+	//Added by Herald 03/08/2021
+	function find_cart_item_serialise($item_code)
+	{
+	    foreach($this->line_items as $line_no=>$line) {
+	        if ($line->serialise_id == $item_code)
+	            return $this->line_items[$line_no];
+	    }
+	    return null;
+	}
+	//added by Herald 06/07/2021
+	function find_cart_itemcode($stock_id, $type_out, $transno_out)
+	{
+	    foreach($this->line_items as $line_no=>$line) {
+	        if ($line->stock_id == $stock_id && $line->type_out == $type_out && $line->transno_out == $transno_out)
+	            return $this->line_items[$line_no];
+	    }
+	    return null;
+	}
+	function update_cart_item($line_no, $qty, $standard_cost, $manufacture_date='0000-00-00',$expire_date='0000-00-00', $lot_no='',$chasis_no='',
+		$color = '', $remarks=null)
 	{
 		$this->line_items[$line_no]->quantity = $qty;
 		$this->line_items[$line_no]->standard_cost = $standard_cost;
 		$this->line_items[$line_no]->manufacture_date = $manufacture_date;
 		$this->line_items[$line_no]->expire_date = $expire_date;
 		$this->line_items[$line_no]->lot_no = $lot_no;
+		//Added by spyrax10
+		$this->line_items[$line_no]->chasis_no = $chasis_no; 
+		$this->line_items[$line_no]->color = $color; 
+		//
+		$this->line_items[$line_no]->remarks = $remarks;
 	}
 
 	function remove_from_cart($line_no)
 	{
 		array_splice($this->line_items, $line_no, 1);
 	}
-
+	//Added by Herald 09/01/2021
+	function remove_from_cart_line($line_item)
+	{
+	    foreach($this->line_items as $line_no=>$line){
+	        if($line->line_item_row == $line_item){
+	            unset($this->line_items[$line_no]);
+	        }
+	    }
+	}
 	function count_items()
 	{
 		return count($this->line_items);
@@ -122,15 +205,31 @@ class items_cart
 		}
 		return $low_stock;
 	}
-
+    //Added by Herald 09/02/2021
+	function check_qty_avail_by_rrdate($trans_date){
+	    $totalcheck=0;
+	    foreach($this->line_items as $line_no=>$line) {
+	        if ($line->manufacture_date > $trans_date)
+	            $totalcheck++;
+	    }
+	    return $totalcheck;
+	}
 	// ----------- GL item functions
-
-	function add_gl_item($code_id, $dimension_id, $dimension2_id, $amount, $memo='', $act_descr=null, $person_id=null, $date=null)
+	/* Modified by Ronelle 2/22/2021 
+	 * Medified by Herald 09/01/2021
+	 * */
+	
+	//Modified by spyrax10 10-11-2021
+	function add_gl_item($code_id, $dimension_id, $dimension2_id, $amount, $memo='', $act_descr=null, $person_id=null, $date=null, $mcode=null, $master_file=null, $hocbc = 0, 
+		$comp_id = null, $sug_mcode = null, 
+		$master_file_type=99, $line_item='')
 	{
 		if (isset($code_id) && $code_id != "" && isset($amount) && isset($dimension_id)  &&
 			isset($dimension2_id))
 		{
-			$this->gl_items[] = new gl_item($code_id, $dimension_id, $dimension2_id, $amount, $memo, $act_descr, $person_id, $date);
+		    $this->gl_items[] = new gl_item($code_id, $dimension_id, $dimension2_id, $amount, $memo, $act_descr, $person_id, $date, $mcode, $master_file, $hocbc, 
+				$comp_id, $sug_mcode, 
+				$master_file_type, $line_item);
 			return true;
 		}
 		else
@@ -142,11 +241,19 @@ class items_cart
 		return false;
 	}
 
-	function update_gl_item($index, $code_id, $dimension_id, $dimension2_id, $amount, $memo='', $act_descr=null, $person_id=null)
+	//Modified by spyrax10 10-11-2021
+	function update_gl_item($index, $code_id, $dimension_id, $dimension2_id, $amount, $memo='', $act_descr=null, $person_id=null, $mcode=null, $master_file=null, $hocbc = 0, 
+		$comp_id = null, $sug_mcode = null, 
+		$master_file_type = 99) 
 	{
+		//Added by spyrax10 10-11-2021
+		$this->gl_items[$index]->comp_id = $comp_id;
+		$this->gl_items[$index]->sug_mcode = $sug_mcode;
+		//
 	    $this->gl_items[$index]->code_id = $code_id;
 	    $this->gl_items[$index]->person_id = $person_id;
-
+	    $this->gl_items[$index]->master_file_type = $master_file_type;
+	    
 		$gl_type = is_subledger_account($code_id, $person_id);
 		if ($gl_type)
 		{
@@ -166,6 +273,11 @@ class items_cart
 			$this->gl_items[$index]->description = get_gl_account_name($code_id);
 		else
 			$this->gl_items[$index]->description = $act_descr;
+		/* Added by Ronelle 2/22/2021 */
+		$this->gl_items[$index]->mcode = $mcode;
+		$this->gl_items[$index]->master_file = $master_file;
+		$this->gl_items[$index]->hocbc = $hocbc;
+		/* */
 
 	}
 
@@ -173,7 +285,15 @@ class items_cart
 	{
 		array_splice($this->gl_items, $index, 1);
 	}
-
+	//Added by Herald 09/01/2021
+	function remove_gl_line_item($line_item)
+	{
+	    foreach($this->gl_items as $line_no=>$line){
+	        if($line->line_item == $line_item){
+	            unset($this->gl_items[$line_no]);
+	        }
+	    }
+	}
 	function count_gl_items()
 	{
 		return count($this->gl_items);
@@ -354,6 +474,8 @@ class items_cart
 	*/
 	function write_gl($check_balance = true)
 	{
+		$coy = user_company();
+
 		$delta = $this->gl_items_total();
 		if ($check_balance && floatcmp($delta, 0) !=0)
 		{
@@ -370,7 +492,9 @@ class items_cart
 				$gl->date = $this->tran_date;
 
 			$total_gl += add_gl_trans($this->trans_type, $this->order_id, $gl->date, $gl->code_id, $gl->dimension_id, $gl->dimension2_id, 
-				$gl->reference,	$gl->amount, $this->currency, $gl->person_type_id, $gl->person_id, "", $this->rate);
+				$this->memo_, $gl->amount, $this->currency, $gl->person_type_id, $gl->person_id, "", $this->rate, $gl->mcode, $gl->master_file, $gl->hocbc,
+				0, $gl->comp_id != $coy ? 1 : 0
+			);
 
 			// post to first found bank account using given gl acount code.
 			$is_bank_to = is_bank_account($gl->code_id);
@@ -391,6 +515,52 @@ class items_cart
 	   				$cust_trans[$gl->branch_id] = @$cust_trans[$gl->branch_id] + $gl->amount;
     		}
 
+			if ($gl->comp_id != $coy) {
+
+				$branch_code = get_company_value($gl->comp_id, 'branch_code');
+
+				$hoc_code = get_company_value(user_company(), 'branch_code');
+				$hoc_masterfile = get_company_value(user_company(), 'name');
+				$ib_trans_no = max_interbranch_no($this->trans_type, $gl->comp_id) + 1;
+
+				bank_interbranch_entry(
+					$branch_code, 	
+					$gl->sug_mcode, 
+					$hoc_code, 
+					$hoc_masterfile, 
+					date2sql($gl->date), 	
+					$this->reference, 	
+					$gl->amount, 
+					$this->memo_, 
+					get_current_user_fullname(), //Prepared by 	
+					get_company_value($coy, 'branch_code'), 
+					$ib_trans_no,	
+					$this->trans_type, 
+					$branch_code,
+					2,
+					max_gl_counter() 
+				);
+
+				//Branch Current Entry
+				bank_interbranch_entry(
+					$branch_code, 	
+					get_company_value(user_company(), 'gl_account'), 
+					$hoc_code, 
+					$hoc_masterfile, 
+					date2sql($gl->date), 	
+					$this->reference, 	
+					-$gl->amount, 
+					$this->memo_, 
+					get_current_user_fullname(), //Prepared by 	
+					get_company_value($coy, 'branch_code'), 
+					$ib_trans_no, 	
+					$this->trans_type, 
+					$branch_code,
+					2,
+					max_gl_counter() 
+				);
+			}
+
 		}
 		// post currency roundings if any
 		if ($check_balance && floatcmp($total_gl, 0))
@@ -399,9 +569,30 @@ class items_cart
 
 		// update bank ledger if used
 		foreach($bank_trans as $bank_id => $amount)
-   			add_bank_trans($this->trans_type, $this->order_id, $bank_id, $this->reference,
-				$this->tran_date, $amount, 0, "", $this->currency,
- 				"Cannot insert a destination bank transaction");
+   			//Modified by spyrax10 8 Feb 2022
+			add_bank_trans(
+				$this->trans_type, 
+				$this->order_id, 
+				$bank_id, 
+				$this->reference,
+				$this->tran_date, 
+				$amount, 
+				0, 
+				"", 
+				"", //Cashier
+				null, 
+				null, 
+				0, 
+				null, 
+				0, 
+				0, 
+				get_current_user_fullname(), //Prepared by 
+				null, //Checked by
+				null, //Approved by
+				null, //Module type
+				$this->currency, 
+				"Cannot insert a destination bank transaction"
+			);
 
 		// add AP/AR for journal transaction
 		if ($this->trans_type == ST_JOURNAL)
@@ -449,7 +640,8 @@ class items_cart
 				add_trans_tax_details($this->trans_type, $this->order_id,
 					$tax_id, $this->tax_info['rate'][$tax_id], 0, $tax_nominal, $net, $this->rate,
 					$this->tran_date,
-					$this->source_ref, $reg);
+					$this->source_ref, $reg
+				);
 			}
 		}
 	}
@@ -460,6 +652,7 @@ class items_cart
 class line_item
 {
 	var $stock_id;
+	var $item_code;
 	var $item_description;
 	var $units;
 	var $mb_flag;
@@ -467,12 +660,31 @@ class line_item
 	var $quantity;
 	var $price;
 	var $standard_cost;
-
+	
 	var $manufacture_date;
 	var $expire_date;
 	var $lot_no;
+	var $chasis_no;
+	var $color;
+	var $category_id;
+	var $mt_lines;
+	var $serialised;
+	var $type_out;
+	var $transno_out;
+	var $remarks;
+	var $item_type;
+	//Added by spyrax10
+	var $stock_ref; 
+	var $mcode;
+	var $master_file;
+	//
+	var $line_item_row; //Added by Herald 09/01/2021
 	
-	function __construct($stock_id, $qty, $standard_cost=null, $description=null,$manufacture_date='0000-00-00',$expire_date='0000-00-00', $lot_no='')
+	function __construct($stock_id, $qty, $standard_cost=null, $description=null,$manufacture_date='0000-00-00',$expire_date='0000-00-00', 
+		$lot_no='',$chasis_no='',$color='',$item_code, $mt_lines=0, 
+		$type_out=0, $transno_out=0, $remarks='', $item_type='new', 
+		$stock_ref = '', $mcode = '', $master_file = '', //Added by spyrax10
+		$line_item='')
 	{
 		$item_row = get_item($stock_id);
 
@@ -481,20 +693,36 @@ class line_item
 
 		$this->mb_flag = $item_row["mb_flag"];
 		$this->units = $item_row["units"];
+		$this->category_id = $item_row["category_id"];
+		$this->serialised = $item_row["serialised"];
+		$this->color = $color;
+		$this->item_code = $item_code;
 		$this->manufacture_date=$manufacture_date;
 		$this->expire_date=$expire_date;
 		$this->lot_no=$lot_no;
+		$this->chasis_no=$chasis_no;
+		$this->mt_lines=$mt_lines;
+		$this->type_out = $type_out;
+		$this->transno_out = $transno_out;
+		$this->remarks = $remarks;
+		$this->item_type = $item_type;
+		//Added by spyrax10
+		$this->stock_ref = $stock_ref; 
+		$this->mcode = $mcode;
+		$this->master_file = $master_file;
+		//
+		$this->line_item_row = $line_item;
 		
-		if($item_row["brand_name"]!=""){
+		/*if($item_row["brand_name"]!=""){
 			$brandname=" **".$item_row["brand_name"];
 		}else $brandname="";
 		
 		if($item_row["manufacturer_name"]!=""){
 			$manufacturername=" **".$item_row["manufacturer_name"];
 		}else $manufacturername="";
-		
+		*/
 		if ($description == null)
-			$this->item_description = $item_row["description"].$brandname.$manufacturername;
+			$this->item_description = $item_row["description"];
 		else
 			$this->item_description = $description;
 
@@ -526,9 +754,21 @@ class gl_item
 	var $person_name;
 	var $branch_id;
 	var $date;
-
-	function __construct($code_id=null, $dimension_id=0, $dimension2_id=0, $amount=0, $memo='',
-		$act_descr=null, $person_id=null, $date=null)
+	var $mcode;	// Added by Ronelle 2/19/2021
+	var $master_file;	// Added by Ronelle 2/19/2021
+	var $hocbc;	// Added by Ronelle/2/22/2021
+	//Added by spyrax10
+	var $comp_id; 
+	var $sug_mcode;
+	//
+    var $master_file_type; //Added by Herald 08/20/2021
+    var $line_item; //Added by Herald 09/01/2021 for Complimentary Item module
+	
+	//Modified by spyrax10 10-11-2021
+	function __construct($code_id = null, $dimension_id = 0, $dimension2_id = 0, $amount = 0, $memo = '',
+	    $act_descr = null, $person_id = null, $date = null, $mcode = null, $master_file = null, $hocbc = 0, 
+		$comp_id = null, $sug_mcode = null, 
+		$master_file_type = 99, $line_item = '')
 	{
 		//echo "adding $index, $code_id, $dimension_id, $amount, $reference<br>";
 
@@ -552,5 +792,15 @@ class gl_item
 		$this->amount = round($amount, 2);
 		$this->reference = $memo;
 		$this->date = $date;
+		$this->mcode = $mcode;	// Added by Ronelle 2/19/2021
+		$this->master_file= $master_file;	// Added by Ronelle 2/19/2021
+		$this->hocbc = $hocbc;	// Added by Ronelle 2/22/2021
+		//Added by spyrax10 10-11-2021
+		$this->comp_id = $comp_id;
+		$this->sug_mcode = $sug_mcode; 
+		//
+		$this->master_file_type = $master_file_type; //Added by Herald 08/20/2021
+	
+		$this->line_item = $line_item;
 	}
 }

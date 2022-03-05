@@ -65,7 +65,29 @@ function void_transaction($type, $type_no, $date_, $memo_)
 				return _('Selected transaction does not exists.');
 			void_stock_transfer($type_no);
 			break;
-
+		case ST_MERCHANDISETRANSFER:
+		    $mt_rec = get_stock_merchandise_transfer($type_no);
+		    if ($mt_rec == null)
+		        return _('Selected transaction does not exists.');
+		    if (!is_null(check_mt_status($mt_rec["reference"])) || !empty(check_mt_status($mt_rec["reference"])))
+		        return _('This MT cannot be voided because it was already received.');
+		            
+		    void_stock_transfer($type_no);
+		    break;
+		case ST_MERCHANDISETRANSFERREPO:
+		    $mt_rec = get_stock_merchandise_transfer_repo($type_no);
+		    if ($mt_rec == null)
+		        return _('Selected transaction does not exists.');
+		    if (!is_null(check_mt_status($mt_rec["reference"])) || !empty(check_mt_status($mt_rec["reference"])))
+		        return _('This MT Repo cannot be voided because it was already received.');
+		            
+		    void_stock_transfer_repo($type_no);
+		    break;
+		case ST_RRBRANCH:
+		    if (get_stock_rrbranch_transfer($type_no) == null)
+		        return _('Selected transaction does not exists.');
+		    void_rrbranch_transfer($type_no);
+		    break;
 		case ST_INVADJUST : // it's a stock adjustment
 			if (get_stock_adjustment_items($type_no) == null)
 				return _('Selected transaction does not exists.');
@@ -134,7 +156,8 @@ function void_transaction($type, $type_no, $date_, $memo_)
 
 function get_voided_entry($type, $type_no)
 {
-	$sql = "SELECT * FROM ".TB_PREF."voided WHERE type=".db_escape($type)
+	set_global_connection();
+    $sql = "SELECT * FROM voided WHERE type=".db_escape($type)
 		." AND id=".db_escape($type_no);
 
 	$result = db_query($sql, "could not query voided transaction table");

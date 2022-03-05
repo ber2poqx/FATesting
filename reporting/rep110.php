@@ -53,10 +53,11 @@ function print_deliveries()
 	$from = min($fno[0], $tno[0]);
 	$to = max($fno[0], $tno[0]);
 
-	$cols = array(4, 60, 225, 300, 325, 385, 450, 515);
+	//                1    2    3     4     5     6     7     8  
+	$cols = array(5,  70,  185, 270,  355,  445,  480,  510,  0);
 
 	// $headers in doctext.inc
-	$aligns = array('left',	'left',	'right', 'left', 'right', 'right', 'right');
+	$aligns = array('left',	'left',	'left', 'left', 'left', 'center', 'center', 'right');
 
 	$params = array('comments' => $comments, 'packing_slip' => $packing_slip);
 
@@ -125,14 +126,19 @@ function print_deliveries()
 				$rep->row = $oldrow;
 				if ($Net != 0.0  || !is_service($myrow2['mb_flag']) || !$SysPrefs->no_zero_lines_amount())
 				{
-					$rep->TextCol(2, 3,	$DisplayQty, -2);
-					$rep->TextCol(3, 4,	$myrow2['units'], -2);
-					if ($packing_slip == 0)
-					{
-						$rep->TextCol(4, 5,	$DisplayPrice, -2);
-						$rep->TextCol(5, 6,	$DisplayDiscount, -2);
-						$rep->TextCol(6, 7,	$DisplayNet, -2);
-					}
+					$rep->TextCol(2, 3,	$myrow2['color'], -2);
+					// $rep->TextCol(2, 3,	$DisplayQty, -2);
+					$rep->TextCol(3, 4,	$myrow2['lot_no'], -2);
+					$rep->TextCol(4, 5,	$myrow2['chassis_no'], -2);
+					$rep->TextCol(5, 6,	$DisplayQty, -2);
+					$rep->TextCol(6, 7,	$myrow2['units'], -2);
+					$rep->TextCol(7, 8,	$DisplayPrice, -2);
+					// if ($packing_slip == 0)
+					// {
+					// 	$rep->TextCol(4, 5,	$DisplayPrice, -2);
+					// 	$rep->TextCol(5, 6,	$DisplayDiscount, -2);
+					// 	$rep->TextCol(6, 7,	$DisplayNet, -2);
+					// }
 				}
 				$rep->row = $newrow;
 				//$rep->NewLine(1);

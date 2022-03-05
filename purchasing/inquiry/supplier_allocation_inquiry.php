@@ -45,7 +45,8 @@ if (!isset($_POST['supplier_id']))
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-supplier_list_cells(_("Select a supplier: "), 'supplier_id', $_POST['supplier_id'], true);
+//Modified by spyrax10
+supplier_list_cells(_("Select a supplier: "), 'supplier_id', $_POST['supplier_id'], true, true, true, false, false, null);
 
 date_cells(_("From:"), 'TransAfterDate', '', null, -user_transaction_days());
 date_cells(_("To:"), 'TransToDate', '', null, 1);

@@ -174,7 +174,8 @@ function viewing_controls()
 	if(get_post('filterType') == ST_CUSTOMER ){
 		customer_list_cells(_("Select a customer: "), 'trans_no', null, false, true, true);
 	} elseif(get_post('filterType') == ST_SUPPLIER){
-		supplier_list_cells(_("Select a supplier: "), 'trans_no', null,  false, true,true);
+		//Modified by spyrax10
+		supplier_list_cells(_("Select a supplier: "), 'trans_no', null, true, true, true, false, false, null);
 	}
 
 	end_row();

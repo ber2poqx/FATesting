@@ -62,8 +62,10 @@ class SessionManager
 		if (!isset($_SESSION['IPaddress']) || !isset($_SESSION['userAgent']))
 			return false;
 
-		if ($_SESSION['IPaddress'] != $_SERVER['REMOTE_ADDR'])
+		/*commented by progjr for client's IP changes very frequently like every 5-10 seconds, the FrontAccounting session Anti-Hijacking feature takes over and makes it impossible to retain a FA session for any practical length of time.*/
+		/*if ($_SESSION['IPaddress'] != $_SERVER['REMOTE_ADDR'])
 			return false;
+		*/ 
 
 		if ( $_SESSION['userAgent'] != @$_SERVER['HTTP_USER_AGENT'])
 			return false;
@@ -582,6 +584,16 @@ if (!defined('FA_LOGOUT_PHP_FILE')){
 		$_SESSION["App"]->init();
 	}
 }
+
+//Added by spyrax10 
+function page_refresh() {	
+	$is_page_refreshed = (isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] == 'max-age=0');
+	if($is_page_refreshed) {
+		return true;
+	}
+	return false;
+}
+
 
 // POST vars cleanup needed for direct reuse.
 // We quote all values later with db_escape() before db update.

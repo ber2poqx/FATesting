@@ -25,14 +25,22 @@ if (isset($_GET["trans_no"]))
 	$trans_no = $_GET["trans_no"];
 }
 
-display_heading($systypes_array[ST_INVADJUST] . " #$trans_no");
+//Modified by spyrax10
+$title = smo_exists($trans_no, ST_INVADJUST) ? "" : "Pending ";
+$sub_title = is_invty_open_bal($trans_no, '') ? "Inventory Opening" :
+	 $systypes_array[ST_INVADJUST];
+$ext = is_smo_repo($trans_no, ST_INVADJUST) ? " (Repo) " . " #$trans_no" : " #$trans_no";
+
+display_heading($title . $sub_title . $ext);
 
 br(1);
 $adjustment_items = get_stock_adjustment_items($trans_no);
-$k = 0;
+$k = $total = 0;
 $header_shown = false;
 while ($adjustment = db_fetch($adjustment_items))
 {
+	$sub_total = abs($adjustment['qty']) * $adjustment['standard_cost'];
+	$total += $sub_total;
 
 	if (!$header_shown)
 	{
@@ -42,17 +50,28 @@ while ($adjustment = db_fetch($adjustment_items))
 		label_cells(_("At Location"), $adjustment['location_name'], "class='tableheader2'");
     	label_cells(_("Reference"), $adjustment['reference'], "class='tableheader2'", "colspan=6");
 		label_cells(_("Date"), sql2date($adjustment['tran_date']), "class='tableheader2'");
+		label_cells(_("Item Type: "), strtoupper($adjustment['item_type']), "class='tableheader2'"); //Added by spyrax10
 		end_row();
+
+		//Added by spyrax10
+		if (!smo_exists($trans_no, ST_INVADJUST)) {
+			if ($adjustment['status'] == 'Disapproved') {
+				start_row();
+				label_cells(_("Remarks: "), $adjustment['comments'], "class='tableheader2'", "colspan=6");
+				end_row();
+			}	
+		}
+
 		comments_display_row(ST_INVADJUST, $trans_no);
 
 		end_table();
 		$header_shown = true;
 
 		echo "<br>";
-		start_table(TABLESTYLE, "width='90%'");
+		start_table(TABLESTYLE, "width='100%'");
 
-    	$th = array(_("Item Code"), _("Description"), _("Quantity"),
-    		_("Units"), _("Unit Cost"), _("Manufacture Date"),_("Expire Date"),_("Lot No."));
+    	$th = array(_("Item Code"), _("Description"), _("Color"), _("Qty"),
+    		_("Units"), _("Serial #"), _("Chassis #"), _("Unit Cost"), _("Sub Total"));
     	table_header($th);
 	}
 
@@ -60,15 +79,18 @@ while ($adjustment = db_fetch($adjustment_items))
 
     label_cell($adjustment['stock_id']);
     label_cell($adjustment['description']);
-    qty_cell($adjustment['qty'], false, get_qty_dec($adjustment['stock_id']));
+	label_cell($adjustment['color_desc']);
+    label_cell($adjustment['qty'], "align='center'");
     label_cell($adjustment['units']);
+	label_cell($adjustment['lot_no']);
+	label_cell($adjustment['chassis_no']);
     amount_decimal_cell($adjustment['standard_cost']);
-    label_cell($adjustment['manufacture_date']);
-    label_cell($adjustment['expire_date']);
-    label_cell($adjustment['lot_no']);
+	amount_decimal_cell($sub_total);
     end_row();
 }
 
+label_row(_("Document Total: "), number_format2($total,user_price_dec()), 
+			"align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0);
 end_table(1);
 
 is_voided_display(ST_INVADJUST, $trans_no, _("This adjustment has been voided."));

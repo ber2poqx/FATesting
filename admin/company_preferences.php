@@ -24,6 +24,14 @@ include_once($path_to_root . "/admin/db/company_db.inc");
 if (isset($_POST['update']) && $_POST['update'] != "")
 {
 	$input_error = 0;
+	/*  Added by Ronelle 12/16/2020 */
+	if (!check_num('pr_expired', 1))
+	{
+		display_error(_("PR Expiration must be positive number."));
+		set_focus('pr_expired');
+		$input_error = 1;
+	}
+	/* */
 	if (!check_num('login_tout', 10))
 	{
 		display_error(_("Login timeout must be positive number not less than 10."));
@@ -126,21 +134,28 @@ if (isset($_POST['update']) && $_POST['update'] != "")
 		}
 		$_POST['coy_logo'] = "";
 	}
+	if (strlen($_POST['penalty_rate'])==0)
+	{
+		$input_error = 1;
+		display_error(_("The company name must be entered."));
+		set_focus('penalty_rate');
+	}
 	if ($_POST['add_pct'] == "")
 		$_POST['add_pct'] = -1;
 	if ($_POST['round_to'] <= 0)
 		$_POST['round_to'] = 1;
 	if ($input_error != 1)
 	{
-		update_company_prefs(
-			get_post( array('coy_name','coy_no','gst_no','tax_prd','tax_last',
+		update_company_prefs(			
+			get_post( array('coy_name','branch_code', 'coy_no','gst_no','tax_prd','tax_last',
 				'postal_address','phone', 'fax', 'email', 'coy_logo', 'domicile',
 				'use_dimension', 'curr_default', 'f_year', 'shortname_name_in_list',
 				'no_item_list' => 0, 'no_customer_list' => 0, 
 				'no_supplier_list' =>0, 'base_sales', 'ref_no_auto_increase' => 0,
 				'time_zone' => 0, 'company_logo_report' => 0, 'barcodes_on_stock' => 0, 'print_dialog_direct' => 0, 
 				'add_pct', 'round_to', 'login_tout', 'auto_curr_reval', 'bcc_email', 'alternative_tax_include_on_docs', 
-				'suppress_tax_rates', 'use_manufacturing', 'use_fixed_assets'))
+				'suppress_tax_rates', 'use_manufacturing', 'use_fixed_assets', 'pr_expired', 'penalty_rate',
+				'default_rebate_valid_month'))
 		);
 
 		$_SESSION['wa_current_user']->timeout = $_POST['login_tout'];
@@ -172,6 +187,12 @@ if (!isset($myrow["shortname_name_in_list"]))
 	set_company_pref("shortname_name_in_list", "setup.company", "tinyint", 1, '0');
 	$myrow["shortname_name_in_list"] = get_company_pref("shortname_name_in_list");
 }
+if (!isset($myrow["branch_code"]))
+{
+    set_company_pref("branch_code", "setup.company", "varchar", 100, '');
+    $myrow["branch_code"] = get_company_pref("branch_code");
+}
+$_POST['branch_code']  = $myrow["branch_code"];
 $_POST['shortname_name_in_list']  = $myrow["shortname_name_in_list"];
 $_POST['no_item_list']  = $myrow["no_item_list"];
 $_POST['no_customer_list']  = $myrow["no_customer_list"];
@@ -202,6 +223,16 @@ if (!isset($myrow["print_dialog_direct"]))
 	set_company_pref("print_dialog_direct", "setup.company", "tinyint", 1, '0');
 	$myrow["print_dialog_direct"] = get_company_pref("print_dialog_direct");
 }
+if (!isset($myrow["penalty_rate"]))
+{
+	set_company_pref("penalty_rate", "setup.company", "varchar", 5, '0.04');
+	$myrow["penalty_rate"] = get_company_pref("penalty_rate");
+}
+if (!isset($myrow["default_rebate_valid_month"]))
+{
+	set_company_pref("default_rebate_valid_month", "setup.company", "varchar", 5, '0.04');
+	$myrow["default_rebate_valid_month"] = get_company_pref("default_rebate_valid_month");
+}
 $_POST['print_dialog_direct']  = $myrow["print_dialog_direct"];
 $_POST['version_id']  = $myrow["version_id"];
 $_POST['add_pct'] = $myrow['add_pct'];
@@ -217,12 +248,21 @@ $_POST['suppress_tax_rates']  = $myrow["suppress_tax_rates"];
 $_POST['use_manufacturing']  = $myrow["use_manufacturing"];
 $_POST['use_fixed_assets']  = $myrow["use_fixed_assets"];
 
+/* Added by Ronelle 12/16/2020 */
+$_POST['pr_expired'] = $myrow["pr_expired"];
+/* */
+
+//added by JR on 06-11-21
+$_POST['penalty_rate'] = $myrow["penalty_rate"];
+$_POST['default_rebate_valid_month'] = $myrow["default_rebate_valid_month"];
+
 start_outer_table(TABLESTYLE2);
 
 table_section(1);
 table_section_title(_("General settings"));
 
 text_row_ex(_("Name (to appear on reports):"), 'coy_name', 50, 50);
+text_row_ex(_("Branch Code:"), 'branch_code', 20, 50);
 textarea_row(_("Address:"), 'postal_address', $_POST['postal_address'], 34, 5);
 text_row_ex(_("Domicile:"), 'domicile', 25, 55);
 
@@ -245,6 +285,9 @@ check_row(_("Time Zone on Reports"), 'time_zone', $_POST['time_zone']);
 check_row(_("Company Logo on Reports"), 'company_logo_report', $_POST['company_logo_report']);
 check_row(_("Use Barcodes on Stocks"), 'barcodes_on_stock', $_POST['barcodes_on_stock']);
 check_row(_("Auto Increase of Document References"), 'ref_no_auto_increase', $_POST['ref_no_auto_increase']);
+/* Added by Ronelle 12/16/2020 */
+text_row_ex(_("PR Expiration:"), 'pr_expired', 10, 10, '', null, null, _('days'));
+/* */
 label_row(_("Database Scheme Version"), $_POST['version_id']);
 
 table_section(2);
@@ -279,6 +322,10 @@ check_row(_("Search Item List"), 'no_item_list', null);
 check_row(_("Search Customer List"), 'no_customer_list', null);
 check_row(_("Search Supplier List"), 'no_supplier_list', null);
 text_row_ex(_("Login Timeout:"), 'login_tout', 10, 10, '', null, null, _('seconds'));
+
+table_section_title(_("Other Settings"));
+text_row_ex(_("Penalty rate:"), 'penalty_rate', 10, 10, '', null, null, "");
+rebate_month_row(_("Rebate Valid Month:"), 'default_rebate_valid_month', $_POST['default_rebate_valid_month'], false);
 
 end_outer_table(1);
 

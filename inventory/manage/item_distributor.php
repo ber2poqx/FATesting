@@ -13,7 +13,7 @@ $page_security = 'SA_DISTRIBUTOR';
 $path_to_root = "../..";
 include($path_to_root . "/includes/session.inc");
 
-page(_($help_context = "Distributor Masterfile Setup"));
+page(_($help_context = "Sub-Category Masterfile Setup"));
 
 include_once($path_to_root . "/includes/ui.inc");
 
@@ -32,16 +32,16 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 	if (strlen($_POST['description']) == 0)
 	{
 		$input_error = 1;
-		display_error(_("The distributor name cannot be empty."));
+		display_error(_("The sub-category name cannot be empty."));
 		set_focus('description');
 	}
 
 	if ($input_error !=1) {
     	write_distributor($selected_id, $_POST['description']);
 		if($selected_id != '')
-			display_notification(_('Selected distributor has been updated'));
+			display_notification(_('Selected sub-category has been updated'));
 		else
-			display_notification(_('New distributor has been added'));
+			display_notification(_('New sub-category has been added'));
 		$Mode = 'RESET';
 	}
 }
@@ -55,13 +55,13 @@ if ($Mode == 'Delete')
 
 	if (distributor_used($selected_id))
 	{
-		display_error(_("Cannot delete this distributor because items have been created using this distributor."));
+		display_error(_("Cannot delete this sub-category because items have been created using this sub-category."));
 
 	}
 	else
 	{
 		delete_distributor($selected_id);
-		display_notification(_('Selected distributor has been deleted'));
+		display_notification(_('Selected sub-category has been deleted'));
 	}
 	$Mode = 'RESET';
 }
@@ -81,7 +81,7 @@ $result = get_all_distributor(check_value('show_inactive'));
 
 start_form();
 start_table(TABLESTYLE, "width='40%'");
-$th = array( _('ID'), _('Distributor'), "", "");
+$th = array( _('ID'), _('Sub-Category'), "", "");
 inactive_control_column($th);
 
 table_header($th);
@@ -139,7 +139,7 @@ if ($selected_id != '' && distributor_used($selected_id)){
 	//label_row(_("ID:"), $_POST['id']);
 	//text_row(_("Brand Code:"), 'code', null, 20, 20);
  }
-text_row(_("Distributor Name:"), 'description', null, 40, 40);
+text_row(_("Sub-Category Name:"), 'description', null, 40, 40);
 
 //number_list_row(_("Decimal Places:"), 'decimals', null, 0, 6, _("User Quantity Decimals"));
 

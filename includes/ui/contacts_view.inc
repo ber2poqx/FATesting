@@ -23,7 +23,7 @@ class contacts extends simple_crud {
 	
 	function __construct($name, $id, $class, $subclass=null) {
 		$fields = array('ref','name','name2','address', 'phone', 'phone2','fax',
-			'email','lang','notes', 'assgn' =>array('fld'=>'contacts'));
+			'email', 'facebook', 'lang','notes', 'assgn' =>array('fld'=>'contacts'));
 
 		parent::__construct($name, $fields);
 		$this->class = $class;
@@ -38,7 +38,7 @@ class contacts extends simple_crud {
 			start_table(TABLESTYLE, "width='80%'");
 
 			$th = array(_('Assignment'), _("Reference"), _("Full Name"), _("Phone"), _("Sec Phone"), _("Fax"),
-				_("email"),  '',
+				_("email"), _("Facebook"),  '',
 				"&nbsp;");
 
 			table_header($th);
@@ -57,6 +57,7 @@ class contacts extends simple_crud {
 					label_cell($last["phone2"]);
 					label_cell($last["fax"]);
 					email_cell($last["email"]);
+					email_cell($last["facebook"]);
 
 				 	edit_button_cell("{$this->name}Edit[{$last['id']}]", _("Edit"));
 
@@ -100,6 +101,7 @@ class contacts extends simple_crud {
 		text_row(_("Secondary Phone Number:"), 'phone2', @$this->data['phone2'], 32, 30);
 		text_row(_("Fax Number:"), 'fax', @$this->data['fax'], 32, 30);
 		email_row(_("E-mail:"), 'email', @$this->data['email'], 35, 55);
+		email_row(_("Facebook:"), 'facebook', @$this->data['facebook'], 35, 55);
 
 		table_section(2);
 		table_section_title("&nbsp;");
@@ -113,13 +115,13 @@ class contacts extends simple_crud {
 	function db_insert() {
 			$dat = $this->data;
 			return add_crm_person($dat['ref'], $dat['name'], $dat['name2'], $dat['address'],
-				$dat['phone'], $dat['phone2'], $dat['fax'], $dat['email'], $dat['lang'],
+				$dat['phone'], $dat['phone2'], $dat['fax'], $dat['email'], $dat['facebook'], $dat['lang'],
 				$dat['notes'], $dat['contacts'], $this->entity);
 	}
 
 	function db_update() {
 			return update_crm_person($this->selected_id, $_POST['ref'], $_POST['name'], $_POST['name2'], 
-				$_POST['address'], $_POST['phone'], $_POST['phone2'], $_POST['fax'], $_POST['email'], 
+				$_POST['address'], $_POST['phone'], $_POST['phone2'], $_POST['fax'], $_POST['email'], $_POST['facebook'],
 				$_POST['lang'], $_POST['notes'], $_POST['assgn'], $this->entity, $this->class);
 	}
 

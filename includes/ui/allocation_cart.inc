@@ -30,6 +30,7 @@ class allocation
 
 	var $allocs; /*array of transactions allocated to */
 
+
 	function __construct($type, $trans_no, $person_id = null, $person_type_id=null)
 	{
 		$this->allocs = array();
@@ -52,12 +53,12 @@ class allocation
 	}
 
 	function add_item($type, $type_no, $date_, $due_date, $amount, $amount_allocated, 
-		$current_allocated, $ref)
+		$current_allocated, $ref, $dp_amount = 0)
 	{
 		if (floatcmp($amount, 0))
 		{
 			$this->allocs[count($this->allocs)] = new allocation_item($type, $type_no, 
-				$date_, $due_date, $amount, $amount_allocated, $current_allocated, $ref);
+				$date_, $due_date, $amount, $amount_allocated, $current_allocated, $ref, $dp_amount);
 			return true;
 		} 
 		else 
@@ -67,12 +68,12 @@ class allocation
 	}
 	
 	function update_item($index, $type, $type_no, $date_, $due_date, 
-		$amount, $amount_allocated, $current_allocated, $ref)
+		$amount, $amount_allocated, $current_allocated, $ref, $dp_amount = 0)
 	{
 		if (floatcmp($amount, 0))
 		{
 			$this->allocs[$index] = new allocation_item($type, $type_no, 
-				$date_, $due_date, $amount, $amount_allocated, $current_allocated, $ref);
+				$date_, $due_date, $amount, $amount_allocated, $current_allocated, $ref, $dp_amount);
 			return true;
 		} 
 		else 
@@ -82,7 +83,7 @@ class allocation
 	}
 	
 	function add_or_update_item($type, $type_no, $date_, $due_date, 
-		$amount, $amount_allocated, $current_allocated, $ref)
+		$amount, $amount_allocated, $current_allocated, $ref, $dp_amount = 0)
 	{
 		for ($i = 0; $i < count($this->allocs); $i++) 
 		{
@@ -90,11 +91,11 @@ class allocation
 			if (($item->type == $type) && ($item->type_no == $type_no)) 
 			{
 				return $this->update_item($i, $type, $type_no, $date_, $due_date, 
-					$amount, $amount_allocated, $current_allocated, $ref);
+					$amount, $amount_allocated, $current_allocated, $ref, $dp_amount);
 			}
 		}
         return $this->add_item($type, $type_no, $date_, $due_date, 
-        	$amount, $amount_allocated, $current_allocated, $ref);
+        	$amount, $amount_allocated, $current_allocated, $ref, $dp_amount);
 	}
 
 	//
@@ -153,7 +154,8 @@ class allocation
 					$myrow["Total"], // trans total
 					$myrow["alloc"], // trans total allocated
 					0,
-					$myrow["reference"]); // this allocation
+					$myrow["reference"],
+					$myrow["downpayment_amount"]); // this allocation
 			}
 		}
 		if ($this->trans_no == 0) return; // this is new payment
@@ -175,7 +177,8 @@ class allocation
 				sql2date($myrow["tran_date"]),
 				sql2date($myrow["due_date"]),
 				$myrow["Total"],
-				$myrow["alloc"] - $myrow["amt"], $myrow["amt"], $myrow["reference"]);
+				$myrow["alloc"] - $myrow["amt"], $myrow["amt"], $myrow["reference"],
+				$myrow["downpayment_amount"]);
 		}
 	}
 	//
@@ -213,6 +216,9 @@ class allocation
  			     		$alloc_item->type, $alloc_item->type_no, $this->person_id, $this->date_);
 
 	 				update_debtor_trans_allocation($alloc_item->type, $alloc_item->type_no, $this->person_id);
+
+					 // Added by Ronelle
+					update_dp_status($alloc_item->type_no, ST_SALESINVOICE);
 				}
 				// Exchange Variations Joe Hunt 2008-09-20 ////////////////////
 				if ($alloc_item->type != ST_SALESORDER && !@$no_exchange_variations
@@ -253,9 +259,11 @@ class allocation_item
 	var $ref;
 	
 	var $current_allocated;
+
+	var $dp_amount = 0; // Added by Ronelle 5/12/2021
 	
 	function __construct($type, $type_no, $date_, $due_date, $amount, 
-		$amount_allocated, $current_allocated, $ref)
+		$amount_allocated, $current_allocated, $ref, $dp_amount = 0)
 	{
 
 		$this->type = $type;
@@ -269,6 +277,7 @@ class allocation_item
 		$this->amount = $amount;
 		$this->amount_allocated = $amount_allocated;
 		$this->current_allocated = $current_allocated;
+		$this->dp_amount = $dp_amount; // Added by Ronelle 5/12/2021
 	}
 }
 
@@ -287,7 +296,7 @@ function show_allocatable($show_totals) {
 	{
 		display_heading(sprintf(_("Allocated amounts in %s:"), $cart->person_curr));
 		start_table(TABLESTYLE, "width='60%'");
-   		$th = array(_("Transaction Type"), _("#"), $supp_ref ? _("Supplier Ref"): _("Ref"), _("Date"), _("Due Date"), _("Amount"),
+   		$th = array(_("Transaction Type"), _("#"), $supp_ref ? _("Supplier Ref"): _("Ref"), _("Date"), _("Due Date"), _("A/R Amount"), _("DP"),
    			_("Other Allocations"), _("Left to Allocate"), _("This Allocation"),'','');
 
 	   	table_header($th);
@@ -303,6 +312,7 @@ function show_allocatable($show_totals) {
     			label_cell($alloc_item->date_, "align=right");
     			label_cell($alloc_item->due_date, "align=right");
 	    		amount_cell(abs($alloc_item->amount));
+				amount_cell($alloc_item->dp_amount);
 				amount_cell($alloc_item->amount_allocated);
 
 		    	$_POST['amount' . $id] = price_format($alloc_item->current_allocated);

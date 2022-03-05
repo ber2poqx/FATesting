@@ -47,6 +47,8 @@ function get_po($order_no)
     return db_fetch($result);
 }
 
+
+
 function get_po_details($order_no)
 {
 	$sql = "SELECT poline.*, units
@@ -60,6 +62,17 @@ function get_po_details($order_no)
 function print_po()
 {
 	global $path_to_root, $SysPrefs;
+	
+	$from = $_POST['PARAM_0'];
+	$to = $_POST['PARAM_1'];
+	for ($i = $from; $i <= $to; $i++)
+	{
+		$results = get_po_details($i);
+		while ($myrow3=db_fetch($results)){
+			$_SESSION["test"] = sql2date($myrow3['delivery_date']);
+			//unset($_SESSION["test"]);	
+		}
+	}
 
 	include_once($path_to_root . "/reporting/includes/pdf_report.inc");
 
@@ -74,11 +87,11 @@ function print_po()
 
 	$orientation = ($orientation ? 'L' : 'P');
 	$dec = user_price_dec();
-
-	$cols = array(4, 60, 225, 300, 340, 385, 450, 515);
+//						 color,qty, unit, srp, total
+	$cols = array(10, 90, 250, 355, 385, 415, 465, 515);
 
 	// $headers in doctext.inc
-	$aligns = array('left',	'left',	'left', 'right', 'left', 'right', 'right');
+	$aligns = array('left',	'center', 'center', 'left', 'left', 'right', 'right');
 
 	$params = array('comments' => $comments);
 
@@ -116,9 +129,12 @@ function print_po()
 		$result = get_po_details($i);
 		$SubTotal = 0;
 		$items = $prices = array();
+		
 		while ($myrow2=db_fetch($result))
+		
 		{
 			$data = get_purchase_data($myrow['supplier_id'], $myrow2['item_code']);
+			
 			if ($data !== false)
 			{
 				if ($data['supplier_description'] != "")
@@ -139,25 +155,29 @@ function print_po()
 			$DisplayPrice = price_decimal_format($myrow2["unit_price"],$dec2);
 			$DisplayQty = number_format2($myrow2["quantity_ordered"],get_qty_dec($myrow2['item_code']));
 			$DisplayNet = number_format2($Net,$dec);
+			
 			if ($SysPrefs->show_po_item_codes()) {
 				$rep->TextCol(0, 1,	$myrow2['item_code'], -2);
-				$rep->TextCol(1, 2,	$myrow2['description'], -2);
+				$rep->TextCol(1, 2,	$myrow2['description'], -2); //*Empty slot
 			} else
-				$rep->TextCol(0, 2,	$myrow2['description'], -2);
-			$rep->TextCol(2, 3,	sql2date($myrow2['delivery_date']), -2);
-			$rep->TextCol(3, 4,	$DisplayQty, -2);
-			$rep->TextCol(4, 5,	$myrow2['units'], -2);
-			$rep->TextCol(5, 6,	$DisplayPrice, -2);
-			$rep->TextCol(6, 7,	$DisplayNet, -2);
-			$rep->NewLine(1);
+				$rep->TextCol(0, 1,	$myrow2['item_code'], -2);	
+				//$rep->TextCol(2, 3,	sql2date($myrow2['delivery_date']), -2);
+				
+			
+				$rep->TextCol(2, 3,	$myrow2['color_code'], -2);	//* Slot used to display data for COLOR			
+				$rep->TextCol(3, 4,	$DisplayQty, -2);
+				$rep->TextCol(4, 5,	$myrow2['units'], -2);
+				$rep->TextCol(5, 6,	$DisplayPrice, -2);
+				$rep->TextCol(6, 7,	$DisplayNet, -2);
+				$rep->NewLine(1);
 			if ($rep->row < $rep->bottomMargin + (15 * $rep->lineHeight))
 				$rep->NewPage();
 		}
-		if ($myrow['comments'] != "")
+		/*if ($myrow['comments'] != "")
 		{
-			$rep->NewLine();
+			$rep->NewLine(2);
 			$rep->TextColLines(1, 4, $myrow['comments'], -2);
-		}
+		}*/
 		$DisplaySubTot = number_format2($SubTotal,$dec);
 
 		$rep->row = $rep->bottomMargin + (15 * $rep->lineHeight);
@@ -178,36 +198,13 @@ function print_po()
 
 			$tax_type_name = $tax_item['tax_type_name'];
 
-			if ($myrow['tax_included'])
-			{
-				if ($SysPrefs->alternative_tax_include_on_docs() == 1)
-				{
-					if ($first)
-					{
-						$rep->TextCol(3, 6, _("Total Tax Excluded"), -2);
-						$rep->TextCol(6, 7,	number_format2($tax_item['net_amount'], $dec), -2);
-						$rep->NewLine();
-					}
-					$rep->TextCol(3, 6, $tax_type_name, -2);
-					$rep->TextCol(6, 7,	$DisplayTax, -2);
-					$first = false;
-				}
-				else
-					$rep->TextCol(3, 7, _("Included") . " " . $tax_type_name . _("Amount") . ": " . $DisplayTax, -2);
-			}
-			else
-			{
-				$SubTotal += $tax_item['Value'];
-				$rep->TextCol(3, 6, $tax_type_name, -2);
-				$rep->TextCol(6, 7,	$DisplayTax, -2);
-			}
-			$rep->NewLine();
+			
 		}
 
 		$rep->NewLine();
 		$DisplayTotal = number_format2($SubTotal, $dec);
 		$rep->Font('bold');
-		$rep->TextCol(3, 6, _("TOTAL PO"), - 2);
+		$rep->TextCol(3, 6, _("GRAND TOTAL"), - 2);
 		$rep->TextCol(6, 7,	$DisplayTotal, -2);
 		$words = price_in_words($SubTotal, ST_PURCHORDER);
 		if ($words != "")

@@ -661,20 +661,29 @@ function check_is_editable($trans_type, $trans_no, $msg=null)
 		check_is_closed($trans_type, $trans_no, $msg);
 }
 
-function check_reference($reference, $trans_type, $trans_no=0, $context=null, $line=null)
+//Modified by spyrax10 01-25-2022
+function check_reference($reference, $trans_type, $trans_no=0, $context=null, $line=null, 
+	$display_error = true)
 {
 	global $Refs;
 
 	if (!$Refs->is_valid($reference, $trans_type, $context, $line))
 	{
-		display_error(_("The entered reference is invalid.")); return false;
+		if ($display_error) {
+			display_error(_("The entered reference is invalid."));
+		} 
+		return false;
 	}
 	elseif (!$Refs->is_new_reference($reference, $trans_type, $trans_no))
 	{
-		display_error( _("The entered reference is already in use.")); return false;
+		if ($display_error) {
+			display_error( _("The entered reference is already in use.")); 
+		}
+		return false;
 	}
 	return true;
 }
+//
 
 function check_sys_pref($name, $msg, $empty = '')
 {
@@ -686,3 +695,39 @@ function check_sys_pref($name, $msg, $empty = '')
 		display_footer_exit();
 	}
 }
+
+//-------------------------------------------------------------------------------------------------
+//added by jr for standard cost area gl_setup
+
+function db_has_SRP_area_types()
+{
+	return check_empty_result("SELECT COUNT(*) FROM ".TB_PREF."item_srp_area_types");
+}
+
+function check_db_has_SRP_area_types($msg)
+{
+	global $path_to_root;
+    if (!db_has_SRP_area_types()) 
+    {
+    	display_error($msg, true);
+    	end_page();
+    	exit;	
+    }	
+}
+
+function db_has_cost_area_types()
+{
+	return check_empty_result("SELECT COUNT(*) FROM ".TB_PREF."supp_cost_types");
+}
+
+function check_db_has_cost_area_types($msg)
+{
+	global $path_to_root;
+    if (!db_has_cost_area_types()) 
+    {
+    	display_error($msg, true);
+    	end_page();
+    	exit;	
+    }	
+}
+

@@ -56,6 +56,14 @@ define('SS_GL_C',	61<<8);
 define('SS_GL',		62<<8);
 define('SS_GL_A',	63<<8);
 
+define('SS_LEND_C',	71<<8); // configuration
+define('SS_LEND',	72<<8);	// transactions
+define('SS_LEND_A',	73<<8); // analytic functions/reports/inquires
+
+define('SS_REPO_C',	91<<8); // configuration
+define('SS_REPO',	92<<8);	// transactions
+define('SS_REPO_A',	93<<8); // analytic functions/reports/inquires
+
 $security_sections = array(
  	SS_SADMIN => _("System administration"),
  	SS_SETUP => _("Company setup"),
@@ -75,11 +83,20 @@ $security_sections = array(
  	SS_MANUF_C => _("Manufacturing configuration"),
  	SS_MANUF => _("Manufacturing transactions"),
  	SS_MANUF_A => _("Manufacturing analytics"),
+
  	SS_DIM_C => _("Dimensions configuration"),
  	SS_DIM => _("Dimensions"),
  	SS_GL_C => _("Banking & GL configuration"),
  	SS_GL => _("Banking & GL transactions"),
- 	SS_GL_A => _("Banking & GL analytics")
+ 	SS_GL_A => _("Banking & GL analytics"),
+
+ 	SS_LEND_C => _("Lending configuration"),
+ 	SS_LEND => _("Lending transactions"),
+ 	SS_LEND_A => _("Lending analytics"),
+
+ 	SS_REPO_C => _("Repo configuration"),
+ 	SS_REPO => _("Repo transactions"),
+ 	SS_REPO_A => _("Repo analytics")
 );
 
 /*
@@ -118,6 +135,8 @@ $security_areas =array(
 	'SA_WORKCENTRES' => array(SS_SETUP|12, _("Manufacture work centres")),
 	'SA_FORMSETUP' => array(SS_SETUP|13, _("Forms setup")),
 	'SA_CRMCATEGORY' => array(SS_SETUP|14, _("Contact categories")),
+	'SA_PLCYBUILDER' => array(SS_SETUP|14, _("Policy Builders")),
+	'SA_CHECKOPBLDR' => array(SS_SETUP|14, _("Checkout Operator Builder")),
 //
 // Special and common functions
 //
@@ -128,16 +147,37 @@ $security_areas =array(
 	'SA_SETUPDISPLAY' => array(SS_SPEC|5, _("Display preferences")),
 	'SA_CHGPASSWD' => array(SS_SPEC|6, _("Password changes")),
 	'SA_EDITOTHERSTRANS' => array(SS_SPEC|7, _("Edit other users transactions")),
+	'SA_BRANCHAREA' => array(SS_SPEC|8, _("Branch Area Setup")),
+	'SA_BRANCHPLCY' => array(SS_SPEC|9, _("Branch Policy Setup")),
+	'SA_COMPANYTYP' => array(SS_SPEC|10, _("Company Type Setup")),
 //
 // Sales related functionality
 //
-	'SA_SALESTYPES' => array(SS_SALES_C|1, _("Sales types")),
+	'SA_SALESTYPES' => array(SS_SALES_C|1, _("Sales Price Code")),
 	'SA_SALESPRICE' => array(SS_SALES_C|2, _("Sales prices edition")),
 	'SA_SALESMAN' => array(SS_SALES_C|3, _("Sales staff maintenance")),
 	'SA_SALESAREA' => array(SS_SALES_C|4, _("Sales areas maintenance")),
 	'SA_SALESGROUP' => array(SS_SALES_C|5, _("Sales groups changes")),
 	'SA_STEMPLATE' => array(SS_SALES_C|6, _("Sales templates")),
 	'SA_SRECURRENT' => array(SS_SALES_C|7, _("Recurrent invoices definitions")),
+	
+	'SA_SALES_TYPE' => array(SS_SALES_C|8, _("Sales Type changes")), // Added by Prog6	
+	'SA_COLLECTYPE' => array(SS_SALES_C|9, _("Collection Type changes")), // Added by Robert Gwapo	
+
+	//new added by progjr for sales installment 10-23-2020
+	'SA_INSTLPLCYTYPS' => array(SS_SALES_C|10, _("Sales Installment Policy Type")),
+	'SA_INSTLPLCY' => array(SS_SALES_C|11, _("Sales Installment Policy")),
+	'SA_SCASHPRCTYPES' => array(SS_SALES_C|12, _("Cash Price Types")),
+	'SA_SCASHPRICE' => array(SS_SALES_C|13, _("Cash Prices edition")),
+	
+	'SA_HOCBCTYPE' => array(SS_SALES_C|14, _("HOC/BC Type changes")),	// Added by Ronelle 2/22/2021
+
+	'SA_SLINCNTIVTYPE' => array(SS_SALES_C|15, _("Sales Incentive Type")), //progjr 3/19/2021
+	'SA_SINCNTVPRICE' => array(SS_SALES_C|16, _("Sales Incentive Pricing")), //progjr 3/19/2021
+	'SA_ITEMDSCNT' => array(SS_SALES_C|17, _("Item Discount")), //progjr 10/19/2021
+	'SA_ITMAPSUPPORT' => array(SS_SALES_C|18, _("Item AP Support Type")), //progjr 10/26/2021
+	'SA_ITMAPSUPPORT' => array(SS_SALES_C|19, _("Item AP Support Price")), //progjr 10/26/2021
+	'SA_SALES_TARGET' => array(SS_SALES_C|20, _("Sales Target changes")), // Added by Prog6	(11/09/2021)
 
 	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales transactions view")),
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales customer and branches changes")),
@@ -150,6 +190,22 @@ $security_areas =array(
 	'SA_SALESPAYMNT' => array(SS_SALES|8, _("Customer payments entry")),
 	'SA_SALESALLOC' => array(SS_SALES|9, _("Customer payments allocation")),
 
+	'SA_MUNIZICODE' => array(SS_SALES|11, _("Municipality and Zipcode")),
+	'SA_INSTLPOLICYLIST' => array(SS_SALES|12, _("List of Installment Policy")),	// Added by Ronelle
+	'SA_SALES_INVOICE_LIST' => array(SS_SALES|13, _("List of Sales Invoices")),	// Added by Ronelle
+	'SA_SALES_ORDER_UPDATE_STATUS' => array(SS_SALES|14, _("Approval Sales Order")),	// Added by Ronelle
+	'SA_SALES_INVOICE_OB' => array(SS_SALES|15, _("Sales Invoice for Opening Balances")),	// Added by Ronelle
+
+	'SA_SALES_RETURN_REPLACEMENT' => array(SS_SALES|16, _("Sales Return Replacement")),	// Added by Ronelle
+	'SA_SITERMMOD' => array(SS_SALES|17, _("Sales Invoice Term Modification")),	// Added by Ronelle
+	'SA_SALESINVOICEREPO' => array(SS_SALES|18, _("Sales Invoice Repossessed")),	// Added by Ronelle
+	'SA_RESTRUCTURED' => array(SS_SALES|17, _("Sales Invoice Restructured")),	// Added by Albert
+
+	'SA_CUSTOMERSIMPORTS' => array(SS_SALES|19, _("Customer Import CSV")), // Added by Robert
+	'SA_PROOF_CASH' => array(SS_SALES|20, _("Proof of Cash Report")),      // Added by Robert
+	'SA_COLLECTION_PERCENTAGE' => array(SS_SALES|21, _("Collection Percentage Target")), // Added by Robert
+	'SA_COLLECTION_AMOUNT' => array(SS_SALES|22, _("Collection Amount Target")), // Added by Robert
+
 	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales analytical reports")),
 	'SA_SALESBULKREP' => array(SS_SALES_A|2, _("Sales document bulk reports")),
 	'SA_PRICEREP' => array(SS_SALES_A|3, _("Sales prices listing")),
@@ -158,27 +214,54 @@ $security_areas =array(
 	'SA_CUSTSTATREP' => array(SS_SALES_A|6, _("Customer status report")),
 	'SA_CUSTPAYMREP' => array(SS_SALES_A|7, _("Customer payments report")),
 
+	'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
+	'SA_SALES_ORDER_APPROVAL'=> array(SS_SALES|14, _("Account Specialist Approval Sales Order")), //Added by Albert
+	'SA_SALES_RETURN_UPDATE_STATUS' => array(SS_SALES|16, _("Sales Return Approval")),
+	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|16, _("Sales Restructured Approval")),
+
+	//Added by spyrax10
+	'SA_SI_UPDATE' => array(SS_SALES|17, _("Update Sales Invoice Transactions")),
+	//
+
 //
 // Purchase related functions
 //
 	'SA_PURCHASEPRICING' => array(SS_PURCH_C|1, _("Purchase price changes")),
-
+	'SA_SUPPLIER_GROUP' => array(SS_PURCH_C|2, _("Supplier's Group")),
+    //Added by Herald for Suppliers Re order Level
+    'SA_SUPPLIERREORDERLEVEL' => array(SS_PURCH_C|3, _("Supplier's Re-order Level")),
+    //Added by herald for Popupview security - 11/28/2020
+    'SA_SUPPPOPUPLIST' => array(SS_PURCH_C|4, _("Supplier's Masterlist Popup view")),
+    
 	'SA_SUPPTRANSVIEW' => array(SS_PURCH|1, _("Supplier transactions view")),
 	'SA_SUPPLIER' => array(SS_PURCH|2, _("Suppliers changes")),
 	'SA_PURCHASEORDER' => array(SS_PURCH|3, _("Purchase order entry")),
 	'SA_GRN' => array(SS_PURCH|4, _("Purchase receive")),
-	'SA_SUPPLIERINVOICE' => array(SS_PURCH|5, _("Supplier invoices")),
+    'SA_SUPPLIERINVOICE' => array(SS_PURCH|5, _("Supplier invoices")),
 	'SA_GRNDELETE' => array(SS_PURCH|9, _("Deleting GRN items during invoice entry")),
 	'SA_SUPPLIERCREDIT' => array(SS_PURCH|6, _("Supplier credit notes")),
 	'SA_SUPPLIERPAYMNT' => array(SS_PURCH|7, _("Supplier payments")),
 	'SA_SUPPLIERALLOC' => array(SS_PURCH|8, _("Supplier payments allocations")),
-
+    'SA_DRAFTTOPO' => array(SS_PURCH|10, _("Draft To PO")),
+    
+    
 	// Added by Ronelle PR MODULE
-	'SA_PURCHASEREQUEST' => array(SS_PURCH|9, _("Purchase Request")),
+	'SA_PURCHASEREQUEST' => array(SS_PURCH|12, _("Purchase Request")),
+	'SA_PRTPO' => array(SS_PURCH|13, _("Purchase Request to Order")),
+	'SA_RECEIVECONSIGN' => array(SS_PURCH|14, _("Receive Consignment")),
+	'SA_DRAFTPOUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PO Status")),
+	'SA_DRAFTPRUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PR Status")),
+	'SA_RCONPO' => array(SS_PURCH|16, _("Receive Consignment to PO")),
+	'SA_COPYFROM_RCON_TO_PO' => array(SS_PURCH|17, _("Copy RR Consignment to Purchase Order")),
+	'SA_PR_BRANCH' => array(SS_PURCH|18, _("List of Branch Purchase Request")),
+	'SA_PO_BRANCH' => array(SS_PURCH|19, _("List of Branch Purchase Order")),
 
 	'SA_SUPPLIERANALYTIC' => array(SS_PURCH_A|1, _("Supplier analytical reports")),
 	'SA_SUPPBULKREP' => array(SS_PURCH_A|2, _("Supplier document bulk reports")),
 	'SA_SUPPPAYMREP' => array(SS_PURCH_A|3, _("Supplier payments report")),
+
+	//added by JR for supplier costing types on 10-13-2020
+	'SA_SUPPLIERCOSTYP' => array(SS_PURCH|11, _("Supplier Cost Types")),
 //
 // Inventory 
 //
@@ -190,12 +273,36 @@ $security_areas =array(
 	'SA_MANUFACTURER' => array(SS_ITEMS_C|6, _("Manufacturer")),
 	'SA_DISTRIBUTOR' => array(SS_ITEMS_C|7, _("Distributor")),
 	'SA_IMPORTER' => array(SS_ITEMS_C|8, _("Item Importer")),
-	
+    'SA_ITEMPOPUPVIEW' => array(SS_ITEMS_C|7, _("Stock Item Popup View")),
+
+	//added by jr for standart cost area type on 10-19-2020
+	'SA_SRPAREATYPE' => array(SS_ITEMS_C|8, _("Standard Retail Price Types")),
+
+	// Added by Ronelle
+	'SA_SISTOCKLIST' => array(SS_ITEMS_C|9, _("Available Item for SI")),
+	'SA_SRSTOCKLIST' => array(SS_ITEMS_C|10, _("Available Item for SR")),
+    
 	'SA_ITEMSSTATVIEW' => array(SS_ITEMS|1, _("Stock status view")),
 	'SA_ITEMSTRANSVIEW' => array(SS_ITEMS|2, _("Stock transactions view")),
-	'SA_FORITEMCODE' => array(SS_ITEMS|3, _("Foreign item codes entry")),
+	'SA_FORITEMCODE' => array(SS_ITEMS|3, _("Item color codes entry")),
 	'SA_LOCATIONTRANSFER' => array(SS_ITEMS|4, _("Inventory location transfers")),
 	'SA_INVENTORYADJUSTMENT' => array(SS_ITEMS|5, _("Inventory adjustments")),
+    'SA_MERCHANDISETRANSFER' => array(SS_ITEMS|6, _("Merchandise Transfers")),
+    'SA_MERCHANDISETRANSFERREPO' => array(SS_ITEMS|12, _("Merchandise Transfers - Repo")),
+    //Added by Herald for RR Branch 02/22/2021
+    'SA_RRBRANCH' => array(SS_ITEMS|7, _("Receiving Report - Branch")),
+    //Added by Herald - 04/12/2021 for Complimentary Items
+    'SA_COMPLIMENTARYITEM' => array(SS_ITEMS|8, _("Complimentary Items")),
+
+	//Added by spyrax10 24 Feb 2022
+	'SA_INVTY_UPDATE' => array(SS_ITEMS|13, _("Update for Inventory Adjustment Transactions")),
+	'SA_INVTY_DRAFT' => array(SS_ITEMS|14, _("Approval for Inventory Adjustment Transactions")),
+	'SA_INVTY_POST' => array(SS_ITEMS|15, _("Posting for Inventory Adjustment Transactions")),
+	//
+
+    //----Robert Added----//
+	'SA_RRTRANSWORLDVIEW' => array(SS_ITEMS|9, _("RR Transworld view")),
+	'SA_INVENTORY_TYPE' => array(SS_ITEMS|10, _("Inventory Adjustment Setup")),
 
 	'SA_REORDER' => array(SS_ITEMS_A|1, _("Reorder levels")),
 	'SA_ITEMSANALYTIC' => array(SS_ITEMS_A|2, _("Items analytical reports and inquiries")),
@@ -231,6 +338,7 @@ $security_areas =array(
 	'SA_MANUFBULKREP' => array(SS_MANUF_A|3, _("Work order bulk reports")),
 	'SA_BOMREP' => array(SS_MANUF_A|4, _("Bill of materials reports")),
 //
+
 // Dimensions
 //
 	'SA_DIMTAGS' => array(SS_DIM_C|1, _("Dimension tags")),
@@ -267,15 +375,50 @@ $security_areas =array(
 	'SA_BANKTRANSFER' => array(SS_GL|6, _("Bank account transfers")),
 	'SA_RECONCILE' => array(SS_GL|7, _("Bank reconciliation")),
 	'SA_JOURNALENTRY' => array(SS_GL|8, _("Manual journal entries")),
-	'SA_BANKJOURNAL' => array(SS_GL|11, _("Journal entries to bank related accounts")),
 	'SA_BUDGETENTRY' => array(SS_GL|9, _("Budget edition")),
-	'SA_STANDARDCOST' => array(SS_GL|10, _("Item standard costs")),
+	'SA_STANDARDCOST' => array(SS_GL|10, _("Item standard cost")),
+	'SA_BANKJOURNAL' => array(SS_GL|11, _("Journal entries to bank related accounts")),
 	'SA_ACCRUALS' => array(SS_GL|12, _("Revenue / Cost Accruals")),
+
+	/* Added by Ronelle 2/20/2021 for MCode Listing */
+	'SA_SEARCHSL' => array(SS_GL|13, _("List of Supplier, Branch, Customer and Employee")),
+	/* */
+	
+	//Added by spyrax10 24 Feb 2022
+	'SA_INTER_BANK_DRAFT' => array(SS_GL|14, _("Review Bank Interbranch Transactions")),
+	'SA_INTER_BANK_POST' => array(SS_GL|15, _("Post Bank Interbranch Transactions")),
+	//
 
 	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL analytical reports and inquiries")),
 	'SA_TAXREP' => array(SS_GL_A|2, _("Tax reports and inquiries")),
 	'SA_BANKREP' => array(SS_GL_A|3, _("Bank reports and inquiries")),
 	'SA_GLREP' => array(SS_GL_A|4, _("GL reports and inquiries")),
+
+//
+// Lending related functions
+//
+	'SA_ARINVCINSTL' => array(SS_LEND|1, _("A/R Installment")),
+	'SA_LCUSTAMORT'=> array(SS_LEND|2, _("Office &Collection Receipt")),
+	'SA_LINTERBRANCH'=> array(SS_LEND|3, _("Interbranch &Collection Receipt")),
+	'SA_APCUSTDPOPEN'=> array(SS_LEND|4, _("AP Customer Deposit Opening")),
+
+	//'SA_LENDING_A' => array(SS_LEND_A|1, _("Lending analytics")),
+	'SA_INVCINQ'=> array(SS_LEND_A|1, _("Incoming Invoice Inquiry")),
+	'SA_INTRBPAYINQ'=> array(SS_LEND_A|2, _("Incoming Inter-branch Payments Inquiry")),
+	'SA_ALLOCPYMNT'=> array(SS_LEND_A|3, _("Payment Allocation")),
+	'SA_ARINVCINQ' => array(SS_LEND_A|4, _("A/R Installment Inquiry")),
+	
+	'SA_ADDCUSTINTERB'=> array(SS_LEND_C|1, _("Add Inter-Branch Customers")),
+
+//
+// Repossessed
+//
+
+	'SA_GRNREPO' => array(SS_REPO|1, _("Receiving Report Repo")),
+	'SA_TEMPREPOINQRY' => array(SS_REPO|2, _("Temporary Repo Lending inquiry")),
+
+	'SA_REPOREPRICE' => array(SS_REPO|3, _("Repossess Item Pricing")),
+
 );
 
 if (!@$SysPrefs->allow_gl_reopen)

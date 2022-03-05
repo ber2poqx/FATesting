@@ -69,3 +69,16 @@ function stock_item_heading($stock_id)
 	}
 }
 
+function supplier_heading($supplier_id){
+    if ($supplier_id != "")
+    {
+        $result = db_query("SELECT supp_name, supp_ref FROM ".TB_PREF."suppliers WHERE supplier_id=".db_escape($supplier_id));
+        $myrow = db_fetch_row($result);
+        
+        display_heading("$myrow[1] - $myrow[0]");
+        //$units = $myrow[1];
+        //display_heading2(_("in units of : ") . $units);
+    }
+}
+
+

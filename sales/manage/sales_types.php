@@ -13,7 +13,7 @@ $page_security = 'SA_SALESTYPES';
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
 
-page(_($help_context = "Sales Types"));
+page(_($help_context = "Sales Price Setup - LCP"));
 
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/sales/includes/db/sales_types_db.inc");
@@ -43,8 +43,7 @@ function can_process()
 
 if ($Mode=='ADD_ITEM' && can_process())
 {
-	add_sales_type($_POST['sales_type'], check_value('tax_included'),
-	    input_num('factor'));
+	add_sales_type($_POST['sales_type'], check_value('tax_included'), input_num('factor'), $_POST['remarks']);
 	display_notification(_('New sales type has been added'));
 	$Mode = 'RESET';
 }
@@ -53,9 +52,7 @@ if ($Mode=='ADD_ITEM' && can_process())
 
 if ($Mode=='UPDATE_ITEM' && can_process())
 {
-
-	update_sales_type($selected_id, $_POST['sales_type'], check_value('tax_included'),
-	     input_num('factor'));
+	update_sales_type($selected_id, $_POST['sales_type'], check_value('tax_included'), input_num('factor'), $_POST['remarks']);
 	display_notification(_('Selected sales type has been updated'));
 	$Mode = 'RESET';
 }
@@ -79,8 +76,13 @@ if ($Mode == 'Delete')
 		}
 		else
 		{
-			delete_sales_type($selected_id);
-			display_notification(_('Selected sales type has been deleted'));
+			// PREVENT DELETES IF DEPENDENT RECORDS exists
+			if (key_in_foreign_table($selected_id, 'prices', 'sales_type_id')){
+				display_error(_('Cannot delete this policy because it is used by some related records in other tables.'));
+			}else{
+				delete_sales_type($selected_id);
+				display_notification(_('Selected sales type has been deleted'));
+			}
 		}
 	} //end if sales type used in debtor transactions or in customers set up
 	$Mode = 'RESET';
@@ -98,9 +100,10 @@ if ($Mode == 'RESET')
 $result = get_all_sales_types(check_value('show_inactive'));
 
 start_form();
-start_table(TABLESTYLE, "width='30%'");
+start_table(TABLESTYLE, "width='50%'");
 
-$th = array (_('Type Name'), _('Factor'), _('Tax Incl'), '','');
+$th = array (_('Type Name'), _('Remarks'), _('Factor'), _('Tax Incl'), '','');
+
 inactive_control_column($th);
 table_header($th);
 $k = 0;
@@ -112,12 +115,13 @@ while ($myrow = db_fetch($result))
 	    start_row("class='overduebg'");
 	else
 	    alt_table_row_color($k);
-	label_cell($myrow["sales_type"]);
-	$f = number_format2($myrow["factor"],4);
-	if($myrow["id"] == $base_sales) $f = "<I>"._('Base')."</I>";
-	label_cell($f);
-	label_cell($myrow["tax_included"] ? _('Yes'):_('No'), 'align=center');
-	inactive_control_cell($myrow["id"], $myrow["inactive"], 'sales_types', 'id');
+		label_cell($myrow["sales_type"]);
+		label_cell($myrow["remarks"]);
+		$f = number_format2($myrow["factor"],4);
+		if($myrow["id"] == $base_sales) $f = "<I>"._('Base')."</I>";
+		label_cell($f);
+		label_cell($myrow["tax_included"] ? _('Yes'):_('No'), 'align=center');
+		inactive_control_cell($myrow["id"], $myrow["inactive"], 'sales_types', 'id');
  	edit_button_cell("Edit".$myrow['id'], _("Edit"));
  	delete_button_cell("Delete".$myrow['id'], _("Delete"));
 	end_row();
@@ -143,6 +147,7 @@ if ($selected_id != -1)
 		$myrow = get_sales_type($selected_id);
 
 		$_POST['sales_type']  = $myrow["sales_type"];
+		$_POST['remarks']  = $myrow["remarks"];
 		$_POST['tax_included']  = $myrow["tax_included"];
 		$_POST['factor']  = number_format2($myrow["factor"],4);
 	}
@@ -151,9 +156,10 @@ if ($selected_id != -1)
 		$_POST['factor']  = number_format2(1,4);
 }
 
-text_row_ex(_("Sales Type Name").':', 'sales_type', 20);
+text_row_ex(_("Sales Price Name").':', 'sales_type', 20);
 amount_row(_("Calculation factor").':', 'factor', null, null, null, 4);
 check_row(_("Tax included").':', 'tax_included', $_POST['tax_included']);
+textarea_row(_("Remarks:"), 'remarks', null, 35, 5);
 
 end_table(1);
 

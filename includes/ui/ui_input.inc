@@ -206,7 +206,8 @@ function submit_center_last($name, $value, $title=false, $async=false, $icon=fal
 	'upgrade' - use Ctrl-Enter with progress ajax indicator and Escape hotkeys. Nonajax request for OK option is performed.
 	'cancel' - apply to 'RESET' button
 */
-function submit_add_or_update($add=true, $title=false, $async=false, $clone=false)
+function submit_add_or_update($add=true, $title=false, $async=false, $clone=false, 
+	$delete=false) //Addded by spyrax10
 {
 	$cancel = $async;
 
@@ -221,20 +222,65 @@ function submit_add_or_update($add=true, $title=false, $async=false, $clone=fals
 	elseif ($async === 'cancel')
 		$async = true;
 	
-	if ($add)
+	if ($add) {
 		submit('ADD_ITEM', _("Add new"), true, $title, $async);
+	}
 	else {
-		submit('UPDATE_ITEM', _("Update"), true, _('Submit changes'), $async);
+		//Modified by spyrax10
+		$name = $delete ? 'DELETE_ITEM' : 'UPDATE_ITEM';
+		$text = $delete ? _("Delete") : _("Update");
+
+		submit($name, $text, true, _('Submit changes'), $async);
 		if ($clone) submit('CLONE', _("Clone"), true, 
 			_('Edit new record with current data'), $async);
 		submit('RESET', _("Cancel"), true, _('Cancel edition'), $cancel);
 	}
 }
 
-function submit_add_or_update_center($add=true, $title=false, $async=false, $clone=false)
+//add robert
+function submit_add_or_update_for_approval($add=true, $title=false, $async=false, $clone=false, 
+	$delete=false) 
+{
+	$cancel = $async;
+
+	if ($async === 'both') {
+		$async = 'default'; $cancel = 'cancel';
+	}
+	elseif ($async === 'upgrade') {
+		$async = 'default nonajax process'; $cancel = 'cancel';
+	}
+	elseif ($async === 'default')
+		$cancel = true;
+	elseif ($async === 'cancel')
+		$async = true;
+	
+	if ($add) {
+		submit('ADD_ITEM', _("Add new"), true, $title, $async);
+	}
+	else {
+		$name = $delete ? 'DELETE_ITEM' : 'UPDATE_ITEM';
+		$text = $delete ? _("Delete") : _("Update");
+
+		submit($name, $text, true, _('Submit changes'), $async);
+		if ($clone) submit('CLONE', _("Clone"), true, 
+			_('Edit new record with current data'), $async);
+		submit('RESET', _("Cancel"), true, _('Cancel edition'), $cancel);
+	}
+}
+
+//add robert
+function submit_add_or_update_center_for_approved($add=false, $title=false, $async=false, $clone=false, $delete = false)
 {
 	echo "<center>";
-	submit_add_or_update($add, $title, $async, $clone);
+	submit_add_or_update_for_approval($add, $title, $async, $clone, $delete);
+	echo "</center>";
+}
+
+//Modified by spyrax10
+function submit_add_or_update_center($add=true, $title=false, $async=false, $clone=false, $delete = false)
+{
+	echo "<center>";
+	submit_add_or_update($add, $title, $async, $clone, $delete);
 	echo "</center>";
 }
 
@@ -250,7 +296,8 @@ function submit_add_or_update_row($add=true, $right=true, $extra="", $title=fals
 
 function submit_cells($name, $value, $extra="", $title=false, $async=false)
 {
-	echo "<td $extra>";
+	//Modified by spyrax10
+	echo "<td $extra align = 'center'>";
 	submit($name, $value, true, $title, $async);
 	echo "</td>\n";
 }
@@ -262,6 +309,15 @@ function submit_row($name, $value, $right=true, $extra="", $title=false, $async=
 		echo "<td>&nbsp;</td>\n";
 	submit_cells($name, $value, $extra, $title, $async);
 	echo "</tr>\n";
+}
+
+//Added by Robert
+function submit_row_backup($name, $value, $right=true, $extra="", $title=false, $async=false)
+{
+	if ($right)
+	echo "<td $extra align = 'center'>";
+	submit_cells($name, $value, $extra, $title, $async);
+	echo "</td>\n";
 }
 
 function submit_return($name, $value, $title=false)
@@ -460,6 +516,23 @@ function amount_cell($label, $bold=false, $params="", $id=null)
 		label_cell(price_format($label), "nowrap align=right ".$params, $id);
 }
 
+//======= ADDED BY Prog6 (11/10/2021) ===============================================
+/*
+	* Whole number, non-decimal
+	* CENTER align
+	* with comma thousand separated
+*/
+function qty_unit_cell($label, $bold=false, $dec=null, $id=null)
+{
+	if (!isset($dec))
+		$dec = get_qty_dec();
+	if ($bold)
+		label_cell("<b>".number_format($label)."</b>", "nowrap align=center", $id);
+	else
+		label_cell(number_format($label), "nowrap align=center", $id);
+}
+//===================================================================================
+
 //JAM  Allow entered unit prices to be fractional
 function unit_amount_cell($label, $bold=false, $params="", $id=null)
 {
@@ -477,15 +550,16 @@ function percent_cell($label, $bold=false, $id=null)
 	else
 		label_cell(percent_format($label), "nowrap align=right", $id);
 }
-// 2008-06-15. Changed
+// 2008-06-15. Changed 
+//Modified by spyrax10 2021-09-07
 function qty_cell($label, $bold=false, $dec=null, $id=null)
 {
 	if (!isset($dec))
 		$dec = get_qty_dec();
 	if ($bold)
-		label_cell("<b>".number_format2($label, $dec)."</b>", "nowrap align=right", $id);
+		label_cell("<b>".number_format2($label, $dec)."</b>", "nowrap align=center", $id);
 	else
-		label_cell(number_format2($label, $dec), "nowrap align=right", $id);
+		label_cell(number_format2($label, $dec), "nowrap align=center", $id);
 }
 
 function label_cells($label, $value, $params="", $params2="", $id=null)
@@ -539,6 +613,76 @@ function text_cells($label, $name, $value=null, $size="", $max="", $title=false,
 	echo "</td>\n";
 	$Ajax->addUpdate($name, $name, $value);
 }
+//========================== Added by prog6 (11/10/2021) ==================================================
+function text_cells_ar($label, $name, $size, $type, $max=null, $init=null, $title=null,
+	$labparams=null, $post_label=null, $submit_on_change=false)
+{
+  	global $Ajax;
+
+	default_focus($name);
+	if (!isset($_POST[$name]) || $_POST[$name] == "")
+	{
+		if ($init)
+			$_POST[$name] = $init;
+		else
+			$_POST[$name] = "";
+	}
+	if ($label != null)
+		label_cell($label, $labparams);
+
+	if (!isset($max))
+		$max = $size;
+
+	if($type == 'Edit'){
+		echo "<td style='text-align:right'>";
+		$class = $submit_on_change ? 'class="searchbox"' : '';
+		echo "<input disabled style='text-align:right' $class type=\"text\" name=\"$name\" size=\"$size\" maxlength=\"$max\" value=\"" . $_POST[$name]. "\""
+		 .($title ? " title='$title'": '')." >";
+	}
+	if($type != 'Edit'){
+		echo "<td style='text-align:right'>";
+		$class = $submit_on_change ? 'class="searchbox"' : '';
+		echo "<input style='text-align:right' $class type=\"text\" name=\"$name\" size=\"$size\" maxlength=\"$max\" value=\"" . $_POST[$name]. "\""
+		 .($title ? " title='$title'": '')." >";
+	}
+
+	if ($post_label)
+		echo " " . $post_label;
+
+	echo "</td>\n";
+	$Ajax->addUpdate($name, $name, $_POST[$name]);
+}
+function text_cells_ac($label, $name, $size, $max=null, $init=null, $title=null,
+	$labparams=null, $post_label=null, $submit_on_change=false)
+{
+  	global $Ajax;
+
+	default_focus($name);
+	if (!isset($_POST[$name]) || $_POST[$name] == "")
+	{
+		if ($init)
+			$_POST[$name] = $init;
+		else
+			$_POST[$name] = "";
+	}
+	if ($label != null)
+		label_cell($label, $labparams);
+
+	if (!isset($max))
+		$max = $size;
+
+	echo "<td style='text-align:center'>";
+	$class = $submit_on_change ? 'class="searchbox"' : '';
+	echo "<input style='text-align:center' $class type=\"text\" name=\"$name\" size=\"$size\" maxlength=\"$max\" value=\"" . $_POST[$name]. "\""
+	 .($title ? " title='$title'": '')." >";
+
+	if ($post_label)
+		echo " " . $post_label;
+
+	echo "</td>\n";
+	$Ajax->addUpdate($name, $name, $_POST[$name]);
+}
+//==========================================================================================================================
 
 function text_cells_ex($label, $name, $size, $max=null, $init=null, $title=null,
 	$labparams=null, $post_label=null, $submit_on_change=false)
@@ -570,7 +714,39 @@ function text_cells_ex($label, $name, $size, $max=null, $init=null, $title=null,
 	echo "</td>\n";
 	$Ajax->addUpdate($name, $name, $_POST[$name]);
 }
+//---------=--Albert------------------------------------------------------------
+function text_cells_ex1($label, $name, $size, $max=null, $init=null, $title=null,
+	$labparams=null, $post_label=null, $submit_on_change=false)
+{
+  	global $Ajax;
 
+	default_focus($name);
+	if (!isset($_POST[$name]) || $_POST[$name] == "")
+	{
+		if ($init)
+			$_POST[$name] = $init;
+		else
+			$_POST[$name] = 0;
+	}
+	if ($label != null)
+		label_cell($label, $labparams);
+
+	if (!isset($max))
+		$max = $size;
+
+	echo "<td>";
+	$class = $submit_on_change ? 'class="searchbox"' : '';
+	echo "<input $class type=\"text\" name=\"$name\" size=\"$size\" maxlength=\"$max\" value=\"" . $_POST[$name]. "\""
+	 .($title ? " title='$title'": '')." $labparams>";
+
+	if ($post_label)
+		echo " " . $post_label;
+
+	echo "</td>\n";
+	$Ajax->addUpdate($name, $name, $_POST[$name]);
+}
+
+//-----------------------------------albert end -------------------------------------
 function text_row($label, $name, $value, $size, $max, $title=null, $params="", $post_label="")
 {
 	echo "<tr><td class='label'>$label</td>";
@@ -581,6 +757,23 @@ function text_row($label, $name, $value, $size, $max, $title=null, $params="", $
 
 //-----------------------------------------------------------------------------------
 
+//========================== Added by prog6 (11/10/2021) ==================================================
+function text_row_ar($label, $name, $size, $max=null, $title=null, $value=null, $params=null, $post_label=null)
+{
+	echo "<tr><td class='label' style='text-align:right'>$label</td>";
+	text_cells_ar(null, $name, $size, $max, $value, $title, $params, $post_label);
+
+	echo "</tr>\n";
+}
+function text_row_ac($label, $name, $size, $max=null, $title=null, $value=null, $params=null, $post_label=null)
+{
+	echo "<tr><td class='label' style='text-align:right'>$label</td>";
+	text_cells_ac(null, $name, $size, $max, $value, $title, $params, $post_label);
+
+	echo "</tr>\n";
+}
+//==========================================================================================================
+
 function text_row_ex($label, $name, $size, $max=null, $title=null, $value=null, $params=null, $post_label=null)
 {
 	echo "<tr><td class='label'>$label</td>";
@@ -588,8 +781,16 @@ function text_row_ex($label, $name, $size, $max=null, $title=null, $value=null, 
 
 	echo "</tr>\n";
 }
+//--------------Albert---------------------------------------------------------------
+function text_row_ex1($label, $name, $size, $max=null, $title=null, $value=null, $params=null, $post_label=null)
+{
+	echo "<tr><td class='label'>$label</td>";
+	text_cells_ex1(null, $name, $size, $max, $value, $title, $params, $post_label);
 
-//-----------------------------------------------------------------------------------
+	echo "</tr>\n";
+}
+
+//---------------end Albert -----------------------------------------------------------
 function email_row($label, $name, $value, $size, $max, $title=null, $params="", $post_label="")
 {
 	if (get_post($name)) 
@@ -677,9 +878,10 @@ function date_cells($label, $name, $title = null, $check=null, $inc_days=0,
 	default_focus($name);
 	$size = (user_date_format()>3)?11:10; 
 	echo "<input type=\"text\" name=\"$name\" class=\"$class\" $aspect size=\"$size\" maxlength=\"12\" value=\"" 
-	 . $_POST[$name]. "\""
-	 .($title ? " title='$title'": '')." > $post_label";
+		. $_POST[$name]. "\""
+		.($title ? " title='$title'": '')." > $post_label";
 	echo "</td>\n";
+	
 	$Ajax->addUpdate($name, $name, $_POST[$name]);
 }
 
@@ -728,7 +930,7 @@ function file_row($label, $name, $id = "")
 function ref_cells($label, $name, $title=null, $init=null, $params=null, $submit_on_change=false, $type=null, $context=null)
 {
 	global $Ajax, $Refs;
-
+	
 	if (isset($type)) {
 		if (empty($_POST[$name.'_list'])) // restore refline id
 			$_POST[$name.'_list'] = $Refs->reflines->find_refline_id(empty($_POST[$name]) ? $init : $_POST[$name], $type);
@@ -758,7 +960,7 @@ function ref_cells($label, $name, $title=null, $init=null, $params=null, $submit
 		} else {
 			$list = '';
 		}
-
+		
 		if (isset($label))
 			label_cell($label, $params);
 
@@ -778,6 +980,7 @@ function ref_row($label, $name, $title=null, $init=null, $submit_on_change=false
 {
 	echo "<tr><td class='label'>$label</td>";
 	ref_cells(null, $name, $title, $init, null, $submit_on_change, $type, $context);
+
 	echo "</tr>\n";
 }
 
@@ -1009,9 +1212,10 @@ function bank_balance_row($bank_acc, $parms='')
 
 	$to = add_days(Today(), 1);
 	$bal = get_balance_before_for_bank_account($bank_acc, $to);
+
 	label_row( _("Bank Balance:"),
 		"<a target='_blank' " . ($bal<0 ? 'class="redfg"' : '')
-		."href='$path_to_root/gl/inquiry/bank_inquiry.php?bank_account=".$bank_acc."'"
+		."href='$path_to_root/gl/inquiry/bank_inquiry.php?bank_account=".$bank_acc."'" 
 		." onclick=\"javascript:openWindow(this.href,this.target); return false;\" >&nbsp;"
 		. price_format($bal)
 		."</a>", $parms);
@@ -1026,3 +1230,56 @@ function ahref_cell($label, $href, $target="", $onclick="") {
   ahref($label, $href, $target, $onclick);
   echo "&nbsp;&nbsp;</td>";
 }
+//---------------------start(albertP)--------------------------------------------------
+function textarea_list_cells($label, $name, $value, $cols, $rows, $title = null, $params="")
+{
+  	global $Ajax;
+
+	default_focus($name);
+	if ($label != null)
+		echo "<td $params>$label</td>\n";
+	if ($value == null)
+		$value = (!isset($_POST[$name]) ? "" : $_POST[$name]);
+	echo "<td><textarea name='$name' cols='$cols' rows='$rows'"
+	.($title ? " title='$title'" : '')
+	.">$value</textarea></td>\n";
+	$Ajax->addUpdate($name, $name, $value);
+}
+
+function textarea_list_row($label, $name, $value, $cols, $rows, $title=null, $params="")
+{
+	echo "<tr><td class='label'>$label</td>";
+	textarea_list_cells(null, $name, $value, $cols, $rows, $title, $params);
+	echo "</tr>\n";
+}
+
+//Added by spyrax10 3 Feb 2022
+function normalize_chars($field) {
+
+	$letters = [
+        0 => "a à á â ä æ ã å ā",
+        1 => "c ç ć č",
+        2 => "e é è ê ë ę ė ē",
+        3 => "i ī į í ì ï î",
+        4 => "l ł",
+        5 => "n ñ ń",
+        6 => "o ō ø œ õ ó ò ö ô",
+        7 => "s ß ś š",
+        8 => "u ū ú ù ü û",
+        9 => "w ŵ",
+        10 => "y ŷ ÿ",
+        11 => "z ź ž ż",
+    ];
+    foreach ($letters as &$values){
+        $newValue = substr($values, 0, 1);
+        $values = substr($values, 2, strlen($values));
+        $values = explode(" ", $values);
+        foreach ($values as &$oldValue){
+            while (strpos($field,$oldValue) !== false){
+                $field = preg_replace("/" . $oldValue . '/', $newValue, $field, 1);
+            }
+        }
+    }
+    return $field;
+}
+//

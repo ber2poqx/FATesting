@@ -11,18 +11,23 @@
 ***********************************************************************/
 function add_item_category($description, $tax_type_id, $sales_account, 
 	$cogs_account, $inventory_account, $adjustment_account, $wip_account, 
-	$units, $mb_flag, $dim1, $dim2, $no_sale, $no_purchase)
+	$units, $mb_flag, $dim1, $dim2, $no_sale, $no_purchase,
+	$installment_sales_account, $regular_sales_account, $repo_invty_act)
 {
-	$sql = "INSERT INTO ".TB_PREF."stock_category (description, dflt_tax_type,
-			dflt_units, dflt_mb_flag, dflt_sales_act, dflt_cogs_act, 
+	set_global_connection();
+	$sql = "INSERT INTO stock_category (description, dflt_tax_type,
+			dflt_units, dflt_mb_flag, dflt_sales_act, 
+			dflt_installment_sales_act, dflt_regular_sales_act, dflt_cogs_act, 
 			dflt_inventory_act, dflt_adjustment_act, dflt_wip_act, 
-			dflt_dim1, dflt_dim2, dflt_no_sale, dflt_no_purchase)
+			dflt_dim1, dflt_dim2, dflt_no_sale, dflt_no_purchase, dflt_repo_invty_act)
 		VALUES ("
 		.db_escape($description).","
 		.db_escape($tax_type_id).","
 		.db_escape($units).","
 		.db_escape($mb_flag).","
 		.db_escape($sales_account).","
+		.db_escape($installment_sales_account).","
+		.db_escape($regular_sales_account).","
 		.db_escape($cogs_account).","
 		.db_escape($inventory_account).","
 		.db_escape($adjustment_account).","
@@ -30,22 +35,27 @@ function add_item_category($description, $tax_type_id, $sales_account,
 		.db_escape($dim1).","
 		.db_escape($dim2).","
 		.db_escape($no_sale).","
-		.db_escape($no_purchase).")";
+		.db_escape($no_purchase).","
+		.db_escape($repo_invty_act).")";
 
 	db_query($sql,"an item category could not be added");
 }
 
 function update_item_category($id, $description, $tax_type_id, 
 	$sales_account, $cogs_account, $inventory_account, $adjustment_account, 
-	$wip_account, $units, $mb_flag, $dim1, $dim2, $no_sale, $no_purchase)
+	$wip_account, $units, $mb_flag, $dim1, $dim2, $no_sale, $no_purchase,
+	$installment_sales_account, $regular_sales_account, $repo_invty_act)
 
 {
-	$sql = "UPDATE ".TB_PREF."stock_category SET "
+	set_global_connection();
+	$sql = "UPDATE stock_category SET "
 		."description = ".db_escape($description).","
 		."dflt_tax_type = ".db_escape($tax_type_id).","
 		."dflt_units = ".db_escape($units).","
 		."dflt_mb_flag = ".db_escape($mb_flag).","
 		."dflt_sales_act = ".db_escape($sales_account).","
+		."dflt_installment_sales_act = ".db_escape($installment_sales_account).","
+		."dflt_regular_sales_act = ".db_escape($regular_sales_account).","
 		."dflt_cogs_act = ".db_escape($cogs_account).","
 		."dflt_inventory_act = ".db_escape($inventory_account).","
 		."dflt_adjustment_act = ".db_escape($adjustment_account).","
@@ -53,7 +63,8 @@ function update_item_category($id, $description, $tax_type_id,
 		."dflt_dim1 = ".db_escape($dim1).","
 		."dflt_dim2 = ".db_escape($dim2).","
 		."dflt_no_sale = ".db_escape($no_sale).","
-		."dflt_no_purchase = ".db_escape($no_purchase)
+		."dflt_no_purchase = ".db_escape($no_purchase).","
+		."dflt_repo_invty_act = ".db_escape($repo_invty_act)
         ."WHERE category_id = ".db_escape($id);
 
 	db_query($sql,"an item category could not be updated");
@@ -61,14 +72,16 @@ function update_item_category($id, $description, $tax_type_id,
 
 function delete_item_category($id)
 {
-	$sql="DELETE FROM ".TB_PREF."stock_category WHERE category_id=".db_escape($id);
+	set_global_connection();
+	$sql="DELETE FROM stock_category WHERE category_id=".db_escape($id);
 
 	db_query($sql,"an item category could not be deleted");
 }
 
 function get_item_categories($show_inactive, $fixed_asset=false)
 {
-	$sql = "SELECT c.*, t.name as tax_name FROM ".TB_PREF."stock_category c, "
+	set_global_connection();
+	$sql = "SELECT c.*, t.name as tax_name FROM stock_category c, "
 		.TB_PREF."item_tax_types t WHERE c.dflt_tax_type=t.id";
 	if (!$show_inactive)
 		$sql .= " AND !c.inactive";
@@ -84,7 +97,8 @@ function get_item_categories($show_inactive, $fixed_asset=false)
 
 function get_item_category($id)
 {
-	$sql="SELECT * FROM ".TB_PREF."stock_category WHERE category_id=".db_escape($id);
+	set_global_connection();
+	$sql="SELECT * FROM stock_category WHERE category_id=".db_escape($id);
 
 	$result = db_query($sql,"an item category could not be retrieved");
 
@@ -93,7 +107,9 @@ function get_item_category($id)
 
 function get_category_name($id)
 {
-	$sql = "SELECT description FROM ".TB_PREF."stock_category WHERE category_id=".db_escape($id);
+	set_global_connection();
+
+	$sql = "SELECT description FROM stock_category WHERE category_id=".db_escape($id);
 
 	$result = db_query($sql, "could not get sales type");
 

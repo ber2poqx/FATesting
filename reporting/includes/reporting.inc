@@ -60,6 +60,7 @@ function print_document_link($doc_no, $link_text, $link=true, $type_no,
 				'PARAM_5' => $def_orientation);
 			break;
 		case ST_SALESINVOICE : // Sales Invoice
+		case ST_SALESINVOICEREPO : // Added by albert Sales Invoice Repo
 		case ST_CUSTCREDIT : // Customer Credit Note
 			$rep = $type_no==ST_CUSTCREDIT ? 113 : 107;
 			// from, to, currency, email, paylink, comments, orientation

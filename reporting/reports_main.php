@@ -32,6 +32,29 @@ $reports = new BoxReports;
 $dim = get_company_pref('use_dimension');
 
 $reports->addReportClass(_('Customer'), RC_CUSTOMER);
+
+//Added by spyrax10
+$reports->addReport(RC_CUSTOMER, 100, _('A&ging Summary Report'),
+	array(
+		_('As of Date') => 'DATEENDM',
+		_('Customer') => 'CUSTOMERS_NO_FILTER',
+		_('Group By') => 'COA_COL',
+		_('Select Filter') => 'AGING_FILTER',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)	
+);
+
+$reports->addReport(RC_CUSTOMER, 99, _('A&ging Summary Report (Summarized)'),
+	array(
+		_('End Date') => 'DATEENDM',
+		_('Customer') => 'CUSTOMERS_NO_FILTER',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)	
+);
+//
+
 $reports->addReport(RC_CUSTOMER, 101, _('Customer &Balances'),
 	array(	_('Start Date') => 'DATEBEGIN',
 			_('End Date') => 'DATEENDM',
@@ -73,19 +96,30 @@ $reports->addReport(RC_CUSTOMER, 103, _('Customer &Detail Listing'),
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
-$reports->addReport(RC_CUSTOMER, 114, _('Sales &Summary Report'),
-	array(	_('Start Date') => 'DATEBEGINTAX',
-			_('End Date') => 'DATEENDTAX',
-			_('Tax Id Only') => 'YES_NO',
+
+$reports->addReport(RC_CUSTOMER, 104, _('&Item Lcp Price List Report'),
+	array(	_('Inventory Category') => 'CATEGORIES',
+			_('Sales Price Code') => 'SALESTYPES',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
-$reports->addReport(RC_CUSTOMER, 104, _('&Price Listing'),
-	array(	_('Currency Filter') => 'CURRENCY',
-			_('Inventory Category') => 'CATEGORIES',
-			_('Sales Types') => 'SALESTYPES',
-			_('Show Pictures') => 'YES_NO',
-			_('Show GP %') => 'YES_NO',
+$reports->addReport(RC_CUSTOMER, 128, _('&Item Cash Price List Report'),
+	array(	_('Inventory Category') => 'CATEGORIES',
+			_('Sales Price Code') => 'CASHTYPES',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+$reports->addReport(RC_CUSTOMER, 129, _('Item System Cost List Report'),
+	array(	_('Inventory Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
+			_('Sales Price Code') => 'SYSTEMTYPES',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+$reports->addReport(RC_CUSTOMER, 130, _('Item SRP List Report'),
+	array(	_('Inventory Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
+			_('Sales Price Code') => 'SRPTYPES',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
@@ -123,13 +157,13 @@ $reports->addReport(RC_CUSTOMER, 113, _('Print &Credit Notes'),
 			_('Payment Link') => 'PAYMENT_LINK',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION'));
-$reports->addReport(RC_CUSTOMER, 110, _('Print &Deliveries'),
-	array(	_('From') => 'DELIVERY',
-			_('To') => 'DELIVERY',
-			_('email Customers') => 'YES_NO',
-			_('Print as Packing Slip') => 'YES_NO',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION'));
+// $reports->addReport(RC_CUSTOMER, 110, _('Print &Deliveries'),
+// 	array(	_('From') => 'DELIVERY',
+// 			_('To') => 'DELIVERY',
+// 			_('email Customers') => 'YES_NO',
+// 			_('Print as Packing Slip') => 'YES_NO',
+// 			_('Comments') => 'TEXTBOX',
+// 			_('Orientation') => 'ORIENTATION'));
 $reports->addReport(RC_CUSTOMER, 108, _('Print &Statements'),
 	array(	_('Customer') => 'CUSTOMERS_NO_FILTER',
 			_('Currency Filter') => 'CURRENCY',
@@ -159,6 +193,119 @@ $reports->addReport(RC_CUSTOMER, 112, _('Print Receipts'),
             _('Email Customers') => 'YES_NO',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION'));
+
+//Modified by Prog6================================================
+$reports->addReport(RC_CUSTOMER, 114, _('Sales &Summary Report'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORY_LIST',
+			_('Brand') => 'BRAND_LIST',
+			_('Name of Customer') => 'CUSTOMERS_LIST',
+			_('Type') => 'TRANST_TYPE',
+			_('Model') => 'ITEMS_P',
+			//_('Months_term') => 'PO',
+			_('Comments') => 'TEXTBOX',
+			_('Paper Orientation') => 'LANDSCAPE',
+			_('Destination') => 'PDFDESTINATION'));
+//=================================================================
+
+//----Added by Robert------//
+
+//Modified by spyrax10
+$reports->addReport(RC_CUSTOMER, 116, _('&Daily Cash Position Report'),
+	array(	_('Transaction Date') => 'DATEBEGINM',
+			//_('End Date') => 'DATEENDM',
+			_('Cashier') => 'CASHIER_DCPR',
+			_('Comments') => 'TEXTBOX',
+			//_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION')
+	);
+//
+
+$reports->addReport(RC_CUSTOMER, 117, _('&Sales Order Monitoring Report'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Transaction Type') => 'TRANST_TYPE',
+			_('Status') => 'STATUS_ORDER',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_CUSTOMER, 118, _('&Daily Summary Of Collection V2'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Customer') => 'CUSTOMERS_NO_FILTER',
+			_('Collector') => 'COLLECTOR_COLLECTION',
+			_('Group By') => 'COA_COL',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_CUSTOMER, 119, _('&Sales Summary By Amount'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_CUSTOMER, 122, _('&Sales Summary By Quantity'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+//----------------------//
+
+//Modified by Prog6 (7-22-2021) =====================================
+$reports->addReport(RC_CUSTOMER, 120, _('SMI Report'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORY_LIST',
+			_('Brand') => 'BRAND_LIST',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//===================================================================
+
+//Modified by Prog6 (7-24-2021) =====================================
+$reports->addReport(RC_CUSTOMER, 121, _('Sales Summary (Insurance) Report'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORY_LIST',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//===================================================================
+
+//Created by Prog6 (11-10-2021) =====================================
+$reports->addReport(RC_CUSTOMER, 123, _('Sales Report - Actual vs. Target'),
+	array(	_('Please Select Year') => 'DATEBEGIN',
+			_('Category') => 'CATEGORY_LIST_FILTERED',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//===================================================================
+
+//Created by Prog6 (03-03-2022) =====================================
+$reports->addReport(RC_CUSTOMER, 124, _('Accts. with Term Modifications'),
+	array(	_('For the Month-Year of') => 'DATEBEGIN',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//===================================================================
+
+//Added by robert==================================================
+$reports->addReport(RC_CUSTOMER,  126, _('Aging Collectors Report'),
+	array(	_('As Of Date') => 'DATEENDM',
+			_('Customer') => 'CUSTOMERS_NO_FILTER',
+			_('Group By') => 'COA_COL',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_CUSTOMER,  127, _('Check Register & Other Cash Item'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_CUSTOMER,  131, _('Collection &Report - Actual vs Target'),
+	array(	_('Start Date') => 'DATEBEGIN',
+			_('End Date') => 'DATEEND',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+//================================================================
 
 $reports->addReportClass(_('Supplier'), RC_SUPPLIER);
 $reports->addReport(RC_SUPPLIER, 201, _('Supplier &Balances'),
@@ -204,6 +351,12 @@ $reports->addReport(RC_SUPPLIER, 204, _('Outstanding &GRNs Report'),
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
+$reports->addReport(RC_SUPPLIER, 207, _('Recei&ving Report Form'),
+	array(	_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));			
+
 $reports->addReport(RC_SUPPLIER, 205, _('Supplier &Detail Listing'),
 	array(	_('Activity Since') => 'DATEBEGIN',
 			_('Activity Greater Than') => 'TEXT',
@@ -226,7 +379,76 @@ $reports->addReport(RC_SUPPLIER, 210, _('Print Remi&ttances'),
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION'));
 
+$reports->addReport(RC_SUPPLIER, 220, _('Purchase Order &Summary Report'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Sub-category') => 'SUBCATEGORY',
+			_('Model') => 'ITEMS_P',
+			_('Status') => 'STATUS',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
+// Added by spyrax10
+$reports->addReport(RC_SUPPLIER, 221, _('Purchase Order &Summary Report v2'),
+	array(	_('Start Date') => 'DATEBEGINM', //parameters
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Sub-category') => 'SUBCATEGORY',
+			_('Model') => 'ITEMS_P',
+			_('Status') => 'STATUS',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+
 $reports->addReportClass(_('Inventory'), RC_INVENTORY);
+
+$reports->addReport(RC_INVENTORY,  300, _('Inventory On &Hand Report (Detailed)'),
+	array(	_('End Date') => 'DATE',
+			_('Inventory Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Location') => 'LOCATIONS',
+			//_('Summary Only') => 'YES_NO',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY,  298, _('Inventory On Hand Report (Detailed - &Repo)'),
+	array(	_('End Date') => 'DATE',
+			_('Inventory Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Location') => 'LOCATIONS',
+			//_('Summary Only') => 'YES_NO',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY, 299, _('Inventory On &Hand Report (Summarized)'),
+	array(	_('End Date') => 'DATE',
+			_('Inventory Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Location') => 'LOCATIONS',
+			//_('Summary Only') => 'YES_NO',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY,  311, _('Aging Inventory Report - Detailed'),
+	array(	_('Period Date') => 'DATE',
+			_('Inventory Category') => 'CATEGORIES',
+			_('Location') => 'LOCATIONS',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY,  312, _('Aging Inventory Report - By Year'),
+	array(	_('Period Date') => 'DATE',
+			_('Inventory Category') => 'CATEGORIES',
+			_('Location') => 'LOCATIONS',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'DESTINATION'));
+
+//END spyrax10
+
 $reports->addReport(RC_INVENTORY,  301, _('Inventory &Valuation Report'),
 	array(	_('End Date') => 'DATE',
 			_('Inventory Category') => 'CATEGORIES',
@@ -282,7 +504,9 @@ $reports->addReport(RC_INVENTORY, 307, _('Inventory &Movement Report'),
 	array(	_('Start Date') => 'DATEBEGINM',
 			_('End Date') => 'DATEENDM',
 			_('Inventory Category') => 'CATEGORIES',
+			_('Brand') => 'BRAND_LIST',
 			_('Location') => 'LOCATIONS',
+			_('Type') => 'MOVEMENT_TYPE',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));				
@@ -311,6 +535,39 @@ $reports->addReport(RC_INVENTORY, 310, _('Inventory Purchasing - &Transaction Ba
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY, 110, _('Print &Delivery Notes'),
+	array(	_('From') => 'DELIVERY',
+			_('To') => 'DELIVERY',
+			_('email Customers') => 'YES_NO',
+			_('Print as Packing Slip') => 'YES_NO',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION'));
+
+$reports->addReport(RC_INVENTORY, 313, _('Product &Inquiry Report'),
+	array(	_('As Of Date') => 'DATEENDM',
+			_('Item') => 'STOCK_LIST_REPORT',
+			_('Inventory Type') => 'INVTY_TYPE_REPORT',
+			_('Orientation') => 'ORIENTATION',
+		    _('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY, 314, _('Repo &Register Report'),
+	array(	_('As Of Date') => 'DATEENDM',
+			_('Orientation') => 'ORIENTATION',
+		    _('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY, 315, _('Repo &Schedule Report'),
+	array(	_('As Of Date') => 'DATEENDM',
+			_('Group By') => 'CATEG_COLL',
+			_('Orientation') => 'ORIENTATION',
+		    _('Destination') => 'DESTINATION'));
+
+$reports->addReport(RC_INVENTORY, 316, _('Item Codes All Item &List'),
+	array(	_('Inventory Category') => 'CATEGORIES',
+			_('Brand') => 'BRAND_LIST',
+			_('Orientation') => 'ORIENTATION',
+		    _('Destination') => 'DESTINATION'));
+
 if (get_company_pref('use_manufacturing'))
 {
 	$reports->addReportClass(_('Manufacturing'), RC_MANUFACTURE);
@@ -387,6 +644,8 @@ $reports->addReport(RC_GL, 702, _('List of &Journal Entries'),
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
+
+
 
 if ($dim == 2)
 {
@@ -550,6 +809,60 @@ $reports->addReport(RC_GL, 710, _('Audit Trail'),
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
+
+//Created by Robert (02-14-2022) =====================================
+$reports->addReport(RC_GL,  711, _('Expense Summary Report'),
+	array(	_('Start Date') => 'DATEBEGIN',
+			_('End Date') => 'DATEEND',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'));
+//=================================================================
+
+
+//Modified by Prog6 (8-06-2021) =====================================
+$reports->addReport(RC_GL, 723, _('SL Summary (Particulars)'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('GL Title') => 'GL_ACCOUNTS', /**/			
+			_('Name') => 'CUSTOMERS_LIST',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//=================================================================
+
+//Modified by Prog6 (8-06-2021) =====================================
+$reports->addReport(RC_GL, 724, _('SL Summary per Customer'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('GL Title') => 'GL_ACCOUNTS',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//=================================================================
+
+//Modified by Prog6 (8-06-2021) =====================================
+$reports->addReport(RC_GL, 725, _('SL Summary per Account'),
+	array(	_('Start Date') => 'DATE',
+			_('End Date') => 'DATE',
+			_('Masterfile Name') => 'CUSTOMER_SL',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//=================================================================
+
+
+//Created by Prog6 (10-14-2021) =====================================
+$reports->addReport(RC_GL, 726, _('SL RGP Report - Realized Gross Profit (per transaction)'),
+	array(	_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',			
+			_('Name') => 'CUSTOMERS_LIST',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//=================================================================
+
+//Created by Prog6 (10-14-2021) =====================================
+$reports->addReport(RC_GL, 727, _('RGP Report - Realized Gross Profit (summarized per year)'),
+	array(	_('Select Month (mm/dd/yyyy)') => 'DATEBEGIN',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'));
+//=================================================================
 
 add_custom_reports($reports);
 

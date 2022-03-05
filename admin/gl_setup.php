@@ -43,6 +43,13 @@ function can_process()
         return false;
     }
 
+    if (!check_num('default_rebate_valid_days', 0))
+    {
+        display_error(_("Rebate Valid Days is not valid number."));
+        set_focus('default_rebate_valid_days');
+        return false;
+    }
+
     if (!check_num('default_delivery_required', 0))
     {
         display_error(_("Delivery Required By is not valid number."));
@@ -84,6 +91,12 @@ function can_process()
 		set_focus('past_due_days');
 		return false;
 	}
+	if (!check_num('addon_amount', 0))
+	{
+		display_error(_("Add-on amount must be greater than 0."));
+		set_focus('addon_amount');
+		return false;
+	}
 
 	$grn_act = get_company_pref('grn_clearing_act');
 	$post_grn_act = get_post('grn_clearing_act');
@@ -116,9 +129,13 @@ if (isset($_POST['submit']) && can_process())
 		'past_due_days', 'default_workorder_required', 'default_dim_required', 'default_receival_required',
 		'default_delivery_required', 'default_quote_valid_days', 'grn_clearing_act', 'tax_algorithm',
 		'no_zero_lines_amount', 'show_po_item_codes', 'accounts_alpha', 'loc_notification', 'print_invoice_no',
-		'allow_negative_prices', 'print_item_images_on_quote', 
-		'allow_negative_stock'=> 0, 'accumulate_shipping'=> 0,
-		'po_over_receive' => 0.0, 'po_over_charge' => 0.0, 'default_credit_limit'=>0.0
+		'allow_negative_prices', 'print_item_images_on_quote', 'default_loan_rcvble', 'default_int_income', 'penalty_act',
+		'downpaymnt_act', 'discount_dp_act', 'dp_discount2_act', 'allow_negative_stock'=> 0, 'accumulate_shipping'=> 0,
+		'po_over_receive' => 0.0, 'po_over_charge' => 0.0, 'default_credit_limit'=>0.0,
+		'misc_expense_act', 'misc_income_act', 'ar_cash_sales_account', 'ar_reg_current_account', 
+		'isd_account', 'dgp_account', 'isa_employee', 'rgp_account', 'ar_customer_account', 'ap_customer_account', 
+		'payment_location, default_rebate_valid_days, addon_amount', 'ar_supp_discount_act', 
+		'cos_free_item', 'open_inty', 'default_si_repo_act' //Added by spyrax10
 )));
 
 	display_notification(_("The general GL setup has been updated."));
@@ -183,8 +200,48 @@ $_POST['print_item_images_on_quote'] = $myrow['print_item_images_on_quote'];
 $_POST['default_loss_on_asset_disposal_act'] = $myrow['default_loss_on_asset_disposal_act'];
 $_POST['depreciation_period'] = $myrow['depreciation_period'];
 
+/* 
+---> for lending added by jr on 03-26-2021 :--------------- 
+*/
+$_POST['default_loan_rcvble'] = $myrow['default_loan_rcvble'];
+$_POST['default_int_income'] = $myrow['default_int_income'];
+$_POST['penalty_act'] = $myrow['penalty_act'];
+$_POST['downpaymnt_act'] = $myrow['downpaymnt_act'];
+$_POST['discount_dp_act'] = $myrow['discount_dp_act'];
+$_POST['dp_discount2_act'] = $myrow['dp_discount2_act'];
+$_POST['rgp_account'] = $myrow['rgp_account'];
+$_POST['default_rebate_valid_days'] = $myrow['default_rebate_valid_days'];
+
+/* 
+---> for repo added by jr on 08-24-2021 :--------------- 
+*/
+$_POST['addon_amount'] = $myrow['addon_amount'];
+
 //---------------
 
+/* Addedy by Ronelle 6/7/2021 */
+$_POST['misc_expense_act'] = $myrow['misc_expense_act'];
+$_POST['misc_income_act'] = $myrow['misc_income_act'];
+/* */
+
+/* Added by Ronelle 7/17/2021 */
+$_POST['ar_cash_sales_account'] = $myrow['ar_cash_sales_account'];
+$_POST['ar_reg_current_account'] = $myrow['ar_reg_current_account'];
+$_POST['isd_account'] = $myrow['isd_account'];
+$_POST['dgp_account'] = $myrow['dgp_account'];
+$_POST['isa_employee'] = $myrow['isa_employee'];
+$_POST['ar_customer_account'] = $myrow['ar_customer_account'];
+$_POST['ap_customer_account'] = $myrow['ap_customer_account'];
+$_POST['payment_location'] = $myrow["payment_location"];
+$_POST['ar_supp_discount_act'] = $myrow["ar_supp_discount_act"];
+/* */
+
+//Added by spyrax10
+$_POST['cos_free_item'] = $myrow["cos_free_item"];
+$_POST['open_inty'] = $myrow["open_inty"];
+
+// Added by Albert
+$_POST['default_si_repo_act'] = $myrow['default_si_repo_act'];
 
 table_section_title(_("General GL"));
 
@@ -202,6 +259,7 @@ gl_all_accounts_list_row(_("Bank Charges Account:"), 'bank_charge_act', $_POST['
 
 tax_algorithm_list_row(_("Tax Algorithm:"), 'tax_algorithm', $_POST['tax_algorithm']);
 
+payment_location_list_row(_("Payment Location:"), 'payment_location', $_POST['payment_location']); 
 //---------------
 
 table_section_title(_("Dimension Defaults"));
@@ -231,20 +289,49 @@ gl_all_accounts_list_row(_("Deferred Income Account:"), 'deferred_income_act', $
 
 table_section_title(_("Customers and Sales Defaults"));
 // default for customer branch
-gl_all_accounts_list_row(_("Receivable Account:"), 'debtors_act');
+gl_all_accounts_list_row(_("A/R Installment Sales Account:"), 'debtors_act');
 
+gl_all_accounts_list_row(_("A/R Cash Sales Account:"), 'ar_cash_sales_account');
+gl_all_accounts_list_row(_("A/R Regular Current Account:"), 'ar_reg_current_account');
 gl_all_accounts_list_row(_("Sales Account:"), 'default_sales_act', null,
 	false, false, true);
 
+gl_all_accounts_list_row(_("A/R Customer Account:"), 'ar_customer_account');
+gl_all_accounts_list_row(_("A/P Customer Account:"), 'ap_customer_account');
+
 gl_all_accounts_list_row(_("Sales Discount Account:"), 'default_sales_discount_act');
+gl_all_accounts_list_row(_("A/R Supplier Discount Account:"), 'ar_supp_discount_act');
 
 gl_all_accounts_list_row(_("Prompt Payment Discount Account:"), 'default_prompt_payment_act');
 
 text_row(_("Quote Valid Days:"), 'default_quote_valid_days', $_POST['default_quote_valid_days'], 6, 6, '', "", _("days"));
 
+text_row(_("Rebate Valid Days:"), 'default_rebate_valid_days', $_POST['default_rebate_valid_days'], 6, 6, '', "", _("days"));
+
 text_row(_("Delivery Required By:"), 'default_delivery_required', $_POST['default_delivery_required'], 6, 6, '', "", _("days"));
 
+gl_all_accounts_list_row(_("Expense Account:"), 'misc_expense_act');
+gl_all_accounts_list_row(_("Income Account:"), 'misc_income_act');
+gl_all_accounts_list_row(_("Down-payment Account:"), 'downpaymnt_act', $_POST['downpaymnt_act']);
+gl_all_accounts_list_row(_("Down-payment Discount 1 Account:"), 'discount_dp_act', $_POST['discount_dp_act']);
+gl_all_accounts_list_row(_("Down-payment Discount 2 Account:"), 'dp_discount2_act', $_POST['dp_discount2_act']);
+
 //---------------
+
+/* Added by Ronelle 7/13/2021 */
+table_section_title(_("Installment Sales Account"));
+
+gl_all_accounts_list_row(_("Installment Sales Deferred"), 'isd_account', null,
+	false, false, true);
+
+gl_all_accounts_list_row(_("Deferred Gross Profit:"), 'dgp_account', null,
+	false, false, true);
+
+gl_all_accounts_list_row(_("Home Office Current Account:"), 'isa_employee', null,
+	false, false, true);
+
+gl_all_accounts_list_row(_("Realized Gross Profit:"), 'rgp_account', $_POST['rgp_account']);
+/* */
 
 table_section(2);
 
@@ -283,8 +370,13 @@ gl_all_accounts_list_row(_("Sales Account:"), 'default_inv_sales_act', $_POST['d
 gl_all_accounts_list_row(_("Inventory Account:"), 'default_inventory_act', $_POST['default_inventory_act']);
 // this one is default for items and suppliers (purchase account)
 gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'default_cogs_act', $_POST['default_cogs_act']);
+//Added by spyrax10
+gl_all_accounts_list_row(_("Adjustments Account for Free Items: "), 'cos_free_item', $_POST['cos_free_item']);
 
 gl_all_accounts_list_row(_("Inventory Adjustments Account:"), 'default_adj_act', $_POST['default_adj_act']);
+
+//Added by spyrax10
+gl_all_accounts_list_row(_("Inventory Opening Balance Account: "), 'open_inty', $_POST['open_inty']);
 
 gl_all_accounts_list_row(_("WIP Account:"), 'default_wip_act', $_POST['default_wip_act']);
 
@@ -304,6 +396,20 @@ text_row(_("Work Order Required By After:"), 'default_workorder_required', $_POS
 
 //----------------
 
+table_section_title(_("Lending Defaults"));
+
+gl_all_accounts_list_row(_("Loan Receivable:"), 'default_loan_rcvble', $_POST['default_loan_rcvble']);
+gl_all_accounts_list_row(_("Interest Income:"), 'default_int_income', $_POST['default_int_income']);
+gl_all_accounts_list_row(_("Penalty Account:"), 'penalty_act', $_POST['penalty_act']);
+
+//----------------
+
+table_section_title(_("Repo Defaults"));
+amount_row(_("Add-on Amount:"), 'addon_amount', $_POST['addon_amount']);
+// Added by Albert
+gl_all_accounts_list_row(_("SI Repo Account:"), 'default_si_repo_act', $_POST['default_si_repo_act']);
+
+//----------------
 end_outer_table(1);
 
 submit_center('submit', _("Update"), true, '', 'default');

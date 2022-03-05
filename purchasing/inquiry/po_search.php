@@ -73,7 +73,8 @@ start_row();
 
 stock_items_list_cells(_("Item:"), 'SelectStockFromList', null, true);
 
-supplier_list_cells(_("Select a supplier: "), 'supplier_id', null, true, true);
+//Modified by spyrax10
+supplier_list_cells(_("Select a supplier: "), 'supplier_id', null, true, true, true, false, false, null);
 
 submit_cells('SearchOrders', _("Search"),'',_('Select documents'), 'default');
 end_row();
@@ -81,7 +82,15 @@ end_table(1);
 //---------------------------------------------------------------------------------------------
 function trans_view($trans)
 {
-	return get_trans_view_str(ST_PURCHORDER, $trans["order_no"]);
+	return get_trans_view_str(ST_PURCHORDER, $trans["reference"]);
+}
+
+function trans_ref_view($trans)
+{
+	return get_trans_view_str(
+		$trans["is_consign"] == "Non-Consignment" ? ST_PURCHREQUEST : ST_RECEIVECONSIGN,
+		$trans["trans_ref"]
+	);
 }
 
 function edit_link($row) 
@@ -100,6 +109,12 @@ function receive_link($row)
 	"/purchasing/po_receive_items.php?PONumber=" . $row["order_no"], ICON_RECEIVE);
 }
 
+function receive_new_link($row) 
+{
+  return pager_link( _("Receive New Test"),
+	"/purchasing/po_receive_items_new.php?PONumber=" . $row["order_no"], ICON_CANCEL);
+}
+
 function check_overdue($row)
 {
 	return $row['OverDue']==1;
@@ -114,16 +129,19 @@ $sql = get_sql_for_po_search(get_post('OrdersAfterDate'), get_post('OrdersToDate
 
 /*show a table of the orders returned by the sql */
 $cols = array(
-		_("#") => array('fun'=>'trans_view', 'ord'=>''), 
-		_("Reference"), 
+		_("#"), 
+		_("PO #") => array('fun'=>'trans_view', 'ord'=>''), 
 		_("Supplier") => array('ord'=>''),
+		_("Category"), //Added by spyrax10 19/Oct/2021
 		_("Location"),
-		_("Supplier's Reference"), 
+		_("Is Consignment"),
+		_("Trans Reference #") => array('fun'=>'trans_ref_view', 'ord'=>''), 
 		_("Order Date") => array('name'=>'ord_date', 'type'=>'date', 'ord'=>'desc'),
 		_("Currency") => array('align'=>'center'), 
 		_("Order Total") => 'amount',
-		array('insert'=>true, 'fun'=>'edit_link'),
+		array('insert'=>true, 'fun'=>''),
 		array('insert'=>true, 'fun'=>'receive_link'),
+		array('insert'=>true, 'fun'=>'receive_new_link'),
 		array('insert'=>true, 'fun'=>'prt_link')
 );
 
@@ -131,10 +149,10 @@ if (get_post('StockLocation') != ALL_TEXT) {
 	$cols[_("Location")] = 'skip';
 }
 
-$table =& new_db_pager('orders_tbl', $sql, $cols);
+$table =& new_db_pager('orders_tbl', $sql, $cols, null, null, 25);
 $table->set_marker('check_overdue', _("Marked orders have overdue items."));
 
-$table->width = "80%";
+$table->width = "90%"; //Modified by spyrax10 19/Oct/2021
 
 display_db_pager($table);
 

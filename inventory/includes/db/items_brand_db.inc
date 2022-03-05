@@ -9,14 +9,16 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function write_brand($selected, $description)
+
+function write_brand($selected, $description, $category=0)
 {
     if($selected!='' || $selected!=0)
 		$sql = "UPDATE ".TB_PREF."item_brand SET
-	 	name = ".db_escape($description)."
+	 	name = ".db_escape($description).",
+	 	cat_id = ".db_escape($category)."
         	WHERE id = ".db_escape($selected);
     else
-		$sql = "INSERT INTO ".TB_PREF."item_brand (name) VALUES(".db_escape($description).")";
+        $sql = "INSERT INTO ".TB_PREF."item_brand (name,cat_id) VALUES(".db_escape($description).",".db_escape($category).")";
 
 	db_query($sql,"an brand could not be updated");
 }
@@ -53,7 +55,7 @@ function get_brand($brandcode)
 
 function get_brand_descr($id)
 {
-	$sql = "SELECT description FROM ".TB_PREF."item_brand WHERE id=".db_escape($id);
+	$sql = "SELECT name FROM ".TB_PREF."item_brand WHERE id=".db_escape($id);
 
 	$result = db_query($sql, "could not brand description");
 
@@ -70,8 +72,8 @@ function brand_used($id) {
 
 
 function get_all_brand($all=false) {
-    $sql = "SELECT * FROM ".TB_PREF."item_brand";
-	if (!$all) $sql .= " WHERE !inactive";
-	$sql .= " ORDER BY name";
+    $sql = "SELECT ib.*, sc.description as category_name FROM ".TB_PREF."item_brand ib LEFT JOIN stock_category sc ON ib.cat_id=sc.category_id";
+	if (!$all) $sql .= " WHERE !ib.inactive";
+	$sql .= " ORDER BY ib.name";
     return  db_query($sql, "could not get brand");
 }

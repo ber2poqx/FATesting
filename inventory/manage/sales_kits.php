@@ -113,13 +113,13 @@ function update_kit($selected_kit, $component_id)
 		 else
 			$msg =_("New component has been added to selected kit.");
 
-		add_item_code($selected_kit, get_post('component'), get_post('description'),
+		add_item_code($selected_kit,"", get_post('component'), get_post('description'), "",
 			 get_post('category'), input_num('quantity'), 0);
 		display_notification($msg);
 
 	} else { // update component
 		$props = get_kit_props($selected_kit);
-		update_item_code($component_id, $selected_kit, get_post('component'),
+		update_item_code($component_id, "", $selected_kit, get_post('component'), "",
 			$props['description'], $props['category_id'], input_num('quantity'), 0);
 		display_notification(_("Component of selected kit has been updated."));
 	}

@@ -22,7 +22,9 @@ include_once($path_to_root . "/purchasing/includes/db/supp_trans_db.inc");
 
 include_once($path_to_root . "/purchasing/includes/db/po_db.inc");
 include_once($path_to_root . "/purchasing/includes/db/pr_db.inc");
+include_once($path_to_root . "/purchasing/includes/db/consignment_db.inc");
 include_once($path_to_root . "/purchasing/includes/db/grn_db.inc");
+include_once($path_to_root . "/purchasing/includes/db/grn_db_new.inc");	// Added by ronelle 2/13/2022
 include_once($path_to_root . "/purchasing/includes/db/invoice_db.inc");
 include_once($path_to_root . "/purchasing/includes/db/suppalloc_db.inc");
 include_once($path_to_root . "/purchasing/includes/db/supp_payment_db.inc");
@@ -40,7 +42,7 @@ function add_gl_trans_supplier($type, $type_no, $date_, $account, $dimension, $d
 {
 	if ($err_msg == "")
 		$err_msg = "The supplier GL transaction could not be inserted";	
-		
+	set_global_connection();
 	return add_gl_trans($type, $type_no, $date_, $account, $dimension, $dimension2, $memo, 
 		$amount, get_supplier_currency($supplier_id), 
 		PT_SUPPLIER, $supplier_id, $err_msg, $rate);
@@ -173,6 +175,7 @@ function add_direct_supp_trans($cart)
 	//Direct GRN
 	if ($cart->trans_type == ST_SUPPRECEIVE)
 		$cart->reference = $ref;
+		$cart->order_no = 0;
 	if ($cart->trans_type != ST_SUPPINVOICE)
 		$cart->Comments = $cart->reference; //grn does not hold supp_ref
 	foreach($cart->line_items as $key => $line)

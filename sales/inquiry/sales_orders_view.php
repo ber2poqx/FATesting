@@ -112,6 +112,17 @@ function edit_link($row)
 	return $page_nested ? '' : trans_editor_link($row['trans_type'], $row['order_no']);
 }
 
+function edit_link2($row) 
+{
+	global $page_nested;
+
+	if (is_prepaid_order_open($row['order_no']))
+		return '';
+														//Added by spyrax10
+	return $page_nested || $row['status'] == "Closed" || $row['status'] == "Cancelled" ? '' : 
+		trans_editor_link2($row['trans_type'], $row['order_no'], $row['payment_type']);
+}
+
 function dispatch_link($row)
 {
 	global $trans_type, $page_nested;
@@ -122,8 +133,12 @@ function dispatch_link($row)
 	if ($trans_type == ST_SALESORDER)
 	{
 		if ($row['TotDelivered'] < $row['TotQuantity'] && !$page_nested)
-			return pager_link( _("Dispatch"),
+			if ($row["status"] == "Closed") {
+				return pager_link( _("Dispatch"),
 				"/sales/customer_delivery.php?OrderNumber=" .$row['order_no'], ICON_DOC);
+			} else {
+				return '';
+			}
 		else
 			return '';
 	}		
@@ -135,9 +150,18 @@ function dispatch_link($row)
 function invoice_link($row)
 {
 	global $trans_type;
-	if ($trans_type == ST_SALESORDER)
-  		return pager_link( _("Invoice"),
-			"/sales/sales_order_entry.php?NewInvoice=" .$row["order_no"], ICON_DOC);
+	$path =  $row["payment_type"] == "CASH" ? 'sales_invoice_cash' : 'sales_order_entry';
+		//modified by albert invoive repo 10/26/2021
+	if ($trans_type == ST_SALESORDER &&  $row["invoice_type"] == "new")
+  		return $row["status"] == "Approved" ? pager_link( _("Invoice"),
+		  $row["payment_type"] == "CASH" ? "/sales/sales_invoice_cash.php?NewInvoice=" .$row["order_no"] 
+		  : "/sales/sales_order_entry.php?NewInvoice=" .$row["order_no"], ICON_DOC) : '';
+	else if ($trans_type == ST_SALESORDER &&  $row["invoice_type"]== "repo")
+		// albert invoive repo
+		return $row["status"] == "Approved" && $row["invoice_type"]== "repo"? pager_link( _("Invoice Repo"),
+		$row["payment_type"] == "CASH" ? "/sales/si_repo_cash.php?NewInvoiceRepo=" .$row["order_no"] 
+		: "/sales/si_repo_install.php?NewInvoiceRepo=" .$row["order_no"], ICON_DOC) : '';
+	
 	else
 		return '';
 }
@@ -182,6 +206,46 @@ function invoice_prep_link($row)
 		"/sales/customer_invoice.php?InvoicePrepayments=" .$row['order_no'], ICON_DOC) : '';
 }
 
+function update_status_link($row)
+{
+	global $page_nested;
+
+	return $row["status"] == "Draft" ? pager_link(
+		$row['status'],
+		"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"],
+		false
+	) : $row["status"];
+}
+
+//Added by spyrax10
+function cancel_link($row) {
+	global $page_nested;
+
+	return ($row["status"] == "Approved" || $row["status"] == "Draft")? pager_link(
+		'Cancel This Transaction',
+		"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"] . "&cancel=1",
+		ICON_CANCEL
+	) :'';
+}
+//
+
+//Added by Albert 10/25/2021
+function account_specialist_approval_link($row)
+{
+	global $page_nested;
+
+	return ($row["status"] == "Draft" || $row["status"] == "Approved") &&  $row["payment_type"] <> "CASH" ? pager_link(
+		'Approval',
+		"/sales/sales_order_approval_account_specialist.php?SONumber=" . $row["order_no"],
+		ICON_DOC
+	) :'';
+}
+
+function category_name($row)
+{
+	return get_category_name($row["category_id"]);
+}
+
 $id = find_submit('_chgtpl');
 if ($id != -1)
 {
@@ -222,7 +286,7 @@ if ($show_dates)
   	date_cells(_("from:"), 'OrdersAfterDate', '', null, -user_transaction_days());
   	date_cells(_("to:"), 'OrdersToDate', '', null, 1);
 }
-locations_list_cells(_("Location:"), 'StockLocation', null, true, true);
+// locations_list_cells(_("Location:"), 'StockLocation', null, true, true);
 
 if($show_dates) {
 	end_row();
@@ -245,6 +309,13 @@ hidden('type', $trans_type);
 end_row();
 
 end_table(1);
+
+start_table(TABLESTYLE_NOBORDER);
+start_row();
+ahref_cell(_("New Sales Order Installment"), "../sales_order_entry.php?NewOrder=0");
+ahref_cell(_("New Sales Order Cash"), "../sales_invoice_cash.php?NewOrder=0");
+end_row();
+end_table(1);
 //---------------------------------------------------------------------------------------------
 //	Orders inquiry table
 //
@@ -256,15 +327,21 @@ if ($trans_type == ST_SALESORDER)
 	$cols = array(
 		_("Order #") => array('fun'=>'view_link', 'align'=>'right', 'ord' =>''),
 		_("Ref") => array('type' => 'sorder.reference', 'ord' => '') ,
+		_("Status") => array('insert' => true, 'fun' => 'update_status_link'),
+		'dummy' => 'skip',
+		_("Invoice Type"),
 		_("Customer") => array('type' => 'debtor.name' , 'ord' => '') ,
-		_("Branch"), 
+		_("Payment Type"), 
+		_("Category"), 
+		_("Approval Remarks"),
 		_("Cust Order Ref"),
 		_("Order Date") => array('type' =>  'date', 'ord' => ''),
 		_("Required By") =>array('type'=>'date', 'ord'=>''),
 		_("Delivery To"), 
 		_("Order Total") => array('type'=>'amount', 'ord'=>''),
 		'Type' => 'skip',
-		_("Currency") => array('align'=>'center')
+		_("Currency") => array('align'=>'center'),
+		_("") => array('insert'=>true, 'fun'=>'edit_link2')
 	);
 else
 	$cols = array(
@@ -307,17 +384,21 @@ if ($_POST['order_view_mode'] == 'OutstandingOnly') {
 					array('insert'=>true, 'fun'=>'prt_link')));
 } elseif ($trans_type == ST_SALESORDER) {
 	 array_append($cols,array(
-			_("Tmpl") => array('insert'=>true, 'fun'=>'tmpl_checkbox'),
-					array('insert'=>true, 'fun'=>'edit_link'),
+			// _("Tmpl") => array('insert'=>true, 'fun'=>'tmpl_checkbox'),
+					array('insert'=>true, 'fun'=>'account_specialist_approval_link'),
+					array('insert'=>true, 'fun'=>'invoice_link'),
 					array('insert'=>true, 'fun'=>'dispatch_link'),
-					array('insert'=>true, 'fun'=>'prt_link')));
+					array('insert'=>true, 'fun'=>'cancel_link'), //Added by spyrax10
+					array('insert'=>true, 'fun'=>'prt_link')
+				)
+	);
 };
 
 
 $table =& new_db_pager('orders_tbl', $sql, $cols);
 $table->set_marker('check_overdue', _("Marked items are overdue."));
 
-$table->width = "80%";
+$table->width = "95%";
 
 display_db_pager($table);
 submit_center('Update', _("Update"), true, '', null);

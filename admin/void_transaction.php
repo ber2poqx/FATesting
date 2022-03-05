@@ -55,6 +55,7 @@ function exist_transaction($type, $type_no)
 		case ST_CUSTCREDIT : // it's a customer credit note
 		case ST_CUSTPAYMENT : // it's a customer payment
 		case ST_CUSTDELIVERY : // it's a customer dispatch
+		case ST_RRREPO : // repo customer account //added jr on 09-02-21
 			if (!exists_customer_trans($type, $type_no))
 				return false;
 			break;
@@ -63,7 +64,19 @@ function exist_transaction($type, $type_no)
 			if (get_stock_transfer_items($type_no) == null)
 				return false;
 			break;
-
+		case ST_MERCHANDISETRANSFER : // it's a merchandise transfer
+		    if (get_stock_transfer_items($type_no) == null)
+		        return false;
+		        break;
+		case ST_MERCHANDISETRANSFERREPO : // it's a merchandise transfer Repo
+		    if (get_stock_transfer_items_repo($type_no) == null)
+		        return false;
+		        break;
+		case ST_RRBRANCH : // it's a RR Branch
+		    if (get_stock_rrbanch_items($type_no) == null)
+		        return false;
+		        break;
+		        
 		case ST_INVADJUST : // it's a stock adjustment
 			if (get_stock_adjustment_items($type_no) == null)
 				return false;
@@ -152,7 +165,7 @@ function voiding_controls()
 {
 	global $selected_id;
 
-	$not_implemented =  array(ST_PURCHORDER, ST_SALESORDER, ST_SALESQUOTE, ST_COSTUPDATE);
+	$not_implemented =  array(ST_PURCHORDER, ST_SALESORDER, ST_SALESQUOTE, ST_COSTUPDATE, ST_RRBRANCH);
 
 	start_form();
 

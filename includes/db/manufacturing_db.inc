@@ -129,7 +129,7 @@ function get_on_porder_qty($stock_id, $location)
 	$sql = "SELECT SUM(line.quantity_ordered - line.quantity_received) AS qoo
 		FROM ".TB_PREF."purch_order_details line 
 			INNER JOIN ".TB_PREF."purch_orders po ON line.order_no=po.order_no
-		WHERE line.item_code=".db_escape($stock_id);
+		WHERE po.draft_status = 1 AND po.posted = 'Y' AND line.item_code=".db_escape($stock_id);
 	if ($location != "")
 		$sql .= " AND po.into_stock_location=".db_escape($location);
 	$sql .= " AND line.item_code=".db_escape($stock_id);

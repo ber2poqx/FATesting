@@ -10,17 +10,19 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function add_supplier($supp_name, $supp_ref, $address, $supp_address, $gst_no,
+function add_supplier($supp_name, $supp_ref, $supplier_group, $SAPcode, $address, $supp_address, $gst_no,
 	$website, $supp_account_no, $bank_account, $credit_limit, $dimension_id, $dimension2_id, 
 	$curr_code, $payment_terms, $payable_account, $purchase_account, $payment_discount_account, 
-	$notes, $tax_group_id, $tax_included)
+	$notes, $tax_group_id, $tax_included, $supplier_type)
 {
-	$sql = "INSERT INTO ".TB_PREF."suppliers (supp_name, supp_ref, address, supp_address, gst_no, website,
+	$sql = "INSERT INTO ".TB_PREF."suppliers (supp_name, supp_ref, supplier_group, SAPcode, address, supp_address, gst_no, website,
 		supp_account_no, bank_account, credit_limit, dimension_id, dimension2_id, curr_code,
 		payment_terms, payable_account, purchase_account, payment_discount_account, notes, 
-		tax_group_id, tax_included)
+		tax_group_id, tax_included, supplier_type)
 		VALUES (".db_escape($supp_name). ", "
 		.db_escape($supp_ref). ", "
+		.db_escape($supplier_group). ", "
+		.db_escape($SAPcode). ", "
 		.db_escape($address) . ", "
 		.db_escape($supp_address) . ", "
 		.db_escape($gst_no). ", "
@@ -37,18 +39,21 @@ function add_supplier($supp_name, $supp_ref, $address, $supp_address, $gst_no,
 		.db_escape($payment_discount_account). ", "
 		.db_escape($notes). ", "
 		.db_escape($tax_group_id). ", "
-		.db_escape($tax_included). ")";
+		.db_escape($tax_included). ", "
+		.db_escape($supplier_type). ")";
 
 	db_query($sql,"The supplier could not be added");
 }
 
-function update_supplier($supplier_id, $supp_name, $supp_ref, $address, $supp_address, $gst_no, 
+function update_supplier($supplier_id, $supp_name, $supp_ref, $supplier_group, $SAPcode, $address, $supp_address, $gst_no, 
 	$website, $supp_account_no, $bank_account, $credit_limit, $dimension_id, $dimension2_id, 
 	$curr_code, $payment_terms, $payable_account, $purchase_account, $payment_discount_account, 
-	$notes, $tax_group_id, $tax_included)
+	$notes, $tax_group_id, $tax_included, $supplier_type)
 {
 	$sql = "UPDATE ".TB_PREF."suppliers SET supp_name=".db_escape($supp_name) . ",
 		supp_ref=".db_escape($supp_ref) . ",
+		supplier_group=".db_escape($supplier_group) . ",
+		SAPcode=".db_escape($SAPcode) . ",
 		address=".db_escape($address) . ",
 		supp_address=".db_escape($supp_address) . ",
 		gst_no=".db_escape($gst_no) . ",
@@ -65,7 +70,8 @@ function update_supplier($supplier_id, $supp_name, $supp_ref, $address, $supp_ad
 		payment_discount_account=".db_escape($payment_discount_account) . ",
 		notes=".db_escape($notes) . ",
 		tax_group_id=".db_escape($tax_group_id). ",
-		tax_included=".db_escape($tax_included)
+		tax_included=".db_escape($tax_included). ",
+		supplier_type=".db_escape($supplier_type)
 		." WHERE supplier_id = ".db_escape($supplier_id);
 
 	db_query($sql,"The supplier could not be updated");
@@ -190,7 +196,8 @@ function get_supplier_currency($supplier_id)
 	return $myrow[0];
 }
 
-function get_suppliers_search($supplier)
+function get_suppliers_search($supplier, 
+	$cat_id = '') //Added by spyrax10
 {
 	global $SysPrefs;
 
@@ -199,14 +206,42 @@ function get_suppliers_search($supplier)
 	else
 		$limit = 10;
 
-	$sql = "SELECT supplier_id, supp_name, supp_ref, address, gst_no
-		FROM ".TB_PREF."suppliers
-		WHERE (supp_name LIKE " . db_escape("%" . $supplier. "%") . " OR 
-			supp_ref LIKE " . db_escape("%" . $supplier. "%") . " OR 
-			address LIKE " . db_escape("%" . $supplier. "%") . " OR 
-			gst_no LIKE " . db_escape("%" . $supplier. "%") . ")
-		ORDER BY supp_name LIMIT 0,".(int)($limit);
+	//Modified by spyrax10
+	$sql = "SELECT SUP.supplier_id, SUP.supp_name, SUP.supp_ref, SUP.supplier_group, SUP.address, SUP.gst_no
+		FROM ".TB_PREF."suppliers SUP ";
+			
+	if ($cat_id != '') {
+		$sql .= " LEFT JOIN ".TB_PREF."purch_data PD ON SUP.supplier_id = PD.supplier_id 
+			LEFT JOIN ".TB_PREF."stock_master SM ON PD.stock_id = SM.stock_id ";	
+	}
+
+	$sql .= " WHERE (SUP.supp_name LIKE " . db_escape("%" . $supplier. "%") . " OR 
+			SUP.supp_ref LIKE " . db_escape("%" . $supplier. "%") . " OR 
+			SUP.supplier_group LIKE " . db_escape("%" . $supplier. "%") . " OR 
+			SUP.address LIKE " . db_escape("%" . $supplier. "%") . " OR 
+			SUP.gst_no LIKE " . db_escape("%" . $supplier. "%") . ") ";
+	
+	if ($cat_id != '') {
+		$sql .= " AND SM.category_id = ".db_escape($cat_id);
+		$sql .= " GROUP BY PD.supplier_id";
+	}
+	else {
+		$sql .= " ORDER BY SUP.supp_name LIMIT 0,".(int)($limit);
+	}
 
 	return db_query($sql, "Failed in retreiving supplier list.");
+}
+
+function get_supplier_sap_code($supplier_id)
+{
+	global $def_coy;
+	set_global_connection($def_coy);
+	$sql = "SELECT SAPCode FROM suppliers WHERE supplier_id = $supplier_id";
+
+	$result = db_query($sql, "could not get supplier sap code");
+
+	$row = db_fetch_row($result);
+	set_global_connection();
+	return $row[0];
 }
 

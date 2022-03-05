@@ -2,13 +2,18 @@
 # /company/*/backup/*.sql
 # /company/*/backup/*.sql.gz
 # /company/*/pdf_files/*.pdf
-# /company/*/js_cache/*.js
+/company/*/js_cache
+/company/*/pdf_files
+/company
+#/company/*/backup
 # /company/*/reporting
 # /company/*/images
-/company
+/.vscode
+/install
+/install123
+/modules/_cache
 /tmp
 /lang
-/modules/_cache
 /themes
 !/themes/default
 !/themes/aqua
@@ -20,5 +25,47 @@ installed_extensions.php
 config.php
 config_db.php
 !index.php
-/js/ext4
 /js/ext620
+/js/ext4
+*.sql
+*.pdf
+.buildpath
+.project
+.settings/org.eclipse.php.core.prefs
+.settings/org.eclipse.wst.common.project.facet.core.xml
+*.sql
+modules/repgen/lang/da_DK/LC_MESSAGES/da_DK.po
+modules/repgen/doc/manual.html
+modules/repgen/doc/manual.html
+modules/repgen/doc/manual.html
+modules/repgen/doc/readme.txt
+modules/repgen/doc/rep_create.jpg
+modules/repgen/doc/rep_select.jpg
+modules/repgen/doc/rep_strings.jpg
+modules/repgen/hooks.php
+modules/repgen/includes/acc_levels.php
+modules/repgen/includes/repgen.inc
+modules/repgen/includes/repgen_const.inc
+modules/repgen/includes/repgen_def.inc
+modules/repgen/lang/da_DK/LC_MESSAGES/da_DK.mo
+modules/repgen/lang/da_DK/LC_MESSAGES/da_DK.po
+modules/repgen/lang/de_DE/LC_MESSAGES/de_DE.mo
+modules/repgen/lang/de_DE/LC_MESSAGES/de_DE.po
+modules/repgen/lang/new_language_template/LC_MESSAGES/empty.po
+modules/repgen/repgen_create.php
+modules/repgen/repgen_createblock.php
+modules/repgen/repgen_createfunct.php
+modules/repgen/repgen_del.php
+modules/repgen/repgen_graphics.php
+modules/repgen/repgen_print.php
+modules/repgen/repgen_select.php
+modules/repgen/repgen_strings.php
+modules/repgen/repgen_test_sel.php
+.vs/slnx.sqlite
+.vs/ProjectSettings.json
+.vs/desportal.dueksam.com.ph/v16/.suo
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+sqltools_20220210084255_9716.log
+sqltools_20220223085737_6424.log

@@ -47,6 +47,20 @@ class purch_order
 
 	var $fixed_asset = false;
 
+	var $suppl_ref_no; //Added by Herald - 10/07/2020
+	var $suppl_ref_date; //Added by Herald - 10/07/2020
+	var $suppl_served_by; //Added by Herald - 10/07/2020
+	var $grnComments; //Added by Herald - 10/07/2020
+
+	var $served_status; //Added by Ronelle - 10-14/2020
+
+	var $category_id; // Added by Ronelle - 10/21/2020
+	var $draft_status;	// Added by Ronelle - 11/5/2020
+	var $purch_type_id;	// Added by Ronelle - 11/10/2020
+	var $po_status;	// Added by Ronelle - 12/20/2020
+	var $po_no;	// Added by Ronelle - 01/11/2021
+	var $is_consign;	// Added by Ronelle - 01/11/2021
+
 	function __construct()
 	{
 		/*Constructor function initialises a new purchase order object */
@@ -64,19 +78,19 @@ class purch_order
 		$this->tax_group_array = get_tax_group_items_as_array($tax_group_id);
 	}
 	
-	function add_to_order($line_no, $stock_id, $qty, $item_descr, $price, $uom, $req_del_date, $qty_inv, $qty_recd)
+	function add_to_order($line_no, $stock_id, $qty, $item_descr, $price, $uom, $req_del_date, $qty_inv, $qty_recd, $out_qty = 0, $serial_no = "", $color_code = "", $chassis_no = "")
 	{
 		if (isset($qty) && $qty != 0)
 		{
 			$this->line_items[$line_no] = new po_line_details($line_no, $stock_id, $item_descr, $qty, $price, $uom, 
-				$req_del_date, $qty_inv, $qty_recd);
+				$req_del_date, $qty_inv, $qty_recd, $out_qty, $serial_no, $color_code, $chassis_no);
 			$this->lines_on_order++;
 			return 1;
 		}
 		return 0;
 	}
 
-	function update_order_item($line_no, $qty, $price, $req_del_date, $description="")
+	function update_order_item($line_no, $qty, $price, $req_del_date, $description="", $color_code = "")
 	{
 		if ($description != "")
 			$this->line_items[$line_no]->item_description = $description;
@@ -84,6 +98,7 @@ class purch_order
 		$this->line_items[$line_no]->price = $price;
 		$this->line_items[$line_no]->req_del_date = $req_del_date;
 		$this->line_items[$line_no]->item_description = $description;
+		$this->line_items[$line_no]->color_code = $color_code;
 	}
 
 	function remove_from_order($line_no)
@@ -215,9 +230,16 @@ class po_line_details
 
 	var $standard_cost;
 	var $descr_editable;
-
+	
+	var $color_code;
+	var $serial;
+	var $chasis_no;
+	var $serialised;//Added by Herald 03/15/2021 for non-serialise
+	
+	var $list_serial; // Added by Ronelle 2/13/2022 array for serial object
+	
 	function __construct($line_no, $stock_item, $item_descr, $qty, $prc, $uom, $req_del_date, 
-		$qty_inv, $qty_recd, $grn_item_id=0)
+		$qty_inv, $qty_recd, $qty_out, $serial="", $color_code = "", $chasis_no="", $grn_item_id=0, $list_serial = array())
 	{
 
 		/* Constructor function to add a new LineDetail object with passed params */
@@ -235,6 +257,9 @@ class po_line_details
 		$this->quantity = $qty;
 		$this->req_del_date = $req_del_date;
 		$this->price = $prc;
+		$this->color_code = $color_code;
+		$this->serial = $serial;
+		$this->chasis_no = $chasis_no;
 //		$this->units = $uom;
 		$this->tax_type = $item_row["tax_type_id"];
 		$this->tax_type_name = $item_row["tax_type_name"];
@@ -244,6 +269,9 @@ class po_line_details
 		$this->receive_qty = 0;	/*initialise these last two only */
 		$this->standard_cost =0;
 		$this->grn_item_id = $grn_item_id;
+		$this->serialised = $item_row["serialised"];//Added by Herald 03/15/2021 for non-serialise
+
+		$this->list_serial = $list_serial;	// Added by Ronelle 2/13/2022 array for serial object
 	}
 	
 	// Deprecated, use with care. If you need line value as it is calculated in invoice, use taxfree_charge_value below.

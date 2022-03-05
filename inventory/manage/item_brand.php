@@ -48,7 +48,7 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 	}
 
 	if ($input_error !=1) {
-    	write_brand($selected_id, $_POST['description']);
+	    write_brand($selected_id, $_POST['description'], $_POST['category_id']);
 		if($selected_id != '')
 			display_notification(_('Selected brand has been updated'));
 		else
@@ -92,7 +92,7 @@ $result = get_all_brand(check_value('show_inactive'));
 
 start_form();
 start_table(TABLESTYLE, "width='40%'");
-$th = array( _('ID'), _('Description'), "", "");
+$th = array( _('ID'), _('Description'), _("Category"),"", "");
 inactive_control_column($th);
 
 table_header($th);
@@ -106,6 +106,7 @@ while ($myrow = db_fetch($result))
 	//label_cell($myrow["id"]);
 	label_cell($myrow["id"]);
 	label_cell($myrow["name"]);
+	label_cell($myrow["category_name"]);
 	//label_cell(($myrow["decimals"]==-1?_("User Quantity Decimals"):$myrow["decimals"]));
 	$code = html_specials_encode($myrow["id"]);
 	inactive_control_cell($code, $myrow["inactive"], 'item_brand', 'id');
@@ -136,6 +137,7 @@ if ($selected_id != '')
 		$myrow1 = get_brand($selected_id);
 
 		$_POST['id'] = $myrow1["id"];
+		$_POST['category_id']  = $myrow1["cat_id"];
 		$_POST['description']  = $myrow1["name"];
 		
 		
@@ -150,6 +152,8 @@ if ($selected_id != '' && brand_used($selected_id)){
 	//label_row(_("ID:"), $_POST['id']);
 	//text_row(_("Brand Code:"), 'code', null, 20, 20);
  }
+ stock_categories_list_row(_("Category:"), 'category_id', null, false);
+ 
 text_row(_("Brand Name:"), 'description', null, 40, 40);
 
 //number_list_row(_("Decimal Places:"), 'decimals', null, 0, 6, _("User Quantity Decimals"));

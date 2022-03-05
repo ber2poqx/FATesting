@@ -79,6 +79,7 @@ function get_counterparty_name($trans_type, $trans_no, $full=true)
 			." AND order.debtor_no=debtor.debtor_no";
 			break;
 
+		case ST_ARINVCINSTLITM:
 		case ST_SALESINVOICE :
 		case ST_CUSTCREDIT :
 		case ST_CUSTPAYMENT :
@@ -179,8 +180,31 @@ function get_next_trans_no ($trans_type){
     return $myrow[0] + 1;
 }
 
-//-----------------------------------------------------------------------------
+//Added by spyrax10
+function get_max_trans_no($trans_type){
 
+	$st = get_systype_db_info($trans_type);
+
+	if (!($st && $st[0] && $st[2])) {
+		// this is in fact internal error condition.
+		display_error('Internal error: invalid type passed to get_next_trans_no()');
+		return 0;
+	}
+	$sql1 = "SELECT MAX(`$st[2]`) as last_no FROM $st[0]";
+	if ($st[1] != null)
+		 $sql1 .= " WHERE `$st[1]`=".db_escape($trans_type);
+
+	// check also in voided transactions (some transactions like location transfer are removed completely)
+	$sql2 = "SELECT MAX(`id`) as last_no FROM ".TB_PREF."voided WHERE `type`=".db_escape($trans_type);
+
+	$sql = "SELECT max(last_no) last_no FROM ($sql1 UNION $sql2) a";
+    $result = db_query($sql,"The next transaction number for $trans_type could not be retrieved");
+    $myrow = db_fetch_row($result);
+
+    return $myrow[0];
+}
+//
+//-----------------------------------------------------------------------------
 function get_systype_db_info($type)
 {
 	switch ($type)
@@ -195,7 +219,12 @@ function get_systype_db_info($type)
         case     ST_CUSTPAYMENT  : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_CUSTDELIVERY : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_LOCTRANSFER  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_MERCHANDISETRANSFER  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_MERCHANDISETRANSFERREPO  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_COMPLIMENTARYITEM  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_RRBRANCH     : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_INVADJUST    : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_PURCHREQUEST : return array(TB_PREF."purch_request", null, "pr_no", "reference", "pr_date");
         case     ST_PURCHORDER   : return array(TB_PREF."purch_orders", null, "order_no", "reference", "ord_date");
         case     ST_SUPPINVOICE  : return array(TB_PREF."supp_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_SUPPCREDIT   : return array(TB_PREF."supp_trans", "type", "trans_no", "reference", "tran_date");
@@ -211,7 +240,17 @@ function get_systype_db_info($type)
         case     ST_COSTUPDATE   : return array(TB_PREF."journal", "type", "trans_no", "reference", "tran_date");
 
         case     ST_CUSTOMER    : return array(TB_PREF."debtors_master", null, "debtor_no", "debtor_ref", null);
-        case     ST_SUPPLIER    : return array(TB_PREF."suppliers", null, "supplier_id", "supp_ref", null);
+		case     ST_SUPPLIER    : return array(TB_PREF."suppliers", null, "supplier_id", "supp_ref", null);
+		case     ST_RECEIVECONSIGN : return array(TB_PREF."consignment", null, "consign_no", "reference", "consign_date");	// Added by Ronelle
+		case     ST_SALESRETURN : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");	// Added by Ronelle
+		case     ST_SITERMMOD : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");	// Added by Ronelle
+		case     ST_SALESINVOICEREPO : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");	// Added by Ronelle
+		case     ST_RESTRUCTURED : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");	// Added by Albert
+
+
+		/*added by progjr for lending on 03-15-2021*/
+		case     ST_ARINVCINSTLITM : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
+		case     ST_RRREPO : return array(TB_PREF."repo_accounts", null, "id", "reference_no", null);
 	}
 
 	display_db_error("invalid type ($type) sent to get_systype_db_info", "", true);

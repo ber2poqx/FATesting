@@ -44,6 +44,13 @@ function get_importer($brandcode)
 
 	return db_fetch($result);
 }
+//Added by Prog6 04/19/2021
+function get_importer_name($name)
+{
+	$sql="SELECT COUNT(*) AS num, name FROM ".TB_PREF."item_importer where name='".$name."'";
+
+	return  db_query($sql, "could not get data from item_importer.");
+}
 
 function get_importer_descr($id)
 {

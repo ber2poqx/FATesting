@@ -16,9 +16,9 @@ class general_ledger_app extends application
 		parent::__construct("GL", _($this->help_context = "&Banking and General Ledger"));
 
 		$this->add_module(_("Transactions"));
-		$this->add_lapp_function(0, _("&Payments"),
+		$this->add_lapp_function(0, _("&Disbursement Entry"),
 			"gl/gl_bank.php?NewPayment=Yes", 'SA_PAYMENT', MENU_TRANSACTION);
-		$this->add_lapp_function(0, _("&Deposits"),
+		$this->add_lapp_function(0, _("&Receipts Entry"),
 			"gl/gl_bank.php?NewDeposit=Yes", 'SA_DEPOSIT', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Bank Account &Transfers"),
 			"gl/bank_transfer.php?", 'SA_BANKTRANSFER', MENU_TRANSACTION);
@@ -32,6 +32,10 @@ class general_ledger_app extends application
 			"gl/accruals.php?", 'SA_ACCRUALS', MENU_TRANSACTION);
 
 		$this->add_module(_("Inquiries and Reports"));
+		//Added by spyrax10
+		$this->add_lapp_function(1, _("&Banking Interbranch Inquiry"),
+			"gl/inquiry/interbranch_list.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+		//
 		$this->add_lapp_function(1, _("&Journal Inquiry"),
 			"gl/inquiry/journal_inquiry.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
 		$this->add_lapp_function(1, _("GL &Inquiry"),

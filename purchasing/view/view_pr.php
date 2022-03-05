@@ -1,4 +1,5 @@
 <?php
+
 /**********************************************************************
     Copyright (C) FrontAccounting, LLC.
 	Released under the terms of the GNU General Public License, GPL, 
@@ -8,7 +9,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
-***********************************************************************/
+ ***********************************************************************/
 $page_security = 'SA_SUPPTRANSVIEW';
 $path_to_root = "../..";
 include($path_to_root . "/purchasing/includes/pr_class.inc");
@@ -23,17 +24,19 @@ if ($SysPrefs->use_popup_windows)
 page(_($help_context = "View Purchase Request"), true, false, "", $js);
 
 
-if (!isset($_GET['trans_no']))
-{
-	die ("<br>" . _("This page must be called with a purchase Request number to review."));
+if (!isset($_GET['trans_no'])) {
+	die("<br>" . _("This page must be called with a purchase Request number to review."));
 }
 
 display_heading(_("Purchase Request") . " #" . $_GET['trans_no']);
 
 $purchase_request = new purch_request;
-
+if (isset($_GET['branch_coy'])) {
+	set_global_connection($_GET['branch_coy']);
+}
 read_pr($_GET['trans_no'], $purchase_request);
 echo "<br>";
+
 display_pr_summary($purchase_request, true);
 
 start_table(TABLESTYLE, "width='90%'", 6);
@@ -43,41 +46,28 @@ display_heading2(_("Line Details"));
 
 start_table(TABLESTYLE, "width='100%'");
 
-$th = array(_("Item Code"), _("Item Description"), _("Quantity"));
+$th = array(_("Item Code"), _("Description"), _("Color Description - (Code)"), _("Quantity"), _("Quantity Ordered"));
+
+if ($purchase_request->category_id != 14)
+	array_remove($th, 2);
+
 table_header($th);
 $total = $k = 0;
 $overdue_items = false;
 
-foreach ($purchase_request->line_items as $stock_item)
-{
+foreach ($purchase_request->line_items as $stock_item) {
 
-	// $line_total = $stock_item->quantity * $stock_item->price;
-
-	// if overdue and outstanding quantities, then highlight as so
-	// if (($stock_item->quantity - $stock_item->qty_received > 0)	&&
-	// 	date1_greater_date2(Today(), $stock_item->req_del_date))
-	// {
-    // 	start_row("class='overduebg'");
-    // 	$overdue_items = true;
-	// }
-	// else
-	// {
-	// 	alt_table_row_color($k);
-	// }
-
+	$dec = get_qty_dec($stock_item->stock_id);
 	label_cell($stock_item->stock_id);
 	label_cell($stock_item->item_description);
-	$dec = get_qty_dec($stock_item->stock_id);
+	if ($purchase_request->category_id == 14)
+		label_cell(get_color_description($stock_item->color_code, $stock_item->stock_id));
 	qty_cell($stock_item->quantity, false, $dec);
-	// label_cell($stock_item->units);
-	// amount_decimal_cell($stock_item->price);
-	// label_cell($stock_item->req_del_date);
-	// amount_cell($line_total);
-	// qty_cell($stock_item->qty_received, false, $dec);
-	// qty_cell($stock_item->qty_inv, false, $dec);
-	end_row();
+	qty_cell($stock_item->qty_ordered);
 
-	// $total += $line_total;
+
+
+	end_row();
 }
 
 end_table();
@@ -86,9 +76,4 @@ echo "</td></tr>";
 
 end_table(1); // outer table
 
-// display_allocations_to(PT_SUPPLIER, $purchase_request->supplier_id, ST_PURCHORDER, $purchase_request->order_no, $total + $tax_total);
-
-// //----------------------------------------------------------------------------------------------------
-
 end_page(true, false, false, ST_PURCHREQUEST, $_GET['trans_no']);
-

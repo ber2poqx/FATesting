@@ -62,6 +62,7 @@ class FrontReport extends Cpdf
 	var $footerEnable;  // select whether to print a page footer or not
 	var $footerText;  // store user-generated footer text
 	var $headerTmpl;  // store the name of the currently selected header template
+	var $footTmpl; //added by spyrax10
 	var $tmplSize; // pdf header template size in pages
 
 	var $rep_id;
@@ -106,8 +107,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=40;
 					  $this->bottomMargin=30;
-					  $this->leftMargin=40;
-					  $this->rightMargin=30;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  // Landscape
@@ -119,8 +120,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=30;
 					  $this->bottomMargin=30;
-					  $this->leftMargin=40;
-					  $this->rightMargin=30;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  break;
@@ -134,8 +135,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=50;
 					  $this->bottomMargin=50;
-					  $this->leftMargin=50;
-					  $this->rightMargin=40;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  // Landscape
@@ -147,8 +148,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=50;
 					  $this->bottomMargin=50;
-					  $this->leftMargin=50;
-					  $this->rightMargin=40;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  break;
@@ -162,8 +163,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=30;
 					  $this->bottomMargin=30;
-					  $this->leftMargin=30;
-					  $this->rightMargin=25;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  // Landscape
@@ -175,8 +176,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=30;
 					  $this->bottomMargin=30;
-					  $this->leftMargin=30;
-					  $this->rightMargin=25;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  break;
@@ -190,8 +191,8 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=50;
 					  $this->bottomMargin=40;
-					  $this->leftMargin=30;
-					  $this->rightMargin=25;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  // Landscape
@@ -203,8 +204,36 @@ class FrontReport extends Cpdf
 				  {
 					  $this->topMargin=50;
 					  $this->bottomMargin=40;
-					  $this->leftMargin=30;
-					  $this->rightMargin=25;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
+				  }
+			  }
+			  break;
+			case 'LONG':
+			  // Portrait
+		  	  if ($orientation == 'P')
+			  {
+		  		  $this->pageWidth=612;
+				  $this->pageHeight=963;
+				  if (!isset($margins))
+				  {
+					  $this->topMargin=30;
+					  $this->bottomMargin=30;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
+				  }
+			  }
+			  // Landscape
+			  else
+			  {
+		  		  $this->pageWidth=963;
+				  $this->pageHeight=612;
+				  if (!isset($margins))
+				  {
+					  $this->topMargin=30;
+					  $this->bottomMargin=30;
+					  $this->leftMargin=15;
+					  $this->rightMargin=10;
 				  }
 			  }
 			  break;
@@ -250,6 +279,50 @@ class FrontReport extends Cpdf
 		$this->selectFont($fontname, $style);
 	}
 
+
+	function RRInfo($params, $cols, $headers, $aligns,
+		$cols2 = null, $headers2 = null, $aligns2 = null,
+		$companylogoenable = false, $footerenable = false, $footertext = '')
+	{
+		global $SysPrefs, $version;
+
+		$this->addInfo('Title', $this->title);
+		$this->addInfo('Subject', $this->title);
+		$this->addInfo('Author', $SysPrefs->app_title . ' ' . $version);
+		$this->addInfo('Creator',$SysPrefs->power_by . ' - ' . $SysPrefs->power_url);
+		//$year = get_current_fiscalyear();
+		//if ($year['closed'] == 0)
+		//	$how = _("Active");
+		//else
+		//	$how = _("Closed");
+		//$this->fiscal_year = sql2date($year['begin']) . " - " . sql2date($year['end']) . "  " . "(" . $how . ")";
+		$this->company = get_company_prefs();
+		//$this->user = $_SESSION["wa_current_user"]->name;
+		//$this->host = $_SERVER['SERVER_NAME'];
+		$this->params = $params;
+		$this->cols = $cols;
+		for ($i = 0; $i < count($this->cols); $i++)
+			$this->cols[$i] += $this->leftMargin;
+		$this->headers = $headers;
+		$this->aligns = $aligns;
+		$this->cols2 = $cols2;
+		if ($this->cols2 != null)
+		{
+			for ($i = 0; $i < count($this->cols2); $i++)
+				$this->cols2[$i] += $this->leftMargin;
+		}
+		$this->headers2 = $headers2;
+		$this->aligns2 = $aligns2;
+
+		// Set whether to display company logo in some header templates
+		$this->companyLogoEnable = $companylogoenable;
+		
+		// Store footer settings
+		$this->footerEnable = $footerenable;
+		$this->footerText = $footertext;	
+	}
+
+
 	function Info($params, $cols, $headers, $aligns,
 		$cols2 = null, $headers2 = null, $aligns2 = null,
 		$companylogoenable = false, $footerenable = false, $footertext = '')
@@ -294,53 +367,109 @@ class FrontReport extends Cpdf
 	//
 	//	Header for listings
 	//
-	function Header()
-	{
-		global $SysPrefs;
-		
-		$companyCol = $this->endLine - 150;
-		$titleCol = $this->leftMargin + 100;
 
+	function compLogoHeader()
+	{
+		// Set Company Logo & Details to Report Header (spyrax10)
+		
+		$compName = getCompDet('coy_name');
+		$compAdd = getCompDet('postal_address');
+		$compTel = getCompDet('phone');
+		$compEmail = getCompDet('email');
+		$compLogo = getCompDet('coy_logo');
+		$isLogoEn = getCompDet('company_logo_report');
+
+		$companyCol = $this->endLine - 150;
 		$this->row = $this->pageHeight - $this->topMargin;
+		$this->NewLine(2);
+
+		$logo = company_path() . "/images/" . $compLogo;
+		if (!empty($isLogoEn) && $compLogo != '' && file_exists($logo))
+		{
+			$size = getimagesize($logo);
+			$height = $size[0] > 150 ? $size[1] * 150 / $size[0] : 30; 
+			$this->row -= ($height / 2);
+			$this->AddImage($logo, $this->leftMargin, $this->row, 0, $height);
+			$this->row -= 6;
+
+			$this->fontSize += 5;
+			$this->Font('bold');
+			$this->Text($this->leftMargin + 160, $compName, 0, 0,
+				-70);
+			$this->Font();
+			$this->fontSize -= 5;
+			
+
+			$this->Text($this->leftMargin + 160, $compAdd, 0, 0,
+				-45);
+			$this->Text($this->leftMargin + 160, $compTel, 0, 0,
+				-30);
+			$this->SetTextColor(0, 0, 255); //Set email color to blue (spyrax10)
+			$this->Text($this->leftMargin + 160, $compEmail, 0, 0,
+				-15);
+			$this->SetTextColor(0, 0, 0);
+			
+		}
+		else
+		{
+			$this->NewLine();
+			$this->fontSize += 5;
+			$this->Font('bold');
+			$this->Text($this->leftMargin, $compName, 0, 0,
+				-40);
+			$this->Font();
+			$this->fontSize -= 5;
+			$this->NewLine();
+
+			$this->Text($this->leftMargin, $compAdd, 0, 0,
+				-30);
+			$this->NewLine();
+			$this->Text($this->leftMargin, $compTel, 0, 0,
+				-27);
+			$this->NewLine();
+			$this->SetTextColor(0, 0, 255); //Set email color to blue (spyrax10)
+			$this->Text($this->leftMargin, $compEmail, 0, 0,
+				-24);
+			$this->SetTextColor(0, 0, 0);
+		}
 
 		$this->SetDrawColor(128, 128, 128);
-		$this->Line($this->row + 5, 1);
-
+		$this->Line($this->row + 5, 1); //line in header
 		$this->NewLine();
 
+		//Report Title
 		$this->fontSize += 4;
 		$this->Font('bold');
 		$this->Text($this->leftMargin, $this->title, $companyCol);
 		$this->Font();
 		$this->fontSize -= 4;
-		$logo = company_path() . "/images/" . $this->company['coy_logo'];
-		if (!empty($SysPrefs->prefs['company_logo_report']) && $this->company['coy_logo'] != '' && file_exists($logo))
-		{
-			$size = getimagesize($logo);
-			$height = $size[0] > 150 ? $size[1] * 150 / $size[0] : 30; 
-			$this->row -= ($height / 2);
-			$this->AddImage($logo, $companyCol, $this->row, 0, $height);
-			$this->row -= 6;
-		}
-		else
-		{
-			$this->Text($companyCol, $this->company['coy_name']);
-			$this->row -= ($this->lineHeight + 4);
-		}
+		$this->NewLine(2);
+	}
+
+	function PO_Header()
+	{
+		// added by spyrax10 for Purchase Order Summary Report
+		global $SysPrefs;
+
+		$companyCol = $this->endLine - 150;
+		$titleCol = $this->leftMargin + 100; // (+) x location of Header's Parameter's Details
+		$this->row = $this->pageHeight - $this->topMargin;
+		
+		$this->compLogoHeader();
+
 		$str = _("Print Out Date") . ':';
 		$this->Text($this->leftMargin, $str, $titleCol);
 		$str = Today() . '   ' . Now();
 		if ($this->company['time_zone'])
 			$str .= ' ' . date('O') . ' GMT';
 		$this->Text($titleCol, $str, $companyCol);
-		$this->Text($companyCol, $this->host);
-
+		
 		$this->NewLine();
 		$str = _("Fiscal Year") . ':';
 		$this->Text($this->leftMargin, $str, $titleCol);
 		$str = $this->fiscal_year;
 		$this->Text($titleCol, $str, $companyCol);
-		$this->Text($companyCol, $this->user);
+		
 		for ($i = 1; $i < count_array($this->params); $i++)
 		{
 			if ($this->params[$i]['from'] != '')
@@ -354,6 +483,374 @@ class FrontReport extends Cpdf
 				$this->Text($titleCol, $str, $companyCol);
 			}
 		}
+		//Commmented by spyrax10
+		//$str = _("Particulars") . ': ';
+		//$this->Text($this->leftMargin, $str, $titleCol);
+		//$this->NewLine();
+
+		if ($this->params[0] != '') {
+			$this->NewLine(1.5);
+			$str = _("Comments") . ': ';
+			$this->Text($this->leftMargin, $str, $titleCol);
+			$this->Text($titleCol, $this->params[0], $this->endLine - 35);
+		}
+		
+		$this->Font();
+		$this->NewLine();
+
+		$str = _("Page") . ' ' . $this->pageNumber; //. ' / ' . $this->getAliasNbPages();
+		$this->Text($this->endLine - 38, $str); // x location of page no
+		
+		
+		// for column headers
+		$this->Line($this->row - 5, 1);
+
+		$this->row -= ($this->lineHeight + 6);
+
+		$this->Font('bold');
+		$this->fontSize -= 1;
+		
+		if ($this->headers2 != null) 
+		{		
+			$count = count_array($this->headers2);
+			for ($i = 0; $i < $count; $i++)
+				$this->TextCol2($i, $i + 1,	$this->headers2[$i]);
+			$this->NewLine(2);
+		}
+		$count = count_array($this->headers);
+		for ($i = 0; $i < $count; $i++)
+			$this->TextCol($i, $i + 1, $this->headers[$i]);
+		
+		$this->fontSize += 1;
+		$this->Font();
+		$this->Line($this->row - 5, 1);
+
+		$this->NewLine(2);
+		// for column headers
+	
+		//$this->compFooter();
+	}
+
+	function dcprFooter() 
+	{
+		
+		$footRow = $this->bottomMargin + 240;
+		$footDet = $footRow + 40;
+		$footDetLine = $footRow - 220;
+		$num_page += $this->pageNumber;
+		$val = $this->getNumPages();
+
+		if ($this->pageNumber - 1) { // Set footer to the very last page of report (FIX ME!!!)
+			
+			$this->fontSize += 2;
+			$this->Font('bold');
+			$str = _("Prepared By") . ":";
+			$this->Text($this->leftMargin + 180, $str, 0, 0, 
+				$footRow);		
+			$this->LineTo($this->leftMargin + 180, $footDetLine, 
+				300, $footDetLine);
+			$this->Font();
+			$prep = $_SESSION["wa_current_user"]->name;
+			$this->Text($this->leftMargin + 180, $prep, 0, 0, 
+				$footDet);
+			$this->fontSize -= 2;
+		
+			$this->fontSize += 2;
+			$this->Font('bold');
+				$str = _("Approver 1") . ":";
+			$this->Text($this->leftMargin + 430, $str, 0, 0, 
+				$footRow);
+			$this->LineTo($this->leftMargin + 430, $footDetLine, 
+				550, $footDetLine);
+			$this->Font();
+			$prep = _("Evanessa Villar");
+			$this->Text($this->leftMargin + 430, $prep, 0, 0, 
+				$footDet);
+			$this->fontSize -= 2;
+		
+			$this->fontSize += 2;
+			$this->Font('bold');
+			$str = _("Approver 2") . ":";
+			$this->Text($this->leftMargin + 650, $str, 0, 0, 
+				$footRow);
+			$this->LineTo($this->leftMargin + 650, $footDetLine, 
+			830, $footDetLine);
+			$this->Font();
+			$prep = _("Engr. Carl Ryan Lim/Dr. Wilson Du");
+			$this->Text($this->leftMargin + 650, $prep, 0, 0, 
+			$footDet);
+			$this->fontSize -= 2;
+		
+			//$this->NewLine(2);
+			//$this->NewPage();
+
+		}
+				
+	}
+
+	function DCPR_Header()
+	{
+		global $SysPrefs;
+
+		$companyCol = $this->endLine - 80;
+		$titleCol = $this->leftMargin + 100;
+		$this->row = $this->pageHeight - $this->topMargin;
+		
+		$this->compLogoHeader();
+
+		$str = _("Print Out Date") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$str = Today() . '   ' . Now();
+		if ($this->company['time_zone'])
+			$str .= ' ' . date('O') . ' GMT';
+		$str .= '  By:  ' . $this->user = $_SESSION["wa_current_user"]->name;
+		//$str .= '  by: ';
+		//$this->Text($mcol + 240, $this->user = $_SESSION["wa_current_user"]->name);
+		$this->Text($titleCol, $str, $companyCol);
+
+		$this->NewLine();
+		$str = _("Fiscal Year") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$str = $this->fiscal_year;
+		$this->Text($titleCol, $str, $companyCol);
+		
+		for ($i = 1; $i < count_array($this->params); $i++)
+		{
+			if ($this->params[$i]['from'] != '')
+			{
+				$this->NewLine();
+				$str = $this->params[$i]['text'] . ':';
+				$this->Text($this->leftMargin, $str, $titleCol);
+				$str = $this->params[$i]['from'];
+				if ($this->params[$i]['to'] != '')
+					$str .= " - " . $this->params[$i]['to'];
+				$this->Text($titleCol, $str, $companyCol);
+			}
+		}
+	
+		$str = _("Page") . ' ' . $this->pageNumber;
+		$this->Text($this->endLine - 38, $str);
+		
+		
+		// for column headers
+		$this->Line($this->row - 5, 1);
+
+		$this->row -= ($this->lineHeight + 6);
+		$this->Font('italic');
+		
+		if ($this->headers2 != null) 
+		{		
+			$count = count_array($this->headers2);
+			for ($i = 0; $i < $count; $i++)
+				$this->TextCol2($i, $i + 1,	$this->headers2[$i]);
+			$this->NewLine(2);
+		}
+		$count = count_array($this->headers);
+		for ($i = 0; $i < $count; $i++)
+			$this->TextCol($i, $i + 1, $this->headers[$i]);
+		$this->Font();
+		$this->Line($this->row - 5, 1);
+
+		$this->NewLine(2);
+		// for column headers
+	
+		$this->dcprFooter();
+
+
+	}
+
+	function COLLECTION_Header()
+	{
+		global $SysPrefs;
+
+		$companyCol = $this->endLine - 80;
+		$titleCol = $this->leftMargin + 100;
+		$this->row = $this->pageHeight - $this->topMargin;
+		
+		$this->compLogoHeader();
+
+		$str = _("Print Out Date") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$str = Today() . '   ' . Now();
+		if ($this->company['time_zone'])
+			$str .= ' ' . date('O') . ' GMT';
+		$str .= '  By:  ' . $this->user = $_SESSION["wa_current_user"]->name;
+		//$str = _("by") . ':' . $this->user = $_SESSION["wa_current_user"]->name;
+		//$this->Text($mcol + 240, $this->user = $_SESSION["wa_current_user"]->name);
+		$this->Text($titleCol, $str, $companyCol);
+
+		for ($i = 1; $i < count_array($this->params); $i++)
+		{
+			if ($this->params[$i]['from'] != '')
+			{
+				$this->NewLine();
+				$str = $this->params[$i]['text'] . ':';
+				$this->Text($this->leftMargin, $str, $titleCol);
+				$str = $this->params[$i]['from'];
+				if ($this->params[$i]['to'] != '')
+					$str .= " - " . $this->params[$i]['to'];
+				$this->Text($titleCol, $str, $companyCol);
+			}
+		}
+	
+		$str = _("Page") . ' ' . $this->pageNumber;
+		$this->Text($this->endLine - 38, $str);
+		
+		
+		// for column headers
+		$this->Line($this->row - 5, 1);
+
+		$this->row -= ($this->lineHeight + 6);
+		$this->Font('italic');
+		
+		if ($this->headers2 != null) 
+		{		
+			$count = count_array($this->headers2);
+			for ($i = 0; $i < $count; $i++)
+				$this->TextCol2($i, $i + 1,	$this->headers2[$i]);
+			$this->NewLine(2);
+		}
+		$count = count_array($this->headers);
+		for ($i = 0; $i < $count; $i++)
+			$this->TextCol($i, $i + 1, $this->headers[$i]);
+		$this->Font();
+		$this->Line($this->row - 5, 1);
+
+		$this->NewLine(2);
+		// for column headers
+	
+		//$this->compFooter();
+
+
+	}
+
+	function compFooter() 
+	{
+		//Footer (spyrax10)
+		/* Fix needed!!! (Lazy Coding!!!)
+		 -- Effective only in Landscape! 
+		 -- Footer Name Details HardCoded! (Must be get from parameter) 
+		 -- Footer not set to the very last page of report*/
+		
+		$footRow = $this->bottomMargin + 240;
+		$footDet = $footRow + 40;
+		$footDetLine = $footRow - 220;
+		$num_page += $this->pageNumber;
+		$val = $this->getNumPages();
+
+		if ($this->pageNumber - 1) { // Set footer to the very last page of report (FIX ME!!!)
+			
+			$this->fontSize += 2;
+			$this->Font('bold');
+			$str = _("Prepared By") . ":";
+			$this->Text($this->leftMargin + 130, $str, 0, 0, 
+				$footRow);		
+			$this->LineTo($this->leftMargin + 130, $footDetLine, 
+				230, $footDetLine);
+			$this->Font();
+			$prep = _("Manager");
+			$this->Text($this->leftMargin + 130, $prep, 0, 0, 
+				$footDet);
+			$this->fontSize -= 2;
+
+			$this->fontSize += 2;
+			$this->Font('bold');
+				$str = _("Checked By") . ":";
+			$this->Text($this->leftMargin + 250, $str, 0, 0, 
+				$footRow);
+			$this->LineTo($this->leftMargin + 250, $footDetLine, 
+				365, $footDetLine);
+			$this->Font();
+			$prep = _("Angela O. Loquinario");
+			$this->Text($this->leftMargin + 250, $prep, 0, 0, 
+				$footDet);
+			$this->fontSize -= 2;
+		
+			$this->fontSize += 2;
+			$this->Font('bold');
+				$str = _("Approver 1") . ":";
+			$this->Text($this->leftMargin + 400, $str, 0, 0, 
+				$footRow);
+			$this->LineTo($this->leftMargin + 400, $footDetLine, 
+				505, $footDetLine);
+			$this->Font();
+			$prep = _("Maylen L. Espina");
+			$this->Text($this->leftMargin + 400, $prep, 0, 0, 
+				$footDet);
+			$this->fontSize -= 2;
+		
+			$this->fontSize += 2;
+			$this->Font('bold');
+			$str = _("Approver 2") . ":";
+			$this->Text($this->leftMargin + 550, $str, 0, 0, 
+				$footRow);
+			$this->LineTo($this->leftMargin + 550, $footDetLine, 
+			730, $footDetLine);
+			$this->Font();
+			$prep = _("Engr. Carl Ryan Lim/Dr. Wilson Du");
+			$this->Text($this->leftMargin + 550, $prep, 0, 0, 
+			$footDet);
+			$this->fontSize -= 2;
+		
+			$this->fontSize += 2;
+			$this->Font('bold');
+			$str = _("Received By") . ":";
+			$this->Text($this->leftMargin + 750, $str, 0, 0, 
+				$footRow);
+			$this->LineTo($this->leftMargin + 750, $footDetLine, 
+				920, $footDetLine);
+			$this->Font();
+			$prep = _("Received By:");
+			$this->Text($this->leftMargin + 750, $prep, 0, 0, 
+				$footDet);
+			$this->fontSize -= 2;
+			//$this->NewLine(2);
+			//$this->NewPage();
+
+		}
+				
+	}
+
+
+	function Header()
+	{
+		global $SysPrefs;
+		
+		$companyCol = $this->endLine - 150; // (-) x location of Logo 
+		$titleCol = $this->leftMargin + 100; // (+) x location of Header's Parameter's Details
+
+		$this->row = $this->pageHeight - $this->topMargin;
+
+		$this->compLogoHeader();
+
+		$str = _("Print Out Date") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$str = Today() . '   ' . Now();
+		if ($this->company['time_zone'])
+			$str .= ' ' . date('O') . ' GMT';
+		$this->Text($titleCol, $str, $companyCol);
+
+		$this->NewLine();
+		$str = _("Fiscal Year") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$str = $this->fiscal_year;
+		$this->Text($titleCol, $str, $companyCol);
+		
+
+		for ($i = 1; $i < count_array($this->params); $i++)
+		{
+			if ($this->params[$i]['from'] != '')
+			{
+				$this->NewLine();
+				$str = $this->params[$i]['text'] . ':';
+				$this->Text($this->leftMargin, $str, $titleCol);
+				$str = $this->params[$i]['from'];
+				if ($this->params[$i]['to'] != '')
+					$str .= " - " . $this->params[$i]['to'];
+				$this->Text($titleCol, $str, $companyCol);
+			}
+		}
+		/*
 		if ($this->params[0] != '') // Comments
 		{
 			$this->NewLine();
@@ -362,7 +859,16 @@ class FrontReport extends Cpdf
 			$this->Font('bold');
 			$this->Text($titleCol, $this->params[0], $this->endLine - 35);
 			$this->Font();
-		}
+		}*/
+		$this->NewLine();
+		$str = _("Particulars") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$this->Font('bold');
+		$this->Text($titleCol, $this->params[0], $this->endLine - 35);
+		$this->Font();
+		$this->NewLine();
+			
+			
 		$str = _("Page") . ' ' . $this->pageNumber;
 		$this->Text($this->endLine - 38, $str);
 		$this->Line($this->row - 5, 1);
@@ -430,6 +936,11 @@ class FrontReport extends Cpdf
 	function SetHeaderType($name) {
 		$this->headerTmpl = $name;
 	}
+
+	//added by spyrax10
+	function SetFooterType($name) {
+		$this->footTmpl = $name;
+	}
 	/*
 		Header for sales/purchase documents
 	*/
@@ -453,6 +964,42 @@ class FrontReport extends Cpdf
 		$this->row = $temp;
 	}
 
+
+	function Header4()
+	{
+		global $dflt_lang; // FIXME should be passed as params
+
+		$this->SetLang(@$this->formData['rep_lang'] ? $this->formData['rep_lang'] : $dflt_lang);
+		$doctype = $this->formData['doctype'];
+		$header2type = true;
+
+		$lang = user_language();
+		$this->SetLang(@$this->formData['rep_lang'] ? $this->formData['rep_lang']
+ 			: ( $lang ? $lang : $dflt_lang));
+
+		for ($i = 1; $i < count_array($this->params); $i++)
+		{
+			if ($this->params[$i]['from'] != '')
+			{
+				$this->NewLine();
+				$str = $this->params[$i]['text'] . ':';
+				$this->Text($this->leftMargin, $str, $titleCol);
+				$str = $this->params[$i]['from'];
+				if ($this->params[$i]['to'] != '')
+					$str .= " - " . $this->params[$i]['to'];
+				$this->Text($titleCol, $str, $companyCol);
+			}
+		}
+
+ 		 // leave layout files names without path to enable including
+ 		 // modified versions from company/x/reporting directory
+		include("includes/doctext2.inc");
+		include("includes/header4.inc");
+
+		$this->row = $temp;
+	}
+
+	
 	// Alternate header style which also supports a simple footer
 	function Header3()
 	{
@@ -1088,5 +1635,79 @@ class FrontReport extends Cpdf
 			}
 		}
 	}
-}
 
+	function SL_Summary_Header()
+	{		
+		global $SysPrefs;
+
+		$companyCol = $this->endLine - 150;
+		$titleCol = $this->leftMargin + 90; // Parameter Data Location
+		$this->row = $this->pageHeight - $this->topMargin;
+		
+		$this->compLogoHeader();
+
+		$str = _("Print Out Date") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$str = Today() . '   ' . Now();
+		if ($this->company['time_zone'])
+			$str .= ' ' . date('O') . ' GMT';
+		$this->Text($titleCol, $str, $companyCol);
+		
+		//$this->NewLine();
+		//$str = _("Fiscal Year") . ':';
+		//$this->Text($this->leftMargin, $str, $titleCol);
+		//$str = $this->fiscal_year;
+		//$this->Text($titleCol, $str, $companyCol);
+		
+		for ($i = 1; $i < count_array($this->params); $i++)
+		{
+			if ($this->params[$i]['from'] != '')
+			{
+				$this->NewLine();
+				$str = $this->params[$i]['text'] . ':';
+				$this->Text($this->leftMargin, $str, $titleCol);
+				$str = $this->params[$i]['from'];
+				if ($this->params[$i]['to'] != '')
+					$str .= " - " . $this->params[$i]['to'];
+				$this->Text($titleCol, $str, $companyCol);
+			}
+		}
+
+		$this->NewLine();
+		$str = _("Particulars") . ':';
+		$this->Text($this->leftMargin, $str, $titleCol);
+		$this->Font('bold');
+		$this->Text($titleCol, $this->params[0], $this->endLine - 35);
+		$this->Font();
+		$this->NewLine();
+
+		$str = _("Page") . ' ' . $this->pageNumber;
+		$this->Text($this->endLine - 38, $str);
+		
+		// for column headers
+		$this->Line($this->row - 5, 1);
+
+		$this->row -= ($this->lineHeight + 6);
+		$this->Font('bold');
+		
+		if ($this->headers2 != null) 
+		{		
+			$count = count_array($this->headers2);
+			for ($i = 0; $i < $count; $i++)
+				$this->TextCol2($i, $i + 1,	$this->headers2[$i]);
+			$this->NewLine(2);
+		}
+		$count = count_array($this->headers);
+		for ($i = 0; $i < $count; $i++)
+			$this->TextCol($i, $i + 1, $this->headers[$i]);
+		$this->Font();
+		$this->Line($this->row - 5, 1);
+
+		$this->NewLine(2);
+		// for column headers
+	
+		//$this->compFooter();
+
+
+	}
+}

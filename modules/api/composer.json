@@ -1,0 +1,16 @@
+{
+    "require": {
+        "slim/slim": "~2.6.3",
+        "palanik/corsslim": "^1.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4.2.6",
+        "guzzlehttp/guzzle": "~6.3",
+        "zircote/swagger-php": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "FAAPI\\": "src/"
+        }
+    }
+}

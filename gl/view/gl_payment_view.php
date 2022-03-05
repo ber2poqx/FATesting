@@ -46,7 +46,7 @@ if ($from_trans['bank_curr_code'] != $from_trans['settle_curr'])
 display_heading(_("GL Payment") . " #$trans_no");
 
 echo "<br>";
-start_table(TABLESTYLE, "width='80%'");
+start_table(TABLESTYLE, "width='95%'");
 
 if ($show_currencies)
 {
@@ -73,9 +73,13 @@ if ($show_currencies)
 	label_cells(_("Settled amount"), number_format2($from_trans['settled_amount'], user_price_dec()), "class='tableheader2'");
 }
 label_cells(_("Payment Type"), $bank_transfer_types[$from_trans['account_type']], "class='tableheader2'");
+
 end_row();
 start_row();
-label_cells(_("Reference"), $from_trans['ref'], "class='tableheader2'", "colspan=$colspan2");
+label_cells(_("Reference"), $from_trans['ref'], "class='tableheader2'", "colspan=$colspan1");
+//Added by spyrax10 10 Feb 2022
+label_cells(_("Cashier / Teller: "), get_user_name($from_trans['cashier_user_id'], true), "class='tableheader2'");
+//
 end_row();
 comments_display_row(ST_BANKPAYMENT, $trans_no);
 

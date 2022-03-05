@@ -16,32 +16,52 @@
 */
 	global $SysPrefs;
 
-	$Addr1 = array(
-			'title' => _("Charge To"),
+	if($this->formData['doctype'] == ST_CUSTDELIVERY){
+
+	}
+	else{
+		$Addr1 = array(
+			'title' => _("SUPPLIER NAME:"),
 			'name' => @$this->formData['br_name'] ? $this->formData['br_name'] : @$this->formData['DebtorName'],
 			'address' => @$this->formData['br_address'] ? $this->formData['br_address'] : @$this->formData['address']
-	);
-	$Addr2 = array(
-			'title' => _("Delivered To"),
+		);
+		$Addr2 = array(
+			'title' => _("DELIVERED TO:"),
 			'name' => @$this->formData['deliver_to'],
 			'address' => @$this->formData['delivery_address']
-	);
+		);
 
-	// default item column headers
-	$this->headers = array(_("Item Code"), _("Item Description"), _("Quantity"),
-		_("Unit"), _("Price"), _("Discount %"), _("Total"));
+		// default item column headers
+		$this->headers = array(_("Item Code"), _("Item Description"), _("Quantity"),
+		_("Unit"), _("SRP"), _("Total"));
 
-	// for links use 'text' => 'url'
-	$Footer[0] = _("All amounts stated in") . " - " . @$this->formData['curr_code'];
 
-	if (!in_array($this->formData['doctype'], array(ST_STATEMENT, ST_WORKORDER)))
+		// for links use 'text' => 'url'	
+		
+		
+		//$Footer[] = _("Please notify us immediately if this order cannot be shipped on or before ". date("M. d, Y.                                                                                                    .", (strtotime($_SESSION["test"])))); 
+		$Footer[] = _("Please notify us immediately if this order cannot be shipped on or before ". Today() . ".                                                                                                                                         " ); 
+		$Footer[] = _("");
+		$Footer[] = _("");
+		$Footer[] = _("");	
+		$Footer[] = _("Prepared by:                                                                                                                          Approved by:                                            .");
+		$Footer[] = _("");	
+		$Footer[] = $_SESSION["wa_current_user"]->name . " " ._("                                                                      Evanessa Villar                                   Carl Ryan Lim               .");	
+		$Footer[] = _("");
+		$Footer[] = _("");
+		$Footer[] = _("");
+		$Footer[] = _("Print date:  " . Today() . " | " . Now() . "  by " . $_SESSION["wa_current_user"]->name . "                                                                                                                                      ");	
+	
+	}		
+	
+	
+                 
 	{
 		$row = get_payment_terms($this->formData['payment_terms']);
 		$Payment_Terms = _("Payment Terms") . ': ' . $row["terms"];
 		if ($this->formData['doctype'] == ST_SALESINVOICE && $this->formData['prepaid'])
 			$this->formData['prepaid'] = ($row['days_before_due'] >= 0) ? 'final' : 'partial';
 	}
-
 
 	switch ($this->formData['doctype'])
 	{
@@ -58,6 +78,7 @@
 				_("Our Quotation No") => $this->formData['order_no'],
 				_("Valid until") => sql2date($this->formData['delivery_date']),
 			);
+			
 			break;
 
 		case ST_SALESORDER:
@@ -80,22 +101,24 @@
 		case ST_CUSTDELIVERY:
 			$this->title = ($this->params['packing_slip'] ? _("PACKING SLIP") : _("DELIVERY NOTE"));
 			$this->formData['document_name'] = _("Delivery Note No.");
-			if (@$packing_slip)
-				$Payment_Terms = '';
-			$ref = $this->formData['order_'];
-			if ($SysPrefs->print_invoice_no() == 0)
-			{
-				$ref = get_reference(ST_SALESORDER, $this->formData['order_']);
-				if (!$ref)
-					$ref = $this->formData['order_'];
-			}
-			$aux_info = array(
-				_("Customer's Reference") => $this->formData["customer_ref"],
-				_("Sales Person") => get_salesman_name($this->formData['salesman']),
-				_("Your VAT no.") => $this->formData['tax_id'],
-				_("Our Order No") => $ref,
-				_("To Be Invoiced Before") => sql2date($this->formData['due_date']),
-			);
+			$this->headers = array(_("Model"), _("Item Description"), _("Color"), _("Serial"), _("Chassis"), _("Qty"), _("Unit"), _("Cost"));
+
+			// if (@$packing_slip)
+			// 	$Payment_Terms = '';
+			// $ref = $this->formData['order_'];
+			// if ($SysPrefs->print_invoice_no() == 0)
+			// {
+			// 	$ref = get_reference(ST_SALESORDER, $this->formData['order_']);
+			// 	if (!$ref)
+			// 		$ref = $this->formData['order_'];
+			// }
+			// $aux_info = array(
+			// 	_("Customer's Reference") => $this->formData["customer_ref"],
+			// 	_("Sales Person") => get_salesman_name($this->formData['salesman']),
+			// 	_("Your VAT no.") => $this->formData['tax_id'],
+			// 	_("Our Order No") => $ref,
+			// 	_("To Be Invoiced Before") => sql2date($this->formData['due_date']),
+			// );			
 			break;
 
 		case ST_CUSTCREDIT:
@@ -142,6 +165,16 @@
 					$aux_info[_("Date of Sale")] = sql2date(get_oldest_delivery_date($this->formData['trans_no']));
 				$aux_info[_("Due Date")]  = sql2date($this->formData['due_date']);
 			}
+			$this->headers = array(
+				_("Model"),
+				_("Description"),
+				_("Color"),
+				_("Serial"),
+				_("Chassis"),
+				_("Qty"),
+				_("Unit"),
+				_("SRP"),
+				_("TOTAL"));
 			break;
 
 		case ST_SUPPAYMENT:
@@ -151,6 +184,7 @@
 			$this->formData['document_name'] =_("Remittance No.");
 			$Addr1['title'] = _("Order To");
 			$Addr1['name'] = $this->formData['supp_name'];
+			
 			$Addr1['address'] = $this->formData['address'];
 			$Addr2['title'] = _("Charge To");
 			$Addr2['name'] = '';
@@ -168,28 +202,44 @@
 
 		case ST_PURCHORDER:
 			$this->title = _("PURCHASE ORDER");
-			$this->formData['document_name'] =_("Purchase Order No.");
-			$Addr1['title'] = _("Order To");
+			
+			$this->formData['document_name'] =_("PO no.:");
+			$this->formData['PR_ref'] =_("PR no.:"); 
+			$Addr1['title'] = _("SUPPLIER NAME:");
 			$Addr1['name'] = $this->formData['supp_name'];
 			$Addr1['address'] = $this->formData['address'];
-			$Addr2['title'] = _("Deliver To");
+			$Addr2['title'] = _("DELIVER TO:");
 			$Addr2['name'] = $this->company['coy_name'];
-			//$Addr2['address'] = $this->company['postal_address']; No, don't destroy delivery address!
+			$Addr2['address'] = $this->company['postal_address'];// No, don't destroy delivery address!
 			$this->formData['document_date'] = $this->formData['ord_date'];
+			/***
 			$this->formData['document_number'] = $SysPrefs->print_invoice_no() == 0 && isset($this->formData['reference'])
 				? $this->formData['reference'] : $this->formData['order_no'];
+				***/
 
-			$aux_info = array(
-				_("Customer's Reference") => $this->formData['supp_account_no'],
-				_("Sales Person") => $this->formData['contact'],
-				_("Your VAT no.") => $this->formData['tax_id'],
-				_("Supplier's Reference") => @$this->formData['requisition_no'],
-				_("Order Date") => sql2date($this->formData['document_date']),
-			);
-
-			$this->headers = array(_("Item Code"), _("Item Description"),
-				_("Delivery Date"), _("Quantity"), 	_("Unit"), _("Price"), _("Total"));
-			break;
+			/***$aux_info = array(
+				_("") => $this->formData['']
+				,				
+				_("") => $this->formData['']
+				,
+				_("") => $this->formData['']
+				,
+				_("") => @$this->formData['']
+				,
+				_("") => sql2date($this->formData[''])
+				,
+			);***/
+			//$this->Font('bold');
+			
+			$this->headers = array(
+				_("Item Code"),
+				_("Description"),
+				_("Color"),
+				_("Qty"),
+				_("Unit"),
+				_("SRP"),
+				_("TOTAL"));
+			break; 
 
 		case ST_CUSTPAYMENT:
 			global $systypes_array;
@@ -257,8 +307,8 @@
 			? $this->formData['reference'] : @$this->formData['trans_no'];
 
 	// footer generic content
-	if (@$this->formData['bank_name'])
-		$Footer[] = _("Bank"). ": ".$this->formData['bank_name']. ", " . _("Bank Account") . ": " . $this->formData['bank_account_number'];
+	//if (@$this->formData['bank_name'])
+	//	$Footer[] = _("Bank"). ": ".$this->formData['bank_name']. ", " . _("Bank Account") . ": " . $this->formData['bank_account_number'];
 
 	if (@$this->formData['payment_service'])	//payment link
 	{

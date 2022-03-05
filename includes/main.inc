@@ -52,6 +52,7 @@ function page($title, $no_menu=false, $is_index=false, $onload="", $js="", $scri
 	} else {
 		div_start('_page_body'); // whole page content for ajax reloading
 	}
+	
 }
 
 function end_page($no_menu=false, $is_index=false, $final_screen=false, $type_no=0, $trans_no=0)

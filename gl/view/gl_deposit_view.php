@@ -36,6 +36,8 @@ $to_trans = db_fetch($result);
 
 $company_currency = get_company_currency();
 
+$open_bal = $to_trans['opening_balance'] == 1 ? "YES" : "NO";
+
 $show_currencies = false;
 
 if ($to_trans['bank_curr_code'] != $to_trans['settle_curr'])
@@ -64,11 +66,14 @@ start_row();
 label_cells(_("To Bank Account"), $to_trans['bank_account_name'], "class='tableheader2'");
 if ($show_currencies)
 	label_cells(_("Currency"), $to_trans['bank_curr_code'], "class='tableheader2'");
-label_cells(_("Amount"), number_format2($to_trans['amount'], user_price_dec()), "class='tableheader2'", "align=right");
-label_cells(_("Date"), sql2date($to_trans['trans_date']), "class='tableheader2'");
-end_row();
-start_row();
+
 label_cells(_("From"), get_counterparty_name(ST_BANKDEPOSIT, $to_trans['trans_no']), "class='tableheader2'", "colspan=$colspan1");
+label_cells(_("Amount"), number_format2($to_trans['amount'], user_price_dec()), "class='tableheader2'", "align=right");
+end_row();
+
+start_row();
+label_cells(_("Date"), sql2date($to_trans['trans_date']), "class='tableheader2'");
+label_cells(_("Cashier / Teller: "), get_user_name($to_trans['cashier_user_id'], true), "class='tableheader2'",  "colspan=$colspan1");
 if ($show_currencies)
 {
 	label_cells(_("Settle currency"), $to_trans['settle_curr'], "class='tableheader2'");
@@ -78,7 +83,13 @@ label_cells(_("Deposit Type"), $bank_transfer_types[$to_trans['account_type']], 
 end_row();
 start_row();
 label_cells(_("Reference"), $to_trans['ref'], "class='tableheader2'", "colspan=$colspan2");
+label_cells(_("Opening Balance: "), $open_bal, "class='tableheader2'");
+
 end_row();
+
+start_row();
+end_row();
+
 comments_display_row(ST_BANKDEPOSIT, $trans_no);
 
 end_table(1);

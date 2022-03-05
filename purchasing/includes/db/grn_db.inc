@@ -78,7 +78,7 @@ function update_average_material_cost($supplier, $stock_id, $price, $qty, $date,
 
 //-------------------------------------------------------------------------------------------------------------
 
-function add_grn(&$po)
+function add_grn(&$po, $is_consign = false)
 {
 	global $Refs;
 
@@ -96,7 +96,11 @@ function add_grn(&$po)
 	} else
 		$po->ex_rate = 1;
 
-	$grn = add_grn_batch($po->order_no, $po->supplier_id, $po->reference, $po->Location, $date_, $po->ex_rate);
+		$grn = add_grn_batch($po->order_no,
+			$po->supplier_id, $po->reference, 
+			$po->Location, $date_, 
+			$po->ex_rate, $po->suppl_ref_no, 
+			$po->suppl_ref_date, $po->suppl_served_by, $po->Comments, $po->category_id);
 
     $clearing_act = get_company_pref('grn_clearing_act');
 	if ($clearing_act) {	// otherwise GRN clearing account is not used
@@ -106,7 +110,7 @@ function add_grn(&$po)
 	{
 		if ($order_line->receive_qty != 0 && $order_line->receive_qty != "" && isset($order_line->receive_qty))
 		{
-			$stock_gl_code = get_stock_gl_code($order_line->stock_id);
+		    $stock_gl_code = get_stock_gl_code($order_line->stock_id);
 
 			/*Update sales_order_details for the new quantity received and the standard cost used for postings to GL 
 			  and recorded in the stock movements for FIFO/LIFO stocks valuations*/
@@ -121,12 +125,13 @@ function add_grn(&$po)
 					$order_line->receive_qty, $date_);
 			}
 			//------------------------------------------------------------------------------------------------------
-			if ($order_line->qty_received == 0)
-			{
+			//if ($order_line->qty_received == 0)//Remove by Herald 03/15/2021
+			//{
 				/*This must be the first receipt of goods against this line */
 			   	/*Need to get the standard cost as it is now so we can process GL jorunals later*/
-			   	$order_line->standard_cost = get_unit_cost($order_line->stock_id);
-			}
+//			   	$order_line->standard_cost = get_unit_cost($order_line->stock_id);
+			$order_line->standard_cost = Get_Policy_Cost($po->Location,$po->category_id,$order_line->stock_id, $po->supplier_id);//Updated by Herald 03/02/2021
+			//}
 			// Update the purchase data table
 			add_or_update_purchase_data($po->supplier_id, $order_line->stock_id, $order_line->price, 
 				$order_line->item_description); 
@@ -136,15 +141,32 @@ function add_grn(&$po)
 				$order_line->quantity = $order_line->receive_qty + $order_line->qty_received;
 			$grn_item = add_grn_detail_item($grn, $order_line->po_detail_rec,
 				$order_line->stock_id, $order_line->item_description,
-				$order_line->standard_cost,	$order_line->receive_qty, $order_line->price, $order_line->quantity);
+				$order_line->standard_cost,	$order_line->receive_qty, $order_line->price, $order_line->quantity, $order_line->color_code);
+				
+			if($is_consign) {
+				if($grn) {
+					add_serialitems_detail($grn, $grn_item, $order_line->serial, 1, "", "", $order_line->stock_id, $po->Location, "", 25);
+				}
+			
 
-			$po->line_items[$line_no]->grn_item_id = $grn_item;
-			/* Update location stock records - NB  a po cannot be entered for a service/kit parts done automatically */
-			add_stock_move(ST_SUPPRECEIVE, $order_line->stock_id, $grn, $po->Location, $date_, "",
-			 	$order_line->receive_qty, $order_line->standard_cost, $order_line->taxfree_charge_value($po)/$order_line->receive_qty);		
-
+			     $po->line_items[$line_no]->grn_item_id = $grn_item;
+			     /* Update location stock records - NB  a po cannot be entered for a service/kit parts done automatically */
+			     add_stock_move(ST_SUPPRECEIVE, $order_line->stock_id, $grn, $po->Location, $date_, $po->reference,
+			         $order_line->receive_qty, $order_line->standard_cost, $order_line->taxfree_charge_value($po)/$order_line->receive_qty,$order_line->serial);		
+			}elseif(!$order_line->serialised){
+			    //Added by Herald 03/15/2021 for non-serialise items
+			    $po->line_items[$line_no]->grn_item_id = $grn_item;
+			    add_serialitems_detail($grn, $grn_item, $order_line->serial, $order_line->receive_qty, "", "", $order_line->stock_id, $po->Location, "", ST_SUPPRECEIVE);
+			    add_stock_move(ST_SUPPRECEIVE, $order_line->stock_id, $grn, $po->Location, $date_, $po->reference,
+			        $order_line->receive_qty, $order_line->standard_cost, $order_line->taxfree_charge_value($po)/$order_line->receive_qty,'','',$po->category_id,$order_line->stock_id);
+			    
+			}
 		} /*quantity received is != 0 */
 	} /*end of order_line loop */
+
+	if ($po->order_no == 0) {
+		$clearing_act = get_company_pref('isa_employee');
+	}
 
 	if ($clearing_act && $total != 0.0) {
 		$accs = get_supplier_accounts($po->supplier_id);
@@ -164,13 +186,29 @@ function add_grn(&$po)
 
 //----------------------------------------------------------------------------------------
 
-function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, $rate)
+function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, $rate, $suppl_ref_no, $suppl_ref_date, $suppl_served_by, $Comments, $category_id)
 {
-	$date = date2sql($date_);
+    set_global_connection();
+	//$po_number = 0;
+    $date = date2sql($date_);
 
-	$sql = "INSERT INTO ".TB_PREF."grn_batch (purch_order_no, delivery_date, supplier_id, reference, loc_code, rate)
-			VALUES (".db_escape($po_number).", ".db_escape($date).", "
-			.db_escape($supplier_id).", ".db_escape($reference).", ".db_escape($location).", ".db_escape($rate).")";
+	$suppl_ref_date = date2sql($suppl_ref_date);
+	$sql = "INSERT INTO ".TB_PREF."grn_batch (
+		purch_order_no, delivery_date, 
+		supplier_id, reference, 
+		loc_code, rate, suppl_ref_no, suppl_ref_date, suppl_served_by, grn_remarks, category_id)
+
+		VALUES (".db_escape($po_number).", 
+				".db_escape($date).", 
+				".db_escape($supplier_id).", 
+				".db_escape($reference).", 
+				".db_escape($location).", 
+				".db_escape($rate).", 
+				".db_escape($suppl_ref_no).", 
+				".db_escape($date).", 
+				".db_escape($suppl_served_by).", 
+				".db_escape($Comments).", 
+				".db_escape($category_id).")";
 
 	db_query($sql, "A grn batch record could not be inserted.");
 
@@ -180,7 +218,7 @@ function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, 
 //-------------------------------------------------------------------------------------------------------------
 
 function add_grn_detail_item($grn_batch_id, $po_detail_item, $item_code, $description, $standard_unit_cost,
-	$quantity_received, $price, $quantity)
+	$quantity_received, $price, $quantity, $color_code="")
 {
 	$sql = "UPDATE ".TB_PREF."purch_order_details
         SET quantity_received = quantity_received + ".db_escape($quantity_received).",
@@ -190,10 +228,10 @@ function add_grn_detail_item($grn_batch_id, $po_detail_item, $item_code, $descri
         WHERE po_detail_item = ".db_escape($po_detail_item);
 	db_query($sql, "a purchase order details record could not be updated. This receipt of goods has not been processed ");
 
-	$sql = "INSERT INTO ".TB_PREF."grn_items (grn_batch_id, po_detail_item, item_code, description, qty_recd)
+	$sql = "INSERT INTO ".TB_PREF."grn_items (grn_batch_id, po_detail_item, item_code, description, qty_recd, color_code)
 		VALUES (".db_escape($grn_batch_id).", "
 		.db_escape($po_detail_item).", ".db_escape($item_code).", ".db_escape($description)
-		.", ".db_escape($quantity_received).")";
+		.", ".db_escape($quantity_received).", ".db_escape($color_code).")";
 
 	db_query($sql, "A GRN detail item could not be inserted.");
 
@@ -255,8 +293,12 @@ function set_grn_item_credited(&$entered_grn, $supplier, $transno, $date)
 function get_grn_items($grn_batch_id=0, $supplier_id="", $outstanding_only=false,
 	$is_invoiced_only=false, $invoice_no=0, $begin="", $end="")
 {
-    $sql = "SELECT grn.*, grn_item.*, po_item.delivery_date as req_del_date,
-		grn_item.quantity_inv".($invoice_no ? "-invoice_item.quantity" : '')."  quantity_inv,
+	/* 
+	Modified by Ronelle 10/27/2021 
+	Change invoice_qty column to qty_invoice from purch_order_details table 
+	*/
+    $sql = "SELECT grn.*, grn_item.*, itemserial.*, po_item.delivery_date as req_del_date,
+		po_item.qty_invoiced".($invoice_no ? "-invoice_item.quantity" : '')."  quantity_inv,
     	po_item.unit_price,
     	po_item.act_price,
     	po_item.quantity_ordered,
@@ -276,6 +318,12 @@ function get_grn_items($grn_batch_id=0, $supplier_id="", $outstanding_only=false
 			$inv_cond .= " = $invoice_no";
 		$sql .= "($inv_cond) AND grn_item.id=invoice_item.grn_item_id";
 	}
+	
+	//if($serialise){
+		$sql .= " LEFT JOIN ".TB_PREF."item_serialise itemserial ON (grn_item.id=itemserial.serialise_grn_items_id AND grn_item.grn_batch_id=itemserial.serialise_grn_id AND (itemserial.serialise_trans_type=0 OR itemserial.serialise_trans_type=25))";
+		
+	//}
+	
     $sql .= " WHERE grn_item.grn_batch_id=grn.id
 		AND grn_item.po_detail_item=po_item.po_detail_item";
 
@@ -330,10 +378,11 @@ function read_grn_items_to_order($grn_batch, &$order)
 
   	if (db_num_rows($result) > 0)
   	{
-
+		$sum_qty_recd = 0;
+		$sum_qty_inv = 0;
 	 	while ($myrow = db_fetch($result))
 	 	{
-	 		if ($myrow['qty_recd'] == 0 && $myrow['quantity_inv'] == 0)
+	 		if ($myrow['serialise_qty'] == 0 && $myrow['quantity_inv'] == 0)
 				continue; // We will not have empty credited rows.
 		 	if (is_null($myrow["units"]))
 		 	{
@@ -345,12 +394,19 @@ function read_grn_items_to_order($grn_batch, &$order)
 		 	}
 
 			$order->add_to_order($order->lines_on_order, $myrow["item_code"],
-				$myrow["qty_recd"],$myrow["description"], $myrow["unit_price"],$units,
+				$myrow["qty_recd"],$myrow["description"], $myrow["std_cost_unit"],$units,
 				sql2date($myrow["req_del_date"]), $myrow["quantity_inv"],
-				$myrow["qty_recd"]);
+			    $myrow["serialise_qty"], $myrow["serialise_qty"], $myrow["serialise_lot_no"], $myrow["color_code"], $myrow["serialise_chasis_no"]);
 
 			$order->line_items[$order->lines_on_order-1]->po_detail_rec = $myrow["po_detail_item"];
+			$sum_qty_recd += $myrow["qty_recd"];
+			$sum_qty_inv += $myrow["quantity_inv"];
 		} /* line po from purchase order details */
+		if ($sum_qty_recd == $sum_qty_inv) {
+			$order->po_status = "Closed";
+		} else {
+			$order->po_status = "Open";
+		}
   	} //end of checks on returned data set
 }
 
@@ -360,13 +416,17 @@ function read_grn_items_to_order($grn_batch, &$order)
 
 function read_grn($grn_batch, &$order)
 {
-	$sql= "SELECT *	FROM ".TB_PREF."grn_batch WHERE id=".db_escape($grn_batch);
+	$sql= "SELECT *	FROM ".TB_PREF."grn_batch WHERE id=" .db_escape($grn_batch). " OR reference=".db_escape($grn_batch);
 
 	$result = db_query($sql, "The grn sent is not valid");
 
 	$row = db_fetch($result);
 	$po_number = $row["purch_order_no"];
 	$order->ex_rate = $row["rate"];
+	$order->suppl_ref_no = $row["suppl_ref_no"];
+	$order->suppl_ref_date = $row["suppl_ref_date"];
+	$order->suppl_served_by = $row["suppl_served_by"];
+	$order->grnComments = $row["grn_remarks"];
 
 	$result = read_po_header($po_number, $order);
 
@@ -377,8 +437,16 @@ function read_grn($grn_batch, &$order)
 		$order->orig_order_date = sql2date($row["delivery_date"]);
 		$order->Location = $row["loc_code"];
 		$order->reference = $row["reference"];
+		$order->suppl_ref_no = $row["suppl_ref_no"];
 
-		read_grn_items_to_order($grn_batch, $order);
+		$sql2 = "SELECT reference FROM " . TB_PREF. "purch_orders WHERE order_no=".db_escape($po_number)."";
+		$result2 = db_query($sql2, "The po sent is not valid");
+		$row2 = db_fetch($result2);
+		if ($result2) {
+			$order->order_no = $row2["reference"];
+		}
+
+		read_grn_items_to_order($row["id"], $order);
 	}
 }
 

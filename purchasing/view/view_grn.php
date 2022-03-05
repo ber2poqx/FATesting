@@ -36,9 +36,10 @@ display_grn_summary($purchase_order);
 
 display_heading2(_("Line Details"));
 
+
 start_table(TABLESTYLE, "width='90%'");
-$th = array(_("Item Code"), _("Item Description"), _("Required by"), _("Quantity"),
-	_("Unit"), _("Price"), _("Line Total"), _("Quantity Invoiced"));
+$th = array(_("Item Code"), _("Item Description"),_("Color Code"), _("Color"),_("Serial #"), _("Chassis #"), _("Quantity"),
+        _("Unit"), _("Price"), _("Line Total"), _("Quantity Invoiced"));
 
 table_header($th);
 
@@ -64,7 +65,11 @@ foreach ($purchase_order->line_items as $stock_item)
 
 	label_cell($stock_item->stock_id);
 	label_cell($stock_item->item_description);
-	label_cell($stock_item->req_del_date, "nowrap align=right");
+	label_cell($stock_item->color_code);
+	label_cell(get_color_description($stock_item->color_code, $stock_item->stock_id));
+	label_cell($stock_item->serial);
+	label_cell($stock_item->chasis_no);
+	// label_cell($stock_item->req_del_date, "nowrap align=right");
 	$dec = get_qty_dec($stock_item->stock_id);
 	qty_cell($stock_item->qty_received, false, $dec);
 	label_cell($stock_item->units);
@@ -78,15 +83,15 @@ foreach ($purchase_order->line_items as $stock_item)
 
 $display_sub_tot = number_format2($total,user_price_dec());
 label_row(_("Sub Total"), $display_sub_tot,
-	"align=right colspan=6", "nowrap align=right", 1);
+	"align=right colspan=8", "nowrap align=right", 1);
 
 $taxes = $purchase_order->get_taxes();
-$tax_total = display_edit_tax_items($taxes, 6, $purchase_order->tax_included, 1);
+$tax_total = display_edit_tax_items($taxes, 8, $purchase_order->tax_included, 1);
 
 $display_total = price_format(($total + $tax_total));
 
 start_row();
-label_cells(_("Amount Total"), $display_total, "colspan=6 align='right'","align='right'");
+label_cells(_("Amount Total"), $display_total, "colspan=8 align='right'","align='right'");
 label_cell('');
 end_row();
 

@@ -64,7 +64,9 @@ if (!isset($_POST['stock_id']))
 if (!$page_nested)
 {
 	echo "<center>" . _("Item:"). "&nbsp;";
-	echo sales_items_list('stock_id', $_POST['stock_id'], false, true, '', array('editable' => false));
+	//modified on feb. 24, 2021 to view all setup stocks by progjr
+	//echo sales_items_list('stock_id', $_POST['stock_id'], false, true, '', array('editable' => false));
+	echo stock_items_list('stock_id', $_POST['stock_id'], false, true);
 	echo "<hr></center>";
 }
 else
@@ -85,8 +87,30 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
    	elseif ($Mode == 'ADD_ITEM' && get_stock_price_type_currency($_POST['stock_id'], $_POST['sales_type_id'], $_POST['curr_abrev']))
    	{
       	$input_error = 1;
-      	display_error( _("The sales pricing for this item, sales type and currency has already been added."));
+      	display_error( _("The sales pricing for this item, price code and currency has already been added."));
 		set_focus('supplier_id');
+	}
+
+	if (strlen($_POST['stock_id']) == 0)
+	{
+		$input_error = 1;
+		display_error(_("Please select item first."));
+		set_focus('stock_id');
+		return false;
+	}
+	if ($_POST['sales_type_id'] == 0)
+	{
+		$input_error = 1;
+		display_error(_("Please select Price Code first."));
+		set_focus('inc_type_id');
+		return false;
+	}
+	if ($_POST['price'] == 0)
+	{
+		$input_error = 1;
+		display_error(_("Price must be greater than 0."));
+		set_focus('price');
+		return false;
 	}
 
 	if ($input_error != 1)
@@ -95,16 +119,22 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
     	if ($selected_id != -1) 
 		{
 			//editing an existing price
-			update_item_price($selected_id, $_POST['sales_type_id'],
-			$_POST['curr_abrev'], input_num('price'));
+			update_item_price($selected_id, $_POST['sales_type_id'], $_POST['curr_abrev'], input_num('price'));
+
+			//for price archiving
+			update_pricehistory($_POST['stock_id'], 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY');
+			add_pricehistory($_POST['stock_id'], input_num('price',0), $selected_id, 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"));
 
 			$msg = _("This price has been updated.");
 		}
 		else
 		{
+			add_item_price($_POST['stock_id'], $_POST['sales_type_id'], $_POST['curr_abrev'], input_num('price'));
 
-			add_item_price($_POST['stock_id'], $_POST['sales_type_id'],
-			    $_POST['curr_abrev'], input_num('price'));
+			//for price archiving
+			$lastInsrtID = db_insert_id();
+			update_pricehistory($_POST['stock_id'], 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY');
+			add_pricehistory($_POST['stock_id'], input_num('price',0), $lastInsrtID, 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"));
 
 			$msg = _("The new price has been added.");
 		}
@@ -120,6 +150,10 @@ if ($Mode == 'Delete')
 {
 	//the link to delete a selected record was clicked
 	delete_item_price($selected_id);
+
+	//for price archiving
+	remove_id_pricehistory($selected_id, 'PRCPLCY'); //, 'plcyprice_id'
+
 	display_notification(_("The selected price has been deleted."));
 	$Mode = 'RESET';
 }
@@ -127,6 +161,7 @@ if ($Mode == 'Delete')
 if ($Mode == 'RESET')
 {
 	$selected_id = -1;
+	$_POST['price'] = "";
 }
 
 if (list_updated('stock_id')) {
@@ -148,13 +183,12 @@ $prices_list = get_prices($_POST['stock_id']);
 div_start('price_table');
 start_table(TABLESTYLE, "width='30%'");
 
-$th = array(_("Currency"), _("Sales Type"), _("Price"), "", "");
+$th = array(_("Currency"), _("Price Code"), _("Price"), "E", "D");
 table_header($th);
 $k = 0; //row colour counter
 $calculated = false;
 while ($myrow = db_fetch($prices_list))
 {
-
 	alt_table_row_color($k);
 
 	label_cell($myrow["curr_abrev"]);
@@ -192,7 +226,7 @@ start_table(TABLESTYLE2);
 
 currencies_list_row(_("Currency:"), 'curr_abrev', null, true);
 
-sales_types_list_row(_("Sales Type:"), 'sales_type_id', null, true);
+sales_types_list_row(_("Price Code:"), 'sales_type_id', null, true);
 
 if (!isset($_POST['price'])) {
 	$_POST['price'] = price_format(get_kit_price(get_post('stock_id'), 

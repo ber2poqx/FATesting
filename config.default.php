@@ -90,6 +90,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	/* per user data/cache directory */
 	$comp_path = $path_to_root.'/company';
 
+
+	$ho_path = $path_to_root.'/ho';
 	/* Date systems. 0 = traditional, 1 = Jalali used by Iran, Afghanistan and some other Central Asian nations,
 	2 = Islamic used by other arabic nations. 3 = traditional, but where non-workday is Friday and start of week is Saturday */
 	$date_system = 0;

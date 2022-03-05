@@ -24,19 +24,20 @@ function display_order_header(&$Order)
 	table_section(1);
 
     date_row(_("Journal Date:"), 'date_', '', $new, 0,0,0,null, true);
-    if (input_changed('date_'))
-    {
+    if (input_changed('date_')) {
     	unset($_POST['ref']);
     	$Ajax->activate('ref');
     }
 
-	currencies_list_row(_('Currency:'), 'currency', null, true);
- 	if (list_updated('currency'))
-		unset($_POST['_ex_rate']);
-	exchange_rate_display(get_company_pref('curr_default'), get_post('currency'), get_post('date_'), true);
+	// currencies_list_row(_('Currency:'), 'currency', null, true);
+ 	// if (list_updated('currency')) {
+	// 	unset($_POST['_ex_rate']);
+	// }	
+	// exchange_rate_display(get_company_pref('curr_default'), get_post('currency'), get_post('date_'), true);
 
-	if (list_updated('currency'))
-		$Order->clear_items();
+	// if (list_updated('currency')) {
+	// 	$Order->clear_items();
+	// }
 
 	table_section(2);
 
@@ -51,44 +52,47 @@ function display_order_header(&$Order)
 	ref_row(_("Reference:"), 'ref', null, get_post('ref'), false, ST_JOURNAL, get_post('date_'));
 	hidden('ref_original');
 
-	if ($qes !== false)
-	{
+	if ($qes !== false) {
+
 		table_section(3);
 		quick_entries_list_row(_("Quick Entry").":", 'quick', null, QE_JOURNAL, true);
 
 		start_row();
 		$qid = get_quick_entry(get_post('quick'));
+
 		if (list_updated('quick')) {
 			unset($_POST['totamount']); // enable default
-		$Ajax->activate('totamount');
+			$Ajax->activate('totamount');
 		}
 		end_row();
-		if ($qid['bal_type'] == 1)
-		{
+
+		if ($qid['bal_type'] == 1) {
 			$accname = get_gl_account_name($qid['base_desc']);
+
 			label_row(($qid['base_amount'] == 0 ? _("Yearly") : _("Monthly")) . " ". _("balance from account")." ".
-				$qid['base_desc']." ".$accname."&nbsp;&nbsp;".submit('go', _("Go"), false, false, true),'', "colspan=2");
+				$qid['base_desc']." ".$accname."&nbsp;&nbsp;".submit('go', _("Go"), false, false, true),'', "colspan=2"
+			);
 		}
-		else
-		{
+		else {
 			text_row(_('Additional info:'), 'aux_info', null, 35, 255);
 			amount_row($qid['base_desc'].":", 'totamount', price_format($qid['base_amount']),
-		 		null, "&nbsp;&nbsp;".submit('go', _("Go"), false, false, true));
+		 		null, "&nbsp;&nbsp;".submit('go', _("Go"), false, false, true)
+			);
 		}
 
 	}
 
 	check_row(_('Include in tax register:'), 'taxable_trans', null, true);
         // Query the user to retain the reconciled status
-        if (!$new) {
-            $result = get_bank_trans(ST_JOURNAL, $Order->order_id);
-            $row = db_fetch($result);
-            if ($row
-                && $row['reconciled']) {
-                check_row(_('Reconciled:'), 'reconciled', 1, true);
-                hidden('reconciled_date', $row['reconciled']);
-            }
+    if (!$new) {
+        $result = get_bank_trans(ST_JOURNAL, $Order->order_id);
+        $row = db_fetch($result);
+
+        if ($row && $row['reconciled']) {
+            check_row(_('Reconciled:'), 'reconciled', 1, true);
+            hidden('reconciled_date', $row['reconciled']);
         }
+    }
 	end_outer_table(1);
 }
 
@@ -98,83 +102,130 @@ function display_gl_items($title, &$order)
 {
 	global $path_to_root;
 
+	$coy = user_company(); //Added by spyrax10
+
 	display_heading($title);
 
 	$dim = get_company_pref('use_dimension');
 
 	$id = find_submit('Edit');
-	$sub_type = is_subledger_account(get_post('code_id'));
-	$has_subaccounts = $order->has_sub_accounts();
+	//$sub_type = is_subledger_account(get_post('code_id'));
+	//$has_subaccounts = $order->has_sub_accounts();
 
     div_start('items_table');
-	start_table(TABLESTYLE, "width='95%'");
-	if ($dim == 2)
-		$th = array(_("Account Code"), _("Account Description"), _("Dimension")." 1",
-			_("Dimension")." 2", _("Debit"), _("Credit"), _("Memo"), "");
-	elseif ($dim == 1)
-		$th = array(_("Account Code"), _("Account Description"), _("Dimension"),
-			_("Debit"), _("Credit"), _("Memo"), "");
-	else
-		$th = array(_("Account Code"), _("Account Description"),
-			_("Debit"), _("Credit"), _("Memo"), "");
+	start_table(TABLESTYLE2, "width='100%'");
+
+	if ($dim == 2) {
+		$th = array(_("Charge To"),
+			_("Account Code"), _("Account Description"), _("Dimension")." 1",
+			_("Dimension")." 2", _("Debit"), _("Credit"), //_("Memo"), 
+			_('Suggested Entry'), //Added by spyrax10 
+			_("")
+		);
+	}	
+	elseif ($dim == 1) {
+		$th = array(_("Charge To"),
+			_("Account Code"), _("Account Description"), _("Dimension"),
+			_("Debit"), _("Credit"), //_("Memo"),
+			_('Suggested Entry'), //Added by spyrax10 
+			_("")
+		);
+	}	
+	else {
+		$th = array(_("Charge To"),
+			_("Account Code"), _("Account Description"),
+		    _("MCODE"), _("Mastefile"), _("HOC/BC"), _("Debit"), _("Credit"), //_("Memo"), 
+			_('Suggested Entry'), //Added by spyrax10 
+			_("")
+		);
+	}
 
 	if (count($order->gl_items)) $th[] = '';
-	if ($sub_type || $has_subaccounts)
-		array_insert($th, 2, _("Counterparty"));
+	
+	//if ($sub_type || $has_subaccounts)
+	//	array_insert($th, 2, _("Counterparty"));
 
 	table_header($th);
 
 	$k = 0;
 
-	if ($id == -1) 
+	if ($id == -1) {
 		$id = get_post('Index', -1);
+	} 		
 
-	foreach ($order->gl_items as $line => $item) 
-	{
-		if ($id != $line)
-		{
+	foreach ($order->gl_items as $line => $item) {
+		if ($id != $line) {
     		alt_table_row_color($k);
 
-			$acc = $item->code_id . ($item->person_id ? sprintf(' %05d', $item->person_id) : '');
-			label_cells($acc, $item->description);
+			//Added by spyrax10
+			label_cell(get_company_value($item->comp_id, 'name'));
+			//
 
-		if ($sub_type || $has_subaccounts)
-			label_cell($item->person_name);
+			//$acc = $item->code_id . ($item->person_id ? sprintf(' %05d', $item->person_id) : '');
+    		//label_cells($acc, $item->description);
+    		label_cell($item->code_id);
+    		label_cell($item->description);
+		    //if ($sub_type || $has_subaccounts)
+			//     label_cell($item->person_name);
 
-    		if ($dim >= 1)
-   				label_cell(get_dimension_string($item->dimension_id, true));
-    		if ($dim > 1)
-   				label_cell(get_dimension_string($item->dimension2_id, true));
-    		if ($item->amount > 0)
-    		{
+    		if ($dim >= 1) {
+				label_cell(get_dimension_string($item->dimension_id, true));
+			}
+   				
+    		if ($dim > 1) {
+				label_cell(get_dimension_string($item->dimension2_id, true));
+			}
+   					
+   			label_cell($item->mcode);
+   			label_cell($item->master_file);
+
+			//Modified by spyrax10
+			if ($item->comp_id != $coy) {
+				label_cell(get_hocbc_type($item->hocbc)["hocbc"]);
+			}
+			else {
+				label_cell('N/A', "align='center'");
+			}
+			//
+    		if ($item->amount > 0) {
     			amount_cell(abs($item->amount));
     			label_cell("");
     		}
-    		else
-    		{
+    		else {
     			label_cell("");
     			amount_cell(abs($item->amount));
     		}	
-			label_cell($item->reference);
+
+			if ($item->comp_id != $coy) {
+				label_cell($item->sug_mcode . " " . get_gl_account_name($item->sug_mcode), "nowrap align = 'center'");
+			}
+			else {
+				label_cell('', "align='center'");
+			}
+
+			//label_cell($item->reference);
 
 			edit_button_cell("Edit$line", _("Edit"),
-				_('Edit journal line'));
+				_('Edit journal line')
+			);
 			delete_button_cell("Delete$line", _("Delete"),
-				_('Remove line from journal'));
+				_('Remove line from journal')
+			);
+
     		end_row();
 		} 
-		else 
-		{
-			gl_edit_item_controls($order, $dim, $item->person_id, $line);
+		else {
+			gl_edit_item_controls($order, $dim, 0, $line);
 		}
 	}
 
-	if ($id == -1)
-		gl_edit_item_controls($order, $dim, $sub_type);
-
-	if ($order->count_gl_items()) 
-	{
-		$colspan = ($dim == 2 ? "4" : ($dim == 1 ? "3" : "2")) + ($sub_type || $has_subaccounts ? 1 : 0);
+	if ($id == -1) {
+		gl_edit_item_controls($order, $dim, 0, $line);
+	}
+	    
+	if ($order->count_gl_items()) {
+		$colspan = ($dim == 2 ? "4" : ($dim == 1 ? "3" : "5")) + ($sub_type || $has_subaccounts ? 1 : 0);
+		
 		start_row();
 		label_cell(_("Total"), "align=right colspan=" . $colspan);
 		amount_cell($order->gl_items_total_debit());
@@ -193,97 +244,165 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 {
 	global $Ajax;
 	start_row();
+	$coy = user_company();
 
 	$id = find_submit('Edit');
-	if ($id == -1) 
+	if ($id == -1) {
 		$continue = $id = get_post('Index', -1);
-
-	if ($Index != -1 && $Index == $id)
-	{
+	}
+	
+	if ($Index != -1 && $Index == $id) {
 	    // Modifying an existing row
 		$item = $order->gl_items[$Index];
-		if (!isset($continue))
-		{
+
+		if (!isset($continue)) {
+			$_POST['comp_id'] = $item->comp_id; //Added by spyrax10
 			$_POST['code_id'] = $item->code_id;
 			$_POST['dimension_id'] = $item->dimension_id;
 			$_POST['dimension2_id'] = $item->dimension2_id;
 			$_POST['person_id'] = $item->person_id;
-			if ($item->amount > 0)
-			{
+			$_POST['mcode'] = $item->mcode;
+			$_POST['hocbc_id'] = $item->hocbc;
+			$_POST['sug_mcode'] = $item->sug_mcode; //Added by spyrax10
+
+			if ($item->amount > 0) {
 				$_POST['AmountDebit'] = price_format($item->amount);
 				$_POST['AmountCredit'] = "";
 			}
-			else
-			{
+			else {
 				$_POST['AmountDebit'] = "";
 				$_POST['AmountCredit'] = price_format(abs($item->amount));
 			}
+
 			$_POST['description'] = $item->description;
 			$_POST['LineMemo'] = $item->reference;
 		}
+		
 		hidden('Index', $id);
 		$skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
 		echo gl_all_accounts_list('code_id', null, $skip_bank, true, _('[Select account]'), true, false, false);
 
-		if (is_subledger_account(get_post('code_id')))
-		{	// for home currency postings show all customers
-			$sel_cur = get_post('currency', $order->currency);
-			subledger_list_cells(null, 'person_id', get_post('code_id'), null, false, false,
-				get_company_currency() == $sel_cur  ? null : $sel_cur);
-		} elseif ($order->has_sub_accounts())
-			label_cell('');
-		if ($dim >= 1) 
+		if ($dim >= 1) {
 			dimensions_list_cells(null, 'dimension_id', null, true, " ", false, 1);
-		if ($dim > 1) 
+		}
+			
+		if ($dim > 1) {
 			dimensions_list_cells(null, 'dimension2_id', null, true, " ", false, 2);
+		}
+				
 	    $Ajax->activate('items_table');
 	}
-	else
-	{
-		$skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
-		echo gl_all_accounts_list('code_id', null, $skip_bank, true, _('[Select account]'), true, false, false);
-		if ($sub_accounts)
-		{
-			// for home currency postings show all customers
-			$sel_cur = get_post('currency', $order->currency);
-			subledger_list_cells(null, 'person_id', get_post('code_id'), null, false, false,
-				get_company_currency() == $sel_cur  ? null : $sel_cur);
-		}
-		elseif ($order->has_sub_accounts())
-			label_cell('');
+	else {
 
-		if ($dim >= 1)
+		if (list_updated('comp_id')) {
+			$_POST['comp_id'] = get_post('comp_id');
+			$_POST['code_id'] = get_company_value($_POST['comp_id'], 'gl_account');
+			//$_POST['sug_mcode'] = get_company_value($_POST['comp_id'], 'gl_account');
+			$_POST['mcode'] = get_company_value($_POST['comp_id'], 'gl_account');
+
+			//$Ajax->activate('mcode');
+			$Ajax->activate('code_id');
+			$Ajax->activate('sug_mcode');
+			$Ajax->activate('items_table');
+		}
+
+		//Added by spyrax10
+		company_list_row(null, 'comp_id', $id != -1 ? false : true);
+		//
+
+		$skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
+		echo gl_all_accounts_list('code_id', null, $skip_bank, true, _("Select Account Code"), true, false, false);
+		
+		if ($dim >= 1) {
 			dimensions_list_cells(null, 'dimension_id', null, true, " ", false, 1);
-		if ($dim > 1)
+		}	
+		if ($dim > 1) {
 			dimensions_list_cells(null, 'dimension2_id', null, true, " ", false, 2);
-		$_POST['LineMemo'] = "";			
+		}
+		//$_POST['LineMemo'] = "";			
 	}
 
-	if (get_post('_code_id_update'))
+	/*if (get_post('_code_id_update'))
 	{
 	    $Ajax->activate('code_id');
 		set_focus($sub_accounts ? 'person_id' : 'AmountDebit');
-	}
-	if ($dim < 1)
+	}*/
+	if ($dim < 1) {
 		hidden('dimension_id', 0);
-	if ($dim < 2)
+	}
+		
+	if ($dim < 2) {
 		hidden('dimension2_id', 0);
+	}
+		
+	sl_list_gl_cells(null, 'mcode', null, _("Select MCode"), false);
 
+	if (!isset($_POST['comp_id'])) {
+		$comp_id = $coy;
+	}
+	else {
+		$comp_id = $_POST['comp_id'];
+	}
+	
+	if ($comp_id != $coy) {
+		sql_type_list(null, 'hocbc_id', 
+			hocbc_type_list(), 'id', 'hocbc'
+		);
+	}
+	else {
+		label_cell('N/A', "align='center'");
+	}
+	
 	small_amount_cells(null, 'AmountDebit');
 	small_amount_cells(null, 'AmountCredit');
-	text_cells_ex(null, 'LineMemo', 35, 255);
 
-	if ($id != -1)
-	{
+	// if (get_post('debit_stat') == 0 || !get_post('debit_stat')) {
+	// 	small_amount_cells(null, 'AmountDebit');
+	// 	amount_cell(0);
+	// 	set_focus('AmountDebit');
+	// 	hidden('AmountCredit', 0);
+	// }
+	// else if (get_post('debit_stat') == 1) {
+	// 	amount_cell(0);
+	// 	small_amount_cells(null, 'AmountCredit');
+	// 	set_focus('AmountCredit');
+	// 	hidden('AmountDebit', 0);
+	// }
+	// else {
+	// 	amount_cell(0);
+	// 	small_amount_cells(null, 'AmountCredit');
+	// 	set_focus('AmountCredit');
+	// 	hidden('AmountDebit', 0);
+	// }
+	// hidden('debit_stat');
+
+	//text_cells_ex(null, 'LineMemo', 35, 255);
+
+	//Added by spyrax10
+	gl_all_accounts_list_cells(null, 'sug_mcode', $_POST['sug_mcode'], false, false, _("Select Entry"), false);
+	//
+
+	if ($id != -1) {
 		button_cell('UpdateItem', _("Update"),
-				_('Confirm changes'), ICON_UPDATE);
+			_('Confirm changes'), ICON_UPDATE
+		);
 		button_cell('CancelItemChanges', _("Cancel"),
-				_('Cancel changes'), ICON_CANCEL);
+				_('Cancel changes'), ICON_CANCEL
+		);
  		set_focus('amount');
 	} 
-	else 
+	else {
 		submit_cells('AddItem', _("Add Item"), "colspan=2",
-		    _('Add new line to journal'), true);
+		    _('Add new line to journal'), true
+		);
+
+		// button_cell(
+		// 	'toggleDebit',
+		// 	_("Toggle"),
+		// 	_('Switch Between Debit / Credit Entry'),
+		// 	ICON_TOGGLE
+		// );
+	} 
 
 	end_row();
 }
@@ -292,9 +411,11 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 
 function gl_options_controls()
 {
-	  echo "<br><table align='center'>";
+	div_start('footer');
+	echo "<br><table align='center'>";
 
-	  textarea_row(_("Memo"), 'memo_', null, 50, 3);
+	textarea_row(_("Memo"), 'memo_', null, 50, 3);
 
-	  echo "</table>";
+	echo "</table>";
+	div_end();
 }

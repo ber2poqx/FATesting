@@ -247,3 +247,24 @@ function check_db_error($msg, $sql_statement, $exit_if_error=true, $rollback_if_
 	return $db_error;
 }
 
+function db_has_no_serialise_item()
+{
+    global $db,$db_connections;
+    $sql ="select gi.qty_recd-SUM(iser.serialise_qty) as actualr FROM grn_items gi INNER JOIN item_serialise iser ON gi.id=iser.serialise_grn_items_id WHERE (SELECT inner_gi.qty_recd-SUM(inner_iser.serialise_qty) as actualr FROM grn_items inner_gi INNER JOIN item_serialise inner_iser ON inner_gi.id=inner_iser.serialise_grn_items_id WHERE inner_gi.id=gi.id GROUP BY gi.id)>0 GROUP BY gi.id";
+    $result = db_query($sql, "could not do check empty query");
+    
+    $myrow = db_fetch_row($result);
+    return $myrow[0] > 0;
+    
+   
+}
+
+function check_db_has_no_serialise_item()
+{
+    global $path_to_root;
+    if (db_has_no_serialise_item())
+    {
+        echo "<div><a href='$path_to_root/modules/serial_items/serial_items.php' id=\"msgSerial\">Check Missing Serialise Items</a></div>";
+        
+    }
+}

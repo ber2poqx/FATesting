@@ -143,7 +143,7 @@ function page_header($title, $no_menu=false, $is_index=false, $onload="", $js=""
 		echo "<meta http-equiv='X-UA-Compatible' content='IE=10'>\n";
 	echo "<meta http-equiv='Content-type' content='text/html; charset=$encoding'>";
 	echo "<link href='$path_to_root/themes/default/images/favicon.ico' rel='icon' type='image/x-icon'> \n";
-
+	echo "<link href='$path_to_root/themes/default/custom-default.css' rel='stylesheet' type='text/css'>\n";
 	send_css($css);
 
 	send_scripts();
@@ -153,10 +153,12 @@ function page_header($title, $no_menu=false, $is_index=false, $onload="", $js=""
 		echo "<body>";
 	else
 		echo "<body onload=\"$onload\">";
-
-	include_once($path_to_root . "/themes/$theme/renderer.php");
+    include_once($path_to_root . "/themes/$theme/renderer.php");
 	$rend = new renderer();
 	$rend->menu_header($title, $no_menu, $is_index);
 	error_box();
+	
+	check_db_has_no_serialise_item(); //Added by Herald - 12/02/2021 for Missing serial items
+	
 }
 

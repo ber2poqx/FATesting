@@ -1,4 +1,4 @@
-![FrontAccounting ERP](./themes/default/images/logo_frontaccounting.jpg  "FrontAccounting ERP")
+![Du Ek Sam ERP](./themes/default/images/logo_frontaccounting.jpg  "Du Ek Sam ERP")
 ===================
 
 FrontAccounting ERP is open source, web-based accounting software for small and medium enterprises.

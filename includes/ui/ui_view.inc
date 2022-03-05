@@ -30,6 +30,8 @@ function get_supplier_trans_view_str($type, $trans_no, $label="", $icon=false,
 		$viewer .= "view_grn.php";
 	elseif ($type == ST_PURCHREQUEST)
 		$viewer .= "view_pr.php";
+	elseif ($type == ST_RECEIVECONSIGN)
+		$viewer .= "view_consignment.php";
 	else
 		return null;
 	$viewer .= "?trans_no=$trans_no";
@@ -42,7 +44,8 @@ function get_supplier_trans_view_str($type, $trans_no, $label="", $icon=false,
 
 //--------------------------------------------------------------------------------------
 
-function get_gl_view_str($type, $trans_no, $label="", $force=false, $class='', $id='')
+function get_gl_view_str($type, $trans_no, $label="", $force=false, $class='', $id='', 
+	$edit_line = 0) //Added by spyrax10
 {
 	if (!$force && !user_show_gl_info())
 		return "";
@@ -54,7 +57,8 @@ function get_gl_view_str($type, $trans_no, $label="", $force=false, $class='', $
 		$icon = ICON_GL;
 	}
 	$url = ($type == ST_WORKORDER) ? "manufacturing/view/wo_costs_view.php?trans_no=$trans_no"
-		: "gl/view/gl_trans_view.php?type_id=$type&trans_no=$trans_no";
+		: "gl/view/gl_trans_view.php?type_id=$type&trans_no=$trans_no
+			&edit_line=$edit_line"; //Added by spyrax10
 
 	return viewer_link($label, $url, $class, $id, $icon);
 }
@@ -77,6 +81,8 @@ function get_customer_trans_view_str($type, $trans_no, $label="", $icon=false,
 
 	if ($type == ST_SALESINVOICE)
 		$viewer .= "view_invoice.php";
+	elseif ($type == ST_SITERMMOD)
+		$viewer .= "view_invoice_ct.php";
 	elseif ($type == ST_CUSTCREDIT)
 		$viewer .= "view_credit.php";
 	elseif ($type == ST_CUSTPAYMENT)
@@ -85,6 +91,12 @@ function get_customer_trans_view_str($type, $trans_no, $label="", $icon=false,
 		$viewer .= "view_dispatch.php";
 	elseif ($type == ST_SALESORDER || $type == ST_SALESQUOTE)
 		$viewer .= "view_sales_order.php";
+	elseif ($type == ST_SALESRETURN)
+		$viewer .= "view_sales_return_replacement.php";
+	elseif ($type == ST_SALESINVOICEREPO)
+		$viewer .= "view_sales_invoice_repo.php";
+	elseif ($type == ST_RESTRUCTURED)
+		$viewer .= "view_invoice_restructured.php";
 	else
 		return null;
 
@@ -107,24 +119,32 @@ function get_customer_trans_view_str($type, $trans_no, $label="", $icon=false,
 
 //--------------------------------------------------------------------------------------
 
-function get_banking_trans_view_str($type, $trans_no, $label="", 
-	$icon=false, $class='', $id='')
+//Modified by spyrax10 18 Feb 2022
+function get_banking_trans_view_str($type, $trans_no, $label = "", 
+	$icon = false, $class = '', $id = '', $interbranch = false)
 {
 	if ($label == "")
 		$label = $trans_no;
 
-	if ($type == ST_BANKTRANSFER)
-		$viewer = "bank_transfer_view.php";
-	elseif ($type == ST_BANKPAYMENT)
-		$viewer = "gl_payment_view.php";
-	elseif ($type == ST_BANKDEPOSIT)
-		$viewer = "gl_deposit_view.php";
-	else
-		return null;
+	if ($interbranch) {
+		$viewer = "gl_interbranch_view.php";
+	}
+	else {
+		if ($type == ST_BANKTRANSFER)
+			$viewer = "bank_transfer_view.php";
+		elseif ($type == ST_BANKPAYMENT)
+			$viewer = "gl_payment_view.php";
+		elseif ($type == ST_BANKDEPOSIT)
+			$viewer = "gl_deposit_view.php";
+		else
+			return null;
+	}
 
-	return viewer_link($label, "gl/view/$viewer?trans_no=$trans_no", 
-		$class, $id,  $icon);
+	return viewer_link($label, "gl/view/$viewer?trans_no=$trans_no&type=$type&ref=$label", 
+		$class, $id, $icon
+	);
 }
+//
 
 //--------------------------------------------------------------------------------------
 
@@ -137,6 +157,41 @@ function get_inventory_trans_view_str($type, $trans_no, $label="",
 		$viewer .= "view_adjustment.php";
 	elseif ($type == ST_LOCTRANSFER)
 		$viewer .= "view_transfer.php";
+	elseif ($type == ST_MERCHANDISETRANSFER)
+		$viewer .= "view_merchandise_transfer.php";
+	elseif ($type == ST_MERCHANDISETRANSFERREPO)
+		$viewer .= "view_merchandise_transfer_repo.php";
+	elseif ($type == ST_RRBRANCH)
+		$viewer .= "view_rr_branch.php";
+	elseif ($type == ST_COMPLIMENTARYITEM)
+		$viewer .= "view_complimentary_items.php";
+	elseif ($type == ST_SUPPRECEIVE)
+		$viewer .= "rr_supplier.php";
+	else
+		return null;
+	$viewer .= "?trans_no=$trans_no";
+
+	if ($label == "")
+		$label = $trans_no;
+
+	return viewer_link($label, $viewer, $class, $id,  $icon);
+}
+
+function get_inventory_trans_view_rr($type, $trans_no, $label="", 
+	$icon=true, $class='', $id='')
+{
+	$viewer = "reports/";
+
+	if ($type == ST_INVADJUST)
+		$viewer .= "view_adjustment.php";
+	elseif ($type == ST_LOCTRANSFER)
+		$viewer .= "view_transfer.php";
+	elseif ($type == ST_MERCHANDISETRANSFER)
+		$viewer .= "view_merchandise_transfer.php";
+	elseif ($type == ST_RRBRANCH)
+		$viewer .= "view_rr_branch.php";
+	elseif ($type == ST_SUPPRECEIVE)
+		$viewer .= "rr_supplier.php";
 	else
 		return null;
 	$viewer .= "?trans_no=$trans_no";
@@ -218,39 +273,49 @@ function get_package_view_str($pkg, $label="", $icon=false, $class='', $id='')
 
 //--------------------------------------------------------------------------------------
 
-function get_trans_view_str($type, $trans_no, $label="", $icon=false, 
-	$class='', $id='')
+//Modified by spyrax10 18 Feb 2022
+function get_trans_view_str($type, $trans_no, $label = "", $icon=false, 
+	$class = '', $id = '', $interbranch = false)
 {
-	$view_str = get_customer_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
+	
+	if ($interbranch) {
+		$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id, $interbranch);
+		if ($view_str != null)
+			return $view_str;
+	}
+	else {
+		$view_str = get_customer_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
 
-	$view_str = get_supplier_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
+		$view_str = get_supplier_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
 
-	$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
+		$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
 
-	$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
+		$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
 
-	$view_str = get_manufacturing_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
+		$view_str = get_manufacturing_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
 
-	$view_str = get_dimensions_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
+		$view_str = get_dimensions_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
 
-	$view_str = get_journal_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-	if ($view_str != null)
-		return $view_str;
-
+		$view_str = get_journal_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+		if ($view_str != null)
+			return $view_str;
+	}
+	
 	return null;
 }
+//
 
 /*
 	Helper for ui drawing functions.
@@ -407,6 +472,31 @@ function view_stock_status_cell($stock_id, $description=null)
 	view_stock_status($stock_id, $description);
 	echo "</td>";
 }
+
+//Added by spyrax10
+//--------------------------------------------------------------------------------------
+
+function view_JE_adj_cell($trans_no, $line_no, $editable = 1) {
+
+	echo "<td align=center>";
+	view_JE_adj_status($trans_no, $line_no, $editable);
+	echo "</td>";
+
+}
+
+function view_JE_adj_status($trans_no, $line_no, $editable =1, $echo = true) {
+	global $path_to_root;
+
+	$preview_str = "<a target='_blank' 
+	href='$path_to_root/inventory/view/gl_adj_view.php?trans_no=$trans_no&line_no=$line_no&editable=$editable&popup=1' 
+	onclick=\"javascript:openWindow(this.href,this.target); return false;\" >GL Entry</a>";
+
+	if($echo)
+		echo $preview_str;
+
+	return $preview_str;
+}
+
 
 //--------------------------------------------------------------------------------------
 
@@ -940,6 +1030,84 @@ function get_js_select_combo_item() {
 /* for space search option */
 function get_js_set_combo_item() {
 	$js = "function setComboItem(doc, client_id, value, text){
+    	var element = doc.getElementById(client_id);
+  		if(typeof(element) != 'undefined' && element != null && element.tagName === 'SELECT') {
+	 		var options = element.options;
+	 		options.length = 0;
+	 		var option = doc.createElement('option');
+			option.value = value;
+			option.text = text;
+	   		element.add(option, 0);
+			element.selectedIndex = 0;
+	        element.onchange();
+	    } else {
+			var stock_element = doc.getElementsByName('stock_id');
+	    	if( stock_element.length > 0) {
+				stock_element[0].value = value;	
+				var stock_id = doc.getElementById('_stock_id_edit'); 
+				stock_id.value=value;
+				stock_id.onblur();					
+			}
+ 		}
+		window.close();
+	}";
+	return $js;
+}
+
+//Added by spyrax10
+function inty_get_js_set_combo_item() {
+	$js = "function setComboItem(doc, client_id, value, text, lot_no, chasis_no, color, price, stock_ref){
+		
+		var serial_element = doc.getElementsByName('lot_no');
+		serial_element[0].value = lot_no;
+		var chassis_element = doc.getElementsByName('chasis_no');
+		chassis_element[0].value = chasis_no;
+		var color_element = doc.getElementsByName('color');
+		color_element[0].value = color;	
+
+		var price_element = doc.getElementsByName('std_cost');
+		price_element[0].value = price;	
+
+		var stock_ref_element = doc.getElementsByName('stock_ref');
+		stock_ref_element[0].value = stock_ref;	
+
+    	var element = doc.getElementById(client_id);
+  		if(typeof(element) != 'undefined' && element != null && element.tagName === 'SELECT') {
+	 		var options = element.options;
+	 		options.length = 0;
+	 		var option = doc.createElement('option');
+			option.value = value;
+			option.text = text;
+	   		element.add(option, 0);
+			element.selectedIndex = 0;
+	        element.onchange();
+	    } else {
+			var stock_element = doc.getElementsByName('stock_id');
+	    	if( stock_element.length > 0) {
+				stock_element[0].value = value;	
+				var stock_id = doc.getElementById('_stock_id_edit'); 
+				stock_id.value=value;
+				stock_id.onblur();					
+			}
+ 		}
+		window.close();
+	}";
+	return $js;
+}
+
+
+// Added by Ronelle
+function si_get_js_set_combo_item() {
+	$js = "function setComboItem(doc, client_id, value, text, serialeng_no, chassis_no, color, item_type){
+		var serial_element = doc.getElementsByName('serialeng_no');
+		serial_element[0].value = serialeng_no;
+		var chassis_element = doc.getElementsByName('chassis_no');
+		chassis_element[0].value = chassis_no;
+		var color_element = doc.getElementsByName('color_desc');
+		color_element[0].value = color;	
+		var item_type_element = doc.getElementsByName('item_type');
+		item_type_element[0].value = item_type;
+
     	var element = doc.getElementById(client_id);
   		if(typeof(element) != 'undefined' && element != null && element.tagName === 'SELECT') {
 	 		var options = element.options;
@@ -1558,7 +1726,7 @@ function trans_editor_link($type, $trans_no)
 		ST_BANKPAYMENT => "/gl/gl_bank.php?ModifyPayment=Yes&trans_no=%d&trans_type=%d",
 		ST_BANKDEPOSIT => "/gl/gl_bank.php?ModifyDeposit=Yes&trans_no=%d&trans_type=%d",
 	    ST_BANKTRANSFER => "/gl/bank_transfer.php?ModifyTransfer=Yes&trans_no=%d&trans_type=%d",
-    	ST_SALESINVOICE => "/sales/customer_invoice.php?ModifyInvoice=%d",
+    	ST_SALESINVOICE => "/sales/manage/SI_update.php?ModifyInvoice=%d", // modify by spyrax10
 		ST_CUSTCREDIT => "/sales/credit_note_entry.php?ModifyCredit=%d", // only for free hand credit notes (debtors_trans.order_==0)
 		ST_CUSTPAYMENT => "/sales/customer_payments.php?trans_no=%d",
 		ST_CUSTDELIVERY => "/sales/customer_delivery.php?ModifyDelivery=%d",
@@ -1569,16 +1737,66 @@ function trans_editor_link($type, $trans_no)
 //   21=> Supplier Credit Note,
 //   22=> Supplier Payment,
 //   25=> Purchase Order Delivery,
-		ST_PURCHORDER => "/purchasing/po_entry_items.php?ModifyOrderNumber=%d",
+		/* Added Ronelle */
+		ST_PURCHREQUEST => "/purchasing/pr_entry_items.php?ModifyRequestNumber=%s",
+		ST_PURCHORDER => "/purchasing/po_entry_items.php?ModifyOrderNumber=%s",
 //   28=> Work Order Issue,
 //   29=> Work Order Production",
 		ST_WORKORDER => "/manufacturing/work_order_entry.php?trans_no=%d",
 		ST_SALESORDER => "/sales/sales_order_entry.php?ModifyOrderNumber=%d",
 		ST_SALESQUOTE => "/sales/sales_order_entry.php?ModifyQuotationNumber=%d",
 	//   35=> Cost Update,
+		ST_RECEIVECONSIGN => "/purchasing/consignment_entry.php?ModifyConsignNumber=%s",
+		ST_INVADJUST => "/inventory/adjustment_update.php?trans_no=%d&status=0", //Added by spyrax10
 	);
 
 	return !isset($editor_url[$type]) ? '--' :
 		(is_closed_trans($type, $trans_no) ? set_icon(ICON_CLOSED, _('Closed')) :
 			pager_link(_("Edit"), sprintf($editor_url[$type], $trans_no, $type), ICON_EDIT));
 }
+
+//Added by spyrax10
+function trans_editor_link2($type, $trans_no, $payment)
+{
+	global $path_to_root;
+	$editor_url = '';
+
+	if ($payment == "CASH") {
+		$editor_url = array(
+			ST_SALESORDER => "/sales/sales_invoice_cash.php?ModifyOrderNumber=%d",
+		);
+	}
+	else if ($payment == "INSTALLMENT") {
+		$editor_url = array(
+			ST_SALESORDER => "/sales/sales_order_entry.php?ModifyOrderNumber=%d",
+		);
+	}
+	
+
+	return !isset($editor_url[$type]) ? '--' :
+		(is_closed_trans($type, $trans_no) ? set_icon(ICON_CLOSED, _('Closed')) :
+			pager_link(_("Edit"), sprintf($editor_url[$type], $trans_no, $type), ICON_EDIT));
+}
+//Added by Albert
+function trans_editor_link2_repo($type, $trans_no, $payment)
+{
+	global $path_to_root;
+	$editor_url = '';
+
+	if ($payment == "CASH") {
+		$editor_url = array(
+			ST_SALESORDER => "/sales/si_repo_cash.php?ModifyOrderNumber=%d",
+		);
+	}
+	else if ($payment == "INSTALLMENT") {
+		$editor_url = array(
+			ST_SALESORDER => "/sales/si_repo_install.php?ModifyOrderNumber=%d",
+		);
+	}
+	
+
+	return !isset($editor_url[$type]) ? '--' :
+		(is_closed_trans($type, $trans_no) ? set_icon(ICON_CLOSED, _('Closed')) :
+			pager_link(_("Edit"), sprintf($editor_url[$type], $trans_no, $type), ICON_EDIT));
+}
+

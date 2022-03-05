@@ -30,17 +30,38 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 inventory_movements();
 
-function fetch_items($category=0)
+function fetch_items($brand_code, $category=0, $type)
 {
-		$sql = "SELECT stock_id, stock.description AS name,
-				stock.category_id,
+		$sql = "SELECT stock.stock_id, stock.description AS name,
+				stock.category_id, stock.brand,
 				units,
-				cat.description
-			FROM ".TB_PREF."stock_master stock LEFT JOIN ".TB_PREF."stock_category cat ON stock.category_id=cat.category_id
+				cat.description,
+				item.name AS BRAND,
+				IFNULL(QTYMOVE.QTY, 0)
+
+				FROM stock_master stock 
+				LEFT JOIN stock_category cat ON stock.category_id=cat.category_id
+				LEFT JOIN item_brand item ON stock.brand=item.id
+			
+				LEFT JOIN (
+				SELECT move.stock_id,
+				SUM(move.qty) AS QTY
+				FROM stock_moves move
+				LEFT JOIN stock_master BB ON move.stock_id = BB.stock_id
+				GROUP BY move.stock_id
+				) QTYMOVE ON stock.stock_id = QTYMOVE.stock_id
+
 				WHERE mb_flag <> 'D' AND mb_flag <>'F'";
-		if ($category != 0)
-			$sql .= " AND cat.category_id = ".db_escape($category);
-		$sql .= " ORDER BY stock.category_id, stock_id";
+				if ($category != 0)
+					$sql .= " AND cat.category_id = ".db_escape($category);
+
+				if ($brand_code != ALL_TEXT)
+					$sql .= " AND stock.brand =".db_escape($brand_code);
+
+				if ($type != 0) 
+					$sql .= " AND IFNULL(QTYMOVE.QTY, 0) <> '0'";
+
+				$sql .= "GROUP BY stock.stock_id ORDER BY stock.category_id, stock_id";
 
     return db_query($sql,"No transactions were returned");
 }
@@ -87,10 +108,12 @@ function inventory_movements()
     $from_date = $_POST['PARAM_0'];
     $to_date = $_POST['PARAM_1'];
     $category = $_POST['PARAM_2'];
-	$location = $_POST['PARAM_3'];
-    $comments = $_POST['PARAM_4'];
-	$orientation = $_POST['PARAM_5'];
-	$destination = $_POST['PARAM_6'];
+    $brand_code = $_POST['PARAM_3'];
+	$location = $_POST['PARAM_4'];
+	$type = $_POST['PARAM_5'];
+    $comments = $_POST['PARAM_6'];
+	$orientation = $_POST['PARAM_7'];
+	$destination = $_POST['PARAM_8'];
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
 	else
@@ -109,16 +132,33 @@ function inventory_movements()
 	else
 		$loc = get_location_name($location);
 
-	$cols = array(0, 60, 220, 240, 310, 380, 450, 520);
+	if ($brand_code < 0)
+		$brand_code = 0;
+	if ($brand_code == 0)
+		$brnd = _('All');
+	else
+		$brnd = get_brand_descr($brand_code);
 
-	$headers = array(_('Category'), _('Description'),	_('UOM'),	_('Opening'), _('Quantity In'), _('Quantity Out'), _('Balance'));
+	if ($type == 0) {
+		$type_movement = 'All Item';
+	} else {
+		$type_movement = 'Item with Qty';
+	}
+	
 
-	$aligns = array('left',	'left',	'left', 'right', 'right', 'right','right');
+	$cols = array(0, 117, 122, 350, 355, 390, 435, 475, 525);
+
+	$headers = array(_('Category'), _(''), _('Description'), _(''), _('UOM'), _('Opening'), _('QTY In'), 
+	_('QTY Out'), _('Balance'));
+
+	$aligns = array('left', 'left',	'left', 'left',	'left', 'left', 'left', 'left','left');
 
     $params =   array( 	0 => $comments,
 						1 => array('text' => _('Period'), 'from' => $from_date, 'to' => $to_date),
     				    2 => array('text' => _('Category'), 'from' => $cat, 'to' => ''),
-						3 => array('text' => _('Location'), 'from' => $loc, 'to' => ''));
+    				    3 => array('text' => _('Brand'), 'from' => $brnd, 'to' => ''),
+						4 => array('text' => _('Location'), 'from' => $loc, 'to' => ''),
+						5 => array('text' => _('Type'), 'from' => $type_movement, 'to' => ''));
 
     $rep = new FrontReport(_('Inventory Movements'), "InventoryMovements", user_pagesize(), 9, $orientation);
     if ($orientation == 'L')
@@ -126,9 +166,10 @@ function inventory_movements()
 
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
+    $rep->SetHeaderType('COLLECTION_Header');
     $rep->NewPage();
 
-	$result = fetch_items($category);
+	$result = fetch_items($brand_code, $category, $type);
 
 	$catgor = '';
 	while ($myrow=db_fetch($result))
@@ -143,10 +184,12 @@ function inventory_movements()
 			$rep->fontSize -= 2;
 			$rep->NewLine();
 		}
-		$rep->NewLine();
+		$rep->NewLine(1.3);
 		$rep->TextCol(0, 1,	$myrow['stock_id']);
-		$rep->TextCol(1, 2, $myrow['name']);
-		$rep->TextCol(2, 3, $myrow['units']);
+		$rep->TextCol(1, 2, $myrow['']);
+		$rep->TextCol(2, 3, $myrow['name']);
+		$rep->TextCol(3, 4, $myrow['']);
+		$rep->TextCol(4, 5, $myrow['units']);
 		$qoh_start= $inward = $outward = $qoh_end = 0; 
 		
 		$qoh_start += get_qoh_on_date($myrow['stock_id'], $location, add_days($from_date, -1));
@@ -156,10 +199,10 @@ function inventory_movements()
 		$outward += trans_qty($myrow['stock_id'], $location, $from_date, $to_date, false);
 
 		$stock_qty_dec = get_qty_dec($myrow['stock_id']);
-		$rep->AmountCol(3, 4, $qoh_start, $stock_qty_dec);
-		$rep->AmountCol(4, 5, $inward, $stock_qty_dec);
-		$rep->AmountCol(5, 6, $outward, $stock_qty_dec);
-		$rep->AmountCol(6, 7, $qoh_end, $stock_qty_dec);
+		$rep->AmountCol(5, 6, $qoh_start, $stock_qty_dec);
+		$rep->AmountCol(6, 7, $inward, $stock_qty_dec);
+		$rep->AmountCol(7, 8, $outward, $stock_qty_dec);
+		$rep->AmountCol(8, 9, $qoh_end, $stock_qty_dec);
 		$rep->NewLine(0, 1);
 	}
 	$rep->Line($rep->row  - 4);

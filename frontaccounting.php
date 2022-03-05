@@ -21,6 +21,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	include_once($path_to_root . '/applications/generalledger.php');
 	include_once($path_to_root . '/applications/setup.php');
 	include_once($path_to_root . '/installed_extensions.php');
+	include_once($path_to_root . '/applications/lending.php');
 
 	class front_accounting
 	{
@@ -67,19 +68,21 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		}
 		function init()
 		{
-			global $SysPrefs;
+			global $SysPrefs, $db_connections;
 
 			$this->menu = new menu(_("Main  Menu"));
 			$this->menu->add_item(_("Main  Menu"), "index.php");
 			$this->menu->add_item(_("Logout"), "/account/access/logout.php");
 			$this->applications = array();
+			
 			$this->add_application(new customers_app());
-			$this->add_application(new suppliers_app());
-			$this->add_application(new inventory_app());
-			if (get_company_pref('use_manufacturing'))
-				$this->add_application(new manufacturing_app());
-			if (get_company_pref('use_fixed_assets'))
-			    $this->add_application(new assets_app());
+				$this->add_application(new suppliers_app());
+				$this->add_application(new inventory_app());
+				if (get_company_pref('use_manufacturing'))
+					$this->add_application(new manufacturing_app());
+				if (get_company_pref('use_fixed_assets'))
+					$this->add_application(new assets_app());
+			
 			$this->add_application(new dimensions_app());
 			$this->add_application(new general_ledger_app());
 

@@ -10,11 +10,11 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function add_crm_person($ref, $name, $name2, $address, $phone, $phone2, $fax, $email, $lang, $notes,
+function add_crm_person($ref, $name, $name2, $address, $phone, $phone2, $fax, $email, $facebook, $lang, $notes,
 	$cat_ids=null, $entity=null)
 {
 	$sql = "INSERT INTO ".TB_PREF."crm_persons (ref, name, name2, address,
-		phone, phone2, fax, email, lang, notes)
+		phone, phone2, fax, email, facebook, lang, notes)
 		VALUES ("
 		  .db_escape($ref) . ", "
 		  .db_escape($name) . ", "
@@ -24,6 +24,7 @@ function add_crm_person($ref, $name, $name2, $address, $phone, $phone2, $fax, $e
 		  .db_escape($phone2) . ", "
 		  .db_escape($fax) . ", "
 		  .db_escape($email) . ", "
+		  .db_escape($facebook, true) . ", "
 		  .db_escape($lang) . ", "
 		  .db_escape($notes)
 		.")";
@@ -40,7 +41,87 @@ function add_crm_person($ref, $name, $name2, $address, $phone, $phone2, $fax, $e
 	return $id;
 }
 
-function update_crm_person($id, $ref, $name, $name2, $address, $phone, $phone2, $fax, $email, 
+//----Robert Added----//
+function add_comaker_person($selected_id, $firstname, $middlename, $lastname, $phone, $address, $facebook)
+{
+	$sql = "INSERT INTO ".TB_PREF."co_makers (debtor_no, firstname, middlename, lastname, phone, address, facebook) 
+		VALUES (".db_escape($selected_id).", 
+				".db_escape($firstname).", 
+				".db_escape($middlename).", 
+				".db_escape($lastname).", 
+				".db_escape($phone).", 
+				".db_escape($address).",
+				".db_escape($facebook, true)."
+			)";
+
+	db_query($sql, "The co-maker cannot be inserted");
+}
+
+function get_comaker_customers()
+{
+
+	$selected_id = $_POST['customer_id'];
+	$sql = "SELECT comaker_id, firstname, middlename, lastname, phone, address, facebook,
+	CASE 
+		WHEN inactive = 0 THEN 'Active'
+	ELSE 'Inactive' END AS Status
+
+	FROM ".TB_PREF."co_makers WHERE debtor_no=".db_escape($selected_id);
+	return db_query($sql,"could not co-maker");
+}
+
+function get_comaker_customer($comaker_id)
+{
+	$sql = "SELECT * FROM ".TB_PREF."co_makers WHERE comaker_id=".db_escape($comaker_id);
+
+	$res = db_query($sql, "Can't get co-maker persons");
+
+	$customer_id = db_fetch($res);
+	
+
+	return $customer_id;
+}
+
+function update_comaker_customer($comaker_id, $firstname, $middlename, $lastname, $phone, $address, $facebook, $inactive)
+{
+	$sql = "UPDATE ".TB_PREF."co_makers SET "
+		  ."firstname=".db_escape($firstname) . ", "
+		  ."middlename=".db_escape($middlename) . ", "
+		  ."lastname=".db_escape($lastname) . ", "
+		  ."phone=".db_escape($phone) . ", "
+		  ."address=".db_escape($address) . ", "
+		  ."facebook=".db_escape($facebook) . ", "
+		  ."inactive=".db_escape($inactive)
+		  ." WHERE comaker_id = ".db_escape($comaker_id);
+
+	$result = db_query($sql, "Can't update co-maker person");
+
+	return $result;
+
+}
+
+function delete_comaker_person($comaker_id)
+{
+	$sql = "DELETE FROM ".TB_PREF."co_makers WHERE comaker_id=".db_escape($comaker_id);
+	$result = db_query($sql, "Can't delete co-maker person");
+
+	return $result;
+}
+
+function update_comaker_customer_before_insert($inactive, $selected_id)
+{
+	$selected_id = $_POST['customer_id'];
+	$sql = "UPDATE ".TB_PREF."co_makers 
+			SET inactive = '1'
+			WHERE debtor_no = ".db_escape($selected_id);
+
+	$result = db_query($sql, "Can't update co-maker person");
+
+	return $result;
+}
+//-------------------//
+
+function update_crm_person($id, $ref, $name, $name2, $address, $phone, $phone2, $fax, $email, $facebook,
 	$lang, $notes, $cat_ids, $entity=null, $type=null)
 {
 	$sql = "UPDATE ".TB_PREF."crm_persons SET "
@@ -52,6 +133,7 @@ function update_crm_person($id, $ref, $name, $name2, $address, $phone, $phone2, 
 		  ."phone2=".db_escape($phone2) . ", "
 		  ."fax=".db_escape($fax) . ", "
 		  ."email=".db_escape($email) . ", "
+		  ."facebook=".db_escape($facebook) . ", "
 		  ."lang=".db_escape($lang) . ", "
 		  ."notes=".db_escape($notes)
 		  ." WHERE id = ".db_escape($id);

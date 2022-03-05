@@ -51,7 +51,7 @@ div_start("customer_tbl");
 
 start_table(TABLESTYLE);
 
-$th = array("", _("Customer"), _("Short Name"), _("Address"), _("Tax ID"));
+$th = array("", _("Customer Code"), _("Customer Name"), _("Address"), _("Tel. #"), _("Collectors Name"), _("Area"), _("Tax ID"), _("Sales Type"), _("Tax Group"));
 
 table_header($th);
 
@@ -68,10 +68,15 @@ while ($myrow = db_fetch_assoc($result)) {
 	else {
   		ahref_cell(_("Select"), 'javascript:void(0)', '', 'selectComboItem(window.opener.document, "'.$name.'", "'.$value.'")');
 	}
-  	label_cell($myrow["name"]);
   	label_cell($myrow["debtor_ref"]);
+  	label_cell($myrow["name"]);
   	label_cell($myrow["address"]);
-  	label_cell($myrow["tax_id"]);
+    label_cell($myrow["phone"]);
+    label_cell($myrow["real_name"]);
+    label_cell($myrow["description"]);
+    label_cell($myrow["tax_id"]);
+    label_cell($myrow["salestype"]);
+  	label_cell($myrow["taxgroup"]);
 	end_row();
 }
 

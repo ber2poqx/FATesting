@@ -14,7 +14,7 @@
   in pages that have the supplier dropdown lists.
   Author: bogeyman2007 from Discussion Forum. Modified by Joe Hunt
 ***********************************************************************/
-$page_security = "SA_PURCHASEORDER";
+$page_security = "SA_SUPPPOPUPLIST";
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/ui.inc");
@@ -56,7 +56,8 @@ table_header($th);
 
 $k = 0;
 $name = $_GET["client_id"];
-$result = get_suppliers_search(get_post("supplier"));
+$result = get_suppliers_search(get_post("supplier"), 
+	$_GET['category'] != null ? $_GET['category'] : ''); //Added by spyrax10
 while ($myrow = db_fetch_assoc($result)) {
 	alt_table_row_color($k);
 	$value = $myrow['supplier_id'];

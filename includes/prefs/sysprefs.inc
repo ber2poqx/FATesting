@@ -185,5 +185,16 @@ class sys_prefs
 		else
 			return $this->comp_path.'/'.$comp."/backup/";
 	}
+
+	function backup_dir_ho($comp=null)
+	{
+		if (!isset($comp))
+			$comp = user_company();
+
+		if (isset($this->backup_path_ho))
+			return sprintf($this->backup_path_ho, $comp);
+		else
+			return $this->ho_path.'/'.$comp."/backup/";
+	}
 }
 

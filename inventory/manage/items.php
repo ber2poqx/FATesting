@@ -168,6 +168,10 @@ function clear_data()
 	unset($_POST['depreciation_factor']);
 	unset($_POST['depreciation_start']);
 	unset($_POST['serialised']);
+	unset($_POST['itemstatus']);
+	unset($_POST['size']);
+	unset($_POST['capacity']);
+	unset($_POST['allow_zero_cost']); //spyrax10
 }
 
 //------------------------------------------------------------------------------------
@@ -190,12 +194,14 @@ if (isset($_POST['addupdate']))
 		display_error( _('The item code cannot be empty'));
 		set_focus('NewStockID');
 	}
-	elseif (strstr($_POST['NewStockID'], " ") || strstr($_POST['NewStockID'],"'") || 
-		strstr($_POST['NewStockID'], "+") || strstr($_POST['NewStockID'], "\"") || 
+	//strstr($_POST['NewStockID'], " ")
+	//strstr($_POST['NewStockID'], "+")
+	//Modified by Herald - 02/25/2021
+	elseif (strstr($_POST['NewStockID'],"'") || strstr($_POST['NewStockID'], "\"") || 
 		strstr($_POST['NewStockID'], "&") || strstr($_POST['NewStockID'], "\t")) 
 	{
 		$input_error = 1;
-		display_error( _('The item code cannot contain any of the following characters -  & + OR a space OR quotes'));
+		display_error( _('The item code cannot contain any of the following characters -  &, tab OR quotes'));
 		set_focus('NewStockID');
 
 	}
@@ -234,14 +240,16 @@ if (isset($_POST['addupdate']))
 				$_POST['long_description'], $_POST['category_id'], 
 				$_POST['tax_type_id'], get_post('units'),
 				$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'],
-				check_value('serialised'),
+				check_value('serialised'),$_POST['itemstatus'], 
 				get_post('fixed_asset') ? 'F' : get_post('mb_flag'), $_POST['sales_account'],
+				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
 				$_POST['inventory_account'], $_POST['cogs_account'],
 				$_POST['adjustment_account'], $_POST['wip_account'], 
 				$_POST['dimension_id'], $_POST['dimension2_id'],
 				check_value('no_sale'), check_value('editable'), check_value('no_purchase'),
 				get_post('depreciation_method'), input_num('depreciation_rate'), input_num('depreciation_factor'), get_post('depreciation_start', null),
-				get_post('fa_class_id'));
+			    get_post('fa_class_id'), get_post('size'), get_post('capacity'), 
+				check_value('allow_zero_cost')); //added by spyrax10
 
 			update_record_status($_POST['NewStockID'], $_POST['inactive'],
 				'stock_master', 'stock_id');
@@ -256,13 +264,15 @@ if (isset($_POST['addupdate']))
 
 			add_item($_POST['NewStockID'], $_POST['description'],
 				$_POST['long_description'], $_POST['category_id'], $_POST['tax_type_id'],
-				$_POST['units'],$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'], check_value('serialised'), get_post('fixed_asset') ? 'F' : get_post('mb_flag'), $_POST['sales_account'],
+				$_POST['units'],$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'], check_value('serialised'), $_POST['itemstatus'], get_post('fixed_asset') ? 'F' : get_post('mb_flag'), $_POST['sales_account'],
+				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
 				$_POST['inventory_account'], $_POST['cogs_account'],
 				$_POST['adjustment_account'], $_POST['wip_account'], 
 				$_POST['dimension_id'], $_POST['dimension2_id'],
 				check_value('no_sale'), check_value('editable'), check_value('no_purchase'),
 				get_post('depreciation_method'), input_num('depreciation_rate'), input_num('depreciation_factor'), get_post('depreciation_start', null),
-				get_post('fa_class_id'));
+			    get_post('fa_class_id'), get_post('size'), get_post('capacity'), 
+				check_value('allow_zero_cost')); //added by spyrax10
 
 			display_notification(_("A new item has been added."));
 			$_POST['stock_id'] = $_POST['NewStockID'] = 
@@ -279,6 +289,7 @@ if (get_post('clone')) {
 	unset($_POST['stock_id']);
 	$stock_id = '';
 	unset($_POST['inactive']);
+	unset($_POST['itemstatus']);
 	set_focus('NewStockID');
 	$Ajax->activate('_page_body');
 }
@@ -341,8 +352,9 @@ function item_settings(&$stock_id, $new_item)
 				$_POST['NewStockID'] = $tmpCodeID;
 			}
 		}	
-		text_row(_("Item Code:"), 'NewStockID', $tmpCodeID, 21, 20, null, "", $post_label);
+		text_row(_("Item Code:"), 'NewStockID', $tmpCodeID, 50, 50, null, "", $post_label);
 		$_POST['inactive'] = 0;
+		$_POST['itemstatus'] = 0;
 	} 
 	else 
 	{ // Must be modifying an existing item
@@ -385,6 +397,8 @@ function item_settings(&$stock_id, $new_item)
 		$_POST['inventory_account'] = $category_record["dflt_inventory_act"];
 		$_POST['cogs_account'] = $category_record["dflt_cogs_act"];
 		$_POST['sales_account'] = $category_record["dflt_sales_act"];
+		$_POST['installment_sales_account'] = $category_record["dflt_installment_sales_act"];
+		$_POST['regular_sales_account'] = $category_record["dflt_regular_sales_act"];
 		$_POST['adjustment_account'] = $category_record["dflt_adjustment_act"];
 		$_POST['wip_account'] = $category_record["dflt_wip_act"];
 		$_POST['dimension_id'] = $category_record["dflt_dim1"];
@@ -416,6 +430,7 @@ function item_settings(&$stock_id, $new_item)
 		check_row(_("Exclude from sales:"), 'no_sale');
 
 	check_row(_("Exclude from purchases:"), 'no_purchase');
+	check_row(_("Allow Zero Cost: "), 'allow_zero_cost'); //spyrax10
 
 	if (get_post('fixed_asset')) {
 		table_section_title(_("Depreciation"));
@@ -475,7 +490,9 @@ function item_settings(&$stock_id, $new_item)
 
 	table_section_title(_("GL Accounts"));
 
-	gl_all_accounts_list_row(_("Sales Account:"), 'sales_account', $_POST['sales_account']);
+	gl_all_accounts_list_row(_("Cash Sales Account:"), 'sales_account', $_POST['sales_account']);
+	gl_all_accounts_list_row(_("Installment Sales Account:"), 'installment_sales_account', $_POST['installment_sales_account']);
+	gl_all_accounts_list_row(_("Regular Credit Sales Account:"), 'regular_sales_account', $_POST['regular_sales_account']);
 
 	if (get_post('fixed_asset')) {
 		gl_all_accounts_list_row(_("Asset account:"), 'inventory_account', $_POST['inventory_account']);
@@ -525,8 +542,12 @@ function item_settings(&$stock_id, $new_item)
 	label_row("&nbsp;", $stock_img_link);
 	if ($check_remove_image)
 		check_row(_("Delete Image:"), 'del_image');
-
-	record_status_list_row(_("Item status:"), 'inactive');
+	//Added by Herald - 04/28/2021
+	text_row(_("Size/Capacity:"), 'size', null, 20, 20);
+	//text_row(_("Capacity:"), 'capacity', null, 20, 20);
+	
+	record_item_status_list_row(_("Item status:"), 'itemstatus');
+	record_status_list_row(_("Status:"), 'inactive');
 	if (get_post('fixed_asset')) {
 		table_section_title(_("Values"));
 		if (!$new_item) {
@@ -568,7 +589,8 @@ if (db_has_stock_items())
 	start_table(TABLESTYLE_NOBORDER);
 	start_row();
     stock_items_list_cells(_("Select an item:"), 'stock_id', null,
-	  _('New item'), true, check_value('show_inactive'), false, array('fixed_asset' => get_post('fixed_asset')));
+	  _('New item'), true, check_value('show_inactive'), false, null, //Added by spyrax10
+	  array('fixed_asset' => get_post('fixed_asset')));
 	$new_item = get_post('stock_id')=='';
 	check_cells(_("Show inactive:"), 'show_inactive', null, true);
 	end_row();
@@ -596,9 +618,11 @@ $tabs = (get_post('fixed_asset'))
 		'movement' => array(_('&Transactions'), $stock_id) )
 	: array(
 		'settings' => array(_('&General settings'), $stock_id),
-		'sales_pricing' => array(_('S&ales Pricing'), (user_check_access('SA_SALESPRICE') ? $stock_id : null)),
-		'purchase_pricing' => array(_('&Purchasing Pricing'), (user_check_access('SA_PURCHASEPRICING') ? $stock_id : null)),
-		'standard_cost' => array(_('Standard &Costs'), (user_check_access('SA_STANDARDCOST') ? $stock_id : null)),
+		'scash_pricing' => array(_('&Cash Pricing'), (user_check_access('SA_SCASHPRICE') ? $stock_id : null)),
+		'sales_pricing' => array(_('LCP &Pricing'), (user_check_access('SA_SALESPRICE') ? $stock_id : null)),
+		'purchase_pricing' => array(_('&System Cost'), (user_check_access('SA_PURCHASEPRICING') ? $stock_id : null)),
+		'standard_cost' => array(_('SRP'), (user_check_access('SA_STANDARDCOST') ? $stock_id : null)),
+		'incentive_pricing' => array(_('&Incentive Pricing'), (user_check_access('SA_SINCNTVPRICE') ? $stock_id : null)),
 		'reorder_level' => array(_('&Reorder Levels'), (is_inventory_item($stock_id) && 
 			user_check_access('SA_REORDER') ? $stock_id : null)),
 		'movement' => array(_('&Transactions'), (user_check_access('SA_ITEMSTRANSVIEW') && is_inventory_item($stock_id) ? 
@@ -613,6 +637,11 @@ tabbed_content_start('tabs', $tabs);
 		case 'settings':
 			item_settings($stock_id, $new_item); 
 			break;
+		case 'scash_pricing':
+				$_GET['stock_id'] = $stock_id;
+				$_GET['page_level'] = 1;
+				include_once($path_to_root."/inventory/cash_price.php");
+				break;
 		case 'sales_pricing':
 			$_GET['stock_id'] = $stock_id;
 			$_GET['page_level'] = 1;
@@ -621,12 +650,19 @@ tabbed_content_start('tabs', $tabs);
 		case 'purchase_pricing':
 			$_GET['stock_id'] = $stock_id;
 			$_GET['page_level'] = 1;
-			include_once($path_to_root."/inventory/purchasing_data.php");
+			//include_once($path_to_root."/inventory/purchasing_data.php");
+			include_once($path_to_root."/inventory/supplier_cost.php");
 			break;
 		case 'standard_cost':
 			$_GET['stock_id'] = $stock_id;
 			$_GET['page_level'] = 1;
-			include_once($path_to_root."/inventory/cost_update.php");
+			//include_once($path_to_root."/inventory/cost_update.php");
+			include_once($path_to_root."/inventory/standard_cost.php");
+			break;
+		case 'incentive_pricing':
+			$_GET['stock_id'] = $stock_id;
+			$_GET['page_level'] = 1;
+			include_once($path_to_root."/inventory/incentive_price.php");
 			break;
 		case 'reorder_level':
 			if (!is_inventory_item($stock_id))
