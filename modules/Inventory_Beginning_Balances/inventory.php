@@ -104,9 +104,16 @@ function can_import() {
 function can_download() {
 
 	$row = get_attachment_by_type(ST_INVADJUST);
+	$dir = company_path()."/attachments";
 
 	if ($row['filename'] == "") {
 		display_error(_("No File Uploaded for Inventory Opening!"));
+		unset($_POST['download']);
+		return false;
+	}
+
+	if (!file_exists($dir."/".$row['unique_name'])) {
+		display_error(_("File does not exists in current company's folder!"));
 		unset($_POST['download']);
 		return false;
 	}
