@@ -412,6 +412,11 @@ function can_process()
 		set_focus('branch_id');
 		return false;
 	}
+	if ($_SESSION['Items']->trans_type == ST_SALESORDER && get_post('Comments')== ""){
+		display_error(_("Comments is cannot be empty!"));
+		set_focus('Comments');
+		return false;
+	}
 	if ($_SESSION['Items']->line_items[0]->price == 0){
 		display_error(_("Invoice total amount cannot be less than zero."));
 	return false;

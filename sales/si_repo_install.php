@@ -533,6 +533,11 @@ function can_process()
 		set_focus('branch_id');
 		return false;
 	}
+	if ($_SESSION['Items']->trans_type == ST_SALESORDER && get_post('Comments')== ""){
+		display_error(_("Comments is cannot be empty!"));
+		set_focus('Comments');
+		return false;
+	}
 
 	//Added by spyrax10
 	if ($_SESSION['Items']->trans_type == ST_SALESINVOICEREPO && get_post('document_ref') == "") {
@@ -566,7 +571,7 @@ function can_process()
 
 
 	// modified by Albert 09/23/2021
-	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && date('Y,m,d', strtotime(get_post('first_due_date'))) < date('Y,m,d', strtotime(get_post('OrderDate'))) && $porder = _("Place Order")) {
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICEREPO && date('Y,m,d', strtotime(get_post('first_due_date'))) < date('Y,m,d', strtotime(get_post('OrderDate'))) && $porder = _("Place Order")) {
 
 		display_error("Not allowed first duedate before Invoice Date");
 		set_focus('first_due_date');
