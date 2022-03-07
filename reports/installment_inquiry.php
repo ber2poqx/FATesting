@@ -121,7 +121,7 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			LEFT JOIN ".TB_PREF."item_codes G ON G.item_code = F.color_code
 			WHERE (A.type =".ST_SITERMMOD.") 
 			AND A.trans_no = '" . $trans_no . "'
-			GROUP BY A.reference, A.trans_no, F.stock_id
+			GROUP BY A.reference, A.trans_no
 			ORDER BY A.tran_date";
 		return db_query($sql, "No transactions were returned");
     }
@@ -142,7 +142,7 @@ function get_loan_amortization_ledgerss($type, $trans_no, $branch_code)
 				LEFT JOIN ".TB_PREF."debtor_trans C ON C.trans_no = B.payment_trans_no AND C.type = B.trans_type_from
 			WHERE A.trans_no = ".db_escape($trans_no)."
 				AND A.trans_type = ".db_escape($type)."
-			ORDER BY A.month_no ASC, B.date_paid, C.reference ASC";
+			ORDER BY A.month_no ASC, B.loansched_id ASC";
 
 	$result =  db_query($sql, "could not get amortization ledger because ");
 
