@@ -300,8 +300,8 @@ if ($action == 'import') {
 	    $_POST['sep'] = ",";
     }
 
-	submit_center('download', _("Download Inventory Opening CSV File"));
-	br();
+	// submit_center('download', _("Download Inventory Opening CSV File"));
+	// br();
 
 	sl_list_gl_row(_("Guide for Masterfile: "), 'mcode', null, _("Masterfile List"), false);
     text_row("Field separator:", 'sep', $_POST['sep'], 2, 1);
