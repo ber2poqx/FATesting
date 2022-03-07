@@ -580,6 +580,11 @@ function can_process()
 		set_focus('branch_id');
 		return false;
 	}
+	if ($_SESSION['Items']->trans_type == ST_SALESORDER && get_post('Comments')== ""){
+		display_error(_("Comments is cannot be empty!"));
+		set_focus('Comments');
+		return false;
+	}
 
 	//Added by spyrax10
 	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && get_post('document_ref') == "") {
