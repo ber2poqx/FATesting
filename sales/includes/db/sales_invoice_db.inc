@@ -72,6 +72,9 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 
 	/* Insert/update the debtor_trans */
 	$sales_order = $invoice->order_no;
+	$hoc_code = get_company_value(0, 'branch_code') ? get_company_value(0, 'branch_code'):0  ;
+    $hoc_masterfile = get_company_value(0, 'name') ? get_company_value(0, 'name'): 0;
+
 	if ($opening_balances == 1)
 		$sales_order = 0;
 	if (is_array($sales_order))
@@ -379,7 +382,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 			$mcode, $masterfile
 			//
 		);
-	}
+	} 	
 	if ($opening_balances == 1) {
 		$oustanding_balance = $entry_amount - $invoice->ob_total_amount_paid;
 		add_gl_trans_customer(
@@ -391,7 +394,10 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 			$dim2,
 			-1 * abs($oustanding_balance),
 			$invoice->customer_id,
-			"The sales price GL posting could not be inserted"
+			"The sales price GL posting could not be inserted",
+			0,
+			$hoc_code, 
+			$hoc_masterfile
 		);
 		add_gl_trans_customer(
 			ST_SALESINVOICE,
@@ -531,7 +537,10 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 			0,
 			($deferred_gross_profit),
 			$invoice->customer_id,
-			"The total debtor GL posting could not be inserted"
+			"The total debtor GL posting could not be inserted",
+			0,
+			$hoc_code, 
+			$hoc_masterfile
 		);
 	}
 
