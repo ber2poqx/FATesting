@@ -307,6 +307,7 @@ Ext.onReady(function(){
 	var columnTransferModel = [
 		{header:'line', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: false},
 		{header:'Trans', dataIndex:'transno_out', sortable:true, width:60, hidden: true},
+		{header:'Type', dataIndex:'type_out', sortable:true, width:60, hidden: true},
 		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, align:'center', hidden: false},
 		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', hidden: true},
 		{header:'Model', dataIndex:'stock_id', sortable:true, width:80, renderer: columnWrap,hidden: false},
