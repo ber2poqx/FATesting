@@ -77,8 +77,22 @@
 						$profit_margin, 
 						$warranty_code) = $data;
 
-				amort_calculation($d_amount, $unit_price, $f_rate, $months_term, $rebate, $ov_amount, $amortization_amount);
-				  
+				/*Auto calculation*/
+				$quotient_financing_rate = $f_rate / 100;
+				$diff_lcp_downpayment = $unit_price - $d_amount;
+			
+				$amount_to_be_finance = $unit_price - $d_amount;
+				$interest_charge = $quotient_financing_rate * $amount_to_be_finance;
+			
+				$sum_of_interest_charge_and_atbf = $interest_charge + $amount_to_be_finance;
+			
+				$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $months_term;
+			
+				$amort = round($amort_wo_rebate + $rebate);
+			
+				$total_amount_cal = $amort * $months_term + $d_amount;
+				/**/
+
 					if (check_transaction_already_exist($old_trans_no)) 
 					{
 				        $sql = "SELECT old_trans_no FROM ".TB_PREF."debtor_loans WHERE  old_trans_no = ".db_escape($old_trans_no);
@@ -161,6 +175,12 @@
 					}else if ( $unit_price== "") { // Unit price/Lcp can't be empty!
 						
 						display_error("Line $lines: Unit price/Lcp is Empty empty!");
+					
+					}else if($amort != $amortization_amount){
+						display_error("The amortation amount: $amortization_amount not match with the system calculation amount: $amort !!!");
+					
+					}else if($total_amount_cal != $ov_amount){
+						display_error("The Gross amount: $ov_amount not match with the system calculation Gross amount: $total_amount_cal !!!");
 					
 					} else {
 
@@ -463,30 +483,4 @@
 		end_form();
 		end_page();
 	}
-function amort_calculation($d_amount, $unit_price, $f_rate, $months_term, $rebate,$ov_amount, $amortization_amount){
-
-	//amort calculation
-
-	$quotient_financing_rate = $f_rate / 100;
-	$diff_lcp_downpayment = $unit_price - $d_amount;
-
-	$amount_to_be_finance = $unit_price - $d_amount;
-	$interest_charge = $quotient_financing_rate * $amount_to_be_finance;
-
-	$sum_of_interest_charge_and_atbf = $interest_charge + $amount_to_be_finance;
-
-	$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $months_term;
-
-	$amort = round($amort_wo_rebate + $rebate);
-
-	$total_amount_cal = $amort * $months_term + $d_amount;
-	//
-
-	if($amort != $amortization_amount){
-		display_error("The amortation amount: $amortization_amount not match with the system calculation amount: $amort !!!");
-	}
-	if($total_amount_cal != $ov_amount){
-		display_error("The Gross amount: $ov_amount not match with the system calculation Gross amount: $total_amount_cal !!!");
-	}
-}
 ?>
