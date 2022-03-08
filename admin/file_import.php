@@ -5,7 +5,7 @@
  * Date Added: 4 Mar 2022
  */
 
-$page_security = 'SA_ATTACHDOCUMENT';
+$page_security = 'SA_CSV';
 $path_to_root = "..";
 
 include_once($path_to_root . "/includes/db_pager.inc");

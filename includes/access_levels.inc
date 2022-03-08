@@ -150,6 +150,9 @@ $security_areas =array(
 	'SA_BRANCHAREA' => array(SS_SPEC|8, _("Branch Area Setup")),
 	'SA_BRANCHPLCY' => array(SS_SPEC|9, _("Branch Policy Setup")),
 	'SA_COMPANYTYP' => array(SS_SPEC|10, _("Company Type Setup")),
+	//Added by spyrax10 8 Mar 2022
+	'SA_CSV' => array(SS_SPEC|11, _("Upload CSV File")),
+	//
 //
 // Sales related functionality
 //
