@@ -608,7 +608,9 @@ function write_bank_transaction(
 		$old_trans = false;
 	}
 	
-	
+	//Added by spyrax10 8 Mar 2022
+	$hoc_code = get_company_value(user_company(), 'branch_code');
+	$hoc_masterfile = get_company_value(user_company(), 'name');
 
 	$currency = get_bank_account_currency($from_account);
 	$bank_gl_account = get_bank_gl_account($from_account);
@@ -751,9 +753,6 @@ function write_bank_transaction(
 		if ($gl_item->comp_id != $coy) {
 
 			$branch_code = get_company_value($gl_item->comp_id, 'branch_code');
-
-			$hoc_code = get_company_value(user_company(), 'branch_code');
-			$hoc_masterfile = get_company_value(user_company(), 'name');
 			$ib_trans_no = max_interbranch_no($trans_type, $gl_item->comp_id) + 1;
 
 			bank_interbranch_entry(
@@ -863,8 +862,8 @@ function write_bank_transaction(
 		$memo_,
 		-$total,
 		null,
-		$person_type_id,
-		$person_id,
+		$open_bal == 1 ? $hoc_code : $person_type_id,
+		$open_bal == 1 ? $hoc_masterfile : $person_id,
 		"",
 		0,
 		$bank_code,
