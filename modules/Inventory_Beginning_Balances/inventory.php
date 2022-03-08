@@ -28,13 +28,9 @@ if (isset($_POST['download'])) {
 
 	if ($row['filename'] == "") {
 		display_error(_("No File Uploaded for Inventory Opening!"));
-		unset($_POST['download']);
-		return false;
 	}
 	else if (!file_exists($dir."/".$row['unique_name'])) {
 		display_error(_("File does not exists in current company's folder!"));
-		unset($_POST['download']);
-		return false;
 	}
 	else {
 		$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
@@ -42,10 +38,11 @@ if (isset($_POST['download'])) {
 		header('Content-Length: '.$row['filesize']);
 		header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
 		echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
-		unset($_POST['download']);
 		@fclose();
 		exit();
 	}
+	
+	unset($_POST['download']);
 }
 
 $js = '';
