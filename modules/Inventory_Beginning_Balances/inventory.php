@@ -27,10 +27,10 @@ if (isset($_POST['download'])) {
 	$dir = company_path()."/attachments";
 
 	if ($row['filename'] == "") {
-		display_error(_("No File Uploaded for Inventory Opening!"));
+		display_error(_("No Template File Uploaded for Inventory Opening!"));
 	}
 	else if (!file_exists($dir."/".$row['unique_name'])) {
-		display_error(_("File does not exists in current company's folder!"));
+		display_error(_("Template File does not exists in current company's folder!"));
 	}
 	else {
 		$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
@@ -41,7 +41,7 @@ if (isset($_POST['download'])) {
 		@fclose();
 		exit();
 	}
-	
+
 	unset($_POST['download']);
 }
 
@@ -287,7 +287,7 @@ if ($action == 'import') {
 	    $_POST['sep'] = ",";
     }
 
-	submit_center('download', _("Download Inventory Opening CSV File"));
+	submit_center('download', _("Download Inventory Opening CSV Template File"));
 	br();
 
 	sl_list_gl_row(_("Guide for Masterfile: "), 'mcode', null, _("Masterfile List"), false);
