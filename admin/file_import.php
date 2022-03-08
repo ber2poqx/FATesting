@@ -30,7 +30,7 @@ if (isset($_POST['action'])) {
     $action = $_POST['action'];
 }
 
-page(_($help_context = "Upload CSV File"), false, false, "", $js);
+page(_($help_context = "Upload CSV Template File"), false, false, "", $js);
 
 //----------------------------------------------------------------------------------------
 function can_import() {
@@ -114,16 +114,18 @@ if ($action == 'import') {
 
     start_outer_table(TABLESTYLE, "width='95%'", 10);
 
-    display_heading(_("Import CSV File Here"));
+    display_heading(_("Upload CSV Template File Here"));
     br();
 
     start_table(TABLESTYLE2, "width=45%");
 
-    value_type_list(_("CSV Import File For:"), 'trans_type', 
+    value_type_list(_("CSV Template File For:"), 'trans_type', 
         array(
             ST_INVADJUST => 'Inventory Opening', 
             ST_SALESINVOICE => 'Sales Invoice Opening',
-            30 => 'Price List'
+            30 => 'Price List',
+            31 => 'Customer List',
+            32 => 'Item List'
         ), 'label', null, true, '', true
     );
 
@@ -131,7 +133,7 @@ if ($action == 'import') {
 
     end_table(1);
 
-    submit_center('import', _("Add New File"));
+    submit_center('import', _("Add New Template File"));
 
     end_outer_table(1, false);
 

@@ -74,7 +74,7 @@ class setup_app extends application
 		$this->add_lapp_function(2, _("&Attach Documents"),
 			"admin/attachments.php?filterType=20", 'SA_ATTACHDOCUMENT', MENU_MAINTENANCE);
 		//Added by spyrax10 4 Mar 2022
-		$this->add_lapp_function(2, _("&Upload CSV File"),
+		$this->add_lapp_function(2, _("&Upload CSV Template File"),
 			"admin/file_import.php?NewFile=Yes", 'SA_ATTACHDOCUMENT', MENU_MAINTENANCE);
 		//
 		$this->add_lapp_function(2, _("System &Diagnostics"),
