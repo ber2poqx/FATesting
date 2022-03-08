@@ -122,7 +122,8 @@ if ($action == 'import') {
     value_type_list(_("CSV Import File For:"), 'trans_type', 
         array(
             ST_INVADJUST => 'Inventory Opening', 
-            ST_SALESINVOICE => 'Sales Invoice Opening' 
+            ST_SALESINVOICE => 'Sales Invoice Opening',
+            30 => 'Price List'
         ), 'label', null, true, '', true
     );
 
