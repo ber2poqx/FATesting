@@ -287,7 +287,7 @@ if ($action == 'import') {
 	    $_POST['sep'] = ",";
     }
 
-	submit_center('download', _("Download Inventory Opening CSV Template File"));
+	submit_center('download', _("Download CSV Template File for Inventory Opening"));
 	br();
 
 	sl_list_gl_row(_("Guide for Masterfile: "), 'mcode', null, _("Masterfile List"), false);
