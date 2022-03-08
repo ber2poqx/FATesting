@@ -11,8 +11,6 @@ include_once($path_to_root . "/includes/ui/items_cart.inc");
 include($path_to_root . "/includes/db_pager.inc");
 include_once($path_to_root . "/includes/session.inc");
 
-add_access_extensions();
-
 include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 
@@ -22,8 +20,32 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 include_once($path_to_root . "/includes/sweetalert.inc");
 include_once($path_to_root . "/admin/db/attachments_db.inc");
 
-if (isset($_POST['download']) && can_download()) {
-	download_file();
+add_access_extensions();
+
+if (isset($_POST['download'])) {
+	$row = get_attachment_by_type(ST_INVADJUST);
+	$dir = company_path()."/attachments";
+
+	if ($row['filename'] == "") {
+		display_error(_("No File Uploaded for Inventory Opening!"));
+		unset($_POST['download']);
+		return false;
+	}
+	else if (!file_exists($dir."/".$row['unique_name'])) {
+		display_error(_("File does not exists in current company's folder!"));
+		unset($_POST['download']);
+		return false;
+	}
+	else {
+		$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
+		header("Content-type: ".$type);
+		header('Content-Length: '.$row['filesize']);
+		header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
+		echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+		unset($_POST['download']);
+		@fclose();
+		exit();
+	}
 }
 
 $js = '';
@@ -42,6 +64,8 @@ if (isset($_POST['action'])) {
 }
 
 page(_("Inventory Opening Balances"), false, false, "", $js);
+
+simple_page_mode(true);
 
 //-----------------------------------------------------------------------------------------------
 
@@ -101,26 +125,6 @@ function can_import() {
     return true;
 }
 
-function can_download() {
-
-	$row = get_attachment_by_type(ST_INVADJUST);
-	$dir = company_path()."/attachments";
-
-	if ($row['filename'] == "") {
-		display_error(_("No File Uploaded for Inventory Opening!"));
-		unset($_POST['download']);
-		return false;
-	}
-
-	if (!file_exists($dir."/".$row['unique_name'])) {
-		display_error(_("File does not exists in current company's folder!"));
-		unset($_POST['download']);
-		return false;
-	}
-
-	return true;
-}
-
 function handle_new_order() {
 
 	if (isset($_SESSION['adj_items'])) {
@@ -131,20 +135,6 @@ function handle_new_order() {
     $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
     $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
 	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
-}
-
-function download_file() {
-
-	$row = get_attachment_by_type(ST_INVADJUST);
-	
-	$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
-	header("Content-type: ".$type);
-	header('Content-Length: '.$row['filesize']);
-	header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
-	echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
-	unset($_POST['download']);
-	@fclose();
-	exit();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -300,8 +290,8 @@ if ($action == 'import') {
 	    $_POST['sep'] = ",";
     }
 
-	// submit_center('download', _("Download Inventory Opening CSV File"));
-	// br();
+	submit_center('download', _("Download Inventory Opening CSV File"));
+	br();
 
 	sl_list_gl_row(_("Guide for Masterfile: "), 'mcode', null, _("Masterfile List"), false);
     text_row("Field separator:", 'sep', $_POST['sep'], 2, 1);
