@@ -608,10 +608,6 @@ function write_bank_transaction(
 		$old_trans = false;
 	}
 	
-	//Added by spyrax10 8 Mar 2022
-	$hoc_code = get_company_value(user_company(), 'branch_code');
-	$hoc_masterfile = get_company_value(user_company(), 'name');
-
 	$currency = get_bank_account_currency($from_account);
 	$bank_gl_account = get_bank_gl_account($from_account);
 
@@ -719,6 +715,9 @@ function write_bank_transaction(
 		
 		$is_bank_to = is_bank_account($gl_item->code_id);
 		$coy =  user_company();
+
+		$hoc_code = get_company_value(user_company(), 'branch_code');
+		$hoc_masterfile = get_company_value(user_company(), 'name');
 
 		if ($trans_type == ST_BANKPAYMENT && $is_bank_to && $interbranch == false) {
 			// we don't allow payments to go to a bank account. use transfer for this !
@@ -862,8 +861,8 @@ function write_bank_transaction(
 		$memo_,
 		-$total,
 		null,
-		$open_bal == 1 ? $hoc_code : $person_type_id,
-		$open_bal == 1 ? $hoc_masterfile : $person_id,
+		$open_bal == 1 ? get_company_value(0, 'branch_code') : $person_type_id,
+		$open_bal == 1 ? get_company_value(0, 'name') : $person_id,
 		"",
 		0,
 		$bank_code,
