@@ -534,7 +534,8 @@ if(isset($_GET['get_custPayment']))
                                 'payment_type_v'=>$paymentType,
                                 'payment_type'=>$myrow["payment_type"],
                                 'collect_type'=>$myrow["collect_id"],
-                                'cashier'=>$myrow["cashier_user_id"]
+                                'cashier'=>$myrow["cashier_user_id"],
+                                'cashier_name'=>$myrow["real_name"]
                             );
     }
     $jsonresult = json_encode($status_array);
