@@ -237,7 +237,13 @@ function show_results()
 		}
 		else {
 
-			label_cell(payment_person_name($myrow["person_type_id"], $myrow["person_id"]));
+			if ($myrow['type'] == ST_BANKDEPOSIT && $myrow['opening_balance'] == 1) {
+				label_cell("");
+			}
+			else {
+				label_cell(payment_person_name($myrow["person_type_id"], $myrow["person_id"]));
+			}
+			
 		
 			//Modified by spyrax10 11 Feb 2022
 			if ($myrow["person_id"] == '' ) {
