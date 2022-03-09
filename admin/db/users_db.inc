@@ -251,6 +251,8 @@ function get_user_id($user_name){
 //Modified by spyrax10 9 Feb 2022
 function get_user_name($id, $by_user_id = false)
 {
+	set_global_connection();
+	
     $sql = "SELECT real_name as name 
 		FROM ".TB_PREF."users ";
 	

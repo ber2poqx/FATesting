@@ -112,7 +112,7 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 	$sql = "SELECT SUM(A.amount), A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.real_name = A.cashier_user_id
-		WHERE A.type <> 0 ";
+		WHERE A.type <> 0 AND A.opening_balance = 0";
 
 	if ($cash) {
 		$sql .= " AND A.pay_type = 'Cash' ";
