@@ -861,12 +861,12 @@ function write_bank_transaction(
 		$memo_,
 		-$total,
 		null,
-		$open_bal == 1 ? get_company_value(0, 'branch_code') : $person_type_id,
-		$open_bal == 1 ? get_company_value(0, 'name') : $person_id,
+		$person_type_id,
+		$person_id,
 		"",
 		0,
-		$bank_code,
-		$bank_account_name
+		$open_bal == 1 ? get_company_value(0, 'branch_code') : $bank_code,
+		$open_bal == 1 ? get_company_value(0, 'name') : $bank_account_name
 	);
 	/* */
 

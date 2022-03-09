@@ -81,6 +81,9 @@ function systype_name($row, $type)
 			}
 		}
 	}
+	else if ($row['trans_type'] == ST_BANKDEPOSIT && is_RE_opening($row["trans_no"])) {
+		return "Receipts Entry (Opening Balance)";
+	}
 	else {
 		return $systypes_array[$type];
 	}

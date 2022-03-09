@@ -197,6 +197,9 @@ function show_results()
 				}
 			}
 		}
+		else if ($myrow["type"] == ST_BANKDEPOSIT && is_RE_opening($myrow["type_no"])) {
+			label_cell("Receipts Entry (Opening Balance)");
+		}
 		else {
 			label_cell($systypes_array[$myrow["type"]]);
 		}
@@ -234,12 +237,7 @@ function show_results()
 		}
 		else {
 
-			if ($myrow['type'] == ST_BANKDEPOSIT && $myrow['opening_balance'] == 1) {
-				label_cell("OPENING BALANCE");
-			}
-			else {
-				label_cell(payment_person_name($myrow["person_type_id"], $myrow["person_id"]));
-			}
+			label_cell(payment_person_name($myrow["person_type_id"], $myrow["person_id"]));
 		
 			//Modified by spyrax10 11 Feb 2022
 			if ($myrow["person_id"] == '' ) {

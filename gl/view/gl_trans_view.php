@@ -58,6 +58,9 @@ function display_gl_heading($myrow)
 			}
 		}
 	}
+	else if ($_GET['type_id'] == ST_BANKDEPOSIT && is_RE_opening($_GET['trans_no'])) {
+		$trans_name = "Receipts Entry (Opening Balance)";
+	}
 	else {
 		$trans_name = $systypes_array[$_GET['type_id']];
 	}

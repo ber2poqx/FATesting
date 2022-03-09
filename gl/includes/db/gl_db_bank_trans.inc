@@ -468,6 +468,24 @@ function has_COH_entry($trans_no, $trans_type) {
 	return false;
 }
 
+function is_RE_opening($trans_no) {
+
+	set_global_connection();
+
+	$sql = "SELECT A.opening_balance FROM " . TB_PREF . "bank_trans A
+		WHERE A.type = 2 AND A.trans_no = " .db_escape($trans_no);
+
+	$result = db_query($sql, "No details return from bank_trans! (spyrax10)");
+	$row = db_fetch_row($result);
+
+	if ($row[0] == 1) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 function has_interbranch_entry($trans_no, $trans_type) {
 	
 	set_global_connection();
