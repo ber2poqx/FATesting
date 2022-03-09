@@ -355,7 +355,7 @@ function auto_disburse_no() {
 	$row = db_fetch_row($result);
 	$trans_no = $row[0] + 1;
 	
-	$receipt_no = "DE" . get_year(Today()) . $trans_no;
+	$receipt_no = sprintf("%06s", $trans_no);
 
 	return $receipt_no;
 }
