@@ -141,7 +141,7 @@ end_table();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
-ahref_cell(_("New Inventory Opening"), "../../modules/Inventory_Beginning_Balances/inventory.php?NewAdjustment=1");
+ahref_cell(_("New Inventory Opening"), "../../modules/Inventory_Beginning_Balances/inventory.php?");
 end_row();
 end_table();
 

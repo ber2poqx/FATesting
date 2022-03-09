@@ -136,11 +136,9 @@ function handle_new_order() {
 
 //-----------------------------------------------------------------------------------------------
 
-if (isset($_POST['import']) && can_import()) {
+if (isset($_POST['import_btn']) && can_import()) {
 
     handle_new_order();
-
-    $item_arr = array();
 
     $filename = $_FILES['impCSVS']['tmp_name'];
 	$sep = $_POST['sep'];
@@ -151,7 +149,10 @@ if (isset($_POST['import']) && can_import()) {
 		die(_("Unable to open file $filename"));
 	}
 
-    $lines = $CI = $error = 0;
+	$err_arr = array();
+	$err_cnt = 0;
+
+    $lines = $CI = 0;
     $adj = &$_SESSION['adj_items'];
 
 	while ($data = fgetcsv($fp, 4096, $sep)) {
@@ -161,46 +162,60 @@ if (isset($_POST['import']) && can_import()) {
 		list($stock_id, $color, $lot_no, $chassis_no, $qty, $std_cost, $mcode) = $data;
 
 		if ($stock_id == "") {
-			display_error(_("Line $CI: Stock ID is empty!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Stock ID is empty!"); 
 		}
 		else if (get_stock_catID($stock_id) != get_post('category')) {
-			display_error(_("Line $CI: Invalid stock item based on given category!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Invalid stock item based on given category!");
 		}
 		else if (!check_stock_id_exist($stock_id)) {
-			display_error(_("Line $CI: Stock ID does not exist!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Stock ID does not exist!");
 		}
 		else if ($qty == "") {
-			display_error(_("Line $CI & Column $lines: Invalid Quantity!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Empty Quantity!");
 		}
 		else if ($std_cost == "") {
-			display_error(_("Line $CI & Column $lines: Invalid Standard Cost!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Invalid Standard Cost!");
 		}
 		else if ($std_cost == 0 && get_stock_catID($stock_id) != 17) {
-			display_error(_("Line $CI & Column $lines: Only PROMO ITEMS are allowed to have zero cost!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Only PROMO ITEMS are allowed to have zero cost!");
 		}
 		else if (is_Serialized($stock_id) == 1 && $lot_no == "") {
-			display_error(_("Line $CI & Column $lines: Serial No cannot be empty for this item!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Serial No cannot be empty for this item!");
 		}
 		else if (get_stock_catID($stock_id) == 14 && $chassis_no == "") {
-			display_error(_("Line $CI & Column $lines: Chassis No cannot be empty for this item!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Chassis No cannot be empty for this item!");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist($lot_no, $chassis_no)) {
-			display_error("Line $CI & Column $lines: Serial / Chassis # Already Exists!");
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Serial / Chassis # Already Exists!");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist_adj($lot_no, $chassis_no)) {
-			display_error("Line $CI & Column $lines: Serial / Chassis # Already Pending in Inventory Adjustment!");
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Serial / Chassis # Already Pending in Inventory Adjustment!");
 		}
 		else if (get_stock_catID($stock_id) == 14 && $color == "") {
-			display_error(_("Line $CI & Column $lines: Color Description cannot be empty for this item!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Color Description cannot be empty for this item!");
 		}
 		else if (get_stock_catID($stock_id) == 14 && !check_color_exist($stock_id, $color, true, true)) {
-			display_error(_("Line $CI & Column $lines: Color Code does not exist!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Color Code does not exist!");
 		}
 		else if ($mcode == "") {
-			display_error(_("Line $CI & Column $lines: Invalid Master Code!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Invalid Master Code!");
 		}
 		else if (get_masterfile($mcode) == "") {
-			display_error(_("Line $CI & Column $lines: Unknown Masterfile!"));
+			$err_cnt++;
+			$err_arr[$err_cnt] = _("Unknown Masterfile!");
 		}
 		else {
 
@@ -250,8 +265,16 @@ if (isset($_POST['import']) && can_import()) {
 	
 	@fclose($fp);
 
+	if (count($err_arr) > 0) {
+		display_error(_(count($err_arr) . " item/s unsuccessfully uploaded!"));
+
+		foreach ($err_arr as $key => $val) {
+			display_error("Line " . $key . ": " . $val);
+		}
+	}
+
 	if ($CI > 0) {
-		display_notification("$CI :Inventory Opening Added.");
+		display_notification("$CI Inventory Opening Added.");
 	} 			
 }
 
@@ -271,6 +294,10 @@ if (get_post('category')) {
 
 //-----------------------------------------------------------------------------------------------
 if ($action == 'import') {
+
+	if (isset($_POST['impCSVS'])) {
+		unset($_POST['impCSVS']);
+	}
 
     start_form(true);
 
@@ -300,7 +327,7 @@ if ($action == 'import') {
 
     end_outer_table(1, false);
 
-    submit_center('import', _("Process Inventory Opening"));
+    submit_center('import_btn', _("Process Inventory Opening"));
     end_form();
 	end_page();
 }
