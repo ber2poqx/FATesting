@@ -468,9 +468,12 @@ class BoxReports
 				case 'ITEMS':
 					return stock_manufactured_items_list($name);
 
+				//Modified by spyrax10 9 Mar 2022
 				case 'ITEMS_ALL':
-					return stock_manufactured_items_list($name, null, true);
-
+					return stock_items_list($name, null, true, false);
+					//stock_manufactured_items_list($name, null, true, false);
+				//
+				
 				case 'ITEMS_P':
 					return stock_purchasable_items_list($name, null, true);
 				

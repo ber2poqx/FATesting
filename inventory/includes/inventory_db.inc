@@ -606,3 +606,15 @@ function _branch_name($branch_code) {
 	$row = db_fetch_row($result);
 	return $row[0];
 }
+
+function get_stock_name($stock_id = "") {
+
+	set_global_connection();
+
+	$sql = "SELECT description FROM stock_master A 
+	WHERE A.stock_id =" . db_escape($stock_id); 
+
+	$result = db_query($sql, "Cant get stock_name");
+	$row = db_fetch_row($result);
+	return $row[0];
+}

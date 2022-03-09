@@ -118,7 +118,7 @@ function price_total($row) {
 }
 
 #----------------------------------------------#
-$category_id = $_GET["itemgroup"] != '' ? $_GET["itemgroup"] : get_post("category");
+$category_id = $_GET["itemgroup"] != '' && is_numeric($_GET['itemgroup']) ? $_GET["itemgroup"] : get_post("category");
 //
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -137,6 +137,12 @@ if ($_GET["itemgroup"] == '') { //Added by spyrax10
 		);
 	}
 }
+else if (!is_numeric($_GET['itemgroup'])) {
+	stock_categories_list_cells(_("Category"), "category", null, _("All Categories"), 
+		true //Added by spyrax10
+	);
+}
+
 /* */
 
 //stock_brand_list_row(_('Brand:'), 'brand', null,_('All Brand'));
@@ -147,7 +153,7 @@ end_row();
 end_table();
 
 //Added by spyrax10
-if ($_GET["itemgroup"] != '') {
+if ($_GET["itemgroup"] != '' && is_numeric($_GET['itemgroup'])) {
 	display_heading("Category: " . get_category_name($category_id));
 	br();
 }
@@ -156,7 +162,6 @@ if ($_GET["itemgroup"] != '') {
 $sql = ($_GET['type'] == "pr"|| $_GET['type'] == "sales") ?
 get_items_search(get_post("description"), @$_GET['type'], @$_GET['itemgroup'], @$_GET['supplier']) :
 get_items_search(get_post("description"), @$_GET['type'], $category_id, @$_GET['supplier']);
-
 
 $cols = array (
 	_("Item Code") => array('fun' => 'item_code'),

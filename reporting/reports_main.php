@@ -407,45 +407,58 @@ $reports->addReport(RC_SUPPLIER, 221, _('Purchase Order &Summary Report v2'),
 $reports->addReportClass(_('Inventory'), RC_INVENTORY);
 
 $reports->addReport(RC_INVENTORY,  300, _('Inventory On &Hand Report (Detailed)'),
-	array(	_('End Date') => 'DATE',
-			_('Inventory Category') => 'CATEGORIES',
-			_('Supplier') => 'SUPPLIERS_NO_FILTER',
-			_('Location') => 'LOCATIONS',
-			//_('Summary Only') => 'YES_NO',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'DESTINATION'));
-
-$reports->addReport(RC_INVENTORY,  298, _('Inventory On Hand Report (Detailed - &Repo)'),
-	array(	_('End Date') => 'DATE',
-			_('Inventory Category') => 'CATEGORIES',
-			_('Supplier') => 'SUPPLIERS_NO_FILTER',
-			_('Location') => 'LOCATIONS',
-			//_('Summary Only') => 'YES_NO',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'DESTINATION'));
+	array(	
+		_('End Date') => 'DATE',
+		_('Inventory Category') => 'CATEGORIES',
+		_('Supplier') => 'SUPPLIERS_NO_FILTER',
+		_('Location') => 'LOCATIONS',
+		//_('Summary Only') => 'YES_NO',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)
+);
 
 $reports->addReport(RC_INVENTORY, 299, _('Inventory On &Hand Report (Summarized)'),
-	array(	_('End Date') => 'DATE',
-			_('Inventory Category') => 'CATEGORIES',
-			_('Supplier') => 'SUPPLIERS_NO_FILTER',
-			_('Location') => 'LOCATIONS',
-			//_('Summary Only') => 'YES_NO',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'DESTINATION'));
+	array(	
+		_('End Date') => 'DATE',
+		_('Inventory Category') => 'CATEGORIES',
+		_('Supplier') => 'SUPPLIERS_NO_FILTER',
+		_('Location') => 'LOCATIONS',
+		//_('Summary Only') => 'YES_NO',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)
+);
 
 $reports->addReport(RC_INVENTORY,  311, _('Aging Inventory Report - Detailed'),
-	array(	_('Period Date') => 'DATE',
-			_('Inventory Category') => 'CATEGORIES',
-			_('Location') => 'LOCATIONS',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'DESTINATION'));
+	array(	
+		_('Period Date') => 'DATE',
+		_('Inventory Category') => 'CATEGORIES',
+		_('Location') => 'LOCATIONS',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)
+);
 
 $reports->addReport(RC_INVENTORY,  312, _('Aging Inventory Report - By Year'),
-	array(	_('Period Date') => 'DATE',
-			_('Inventory Category') => 'CATEGORIES',
-			_('Location') => 'LOCATIONS',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'DESTINATION'));
+	array(	
+		_('Period Date') => 'DATE',
+		_('Inventory Category') => 'CATEGORIES',
+		_('Location') => 'LOCATIONS',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)
+);
+
+
+$reports->addReport(RC_INVENTORY,  297, _('Color Code List Report'),
+	array(	
+		_('Category') => 'CATEGORIES',
+		_('Stock ID') => 'ITEMS_ALL',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)
+);
 
 //END spyrax10
 
