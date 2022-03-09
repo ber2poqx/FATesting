@@ -59,7 +59,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			, YEAR(dt.tran_date) AS year
 			, ref.reference
             , dt.trans_no
-			, gl.loan_trans_no AS gl_trans_no
+			, gl.loan_trans_no
             , dt.debtor_no
 			, dm.name
 			, gl.memo_
@@ -96,6 +96,13 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 		
 	
 	return db_query($sql,"No transactions were returned");
+}
+
+function Invoice_year($loan_trans_no)
+{
+	$sql = "SELECT `trans_no`, YEAR(`tran_date`) AS `invoice_year` FROM `debtor_trans` WHERE `trans_no` = '$loan_trans_no' AND type = '".ST_SALESINVOICE."' ORDER BY `trans_no`";
+
+	return db_query($sql,"No invoice year");
 }
 
 function getEnding_bal($to, $gl_account, $masterfile)
@@ -236,7 +243,7 @@ function print_SL_RGP()
 
 	$aligns = array('left', 'left', 'center', 'left', 'left', 'left', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('SL Summary (Particulars)'), "SalesSummaryReport", "letter", 9, $orientation);
+	$rep = new FrontReport(_('SL RGP Report - Realized Gross Profit (per transaction)'), "SalesSummaryReport", "letter", 9, $orientation);
 
     //if ($orientation == 'L')
     //	recalculate_cols($cols);
@@ -259,9 +266,15 @@ function print_SL_RGP()
 	$amount_val = 0;
 	$Forwarded_deb = 0;
 	$Forwarded_cred = 0;
+	$trans_number = 0;
 
 	While ($SLsum = db_fetch($res))
 	{
+		$trans_number = $SLsum['loan_trans_no'];
+
+		$result_trans_no = Invoice_year($trans_number);
+		$rowYear = db_fetch($result_trans_no);
+		
 		if($running_bal == 0)
 		{	
 			$rep->NewLine(0.5);
@@ -312,8 +325,8 @@ function print_SL_RGP()
 		$rep->NewLine();
 		$rep->TextCol(0, 1, $SLsum['tran_date']);
 		$rep->TextCol(1, 2, $SLsum['reference']);
-		$rep->TextCol(2, 3, $SLsum['gl_trans_no']);
-		$rep->TextCol(3, 4, $SLsum['year']);
+		$rep->TextCol(2, 3, $trans_number);
+		$rep->TextCol(3, 4, $rowYear['invoice_year']);
 		$rep->TextCol(4, 5, $SLsum['name']);
 		$rep->TextCol(5, 6, $SLsum['memo_']);
 		$rep->AmountCol2(6, 7, $SLsum['Debit'], $dec);
