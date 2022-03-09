@@ -942,7 +942,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 			$sql = "SELECT
 				x1.*
 				FROM (
-					SELECT supp_ref as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
+					SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
 				) x1 ";	
 		}
 		else if ($send_type == 2) {
@@ -975,7 +975,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				$sql = "SELECT
 					x1.*
 					FROM (
-						SELECT supp_ref as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
+						SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
 					) x1 ";	
 			}
 			else if ($type == 2) {
@@ -1007,7 +1007,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 			FROM (
 				SELECT debtor_ref as ref, name, 'Customer' as class FROM " . TB_PREF . "debtors_master
 				UNION
-				SELECT supp_ref as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
+				SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
 				UNION
 				/*SELECT user_id as ref, real_name as name, 'Employee' as class FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
 				UNION*/

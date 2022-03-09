@@ -87,7 +87,7 @@ while ($myrow = db_fetch_assoc($result)) {
 	else {
   		ahref_cell(_("Select"), 'javascript:void(0)', '', 'selectComboItem(window.opener.document, "'.$name.'", "'.$value.'")');
 	}
-  	label_cell($myrow["ref"]);
+  	label_cell(sprintf("%05s", $myrow["ref"]));
   	label_cell($myrow["name"]);
   	label_cell($myrow["class"]);
 	end_row();

@@ -752,7 +752,7 @@ function get_masterfile($mcode) {
 
     $sql = "SELECT name as id_no FROM ".TB_PREF."debtors_master WHERE debtor_ref = " . db_escape($mcode) . "
         UNION
-        SELECT supp_name as id_no FROM ".TB_PREF."suppliers WHERE supp_ref = " . db_escape($mcode) . "
+        SELECT supp_name as id_no FROM ".TB_PREF."suppliers WHERE supplier_id = " . db_escape($mcode) . "
 		UNION
 		SELECT real_name as id_no FROM ".TB_PREF."users WHERE role_id NOT IN(2,10) AND user_id = " .db_escape($mcode) ."
 		UNION
