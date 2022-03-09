@@ -102,7 +102,7 @@ function print_transaction() {
     	2 => array('text' => _('Product Name'), 'from' => $stock_name, 'to' => ''),
 	);
 
-    $rep = new FrontReport(_('Color Code List Report'), "ColorValReport", 'LETTER', 9, $orientation);
+    $rep = new FrontReport(_('Color Code List Report'), "Color_List_Report", 'LETTER', 9, $orientation);
     
     if ($orientation == 'L') {
         recalculate_cols($cols);
