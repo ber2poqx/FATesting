@@ -387,14 +387,14 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
             $change_term_no,
             $invoice->customer_id,
             $amort_sched["id"],
-            ST_SITERMMOD,
-            ST_CUSTPAYMENT,
+           ST_SITERMMOD,
+           ST_SITERMMOD,
             $amount,
             0,
             0,
             0,
             date2sql($date_),
-            0
+            $change_term_no
         );
 
         $total_exist_payment -= $amount;
