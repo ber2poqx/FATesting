@@ -537,10 +537,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 			0,
 			($deferred_gross_profit),
 			$invoice->customer_id,
-			"The total debtor GL posting could not be inserted",
-			0,
-			$hoc_code, 
-			$hoc_masterfile
+			"The total debtor GL posting could not be inserted"
 		);
 	}
 
