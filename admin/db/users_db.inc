@@ -252,7 +252,7 @@ function get_user_id($user_name){
 function get_user_name($id, $by_user_id = false)
 {
 	set_global_connection();
-	
+
     $sql = "SELECT real_name as name 
 		FROM ".TB_PREF."users ";
 	
@@ -311,7 +311,7 @@ function allowed_dcpr_users() {
 
 	set_global_connection();
 
-	$sql = "SELECT A.user_id, A.real_name 
+	$sql = "SELECT A.*
 		FROM ".TB_PREF."users A 
 			INNER JOIN ".TB_PREF." security_roles B ON A.role_id = B.id 
 		WHERE B.id IN (11,15,17,18,19) 

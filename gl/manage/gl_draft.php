@@ -312,7 +312,7 @@ function display_gl_post($trans_no, $trans_type) {
 			}
 			else {
 				sql_type_list(_("Cashier/Teller:"), 'cashier_', 
-					allowed_dcpr_users(), 'user_id', 'real_name', 
+					allowed_dcpr_users(), 'id', 'real_name', 
 					'label', null, true, 'Select Cashier'
 				);
 			}
