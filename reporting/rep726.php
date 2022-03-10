@@ -62,7 +62,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			, gl.loan_trans_no
             , dt.debtor_no
 			, dm.name
-			, gl.memo_
+			, IF(ISNULL(com.memo_), gl.memo_, CONCAT(gl.memo_,' ',com.memo_)) AS memo_
 			, cm.account_name
 			, gl.amount
 			, CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit`
