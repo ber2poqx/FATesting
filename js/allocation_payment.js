@@ -571,7 +571,7 @@ Ext.onReady(function(){
 					Ext.getCmp('v_trans_date').setValue(records.get('tran_date'));
 					Ext.getCmp('v_InvoiceNo').setValue(records.get('invoice_no'));
 					Ext.getCmp('v_total_amount').setValue(records.get('total_amount'));
-					Ext.getCmp('v_cashier').setValue(records.get('cashier'));
+					Ext.getCmp('v_cashier').setValue(records.get('cashier_name'));
 					Ext.getCmp('v_preparedby').setValue(records.get('prepared_by'));
 					Ext.getCmp('v_remarks').setValue(records.get('remarks'));
 
