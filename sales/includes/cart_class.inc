@@ -155,6 +155,7 @@ class Cart
 	var $trans_type_ref;
 	var $repo_type = "new";
 	/* */
+	var $calculation_id = 0;//Restructured Added by Albert 03/10/2022
 	//-------------------------------------------------------------------------
 	//
 	//  $trans_no==0 => open new/direct document
