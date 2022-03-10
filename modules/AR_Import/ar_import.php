@@ -71,6 +71,7 @@
 						$chassis_no, 
 						$amortization_amount, 
 						$total_amount_paid,
+						$last_payment_paid,
 						$standard_cost,
 						$unit_price,
 						$deferred_gross_profit, 
@@ -228,6 +229,12 @@
 							 } else {
 								
 								$maturity_date = date("Y-m-d", strtotime($maturity_date));
+							}
+							if( empty($last_payment_paid )){ 
+								$last_payment_paid = "0000-00-00";
+							 } else {
+								
+								$last_payment_paid = date("Y-m-d", strtotime($last_payment_paid));
 							}
 							if ( empty($rebate )){ 
 								$rebate=0;
@@ -414,7 +421,7 @@
 										0,
 										0,
 										0,
-										$tran_date,
+										$last_payment_paid,
 										$trans_no
 									);
 
