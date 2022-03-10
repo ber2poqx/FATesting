@@ -689,7 +689,7 @@ function get_dcpr_users() {
 	set_global_connection();
 
 	$sql = "SELECT BT.cashier_user_id, USR.real_name FROM " . TB_PREF . "bank_trans BT 
-		INNER JOIN " . TB_PREF . "users USR ON BT.cashier_user_id = USR.user_id 
+		INNER JOIN " . TB_PREF . "users USR ON BT.cashier_user_id = USR.id
 		ORDER BY USR.real_name";
 
 	return db_query($sql, _("Cant get DCPR users!"));
