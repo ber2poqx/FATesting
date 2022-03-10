@@ -100,15 +100,14 @@ function get_item_code($id)
 
 function get_all_item_codes($stock_id, $foreign=1)
 {
-	$sql="SELECT i.*, c.description as cat_name FROM "
-		.TB_PREF."item_codes as i,"
-		.TB_PREF."stock_category as c
-		WHERE stock_id=".db_escape($stock_id)."
-		AND i.category_id=c.category_id
-		AND i.is_foreign=".db_escape($foreign);
+	$sql = "SELECT i.*, c.description as cat_name 
+	FROM " .TB_PREF. "item_codes as i, " .TB_PREF. "stock_category as c";
+		
+	$sql .= " WHERE stock_id = ".db_escape($stock_id) . "
+		AND i.category_id = c.category_id
+		AND i.is_foreign = ".db_escape($foreign);
 
 	$result = db_query($sql,"all item codes could not be retrieved");
-
 	return $result;
 }
 

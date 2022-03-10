@@ -125,7 +125,8 @@ if ($action == 'import') {
             ST_SALESINVOICE => 'Sales Invoice Opening',
             30 => 'Price List',
             31 => 'Customer List',
-            32 => 'Item List'
+            32 => 'Item List',
+            33 => 'Item Color Code'
         ), 'label', null, true, '', true
     );
 

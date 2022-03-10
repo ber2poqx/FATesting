@@ -77,6 +77,12 @@ class inventory_app extends application
 		$this->add_rapp_function(2, _("Item AP Support Type"),
 			"inventory/item_apsupport.php?mngtype=type", 'SA_ITMAPSUPPORT', MENU_MAINTENANCE);
 
+		//Added by spyrax10 10 Mar 2022
+		$this->add_rapp_function(2, _("Import Item Color Code"),
+			"inventory/manage/color_upload.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
+		);
+		//
+
 		$this->add_module(_("Pricing and Costs"));
 		$this->add_lapp_function(3, _("Cash &Pricing"),
 		"inventory/cash_price.php?", 'SA_SCASHPRICE', MENU_MAINTENANCE);
