@@ -155,7 +155,7 @@ function print_dailycash_sales()
 	$cashier_name = $cashier_display = '';
 
 	if ($cashier != '') {
-		$cashier_name = $cashier_display = get_user_name($cashier, true);
+		$cashier_name = $cashier_display = get_user_name($cashier);
 	}
 	else {
 		$cashier_display = _("ALL CASHIER");

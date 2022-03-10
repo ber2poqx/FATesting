@@ -304,9 +304,8 @@ function display_gl_post($trans_no, $trans_type) {
 			hidden('receipt_no', $row['ref_no']);
 
 			if (get_user_role($_SESSION["wa_current_user"]->user) == 'Cashier/Teller') {
-				$row = get_user($_SESSION["wa_current_user"]->user);
-		
-				$_POST['cashier_teller'] = $row['user_id'];
+				
+				$_POST['cashier_teller'] = $_SESSION["wa_current_user"]->user;
 				label_row(_("Cashier/Teller:"), $_POST['cashier_teller'] . " | " . get_current_user_fullname());
 				hidden('cashier_teller');
 			}
