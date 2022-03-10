@@ -1579,6 +1579,7 @@ Ext.onReady(function() {
 					width: 290,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
@@ -2176,6 +2177,7 @@ Ext.onReady(function() {
 					width: 280,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
@@ -2594,6 +2596,7 @@ Ext.onReady(function() {
 					width: 280,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
@@ -3047,6 +3050,7 @@ Ext.onReady(function() {
 					width: 280,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',

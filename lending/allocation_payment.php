@@ -114,6 +114,51 @@ if(isset($_GET['get_cashierPrep']))
     echo '({"success":"true","cashier":"'.$cashier.'","prepare":"'.$prepare.'"})';
     return;
 }
+if(isset($_GET['get_CashierTellerCol']))
+{
+    $user_role = check_user_role($_SESSION["wa_current_user"]->username);
+    $result = get_casheirCol($_SESSION["wa_current_user"]->username);
+
+    if($user_role == 15 || $user_role == 11){
+        while ($user_row = db_fetch($result)) {
+            if(strtoupper($_SESSION["wa_current_user"]->username) == strtoupper($user_row["user_id"])){
+                $status_array[] = array('id'=>$user_row["id"],
+                                            'name'=> $user_row["real_name"],
+                                            'type'=>$user_row["role_id"]
+                                        );
+            }
+        }
+    }else{
+        if($user_role == 2){
+            while ($user_row = db_fetch($result)) {
+                $status_array[] = array('id'=>$user_row["id"],
+                                            'name'=> $user_row["real_name"],
+                                            'type'=>$user_row["role_id"]
+                                        );
+            }
+        }else{
+            $op_result = check_operator_builder($_SESSION["wa_current_user"]->username);
+            if(DB_num_rows($op_result) != 0){
+                $op_user_row = db_fetch($op_result);
+
+                $status_array[] = array('id'=>$op_user_row["usersid"],
+                                            'name'=> $op_user_row["cashier_name"],
+                                            'type'=>$op_user_row["role_id"]
+                                        );
+            }else{
+                $row = get_user($_SESSION["wa_current_user"]->user);
+                $status_array[] = array('id'=>$row["id"],
+                                            'name'=> $row["real_name"],
+                                            'type'=>$row["role_id"]
+                                        );
+            }
+        }
+    }
+
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
 if(isset($_GET['get_CollectionType']))
 {
     $result = get_collection_types(false);
@@ -300,7 +345,8 @@ if(isset($_GET['get_custPayment']))
                                 'payment_type_v'=>$paymentType,
                                 'payment_type'=>$myrow["payment_type"],
                                 'collect_type'=>$myrow["collect_id"],
-                                'cashier'=>$myrow["cashier_user_id"]
+                                'cashier'=>$myrow["cashier_user_id"],
+                                'cashier_name'=>$myrow["real_name"]
                             );
     }
     $jsonresult = json_encode($status_array);
