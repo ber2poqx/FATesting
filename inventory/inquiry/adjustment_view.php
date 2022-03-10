@@ -139,7 +139,7 @@ function post_date($row) {
 }
 
 function location($row) {
-	return $row["loc_code"];
+	return get_location_name($row["loc_code"]);
 }
 
 function document_total($row) {

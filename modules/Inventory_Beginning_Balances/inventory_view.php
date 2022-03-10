@@ -64,7 +64,7 @@ function category($row) {
 }
 
 function loc_($row) {
-	return get_db_location_name($row['loc_code']);
+	return get_location_name($row['loc_code']);
 }
 
 function doc_total($row) {
