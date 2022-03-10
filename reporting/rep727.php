@@ -33,16 +33,11 @@ print_RGP_summarized();
 function getTransactions($month, $account)
 {	
 	$sql = "		
-			SELECT YEAR(dt.tran_date) AS year , SUM(ABS(gl.amount)) AS amount 
-			FROM `gl_trans` gl 
-				LEFT JOIN `refs` ref ON gl.type = ref.type AND gl.loan_trans_no = ref.id 
-				LEFT JOIN `debtor_trans` dt ON gl.type = dt.type AND gl.loan_trans_no = dt.trans_no 
-				LEFT JOIN `debtors_master` dm ON dt.debtor_no = dm.debtor_no 
-				LEFT JOIN `comments` com ON gl.type = com.type AND gl.loan_trans_no = com.id 
-				LEFT JOIN `chart_master` cm ON gl.account = cm.account_code 
+			SELECT YEAR(gl.tran_date) AS year , SUM(ABS(gl.amount)) AS amount 
+			FROM `gl_trans` gl 				
 			WHERE gl.`account` = '$account' 
 				AND MONTH(gl.tran_date) = '$month' 
-			GROUP BY YEAR(dt.tran_date)";
+			GROUP BY YEAR(gl.tran_date)";
 
 	return db_query($sql,"No transactions were returned");
 }
@@ -114,7 +109,7 @@ function print_RGP_summarized()
 
 	$aligns = array('center', 'right', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('RGP Summarized per Year'), "RGPSummarizedReport", "letter", 9, $orientation);
+	$rep = new FrontReport(_('RGP Report - Summarized per Year'), "RGPSummarizedReport", "letter", 9, $orientation);
 
     //if ($orientation == 'L')
     //	recalculate_cols($cols);
