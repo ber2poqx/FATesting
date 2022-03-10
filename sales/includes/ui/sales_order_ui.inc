@@ -1387,99 +1387,181 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 	label_row(_("OLD DGP:"), price_format($old_deferred_gross_profit));
 	label_row(_("Total Generated dgp from Payment:"), price_format($total_dgp));
 	label_row(_("DGP Balance:"), price_format($dgp_bal));
-	/*end by Albert */
+	
 
 	table_section(4);
 	table_section_title(_("New"));
+	calculation_type(_("Calculation Type:"),'calculation_id', null, _("Auto Calculation"), true, 'label');
+	if (get_post('calculation_id') == 0){
+		//auto calculation
+		date_row(
+			"New First Due Date:",
+			'first_due_date',
+			_('Date of first due'),
+			$order->trans_no == 0,
+			0,
+			1,
+			0,
+			null,
+			true
+		);
+		date_row(
+			"New Maturity Date:",
+			'new_maturity_date',
+			_('Date of maturity'),
+			$order->trans_no == 0,
+			0,
+			0,
+			0,
+			null,
+			true
+		);
+	
+		installment_policy_list_row(
+			_("New Payment Term:"),
+			'new_installment_policy_id',
+			$_POST['category_id'],
+			get_post('new_installment_policy_id'),
+			"Select",
+			true,
+			false
+		);
+	
+		$policy_detail = db_fetch(get_instlpolicy_by_id($_POST['new_installment_policy_id']));
+		$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
+		label_row(_("New Months Term:"), $count_term_arr[0]);
+		label_row(_("New Rebate:"), price_format($policy_detail["rebate"]));
+		label_row(_("New Financing Rate:"), $policy_detail["financing_rate"] . "%");
+	
+	
+		hidden('new_lcp_amount');
+		hidden('new_total_amount');
+		hidden('new_due_amort');
+		hidden('new_ar_amount');
+		hidden('outstanding_ar_amount');
+		hidden('new_count_term');
+		hidden('new_rebate');
+		hidden('new_financing_rate');
+		hidden('alloc');
+	
+	
+		$_POST['new_count_term'] = $count_term_arr[0];
+		$_POST['new_rebate'] = $policy_detail["rebate"];
+		$_POST['new_financing_rate'] = $policy_detail["financing_rate"];
+		/*modified by Albert*/
+		$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
+		$half = 0.5 / pow(10, 2); //Added by Albert
+		$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
+		$new_total_dgp = get_post('alloc') * $profit_margin;
+		$new_dgp_bal = $deferred_gross_profit - $new_total_dgp;
+	
+		// label_row(_("LCP Amount:"), price_format(get_post('new_lcp_amount')));
+		label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
+		label_row(_("New Gross:"), price_format(get_post('new_ar_amount')));
+		label_row(_("A/R Balance:"), price_format(get_post('outstanding_ar_amount')));
+		label_row(_("Total Payment:"), price_format(get_post('alloc')));
+		label_row(_("Profit Margin:"), price_format($profit_margin));
+		label_row(_("New DGP:"), price_format($deferred_gross_profit));
+		label_row(_("Total Generated dgp from Payment:"), price_format($new_total_dgp));
+		label_row(_("DGP Balance:"), price_format($new_dgp_bal));
+	
 
-	date_row(
-		"New First Due Date:",
-		'first_due_date',
-		_('Date of first due'),
-		$order->trans_no == 0,
-		0,
-		1,
-		0,
-		null,
-		true
-	);
-	date_row(
-		"New Maturity Date:",
-		'new_maturity_date',
-		_('Date of maturity'),
-		$order->trans_no == 0,
-		0,
-		0,
-		0,
-		null,
-		true
-	);
+	}else{
+		//manual calculation
+		date_row(
+			"New First Due Date:",
+			'first_due_date',
+			_('Date of first due'),
+			$order->trans_no == 0,
+			0,
+			1,
+			0,
+			null,
+			true
+		);
+		date_row(
+			"New Maturity Date:",
+			'new_maturity_date',
+			_('Date of maturity'),
+			$order->trans_no == 0,
+			0,
+			0,
+			0,
+			null,
+			true
+		);
 
-	installment_policy_list_row(
-		_("New Payment Term:"),
-		'new_installment_policy_id',
-		$_POST['category_id'],
-		get_post('new_installment_policy_id'),
-		"Select",
-		true,
-		false
-	);
+		installment_policy_list_row(
+			_("New Payment Term:"),
+			'new_installment_policy_id',
+			$_POST['category_id'],
+			get_post('new_installment_policy_id'),
+			"Select",
+			true,
+			false
+		);
 
-	$policy_detail = db_fetch(get_instlpolicy_by_id($_POST['new_installment_policy_id']));
-	$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
-	label_row(_("New Months Term:"), $count_term_arr[0]);
-	label_row(_("New Rebate:"), price_format($policy_detail["rebate"]));
-	label_row(_("New Financing Rate:"), $policy_detail["financing_rate"] . "%");
+		$policy_detail = db_fetch(get_instlpolicy_by_id($_POST['new_installment_policy_id']));
+		$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
+		label_row(_("New Months Term:"), $count_term_arr[0]);
+		label_row(_("New Rebate:"), price_format($policy_detail["rebate"]));
+		label_row(_("New Financing Rate:"), $policy_detail["financing_rate"] . "%");
+
+		hidden('new_lcp_amount');
+		hidden('new_total_amount');
+		hidden('new_due_amort');
+		hidden('new_ar_amount');
+		hidden('outstanding_ar_amount');
+		hidden('new_count_term');
+		hidden('new_rebate');
+		hidden('new_financing_rate');
+		hidden('alloc');
 
 
-	hidden('new_lcp_amount');
-	hidden('new_total_amount');
-	hidden('new_due_amort');
-	hidden('new_ar_amount');
-	hidden('outstanding_ar_amount');
-	hidden('new_count_term');
-	hidden('new_rebate');
-	hidden('new_financing_rate');
-	hidden('alloc');
+		$_POST['new_count_term'] = $count_term_arr[0];
+		$_POST['new_rebate'] = $policy_detail["rebate"];
+		$_POST['new_financing_rate'] = $policy_detail["financing_rate"];
+		/*modified by Albert*/
+		$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
+		$half = 0.5 / pow(10, 2); //Added by Albert
+		$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
+		$new_total_dgp = get_post('alloc') * $profit_margin;
+		$new_dgp_bal = $deferred_gross_profit - $new_total_dgp;
+		$dec = get_post('outstanding_ar_amount');
+		$new_gross = price_format(get_post('outstanding_ar_amount'));
 
+		// label_row(_("LCP Amount:"), price_format(get_post('new_lcp_amount')));
+		label_row(_("New Amortization:"), price_format($_POST['new_due_amort']));
+		label_row(_("New Gross:"), $new_gross);
+		manual_ar_amount_cells(_("A/R Balance:"), 'outstanding_ar_amount_', 0, null, null, $dec);
+		$_POST['new_due_amort'] = 100;
+		$Ajax->activate('new_due_amort');
+		label_row(_("Total Payment:"), price_format(get_post('alloc')));
+		label_row(_("Profit Margin:"), price_format($profit_margin));
+		label_row(_("New DGP:"), price_format($deferred_gross_profit));
+		label_row(_("Total Generated dgp from Payment:"), price_format($new_total_dgp));
+		label_row(_("DGP Balance:"), price_format($new_dgp_bal));
 
-	$_POST['new_count_term'] = $count_term_arr[0];
-	$_POST['new_rebate'] = $policy_detail["rebate"];
-	$_POST['new_financing_rate'] = $policy_detail["financing_rate"];
-	/*modified by Albert*/
-	$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
-	$half = 0.5 / pow(10, 2); //Added by Albert
-	$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
-	$new_total_dgp = get_post('alloc') * $profit_margin;
-	$new_dgp_bal = $deferred_gross_profit - $new_total_dgp;
+}
+	
 
-	// label_row(_("LCP Amount:"), price_format(get_post('new_lcp_amount')));
-	label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
-	label_row(_("New Gross:"), price_format(get_post('new_ar_amount')));
-	label_row(_("A/R Balance:"), price_format(get_post('outstanding_ar_amount')));
-	label_row(_("Total Payment:"), price_format(get_post('alloc')));
-	label_row(_("Profit Margin:"), price_format($profit_margin));
-	label_row(_("New DGP:"), price_format($deferred_gross_profit));
-	label_row(_("Total Generated dgp from Payment:"), price_format($new_total_dgp));
-	label_row(_("DGP Balance:"), price_format($new_dgp_bal));
-	/*--end by Albert */
-	table_section(5);
-	table_section_title("Adjustment");
-	label_row(_("Old Amortization:"), price_format($amort));
-	label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
-	label_row(_("Amort Difference:"), price_format($_POST['amort_diff']));
-	hidden('amort_diff');
-	label_row(_("No of Months Paid:"), $_POST['months_paid']);
-	hidden('months_paid');
-	label_row(_("Amortization Delay:"), price_format($_POST['amort_delay']));
-	hidden('amort_delay');
-	label_row(_("Adjustment Rate:"), price_format($_POST['adj_rate']) . "%");
-	hidden('adj_rate');
-	label_row(_("Opportunity Cost:"), price_format($_POST['opportunity_cost']));
-	hidden('opportunity_cost');
-	label_row(_("Amount to be Paid:"), price_format(round($_POST['amount_to_be_paid'],0)));
-	hidden('amount_to_be_paid');
-
+	// table_section(5);
+	// table_section_title("Adjustment");
+	// label_row(_("Old Amortization:"), price_format($amort));
+	// label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
+	// label_row(_("Amort Difference:"), price_format($_POST['amort_diff']));
+	// hidden('amort_diff');
+	// label_row(_("No of Months Paid:"), $_POST['months_paid']);
+	// hidden('months_paid');
+	// label_row(_("Amortization Delay:"), price_format($_POST['amort_delay']));
+	// hidden('amort_delay');
+	// label_row(_("Adjustment Rate:"), price_format($_POST['adj_rate']) . "%");
+	// hidden('adj_rate');
+	// label_row(_("Opportunity Cost:"), price_format($_POST['opportunity_cost']));
+	// hidden('opportunity_cost');
+	// label_row(_("Amount to be Paid:"), price_format(round($_POST['amount_to_be_paid'],0)));
+	// hidden('amount_to_be_paid');
+/*end by Albert */
 	end_outer_table(1); // outer table
 
 	hidden('Location');

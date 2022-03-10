@@ -238,36 +238,6 @@ end_table();
 echo "<br>";
 start_table(TABLESTYLE, "width='100%'");
 
-start_row();
-label_cells(_("Amortization Diff"), price_format($header["amort_diff"]), "class='tableheader2'");
-label_cells(_("No. of Months Paid"), $header["months_paid"], "class='tableheader2'");
-label_cells(_("Amortization Delay"), price_format($header["amort_delay"]), "class='tableheader2'");
-end_row();
-
-start_row();
-label_cells(_("Adjustment Rate"), $header["adj_rate"] . "%", "class='tableheader2'");
-label_cells(_("Opportunity Cost"), price_format($header["opportunity_cost"]), "class='tableheader2'");
-label_cells(
-	_("Amortization Delay Status"),
-	$header["amount_to_be_paid_status"],
-	"class='tableheader2'",
-	$header["amount_to_be_paid_status"] == "unpaid"
-		? "style='font-weight: bold; background-color: red;'"
-		: "style='font-weight: bold; background-color: green;'"
-);
-end_row();
-
-start_row();
-label_cells(
-	_("Amount to be Paid"),
-	price_format($header["amount_to_be_paid"]),
-	"class='tableheader2'",
-	$header["amount_to_be_paid_status"] == "unpaid"
-		? "style='font-weight: bold; background-color: red;'"
-		: "style='font-weight: bold; background-color: green;'"
-);
-end_row();
-
 end_table();
 
 echo "</td></tr>";

@@ -778,11 +778,16 @@ function can_process()
 if (isset($_POST['installment_policy_id'])) {
 	installment_computation();
 }
-
-if (isset($_POST['new_installment_policy_id'])) {
+/*modified by Albert*/
+if (isset($_POST['new_installment_policy_id']) && $_SESSION['Items']->trans_type == ST_SITERMMOD) {
 	new_installment_computation();
+}else{
+	if(get_post('calculation_id')==1)
+		restuctured_computation();
+	else
+	    new_installment_computation();
 }
-
+/**/
 if (isset($_POST['update'])) {
 	copy_to_cart();
 	$Ajax->activate('items_table');
@@ -947,6 +952,48 @@ function new_installment_computation()
 	$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
 	global $Ajax;
 	$Ajax->activate('_page_body');
+}
+/*Added by Albert */
+function restuctured_computation(){
+	$company = get_company_prefs();
+	$price = 0;
+	foreach ($_SESSION['Items']->get_items() as $line_no => $line) {
+		$price += $line->price * $line->qty_dispatched;
+	}
+	$policy_detail = db_fetch(get_instlpolicy_by_id(get_post('new_installment_policy_id')));
+
+	$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
+	$terms = floatval($count_term_arr[0]);
+	$financing_rate = floatval($policy_detail["financing_rate"]);
+	$rebate = floatval($policy_detail["rebate"]);
+	$quotient_financing_rate = floatval($financing_rate) / 100;
+
+	$mature_date = add_months($_POST['first_due_date'], $terms);
+	$_POST['new_maturity_date'] = add_months($mature_date, -1);
+	//
+
+	$_POST['new_rebate'] = $rebate;
+	$_POST['new_financing_rate'] = $financing_rate;
+	$_POST['new_count_term'] = $terms;
+
+	$_POST['outstanding_ar_amount'] = round(input_num('outstanding_ar_amount_',0)); 
+	$_POST['new_ar_amount'] = $_POST['outstanding_ar_amount'];
+	$_POST['new_due_amort'] = $_POST['new_ar_amount'] / $terms;
+	$_POST['down_pay'] = 0;
+
+	$_POST['amort_diff'] = 0;
+
+	$_POST['months_paid'] = 0;
+	$_POST['amort_delay'] = 0;
+
+	$_POST['adj_rate'] = 0;
+	$_POST['opportunity_cost'] = 0;
+	$_POST['amount_to_be_paid'] = 0;
+
+
+	global $Ajax;
+	$Ajax->activate("_page_body");
+
 }
 
 function reset_computation()

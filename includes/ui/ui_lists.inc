@@ -4825,5 +4825,61 @@ function target_list_row($label, $name, $selected_id=null, $spec_opt=false, $sub
 	target_list_cells(null, $name, $selected_id, $spec_opt, $submit_on_change, $fixed_asset, $disabled);
 	echo "</tr>\n";
 }
+/*Added by Albert 03/09/2022*/
+function calculation_type($label, $name, $selected = null, $submit_on_change = false, $design = '' ) {
+	
+	if ($label != null)
+	echo "<tr><td class='label'>$label</td>";
+	echo "<td>\n";
+	$allocs = array( 
+		'0'=> _("Auto Calculation"),
+		'1'=> _("Manual Calculation")
+	);
+	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change),$design);
+	echo "</td>\n";
+}
 
+function manual_ar_amount_cells($label, $name, $init = null, $params = null, $post_label = null, $dec = null)
+{
+	if (!isset($dec))
+		$dec = user_qty_dec();
 
+	manual_ar_amount_cells_ex($label, $name, 15, 15, $init, $params, $post_label, $dec);
+}
+
+function manual_ar_amount_cells_ex($label, $name, $size, $max = null, $init = null, $params = null, $post_label = null, $dec = null)
+{
+	global $Ajax;
+
+	if (!isset($dec))
+		$dec = user_price_dec();
+	if (!isset($_POST[$name]) || $_POST[$name] == "") {
+		if ($init !== null)
+			$_POST[$name] = $init;
+		else
+			$_POST[$name] = '';
+	}
+	if ($label != null) {
+		echo "<tr><td class='label'>$label</td>";
+	}
+	if (!isset($max))
+		$max = $size;
+
+	if ($label != null)
+		echo "<td>";
+	else
+		echo "<td align='right'>";
+
+	$submit_on_change = "JsHttpRequest.request($name, this.form)";
+	echo "<input class='amount' type=\"text\" name=\"$name\" size=\"$size\" maxlength=\"$max\" dec=\"$dec\" value=\"" . $_POST[$name] . "\" 
+		onchange=\"$submit_on_change\" >";
+
+	if ($post_label) {
+		echo "<span id='_{$name}_label'> $post_label</span>";
+		$Ajax->addUpdate($name, '_' . $name . '_label', $post_label);
+	}
+	echo "</td>\n";
+	$Ajax->addUpdate($name, $name, $_POST[$name]);
+	$Ajax->addAssign($name, $name, 'dec', $dec);
+}
+/*End by Albert*/

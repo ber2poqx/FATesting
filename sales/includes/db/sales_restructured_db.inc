@@ -330,53 +330,53 @@ function write_restructured(&$invoice, $opening_balances=0)
     $loans =  get_ar_amount($invoice->document_ref);
     $allocatedAmount = $loans['ar_amount']- $row['alloc'];
 
-    //Add termode alloc
-    add_cust_allocation($row['alloc'], ST_RESTRUCTURED, $restructured_no, ST_RESTRUCTURED, $restructured_no, $invoice->customer_id, $date_);
-    //close invoice alloc
-    add_cust_allocation($allocatedAmount, ST_RESTRUCTURED , $restructured_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
+    // //Add termode alloc
+    // add_cust_allocation($row['alloc'], ST_RESTRUCTURED, $restructured_no, ST_RESTRUCTURED, $restructured_no, $invoice->customer_id, $date_);
+    // //close invoice alloc
+    // add_cust_allocation($allocatedAmount, ST_RESTRUCTURED , $restructured_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
     update_debtor_trans_allocation($row['type'], $si_trans_no, $invoice->customer_id);
     /*----end Albert-----*/ 
 
     add_gl_balance($row['type'], $restructured_no, $date_, -$total, PT_CUSTOMER, $invoice->customer_id);
 
-    $amortization_schedule = get_deptor_loan_schedule_ob($restructured_no, $invoice->customer_id, ST_RESTRUCTURED );
-    $total_exist_payment = floatval($invoice->alloc);
-    while ($amort_sched = db_fetch($amortization_schedule)) {
-        if ($total_exist_payment == 0)
-            break;
+    // $amortization_schedule = get_deptor_loan_schedule_ob($restructured_no, $invoice->customer_id, ST_RESTRUCTURED );
+    // $total_exist_payment = floatval($invoice->alloc);
+    // while ($amort_sched = db_fetch($amortization_schedule)) {
+    //     if ($total_exist_payment == 0)
+    //         break;
 
-        $amount = 0;
-        $status = "paid";
-        if ($total_exist_payment >= $invoice->amortization) {
-            $amount = $amort_sched["total_principaldue"];
-        } else {
-            $amount = $total_exist_payment;
-            $status = "partial";
-        }
-        add_loan_ledger_ct(
-            $restructured_no,
-            $invoice->customer_id,
-            $amort_sched["id"],
-            ST_RESTRUCTURED ,
-            ST_CUSTPAYMENT,
-            $amount,
-            0,
-            0,
-            0,
-            date2sql($date_),
-            0
-        );
+    //     $amount = 0;
+    //     $status = "paid";
+    //     if ($total_exist_payment >= $invoice->amortization) {
+    //         $amount = $amort_sched["total_principaldue"];
+    //     } else {
+    //         $amount = $total_exist_payment;
+    //         $status = "partial";
+    //     }
+    //     add_loan_ledger_ct(
+    //         $restructured_no,
+    //         $invoice->customer_id,
+    //         $amort_sched["id"],
+    //         ST_RESTRUCTURED ,
+    //         ST_CUSTPAYMENT,
+    //         $amount,
+    //         0,
+    //         0,
+    //         0,
+    //         date2sql($date_),
+    //         0
+    //     );
 
-        $total_exist_payment -= $amount;
-        $loansched_id = $amort_sched["id"];
-        $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
-			status=" . db_escape($status) . "
-			WHERE id=$loansched_id";
+    //     $total_exist_payment -= $amount;
+    //     $loansched_id = $amort_sched["id"];
+    //     $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
+	// 		status=" . db_escape($status) . "
+	// 		WHERE id=$loansched_id";
 
-        $ErrMsg = _('Could not update loan schedule because ');
+    //     $ErrMsg = _('Could not update loan schedule because ');
 
-        db_query($sql, $ErrMsg);
-    }
+    //     db_query($sql, $ErrMsg);
+    // }
 
     hook_db_postwrite($invoice, ST_RESTRUCTURED );
 
