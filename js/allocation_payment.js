@@ -54,7 +54,8 @@ Ext.onReady(function(){
 			{name:'payment_type', mapping:'payment_type'},
 			{name:'payment_type_v', mapping:'payment_type_v'},
 			{name:'collect_type', mapping:'collect_type'},
-			{name:'cashier', mapping:'cashier'}
+			{name:'cashier', mapping:'cashier'},
+			{name:'cashier_name', mapping:'cashier_name'}
 		]
 	});
 	Ext.define('view_ledger',{
@@ -280,6 +281,25 @@ Ext.onReady(function(){
 				totalProperty  : 'total'
 			}
 		}
+	});
+	var cashierStore = Ext.create('Ext.data.Store', {
+		model: 'comboModel',
+		autoLoad : true,
+		pageSize: itemsPerPage, // items per page
+		proxy: {
+			url: '?get_CashierTellerCol=xx',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'id',
+			direction : 'ASC'
+		}]
 	});
 
 	//---------------------------------------------------------------------------------------
@@ -738,14 +758,19 @@ Ext.onReady(function(){
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
-				xtype: 'textfield',
+				xtype: 'combobox',
 				fieldLabel: 'Cashier/Teller ',
 				id: 'cashier',
 				name: 'cashier',
-				allowBlank: false,
-				readOnly: true,
+				store: cashierStore,
+				displayField: 'name',
+				valueField: 'id',
+				queryMode: 'local',
 				labelWidth: 105,
 				width: 280,
+				forceSelection: true,
+				selectOnFocus:true,
+				allowBlank: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
 				xtype: 'textfield',
@@ -1076,14 +1101,19 @@ Ext.onReady(function(){
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
-				xtype: 'textfield',
+				xtype: 'combobox',
 				fieldLabel: 'Cashier/Teller ',
 				id: 'cashier_aib',
 				name: 'cashier_aib',
-				allowBlank: false,
-				readOnly: true,
+				store: cashierStore,
+				displayField: 'name',
+				valueField: 'id',
+				queryMode: 'local',
 				labelWidth: 105,
 				width: 280,
+				forceSelection: true,
+				selectOnFocus:true,
+				allowBlank: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
 				xtype: 'textfield',
@@ -1451,6 +1481,12 @@ Ext.onReady(function(){
 			AllocationStore.proxy.extraParams = {transNo: 0 };
 			AllocationStore.load();
 
+			cashierStore.load({
+				callback: function(records) {                 
+        			Ext.getCmp('cashier').setValue(records[i].get('id'));
+				}
+			});
+
 			Ext.getCmp('moduletype').setValue('ALCN-DP');
 			Ext.getCmp('collectType').setValue('0');
 			Ext.getCmp('paymentType').setValue('alloc');
@@ -1473,6 +1509,12 @@ Ext.onReady(function(){
 			AllocationStore.proxy.extraParams = {transNo: 0 };
 			AllocationStore.load();
 			
+			cashierStore.load({
+				callback: function(records) {                 
+        			Ext.getCmp('cashier_aib').setValue(records[i].get('id'));
+				}
+			});
+
 			Ext.getCmp('moduletype_aib').setValue('ALCN-INTERB');
 			Ext.getCmp('collectType_aib').setValue('0');
 			Ext.getCmp('paymentType_aib').setValue('alloc');
@@ -1551,10 +1593,10 @@ Ext.onReady(function(){
 			success: function (response){
 				var result = Ext.JSON.decode(response.responseText);
 				if($tag == "DP"){
-					Ext.getCmp('cashier').setValue(result.cashier);
+					//Ext.getCmp('cashier').setValue(result.cashier);
 					Ext.getCmp('preparedby').setValue(result.prepare);
 				}else if($tag == "interb"){
-					Ext.getCmp('cashier_aib').setValue(result.cashier);
+					//Ext.getCmp('cashier_aib').setValue(result.cashier);
 					Ext.getCmp('preparedby_aib').setValue(result.prepare);
 				}
 			}
