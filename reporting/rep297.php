@@ -25,24 +25,25 @@ print_transaction();
 
 function getTransactions($stock_id = "", $category) {
 
-	$sql = "SELECT i.*, c.description as cat_name 
-        FROM ".TB_PREF."item_codes as i
-            LEFT JOIN ".TB_PREF."stock_category as c ON i.category_id = c.category_id 
-            WHERE i.is_foreign = 1";
+	$sql = "SELECT IC.*, SC.description as cat_name 
+        FROM ".TB_PREF."stock_master SM
+            LEFT JOIN ".TB_PREF."item_codes IC ON SM.stock_id = IC.stock_id 
+            LEFT JOIN ".TB_PREF."stock_category as SC ON SM.category_id = SC.category_id 
+            WHERE IC.is_foreign = 1";
     
     if ($category != 0) {
-        $sql .= " AND i.category_id = ".db_escape($category);
+        $sql .= " AND SM.category_id = ".db_escape($category);
     }
 
     if ($stock_id != "") {
-        $sql .= " AND i.stock_id = ".db_escape($stock_id);
+        $sql .= " AND SM.stock_id = ".db_escape($stock_id);
     }
 
     if ($stock_id != "") {
-        $sql .= " GROUP BY i.item_code";
+        $sql .= " GROUP BY IC.item_code";
     }
 
-    $sql .= " ORDER BY i.category_id DESC, i.stock_id";
+    $sql .= " ORDER BY SM.category_id DESC, SM.stock_id";
 
     return db_query($sql, "No transactions were returned");
 }
