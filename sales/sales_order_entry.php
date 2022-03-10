@@ -947,9 +947,15 @@ function new_installment_computation()
 	// 	? $_POST['new_financing_rate'] - $_POST['financing_rate']
 	// 	: $_POST['financing_rate'] - $_POST['new_financing_rate'];
 	$_POST['adj_rate'] = $company["penalty_rate"];
-	$_POST['opportunity_cost'] = ($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']);//modified by Albert
-	$_POST['amount_to_be_paid'] = $_POST['amort_delay'] + $_POST['opportunity_cost'];
-
+	/*modified by Albert*/
+	if($_POST['due_amort'] > $_POST['new_due_amort']){
+		$_POST['opportunity_cost'] = 0;
+		$_POST['amount_to_be_paid'] = 0;
+	}else{
+		$_POST['opportunity_cost'] = ($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']);//modified by Albert
+		$_POST['amount_to_be_paid'] = $_POST['amort_delay'] + $_POST['opportunity_cost'];
+	}
+	/* */
 	$_POST['new_total_amount'] = $total_amount;
 	$_POST['new_ar_amount'] = $total_amount; //Modified by Albert
 	$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
