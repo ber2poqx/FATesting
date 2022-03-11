@@ -149,6 +149,7 @@ function _gl_details() {
 	$adjustment = $_GET['type_id'] == ST_INVADJUST;
 	$invoice = $_GET['type_id'] == ST_SALESINVOICE;
 	$sales_return = $_GET['type_id'] == ST_SALESRETURN;
+	$sup_recv = $_GET['type_id'] == ST_SUPPRECEIVE;
 	//
 	//Added by albert 
 	$termmode = $_GET['type_id'] == ST_SITERMMOD;
@@ -241,7 +242,7 @@ function _gl_details() {
 	    	label_cell(get_db_location_name($rrbranch_header["mt_header_fromlocation"]));
 		}	
 		//Added by spyrax10
-		else if ($invoice || $sales_return) {
+		else if ($invoice || $sales_return || $sup_recv) {
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 				get_subaccount_code($_GET['type_id'], $_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 

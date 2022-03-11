@@ -40,12 +40,20 @@ include_once($path_to_root . "/purchasing/includes/db/suppliers_db.inc");
 function add_gl_trans_supplier($type, $type_no, $date_, $account, $dimension, $dimension2,  
 	$amount, $supplier_id, $err_msg="", $rate=0, $memo="")
 {
-	if ($err_msg == "")
+	if ($err_msg == "") {
 		$err_msg = "The supplier GL transaction could not be inserted";	
+	}
+
+	//Added by spyrax10
+	$mcode = $account == 2151 ? get_company_value(0, 'branch_code') : "";
+	$master_file = $account == 2151 ? get_company_value(0, 'name') : "";
+	//
+
 	set_global_connection();
+	
 	return add_gl_trans($type, $type_no, $date_, $account, $dimension, $dimension2, $memo, 
 		$amount, get_supplier_currency($supplier_id), 
-		PT_SUPPLIER, $supplier_id, $err_msg, $rate);
+		PT_SUPPLIER, $supplier_id, $err_msg, $rate, $mcode, $master_file);
 }
 
 //----------------------------------------------------------------------------------------
