@@ -440,7 +440,7 @@ $reports->addReport(RC_INVENTORY,  311, _('Aging Inventory Report - Detailed'),
 	)
 );
 
-$reports->addReport(RC_INVENTORY,  312, _('Aging Inventory Report - By Year'),
+$reports->addReport(RC_INVENTORY, 312, _('Aging Inventory Report - By Year'),
 	array(	
 		_('Period Date') => 'DATE',
 		_('Inventory Category') => 'CATEGORIES',
@@ -450,8 +450,15 @@ $reports->addReport(RC_INVENTORY,  312, _('Aging Inventory Report - By Year'),
 	)
 );
 
+$reports->addReport(RC_INVENTORY, 296, _('Item List Detailed Report'),
+	array(	
+		_('Category') => 'CATEGORIES',
+		_('Comments') => 'TEXTBOX',
+		_('Destination') => 'DESTINATION'
+	)
+);
 
-$reports->addReport(RC_INVENTORY,  297, _('Color Code List Report'),
+$reports->addReport(RC_INVENTORY, 297, _('Color Code List Report'),
 	array(	
 		_('Category') => 'CATEGORIES',
 		_('Stock ID') => 'ITEMS_ALL',
