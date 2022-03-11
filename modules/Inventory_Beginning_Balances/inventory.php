@@ -171,7 +171,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 	}
 
 	$err_arr = array();
-	$err_cnt = 0;
+	$line_cnt = 0;
 
     $lines = $CI = 0;
     $adj = &$_SESSION['adj_items'];
@@ -183,60 +183,60 @@ if (isset($_POST['import_btn']) && can_import()) {
 		list($stock_id, $color, $lot_no, $chassis_no, $qty, $std_cost, $mcode) = $data;
 
 		if ($stock_id == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Stock ID is empty!"); 
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Stock ID is empty!"); 
 		}
 		else if (get_stock_catID($stock_id) != get_post('category')) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Invalid stock item based on given category!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Invalid stock item based on given category!");
 		}
 		else if (!check_stock_id_exist($stock_id)) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Stock ID does not exist!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Stock ID does not exist!");
 		}
 		else if ($qty == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Empty Quantity!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Empty Quantity!");
 		}
 		else if ($std_cost == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Invalid Standard Cost!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Invalid Standard Cost!");
 		}
 		else if ($std_cost == 0 && get_stock_catID($stock_id) != 17) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Only PROMO ITEMS are allowed to have zero cost!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Only PROMO ITEMS are allowed to have zero cost!");
 		}
 		else if (is_Serialized($stock_id) == 1 && $lot_no == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Serial No cannot be empty for this item!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Serial No cannot be empty for this item!");
 		}
 		else if (get_stock_catID($stock_id) == 14 && $chassis_no == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Chassis No cannot be empty for this item!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Chassis No cannot be empty for this item!");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist($lot_no, $chassis_no)) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Serial / Chassis # Already Exists!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Serial / Chassis # Already Exists!");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist_adj($lot_no, $chassis_no)) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Serial / Chassis # Already Pending in Inventory Adjustment!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Serial / Chassis # Already Pending in Inventory Adjustment!");
 		}
 		else if (get_stock_catID($stock_id) == 14 && $color == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Color Description cannot be empty for this item!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Color Description cannot be empty for this item!");
 		}
 		else if (get_stock_catID($stock_id) == 14 && !check_color_exist($stock_id, $color, true, true)) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Color Code does not exist!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Color Code does not exist!");
 		}
 		else if ($mcode == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Invalid Master Code!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Invalid Master Code!");
 		}
 		else if (get_masterfile($mcode) == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Unknown Masterfile!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Unknown Masterfile!");
 		}
 		else {
 
@@ -256,7 +256,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 				$mcode, $masterfile
             );
 
-			$CI++;	
+			$CI++; $line_cnt++;
 		}
 	} //end of while loop
 
