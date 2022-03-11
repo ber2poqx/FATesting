@@ -1499,27 +1499,6 @@ function check_stock_id_exist($stock_id)
 	}
 }
 
-function item_color_code_exist($stock_id = "") {
-
-	set_global_connection();
-
-	$sql = "SELECT COUNT(*) 
-		FROM ".TB_PREF."item_codes ";
-
-	if ($stock_id != "") {
-		$sql .= "WHERE stock_id = ".db_escape($stock_id);
-	}
-
-	$result = db_query($sql, "Check Color failed");
-
-	if (db_num_rows($result) > 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 function item_has_color($stock_id) {
 
 	set_global_connection();
@@ -1532,7 +1511,7 @@ function item_has_color($stock_id) {
 	$result = db_query($sql, "Check Color failed");
 
 	$row = db_fetch_row($result);
-	
+
 	if ($row[0] > 1) {
 		return true;
 	}
@@ -1557,7 +1536,7 @@ function check_color_exist($stock_id, $color_code, $check_only = false, $chk_cod
 	}
 	
 	$result = db_query($sql, "Check Color failed");
-	
+
 	if ($check_only) {
 		if (db_num_rows($result) > 0) {
 			return true;
