@@ -50,6 +50,11 @@ function write_restructured(&$invoice, $opening_balances=0)
         $previous_ar_balance = $invoice->prev_ar_balance;
         $ov_amount = get_cost_of_sales_for_si($invoice->dr_ref);
     }
+    if($invoice->calculation_id == 1){
+        $allocation = 0;
+    }else{
+        $allocation = $row['alloc'];
+    }
 
     set_global_connection();
 
@@ -69,7 +74,7 @@ function write_restructured(&$invoice, $opening_balances=0)
         0,
         $invoice->ship_via,
         $invoice->due_date,
-        $row['alloc'],
+        $allocation,
         0,
         $invoice->dimension_id,
         $invoice->dimension2_id,
