@@ -335,16 +335,14 @@ if ($action == 'import') {
 
 	submit_center('download', _("Download CSV Template File for Inventory Opening"));
 	br();
-
-    display_heading(_("Import CSV File Here"));
-    br();
-
+	
     start_table(TABLESTYLE2, "width=45%");
 
     if (!isset($_POST['sep'])) {
 	    $_POST['sep'] = ",";
     }
 
+	table_section_title(_("Import CSV File Here"));
 	sl_list_gl_row(_("Guide for Masterfile: "), 'mcode', null, _("Masterfile List"), false);
     text_row("Field separator:", 'sep', $_POST['sep'], 2, 1);
     label_row("CSV Import File:", "<input type='file' id='impCSVS' name='impCSVS'>");

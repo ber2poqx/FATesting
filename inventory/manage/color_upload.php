@@ -163,15 +163,13 @@ if ($action == 'import') {
 	submit_center('download', _("Download CSV Template File for Item Color Code"));
 	br();
 
-    display_heading(_("Import CSV File Here"));
-    br();
-
     start_table(TABLESTYLE2, "width=45%");
 
     if (!isset($_POST['sep'])) {
 	    $_POST['sep'] = ",";
     }
 
+	table_section_title(_("Import CSV File Here"));
     text_row("Field separator:", 'sep', $_POST['sep'], 2, 1);
     label_row("CSV Import File:", "<input type='file' id='impCSVS' name='impCSVS'>");
 
