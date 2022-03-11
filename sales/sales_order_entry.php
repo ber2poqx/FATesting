@@ -546,7 +546,9 @@ function copy_from_cart()
 		$_POST['adj_rate'] = $cart->adj_rate;
 		$_POST['opportunity_cost'] = $cart->opportunity_cost;
 		$_POST['amount_to_be_paid'] = $cart->amount_to_be_paid;
+		if($cart->calculation_id <> 1){
 		$_POST['alloc'] = $cart->alloc;
+		}
 	}
 }
 //--------------------------------------------------------------------------------
@@ -746,7 +748,7 @@ function can_process()
 	// 	return false;
 	// }
 
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 		debtor_last_month_balance($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')), true) != 0) {
 		display_error(_("Cant proceed! Last month amortization must be fully paid!"));
 		return false;
@@ -756,7 +758,7 @@ function can_process()
 	//amortization - payment this month 
 	if (total_payment_this_month($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0)
 	{
-		if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+		if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 			(amort_this_month($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')))
 			- last_month_payment($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')), true) 
 			) > 0) 
@@ -766,7 +768,7 @@ function can_process()
 		}
 	}
 
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 		(total_current_payment($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')))
 		+ get_post('amount_to_be_paid')) > get_post('new_ar_amount')) {
 		display_error(_("Cant proceed! amortization paid greater than new Gross!"));
@@ -985,7 +987,7 @@ function restuctured_computation(){
 		$mature_date = add_months(get_post('new_first_due_date'), $terms);
 		$_POST['new_maturity_date'] = add_months($mature_date, -1);
 		//
-
+		$_POST['alloc'] = 0;
 		$_POST['new_rebate'] = $rebate;
 		$_POST['new_financing_rate'] = $financing_rate;
 		$_POST['new_count_term'] = $terms;

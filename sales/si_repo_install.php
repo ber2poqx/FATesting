@@ -682,7 +682,7 @@ function can_process()
 	){
 		$_SESSION['Items']->due_date = $_SESSION['Items']->document_date;
 	}
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+	if (($_SESSION['Items']->trans_type == ST_SITERMMOD) && 
 		get_post('installment_policy_id') == get_post('new_installment_policy_id')) {
 		display_error(_("Old Payment Term cant be equal to New Payment Term!"));
 		return false;
@@ -694,7 +694,7 @@ function can_process()
 	// 	return false;
 	// }
 
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 		debtor_last_month_balance($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')), true) != 0) {
 		display_error(_("Cant proceed! Last month amortization must be fully paid!"));
 		return false;
@@ -703,7 +703,7 @@ function can_process()
 	//amortization - payment this month 
 	if (total_payment_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0)
 	{
-		if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+		if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 			(amort_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')))
 			- last_month_payment($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')), true) 
 			) > 0) 
@@ -713,7 +713,7 @@ function can_process()
 		}
 	}
 
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 		(total_current_payment($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')))
 		+ get_post('amount_to_be_paid')) > get_post('new_ar_amount')) {
 		display_error(_("Cant proceed! amortization paid greater than new Gross!"));
@@ -893,9 +893,16 @@ function new_installment_computation()
 	// 	? $_POST['new_financing_rate'] - $_POST['financing_rate']
 	// 	: $_POST['financing_rate'] - $_POST['new_financing_rate'];
 	$_POST['adj_rate'] = $company["penalty_rate"];
-	$_POST['opportunity_cost'] = ($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']);//modified by Albert
-	$_POST['amount_to_be_paid'] = $_POST['amort_delay'] + $_POST['opportunity_cost'];
 
+	/*modified by Albert*/
+	if($_POST['due_amort'] > $_POST['new_due_amort']){
+		$_POST['opportunity_cost'] = 0;
+		$_POST['amount_to_be_paid'] = 0;
+	}else{
+		$_POST['opportunity_cost'] = round(($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']),0);//modified by Albert
+		$_POST['amount_to_be_paid'] = round($_POST['amort_delay'] + $_POST['opportunity_cost'],0);
+	}
+	/* */
 	$_POST['new_total_amount'] = $total_amount;
 	$_POST['new_ar_amount'] = $total_amount; //Modified by Albert
 	$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
