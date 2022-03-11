@@ -98,18 +98,21 @@ function get_item_code($id)
 	return db_fetch($result);
 }
 
+//Modified by spyrax10 11 Mar 2022
 function get_all_item_codes($stock_id, $foreign=1)
 {
-	$sql = "SELECT i.*, c.description as cat_name 
-	FROM " .TB_PREF. "item_codes as i, " .TB_PREF. "stock_category as c";
+	$sql = "SELECT IC.*, SC.description AS cat_name, IC.description AS color_desc
+	FROM ".TB_PREF."stock_master SM
+		LEFT JOIN ".TB_PREF."item_codes IC ON SM.stock_id = IC.stock_id 
+		LEFT JOIN ".TB_PREF."stock_category as SC ON SM.category_id = SC.category_id ";
 		
-	$sql .= " WHERE stock_id = ".db_escape($stock_id) . "
-		AND i.category_id = c.category_id
-		AND i.is_foreign = ".db_escape($foreign);
+	$sql .= " WHERE SM.stock_id = ".db_escape($stock_id) . "
+		AND IC.is_foreign = ".db_escape($foreign);
 
 	$result = db_query($sql,"all item codes could not be retrieved");
 	return $result;
 }
+//
 
 function delete_item_kit($item_code)
 {
