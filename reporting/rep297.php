@@ -103,6 +103,7 @@ function print_transaction() {
 		0 => $comments,
         1 => array('text' => _('Category'), 'from' => $cat_name, 'to' => ''),
     	2 => array('text' => _('Product Name'), 'from' => $stock_name, 'to' => ''),
+        3 => array('text' => _('Has Color Code'), 'from' => $yes_no == 1 ? "NO" : "YES", 'to' => ''),
 	);
 
     $rep = new FrontReport(_('Color Code List Report'), "Color_List_Report", 'LETTER', 9, $orientation);
@@ -136,7 +137,7 @@ function print_transaction() {
             if (!item_has_color($trans['stock_id'])) {
                 $rep->fontSize -= 1;
                 $rep->TextCol(0, 1, $trans['stock_id']);
-                $rep->TextCol(1, 2, $trans['item_code']);
+                $rep->TextCol(1, 2, '');
                 $rep->TextCol(2, 3, $trans['color']);
                 $rep->TextCol(3, 4, $trans['color_desc']);
                 $rep->fontSize += 1;
