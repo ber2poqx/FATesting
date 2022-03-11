@@ -224,6 +224,25 @@ Ext.onReady(function(){
 			}
 		}
 	});
+	var cashierStore = Ext.create('Ext.data.Store', {
+		model: 'comboModel',
+		autoLoad : true,
+		pageSize: itemsPerPage, // items per page
+		proxy: {
+			url: '?get_CashierTellerCol=xx',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'id',
+			direction : 'ASC'
+		}]
+	});
 
 	//---------------------------------------------------------------------------------------
 	var AllocationHeader = [
@@ -382,6 +401,12 @@ Ext.onReady(function(){
 					AllocationStore.load();
 
 					submit_form.getForm().reset();
+					
+					cashierStore.load({
+						callback: function(records) {                 
+							Ext.getCmp('cashier').setValue(records[i].get('id'));
+						}
+					});
 					
 					Ext.getCmp('syspk').setValue(records.get('id'));
 					Ext.getCmp('moduletype').setValue('ALCN-INTERB');
@@ -576,14 +601,19 @@ Ext.onReady(function(){
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
-				xtype: 'textfield',
+				xtype: 'combobox',
 				fieldLabel: 'Cashier/Teller ',
 				id: 'cashier',
 				name: 'cashier',
-				allowBlank: false,
-				readOnly: true,
+				store: cashierStore,
+				displayField: 'name',
+				valueField: 'id',
+				queryMode: 'local',
 				labelWidth: 105,
 				width: 280,
+				forceSelection: true,
+				selectOnFocus:true,
+				allowBlank: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
 				xtype: 'textfield',
@@ -873,7 +903,7 @@ Ext.onReady(function(){
 			async:false,
 			success: function (response){
 				var result = Ext.JSON.decode(response.responseText);
-				Ext.getCmp('cashier').setValue(result.cashier);
+				//Ext.getCmp('cashier').setValue(result.cashier);
 				Ext.getCmp('preparedby').setValue(result.prepare);
 			}
 		});
