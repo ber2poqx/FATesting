@@ -134,6 +134,27 @@ function handle_new_order() {
 	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
 }
 
+function clear_session() {
+	global $Ajax, $Refs;
+
+	if (isset($_POST['impCSVS'])) {
+		unset($_POST['impCSVS']);
+	}
+
+	if (isset($_POST['download'])) {
+		unset($_POST['download']);
+	}
+
+	if (!check_reference($_POST['ref'], ST_INVADJUST, 0, null, null, false)) {
+		$_POST['ref'] = $Refs->get_next(ST_INVADJUST);
+		$Ajax->activate('ref');
+	}
+
+	unset($_POST['AdjDate'], $_POST['memo_'], $_POST['StockLocation'], $_POST['category']);
+
+	$Ajax->activate('_page_body');
+}
+
 //-----------------------------------------------------------------------------------------------
 
 if (isset($_POST['import_btn']) && can_import()) {
@@ -255,27 +276,34 @@ if (isset($_POST['import_btn']) && can_import()) {
 		$_SESSION['adj_items']->clear_items();
 		unset($_SESSION['adj_items']);
 
-        if ($trans_no) {
-            meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
-        }
+        // if ($trans_no) {
+        //     meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
+        // }
 	}
 	else {
 		display_error(_("No Item has been imported!"));
 	}
 	
-	@fclose($fp);
-
-	if (count($err_arr) > 0) {
-		display_error(_(count($err_arr) . " item/s unsuccessfully uploaded!"));
-
-		foreach ($err_arr as $key => $val) {
-			display_error("Line " . $key . ": " . $val);
-		}
+	if ($CI > 0 && count($err_arr) == 0) {
+		meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
 	}
+	else {
 
-	if ($CI > 0) {
-		display_notification("$CI Inventory Opening Added.");
-	} 			
+		if (count($err_arr) > 0) {
+			display_error(_(count($err_arr) . " item/s unsuccessfully uploaded!"));
+	
+			foreach ($err_arr as $key => $val) {
+				display_error("Line " . $key . ": " . $val);
+			}
+		}
+
+		if ($CI > 0) {
+			display_error("$CI item/s successfully uploaded!");
+		}
+	} 	
+
+	@fclose($fp);
+	clear_session();
 }
 
 //-----------------------------------------------------------------------------------------------
