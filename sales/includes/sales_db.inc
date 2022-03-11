@@ -69,7 +69,7 @@ function add_gl_trans_customer(
 	}
 
 	//Added by spyrax10 28 Feb 2022
-	if (($type == ST_SALESRETURN || $type == ST_SALESINVOICE) && $account == 2151) {
+	if (($type == ST_SALESRETURN || $type == ST_SALESINVOICE || $type == ST_RESTRUCTURED) && $account == 2151) {
 		$mcode = get_company_value(0, 'branch_code');
 		$master_file = get_company_value(0, 'name');
 	}

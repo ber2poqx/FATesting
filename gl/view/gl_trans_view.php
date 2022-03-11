@@ -152,6 +152,7 @@ function _gl_details() {
 	//
 	//Added by albert 
 	$termmode = $_GET['type_id'] == ST_SITERMMOD;
+	$restructured = $_GET['type_id'] == ST_RESTRUCTURED;
 	//
 	$dim = get_company_pref('use_dimension');
 
@@ -247,7 +248,7 @@ function _gl_details() {
 				get_subaccount_fullname($_GET['type_id'], $_GET['trans_no']));
 		}
 		//Added by Albert
-		else if ($termmode) {
+		else if ($termmode|| $restructured) {
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 			get_subaccount_code($_GET['type_id'],$_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 

@@ -54,7 +54,7 @@ function write_restructured(&$invoice, $opening_balances=0)
     set_global_connection();
 
     $restructured_no = write_customer_trans(
-        ST_RESTRUCTURED ,
+        ST_RESTRUCTURED,
         $trans_no,
         $invoice->customer_id,
         $invoice->Branch,
@@ -114,7 +114,7 @@ function write_restructured(&$invoice, $opening_balances=0)
     );
     // Down-payment 
     add_loan_schedule_ob(
-        ST_RESTRUCTURED ,
+        ST_RESTRUCTURED,
         $restructured_no,
         $invoice->customer_id,
         0,
@@ -134,7 +134,7 @@ function write_restructured(&$invoice, $opening_balances=0)
     for ($i = 1; $i <= $invoice->months_term; $i++) {
         $principal_run_bal = $principal_run_bal - $invoice->amortization;
         add_loan_schedule_ob(
-            ST_RESTRUCTURED ,
+            ST_RESTRUCTURED,
             $restructured_no,
             $invoice->customer_id,
             $i,
@@ -157,7 +157,7 @@ function write_restructured(&$invoice, $opening_balances=0)
     if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
         $ar_account = $company_data["ar_reg_current_account"];
     $total += add_gl_trans_customer(
-        ST_RESTRUCTURED ,
+        ST_RESTRUCTURED,
         $restructured_no,
         $date_,
         $ar_account,
@@ -175,9 +175,11 @@ function write_restructured(&$invoice, $opening_balances=0)
         $sales_account = $category_gl_code['dflt_regular_sales_act'];
     if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id))
         $sales_account = $category_gl_code['dflt_installment_sales_act'];
-
+    if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){
+        $sales_account = $company_data['default_sales_act'];
+    }
     $total += add_gl_trans_customer(
-        ST_RESTRUCTURED ,
+        ST_RESTRUCTURED,
         $restructured_no,
         $date_,
         $sales_account,
@@ -194,11 +196,16 @@ function write_restructured(&$invoice, $opening_balances=0)
         $deferred_gross_profit = $invoice->ar_amount - $ov_amount;
         $new_total_dgp =  $row['alloc'] * $invoice->new_profit_margin;
         $new_dgp_balance = $deferred_gross_profit - $new_total_dgp;
+    if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){
+        $company_data_account = $company_data['default_sales_act'];
+    }else{
+        $company_data_account = $company_data["isd_account"];
+    }
         $total += add_gl_trans_customer(
-            ST_RESTRUCTURED ,
+            ST_RESTRUCTURED,
             $restructured_no,
             $date_,
-            $company_data["isd_account"],//modified by Albert
+            $company_data_account,//modified by Albert
             0,
             0,
             $new_dgp_balance,
@@ -207,7 +214,7 @@ function write_restructured(&$invoice, $opening_balances=0)
         );
 
         $total += add_gl_trans_customer(
-            ST_RESTRUCTURED ,
+            ST_RESTRUCTURED,
             $restructured_no,
             $date_,
             $company_data["dgp_account"],//modified by Albert
@@ -231,7 +238,7 @@ function write_restructured(&$invoice, $opening_balances=0)
         $sales_account = $sales_account = $company_data['default_sales_act'];
 
     $total += add_gl_trans_customer(
-        ST_RESTRUCTURED ,
+        ST_RESTRUCTURED,
         $restructured_no,
         $date_,
         $sales_account,
@@ -252,7 +259,7 @@ function write_restructured(&$invoice, $opening_balances=0)
     if ($invoice->prev_months_term >= 1 && $invoice->prev_months_term <= 3 && !check_employee_customer($invoice->customer_id))
         $ar_account = $company_data["ar_reg_current_account"];
     $total += add_gl_trans_customer(
-        ST_RESTRUCTURED ,
+        ST_RESTRUCTURED,
         $restructured_no,
         $date_,
         $ar_account,
@@ -276,7 +283,7 @@ function write_restructured(&$invoice, $opening_balances=0)
         $old_dgp_balance = $deferred_gross_profit - $total_dgp;
         
         $total += add_gl_trans_customer(
-            ST_RESTRUCTURED ,
+            ST_RESTRUCTURED,
             $restructured_no,
             $date_,
             $company_data["dgp_account"],
@@ -298,7 +305,7 @@ function write_restructured(&$invoice, $opening_balances=0)
             $company_data_account = $company_data["isd_account"];
         }
         $total += add_gl_trans_customer(
-            ST_RESTRUCTURED ,
+            ST_RESTRUCTURED,
             $restructured_no,
             $date_,
             $company_data_account,//modified by Albert
@@ -329,54 +336,66 @@ function write_restructured(&$invoice, $opening_balances=0)
     $si_trans_no = $row['trans_no'];
     $loans =  get_ar_amount($invoice->document_ref);
     $allocatedAmount = $loans['ar_amount']- $row['alloc'];
+    
+    $Refs->save(ST_RESTRUCTURED, $restructured_no, $invoice->reference);
+    if($invoice->calculation_id == 1){
+        //close invoice alloc
+        add_cust_allocation($allocatedAmount, ST_RESTRUCTURED , $restructured_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
+        update_debtor_trans_allocation($row['type'], $si_trans_no, $invoice->customer_id);
+        /*----end Albert-----*/ 
 
-    // //Add termode alloc
-    // add_cust_allocation($row['alloc'], ST_RESTRUCTURED, $restructured_no, ST_RESTRUCTURED, $restructured_no, $invoice->customer_id, $date_);
-    // //close invoice alloc
-    // add_cust_allocation($allocatedAmount, ST_RESTRUCTURED , $restructured_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
-    update_debtor_trans_allocation($row['type'], $si_trans_no, $invoice->customer_id);
-    /*----end Albert-----*/ 
+        add_gl_balance($row['type'], $restructured_no, $date_, -$total, PT_CUSTOMER, $invoice->customer_id);
 
-    add_gl_balance($row['type'], $restructured_no, $date_, -$total, PT_CUSTOMER, $invoice->customer_id);
+    }else{
+        //Add termode alloc
+        add_cust_allocation($row['alloc'], ST_RESTRUCTURED, $restructured_no, ST_RESTRUCTURED, $restructured_no, $invoice->customer_id, $date_);
+        //close invoice alloc
+        add_cust_allocation($allocatedAmount, ST_RESTRUCTURED , $restructured_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
+        update_debtor_trans_allocation($row['type'], $si_trans_no, $invoice->customer_id);
+        /*----end Albert-----*/ 
 
-    // $amortization_schedule = get_deptor_loan_schedule_ob($restructured_no, $invoice->customer_id, ST_RESTRUCTURED );
-    // $total_exist_payment = floatval($invoice->alloc);
-    // while ($amort_sched = db_fetch($amortization_schedule)) {
-    //     if ($total_exist_payment == 0)
-    //         break;
+        add_gl_balance($row['type'], $restructured_no, $date_, -$total, PT_CUSTOMER, $invoice->customer_id);
 
-    //     $amount = 0;
-    //     $status = "paid";
-    //     if ($total_exist_payment >= $invoice->amortization) {
-    //         $amount = $amort_sched["total_principaldue"];
-    //     } else {
-    //         $amount = $total_exist_payment;
-    //         $status = "partial";
-    //     }
-    //     add_loan_ledger_ct(
-    //         $restructured_no,
-    //         $invoice->customer_id,
-    //         $amort_sched["id"],
-    //         ST_RESTRUCTURED ,
-    //         ST_CUSTPAYMENT,
-    //         $amount,
-    //         0,
-    //         0,
-    //         0,
-    //         date2sql($date_),
-    //         0
-    //     );
+        $amortization_schedule = get_deptor_loan_schedule_ob($restructured_no, $invoice->customer_id, ST_RESTRUCTURED );
+        $total_exist_payment = floatval($invoice->alloc);
+        while ($amort_sched = db_fetch($amortization_schedule)) {
+            if ($total_exist_payment == 0)
+                break;
 
-    //     $total_exist_payment -= $amount;
-    //     $loansched_id = $amort_sched["id"];
-    //     $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
-	// 		status=" . db_escape($status) . "
-	// 		WHERE id=$loansched_id";
+            $amount = 0;
+            $status = "paid";
+            if ($total_exist_payment >= $invoice->amortization) {
+                $amount = $amort_sched["total_principaldue"];
+            } else {
+                $amount = $total_exist_payment;
+                $status = "partial";
+            }
+            add_loan_ledger_ct(
+                $restructured_no,
+                $invoice->customer_id,
+                $amort_sched["id"],
+                ST_RESTRUCTURED,
+                ST_RESTRUCTURED,
+                $amount,
+                0,
+                0,
+                0,
+                date2sql($date_),
+                $restructured_no
+            );
 
-    //     $ErrMsg = _('Could not update loan schedule because ');
+            $total_exist_payment -= $amount;
+            $loansched_id = $amort_sched["id"];
+            $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
+                status=" . db_escape($status) . "
+                WHERE id=$loansched_id";
 
-    //     db_query($sql, $ErrMsg);
-    // }
+            $ErrMsg = _('Could not update loan schedule because ');
+
+            db_query($sql, $ErrMsg);
+        }
+
+    }
 
     hook_db_postwrite($invoice, ST_RESTRUCTURED );
 
