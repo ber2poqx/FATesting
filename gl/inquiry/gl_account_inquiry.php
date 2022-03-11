@@ -256,7 +256,10 @@ function show_results()
 				}
 				else if (($myrow["type"] == ST_BANKPAYMENT || $myrow['type'] == ST_BANKDEPOSIT) 
 					&& !has_interbranch_entry($myrow["type_no"], $myrow["type"])) {
-						label_cell($myrow['mcode']);
+					label_cell($myrow['mcode']);
+				}
+				else if ($myrow["type"] == ST_SUPPRECEIVE && $myrow['account'] == 2151) {
+					label_cell($myrow['mcode']);
 				}
 				else {
 					label_cell(payment_person_name_ver2($myrow["person_type_id"], $myrow["person_id"]));
@@ -291,7 +294,13 @@ function show_results()
 					label_cell($myrow['master_file']);
 				}
 				else {
-					label_cell($myrow["person_name_masterfile"]);
+
+					if ($myrow["type"] == ST_SUPPRECEIVE && $myrow['account'] == 2151) {
+						label_cell($myrow['master_file']);
+					}
+					else {
+						label_cell($myrow['person_name_masterfile']);
+					}
 				}
 			}
 			//
