@@ -1394,9 +1394,10 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 	calculation_type(_("Calculation Type:"),'calculation_id', null, _("Auto Calculation"), true, 'label');
 	if (get_post('calculation_id') == 0){
 		//auto calculation
+		
 		date_row(
 			"New First Due Date:",
-			'first_due_date',
+			'new_first_due_date',
 			_('Date of first due'),
 			$order->trans_no == 0,
 			0,
@@ -1470,7 +1471,7 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 		//manual calculation
 		date_row(
 			"New First Due Date:",
-			'first_due_date',
+			'new_first_due_date',
 			_('Date of first due'),
 			$order->trans_no == 0,
 			0,

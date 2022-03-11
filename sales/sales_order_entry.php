@@ -381,6 +381,7 @@ function copy_to_cart()
 	//Added By Albert 03/10/2022
 	if ($cart->trans_type == ST_RESTRUCTURED) {
 		$cart->calculation_id = $_POST['calculation_id'];
+		$cart->first_due_date = $_POST['new_first_due_date'];
 
 	}
 	/* */
@@ -733,7 +734,7 @@ function can_process()
 	}
 
 	//Added by spyrax10
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 		get_post('installment_policy_id') == get_post('new_installment_policy_id')) {
 		display_error(_("Old Payment Term cant be equal to New Payment Term!"));
 		return false;
@@ -981,7 +982,7 @@ function restuctured_computation(){
 		$rebate = floatval($policy_detail["rebate"]);
 		$quotient_financing_rate = floatval($financing_rate) / 100;
 
-		$mature_date = add_months($_POST['first_due_date'], $terms);
+		$mature_date = add_months(get_post('new_first_due_date'), $terms);
 		$_POST['new_maturity_date'] = add_months($mature_date, -1);
 		//
 
@@ -1032,7 +1033,7 @@ function restuctured_computation(){
 		$_POST['new_due_amort'] = $amort;
 	
 		//modified by spyrax10
-		$mature_date = add_months($_POST['first_due_date'], $terms);
+		$mature_date = add_months(get_post('new_first_due_date'), $terms);
 		$_POST['new_maturity_date'] = add_months($mature_date, -1);
 		//
 	
