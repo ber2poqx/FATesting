@@ -25,11 +25,12 @@ print_transaction();
 
 function getTransactions($stock_id = "", $category) {
 
-	$sql = "SELECT IC.*, SC.description as cat_name 
+	$sql = "SELECT IC.*, SC.description AS cat_name, IC.description AS color_desc
         FROM ".TB_PREF."stock_master SM
             LEFT JOIN ".TB_PREF."item_codes IC ON SM.stock_id = IC.stock_id 
             LEFT JOIN ".TB_PREF."stock_category as SC ON SM.category_id = SC.category_id 
-            WHERE IC.is_foreign = 1";
+        
+        WHERE SM.mb_flag <> 'F'";
     
     if ($category != 0) {
         $sql .= " AND SM.category_id = ".db_escape($category);
@@ -56,8 +57,9 @@ function print_transaction() {
 
     $category = $_POST['PARAM_0'];
 	$stock_id = $_POST['PARAM_1'];
-    $comments = $_POST['PARAM_2'];
-	$destination = $_POST['PARAM_3'];
+    $yes_no = $_POST['PARAM_2'];
+    $comments = $_POST['PARAM_3'];
+	$destination = $_POST['PARAM_4'];
 
     if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -130,13 +132,28 @@ function print_transaction() {
 			$rep->NewLine(2);		
         }
 
-        $rep->fontSize -= 1;
-        $rep->TextCol(0, 1, $trans['stock_id']);
-        $rep->TextCol(1, 2, $trans['item_code']);
-        $rep->TextCol(2, 3, $trans['color']);
-        $rep->TextCol(3, 4, $trans['description']);
-        $rep->fontSize += 1;
-        $rep->NewLine();
+        if ($yes_no == 1) {
+            if (!item_has_color($trans['stock_id'])) {
+                $rep->fontSize -= 1;
+                $rep->TextCol(0, 1, $trans['stock_id']);
+                $rep->TextCol(1, 2, $trans['item_code']);
+                $rep->TextCol(2, 3, $trans['color']);
+                $rep->TextCol(3, 4, $trans['color_desc']);
+                $rep->fontSize += 1;
+                $rep->NewLine();
+            }
+        }
+        else {
+            if ($trans['is_foreign'] == 1) {
+                $rep->fontSize -= 1;
+                $rep->TextCol(0, 1, $trans['stock_id']);
+                $rep->TextCol(1, 2, $trans['item_code']);
+                $rep->TextCol(2, 3, $trans['color']);
+                $rep->TextCol(3, 4, $trans['color_desc']);
+                $rep->fontSize += 1;
+                $rep->NewLine();
+            }
+        }
     }
 
     $rep->End();
