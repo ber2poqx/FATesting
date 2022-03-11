@@ -455,6 +455,7 @@ $reports->addReport(RC_INVENTORY,  297, _('Color Code List Report'),
 	array(	
 		_('Category') => 'CATEGORIES',
 		_('Stock ID') => 'ITEMS_ALL',
+		_('Display Items that has no Color?') => 'YES_NO',
 		_('Comments') => 'TEXTBOX',
 		_('Destination') => 'DESTINATION'
 	)

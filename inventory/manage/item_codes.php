@@ -145,7 +145,7 @@ while ($myrow = db_fetch($result)) {
 	label_cell($myrow["color"]);
 	qty_cell($myrow["quantity"], $dec);
 	label_cell($units);
-	label_cell($myrow["description"]);
+	label_cell($myrow["color_desc"]);
 	label_cell($myrow["pnp_color"]);
 	label_cell($myrow["cat_name"]);
 	edit_button_cell("Edit" . $myrow['id'], _("Edit"));

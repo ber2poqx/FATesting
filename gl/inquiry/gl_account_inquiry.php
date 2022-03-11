@@ -258,7 +258,7 @@ function show_results()
 					&& !has_interbranch_entry($myrow["type_no"], $myrow["type"])) {
 					label_cell($myrow['mcode']);
 				}
-				else if ($myrow["type"] == ST_SUPPRECEIVE && $myrow['account'] == 2151) {
+				else if (($myrow["type"] == ST_SUPPRECEIVE || $myrow["type"] == ST_SALESINVOICE) && $myrow['account'] == 2151) {
 					label_cell($myrow['mcode']);
 				}
 				else {
@@ -295,7 +295,7 @@ function show_results()
 				}
 				else {
 
-					if ($myrow["type"] == ST_SUPPRECEIVE && $myrow['account'] == 2151) {
+					if (($myrow["type"] == ST_SUPPRECEIVE || $myrow["type"] == ST_SALESINVOICE) && $myrow['account'] == 2151) {
 						label_cell($myrow['master_file']);
 					}
 					else {

@@ -85,7 +85,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 
 	$lines = $CI = 0;
 	$err_arr = array();
-	$err_cnt = 0;
+	$line_cnt = 0;
 
 	while ($data = fgetcsv($fp, 4096, $sep)) {
 
@@ -94,40 +94,39 @@ if (isset($_POST['import_btn']) && can_import()) {
 		list($stock_id, $color_code, $color, $color_desc, $pnp_color) = $data;
 
 		if ($stock_id == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Stock ID is empty!"); 
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Stock ID is empty!"); 
 		}
 		else if ($color_code == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Item Color Code is empty!"); 
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Item Color Code is empty!"); 
 		}
 		else if ($color == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Color is empty!"); 
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Color is empty!"); 
 		}
 		else if ($pnp_color == "") {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("PNP Color is empty!"); 
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("PNP Color is empty!"); 
 		}
 		else if (!check_stock_id_exist($stock_id)) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Stock ID does not exist!");
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Stock ID does not exist!");
 		}
-		else if (item_color_code_exist($stock_id)) {
-			$err_cnt++;
-			$err_arr[$err_cnt] = _("Item Color Code Already Exists for this item!");
+		else if (check_color_exist($stock_id, $color_code, true, true)) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this item!");
 		}
 		else {
 			add_item_code($color_code, $color, $stock_id, $color_desc, 
 				$pnp_color, get_stock_catID($stock_id), 1, 1
 			);
-		}
 
-		$CI++;
+			$CI++; $line_cnt++;
+		}
 
 	} //end of while loop
 
-	@fclose($fp);
 
 	if (count($err_arr) > 0) {
 		display_error(_(count($err_arr) . " item/s unsuccessfully uploaded!"));
@@ -137,12 +136,11 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 	}
 
-	if ($CI == 0) {
-		display_error(_("No Item Color Code has been imported!"));
+	if ($CI > 0) {
+		display_error(_("$CI Item Color Code(s) Imported Successfully!"));
 	}
-	else {
-		display_notification(_("$CI Item Color Code(s) Imported Successfully!"));
-	}
+
+	@fclose($fp);
 
 	unset($_POST['import_btn']);
 	unset($_POST['impCSVS']);
