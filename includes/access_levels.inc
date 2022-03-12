@@ -301,6 +301,7 @@ $security_areas =array(
 	'SA_INVTY_UPDATE' => array(SS_ITEMS|13, _("Update for Inventory Adjustment Transactions")),
 	'SA_INVTY_DRAFT' => array(SS_ITEMS|14, _("Approval for Inventory Adjustment Transactions")),
 	'SA_INVTY_POST' => array(SS_ITEMS|15, _("Posting for Inventory Adjustment Transactions")),
+	'SA_ITEM_UPLOAD' => array(SS_ITEMS|16, _("Import Item Master (New)")),
 	//
 
     //----Robert Added----//

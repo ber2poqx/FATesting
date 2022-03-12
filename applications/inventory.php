@@ -79,7 +79,7 @@ class inventory_app extends application
 
 		//Added by spyrax10 10 Mar 2022
 		$this->add_lapp_function(2, _("Import Item Master (New)"),
-			"inventory/manage/item_upload.php?", 'SA_ITEM', MENU_ENTRY
+			"inventory/manage/item_upload.php?", 'SA_ITEM_UPLOAD', MENU_MAINTENANCE
 		);
 		$this->add_rapp_function(2, _("Import Item Color Code"),
 			"inventory/manage/color_upload.php", 'SA_FORITEMCODE', MENU_MAINTENANCE

@@ -5,7 +5,7 @@
  * Title: Item Upload
  */
 
-$page_security = 'SA_ITEM';
+$page_security = 'SA_ITEM_UPLOAD';
 $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/session.inc");
@@ -24,7 +24,7 @@ if (isset($_POST['download'])) {
 	$dir = company_path()."/attachments";
 
 	if ($row['filename'] == "") {
-		display_error(_("No Template File Uploaded for Item List!"));
+		display_error(_("No Template File Uploaded for Item Master List!"));
 	}
 	else if (!file_exists($dir."/".$row['unique_name'])) {
 		display_error(_("Template File does not exists in current company's folder!"));
@@ -218,7 +218,7 @@ if ($action == 'import') {
 
     start_outer_table(TABLESTYLE, "width='95%'", 10);
 
-	submit_center('download', _("Download CSV Template File for Item List"));
+	submit_center('download', _("Download CSV Template File for Item Master List"));
 	br();
 
     start_table(TABLESTYLE2, "width=45%");
@@ -313,7 +313,7 @@ if ($action == 'import') {
 
     end_outer_table(1, false);
 
-    submit_center('import_btn', _("Import Item List"));
+    submit_center('import_btn', _("Import Item Master List"));
     end_form();
 	end_page();
 }
