@@ -961,8 +961,8 @@ function new_installment_computation()
 		$_POST['opportunity_cost'] = 0;
 		$_POST['amount_to_be_paid'] = 0;
 	}else{
-		$_POST['opportunity_cost'] = ($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']);//modified by Albert
-		$_POST['amount_to_be_paid'] = $_POST['amort_delay'] + $_POST['opportunity_cost'];
+		$_POST['opportunity_cost'] = round(($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']));//modified by Albert
+		$_POST['amount_to_be_paid'] = round($_POST['amort_delay'] + $_POST['opportunity_cost']);
 	}
 	/* */
 	$_POST['new_total_amount'] = $total_amount;
