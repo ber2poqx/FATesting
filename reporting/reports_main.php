@@ -453,6 +453,7 @@ $reports->addReport(RC_INVENTORY, 312, _('Aging Inventory Report - By Year'),
 $reports->addReport(RC_INVENTORY, 296, _('Item List Detailed Report'),
 	array(	
 		_('Category') => 'CATEGORIES',
+		_('Brand') => 'FBRAND',
 		_('Comments') => 'TEXTBOX',
 		_('Destination') => 'DESTINATION'
 	)

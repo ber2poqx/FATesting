@@ -16,13 +16,10 @@ include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 //----------------------------------------------------------------------------------------------------
-
 print_transaction();
-
-
 //----------------------------------------------------------------------------------------------------
 
-function get_transactions($category) {
+function get_transactions($category, $brand) {
     
     $sql = "SELECT SM.*, SC.description AS cat_name, SM.description AS prod_desc,
         IB.name AS item_brand, II.name AS class, ID.name AS sub_cat
@@ -38,6 +35,10 @@ function get_transactions($category) {
         $sql .= " AND SM.category_id = ".db_escape($category);
     }
 
+    if ($brand != 0) {
+        $sql .= " AND SM.brand = ".db_escape($brand);
+    }
+
     $sql .= "GROUP BY SM.stock_id";
     $sql .= " ORDER BY SM.category_id DESC, SM.stock_id";
 
@@ -50,8 +51,9 @@ function print_transaction() {
     global $path_to_root, $SysPrefs;
 
     $category = $_POST['PARAM_0'];
-    $comments = $_POST['PARAM_1'];
-	$destination = $_POST['PARAM_2'];
+    $brand = $_POST['PARAM_1'];
+    $comments = $_POST['PARAM_2'];
+	$destination = $_POST['PARAM_3'];
 
     if ($destination) {
         include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -68,13 +70,23 @@ function print_transaction() {
         $category = 0;
     }
 	if ($category == 0) {
-        $cat = _('ALL');
+        $cat_name = _('ALL CATEGORIES');
     }
 	else {
-        $cat = get_category_name($category);
+        $cat_name = get_category_name($category);
     }
 
-    $cols = array(0, 120);
+    if ($brand == ALL_NUMERIC) {
+        $brand = 0;
+    }
+	if ($brand == 0) {
+        $brand_name = _('ALL BRANDS');
+    }
+	else {
+        $brand_name = get_brand_descr($brand);
+    }
+		
+    $cols = array(0, 100, 230, 290, 360, 470);
 
     $headers = array(
         _('Item Code'),
@@ -85,14 +97,15 @@ function print_transaction() {
         _('Classification')
     );
 
-    $aligns = array('left', 'left');
+    $aligns = array('left', 'left', 'center', 'center', 'left', 'left');
 
     $params = array( 
 		0 => $comments,
-        1 => array('text' => _('Category'), 'from' => $cat_name, 'to' => '')
+        1 => array('text' => _('Category'), 'from' => $cat_name, 'to' => ''),
+        2 => array('text' => _('Brand'), 'from' => $brand_name, 'to' => '')
 	);
 
-    $rep = new FrontReport(_('Item List Detailed Report'), "Item_List_Report", 'LEGAL', 9, $orientation);
+    $rep = new FrontReport(_('Item List Detailed Report'), "Item_List_Report", 'LETTER', 9, $orientation);
 
     if ($orientation == 'L') {
         recalculate_cols($cols);
@@ -103,7 +116,7 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = get_transactions($category);
+    $res = get_transactions($category, $brand);
     $cat = '';
 
     while ($trans = db_fetch($res)) {
@@ -123,8 +136,10 @@ function print_transaction() {
         $rep->TextCol(0, 1, $trans['stock_id']);
         $rep->TextCol(1, 2, $trans['prod_desc']);
         $rep->TextCol(2, 3, $trans['cat_name']);
-        $rep->TextCol(3, 4, $trans['sub_cat']);
-        $rep->TextCol(4, 5, $trans['class']);
+        $rep->TextCol(3, 4, $trans['item_brand']);
+        $rep->TextCol(4, 5, $trans['sub_cat']);
+        $rep->TextCol(5, 6, $trans['class']);
+        $rep->fontSize += 1;
         $rep->NewLine();
     }
 
