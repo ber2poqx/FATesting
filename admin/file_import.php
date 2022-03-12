@@ -47,8 +47,8 @@ function can_import() {
         return false;
     }
 
-    if ($_FILES['impCSVS']['size'] > 80) {
-        display_error(_("The file size is too large. Please select a smaller file."));
+    if ($_FILES['impCSVS']['size'] > 250) {
+        display_error(_("The file size is too large. Please select a smaller file. || ") . $_FILES['impCSVS']['size']);
         unset($_POST['impCSVS']);
         return false;
     }
@@ -71,7 +71,7 @@ function delete_attach() {
 }
 //----------------------------------------------------------------------------------------
 
-if (isset($_POST['import']) && can_import()) {
+if (isset($_POST['import_btn']) && can_import()) {
 
     $tmpname = $_FILES['impCSVS']['tmp_name'];
 
@@ -134,7 +134,7 @@ if ($action == 'import') {
 
     end_table(1);
 
-    submit_center('import', _("Add New Template File"));
+    submit_center('import_btn', _("Add New Template File"));
 
     end_outer_table(1, false);
 

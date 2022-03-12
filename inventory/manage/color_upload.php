@@ -139,6 +139,9 @@ if (isset($_POST['import_btn']) && can_import()) {
 	if ($CI > 0) {
 		display_error(_("$CI Item Color Code(s) Imported Successfully!"));
 	}
+	else {
+		display_error(_("No Item has been imported!"));
+	}
 
 	@fclose($fp);
 

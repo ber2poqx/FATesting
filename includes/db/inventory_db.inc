@@ -1381,6 +1381,21 @@ function get_category_list() {
 	return db_query($sql, _("Cant get category list!"));
 }
 
+function get_brand_list($brand_name = '') {
+
+	set_global_connection();
+
+	$sql = "SELECT id, name 
+		FROM ".TB_PREF."item_brand
+		WHERE inactive = 0 ";
+	
+	if ($brand_name != '') {
+		$sql .= " AND name LIKE " . db_escape('%' . trim($brand_name) . '%');
+	}
+
+	return db_query($sql, _("Cant get category list!"));
+}
+
 function get_color_list($stock_id = '') {
 	
 	set_global_connection(0);
@@ -1408,6 +1423,21 @@ function get_stock_description($stock_id)
 	return $row[0];
 }
 
+function check_item_brand($brand)
+{
+	$sql = "SELECT name 
+		FROM ".TB_PREF."item_brand
+		WHERE name =".db_escape($brand);
+
+	$result = db_query($sql, "Check Item Brand failed");
+
+	if (db_num_rows($result) > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 function get_brand_id($stock_id)
 {
@@ -1481,6 +1511,33 @@ function get_smo_trans_type($stock_id, $serial = '')
 	} else {
 		return 0;
 	}
+}
+
+function sup_code_exist($supp_code) {
+
+	$sql = "SELECT supp_ref 
+		FROM ".TB_PREF."suppliers
+	WHERE supp_ref =".db_escape($supp_code);
+
+	$result = db_query($sql, "Check Supplier Code failed");
+
+	if (db_num_rows($result) > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+function get_supplier_id($supp_code) {
+
+	$sql = "SELECT supplier_id 
+		FROM ".TB_PREF."suppliers
+	WHERE supp_ref =".db_escape($supp_code);
+
+	$result = db_query($sql, "Failed to get supplier id");
+	$row = db_fetch_row($result);
+	return $row[0];
 }
 
 function check_stock_id_exist($stock_id)
