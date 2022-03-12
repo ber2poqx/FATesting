@@ -824,7 +824,7 @@ function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id =
 
 /* */
 /*albert*/
-function get_sales_invoices_aropening($trans_no = 0, $opening_balances = 0)
+function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balances = 0)
 {
 	$sql = "SELECT
 				a.trans_no,
@@ -860,9 +860,16 @@ function get_sales_invoices_aropening($trans_no = 0, $opening_balances = 0)
 			ON
 				c.trans_no = a.trans_no
 			WHERE
-				a.type = 10 AND a.opening_balances = " . db_escape($opening_balances) . "
-			ORDER BY
-				a.trans_no DESC";
+				a.type = 10 AND a.opening_balances = " . db_escape($opening_balances);
+			
+	if ($trans_no != '') {
+		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);
+	}
+	if ($debtor_no != '') {
+		$sql .= " AND a.debtor_no = " . db_escape($debtor_no);
+	}
+	$sql .= " ORDER BY a.tran_date DESC, a.trans_no DESC ";
+
 	return $sql;
 }
 /* */

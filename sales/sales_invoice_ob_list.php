@@ -35,6 +35,9 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 ahref(_("New Sales Invoice for Opening Balances"), "sales_invoice_opening_balances.php?NewInvoice=0");
 ref_cells(_("#:"), 'search_val', '', null, '', true);
+if (!$page_nested)
+	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
+
 submit_cells('SearchRequest', _("Search"), '', _('Select documents'), 'default');
 end_row();
 end_table();
@@ -136,7 +139,7 @@ function restructured_link($row)
 }
 
 //figure out the sql required from the inputs available
-$sql = get_sales_invoices_aropening($_POST['search_val'], 1);
+$sql = get_sales_invoices_aropening($_POST['search_val'], $_POST['customer_id'], 1);
 
 /*show a table of the Request returned by the sql */
 $cols = array(
