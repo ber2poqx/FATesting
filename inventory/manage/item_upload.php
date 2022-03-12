@@ -7,7 +7,9 @@
 
 $page_security = 'SA_ITEM';
 $path_to_root = "../..";
-include($path_to_root . "/includes/session.inc");
+
+include_once($path_to_root . "/includes/session.inc");
+include($path_to_root . "/includes/db_pager.inc");
 
 include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/ui.inc");
