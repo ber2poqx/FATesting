@@ -398,7 +398,8 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
             0,
             0,
             date2sql($date_),
-            $change_term_no
+            $change_term_no,
+            1
         );
 
         $total_exist_payment -= $amount;
@@ -581,18 +582,18 @@ function get_sales_invoices_ct($trans_no = 0)
 }
 /* */
 
-function add_loan_ledger_ct($trans_no, $debtor_no, $loansched_id, $typeto, $typefrom, $payment_applied, $penalty, $rebate, $interest, $date_paid, $payment_trans_no)
+function add_loan_ledger_ct($trans_no, $debtor_no, $loansched_id, $typeto, $typefrom, $payment_applied, $penalty, $rebate, $interest, $date_paid, $payment_trans_no, $alloc=0)
 {
     $ledger_id = exists_payment_loan_ledger_ct($typeto, $loansched_id, $date_paid, $payment_trans_no);
 
     if ($ledger_id["id"] == 0 || empty($ledger_id["id"])) {
 
         $sql = "INSERT INTO " . TB_PREF . "debtor_loan_ledger (
-						trans_no ,debtor_no ,loansched_id, trans_type_to, trans_type_from, payment_applied ,penalty ,rebate ,interest ,date_paid, payment_trans_no
+						trans_no ,debtor_no ,loansched_id, trans_type_to, trans_type_from, payment_applied ,penalty ,rebate ,interest ,date_paid, payment_trans_no, alloc
 				) VALUES (
 						" . db_escape($trans_no) . " ," . db_escape($debtor_no) . " ," . db_escape($loansched_id) . " ," . db_escape($typeto) . " ," . db_escape($typefrom) . "
 						," . db_escape($payment_applied) . " ," . db_escape($penalty) . " ," . db_escape($rebate) . " ," . db_escape($interest) . "
-						," . db_escape($date_paid) . " ," . db_escape($payment_trans_no) . "
+						," . db_escape($date_paid) . " ," . db_escape($payment_trans_no) . "," . db_escape($alloc) . "
 				)";
 
         $ErrMsg = _('Could not insert loan ledger because ');

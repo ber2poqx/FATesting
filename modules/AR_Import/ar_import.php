@@ -411,7 +411,7 @@
 										$amount = $total_exist_payment;
 										$status = "partial";
 									}
-									add_loan_ledger(
+									add_loan_ledger_ct(
 										$trans_no,
 										$debtor_no,
 										$amort_sched["id"],
@@ -422,7 +422,8 @@
 										0,
 										0,
 										$last_payment_paid,
-										$trans_no
+										$trans_no,
+										1
 									);
 
 									$total_exist_payment -= $amount;

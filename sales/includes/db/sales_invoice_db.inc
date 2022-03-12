@@ -1119,7 +1119,8 @@ function alloc_in_openning($trans_no, $debtor_no, $alloc, $amortization, $date_)
             0,
             0,
             date2sql($date_),
-            $trans_no
+            $trans_no,
+			1
         );
 
         $total_exist_payment -= $amount;

@@ -386,7 +386,8 @@ function write_restructured(&$invoice, $opening_balances=0)
                 0,
                 0,
                 date2sql($date_),
-                $restructured_no
+                $restructured_no,
+                1
             );
 
             $total_exist_payment -= $amount;
@@ -571,57 +572,3 @@ function get_sales_invoices_restructured($trans_no = 0)
 }
 /* */
 
-function add_loan_ledger_restructured($trans_no, $debtor_no, $loansched_id, $typeto, $typefrom, $payment_applied, $penalty, $rebate, $interest, $date_paid, $payment_trans_no)
-{
-    $ledger_id = exists_payment_loan_ledger_ct($typeto, $loansched_id, $date_paid, $payment_trans_no);
-
-    if ($ledger_id["id"] == 0 || empty($ledger_id["id"])) {
-
-        $sql = "INSERT INTO " . TB_PREF . "debtor_loan_ledger (
-						trans_no ,debtor_no ,loansched_id, trans_type_to, trans_type_from, payment_applied ,penalty ,rebate ,interest ,date_paid, payment_trans_no
-				) VALUES (
-						" . db_escape($trans_no) . " ," . db_escape($debtor_no) . " ," . db_escape($loansched_id) . " ," . db_escape($typeto) . " ," . db_escape($typefrom) . "
-						," . db_escape($payment_applied) . " ," . db_escape($penalty) . " ," . db_escape($rebate) . " ," . db_escape($interest) . "
-						," . db_escape($date_paid) . " ," . db_escape($payment_trans_no) . "
-				)";
-
-        $ErrMsg = _('Could not insert loan ledger because ');
-    } else {
-
-        $sql = "UPDATE " . TB_PREF . "debtor_loan_ledger SET
-			payment_applied=" . db_escape($payment_applied) . "
-			WHERE id = " . db_escape($ledger_id["id"]);
-
-        $ErrMsg = _('Could not update loan ledger because ');
-    }
-
-    db_query($sql, $ErrMsg);
-}
-
-function exists_payment_loan_ledger_restructured($type, $loansched_id, $date_paid, $pay_trans_no)
-{
-    $sql = "SELECT id 
-			FROM " . TB_PREF . "debtor_loan_ledger 
-			WHERE payment_applied = 0 AND penalty <> 0
-				AND trans_type_to = " . db_escape($type) . "
-				AND date_paid = " . db_escape($date_paid) . "
-				AND loansched_id = " . db_escape($loansched_id) . "
-				AND payment_trans_no = " . db_escape($pay_trans_no);
-
-    $result = db_query($sql, "Cannot retreive a loan ledger info");
-    return db_fetch($result);
-}
-function get_termode_serial_no_restructured($lot_no)
-{
-
-	$sql = "SELECT A.lot_no FROM " . TB_PREF . "stock_moves A WHERE A.type = 80 AND A.lot_no =" . db_escape($lot_no);
-
-	$sql .= " AND A.lot_no =" . db_escape($lot_no);
-	$sql .= " GROUP BY A.lot_no, trans_id";
-    $sql .= " ORDER BY trans_id DESC LIMIT 1";
-
-	$result = db_query($sql, "Can not find delivery notes");
-	$row = db_fetch_row($result);
-
-	return $row[0];
-}
