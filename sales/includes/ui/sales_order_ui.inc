@@ -1159,9 +1159,12 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 
 	ref_row(_("Restructured No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
 	label_row(_("SI No."), $_POST['document_ref']);
+	$si_data = get_SI_by_reference(get_post('document_ref'));
+
 	hidden('document_ref');
 	label_row(_("DR No."), $_POST['dr_ref']);
 	hidden('dr_ref');
+	label_row(_("SI Date."), date("m-d-Y", strtotime($si_data['tran_date'])));
 	if ($editable) {
 		if (!isset($_POST['OrderDate']) || $_POST['OrderDate'] == "")
 			$_POST['OrderDate'] = $order->document_date;
@@ -1382,7 +1385,7 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 	label_row(_("Old Amortization:"), price_format($amort));
 	label_row(_("Old Gross:"), price_format($all_ar_amount));
 	label_row(_("Old AR-Balance:"), price_format($old_ar_balance));
-	label_row(_("Total Payment:"), price_format(get_post('alloc')));
+	label_row(_("Total Payment:"), price_format($si_data['alloc']));
 	label_row(_("Profit Margin:"), price_format($old_profit_margin));
 	label_row(_("OLD DGP:"), price_format($old_deferred_gross_profit));
 	label_row(_("Total Generated dgp from Payment:"), price_format($total_dgp));

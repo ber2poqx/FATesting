@@ -329,6 +329,12 @@ function copy_to_cart()
 		$cart->new_deferred_gross_profit = $_POST['new_deferred_gross_profit'];
 		$cart->new_profit_margin = $_POST['new_profit_margin'];
 	}
+	//Added By Albert 03/10/2022
+	if ($cart->trans_type == ST_RESTRUCTURED) {
+		$cart->calculation_id = $_POST['calculation_id'];
+		$cart->first_due_date = $_POST['new_first_due_date'];
+	}
+	/* */
 
 	$cart->Comments =  $_POST['Comments'];
 
@@ -493,7 +499,10 @@ function copy_from_cart()
 		$_POST['adj_rate'] = $cart->adj_rate;
 		$_POST['opportunity_cost'] = $cart->opportunity_cost;
 		$_POST['amount_to_be_paid'] = $cart->amount_to_be_paid;
-		$_POST['alloc'] = $cart->alloc;
+		//Restructured 
+		if($cart->calculation_id <> 1){
+			$_POST['alloc'] = $cart->alloc;
+			}
 	}
 }
 //--------------------------------------------------------------------------------
@@ -724,6 +733,10 @@ function can_process()
 		display_error(_("Cant proceed! down payment is not yet paid!"));
 		return false;
 	}
+	if ($_SESSION['Items']->trans_type == ST_RESTRUCTURED && get_post('ar_genarate_by_amort') <> get_post('new_ar_amount') ) {
+		display_error(_("Cant proceed! ar_balance not equal to ar_amount genarated by amortazation!".get_post('ar_genarate_by_amort')));
+		return false;
+	}
 
 	return true;
 }
@@ -732,11 +745,13 @@ function can_process()
 if (isset($_POST['installment_policy_id'])) {
 	installment_computation();
 }
-
-if (isset($_POST['new_installment_policy_id'])) {
+/*modified by Albert*/
+if (isset($_POST['new_installment_policy_id']) && $_SESSION['Items']->trans_type == ST_SITERMMOD) {
 	new_installment_computation();
+}else{
+	restuctured_computation();
 }
-
+/**/
 if (isset($_POST['update'])) {
 	copy_to_cart();
 	$Ajax->activate('items_table');
@@ -908,6 +923,110 @@ function new_installment_computation()
 	$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
 	global $Ajax;
 	$Ajax->activate('_page_body');
+}
+/*Added by Albert */
+function restuctured_computation(){
+	$company = get_company_prefs();
+	$price = 0;
+
+	if(get_post('calculation_id') == 1){
+		foreach ($_SESSION['Items']->get_items() as $line_no => $line) {
+			$price += $line->price * $line->qty_dispatched;
+		}
+		$_POST['new_lcp_amount'] = $price;
+
+		$policy_detail = db_fetch(get_instlpolicy_by_id(get_post('new_installment_policy_id')));
+
+		$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
+		$terms = floatval($count_term_arr[0]);
+		$financing_rate = floatval($policy_detail["financing_rate"]);
+		$rebate = floatval($policy_detail["rebate"]);
+		$quotient_financing_rate = floatval($financing_rate) / 100;
+
+		$mature_date = add_months(get_post('new_first_due_date'), $terms);
+		$_POST['new_maturity_date'] = add_months($mature_date, -1);
+		//
+		$_POST['alloc'] = 0;
+		$_POST['new_rebate'] = $rebate;
+		$_POST['new_financing_rate'] = $financing_rate;
+		$_POST['new_count_term'] = $terms;
+
+		$_POST['outstanding_ar_amount'] = round(input_num('outstanding_ar_amount_',0)); 
+		$_POST['new_ar_amount'] = $_POST['outstanding_ar_amount'];
+		$_POST['new_due_amort'] = round($_POST['new_ar_amount'] / $terms);
+		//for blocking
+		$_POST['ar_genarate_by_amort'] = $_POST['new_due_amort'] * $terms;
+
+		$_POST['down_pay'] = 0;
+
+		$_POST['amort_diff'] = 0;
+
+		$_POST['months_paid'] = 0;
+		$_POST['amort_delay'] = 0;
+
+		$_POST['adj_rate'] = 0;
+		$_POST['opportunity_cost'] = 0;
+		$_POST['amount_to_be_paid'] = 0;
+	}else{
+
+		foreach ($_SESSION['Items']->get_items() as $line_no => $line) {
+			$price += $line->price * $line->qty_dispatched;
+		}
+		$_POST['new_lcp_amount'] = $price;
+	
+		/*  Computation of LCP, AR AMOUNT, Amortization */
+		$policy_detail = db_fetch(get_instlpolicy_by_id(get_post('new_installment_policy_id')));
+	
+		$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
+		$terms = floatval($count_term_arr[0]);
+		$financing_rate = floatval($policy_detail["financing_rate"]);
+		$rebate = floatval($policy_detail["rebate"]);
+		$quotient_financing_rate = floatval($financing_rate) / 100;
+		$diff_lcp_downpayment = floatval($_POST['lcp_amount']) - floatval($_POST['down_pay']);
+	
+		$amount_to_be_finance = floatval($_POST['lcp_amount']) - floatval($_POST['down_pay']);
+		$interest_charge = $quotient_financing_rate * $amount_to_be_finance;
+	
+		$sum_of_interest_charge_and_atbf = $interest_charge + $amount_to_be_finance;
+	
+		$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $terms;
+	
+		$amort = round($amort_wo_rebate + $rebate);
+	
+		$total_amount = $amort * $terms + floatval($_POST['down_pay']);
+		$_POST['new_due_amort'] = $amort;
+	
+		//modified by spyrax10
+		$mature_date = add_months(get_post('new_first_due_date'), $terms);
+		$_POST['new_maturity_date'] = add_months($mature_date, -1);
+		//
+	
+		$_POST['new_rebate'] = $rebate;
+		$_POST['new_financing_rate'] = $financing_rate;
+		$_POST['new_count_term'] = $terms;
+	
+		$_POST['amort_diff'] = 0;
+	
+		$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+	
+		$_POST['amort_delay'] = 0;
+	
+		// $_POST['adj_rate'] = $_POST['new_financing_rate'] >= $_POST['financing_rate']
+		// 	? $_POST['new_financing_rate'] - $_POST['financing_rate']
+		// 	: $_POST['financing_rate'] - $_POST['new_financing_rate'];
+		$_POST['adj_rate'] = 0;
+		$_POST['opportunity_cost'] = 0;//modified by Albert
+		$_POST['amount_to_be_paid'] = 0;
+	
+		$_POST['new_total_amount'] = $total_amount;
+		$_POST['new_ar_amount'] = $total_amount; //Modified by Albert
+		$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
+	}
+
+
+	global $Ajax;
+	$Ajax->activate("_page_body");
+
 }
 
 function reset_computation()

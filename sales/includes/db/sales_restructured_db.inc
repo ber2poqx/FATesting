@@ -392,8 +392,8 @@ function write_restructured(&$invoice, $opening_balances=0)
             $total_exist_payment -= $amount;
             $loansched_id = $amort_sched["id"];
             $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
-                status=" . db_escape($status) . "
-                WHERE id=$loansched_id";
+			        status=" . db_escape($status) . ",penalty_status=" . db_escape($status) . "
+			        WHERE id=$loansched_id";
 
             $ErrMsg = _('Could not update loan schedule because ');
 

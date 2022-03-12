@@ -546,6 +546,7 @@ function copy_from_cart()
 		$_POST['adj_rate'] = $cart->adj_rate;
 		$_POST['opportunity_cost'] = $cart->opportunity_cost;
 		$_POST['amount_to_be_paid'] = $cart->amount_to_be_paid;
+		//Restructured 
 		if($cart->calculation_id <> 1){
 		$_POST['alloc'] = $cart->alloc;
 		}
@@ -779,6 +780,11 @@ function can_process()
 		display_error(_("Cant proceed! down payment is not yet paid!"));
 		return false;
 	}
+
+	if ($_SESSION['Items']->trans_type == ST_RESTRUCTURED && get_post('ar_genarate_by_amort') <> get_post('new_ar_amount') ) {
+		display_error(_("Cant proceed! ar_balance not equal to ar_amount genarated by amortazation!".get_post('ar_genarate_by_amort')));
+		return false;
+	}
 	/*----------*/
 	return true;
 }
@@ -995,6 +1001,9 @@ function restuctured_computation(){
 		$_POST['outstanding_ar_amount'] = round(input_num('outstanding_ar_amount_',0)); 
 		$_POST['new_ar_amount'] = $_POST['outstanding_ar_amount'];
 		$_POST['new_due_amort'] = round($_POST['new_ar_amount'] / $terms);
+		//for blocking
+		$_POST['ar_genarate_by_amort'] = $_POST['new_due_amort'] * $terms;
+
 		$_POST['down_pay'] = 0;
 
 		$_POST['amort_diff'] = 0;
