@@ -15,6 +15,7 @@ include_once($path_to_root . "/includes/data_checks.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
+add_access_extensions();
 
 if (isset($_POST['download'])) {
 	$row = get_attachment_by_type(32);
