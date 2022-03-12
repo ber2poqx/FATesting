@@ -815,10 +815,12 @@ function total_adjusment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
 
             $sql = "SELECT SUM(A.payment_applied) AS total 
                 FROM ".TB_PREF."debtor_loan_ledger A 
-                    INNER JOIN ".TB_PREF."debtor_loan_schedule B ON A.loansched_id = B.id AND A.trans_no = B.trans_no 
-                        AND A.debtor_no = B.debtor_no AND A.trans_type_to = B.trans_type";
+                    INNER JOIN ".TB_PREF."debtor_loan_schedule B ON A.loansched_id = B.id 
+                        AND A.trans_no = B.trans_no 
+                        AND A.debtor_no = B.debtor_no 
+                        AND A.trans_type_to = B.trans_type";
 
-            $sql .= " WHERE B.month_no <> 0 AND A.debtor_no = ".db_escape($debtor_no) . 
+            $sql .= " WHERE B.month_no <> 0 AND A.alloc = 1 AND A.debtor_no = ".db_escape($debtor_no) . 
                 " AND A.trans_no = ".db_escape($trans_no) . 
                 " AND A.trans_type_to = ".db_escape($trans_type);
 
