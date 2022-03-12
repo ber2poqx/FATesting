@@ -47,13 +47,19 @@ function getTransactions($to, $cust_name = "", $group = 0)
     $backtwoDate = endCycle($to, -2);
     $backthreeDate = endCycle($to, -3);
 
+    if ($cust_name != 'ALL') {
 
+        $sql ="SELECT A.type AS type, A.reference AS reference,
+            B.trans_no AS trans_no, B.debtor_no AS debtor_no, 
+            B.invoice_date AS invoice_date, B.months_term AS months_term, 
+            B.firstdue_date AS firstdue_date, B.maturity_date AS maturity_date, 
+            B.rebate AS rebate, B.ar_amount AS amount,
+            C.name AS name, C.address AS address, C.area AS area,
+            D.stock_id AS stock_id, E.principal_due AS principal_due,
+            F.id AS id, F.loansched_id AS loansched_id, F.date_paid AS date_paid,
+            G.real_name AS Collector_Name, H.debtor_no AS debtor_no, I.account_code AS account_code, I.account_name AS Coa_name, 
+            J.collectors_id AS collectors_id, K.description AS AREA,
 
-    $sql ="SELECT B.name, B.address, B.area, C.reference, C.module_type, A.trans_no, A.debtor_no, A.invoice_date, A.months_term, 
-            A.firstdue_date, A.maturity_date AS Maturity, A.rebate AS Rebate, A.ar_amount AS amount, D.stock_id, E.principal_due,
-            F.id, F.loansched_id, F.date_paid, G.real_name AS Collector_Name, H.debtor_no, 
-            I.account_code, I.account_name AS Coa_name, J.collectors_id, K.description AS AREA,
-            
             EEE.principal_due - IFNULL(DUE_NXT_MNTH.adv_payment, 0) AS due_nxt_month_payment,
 
             EEETH.principal_due - IFNULL(DUE_THIS_MNTH.adv_payment_this_month, 0) - IFNULL(DUE_THIS_MNTH_V2.adv_payment_this_month, 0)
@@ -65,159 +71,161 @@ function getTransactions($to, $cust_name = "", $group = 0)
             EEEEE.principal_due - IFNULL(DUE_TWO_MNTH.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V1.adv_payment_due_2, 0) - 
             IFNULL(DUE_TWO_MNTH_V2.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V3.adv_payment_due_2, 0) AS ovrdue_2month_payment,
 
-            /*
-            IFNULL(FINAL_MINUS_MNTH.final_minus_month, 0) AS final_partial_deduction,
-            */
             IFNULL(DUE_THREE_MNTH.adv_payment_due_3, 0) AS ovrdue_3month_payment,
-            IFNULL(PASTDUE.past_due_month, 0) AS past_due_payment,
-            IFNULL(-REMAINBAL.REMAIN, A.ar_amount) AS BALANCE,
+            
+            IFNULL(-REMAINBAL.REMAIN, B.ar_amount) AS BALANCE,
+            IFNULL(-REMAINPAST.REMAIN, 0) AS PASTDUE,
 
-            (SELECT SUM(X.payment_applied) FROM debtor_loan_ledger X
-            LEFT JOIN debtor_loan_schedule XR ON XR.debtor_no = X.debtor_no AND XR.trans_no = X.trans_no AND XR.id = X.loansched_id
-            WHERE X.debtor_no = A.debtor_no AND X.trans_no = A.trans_no)
-            total_partial0,
+            (SELECT XJ.date_paid FROM debtor_loan_ledger XJ 
+            LEFT JOIN debtor_loan_schedule XB ON XB.debtor_no = XJ.debtor_no 
+            AND XB.trans_no = XJ.trans_no AND XB.id = XJ.loansched_id
+            WHERE XB.debtor_no = B.debtor_no AND XB.trans_no = B.trans_no 
+            AND XB.status != 'unpaid' AND XB.month_no != 0 AND DATE_FORMAT(XJ.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XJ.date_paid DESC LIMIT 1)
+            last_payment,
 
-            (SELECT SUM(X.payment_applied) - Y.ar_amount FROM debtor_loan_ledger X 
-            LEFT JOIN debtor_loans Y ON Y.debtor_no = X.debtor_no AND Y.trans_no = X.trans_no WHERE X.debtor_no = A.debtor_no 
-            AND X.trans_no = A.trans_no)
-            Balance,
-
-            (SELECT XY.date_due FROM debtor_loan_schedule XY WHERE XY.debtor_no = A.debtor_no AND XY.trans_no = A.trans_no 
-            AND XY.status != 'unpaid' ORDER BY XY.date_due DESC LIMIT 1)
-            last_month_applied,
-
-            (SELECT XJ.date_paid FROM debtor_loan_ledger XJ LEFT JOIN debtor_loan_schedule XB ON XB.debtor_no = XJ.debtor_no 
-             AND XB.trans_no = XJ.trans_no AND XB.id = XJ.loansched_id
-             WHERE XB.debtor_no = A.debtor_no AND XB.trans_no = A.trans_no 
-            AND XB.status != 'unpaid' ORDER BY XJ.date_paid DESC LIMIT 1)
-            last_payment
-
-            FROM debtor_loans A
-            LEFT JOIN debtors_master B ON B.debtor_no = A.debtor_no
-            LEFT JOIN debtor_trans C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
-            LEFT JOIN debtor_trans_details D ON D.debtor_trans_no = C.trans_no
-            LEFT JOIN debtor_loan_schedule E ON E.trans_no = A.trans_no AND E.debtor_no = A.debtor_no
-            LEFT JOIN debtor_loan_ledger F ON F.trans_no = E.trans_no AND F.debtor_no = E.debtor_no 
-            AND F.debtor_no = A.debtor_no AND F.trans_no = A.trans_no
-            LEFT JOIN areas J ON J.area_code = B.area
-            LEFT JOIN users G ON G.user_id = J.collectors_id
-            LEFT JOIN cust_branch H ON H.debtor_no = A.debtor_no
-            LEFT JOIN chart_master I ON I.account_code = H.receivables_account
-            LEFT JOIN areas K ON K.area_code = B.area
-
+            (SELECT XY.date_due FROM debtor_loan_schedule XY LEFT JOIN debtor_loan_ledger XB ON XB.debtor_no = XY.debtor_no 
+            AND XB.trans_no = XY.trans_no AND XB.loansched_id = XY.id 
+            WHERE XY.debtor_no = A.debtor_no AND XY.trans_no = A.trans_no 
+            AND XY.status != 'unpaid' AND XY.month_no != 0 AND DATE_FORMAT(XB.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XY.date_due DESC LIMIT 1)
+            last_month_applied
+                        
+            FROM ".TB_PREF."debtor_trans A
+            LEFT JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.trans_no 
+            LEFT JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."debtor_trans_details D ON D.debtor_trans_no = A.trans_no
+            LEFT JOIN ".TB_PREF."debtor_loan_schedule E ON E.trans_no = A.trans_no AND E.debtor_no = A.debtor_no 
+            AND E.trans_type = A.type
+            LEFT JOIN ".TB_PREF."debtor_loan_ledger F ON F.trans_no = E.trans_no AND F.debtor_no = E.debtor_no 
+            AND F.loansched_id = E.id
+            LEFT JOIN ".TB_PREF."areas J ON J.area_code = C.area
+            LEFT JOIN ".TB_PREF."users G ON G.user_id = J.collectors_id
+            LEFT JOIN ".TB_PREF."cust_branch H ON H.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."chart_master I ON I.account_code = H.receivables_account
+            LEFT JOIN ".TB_PREF."areas K ON K.area_code = C.area
 
             LEFT JOIN (
-                SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+                SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                     SUM(FF.payment_applied) as adv_payment
                     FROM debtor_loan_ledger FF
                         INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                             AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                     WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
                     GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_NXT_MNTH ON C.trans_no = DUE_NXT_MNTH.trans_no AND C.debtor_no = DUE_NXT_MNTH.debtor_no 
-                AND DATE_FORMAT(DUE_NXT_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+            ) DUE_NXT_MNTH ON A.trans_no = DUE_NXT_MNTH.trans_no AND A.debtor_no = DUE_NXT_MNTH.debtor_no 
+            AND A.type = DUE_NXT_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_NXT_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                 SUM(FF.payment_applied) as adv_payment_this_month
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THIS_MNTH ON C.trans_no = DUE_THIS_MNTH.trans_no AND C.debtor_no = DUE_THIS_MNTH.debtor_no 
+            ) DUE_THIS_MNTH ON A.trans_no = DUE_THIS_MNTH.trans_no AND A.debtor_no = DUE_THIS_MNTH.debtor_no 
+            AND A.type = DUE_THIS_MNTH.trans_type 
             AND DATE_FORMAT(DUE_THIS_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                 SUM(FF.payment_applied) as adv_payment_this_month
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THIS_MNTH_V2 ON C.trans_no = DUE_THIS_MNTH_V2.trans_no AND C.debtor_no = DUE_THIS_MNTH_V2.debtor_no 
+            ) DUE_THIS_MNTH_V2 ON A.trans_no = DUE_THIS_MNTH_V2.trans_no AND A.debtor_no = DUE_THIS_MNTH_V2.debtor_no 
+            AND A.type = DUE_THIS_MNTH_V2.trans_type 
             AND DATE_FORMAT(DUE_THIS_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                 SUM(FF.payment_applied) as adv_payment_due_1
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_ONE_MNTH ON C.trans_no = DUE_ONE_MNTH.trans_no AND C.debtor_no = DUE_ONE_MNTH.debtor_no 
+            ) DUE_ONE_MNTH ON A.trans_no = DUE_ONE_MNTH.trans_no AND A.debtor_no = DUE_ONE_MNTH.debtor_no 
+            AND A.type = DUE_ONE_MNTH.trans_type 
             AND DATE_FORMAT(DUE_ONE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                SUM(FF.payment_applied) as adv_payment_due_1
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_ONE_MNTH_V1 ON C.trans_no = DUE_ONE_MNTH_V1.trans_no AND C.debtor_no = DUE_ONE_MNTH_V1.debtor_no 
+            ) DUE_ONE_MNTH_V1 ON A.trans_no = DUE_ONE_MNTH_V1.trans_no AND A.debtor_no = DUE_ONE_MNTH_V1.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V1.trans_type 
             AND DATE_FORMAT(DUE_ONE_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                 SUM(FF.payment_applied) as adv_payment_due_1
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_ONE_MNTH_V2 ON C.trans_no = DUE_ONE_MNTH_V2.trans_no AND C.debtor_no = DUE_ONE_MNTH_V2.debtor_no 
+            ) DUE_ONE_MNTH_V2 ON A.trans_no = DUE_ONE_MNTH_V2.trans_no AND A.debtor_no = DUE_ONE_MNTH_V2.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V2.trans_type 
             AND DATE_FORMAT(DUE_ONE_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                 SUM(FF.payment_applied) as adv_payment_due_2
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_TWO_MNTH ON C.trans_no = DUE_TWO_MNTH.trans_no AND C.debtor_no = DUE_TWO_MNTH.debtor_no 
+            ) DUE_TWO_MNTH ON A.trans_no = DUE_TWO_MNTH.trans_no AND A.debtor_no = DUE_TWO_MNTH.debtor_no 
+            AND A.type = DUE_TWO_MNTH.trans_type 
             AND DATE_FORMAT(DUE_TWO_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -4 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, 
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
                 SUM(FF.payment_applied) as adv_payment_due_2
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_TWO_MNTH_V1 ON C.trans_no = DUE_TWO_MNTH_V1.trans_no AND C.debtor_no = DUE_TWO_MNTH_V1.debtor_no 
+            ) DUE_TWO_MNTH_V1 ON A.trans_no = DUE_TWO_MNTH_V1.trans_no AND A.debtor_no = DUE_TWO_MNTH_V1.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V1.trans_type 
             AND DATE_FORMAT(DUE_TWO_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,    
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,   
                 SUM(FF.payment_applied) as adv_payment_due_2
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_TWO_MNTH_V2 ON C.trans_no = DUE_TWO_MNTH_V2.trans_no AND C.debtor_no = DUE_TWO_MNTH_V2.debtor_no 
+            ) DUE_TWO_MNTH_V2 ON A.trans_no = DUE_TWO_MNTH_V2.trans_no AND A.debtor_no = DUE_TWO_MNTH_V2.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V2.trans_type 
             AND DATE_FORMAT(DUE_TWO_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
 
             LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,             
                 SUM(FF.payment_applied) as adv_payment_due_2
                 FROM debtor_loan_ledger FF
                     INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_TWO_MNTH_V3 ON C.trans_no = DUE_TWO_MNTH_V3.trans_no AND C.debtor_no = DUE_TWO_MNTH_V3.debtor_no 
+            ) DUE_TWO_MNTH_V3 ON A.trans_no = DUE_TWO_MNTH_V3.trans_no AND A.debtor_no = DUE_TWO_MNTH_V3.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V3.trans_type 
             AND DATE_FORMAT(DUE_TWO_MNTH_V3.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
 
-
-            LEFT JOIN (
+           LEFT JOIN (
             SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
                 SUM(FF.payment_applied) as adv_payment_due_3
                 FROM debtor_loan_ledger FF
@@ -225,93 +233,8 @@ function getTransactions($to, $cust_name = "", $group = 0)
                         AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
                 WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
                 GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THREE_MNTH ON C.trans_no = DUE_THREE_MNTH.trans_no AND C.debtor_no = DUE_THREE_MNTH.debtor_no 
+            ) DUE_THREE_MNTH ON A.trans_no = DUE_THREE_MNTH.trans_no AND A.debtor_no = DUE_THREE_MNTH.debtor_no 
             AND DATE_FORMAT(DUE_THREE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
-
-            LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
-                SUM(FF.payment_applied) as adv_payment_due_3
-                FROM debtor_loan_ledger FF
-                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
-                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
-                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
-                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THREE_MNTH_v1 ON C.trans_no = DUE_THREE_MNTH_v1.trans_no AND C.debtor_no = DUE_THREE_MNTH_v1.debtor_no 
-            AND DATE_FORMAT(DUE_THREE_MNTH_v1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
-
-            LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
-                SUM(FF.payment_applied) as adv_payment_due_3
-                FROM debtor_loan_ledger FF
-                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
-                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
-                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
-                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THREE_MNTH_v2 ON C.trans_no = DUE_THREE_MNTH_v2.trans_no AND C.debtor_no = DUE_THREE_MNTH_v2.debtor_no 
-            AND DATE_FORMAT(DUE_THREE_MNTH_v2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
-
-            LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
-                SUM(FF.payment_applied) as adv_payment_due_3
-                FROM debtor_loan_ledger FF
-                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
-                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
-                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
-                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THREE_MNTH_v3 ON C.trans_no = DUE_THREE_MNTH_v3.trans_no AND C.debtor_no = DUE_THREE_MNTH_v3.debtor_no 
-            AND DATE_FORMAT(DUE_THREE_MNTH_v3.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -4 MONTH), '%Y-%m')
-
-            LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
-                SUM(FF.payment_applied) as adv_payment_due_3
-                FROM debtor_loan_ledger FF
-                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
-                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
-                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
-                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
-            ) DUE_THREE_MNTH_v4 ON C.trans_no = DUE_THREE_MNTH_v4.trans_no AND C.debtor_no = DUE_THREE_MNTH_v4.debtor_no 
-            AND DATE_FORMAT(DUE_THREE_MNTH_v4.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -5 MONTH), '%Y-%m')
-
-            /*
-            LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, 
-            SUM(FF.payment_applied) AS due_three_payment_minus_three, 
-            EE.date_due
-            FROM debtor_loan_ledger FF
-            LEFT JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
-            AND FF.debtor_no = EE.debtor_no
-            WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT('$backthreeDate', '%Y-%m') 
-            AND EE.month_no != 0 AND EE.status = 'partial'
-            GROUP BY DATE_FORMAT(EE.date_due, '%Y-%m') DESC LIMIT 1
-            ) DUE_THREE_MINUS_MNTH ON C.trans_no = DUE_THREE_MINUS_MNTH.trans_no AND C.debtor_no = DUE_THREE_MINUS_MNTH.debtor_no
-
-            LEFT JOIN (
-            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, 
-            SUM(FF.payment_applied) AS final_minus_month, 
-            EE.date_due
-            FROM debtor_loan_ledger FF
-            LEFT JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
-            AND FF.debtor_no = EE.debtor_no
-            WHERE EE.month_no != 0 AND EE.status = 'partial'
-            GROUP BY DATE_FORMAT(EE.date_due, '%Y-%m') DESC LIMIT 1
-            ) FINAL_MINUS_MNTH ON C.trans_no = FINAL_MINUS_MNTH.trans_no AND C.debtor_no = FINAL_MINUS_MNTH.debtor_no
-            */
-
-
-            LEFT JOIN (
-            SELECT EET.id, EET.trans_no, EET.debtor_no,  
-                SUM(EET.principal_due) AS due_3_month
-            FROM debtor_loan_schedule EET 
-            WHERE DATE_FORMAT(EET.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
-            AND EET.month_no != 0 GROUP BY EET.debtor_no, EET.trans_no) OVRDUE3M ON C.trans_no = OVRDUE3M.trans_no AND C.debtor_no = OVRDUE3M.debtor_no  
-
-            LEFT JOIN (
-            SELECT EEY.id, EEY.trans_no, EEY.debtor_no, AAY.maturity_date, 
-            SUM(EEY.principal_due) AS past_due_month
-            FROM debtor_loan_schedule EEY 
-            INNER JOIN debtor_loans AAY ON EEY.trans_no = AAY.trans_no AND EEY.debtor_no AND AAY.debtor_no
-            WHERE DATE_FORMAT(AAY.maturity_date, '%Y-%m') <  DATE_FORMAT('$to', '%Y-%m') 
-            GROUP BY EEY.debtor_no, EEY.trans_no) PASTDUE ON C.trans_no = PASTDUE.trans_no AND C.debtor_no = PASTDUE.debtor_no
 
             LEFT JOIN (
             SELECT JR.id, JR.trans_no, JR.debtor_no,
@@ -319,49 +242,752 @@ function getTransactions($to, $cust_name = "", $group = 0)
             FROM debtor_loan_ledger JR
             LEFT JOIN debtor_loans RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
             WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
             GROUP BY RD.debtor_no, RD.trans_no
             ) REMAINBAL ON A.trans_no = REMAINBAL.trans_no AND A.debtor_no = REMAINBAL.debtor_no
-               
-            LEFT JOIN debtor_loan_schedule EEE ON C.trans_no = EEE.trans_no AND C.debtor_no = EEE.debtor_no 
-            AND EEE.month_no != 0 AND DATE_FORMAT(EEE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
 
-            LEFT JOIN debtor_loan_schedule EEEE ON C.trans_no = EEEE.trans_no AND C.debtor_no = EEEE.debtor_no 
-            AND EEEE.month_no != 0 AND DATE_FORMAT(EEEE.date_due, '%Y-%m') = DATE_FORMAT('$backoneDate', '%Y-%m')
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no, RD.maturity_date,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_loans RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINPAST ON A.trans_no = REMAINPAST.trans_no AND A.debtor_no = REMAINPAST.debtor_no
+            AND DATE_FORMAT(REMAINPAST.maturity_date, '%Y-%m-%d') < DATE_FORMAT('$to', '%Y-%m-%d')
 
-            LEFT JOIN debtor_loan_schedule EEEEE ON C.trans_no = EEEEE.trans_no AND C.debtor_no = EEEEE.debtor_no 
-            AND EEEEE.month_no != 0 AND DATE_FORMAT(EEEEE.date_due, '%Y-%m') = DATE_FORMAT('$backtwoDate', '%Y-%m')
+            LEFT JOIN debtor_loan_schedule EEE ON A.trans_no = EEE.trans_no AND A.debtor_no = EEE.debtor_no 
+            AND EEE.trans_type = A.type AND EEE.month_no != 0 
+            AND DATE_FORMAT(EEE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
 
-            LEFT JOIN debtor_loan_schedule EEETH ON C.trans_no = EEETH.trans_no AND C.debtor_no = EEETH.debtor_no 
-            AND EEETH.month_no != 0 AND DATE_FORMAT(EEETH.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+            LEFT JOIN debtor_loan_schedule EEEE ON A.trans_no = EEEE.trans_no AND A.debtor_no = EEEE.debtor_no 
+            AND EEEE.month_no != 0  AND EEEE.trans_type = A.type 
+            AND DATE_FORMAT(EEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
 
-            LEFT JOIN debtor_loan_schedule RMD ON C.trans_no = RMD.trans_no AND C.debtor_no = RMD.debtor_no 
-            AND RMD.month_no != 0 AND DATE_FORMAT(RMD.date_due, '%Y-%m') <= DATE_FORMAT('$backtwoDate', '%Y-%m')
+            LEFT JOIN debtor_loan_schedule EEEEE ON A.trans_no = EEEEE.trans_no AND A.debtor_no = EEEEE.debtor_no 
+            AND EEEEE.month_no != 0 AND EEEEE.trans_type = A.type
+            AND DATE_FORMAT(EEEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
 
-            WHERE A.months_term != 0 
-            AND C.type = 10
-            AND C.repo_date = '0000-00-00'
-            AND E.month_no != 0
-            AND IFNULL(REMAINBAL.REMAIN, A.ar_amount) <> 0
-            AND C.tran_date <= '$to'";
+            LEFT JOIN debtor_loan_schedule EEETH ON A.trans_no = EEETH.trans_no AND A.debtor_no = EEETH.debtor_no 
+            AND EEETH.trans_type = A.type AND EEETH.month_no != 0 AND DATE_FORMAT(EEETH.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
 
-            if ($cust_name != 'ALL') {
-                $sql .= " AND B.name =".db_escape($cust_name);              
-            }
+            WHERE A.type = 10 AND E.month_no != 0
+            AND A.tran_date <= '$to' 
+            AND A.repo_date = '0000-00-00'
+            AND A.status != 'Closed'
+            AND IFNULL(-REMAINBAL.REMAIN, B.ar_amount) <> 0
+            AND C.name =".db_escape($cust_name)."
+            GROUP BY A.reference, A.type, A.trans_no, A.debtor_no, I.account_code              
+          
+            UNION ALL
+
+            SELECT A.type AS type, A.reference AS reference,
+            B.trans_no AS trans_no, B.debtor_no AS debtor_no,
+            B.term_mod_date AS invoice_date, B.months_term AS months_term,
+            B.firstdue_date AS firstdue_date, B.maturity_date AS maturity_date,
+            B.rebate AS rebate, B.ar_amount AS amount,
+            C.name AS name, C.address AS address, C.area AS area,
+            D.stock_id AS stock_id, E.principal_due AS principal_due,
+            F.id AS id, F.loansched_id AS loansched_id, F.date_paid AS date_paid,
+            G.real_name AS Collector_Name, H.debtor_no AS debtor_no, I.account_code AS account_code, I.account_name AS Coa_name, 
+            J.collectors_id AS collectors_id, K.description AS AREA,
+
+            EEE.principal_due - IFNULL(DUE_NXT_MNTH.adv_payment, 0) AS due_nxt_month_payment,
+
+            EEETH.principal_due - IFNULL(DUE_THIS_MNTH.adv_payment_this_month, 0) - IFNULL(DUE_THIS_MNTH_V2.adv_payment_this_month, 0)
+            AS due_this_month_payment,
+
+            EEEE.principal_due - IFNULL(DUE_ONE_MNTH.adv_payment_due_1, 0) - IFNULL(DUE_ONE_MNTH_V2.adv_payment_due_1, 0) -
+            IFNULL(DUE_ONE_MNTH_V1.adv_payment_due_1, 0) AS ovrdue_1month_payment,
+
+            EEEEE.principal_due - IFNULL(DUE_TWO_MNTH.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V1.adv_payment_due_2, 0) - 
+            IFNULL(DUE_TWO_MNTH_V2.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V3.adv_payment_due_2, 0) AS ovrdue_2month_payment,
+
+            IFNULL(DUE_THREE_MNTH.adv_payment_due_3, 0) AS ovrdue_3month_payment,
             
-            if ($group == 1) {
-                $sql .= "GROUP BY C.reference, E.trans_no, E.debtor_no";                
-                $sql .= " ORDER BY I.account_code, E.date_due, F.date_paid DESC";
+            IFNULL(-REMAINBAL.REMAIN, B.ar_amount) AS BALANCE,
+            IFNULL(-REMAINPAST.REMAIN, 0) AS PASTDUE,
 
-            }
-            else if ($group == 2) {
-                $sql .= "GROUP BY C.reference, E.trans_no, E.debtor_no";                
-                $sql .= " ORDER BY B.collectors_name, E.date_due, F.date_paid DESC";
-            } else {
-                $sql .= "GROUP BY C.reference, E.trans_no, E.debtor_no";                
-                $sql .= " ORDER BY B.collectors_name, E.date_due, F.date_paid DESC";
-            }
+            (SELECT XJ.date_paid FROM debtor_loan_ledger XJ 
+            LEFT JOIN debtor_loan_schedule XB ON XB.debtor_no = XJ.debtor_no 
+            AND XB.trans_no = XJ.trans_no AND XB.id = XJ.loansched_id
+            WHERE XB.debtor_no = A.debtor_no AND XB.trans_no = A.trans_no 
+            AND XB.status != 'unpaid' AND XB.month_no != 0 AND DATE_FORMAT(XJ.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XJ.date_paid DESC LIMIT 1)
+            last_payment,
 
-    return db_query($sql, "No transactions were returned");
+            (SELECT XY.date_due FROM debtor_loan_schedule XY LEFT JOIN debtor_loan_ledger XB ON XB.debtor_no = XY.debtor_no 
+            AND XB.trans_no = XY.trans_no AND XB.loansched_id = XY.id 
+            WHERE XY.debtor_no = A.debtor_no AND XY.trans_no = A.trans_no 
+            AND XY.status != 'unpaid' AND XY.month_no != 0 AND DATE_FORMAT(XB.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XY.date_due DESC LIMIT 1)
+            last_month_applied
+
+            FROM ".TB_PREF."debtor_trans A
+            INNER JOIN ".TB_PREF."debtor_term_modification B ON B.trans_no = A.trans_no
+            AND B.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."debtor_trans_details D ON D.debtor_trans_no = A.trans_no
+            LEFT JOIN ".TB_PREF."debtor_loan_schedule E ON E.trans_no = A.trans_no AND E.debtor_no = A.debtor_no 
+            AND E.trans_type = A.type
+            LEFT JOIN ".TB_PREF."debtor_loan_ledger F ON F.trans_no = E.trans_no AND F.debtor_no = E.debtor_no 
+            AND F.loansched_id = E.id
+            LEFT JOIN ".TB_PREF."areas J ON J.area_code = C.area
+            LEFT JOIN ".TB_PREF."users G ON G.user_id = J.collectors_id
+            LEFT JOIN ".TB_PREF."cust_branch H ON H.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."chart_master I ON I.account_code = H.receivables_account
+            LEFT JOIN ".TB_PREF."areas K ON K.area_code = C.area
+
+            LEFT JOIN (
+                SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                    SUM(FF.payment_applied) as adv_payment
+                    FROM debtor_loan_ledger FF
+                        INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                            AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                    WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
+                    GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_NXT_MNTH ON A.trans_no = DUE_NXT_MNTH.trans_no AND A.debtor_no = DUE_NXT_MNTH.debtor_no 
+            AND A.type = DUE_NXT_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_NXT_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_this_month
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THIS_MNTH ON A.trans_no = DUE_THIS_MNTH.trans_no AND A.debtor_no = DUE_THIS_MNTH.debtor_no 
+            AND A.type = DUE_THIS_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_THIS_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_this_month
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THIS_MNTH_V2 ON A.trans_no = DUE_THIS_MNTH_V2.trans_no AND A.debtor_no = DUE_THIS_MNTH_V2.debtor_no 
+            AND A.type = DUE_THIS_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_THIS_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH ON A.trans_no = DUE_ONE_MNTH.trans_no AND A.debtor_no = DUE_ONE_MNTH.debtor_no 
+            AND A.type = DUE_ONE_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+               SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH_V1 ON A.trans_no = DUE_ONE_MNTH_V1.trans_no AND A.debtor_no = DUE_ONE_MNTH_V1.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V1.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH_V2 ON A.trans_no = DUE_ONE_MNTH_V2.trans_no AND A.debtor_no = DUE_ONE_MNTH_V2.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH ON A.trans_no = DUE_TWO_MNTH.trans_no AND A.debtor_no = DUE_TWO_MNTH.debtor_no 
+            AND A.type = DUE_TWO_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -4 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V1 ON A.trans_no = DUE_TWO_MNTH_V1.trans_no AND A.debtor_no = DUE_TWO_MNTH_V1.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V1.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,   
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V2 ON A.trans_no = DUE_TWO_MNTH_V2.trans_no AND A.debtor_no = DUE_TWO_MNTH_V2.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,             
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V3 ON A.trans_no = DUE_TWO_MNTH_V3.trans_no AND A.debtor_no = DUE_TWO_MNTH_V3.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V3.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V3.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
+                SUM(FF.payment_applied) as adv_payment_due_3
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THREE_MNTH ON A.trans_no = DUE_THREE_MNTH.trans_no AND A.debtor_no = DUE_THREE_MNTH.debtor_no 
+            AND DATE_FORMAT(DUE_THREE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_term_modification RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINBAL ON A.trans_no = REMAINBAL.trans_no AND A.debtor_no = REMAINBAL.debtor_no
+
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no, RD.maturity_date,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_term_modification RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINPAST ON A.trans_no = REMAINPAST.trans_no AND A.debtor_no = REMAINPAST.debtor_no
+            AND DATE_FORMAT(REMAINPAST.maturity_date, '%Y-%m-%d') < DATE_FORMAT('$to', '%Y-%m-%d')
+
+            LEFT JOIN debtor_loan_schedule EEE ON A.trans_no = EEE.trans_no AND A.debtor_no = EEE.debtor_no 
+            AND EEE.trans_type = A.type AND EEE.month_no != 0 
+            AND DATE_FORMAT(EEE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEEE ON A.trans_no = EEEE.trans_no AND A.debtor_no = EEEE.debtor_no 
+            AND EEEE.month_no != 0  AND EEEE.trans_type = A.type 
+            AND DATE_FORMAT(EEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEEEE ON A.trans_no = EEEEE.trans_no AND A.debtor_no = EEEEE.debtor_no 
+            AND EEEEE.month_no != 0 AND EEEEE.trans_type = A.type
+            AND DATE_FORMAT(EEEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEETH ON A.trans_no = EEETH.trans_no AND A.debtor_no = EEETH.debtor_no 
+            AND EEETH.trans_type = A.type AND EEETH.month_no != 0 AND DATE_FORMAT(EEETH.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+
+            WHERE A.type = 56 AND E.month_no != 0
+            AND A.tran_date <= '$to'
+            AND A.repo_date = '0000-00-00'
+            AND IFNULL(-REMAINBAL.REMAIN, B.ar_amount) <> 0 
+            AND C.name =".db_escape($cust_name)."
+            GROUP BY A.reference, A.type, A.trans_no, A.debtor_no, I.account_code";
+
+            /*if ($cust_name != 'ALL') {
+                $sql .= " AND C.name =".db_escape($cust_name);              
+            }*/
+        return db_query($sql, "No transactions were returned");
+    }
+
+    if ($cust_name == 'ALL') {
+
+        $sql ="SELECT A.type AS type, A.reference AS reference,
+            B.trans_no AS trans_no, B.debtor_no AS debtor_no, 
+            B.invoice_date AS invoice_date, B.months_term AS months_term, 
+            B.firstdue_date AS firstdue_date, B.maturity_date AS maturity_date, 
+            B.rebate AS rebate, B.ar_amount AS amount,
+            C.name AS name, C.address AS address, C.area AS area,
+            D.stock_id AS stock_id, E.principal_due AS principal_due,
+            F.id AS id, F.loansched_id AS loansched_id, F.date_paid AS date_paid,
+            G.real_name AS Collector_Name, H.debtor_no AS debtor_no, I.account_code AS account_code, I.account_name AS Coa_name, 
+            J.collectors_id AS collectors_id, K.description AS AREA,
+
+            EEE.principal_due - IFNULL(DUE_NXT_MNTH.adv_payment, 0) AS due_nxt_month_payment,
+
+            EEETH.principal_due - IFNULL(DUE_THIS_MNTH.adv_payment_this_month, 0) - IFNULL(DUE_THIS_MNTH_V2.adv_payment_this_month, 0)
+            AS due_this_month_payment,
+
+            EEEE.principal_due - IFNULL(DUE_ONE_MNTH.adv_payment_due_1, 0) - IFNULL(DUE_ONE_MNTH_V2.adv_payment_due_1, 0) -
+            IFNULL(DUE_ONE_MNTH_V1.adv_payment_due_1, 0) AS ovrdue_1month_payment,
+
+            EEEEE.principal_due - IFNULL(DUE_TWO_MNTH.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V1.adv_payment_due_2, 0) - 
+            IFNULL(DUE_TWO_MNTH_V2.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V3.adv_payment_due_2, 0) AS ovrdue_2month_payment,
+
+            IFNULL(DUE_THREE_MNTH.adv_payment_due_3, 0) AS ovrdue_3month_payment,
+            
+            IFNULL(-REMAINBAL.REMAIN, B.ar_amount) AS BALANCE,
+            IFNULL(-REMAINPAST.REMAIN, 0) AS PASTDUE,
+
+            (SELECT XJ.date_paid FROM debtor_loan_ledger XJ 
+            LEFT JOIN debtor_loan_schedule XB ON XB.debtor_no = XJ.debtor_no 
+            AND XB.trans_no = XJ.trans_no AND XB.id = XJ.loansched_id
+            WHERE XB.debtor_no = B.debtor_no AND XB.trans_no = B.trans_no 
+            AND XB.status != 'unpaid' AND XB.month_no != 0 AND DATE_FORMAT(XJ.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XJ.date_paid DESC LIMIT 1)
+            last_payment,
+
+            (SELECT XY.date_due FROM debtor_loan_schedule XY LEFT JOIN debtor_loan_ledger XB ON XB.debtor_no = XY.debtor_no 
+            AND XB.trans_no = XY.trans_no AND XB.loansched_id = XY.id 
+            WHERE XY.debtor_no = A.debtor_no AND XY.trans_no = A.trans_no 
+            AND XY.status != 'unpaid' AND XY.month_no != 0 AND DATE_FORMAT(XB.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XY.date_due DESC LIMIT 1)
+            last_month_applied
+                        
+            FROM ".TB_PREF."debtor_trans A
+            LEFT JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.trans_no 
+            LEFT JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."debtor_trans_details D ON D.debtor_trans_no = A.trans_no
+            LEFT JOIN ".TB_PREF."debtor_loan_schedule E ON E.trans_no = A.trans_no AND E.debtor_no = A.debtor_no 
+            AND E.trans_type = A.type
+            LEFT JOIN ".TB_PREF."debtor_loan_ledger F ON F.trans_no = E.trans_no AND F.debtor_no = E.debtor_no 
+            AND F.loansched_id = E.id
+            LEFT JOIN ".TB_PREF."areas J ON J.area_code = C.area
+            LEFT JOIN ".TB_PREF."users G ON G.user_id = J.collectors_id
+            LEFT JOIN ".TB_PREF."cust_branch H ON H.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."chart_master I ON I.account_code = H.receivables_account
+            LEFT JOIN ".TB_PREF."areas K ON K.area_code = C.area
+
+            LEFT JOIN (
+                SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                    SUM(FF.payment_applied) as adv_payment
+                    FROM debtor_loan_ledger FF
+                        INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                            AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                    WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
+                    GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_NXT_MNTH ON A.trans_no = DUE_NXT_MNTH.trans_no AND A.debtor_no = DUE_NXT_MNTH.debtor_no 
+            AND A.type = DUE_NXT_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_NXT_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_this_month
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THIS_MNTH ON A.trans_no = DUE_THIS_MNTH.trans_no AND A.debtor_no = DUE_THIS_MNTH.debtor_no 
+            AND A.type = DUE_THIS_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_THIS_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_this_month
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THIS_MNTH_V2 ON A.trans_no = DUE_THIS_MNTH_V2.trans_no AND A.debtor_no = DUE_THIS_MNTH_V2.debtor_no 
+            AND A.type = DUE_THIS_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_THIS_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH ON A.trans_no = DUE_ONE_MNTH.trans_no AND A.debtor_no = DUE_ONE_MNTH.debtor_no 
+            AND A.type = DUE_ONE_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+               SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH_V1 ON A.trans_no = DUE_ONE_MNTH_V1.trans_no AND A.debtor_no = DUE_ONE_MNTH_V1.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V1.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH_V2 ON A.trans_no = DUE_ONE_MNTH_V2.trans_no AND A.debtor_no = DUE_ONE_MNTH_V2.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH ON A.trans_no = DUE_TWO_MNTH.trans_no AND A.debtor_no = DUE_TWO_MNTH.debtor_no 
+            AND A.type = DUE_TWO_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -4 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V1 ON A.trans_no = DUE_TWO_MNTH_V1.trans_no AND A.debtor_no = DUE_TWO_MNTH_V1.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V1.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,   
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V2 ON A.trans_no = DUE_TWO_MNTH_V2.trans_no AND A.debtor_no = DUE_TWO_MNTH_V2.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,             
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V3 ON A.trans_no = DUE_TWO_MNTH_V3.trans_no AND A.debtor_no = DUE_TWO_MNTH_V3.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V3.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V3.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+           LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
+                SUM(FF.payment_applied) as adv_payment_due_3
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THREE_MNTH ON A.trans_no = DUE_THREE_MNTH.trans_no AND A.debtor_no = DUE_THREE_MNTH.debtor_no 
+            AND DATE_FORMAT(DUE_THREE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_loans RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINBAL ON A.trans_no = REMAINBAL.trans_no AND A.debtor_no = REMAINBAL.debtor_no
+
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no, RD.maturity_date,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_loans RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINPAST ON A.trans_no = REMAINPAST.trans_no AND A.debtor_no = REMAINPAST.debtor_no
+            AND DATE_FORMAT(REMAINPAST.maturity_date, '%Y-%m-%d') < DATE_FORMAT('$to', '%Y-%m-%d')
+
+            LEFT JOIN debtor_loan_schedule EEE ON A.trans_no = EEE.trans_no AND A.debtor_no = EEE.debtor_no 
+            AND EEE.trans_type = A.type AND EEE.month_no != 0 
+            AND DATE_FORMAT(EEE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEEE ON A.trans_no = EEEE.trans_no AND A.debtor_no = EEEE.debtor_no 
+            AND EEEE.month_no != 0  AND EEEE.trans_type = A.type 
+            AND DATE_FORMAT(EEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEEEE ON A.trans_no = EEEEE.trans_no AND A.debtor_no = EEEEE.debtor_no 
+            AND EEEEE.month_no != 0 AND EEEEE.trans_type = A.type
+            AND DATE_FORMAT(EEEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEETH ON A.trans_no = EEETH.trans_no AND A.debtor_no = EEETH.debtor_no 
+            AND EEETH.trans_type = A.type AND EEETH.month_no != 0 AND DATE_FORMAT(EEETH.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+
+            WHERE A.type = 10 AND E.month_no != 0
+            AND A.tran_date <= '$to' 
+            AND A.repo_date = '0000-00-00'
+            AND A.status != 'Closed'
+            AND IFNULL(-REMAINBAL.REMAIN, B.ar_amount) <> 0
+            GROUP BY A.reference, A.type, A.trans_no, A.debtor_no, I.account_code              
+          
+            UNION ALL
+
+            SELECT A.type AS type, A.reference AS reference,
+            B.trans_no AS trans_no, B.debtor_no AS debtor_no,
+            B.term_mod_date AS invoice_date, B.months_term AS months_term,
+            B.firstdue_date AS firstdue_date, B.maturity_date AS maturity_date,
+            B.rebate AS rebate, B.ar_amount AS amount,
+            C.name AS name, C.address AS address, C.area AS area,
+            D.stock_id AS stock_id, E.principal_due AS principal_due,
+            F.id AS id, F.loansched_id AS loansched_id, F.date_paid AS date_paid,
+            G.real_name AS Collector_Name, H.debtor_no AS debtor_no, I.account_code AS account_code, I.account_name AS Coa_name, 
+            J.collectors_id AS collectors_id, K.description AS AREA,
+
+            EEE.principal_due - IFNULL(DUE_NXT_MNTH.adv_payment, 0) AS due_nxt_month_payment,
+
+            EEETH.principal_due - IFNULL(DUE_THIS_MNTH.adv_payment_this_month, 0) - IFNULL(DUE_THIS_MNTH_V2.adv_payment_this_month, 0)
+            AS due_this_month_payment,
+
+            EEEE.principal_due - IFNULL(DUE_ONE_MNTH.adv_payment_due_1, 0) - IFNULL(DUE_ONE_MNTH_V2.adv_payment_due_1, 0) -
+            IFNULL(DUE_ONE_MNTH_V1.adv_payment_due_1, 0) AS ovrdue_1month_payment,
+
+            EEEEE.principal_due - IFNULL(DUE_TWO_MNTH.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V1.adv_payment_due_2, 0) - 
+            IFNULL(DUE_TWO_MNTH_V2.adv_payment_due_2, 0) - IFNULL(DUE_TWO_MNTH_V3.adv_payment_due_2, 0) AS ovrdue_2month_payment,
+
+            IFNULL(DUE_THREE_MNTH.adv_payment_due_3, 0) AS ovrdue_3month_payment,
+            
+            IFNULL(-REMAINBAL.REMAIN, B.ar_amount) AS BALANCE,
+            IFNULL(-REMAINPAST.REMAIN, 0) AS PASTDUE,
+
+            (SELECT XJ.date_paid FROM debtor_loan_ledger XJ 
+            LEFT JOIN debtor_loan_schedule XB ON XB.debtor_no = XJ.debtor_no 
+            AND XB.trans_no = XJ.trans_no AND XB.id = XJ.loansched_id
+            WHERE XB.debtor_no = A.debtor_no AND XB.trans_no = A.trans_no 
+            AND XB.status != 'unpaid' AND XB.month_no != 0 AND DATE_FORMAT(XJ.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XJ.date_paid DESC LIMIT 1)
+            last_payment,
+
+            (SELECT XY.date_due FROM debtor_loan_schedule XY LEFT JOIN debtor_loan_ledger XB ON XB.debtor_no = XY.debtor_no 
+            AND XB.trans_no = XY.trans_no AND XB.loansched_id = XY.id 
+            WHERE XY.debtor_no = A.debtor_no AND XY.trans_no = A.trans_no 
+            AND XY.status != 'unpaid' AND XY.month_no != 0 AND DATE_FORMAT(XB.date_paid, '%Y-%m-%d') <= DATE_FORMAT('$to', '%Y-%m')
+            ORDER BY XY.date_due DESC LIMIT 1)
+            last_month_applied
+
+            FROM ".TB_PREF."debtor_trans A
+            INNER JOIN ".TB_PREF."debtor_term_modification B ON B.trans_no = A.trans_no
+            AND B.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."debtor_trans_details D ON D.debtor_trans_no = A.trans_no
+            LEFT JOIN ".TB_PREF."debtor_loan_schedule E ON E.trans_no = A.trans_no AND E.debtor_no = A.debtor_no 
+            AND E.trans_type = A.type
+            LEFT JOIN ".TB_PREF."debtor_loan_ledger F ON F.trans_no = E.trans_no AND F.debtor_no = E.debtor_no 
+            AND F.loansched_id = E.id
+            LEFT JOIN ".TB_PREF."areas J ON J.area_code = C.area
+            LEFT JOIN ".TB_PREF."users G ON G.user_id = J.collectors_id
+            LEFT JOIN ".TB_PREF."cust_branch H ON H.debtor_no = A.debtor_no
+            LEFT JOIN ".TB_PREF."chart_master I ON I.account_code = H.receivables_account
+            LEFT JOIN ".TB_PREF."areas K ON K.area_code = C.area
+
+            LEFT JOIN (
+                SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                    SUM(FF.payment_applied) as adv_payment
+                    FROM debtor_loan_ledger FF
+                        INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                            AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                    WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
+                    GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_NXT_MNTH ON A.trans_no = DUE_NXT_MNTH.trans_no AND A.debtor_no = DUE_NXT_MNTH.debtor_no 
+            AND A.type = DUE_NXT_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_NXT_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_this_month
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THIS_MNTH ON A.trans_no = DUE_THIS_MNTH.trans_no AND A.debtor_no = DUE_THIS_MNTH.debtor_no 
+            AND A.type = DUE_THIS_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_THIS_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_this_month
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THIS_MNTH_V2 ON A.trans_no = DUE_THIS_MNTH_V2.trans_no AND A.debtor_no = DUE_THIS_MNTH_V2.debtor_no 
+            AND A.type = DUE_THIS_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_THIS_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH ON A.trans_no = DUE_ONE_MNTH.trans_no AND A.debtor_no = DUE_ONE_MNTH.debtor_no 
+            AND A.type = DUE_ONE_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+               SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH_V1 ON A.trans_no = DUE_ONE_MNTH_V1.trans_no AND A.debtor_no = DUE_ONE_MNTH_V1.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V1.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_1
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_ONE_MNTH_V2 ON A.trans_no = DUE_ONE_MNTH_V2.trans_no AND A.debtor_no = DUE_ONE_MNTH_V2.debtor_no 
+            AND A.type = DUE_ONE_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_ONE_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH ON A.trans_no = DUE_TWO_MNTH.trans_no AND A.debtor_no = DUE_TWO_MNTH.debtor_no 
+            AND A.type = DUE_TWO_MNTH.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -4 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V1 ON A.trans_no = DUE_TWO_MNTH_V1.trans_no AND A.debtor_no = DUE_TWO_MNTH_V1.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V1.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V1.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -3 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,   
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V2 ON A.trans_no = DUE_TWO_MNTH_V2.trans_no AND A.debtor_no = DUE_TWO_MNTH_V2.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V2.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V2.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due, EE.trans_type,             
+                SUM(FF.payment_applied) as adv_payment_due_2
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_TWO_MNTH_V3 ON A.trans_no = DUE_TWO_MNTH_V3.trans_no AND A.debtor_no = DUE_TWO_MNTH_V3.debtor_no 
+            AND A.type = DUE_TWO_MNTH_V3.trans_type 
+            AND DATE_FORMAT(DUE_TWO_MNTH_V3.date_paid, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN (
+            SELECT FF.id, FF.trans_no, FF.debtor_no, FF.loansched_id, FF.date_paid, EE.date_due,              
+                SUM(FF.payment_applied) as adv_payment_due_3
+                FROM debtor_loan_ledger FF
+                    INNER JOIN debtor_loan_schedule EE ON FF.loansched_id = EE.id AND FF.trans_no = EE.trans_no 
+                        AND FF.debtor_no = EE.debtor_no AND EE.month_no <> 0
+                WHERE DATE_FORMAT(EE.date_due, '%Y-%m') < DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+                GROUP BY DATE_FORMAT(FF.date_paid, '%Y-%m'), FF.trans_no, FF.debtor_no
+            ) DUE_THREE_MNTH ON A.trans_no = DUE_THREE_MNTH.trans_no AND A.debtor_no = DUE_THREE_MNTH.debtor_no 
+            AND DATE_FORMAT(DUE_THREE_MNTH.date_paid, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_term_modification RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINBAL ON A.trans_no = REMAINBAL.trans_no AND A.debtor_no = REMAINBAL.debtor_no
+
+            LEFT JOIN (
+            SELECT JR.id, JR.trans_no, JR.debtor_no, RD.maturity_date,
+            SUM(JR.payment_applied) - RD.ar_amount AS REMAIN
+            FROM debtor_loan_ledger JR
+            LEFT JOIN debtor_term_modification RD ON RD.debtor_no = JR.debtor_no AND RD.trans_no = JR.trans_no
+            WHERE JR.debtor_no = RD.debtor_no AND JR.trans_no = RD.trans_no
+            AND DATE_FORMAT(JR.date_paid, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m')
+            GROUP BY RD.debtor_no, RD.trans_no
+            ) REMAINPAST ON A.trans_no = REMAINPAST.trans_no AND A.debtor_no = REMAINPAST.debtor_no
+            AND DATE_FORMAT(REMAINPAST.maturity_date, '%Y-%m-%d') < DATE_FORMAT('$to', '%Y-%m-%d')
+
+            LEFT JOIN debtor_loan_schedule EEE ON A.trans_no = EEE.trans_no AND A.debtor_no = EEE.debtor_no 
+            AND EEE.trans_type = A.type AND EEE.month_no != 0 
+            AND DATE_FORMAT(EEE.date_due, '%Y-%m') = DATE_FORMAT('$advanceDate', '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEEE ON A.trans_no = EEEE.trans_no AND A.debtor_no = EEEE.debtor_no 
+            AND EEEE.month_no != 0  AND EEEE.trans_type = A.type 
+            AND DATE_FORMAT(EEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -1 MONTH), '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEEEE ON A.trans_no = EEEEE.trans_no AND A.debtor_no = EEEEE.debtor_no 
+            AND EEEEE.month_no != 0 AND EEEEE.trans_type = A.type
+            AND DATE_FORMAT(EEEEE.date_due, '%Y-%m') = DATE_FORMAT(DATE_ADD('$to', INTERVAL -2 MONTH), '%Y-%m')
+
+            LEFT JOIN debtor_loan_schedule EEETH ON A.trans_no = EEETH.trans_no AND A.debtor_no = EEETH.debtor_no 
+            AND EEETH.trans_type = A.type AND EEETH.month_no != 0 AND DATE_FORMAT(EEETH.date_due, '%Y-%m') = DATE_FORMAT('$to', '%Y-%m')
+
+            WHERE A.type = 56 AND E.month_no != 0
+            AND A.tran_date <= '$to'
+            AND A.repo_date = '0000-00-00'
+            AND IFNULL(-REMAINBAL.REMAIN, B.ar_amount) <> 0 
+            GROUP BY A.reference, A.type, A.trans_no, A.debtor_no, I.account_code";
+
+            /*if ($cust_name != 'ALL') {
+                $sql .= " AND C.name =".db_escape($cust_name);              
+            }*/
+        return db_query($sql, "No transactions were returned");
+    }
 }
 
 function print_PO_Report()
@@ -586,32 +1212,35 @@ function print_PO_Report()
         //---FOR OVER DUE 3 MONTH---/
         $overdue_3months_below = $ACRBCR['ovrdue_3month_payment'];
 
-        //----FOR PAST DUE-----//
-        $maturity_date = $ACRBCR['Maturity'];
-        $to = date2sql($to);
-        if ($maturity_date < $to) {
-            $past_due_payment_final =  $ACRBCR['BALANCE'];
-            $Partial_due_2_month = 0;
-            $Partial_due_1_month = 0;
-            $overdue_3months_below = 0;
-            $Partial_due_this_month = 0;
+        //----FOR PAST DUE-----// 
+        $past_due = $ACRBCR['PASTDUE'];
+        if ($past_due == 0) {
+            $past_due_payment_final =  0;    
+        } else {
             $due_nxt_month_payment = 0;
             $due_this_month_payment = 0;
-        } else {
-            $past_due_payment_final = 0;
+            $Partial_due_1_month = 0;
+            $Partial_due_2_month = 0;
+            $overdue_3months_below = 0;
+            $past_due_payment_final = $ACRBCR['PASTDUE'];
         }
-        
         //-----FOR PENALTY-----//
         $company_prefs = get_company_prefs();
         $Penalty = $company_prefs["penalty_rate"];
+        $due1 = 1;
+        $due2 = 2;
+        $due3 = 3;
         $For_penalties = $ACRBCR['past_due_payment'];
-        $Penalties = $Partial_due_1_month + $Partial_due_2_month + $overdue_3months_below;
-        if ($For_penalties == 0) {
-            $Penalties_final = $Penalties * $Penalty; 
-        } else {
-            $Penalties_final = $past_due_payment_final * $Penalty;
-        }
+        $Penalty1 = $Partial_due_1_month * $due1 * $Penalty;
+        $Penalty2 = $Partial_due_2_month * $due2 * $Penalty;
+        $Penalty3 = $overdue_3months_below * $due3 * $Penalty;
+        $Penalty4 = $past_due_payment_final * $Penalty;
 
+        if ($past_due == 0) {
+            $Penalties_final = $Penalty1 + $Penalty2 + $Penalty3;    
+        } else {
+            $Penalties_final = $Penalty4; 
+        }
 
         //-----FOR TOTAL COLLECTIBLES-----//
         $Totalcollectibles = $due_this_month_payment + $Partial_due_1_month + $Partial_due_2_month
@@ -629,7 +1258,7 @@ function print_PO_Report()
         $rep->TextCol(3, 4, sql2date($ACRBCR['firstdue_date']));
         $rep->TextCol(4, 5, $ACRBCR['stock_id']);
         $rep->TextCol(5, 6, $ACRBCR['']);
-        $rep->AmountCol(6, 7, $ACRBCR['Rebate']);
+        $rep->AmountCol(6, 7, $ACRBCR['rebate']);
         $rep->AmountCol(7, 8, $remaining_balance);
         $rep->AmountCol(8, 9, $due_nxt_month_payment);
         $rep->AmountCol(9, 10, $due_this_month_payment);
@@ -639,7 +1268,7 @@ function print_PO_Report()
         $rep->AmountCol(12, 13, $overdue_3months_below);
         $rep->AmountCol(13, 14, $past_due_payment_final);
         $rep->SetTextColor(0, 0, 0);
-        $rep->AmountCol(14, 15, $Totalcollectibles);
+        $rep->AmountCol(14, 15, $Totalcollectibles);  
         $rep->SetTextColor(255, 0, 0);
         $rep->AmountCol(15, 16, $Penalties_final);
         $rep->SetTextColor(0, 0, 0);
@@ -648,8 +1277,8 @@ function print_PO_Report()
         $rep->NewLine(0.8);
 
 
-        $Rebatesubtotal += $ACRBCR['Rebate'];
-        $Rebategrandtotal += $ACRBCR['Rebate'];
+        $Rebatesubtotal += $ACRBCR['rebate'];
+        $Rebategrandtotal += $ACRBCR['rebate'];
 
         $Balancesubtotal += $remaining_balance;
         $Balancegrandtotal += $remaining_balance;
