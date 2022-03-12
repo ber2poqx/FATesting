@@ -24,7 +24,7 @@ if (isset($_POST['download'])) {
 	$dir = company_path()."/attachments";
 
 	if ($row['filename'] == "") {
-		display_error(_("No Template File Uploaded for Inventory Opening!"));
+		display_error(_("No Template File Uploaded for Item List!"));
 	}
 	else if (!file_exists($dir."/".$row['unique_name'])) {
 		display_error(_("Template File does not exists in current company's folder!"));
@@ -199,7 +199,6 @@ if (isset($_POST['import_btn']) && can_import())  {
 
     unset($_POST['import_btn']);
 	unset($_POST['impCSVS']);
-    $Ajax->activate('_page_body');
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -219,7 +218,7 @@ if ($action == 'import') {
 
     start_outer_table(TABLESTYLE, "width='95%'", 10);
 
-	submit_center('download', _("Download CSV Template File for Inventory Opening"));
+	submit_center('download', _("Download CSV Template File for Item List"));
 	br();
 
     start_table(TABLESTYLE2, "width=45%");
@@ -314,7 +313,7 @@ if ($action == 'import') {
 
     end_outer_table(1, false);
 
-    submit_center('import_btn', _("Process Inventory Opening"));
+    submit_center('import_btn', _("Import Item List"));
     end_form();
 	end_page();
 }

@@ -78,7 +78,7 @@ class inventory_app extends application
 			"inventory/item_apsupport.php?mngtype=type", 'SA_ITMAPSUPPORT', MENU_MAINTENANCE);
 
 		//Added by spyrax10 10 Mar 2022
-		$this->add_rapp_function(2, _("Import Item Master (New)"),
+		$this->add_lapp_function(2, _("Import Item Master (New)"),
 			"inventory/manage/item_upload.php?", 'SA_ITEM', MENU_ENTRY
 		);
 		$this->add_rapp_function(2, _("Import Item Color Code"),
