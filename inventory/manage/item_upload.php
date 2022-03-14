@@ -81,7 +81,7 @@ function can_import() {
 
 //-----------------------------------------------------------------------------------------------
 
-if (isset($_POST['import_btn']) && can_import())  {
+if (isset($_POST['import_btn']) && can_import()) {
 
     $filename = $_FILES['impCSVS']['tmp_name'];
 	$sep = $_POST['sep'];
@@ -202,7 +202,10 @@ if (isset($_POST['import_btn']) && can_import())  {
 }
 
 //-----------------------------------------------------------------------------------------------
-if (list_updated('category_id')) {
+if (get_post('category_id')) {
+    $Ajax->activate('_page_body');
+}
+else {
     $Ajax->activate('_page_body');
 }
 
@@ -273,14 +276,12 @@ if ($action == 'import') {
 		gl_all_accounts_list_row(_("Depreciation cost account:"), 'cogs_account', $_POST['cogs_account']);
 		gl_all_accounts_list_row(_("Depreciation/Disposal account:"), 'adjustment_account', $_POST['adjustment_account']);
 	}
-	elseif (!is_service(get_post('mb_flag')))
-	{
+	else if (!is_service(get_post('mb_flag'))) {
 		gl_all_accounts_list_row(_("Inventory Account:"), 'inventory_account', $_POST['inventory_account']);
 		gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'cogs_account', $_POST['cogs_account']);
 		gl_all_accounts_list_row(_("Inventory Adjustments Account:"), 'adjustment_account', $_POST['adjustment_account']);
 	}
-	else 
-	{
+	else {
 		gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'cogs_account', $_POST['cogs_account']);
 		hidden('inventory_account', $_POST['inventory_account']);
 		hidden('adjustment_account', $_POST['adjustment_account']);
