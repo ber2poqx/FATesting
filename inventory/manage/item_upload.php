@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created By: spyrax10
  * Date Created: 12 Mar 2022
@@ -16,6 +17,7 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
+include_once($path_to_root . "/fixed_assets/includes/fixed_assets_db.inc");
 
 add_access_extensions();
 
@@ -133,7 +135,7 @@ if (isset($_POST['import_btn']) && can_import()) {
         }
         else {
 
-            $row_brand = db_fetch_assoc(get_brand_list($brand));
+            $row_brand = get_brand_list($brand, false);
 
             $serialized = $serialized == "YES" ? 1 : 0; 
             $zero_cost = $zero_cost == "YES" ? 1 : 0;
@@ -144,7 +146,7 @@ if (isset($_POST['import_btn']) && can_import()) {
                 $description,
 				'', //Long Description 
                 $_POST['category_id'], 
-                1,
+                $_POST['tax_type_id'],
 				get_post('units'),
                 $brand_id, 
                 get_supplier_id($made_in), //Supplier
@@ -189,7 +191,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 	}
 
     if ($CI > 0) {
-        display_error(_($CI . "Item/s Imported Successfully!"));
+        display_error(_($CI . " Item/s Imported Successfully!"));
     }
     else {
 		display_error(_("No Item has been imported!"));
@@ -297,6 +299,7 @@ if ($action == 'import') {
 
     hidden('units', $_POST['units']);
     hidden('mb_flag', $_POST['mb_flag']);
+    hidden('tax_type_id', $_POST['tax_type_id']);
 		
     end_table();
 

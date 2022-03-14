@@ -1381,7 +1381,7 @@ function get_category_list() {
 	return db_query($sql, _("Cant get category list!"));
 }
 
-function get_brand_list($brand_name = '') {
+function get_brand_list($brand_name = '', $all = true) {
 
 	set_global_connection();
 
@@ -1393,7 +1393,15 @@ function get_brand_list($brand_name = '') {
 		$sql .= " AND name LIKE " . db_escape('%' . trim($brand_name) . '%');
 	}
 
-	return db_query($sql, _("Cant get category list!"));
+	$result = db_query($sql, _("Cant get brand list!"));
+
+	if ($all) {
+		return $result;
+	}
+	else {
+		return db_fetch_assoc($result);
+	}
+
 }
 
 function get_color_list($stock_id = '') {
