@@ -586,13 +586,13 @@ if (!defined('FA_LOGOUT_PHP_FILE')){
 }
 
 //Added by spyrax10 
-function page_refresh() {	
-	$is_page_refreshed = (isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] == 'max-age=0');
-	if($is_page_refreshed) {
-		return true;
-	}
-	return false;
-}
+// function page_refresh() {	
+// 	$is_page_refreshed = (isset($_SERVER['HTTP_CACHE_CONTROL']) && $_SERVER['HTTP_CACHE_CONTROL'] == 'max-age=0');
+// 	if($is_page_refreshed) {
+// 		return true;
+// 	}
+// 	return false;
+// }
 
 
 // POST vars cleanup needed for direct reuse.

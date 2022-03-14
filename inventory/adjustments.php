@@ -71,10 +71,10 @@ function line_start_focus() {
 }
 
 //added by spyrax10
-if(page_refresh()) {
-	$_SESSION['adj_items']->clear_items();
-	unset ($_SESSION['adj_items']);
-}
+// if(page_refresh()) {
+// 	$_SESSION['adj_items']->clear_items();
+// 	unset ($_SESSION['adj_items']);
+// }
 
 //modified by spyrax10
 $adj = &$_SESSION['adj_items'];
