@@ -27,6 +27,7 @@ function get_transactions($endDate, $cust_id = '') {
     $sales_invoice = ST_SALESINVOICE;
     $sales_invoice_repo = ST_SALESINVOICEREPO;
     $change_term = ST_SITERMMOD;
+    $restruct = ST_RESTRUCTURED;
 
     $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name,  
             CASE 
@@ -42,26 +43,32 @@ function get_transactions($endDate, $cust_id = '') {
 
             CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.invoice_ref_no
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.invoice_ref_no
             ELSE DL.invoice_ref_no END AS invoice_ref_no,
 
             CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN YEAR(CT.term_mod_date)
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN YEAR(RT.term_mod_date)
             ELSE YEAR(DL.invoice_date) END AS inv_year,
 
             CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
             ELSE DL.ar_amount END AS gross,
             
             CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.months_term
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.months_term
             ELSE DL.months_term END AS Term,
 
             CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
             ELSE DL.trans_no END AS trans_no,
 
             CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
             ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type
 
             FROM " . TB_PREF . "debtor_loans DL
@@ -77,6 +84,9 @@ function get_transactions($endDate, $cust_id = '') {
             LEFT JOIN ".TB_PREF."debtor_term_modification CT ON DL.invoice_ref_no = CT.invoice_ref_no 
                 AND DL.debtor_no = CT.debtor_no
 
+            LEFT JOIN ".TB_PREF."debtor_term_modification RT ON DL.invoice_ref_no = RT.invoice_ref_no 
+                AND DL.debtor_no = RT.debtor_no
+            
             LEFT JOIN (
                 SELECT DLL.trans_no, DLL.debtor_no, DLL.trans_type_to, 
                     SUM(DLL.payment_applied) AS sum_pay 

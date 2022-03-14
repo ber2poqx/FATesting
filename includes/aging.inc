@@ -7,7 +7,13 @@
  */
 
 function ar_table_name($trans_type) {
-    return $trans_type == ST_SITERMMOD ? "debtor_term_modification" : "debtor_loans";
+    return $trans_type == ST_SITERMMOD || $trans_type == ST_RESTRUCTURED 
+        ? "debtor_term_modification" : "debtor_loans";
+}
+
+function ar_invoice_date($trans_type) {
+    return $trans_type == ST_SITERMMOD || $trans_type == ST_RESTRUCTURED  
+        ? "term_mod_date" : "invoice_date";
 }
 
 function get_DL_details($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
@@ -25,7 +31,7 @@ function get_DL_details($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
 function get_max_year($trans_type) {
 
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
     
     $sql = "SELECT MAX(YEAR(A.$inv_date)) AS maxYear
         FROM ".TB_PREF."$table_name A ";
@@ -89,7 +95,7 @@ function total_payment_for_month($trans_no, $trans_type = ST_SALESINVOICE, $debt
 
     $total_payment = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(A.payment_applied) 
         FROM ".TB_PREF."debtor_loan_ledger A 
@@ -126,7 +132,7 @@ function total_payment_this_month($trans_no, $trans_type = ST_SALESINVOICE, $deb
     
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(A.payment_applied) AS payment
         FROM ".TB_PREF."debtor_loan_ledger A
@@ -170,7 +176,7 @@ function payment_this_month($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no
     $total = 0;
     $resRow = get_DL_details($trans_no, $trans_type, $debtor_no);
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $new_end_date = new DateTime(sql2date($end_date));
     $new_maturity_date = new DateTime(sql2date($resRow['maturity_date']));
@@ -221,7 +227,7 @@ function advance_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
 
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(A.payment_applied) AS payment
         FROM ".TB_PREF."debtor_loan_ledger A
@@ -260,7 +266,7 @@ function total_payment_for_nxt_month($trans_no, $trans_type = ST_SALESINVOICE, $
 
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(A.payment_applied) AS payment
         FROM ".TB_PREF."debtor_loan_ledger A
@@ -299,7 +305,7 @@ function last_month_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no
 
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(A.payment_applied) AS payment
         FROM ".TB_PREF."debtor_loan_ledger A
@@ -343,7 +349,7 @@ function last_2months_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_
     
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
 
     $sql = "SELECT SUM(A.payment_applied) AS payment
@@ -382,7 +388,7 @@ function total_current_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor
     
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(DLL.payment_applied) AS sum_pay 
         FROM ".TB_PREF."debtor_loan_ledger DLL ";
@@ -418,7 +424,7 @@ function total_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $en
    
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(DLL.payment_applied) AS sum_pay 
         FROM ".TB_PREF."debtor_loan_ledger DLL ";
@@ -482,7 +488,7 @@ function amort_this_month($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, 
     
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT A.principal_due 
 		FROM ".TB_PREF."debtor_loan_schedule A ";
@@ -518,7 +524,7 @@ function amort_nxt_month($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
 
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT A.principal_due 
 		FROM ".TB_PREF."debtor_loan_schedule A ";
@@ -603,7 +609,7 @@ function due_last_month($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $e
 
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT A.principal_due 
 		FROM ".TB_PREF."debtor_loan_schedule A ";
@@ -638,7 +644,7 @@ function due_last_2months($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, 
     
     $total = 0;
     $table_name = ar_table_name($trans_type);
-    $inv_date = $trans_type == ST_SITERMMOD ? "term_mod_date" : "invoice_date";
+    $inv_date = ar_invoice_date($trans_type);
 
     $sql = "SELECT SUM(A.principal_due) AS total 
 		FROM ".TB_PREF."debtor_loan_schedule A ";
