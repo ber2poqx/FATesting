@@ -148,7 +148,7 @@ if (isset($_POST['import_btn']) && can_import()) {
                 $_POST['tax_type_id'],
 				get_post('units'),
                 $brand_id, 
-                get_supplier_id($made_in), //Supplier
+                get_supplier_id_code($made_in), //Supplier
                 0, //Sub-Category
                 0, //Classification
                 $serialized, 

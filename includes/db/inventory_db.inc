@@ -1537,7 +1537,7 @@ function sup_code_exist($supp_code) {
 	}
 }
 
-function get_supplier_id($supp_code) {
+function get_supplier_id_code($supp_code) {
 
 	$sql = "SELECT supplier_id 
 		FROM ".TB_PREF."suppliers
