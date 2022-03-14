@@ -94,7 +94,7 @@ function print_transaction() {
         _("Stock ID"),
         _("Item Color Code"),
         _("Color"),
-        _("Color Description")
+        $yes_no == 1 ? _("Item Description") : _("Color Description")
     );
 
     $aligns = array('left', 'left', 'left', 'left');
