@@ -10,14 +10,13 @@ $page_security = 'SA_ITEM_UPLOAD';
 $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/session.inc");
-include($path_to_root . "/includes/db_pager.inc");
 
 include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
+include_once($path_to_root . "/admin/db/attachments_db.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
-include_once($path_to_root . "/fixed_assets/includes/fixed_assets_db.inc");
 
 add_access_extensions();
 
@@ -61,7 +60,7 @@ if (isset($_POST['action'])) {
 
 page(_("Import Item Master"), false, false, "", $js);
 
-simple_page_mode(true);
+//simple_page_mode(true);
 
 //-----------------------------------------------------------------------------------------------
 
