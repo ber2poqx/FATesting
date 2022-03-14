@@ -590,7 +590,7 @@ if(isset($_GET['submit']))
                 update_alloc_rebate(ST_CUSTPAYMENT, $payment_no, $GLRebate);
             }
 
-            $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername']);
+            $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
             if($term <= 3) {
                 $debtors_account = $company_record["ar_reg_current_account"];
             }else{

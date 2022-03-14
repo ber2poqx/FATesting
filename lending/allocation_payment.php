@@ -526,7 +526,7 @@ if(isset($_GET['submitAllocDP']))
             add_cust_allocation($allocatedAmount, ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
             update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
 
-            $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername']);
+            $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
             if($term <= 3) {
                 $debtors_account = $company_prefs["ar_reg_current_account"];
             }else{
@@ -866,7 +866,7 @@ if(isset($_GET['submitAllocInterB']))
             add_cust_allocation($allocatedAmount, ST_CUSTPAYMENT, $payment_no, $_POST['transtype_aib'], $_POST['InvoiceNo_aib'], $_POST['customername_aib'], $_POST['trans_date_aib']);
             update_debtor_trans_allocation($_POST['transtype_aib'], $_POST['InvoiceNo_aib'], $_POST['customername_aib']);
 
-            $term = get_mos_term($trans_no, $customer_id);
+            $term = get_mos_term($_POST['InvoiceNo_aib'], $_POST['customername_aib'], $_POST['transtype_aib']);
             if($term <= 3) {
                 $debtors_account = $company_prefs["ar_reg_current_account"];
             }else{

@@ -928,7 +928,7 @@ if(isset($_GET['submit']))
             $dsplymsg = _('Tendered amount and total down payment amount must be equal');
         }
     }
-    if($_GET['colltype'] == 5){
+    if($_POST['collectType'] == 5){
         if($_POST['total_amount'] == $_POST['tenderd_amount']){
             $InputError = 1;
             $dsplymsg = _('Tendered amount and total payment amount must be equal');
@@ -1058,9 +1058,8 @@ if(isset($_GET['submit']))
                     $PastDueMos = CalculateMonthsPastDue($_GET['transdate'], $schedrow["date_due"], $schedrow["maturity_date"]);
                     //$Penalty += per_Penalty($PastDueNo, ($schedrow["amortization_amount"] * $PastDueNo));
                 }
-
-                if($_GET['colltype'] == 5){
-    
+                if($_POST['collectType'] == 5){
+                    //term mode adjustment
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
                                                 $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 1, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
                     
@@ -1077,7 +1076,7 @@ if(isset($_GET['submit']))
                     $count_paid_penalty = count_paid_penalty($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']);
                     $penltymos = mos_interval($lastpayment_date, $_POST['trans_date']);
     
-                    $result = get_deptors_termmode($_GET['transNo'], $_GET['debtor_no']);
+                    $result = get_deptors_termmode($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                     $termoderow = db_fetch($result);
                     
                     while ($myrow = db_fetch($result)) {
@@ -1100,7 +1099,7 @@ if(isset($_GET['submit']))
                     $penalty_act = get_company_pref('penalty_act');
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $penalty_act, 0, 0, -$termoderow["opportunity_cost"], $_POST['customername'], "Cannot insert a GL transaction for the payment penalty credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     
-                    $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername']);
+                    $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                     if($term <= 3) {
                         $debtors_account = $company_record["ar_reg_current_account"];
                     }else{
@@ -1123,7 +1122,7 @@ if(isset($_GET['submit']))
                     update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "part-paid");
 
                 }else{
-
+                    
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
                                                 $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
 
@@ -1449,7 +1448,7 @@ if(isset($_GET['submit']))
                         update_alloc_rebate(ST_CUSTPAYMENT, $payment_no, $GLRebate);
                     }
 
-                    $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername']);
+                    $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                     if($term <= 3) {
                         $debtors_account = $company_record["ar_reg_current_account"];
                     }else{

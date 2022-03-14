@@ -24,7 +24,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	$date_, $ref, $amount, $discount, $memo_, $rate=0, $charge=0, $bank_amount=0,
 	$penalty=0, $payment_type=null, $collection_type=null, $module_type=null, $cashier_id=0, $pay_type=null,
 	$check_date=null, $check_no=0, $bank_branch=null, $masterfile=null, $receipt_no=0, $prepared_by=null, $checked_by=null, $approved_by=null,
-	$discount1=0, $discount2=0)
+	$discount1=0, $discount2=0, $trans_type=ST_SALESINVOICE)
 {
 	global $Refs;
 
@@ -91,7 +91,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 			$debtors_account = $company_record["ar_cash_sales_account"];
 		}
 	}else if($module_type == "CLTN-AMORT"){
-		$term = get_mos_term($masterfile, $customer_id);
+		$term = get_mos_term($masterfile, $customer_id, $trans_type);
 		if($term <= 3) {
 			$debtors_account = $company_record["ar_reg_current_account"];
 		}
@@ -230,11 +230,16 @@ function get_cust_bank_charge($type, $trans_no)
 }
 
 //prog jr for term checking on 
-function get_mos_term($trans_no, $debtor_no)
+function get_mos_term($trans_no, $debtor_no, $type)
 {
-	$sql = "SELECT A.months_term
-		FROM ".TB_PREF."debtor_loans A 
-		WHERE A.months_term != 0
+	$sql = "SELECT A.months_term ";
+	
+	if($type == ST_SITERMMOD) {
+		$sql .= " FROM ".TB_PREF."debtor_term_modification A ";
+	}else{
+		$sql .= " FROM ".TB_PREF."debtor_loans A ";
+	}
+	$sql .= "WHERE A.months_term != 0
 			AND A.trans_no = ".db_escape($trans_no)."
 			AND A.debtor_no = ".db_escape($debtor_no);
 
