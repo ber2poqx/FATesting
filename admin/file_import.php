@@ -47,7 +47,7 @@ function can_import() {
         return false;
     }
 
-    if ($_FILES['impCSVS']['size'] > 250) {
+    if ($_FILES['impCSVS']['size'] > 350) {
         display_error(_("The file size is too large. Please select a smaller file. || ") . $_FILES['impCSVS']['size']);
         unset($_POST['impCSVS']);
         return false;
