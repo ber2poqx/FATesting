@@ -29,7 +29,28 @@
 	include_once($path_to_root . "/lending/includes/db/customers_payment_db.inc");
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
 
-
+	if (isset($_POST['download'])) {
+		$row = get_attachment_by_type(ST_SALESINVOICE);
+		$dir = company_path()."/attachments";
+	
+		if ($row['filename'] == "") {
+			display_error(_("No Template File Uploaded for A/R Opening!"));
+		}
+		else if (!file_exists($dir."/".$row['unique_name'])) {
+			display_error(_("Template File does not exists in current company's folder!"));
+		}
+		else {
+			$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
+			header("Content-type: ".$type);
+			header('Content-Length: '.$row['filesize']);
+			header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
+			echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+			@fclose();
+			exit();
+		}
+	
+		unset($_POST['download']);
+	}
 
 	$action = 'import';
 	if (isset($_GET['action'])) $action = $_GET['action'];
@@ -476,6 +497,11 @@
 
 	if ($action == 'import') {
 		start_form(true);
+
+		start_outer_table(TABLESTYLE, "width='95%'", 10);
+
+		submit_center('download', _("Download CSV Template File for A/R Opening"));
+
 
 		start_table(TABLESTYLE2, "width=45%");
 
