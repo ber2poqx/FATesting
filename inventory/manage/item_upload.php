@@ -249,58 +249,78 @@ if ($action == 'import') {
 
     $category_record = get_item_category($_POST['category_id']);
 
-	$_POST['inventory_account'] = $category_record["dflt_inventory_act"];
-	$_POST['cogs_account'] = $category_record["dflt_cogs_act"];
-	$_POST['sales_account'] = $category_record["dflt_sales_act"];
-	$_POST['installment_sales_account'] = $category_record["dflt_installment_sales_act"];
-	$_POST['regular_sales_account'] = $category_record["dflt_regular_sales_act"];
-	$_POST['adjustment_account'] = $category_record["dflt_adjustment_act"];
-	$_POST['wip_account'] = $category_record["dflt_wip_act"];
+	//$_POST['inventory_account'] = $category_record["dflt_inventory_act"];
+    hidden('inventory_account', $category_record["dflt_inventory_act"]);
 
-	$_POST['dimension_id'] = $category_record["dflt_dim1"];
-	$_POST['dimension2_id'] = $category_record["dflt_dim2"];
-	$_POST['no_sale'] = $category_record["dflt_no_sale"];
-	$_POST['no_purchase'] = $category_record["dflt_no_purchase"];
-    $_POST['tax_type_id'] = $category_record["dflt_tax_type"];
-	$_POST['units'] = $category_record["dflt_units"];
-	$_POST['mb_flag'] = $category_record["dflt_mb_flag"];
-	$_POST['editable'] = 0;
-	$_POST['controlled'] = 0;
+	//$_POST['cogs_account'] = $category_record["dflt_cogs_act"];
+    hidden('cogs_account', $category_record["dflt_cogs_act"]);
 
-    table_section_title(_("GL Account Setup"));
-    gl_all_accounts_list_row(_("Cash Sales Account:"), 'sales_account', $_POST['sales_account']);
-	gl_all_accounts_list_row(_("Installment Sales Account:"), 'installment_sales_account', $_POST['installment_sales_account']);
-	gl_all_accounts_list_row(_("Regular Credit Sales Account:"), 'regular_sales_account', $_POST['regular_sales_account']);
+	//$_POST['sales_account'] = $category_record["dflt_sales_act"];
+    hidden('sales_account', $category_record["dflt_sales_act"]);
 
-	if (get_post('fixed_asset')) {
-		gl_all_accounts_list_row(_("Asset account:"), 'inventory_account', $_POST['inventory_account']);
-		gl_all_accounts_list_row(_("Depreciation cost account:"), 'cogs_account', $_POST['cogs_account']);
-		gl_all_accounts_list_row(_("Depreciation/Disposal account:"), 'adjustment_account', $_POST['adjustment_account']);
-	}
-	else if (!is_service(get_post('mb_flag'))) {
-		gl_all_accounts_list_row(_("Inventory Account:"), 'inventory_account', $_POST['inventory_account']);
-		gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'cogs_account', $_POST['cogs_account']);
-		gl_all_accounts_list_row(_("Inventory Adjustments Account:"), 'adjustment_account', $_POST['adjustment_account']);
-	}
-	else {
-		gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'cogs_account', $_POST['cogs_account']);
-		hidden('inventory_account', $_POST['inventory_account']);
-		hidden('adjustment_account', $_POST['adjustment_account']);
-	}
+	//$_POST['installment_sales_account'] = $category_record["dflt_installment_sales_act"];
+    hidden('installment_sales_account', $category_record["dflt_installment_sales_act"]);
 
-	if (is_manufactured(get_post('mb_flag'))) {
-        gl_all_accounts_list_row(_("WIP Account:"), 'wip_account', $_POST['wip_account']);
-    }
+	//$_POST['regular_sales_account'] = $category_record["dflt_regular_sales_act"];
+    hidden('regular_sales_account', $category_record["dflt_regular_sales_act"]);
+	
+    //$_POST['adjustment_account'] = $category_record["dflt_adjustment_act"];
+    hidden('adjustment_account', $category_record["dflt_adjustment_act"]);
+	
+    //$_POST['wip_account'] = $category_record["dflt_wip_act"];
+    hidden('wip_account', $category_record["dflt_wip_act"]);
+
+	//$_POST['dimension_id'] = $category_record["dflt_dim1"];
+    hidden('dimension_id', $category_record["dflt_dim1"]);
+
+	//$_POST['dimension2_id'] = $category_record["dflt_dim2"];
+    hidden('dimension2_id', $category_record["dflt_dim2"]);
+
+	//$_POST['no_sale'] = $category_record["dflt_no_sale"];
+    hidden('no_sale', $category_record["dflt_no_sale"]);
+
+	//$_POST['no_purchase'] = $category_record["dflt_no_purchase"];
+    hidden('no_purchase', $category_record["dflt_no_purchase"]);
+    
+    //$_POST['tax_type_id'] = $category_record["dflt_tax_type"];
+    hidden('tax_type_id', $category_record["dflt_tax_type"]);
+
+	//$_POST['units'] = $category_record["dflt_units"];
+    hidden('units', $category_record["dflt_units"]);
+
+	//$_POST['mb_flag'] = $category_record["dflt_mb_flag"];
+    hidden('mb_flag', $category_record["dflt_mb_flag"]);
+	
+    // table_section_title(_("GL Account Setup"));
+    // gl_all_accounts_list_row(_("Cash Sales Account:"), 'sales_account', $_POST['sales_account']);
+	// gl_all_accounts_list_row(_("Installment Sales Account:"), 'installment_sales_account', $_POST['installment_sales_account']);
+	// gl_all_accounts_list_row(_("Regular Credit Sales Account:"), 'regular_sales_account', $_POST['regular_sales_account']);
+
+	// if (get_post('fixed_asset')) {
+	// 	gl_all_accounts_list_row(_("Asset account:"), 'inventory_account', $_POST['inventory_account']);
+	// 	gl_all_accounts_list_row(_("Depreciation cost account:"), 'cogs_account', $_POST['cogs_account']);
+	// 	gl_all_accounts_list_row(_("Depreciation/Disposal account:"), 'adjustment_account', $_POST['adjustment_account']);
+	// }
+	// else if (!is_service(get_post('mb_flag'))) {
+	// 	gl_all_accounts_list_row(_("Inventory Account:"), 'inventory_account', $_POST['inventory_account']);
+	// 	gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'cogs_account', $_POST['cogs_account']);
+	// 	gl_all_accounts_list_row(_("Inventory Adjustments Account:"), 'adjustment_account', $_POST['adjustment_account']);
+	// }
+	// else {
+	// 	gl_all_accounts_list_row(_("C.O.G.S. Account:"), 'cogs_account', $_POST['cogs_account']);
+	// 	hidden('inventory_account', $_POST['inventory_account']);
+	// 	hidden('adjustment_account', $_POST['adjustment_account']);
+	// }
+
+	// if (is_manufactured(get_post('mb_flag'))) {
+    //     gl_all_accounts_list_row(_("WIP Account:"), 'wip_account', $_POST['wip_account']);
+    // }
 		
-	else {
-        hidden('wip_account', $_POST['wip_account']);
-    }
-
-    hidden('units', $_POST['units']);
-    hidden('mb_flag', $_POST['mb_flag']);
-    hidden('tax_type_id', $_POST['tax_type_id']);
+	// else {
+    //     hidden('wip_account', $_POST['wip_account']);
+    // }
 		
-    end_table();
+    // end_table();
 
     start_table(TABLESTYLE2, "width=45%");
 
