@@ -372,12 +372,14 @@ if(!is_null($action) || !empty($action)){
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $trans_date = (isset($_POST['trans_date']) ? $_POST['trans_date'] : $_GET['trans_date']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
+            $querystrserial = (isset($_POST['serialquery']) ? $_POST['serialquery'] : $_GET['serialquery']);
+
             
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
-            $result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,false,'',$trans_date);
-            $total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,'',$trans_date);
+            $result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
+            $total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
             $total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {

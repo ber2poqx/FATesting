@@ -225,17 +225,17 @@ if ($action == 'import') {
     start_table(TABLESTYLE2, "width=45%");
 
     table_section_title(_("Guide List"));
-    sql_type_list(_("All Item Brands:"), 'brand_id', 
+    sql_type_list(_("Guide for Item Brand's List:"), 'brand_id', 
         get_brand_list(), 'id', 'name', 
 		'label', null, false, _("Item Brand List"), false, true
 	);
-    supplier_list_row(_("All Suppliers:"), 'supplier_id', null, true, true, false, true);
+    supplier_list_row(_("Guide for Supplier's List:"), 'supplier_id', null, true, true, false, true);
 
     end_table();
 
     start_table(TABLESTYLE2, "width=45%");
 
-    table_section_title(_("Category"));
+    table_section_title(_("Select Category"));
     sql_type_list(_("Category:"), 'category_id', 
         get_category_list(), 'category_id', 'description', 
 		'label', null, true, _('Select Category'), false, true

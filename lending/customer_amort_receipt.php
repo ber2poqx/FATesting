@@ -929,7 +929,7 @@ if(isset($_GET['submit']))
         }
     }
     if($_POST['collectType'] == 5){
-        if($_POST['total_amount'] == $_POST['tenderd_amount']){
+        if($_POST['total_amount'] != $_POST['tenderd_amount']){
             $InputError = 1;
             $dsplymsg = _('Tendered amount and total payment amount must be equal');
         }
@@ -1061,7 +1061,7 @@ if(isset($_GET['submit']))
                 if($_POST['collectType'] == 5){
                     //term mode adjustment
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
-                                                $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 1, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
+                                                $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
                     
                     add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
                                         $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby']);
@@ -1076,18 +1076,16 @@ if(isset($_GET['submit']))
                     $count_paid_penalty = count_paid_penalty($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']);
                     $penltymos = mos_interval($lastpayment_date, $_POST['trans_date']);
     
-                    $result = get_deptors_termmode($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
-                    $termoderow = db_fetch($result);
+                    $trmdresult = get_deptors_termmode($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
+                    $termoderow = db_fetch($trmdresult);
                     
                     while ($myrow = db_fetch($result)) {
-
                         add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $termoderow["amort_delay"], $termoderow["opportunity_cost"], 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
 
                         break;
-
                     }
-
+                    
                     //allocate payment to trans number sales invoice
                     add_cust_allocation($termoderow["amort_delay"], ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                     update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
