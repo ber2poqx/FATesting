@@ -162,7 +162,7 @@ return $row[0];
 
 }
 
-function get_supplier_id($supplier){
+function pr_get_supplier_id($supplier){
     $sql = "SELECT supplier_id FROM ".TB_PREF."suppliers
             WHERE supp_name = ".db_escape($supplier);
     $result = db_query($sql, "check supplier_id failed");

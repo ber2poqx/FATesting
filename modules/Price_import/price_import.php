@@ -11,10 +11,33 @@
 
 	include_once($path_to_root . "/includes/ui.inc");
 	include_once($path_to_root . "/includes/data_checks.inc");
+	include_once($path_to_root . "/admin/db/company_db.inc");
 
     include_once($path_to_root . "/modules/Price_import/price_import.inc");
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
-
+	
+	if (isset($_POST['download'])) {
+		$row = get_attachment_by_type(17);
+		$dir = company_path()."/attachments";
+	
+		if ($row['filename'] == "") {
+			display_error(_("No Template File Uploaded for Import Price list!"));
+		}
+		else if (!file_exists($dir."/".$row['unique_name'])) {
+			display_error(_("Template File does not exists in current company's folder!"));
+		}
+		else {
+			$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
+			header("Content-type: ".$type);
+			header('Content-Length: '.$row['filesize']);
+			header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
+			echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+			@fclose();
+			exit();
+		}
+	
+		unset($_POST['download']);
+	}
 
 	$action = 'import';
 	if (isset($_GET['action'])) $action = $_GET['action'];
@@ -38,6 +61,10 @@
 				    list($supplier, $types, $stock_id, $price) = $data;
 
                     $stock_id = strtoupper($stock_id);
+
+					$types = normalize_chars($types);
+					$supplier = normalize_chars($supplier);
+
 					
 					if( empty($supplier )){ 
 						$supplier = null;
@@ -81,7 +108,7 @@
 						$supplierdesc=get_supplier_desc($supplier);
 
 						add_System_cost_pricing(
-						$supplier = get_supplier_id($supplier), 
+						$supplier = pr_get_supplier_id($supplier), 
 						$types = get_system_cost_types_id($types), 
 						$stock_id, 
 						$supplierdesc,
@@ -91,7 +118,7 @@
 						elseif( get_srp_types($types)==$types && $supplier <> null){
 
 						add_srp_pricing(
-						$supplier = get_supplier_id($supplier), 
+						$supplier = pr_get_supplier_id($supplier), 
 						$types = get_srp_types_id($types), 
 						$stock_id, 
 						$price);
@@ -133,6 +160,9 @@
 
 	if ($action == 'import') {
 		start_form(true);
+		start_outer_table(TABLESTYLE, "width='95%'", 10);
+
+		submit_center('download', _("Download CSV Template File for Price List"));
 
 		start_table(TABLESTYLE2, "width=45%");
 
