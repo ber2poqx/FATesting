@@ -169,7 +169,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 			    '', //fa_class_id 
                 null, //size 
                 null, //capacity 
-				$zero_cost,
+				$zero_cost
             );
 
             $CI++; $line_cnt++;
