@@ -98,7 +98,7 @@ Ext.onReady(function(){
 											id:'ItemSerialListingView',
 											store: MTItemListingStore,
 											columns: columnItemSerialView,
-											dockedItems:[{
+											/*dockedItems:[{
 												dock:'top',
 												xtype:'toolbar',
 												name:'searchSerialBar',
@@ -138,7 +138,7 @@ Ext.onReady(function(){
 													labelWidth: 120,
 													hidden: true
 												}]
-											}],
+											}],*/
 											bbar : {
 												xtype : 'pagingtoolbar',
 												store : MTItemListingStore,
@@ -568,7 +568,7 @@ Ext.onReady(function(){
 												fieldLabel	: 'Item Description',
 												labelWidth	: 120,
 												listeners 	: {
-													specialkey: function(f,e){							
+													/*specialkey: function(f,e){							
 														if (e.getKey() == e.ENTER) {
 														    var catcode = Ext.getCmp('category').getValue();
 															var brcode = Ext.getCmp('fromlocation').getValue();
@@ -579,7 +579,17 @@ Ext.onReady(function(){
 															}
 															ItemListingStore.load();									
 														}
-													}						
+													}*/
+													specialkey: function(f,e){							
+														if (e.getKey() == e.ENTER) {
+															
+															var class_type = Ext.getCmp('searchSerialItem').getValue();
+															ItemListingStore.proxy.extraParams = { 											 
+																query:this.getValue()
+															}
+															ItemListingStore.load();								
+														}
+													}								
 												}
 											},{
 												xtype:'textfield',
@@ -588,7 +598,7 @@ Ext.onReady(function(){
 												fieldLabel:'Serial/Engine No.',
 												labelWidth: 120,
 												listeners : {
-													specialkey: function(f,e){							
+													/*specialkey: function(f,e){							
 														if (e.getKey() == e.ENTER) {
 														    var catcode = Ext.getCmp('category').getValue();
 															var brcode = Ext.getCmp('fromlocation').getValue();
@@ -599,7 +609,18 @@ Ext.onReady(function(){
 															}
 															ItemListingStore.load();									
 														}
-													}						
+													}*/
+
+													specialkey: function(f,e){							
+														if (e.getKey() == e.ENTER) {
+															
+															var class_type = Ext.getCmp('searchSerial').getValue();
+															ItemListingStore.proxy.extraParams = { 											 
+																serialquery:this.getValue()														
+															}
+															ItemListingStore.load();								
+														}
+													}								
 												}
 											},{
 												iconCls:'clear-search',
