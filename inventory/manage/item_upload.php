@@ -36,7 +36,6 @@ if (isset($_POST['download'])) {
 		header('Content-Length: '.$row['filesize']);
 		header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
 		echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
-		@fclose();
 		exit();
 	}
 
@@ -58,7 +57,7 @@ if (isset($_POST['action'])) {
     $action = $_POST['action'];
 }
 
-page(_("Import Item Master"), false, false, "", $js);
+page(_("Import Item Master"));
 
 //simple_page_mode(true);
 
@@ -210,9 +209,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 if (get_post('category_id')) {
     $Ajax->activate('_page_body');
 }
-else {
-    $Ajax->activate('_page_body');
-}
+
 
 //-----------------------------------------------------------------------------------------------
 
