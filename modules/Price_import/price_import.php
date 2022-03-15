@@ -17,7 +17,7 @@
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
 	
 	if (isset($_POST['download'])) {
-		$row = get_attachment_by_type(17);
+		$row = get_attachment_by_type(30);
 		$dir = company_path()."/attachments";
 	
 		if ($row['filename'] == "") {
