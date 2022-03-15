@@ -45,12 +45,6 @@ if (isset($_POST['download'])) {
 	unset($_POST['download']);
 }
 
-$js = '';
-
-if (user_use_date_picker())  {
-	$js .= get_js_date_picker();
-}
-
 $action = 'import';
 if (isset($_GET['action'])) {
     $action = $_GET['action'];
@@ -212,7 +206,9 @@ if (isset($_POST['import_btn']) && can_import()) {
 if (get_post('category_id')) {
     $Ajax->activate('_page_body');
 }
-
+else {
+    $Ajax->activate('_page_body');
+}
 
 //-----------------------------------------------------------------------------------------------
 
