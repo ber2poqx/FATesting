@@ -98,7 +98,8 @@ function get_item_categories($show_inactive, $fixed_asset=false)
 function get_item_category($id)
 {
 	set_global_connection();
-	$sql="SELECT * FROM stock_category WHERE category_id=".db_escape($id);
+
+	$sql = "SELECT SC.* FROM stock_category SC WHERE SC.category_id = ".db_escape($id);
 
 	$result = db_query($sql,"an item category could not be retrieved");
 

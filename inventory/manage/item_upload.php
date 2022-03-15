@@ -17,9 +17,6 @@ include_once($path_to_root . "/includes/data_checks.inc");
 include_once($path_to_root . "/admin/db/attachments_db.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
-include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
-include_once($path_to_root . "/includes/db/inventory_db.inc");
-include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 
 //add_access_extensions();
 
@@ -226,6 +223,7 @@ if ($action == 'import') {
 	br();
 
     start_table(TABLESTYLE2, "width=45%");
+
     table_section_title(_("Guide List"));
     sql_type_list(_("All Item Brands:"), 'brand_id', 
         get_brand_list(), 'id', 'name', 

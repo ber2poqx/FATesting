@@ -1374,9 +1374,9 @@ function get_category_list() {
 
 	set_global_connection();
 
-	$sql = "SELECT category_id, description 
-		FROM ".TB_PREF."stock_category
-		WHERE inactive = 0 ";
+	$sql = "SELECT SC.category_id, SC.description 
+		FROM ".TB_PREF."stock_category SC
+		WHERE SC.inactive = 0 ";
 
 	return db_query($sql, _("Cant get category list!"));
 }
@@ -1385,13 +1385,15 @@ function get_brand_list($brand_name = '', $all = true) {
 
 	set_global_connection();
 
-	$sql = "SELECT id, name 
-		FROM ".TB_PREF."item_brand
+	$sql = "SELECT IB.id, IB.name 
+		FROM ".TB_PREF."item_brand IB
 		WHERE inactive = 0 ";
 	
 	if ($brand_name != '') {
-		$sql .= " AND name LIKE " . db_escape('%' . trim($brand_name) . '%');
+		$sql .= " AND IB.name = " .db_escape($brand_name);
 	}
+
+	$sql .= " ORDER BY IB.name ";
 
 	$result = db_query($sql, _("Cant get brand list!"));
 
