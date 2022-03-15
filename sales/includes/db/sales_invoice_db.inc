@@ -98,7 +98,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	}
 	set_global_connection();
 	// write_customer_trans have to be called after optional void_cust_allocations above
-	$entry_amount = $invoice->payment_location == "Lending" ? $invoice->lcp_amount : $invoice->ar_amount;
+	$entry_amount = $invoice->payment_location ? $invoice->lcp_amount : $invoice->ar_amount;
 	//openning oustading ar balance (added by Albert)
 	$ar_balance = $entry_amount -  $invoice->ob_total_amount_paid;
 	//
@@ -154,7 +154,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->category_id,
 		$warranty_code,
 		$fsc_series,
-		$invoice->payment_location,
+		$invoice->payment_location ? "Lending" : "Branch",
 		$invoice->co_maker,
 		$invoice->discount_dp_amount,
 		$invoice->deferred_gross_profit,
@@ -339,6 +339,10 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	} else {
 		$sales_account = $category_gl_code['dflt_sales_act'];
 	}
+
+	if ($invoice->payment_location)
+		$sales_account = $category_gl_code['dflt_sales_act'];
+
 	if ($opening_balances <> 1) { // albert 09/14/2021
 		$total += add_gl_trans_customer(
 			ST_SALESINVOICE,
