@@ -84,6 +84,10 @@ function can_import() {
 
 if (isset($_POST['import_btn']) && can_import()) {
 
+    if (isset($_SESSION['import_btn'])) {
+        unset($_SESSION['import_btn']);
+    }
+
     $filename = $_FILES['impCSVS']['tmp_name'];
 	$sep = $_POST['sep'];
 
