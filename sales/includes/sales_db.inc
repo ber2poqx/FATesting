@@ -1003,3 +1003,14 @@ function get_all_sale_target($year,$category,$type)
 	return $sql_type = $type;
 	return $sql_year = $year;
 }
+
+
+/* Added by Ronelle retrieve payment location from stock category table */
+function get_payment_location_by_category($category_id)
+{
+	$sql = "SELECT payment_location FROM stock_category WHERE category_id=$category_id";
+	$result = db_query($sql, "no result found.");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+/* */

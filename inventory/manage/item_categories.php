@@ -59,7 +59,7 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 				$_POST['units'], $_POST['mb_flag'],	$_POST['dim1'],	$_POST['dim2'],
 				check_value('no_sale'), check_value('no_purchase'),
 				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
-				$_POST['repo_invty_act']);
+				$_POST['repo_invty_act'], $_POST['payment_location']);
 			display_notification(_('Selected item category has been updated'));
     	} 
     	else 
@@ -71,7 +71,7 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 				$_POST['units'], $_POST['mb_flag'],	$_POST['dim1'],	
 				$_POST['dim2'],	check_value('no_sale'), check_value('no_purchase'),
 				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
-				$_POST['repo_invty_act']);
+				$_POST['repo_invty_act'], $_POST['payment_location']);
 			display_notification(_('New item category has been added'));
     	}
 		$Mode = 'RESET';
@@ -122,7 +122,8 @@ if ($fixed_asset) {
 		_("Asset Account"), _("Deprecation Cost Account"),
 		_("Depreciation/Disposal Account"), "", "");
 } else {
-	$th = array(_("Name"), _("Tax type"), _("Units"), _("Type"), _("Cash Sales Account"), _("Installment Sales Account"),
+	$th = array(_("Name"), _("Tax type"), _("Units"), _("Type"), _("Payment Location"),
+		_("Cash Sales Account"), _("Installment Sales Account"),
 		_("Regular Credit Sales Account"), _("Inventory Account"), _("COGS Account"), _("Adjustment Account"),
 		_("Assembly Account"), _("Repo Invty Account"), "E", "D");
 }
@@ -141,6 +142,7 @@ while ($myrow = db_fetch($result))
 	label_cell($myrow["dflt_units"], "align=center");
 	if (!$fixed_asset)
 		label_cell($stock_types[$myrow["dflt_mb_flag"]]);
+	label_cell($myrow["payment_location"] == 0 ? "Branch" : "Lending");
 	label_cell($myrow["dflt_sales_act"], "align=center");
 	label_cell($myrow["dflt_installment_sales_act"], "align=center");
 	label_cell($myrow["dflt_regular_sales_act"], "align=center");
@@ -187,6 +189,7 @@ if ($selected_id != -1)
 		$_POST['no_sale']  = $myrow["dflt_no_sale"];
 		$_POST['no_purchase']  = $myrow["dflt_no_purchase"];
 		$_POST['repo_invty_act']  = $myrow["dflt_repo_invty_act"];
+		$_POST['payment_location'] = $myrow["payment_location"];
 	} 
 	hidden('selected_id', $selected_id);
 	hidden('category_id');
@@ -240,6 +243,8 @@ else
 	check_row(_("Exclude from sales:"), 'no_sale');
 
 check_row(_("Exclude from purchases:"), 'no_purchase');
+
+payment_location_list_row(_("Payment Location:"), 'payment_location'); 
 
 gl_all_accounts_list_row(_("Cash Sales Account:"), 'sales_account', $_POST['sales_account']);
 gl_all_accounts_list_row(_("Installment Sales Account:"), 'installment_sales_account', $_POST['installment_sales_account']);

@@ -12,14 +12,16 @@
 function add_item_category($description, $tax_type_id, $sales_account, 
 	$cogs_account, $inventory_account, $adjustment_account, $wip_account, 
 	$units, $mb_flag, $dim1, $dim2, $no_sale, $no_purchase,
-	$installment_sales_account, $regular_sales_account, $repo_invty_act)
+	$installment_sales_account, $regular_sales_account, $repo_invty_act,
+	$payment_location = 0)
 {
 	set_global_connection();
 	$sql = "INSERT INTO stock_category (description, dflt_tax_type,
 			dflt_units, dflt_mb_flag, dflt_sales_act, 
 			dflt_installment_sales_act, dflt_regular_sales_act, dflt_cogs_act, 
 			dflt_inventory_act, dflt_adjustment_act, dflt_wip_act, 
-			dflt_dim1, dflt_dim2, dflt_no_sale, dflt_no_purchase, dflt_repo_invty_act)
+			dflt_dim1, dflt_dim2, dflt_no_sale, dflt_no_purchase, dflt_repo_invty_act,
+			payment_location)
 		VALUES ("
 		.db_escape($description).","
 		.db_escape($tax_type_id).","
@@ -36,7 +38,8 @@ function add_item_category($description, $tax_type_id, $sales_account,
 		.db_escape($dim2).","
 		.db_escape($no_sale).","
 		.db_escape($no_purchase).","
-		.db_escape($repo_invty_act).")";
+		.db_escape($repo_invty_act).","
+		.db_escape($payment_location).")";
 
 	db_query($sql,"an item category could not be added");
 }
@@ -44,7 +47,8 @@ function add_item_category($description, $tax_type_id, $sales_account,
 function update_item_category($id, $description, $tax_type_id, 
 	$sales_account, $cogs_account, $inventory_account, $adjustment_account, 
 	$wip_account, $units, $mb_flag, $dim1, $dim2, $no_sale, $no_purchase,
-	$installment_sales_account, $regular_sales_account, $repo_invty_act)
+	$installment_sales_account, $regular_sales_account, $repo_invty_act,
+	$payment_location = 0)
 
 {
 	set_global_connection();
@@ -64,7 +68,8 @@ function update_item_category($id, $description, $tax_type_id,
 		."dflt_dim2 = ".db_escape($dim2).","
 		."dflt_no_sale = ".db_escape($no_sale).","
 		."dflt_no_purchase = ".db_escape($no_purchase).","
-		."dflt_repo_invty_act = ".db_escape($repo_invty_act)
+		."dflt_repo_invty_act = ".db_escape($repo_invty_act).","
+		."payment_location = ".db_escape($payment_location)
         ."WHERE category_id = ".db_escape($id);
 
 	db_query($sql,"an item category could not be updated");
