@@ -91,7 +91,7 @@ Ext.onReady(function(){
 											id:'ItemSerialListingView',
 											store: MTItemListingStore,
 											columns: columnItemSerialView,
-											dockedItems:[{
+											/*dockedItems:[{
 												dock:'top',
 												xtype:'toolbar',
 												name:'searchSerialBar',
@@ -105,7 +105,7 @@ Ext.onReady(function(){
 													fieldLabel: 'Item Description',
 													labelWidth: 120,
 													listeners : {
-														/*specialkey: function(f,e){							
+														specialkey: function(f,e){							
 															if (e.getKey() == e.ENTER) {
 																
 																var catcode = Ext.getCmp('category').getValue();
@@ -117,7 +117,7 @@ Ext.onReady(function(){
 																}
 																MTItemListingStore.load();									
 															}
-														}*/
+														}
 
 														specialkey: function(f,e){							
 															if (e.getKey() == e.ENTER) {
@@ -155,7 +155,7 @@ Ext.onReady(function(){
 														}		
 													}
 												}]
-											}],
+											}],*/
 											bbar : {
 												xtype : 'pagingtoolbar',
 												store : MTItemListingStore,
@@ -1065,7 +1065,7 @@ Ext.onReady(function(){
 												fieldLabel: 'Item Description',
 												labelWidth: 120,
 												listeners : {
-													specialkey: function(f,e){							
+													/*specialkey: function(f,e){							
 														if (e.getKey() == e.ENTER) {
 															
 
@@ -1080,40 +1080,38 @@ Ext.onReady(function(){
 																
 								
 														}
-													}
-													/*specialkey: function(f,e){							
+													}*/
+													specialkey: function(f,e){							
 														if (e.getKey() == e.ENTER) {
 															
-															var class_typess = Ext.getCmp('searchSerialItem').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																querystr:this.getValue(), 
-																class_typess: class_typess
+															var class_type = Ext.getCmp('searchSerialItem').getValue();
+															ItemListingStore.proxy.extraParams = { 											 
+																query:this.getValue()
 															}
 															ItemListingStore.load();								
 														}
-													}*/								
+													}						
 												}
 											},{
 												iconCls:'clear-search'
-												/*},{
-													xtype:'textfield',
-													name:'searchSerial',
-													id:'searchSerial',
-													fieldLabel:'Serial/Engine No.',
-													labelWidth: 120,
-													listeners: {
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-																var class_types = Ext.getCmp('searchSerial').getValue();
-																ItemListingStore.proxy.extraParams = { 
-																	querystr:this.getValue(), 
-																	class_types: class_types
-																}
-																ItemListingStore.load();								
-														}
+											},{
+												xtype:'textfield',
+												name:'searchSerial',
+												id:'searchSerial',
+												fieldLabel:'Serial/Engine No.',
+												labelWidth: 120,
+												listeners: {
+													specialkey: function(f,e){							
+														if (e.getKey() == e.ENTER) {
+															
+															var class_type = Ext.getCmp('searchSerial').getValue();
+															ItemListingStore.proxy.extraParams = { 											 
+																serialquery:this.getValue()														
+															}
+															ItemListingStore.load();																	
+														}		
 													}		
-												}*/
+												}
 											}]
 										}],
 										bbar : {
