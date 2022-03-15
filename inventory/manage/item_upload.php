@@ -17,6 +17,9 @@ include_once($path_to_root . "/includes/data_checks.inc");
 include_once($path_to_root . "/admin/db/attachments_db.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
+include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
+include_once($path_to_root . "/includes/db/inventory_db.inc");
+include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 
 //add_access_extensions();
 
