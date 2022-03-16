@@ -767,7 +767,7 @@ if (isset($_POST['ProcessOrder']) && can_process()) {
 	$so_type = $_SESSION['Items']->so_type;
   
 	if ($_SESSION['Items']->payment_policy != 0) {
-		$_SESSION['Items']->payment_location = get_company_pref('payment_location') ? "Lending" : "Branch";
+		$_SESSION['Items']->payment_location = get_payment_location_by_category(get_post('category_id')) ? "Lending" : "Branch";
 	}
 	$ret = $_SESSION['Items']->write(1, 0, 0, get_post('waranty_code'), get_post('fsc_series'));
 	if ($ret == -1) {
