@@ -166,7 +166,7 @@ $cols = array(
 	_("PR Date") => array('name' => 'pr_date', 'type' => 'date', 'ord' => 'desc'),
 	// _("Required Date") => array('name' => 'req_date', 'type' => 'date'),
 	array('insert' => true, 'fun' => 'edit_link'),
-	array('insert' => true, 'fun' => 'order_link'),
+	// array('insert' => true, 'fun' => 'order_link'),
 	array('insert' => true, 'fun' => 'close_link')
 );
 

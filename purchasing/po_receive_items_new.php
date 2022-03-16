@@ -24,7 +24,7 @@ if ($SysPrefs->use_popup_windows)
     $js .= get_js_open_window(900, 500);
 if (user_use_date_picker())
     $js .= get_js_date_picker();
-page(_($help_context = "Receive Purchase Order Items (Ongoing Development)"), false, false, "", $js);
+page(_($help_context = "Receive Purchase Order Items"), false, false, "", $js);
 
 //---------------------------------------------------------------------------------------------------------------
 if (isset($_GET['AddedID'])) {
@@ -380,30 +380,15 @@ function serial_summary_po_receive_items()
     div_start('grn_items');
     start_table(TABLESTYLE, "colspan=7 width='90%'");
     if ($_SESSION['PO']->category_id == 14) {
-
-        if ($_SESSION['PO']->is_consign == "Consignment") {
-            $th = array(
-                _("Model Code"), _("Product Description"), _("Serial No."), _("Chassis No."), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
-                _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
-            );
-        } else {
-            $th = array(
-                _("Model Code"), _("Product Description"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
-                _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
-            );
-        }
+        $th = array(
+            _("Model Code"), _("Product Description"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
+            _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
+        );
     } else {
-        if ($_SESSION['PO']->is_consign == "Consignment") {
-            $th = array(
-                _("Item Code"), _("Description"), _("Serial No."), _("Ordered"), _("Units"), _("Received"),
-                _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
-            );
-        } else {
-            $th = array(
-                _("Item Code"), _("Description"), _("Ordered"), _("Units"), _("Received"),
-                _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
-            );
-        }
+        $th = array(
+            _("Item Code"), _("Description"), _("Ordered"), _("Units"), _("Received"),
+            _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
+        );
     }
     table_header($th);
 
@@ -418,43 +403,45 @@ function serial_summary_po_receive_items()
 
     if (count($_SESSION['PO']->line_items) > 0) {
         foreach ($_SESSION['PO']->line_items as $ln_itm) {
-            alt_table_row_color($k);
+            if ($ln_itm->receive_qty > 0) {
+                alt_table_row_color($k);
 
-            $qty_outstanding = $ln_itm->quantity - $ln_itm->qty_received;
+                $qty_outstanding = $ln_itm->quantity - $ln_itm->qty_received;
 
-            if (!isset($_POST['Update']) && !isset($_POST['ProcessGoodsReceived']) && $ln_itm->receive_qty == 0) {   //If no quantites yet input default the balance to be received
-                $ln_itm->receive_qty = $qty_outstanding;
-            }
-            $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
-            if ($price == "")
-                $price = 0;
-            $ln_itm->price = $price;
-            $ln_itm->standard_cost = $price;
-            $line_total = ($ln_itm->receive_qty * $ln_itm->price);
-            $total += $line_total;
+                if (!isset($_POST['Update']) && !isset($_POST['ProcessGoodsReceived']) && $ln_itm->receive_qty == 0) {   //If no quantites yet input default the balance to be received
+                    $ln_itm->receive_qty = $qty_outstanding;
+                }
+                $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                if ($price == "")
+                    $price = 0;
+                $ln_itm->price = $price;
+                $ln_itm->standard_cost = $price;
+                $line_total = ($ln_itm->receive_qty * $ln_itm->price);
+                $total += $line_total;
 
-            label_cell($ln_itm->stock_id);
-            if ($qty_outstanding > 0)
-                label_cell($ln_itm->item_description);
-            else
-                label_cell($ln_itm->item_description);
-            if ($_SESSION['PO']->is_consign == "Consignment") {
-                label_cell($ln_itm->serial);
+                label_cell($ln_itm->stock_id);
+                if ($qty_outstanding > 0)
+                    label_cell($ln_itm->item_description);
+                else
+                    label_cell($ln_itm->item_description);
+                if ($_SESSION['PO']->is_consign == "Consignment") {
+                    label_cell($ln_itm->serial);
+                    if ($_SESSION['PO']->category_id == 14)
+                        label_cell($ln_itm->chasis_no);
+                }
                 if ($_SESSION['PO']->category_id == 14)
-                    label_cell($ln_itm->chasis_no);
-            }
-            if ($_SESSION['PO']->category_id == 14)
-                label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
+                    label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
 
-            $dec = get_qty_dec($ln_itm->stock_id);
-            qty_cell($ln_itm->quantity, false, $dec);
-            label_cell($ln_itm->units);
-            qty_cell($ln_itm->qty_received, false, $dec);
-            qty_cell($qty_outstanding, false, $dec);
-            label_cell(number_format2($ln_itm->receive_qty, $dec), "align=right");
-            amount_decimal_cell($ln_itm->price);
-            amount_cell($line_total);
-            end_row();
+                $dec = get_qty_dec($ln_itm->stock_id);
+                qty_cell($ln_itm->quantity, false, $dec);
+                label_cell($ln_itm->units);
+                qty_cell($ln_itm->qty_received, false, $dec);
+                qty_cell($qty_outstanding, false, $dec);
+                label_cell(number_format2($ln_itm->receive_qty, $dec), "align=right");
+                amount_decimal_cell($ln_itm->price);
+                amount_cell($line_total);
+                end_row();
+            }
         }
     }
 
@@ -486,6 +473,12 @@ function serial_summary_input()
         _("Model Code"), _("Product Description"), _("Color Description - (Code)")
     );
 
+    if ($_SESSION['PO']->category_id != 14) {
+        unset($th[1]);
+        unset($th[4]);
+    }
+
+
     table_header($th);
 
     $k = 0; //row colour counter
@@ -497,10 +490,12 @@ function serial_summary_input()
                 while ($ctr < $ln_itm->receive_qty) {
                     alt_table_row_color($k);
                     text_cells(null, "serial_no$ctr", null, "", "", false, "", "", 'placeholder="Serial No."');
-                    text_cells(null, "chassis_no$ctr", null, "", "", false, "", "", 'placeholder="Chassis No."');
+                    if ($_SESSION['PO']->category_id == 14)
+                        text_cells(null, "chassis_no$ctr", null, "", "", false, "", "", 'placeholder="Chassis No."');
                     label_cell($ln_itm->stock_id);
                     label_cell($ln_itm->item_description);
-                    label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
+                    if ($_SESSION['PO']->category_id == 14)
+                        label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
                     $ctr++;
                 }
             }
@@ -517,13 +512,13 @@ function can_process_serial()
             $ctr = 0;
             while ($ctr < count($ln_itm->list_serial)) {
                 $serial_no = $ln_itm->list_serial[$ctr]->serial_no;
-                $chassis_no = $ln_itm->list_serial[$ctr]->chassis_no;
-
+                if ($_SESSION['PO']->category_id == 14)
+                    $chassis_no = $ln_itm->list_serial[$ctr]->chassis_no;
                 if ($serial_no == "") {
                     display_error(_("Please input Serial No."));
                     set_focus("serial_no$ctr");
                     return false;
-                } else if ($chassis_no == "") {
+                } else if ($chassis_no == "" && $_SESSION['PO']->category_id == 14) {
                     display_error(_("Please input Chassis No."));
                     set_focus("chassis_no$ctr");
                     return false;
@@ -559,19 +554,18 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
                 while ($ctr < $ln_itm->receive_qty) {
                     $serial = new stdClass();
                     $serial->serial_no = get_post("serial_no$ctr");
-                    $serial->chassis_no = get_post("chassis_no$ctr");
+                    $serial->chassis_no = $_SESSION['PO']->category_id == 14 ? get_post("chassis_no$ctr") : "";
                     array_push($ln_itm->list_serial, $serial);
                     $ctr++;
                 }
             }
         }
     }
-
-    if (!can_process_serial())
-        return;
+    if (count($_SESSION['PO']->line_items[0]->list_serial) > 0)
+        if (!can_process_serial())
+            return;
     $grn = &$_SESSION['PO'];
-    $grn_no = ($_SESSION['PO']->is_consign == "Consignment") ?
-        add_grn_new($grn, true) : add_grn_new($grn);
+    $grn_no =  add_grn_new($grn);
     unset($_SESSION['PO']->line_items);
     unset($_SESSION['PO']);
     meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
@@ -581,8 +575,10 @@ if (isset($_SESSION['SetSerial'])) {
     start_form();
     serial_summary_header($_SESSION['PO']);
 
-    display_heading(_("Serial Input"));
-    serial_summary_input();
+    if ($_SESSION['PO']->line_items[0]->serialised) {
+        display_heading(_("Serial Input"));
+        serial_summary_input();
+    }
 
     echo '<br>';
     display_heading(_("Items to Receive"));
@@ -620,7 +616,8 @@ if (isset($_POST['Update']) || isset($_POST['ProcessGoodsReceived'])) {
             $_SESSION['PO']->line_items[$line->line_no]->receive_qty = input_num($line->line_no);
 
             //if(isset($_POST[$line->stock_id . "color_code"]) && strlen($_POST[$line->line_no . "color_code"]) > 0){
-            $_SESSION['PO']->line_items[$line->line_no]->color_code = $_POST[$line->line_no . "color_code"];
+            if ($_SESSION['PO']->category_id == 14)
+                $_SESSION['PO']->line_items[$line->line_no]->color_code = $_POST[$line->line_no . "color_code"];
             //}
             // echo $_SESSION['PO']->line_items[$line->line_no]->color_code;
 
@@ -658,7 +655,7 @@ textarea_row(_("Remarks:"), 'GRNComments', null, 70, 4);
 end_table(1);
 
 submit_center_first('Update', _("Update"), '', true);
-submit_center_last('ProcessGoodsReceived', _("Process Receive Items"), _("Clear all GL entry fields"), 'default');
+submit_center_last('ProcessGoodsReceived', _("Continue"), _("Clear all GL entry fields"), 'default');
 
 end_form();
 

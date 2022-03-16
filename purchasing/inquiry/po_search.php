@@ -111,8 +111,8 @@ function receive_link($row)
 
 function receive_new_link($row) 
 {
-  return pager_link( _("Receive New Test"),
-	"/purchasing/po_receive_items_new.php?PONumber=" . $row["order_no"], ICON_CANCEL);
+  return pager_link( _("Receive"),
+	"/purchasing/po_receive_items_new.php?PONumber=" . $row["order_no"], ICON_RECEIVE);
 }
 
 function check_overdue($row)
@@ -140,7 +140,7 @@ $cols = array(
 		_("Currency") => array('align'=>'center'), 
 		_("Order Total") => 'amount',
 		array('insert'=>true, 'fun'=>''),
-		array('insert'=>true, 'fun'=>'receive_link'),
+		// array('insert'=>true, 'fun'=>'receive_link'),
 		array('insert'=>true, 'fun'=>'receive_new_link'),
 		array('insert'=>true, 'fun'=>'prt_link')
 );

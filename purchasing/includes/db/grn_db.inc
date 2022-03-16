@@ -302,7 +302,8 @@ function get_grn_items($grn_batch_id=0, $supplier_id="", $outstanding_only=false
     	po_item.unit_price,
     	po_item.act_price,
     	po_item.quantity_ordered,
-    	po_item.std_cost_unit, units
+    	po_item.std_cost_unit, units,
+		stock_item.serialised
     	FROM	".TB_PREF."grn_batch grn, "
     			.TB_PREF."purch_order_details po_item, "
     			.TB_PREF."stock_master stock_item,"
@@ -375,15 +376,17 @@ function get_grn_item_detail($grn_item_no)
 function read_grn_items_to_order($grn_batch, &$order)
 {
 	$result = get_grn_items($grn_batch);
-
+	
   	if (db_num_rows($result) > 0)
   	{
+
 		$sum_qty_recd = 0;
 		$sum_qty_inv = 0;
 	 	while ($myrow = db_fetch($result))
 	 	{
-	 		if ($myrow['serialise_qty'] == 0 && $myrow['quantity_inv'] == 0)
-				continue; // We will not have empty credited rows.
+			 
+	 		// if ($myrow['serialise_qty'] == 0 && $myrow['quantity_inv'] == 0)
+			// 	continue; // We will not have empty credited rows.
 		 	if (is_null($myrow["units"]))
 		 	{
 				$units = "";
@@ -393,11 +396,29 @@ function read_grn_items_to_order($grn_batch, &$order)
 				$units = $myrow["units"];
 		 	}
 
-			$order->add_to_order($order->lines_on_order, $myrow["item_code"],
+			if ($myrow["serialised"]) {
+				$order->add_to_order($order->lines_on_order, $myrow["item_code"],
 				$myrow["qty_recd"],$myrow["description"], $myrow["std_cost_unit"],$units,
 				sql2date($myrow["req_del_date"]), $myrow["quantity_inv"],
 			    $myrow["serialise_qty"], $myrow["serialise_qty"], $myrow["serialise_lot_no"], $myrow["color_code"], $myrow["serialise_chasis_no"]);
 
+			} else {
+				$order->add_to_order(
+					$order->lines_on_order, 
+					$myrow["item_code"],
+					$myrow["qty_recd"],
+					$myrow["description"], 
+					$myrow["std_cost_unit"],
+					$units,
+					sql2date($myrow["req_del_date"]), 
+					$myrow["quantity_inv"],
+				    $myrow["qty_recd"], 
+					$myrow["qty_recd"], 
+					"", 
+					"", 
+					""
+				);
+			}
 			$order->line_items[$order->lines_on_order-1]->po_detail_rec = $myrow["po_detail_item"];
 			$sum_qty_recd += $myrow["qty_recd"];
 			$sum_qty_inv += $myrow["quantity_inv"];
