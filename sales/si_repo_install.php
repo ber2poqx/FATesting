@@ -749,7 +749,9 @@ if (isset($_POST['installment_policy_id'])) {
 if (isset($_POST['new_installment_policy_id']) && $_SESSION['Items']->trans_type == ST_SITERMMOD) {
 	new_installment_computation();
 }else{
-	restuctured_computation();
+	if (isset($_POST['new_installment_policy_id']) && $_SESSION['Items']->trans_type == ST_RESTRUCTURED){
+		restuctured_computation();
+	}
 }
 /**/
 if (isset($_POST['update'])) {
