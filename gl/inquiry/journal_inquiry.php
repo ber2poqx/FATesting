@@ -64,6 +64,17 @@ function journal_pos($row)
 	return $row['gl_seq'] ? $row['gl_seq'] : '-';
 }
 
+function print_voucher($row)
+{
+	if ($row['trans_type'] == ST_BANKPAYMENT) {
+		return pager_link(
+				_("Print: Disbursement Voucher"),
+				"/reports/disbursement_voucher.php?trans_num=" . $row["trans_no"],
+				ICON_PRINT
+		);
+	}
+}
+
 function systype_name($row, $type)
 {
 	global $systypes_array;
@@ -148,7 +159,8 @@ $cols = array(
 	_("Memo"),
 	_("User"),
 	_("View") => array('insert'=>true, 'fun'=>'gl_link'),
-	array('insert'=>true, 'fun'=>'edit_link')
+	array('insert'=>true, 'fun'=>'edit_link'),
+	array('insert'=>true, 'fun'=>'print_voucher')
 );
 
 if (!check_value('AlsoClosed')) {
