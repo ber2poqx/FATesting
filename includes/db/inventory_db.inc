@@ -1587,6 +1587,23 @@ function item_has_color($stock_id) {
 	}
 }
 
+function get_color_code($stock_id, $color) {
+
+	set_global_connection();
+
+	$sql = "SELECT item_code 
+		FROM ".TB_PREF."item_codes";
+
+	$sql .= " WHERE stock_id = ".db_escape($stock_id);
+	$sql .= " AND color = ".db_escape($color);
+
+	$result = db_query($sql, "Cant get ");
+
+	$row = db_fetch_row($result);
+
+	return $row[0];
+}
+
 function check_color_exist($stock_id, $color_code, $check_only = false, $chk_code = false)
 {
 	set_global_connection();

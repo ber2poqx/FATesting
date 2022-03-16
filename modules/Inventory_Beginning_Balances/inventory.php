@@ -226,9 +226,9 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Color Description cannot be empty for this item!");
 		}
-		else if (get_stock_catID($stock_id) == 14 && !check_color_exist($stock_id, $color, true, true)) {
+		else if (get_stock_catID($stock_id) == 14 && !check_color_exist($stock_id, $color, true, false)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Color Code does not exist!");
+			$err_arr[$line_cnt] = _("Item Color Code does not exist!");
 		}
 		else if ($mcode == "") {
 			$line_cnt++;
@@ -241,6 +241,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		else {
 
 			$masterfile = get_masterfile($mcode);
+			$color_code = get_color_code($stock_id, $color);
 
             add_to_order(
                 $_SESSION['adj_items'], 
@@ -251,7 +252,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		        "0000-00-00", //Expire Date, 
 		        $lot_no,
 		        $chassis_no,  
-		        $color,
+		        $color_code,
 				'', 
 				$mcode, $masterfile
             );
