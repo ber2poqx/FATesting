@@ -106,15 +106,19 @@ function get_transactions($endDate, $cust_id = '', $group = 0, $filter = '') {
                         WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
                 ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 ";
       
-    $sql .= " AND (CASE 
-	                WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
-                    WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
-                ELSE 'repo' END) = 'new' ";
+    $sql .= 
+    " AND (CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
+            WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
+        ELSE 'repo' END
+    ) = 'new' ";
 
     if ($cust_id != '') {
-        $sql .= " AND (CASE 
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-                    ELSE DL.debtor_no END) = ".db_escape($cust_id);
+        $sql .= 
+        " AND (CASE 
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
+            ELSE DL.debtor_no END
+        ) = ".db_escape($cust_id);
     }
 
     if ($group == 1 && $filter != '') {

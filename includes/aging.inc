@@ -351,7 +351,6 @@ function last_2months_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_
     $table_name = ar_table_name($trans_type);
     $inv_date = ar_invoice_date($trans_type);
 
-
     $sql = "SELECT SUM(A.payment_applied) AS payment
         FROM ".TB_PREF."debtor_loan_ledger A
             INNER JOIN ".TB_PREF."debtor_loan_schedule B ON A.loansched_id = B.id AND A.trans_no = B.trans_no 
@@ -854,8 +853,7 @@ function total_adjusment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
 
 function sum_not_yet_due($trans_no_arr, $trans_type_arr, $debtor_no_arr, $trans_year, $end_date, $last_year = false) {
     
-    $total = $current_balance = $payment_this_month = $advance_payment = $due_nxt_month = 
-    $due_this_month = $overdue_1month = $overdue_2month = 0;
+    $total = 0;
 
     foreach ($trans_no_arr as $key => $val) {
         $trans_no = $val;

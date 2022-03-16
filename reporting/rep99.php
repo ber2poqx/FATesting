@@ -108,15 +108,19 @@ function get_transactions($endDate, $cust_id = '') {
                         WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
                 ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0";
       
-    $sql .= " AND (CASE 
-	                WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
-                    WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
-                ELSE 'repo' END) = 'new' ";
+    $sql .= 
+    " AND (CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
+            WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
+        ELSE 'repo' END
+    ) = 'new' ";
     
     if ($cust_id != '') {
-        $sql .= " AND (CASE 
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-                    ELSE DL.debtor_no END) = ".db_escape($cust_id);
+        $sql .= 
+        " AND (CASE 
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
+            ELSE DL.debtor_no END
+        ) = ".db_escape($cust_id);
     }
     
     $sql .= " GROUP BY inv_year, invoice_ref_no, trans_type, DL.debtor_no ";
@@ -203,7 +207,6 @@ function print_transaction() {
     //Validation
     $trans_no1 = $trans_no2 = $trans_no3 = $trans_no4 = '';
 
-    
     //Parent
     $sum_not_yet_due1 = $sum_not_yet_due2 = $sum_not_yet_due3 = $sum_not_yet_due4 = $sum_not_yet_due5 = 0.0;
     $sum_due_this_month1 = $sum_due_this_month2 = $sum_due_this_month3 = $sum_due_this_month4 = $sum_due_this_month5 = 0.0;
@@ -253,6 +256,7 @@ function print_transaction() {
         //display_error($trans['trans_no'] . " || " . $trans['trans_type'] . " || " . $trans['debtor_no'] . " || " . $trans['inv_year']);
     }
 
+    //Caculations
     $sum_not_yet_due1 = sum_not_yet_due($trans_no_arr1, $trans_type_arr1, $debt_no_arr1, $maxYear, $cur_date, false);
     $sum_not_yet_due2 = sum_not_yet_due($trans_no_arr2, $trans_type_arr2, $debt_no_arr2, $maxYear1, $cur_date, false);
     $sum_not_yet_due3 = sum_not_yet_due($trans_no_arr3, $trans_type_arr3, $debt_no_arr3, $maxYear2, $cur_date, false);
@@ -309,6 +313,7 @@ function print_transaction() {
    
     $dec = user_price_dec();
 
+    //Display
     $rep->TextCol(0, 1, _("Not Yet Due"));
 
     $rep->AmountCol(1, 2, $sum_not_yet_due1, $dec);
