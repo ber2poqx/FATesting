@@ -23,7 +23,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>DV Form</title>
+<title>JV Form</title>
 <style type="text/css">
 	.main{
 		width: 8.3in;
@@ -257,59 +257,6 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 </style>
 </head>
 
-
-
-<?php
-	#Query
-	function DV_headers($trans_no)
-	{
-		$sql = "
-			SELECT bank.`masterfile`, dm.name, bank.`receipt_no`, bank.`receipt_no`, bank.`trans_date`, bank.`amount`, c.memo_
-			FROM ".TB_PREF."`bank_trans` bank 
-				LEFT JOIN ".TB_PREF."`comments` c ON bank.type = c.type AND bank.trans_no = c.id 
-				LEFT JOIN ".TB_PREF."`debtors_master` dm ON bank.masterfile = dm.debtor_no
-			WHERE bank.`type` = '".ST_BANKPAYMENT."' AND `trans_no` = '$trans_no'";
-
-		return db_query($sql, "DV_headers query could not be retrieved");
-	}	
-
-	function get_gl_trans_dis($type, $trans_id)
-	{
-		set_global_connection();
-		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
-				COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
-				IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
-		FROM ".TB_PREF."gl_trans as gl
-			LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
-			LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
-			LEFT JOIN ".TB_PREF."audit_trail as audit ON (gl.type=audit.type AND gl.type_no=audit.trans_no AND NOT ISNULL(gl_seq))
-			LEFT JOIN ".TB_PREF."users as user ON (audit.user=user.id)
-				# all this below just to retrieve doc_date :>
-			LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
-			LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE." AND gl.person_id=grn.supplier_id
-			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
-			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
-				 AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
-			LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no"
-
-			." WHERE gl.type= ".db_escape($type) 
-			." AND gl.type_no = ".db_escape($trans_id)
-			." AND gl.amount <> 0"
-			." ORDER BY tran_date, counter";
-
-		return db_query($sql, "The gl transactions could not be retrieved");
-	}
-	
-	function Comment($type, $trans_id)
-	{
-		$sql = "
-			SELECT *
-			FROM `comments` 
-			WHERE `type` = '$type' AND `id` = '$trans_id'";
-
-		return db_query($sql, "DV_headers query could not be retrieved");
-	}
-?>
 <?php
 /*
 ** Function: convert_number
@@ -395,24 +342,78 @@ function convert_number($number)
 
 ?> 
 
+<?php
+	#Query
+	function JV_headers($trans_no)
+	{
+		$sql = "
+			SELECT bank.`masterfile`, dm.name, bank.`receipt_no`, bank.`receipt_no`, bank.`trans_date`, bank.`amount`, c.memo_
+			FROM ".TB_PREF."`bank_trans` bank 
+				LEFT JOIN ".TB_PREF."`comments` c ON bank.type = c.type AND bank.trans_no = c.id 
+				LEFT JOIN ".TB_PREF."`debtors_master` dm ON bank.masterfile = dm.debtor_no
+			WHERE bank.`type` = '".ST_JOURNAL."' AND `trans_no` = '$trans_no'";
+
+		return db_query($sql, "DV_headers query could not be retrieved");
+	}	
+
+	function get_gl_trans_jnl($type, $trans_id)
+	{
+		set_global_connection();
+		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
+				COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
+				IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
+		FROM ".TB_PREF."gl_trans as gl
+			LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
+			LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
+			LEFT JOIN ".TB_PREF."audit_trail as audit ON (gl.type=audit.type AND gl.type_no=audit.trans_no AND NOT ISNULL(gl_seq))
+			LEFT JOIN ".TB_PREF."users as user ON (audit.user=user.id)
+				# all this below just to retrieve doc_date :>
+			LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
+			LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE." AND gl.person_id=grn.supplier_id
+			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
+			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
+				 AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
+			LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no"
+
+			." WHERE gl.type= ".db_escape($type) 
+			." AND gl.type_no = ".db_escape($trans_id)
+			." AND gl.amount <> 0"
+			." ORDER BY tran_date, counter";
+
+		return db_query($sql, "The gl transactions could not be retrieved");
+	}
+	
+	function Comment($type, $trans_id)
+	{
+		$sql = "
+			SELECT *
+			FROM `comments` 
+			WHERE `type` = '$type' AND `id` = '$trans_id'";
+
+		return db_query($sql, "DV_headers query could not be retrieved");
+	}
+?>
 
 <?php
-	 //$trans_no = "1";
+	//$trans_no = "1";
 	$trans_no = $_REQUEST['trans_num'];
-	$type = ST_BANKPAYMENT;
+	$type = ST_JOURNAL;
 	$trans_id = $trans_no;
-	
-	$trans_data = get_gl_trans_dis($type, $trans_id);
+		
+	$trans_data = get_gl_trans_jnl($type, $trans_id);
 	$get_data = db_fetch($trans_data);
 
-	$headers_result = DV_headers($trans_no);
+	$headers_result = JV_headers($trans_no);
 	$headers_row = db_fetch($headers_result);
 
-	$name = $headers_row["name"];
-	$voucher_num = $headers_row["receipt_no"];
+	$comment_result = Comment($type, $trans_id);
+	$get_comment = db_fetch($comment_result);
+
+	//$name = $headers_row["name"];
+	$voucher_num = $get_data["reference"];
 	$amount = abs($get_data["amount"]);
-	$date = $headers_row["trans_date"];
-	$particular = $headers_row["memo_"];
+	$date = $get_data["doc_date"];
+	$particular = $get_comment["memo_"];
 		
 	$null1 = "";
 
@@ -472,16 +473,16 @@ function convert_number($number)
 			
 			<h4>
 				<div class="Merchandise">
-					<label>DISBURSEMENT VOUCHER - <?php echo $brchcode?></label>
+					<label>JOURNAL VOUCHER - <?php echo $brchcode?></label>
 				</div>			
 			</h4>
 		</div>
 		<table id="header" cellspacing="0" cellpadding="0">
 			<tr><td>&nbsp;</td></tr>
 			<tr>
-				<td align=left class="text-params">Name:</td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo "$name"?>" class="underline_input_long" readonly></th>
-				<td class="text-params">Voucher_#:</td>
+				<td align=left class="text-params">GL Details:</td>
+				<th style="width: 50%;" align=left><input type="text" value="<?php echo 'Journal Entry #'.$trans_id?>" class="underline_input_long" readonly></th>
+				<td class="text-params">Journal_#:</td>
 				<th align=left><input type="text" value="<?php echo $voucher_num?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
@@ -489,10 +490,6 @@ function convert_number($number)
 				<th style="width: 50%;" align=left><input type="text" value="<?php echo $null1 ?>" class="underline_input_long" readonly></th>
 				<td class="text-params">Date:</td>
 				<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
-			</tr>
-			<tr>
-				<td style="width: 83px;" align=left class="text-params">Amount:</td>
-				<th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php echo $amnt_in_words.' - ('. price_format($amount) .')'?>" class="underline_input_long"></th>
 			</tr>
 			<tr>
 				<td style="width: 83px;" align=left class="text-params">Particulars:</td>
@@ -507,8 +504,9 @@ function convert_number($number)
 				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>						
                         <tr class="table1-headers">
-							<th style="border-bottom:0.5px solid;">Account Code</th>
-							<th style="border-bottom:0.5px solid;">Account Name</th>
+							<th style="border-bottom:0.5px solid;">Rec#</th>
+							<th style="border-bottom:0.5px solid;">Acct Code</th>
+							<th style="border-bottom:0.5px solid;">Account Description</th>
 							<th style="border-bottom:0.5px solid;">MCode</th>
 							<th style="border-bottom:0.5px solid;">Masterfile</th>			
 							<th align=right style="border-bottom:0.5px solid;">Debit</th>
@@ -517,18 +515,21 @@ function convert_number($number)
 						</tr>
 						<?php 	
 							
-							$result = get_gl_trans_dis($type, $trans_id);								
+							$result = get_gl_trans_jnl($type, $trans_id);								
 							if (db_num_rows($result) > 0)
 							{
-								echo '<tr class="datatable"><td colspan="4" style="padding-top: 5px;" align=right><b> </b></td></tr>';
+								echo '<tr class="datatable"><td colspan="7" style="padding-top: 5px;" align=right><b> </b></td></tr>';
 								$total_deb = $total_cred = 0;
+								$count = 1;
 								while($myrow=db_fetch($result))
 								{	
+									
 									$memo_result = Comment($type, $trans_id);
 									$myrow2 = db_fetch($memo_result);
 
 									echo '<tr class="datatable">';
-									echo '<td align=center style="border-right:0px solid;">'.($myrow["account"]).'</td>';	
+									echo '<td align=center style="border-right:0px solid;">'.($count).'</td>';	
+									echo '<td align=center style="border-right:0px solid;">'.($myrow["account"]).'</td>';
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["account_name"]).'</td>';
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["mcode"]).'</td>';	
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["master_file"]).'</td>';	
@@ -538,18 +539,20 @@ function convert_number($number)
 										echo '<td align=right style="border-right:0px solid; padding-right: 2px;">'.price_format($myrow["amount"]).'</td>';
 										echo '<td align=right style="border-right:0px solid; padding-right: 2px;"> - </td></tr>';
 										$total_deb = $total_deb + $myrow["amount"];
+										$count = $count + 1;
 									}
-									if($myrow["amount"] < 0)
+									else if($myrow["amount"] < 0)
 									{
-										$this_credit = -$myrow["amount"];
+										$this_credit = abs($myrow["amount"]);
 										echo '<td align=right style="border-right:0px solid; padding-right: 2px;"> - </td>';
 										echo '<td align=right style="border-right:0px solid; padding-right: 2px;">'.price_format($this_credit).'</td></tr>';
 										$total_cred = $total_cred + $this_credit;
+										$count = $count + 1;
 									}
 								}
 
 								echo '<tr class="top_bordered">
-										<td colspan="4" style="padding-top: 5px;" align=right><b>Total </b></td>										
+										<td colspan="5" style="padding-top: 5px;" align=right><b>Total Amount</b></td>										
 										<td style="text-align: right;"><b>'.price_format($total_deb).'</b></td>										
 										<td style="text-align: right;"><b>'.price_format($total_cred).'</b></td>
 									</tr>';
@@ -566,14 +569,12 @@ function convert_number($number)
 		<table id="footer">
 			<tr>
 				<th style="text-align: left; padding-left: 15px;">Prepared By:</th>
-				<th style="text-align: left; padding-left: 15px;">Checked By:</th>
+				<th style="text-align: left; padding-left: 15px;">Reviewed By:</th>
 				<th style="text-align: left; padding-left: 15px;">Approved By:</th>
-				<th style="text-align: left; padding-left: 15px;">Received By:</th>
 			</tr>
 			<tr><td>.</td></tr>
 			<tr><td>.</td></tr>
 			<tr style="height: 1px;">
-				<td align=center>_________________________________</td>
 				<td align=center>_________________________________</td>
 				<td align=center>_________________________________</td>
 				<td align=center>_________________________________</td>
