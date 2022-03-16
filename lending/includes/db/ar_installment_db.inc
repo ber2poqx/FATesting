@@ -110,8 +110,17 @@ function get_AmortSched($trans_no, $trans_type, $debtor_no)
 
 function get_loan_amortization_ledger($type, $trans_no)
 {
-	$sql = "SELECT A.id, A.debtor_no, A.trans_no, A.trans_type, A.month_no, A.date_due, A.principal_due, C.reference, B.date_paid,
-					B.payment_applied, B.rebate, B.penalty, B.id ledger_id
+	$sql = "SELECT A.id, A.debtor_no, A.trans_no, A.trans_type, A.month_no, A.date_due, A.principal_due,
+			( 
+				CASE WHEN C.reference IS NULL and B.date_paid IS NOT NULL
+					THEN(SELECT X.reference 
+							FROM debtor_trans X 
+							WHERE X.trans_no = ".db_escape($trans_no)." 
+							AND X.type = ".db_escape($type).")
+    				ELSE C.reference
+ 				END
+			)reference, 
+			B.date_paid, B.payment_applied, B.rebate, B.penalty, B.id ledger_id
 			FROM ".TB_PREF."debtor_loan_schedule A
 				LEFT JOIN ".TB_PREF."debtor_loan_ledger B ON B.loansched_id = A.id
 				LEFT JOIN ".TB_PREF."debtor_trans C ON C.trans_no = B.payment_trans_no AND C.type = B.trans_type_from
