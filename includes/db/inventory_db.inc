@@ -1597,7 +1597,7 @@ function get_color_code($stock_id, $color) {
 	$sql .= " WHERE stock_id = ".db_escape($stock_id);
 	$sql .= " AND color = ".db_escape($color);
 
-	$result = db_query($sql, "Cant get ");
+	$result = db_query($sql, "Cant get item color code!");
 
 	$row = db_fetch_row($result);
 
