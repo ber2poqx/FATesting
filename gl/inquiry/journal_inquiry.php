@@ -73,6 +73,14 @@ function print_voucher($row)
 				ICON_PRINT
 		);
 	}
+	else if($row['trans_type'] == ST_JOURNAL) 
+	{
+		return pager_link(
+				_("Print: Journal Voucher"),
+				"/reports/journal_voucher.php?trans_num=" . $row["trans_no"],
+				ICON_PRINT
+		);
+	}
 }
 
 function systype_name($row, $type)
