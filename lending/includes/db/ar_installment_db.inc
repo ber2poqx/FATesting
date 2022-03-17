@@ -67,7 +67,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showall=fa
 				AND A.payment_terms != 0 "
 				.$sWhere."
 			ORDER BY tran_date DESC limit $start, $limit";
-
+	
 	return db_query($sql, "could not get all ar invoice");
 }
 

@@ -46,11 +46,15 @@ function get_cust_allocation($trans_id)
 //
 function update_debtor_trans_allocation($trans_type, $trans_no, $person_id)
 {
+	//modify for term mode allocation payment.
+	if($trans_type == ST_SITERMMOD){
+		$criteria = " AND (trans_type_to != ".ST_SALESINVOICE." AND trans_type_to != ".ST_ARINVCINSTLITM." AND trans_type_to != ".ST_SALESINVOICEREPO.")";
+	}
 	$sql = 
 		"UPDATE `".TB_PREF.($trans_type==ST_SALESORDER ? 'sales_orders' : 'debtor_trans')."` trans,
 			(SELECT sum(amt) amt FROM ".TB_PREF."cust_allocations
 				WHERE person_id=".db_escape($person_id)." AND ((trans_type_to=".db_escape($trans_type)." AND trans_no_to=".db_escape($trans_no).")
-				OR (trans_type_from=".db_escape($trans_type)." AND trans_no_from=".db_escape($trans_no)."))) allocated
+				OR (trans_type_from=".db_escape($trans_type)." AND trans_no_from=".db_escape($trans_no).")) " . $criteria ." ) allocated
 		SET 
 			trans.alloc=IFNULL(allocated.amt,0)
 		WHERE trans.debtor_no=".db_escape($person_id)." AND ".($trans_type==ST_SALESORDER ?
