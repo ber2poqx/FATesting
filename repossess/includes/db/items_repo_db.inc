@@ -1,10 +1,18 @@
 <?php
 function get_all_stockmoves_repo($start,$end,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null){
     
-    $sql = "SELECT SUM(serial.qty) as serialise_qty, serial.stock_id as model, serial.color_code as serialise_item_code, serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out, serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type FROM ".TB_PREF."stock_moves serial LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id WHERE ISNULL(v.id) AND serial.item_type = 'repo'";
+    $sql = "SELECT SUM(serial.qty) as serialise_qty, serial.stock_id as model, serial.color_code as serialise_item_code,
+     serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
+     smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out,
+     serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type 
+     FROM ".TB_PREF."stock_moves serial 
+     LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
+     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code 
+     INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
+     WHERE ISNULL(v.id) AND serial.item_type = 'repo'";
     
     if($category!=0){
-        $sql.=" AND icode.category_id=$category";
+        $sql.=" AND smaster.category_id=$category";
     }
     if($reference!=''){
         $sql.=" AND serial.reference='".$reference."'";
