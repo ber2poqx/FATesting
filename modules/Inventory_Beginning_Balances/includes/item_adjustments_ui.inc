@@ -6,7 +6,7 @@ include_once($path_to_root . "/includes/ui/items_cart.inc");
 //--------------------------------------------------------------------------------
 
 function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufacture_date = '', $expire_date = '', 
-	$lot_no = '', $chasis_no = '', $color = '', $stock_ref = '', $mcode = '', $masterfile = '')
+	$lot_no = '', $chasis_no = '', $color = '', $stock_ref = '', $mcode = '', $masterfile = '', $ob_date = null)
 {
 	if (is_Serialized($new_item) == 1 && $order->find_cart_serial($lot_no)) {
 		display_error(_("For Part: ") . $lot_no . " || " . "Serial / Engine # already existed!");
@@ -31,7 +31,7 @@ function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufa
 			$color,
 			'', 0, 0, 0, '', 'new', 
 			$stock_ref,
-			$mcode, $masterfile
+			$mcode, $masterfile, '', $ob_date
 		);
 	}
 }

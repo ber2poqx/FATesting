@@ -75,27 +75,37 @@ function display_gl_heading($myrow)
 	$rrbranch = $_GET['type_id'] == ST_RRBRANCH;
 	
     start_table(TABLESTYLE, "width='95%'");
+
     $th = array(_("General Ledger Transaction Details"), _("Reference"),
     	_("Transaction Date"), _("GL #"));
 
-	if ($_GET['type_id'] == ST_JOURNAL)
+	if ($_GET['type_id'] == ST_JOURNAL) {
 		array_insert($th, 3, array(_("Document Date"), _("Event Date")));
-	else
-		array_insert($th, 3, array(_("Counterparty")));
+	}
+	else {
+		array_insert($th, 3, array(_("Counterparty")));	
+	}
 	
-	if($myrow['supp_reference'])
-	{
+	if($myrow['supp_reference']) {
 		array_insert($th, 2, array(_("Supplier Reference")));
 	}
+
     table_header($th);	
     start_row();	
     label_cell("$trans_name #" . $_GET['trans_no']);
     label_cell($myrow["reference"], "align='center'");
-	if($myrow['supp_reference'])
-	{
-	label_cell($myrow["supp_reference"], "align='center'");
+
+	if ($myrow['supp_reference']){
+		label_cell($myrow["supp_reference"], "align='center'");
 	}
-	label_cell(sql2date($myrow["doc_date"]), "align='center'");
+
+	if ($_GET['type_id'] == ST_INVADJUST && is_invty_open_bal('', $myrow["reference"])) {
+		label_cell(sql2date($myrow["ob_date"]), "align='center'");
+	}
+	else {
+		label_cell(sql2date($myrow["doc_date"]), "align='center'");
+	}
+
 	if ($journal)
 	{
 		$header = get_journal($myrow['type'], $_GET['trans_no']);

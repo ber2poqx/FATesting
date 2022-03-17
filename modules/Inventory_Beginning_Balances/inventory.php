@@ -107,16 +107,16 @@ function can_import() {
 		    return false;
     	}
 
-	    if (!is_date($_POST['AdjDate'])) {
-		    display_error(_("The entered date for the adjustment is invalid."));
-		    set_focus('AdjDate');
-		    return false;
-	    } 
-	    elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
-            display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
-			set_focus('AdjDate');
-		    return false;
-	    }
+	    // if (!is_date($_POST['AdjDate'])) {
+		//     display_error(_("The entered date for the adjustment is invalid."));
+		//     set_focus('AdjDate');
+		//     return false;
+	    // } 
+	    // elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
+        //     display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		// 	set_focus('AdjDate');
+		//     return false;
+	    // }
     }
 
     return true;
@@ -180,9 +180,17 @@ if (isset($_POST['import_btn']) && can_import()) {
 		
 		if ($lines++ == 0) continue;
 
-		list($stock_id, $color, $lot_no, $chassis_no, $qty, $std_cost, $mcode) = $data;
+		list($ob_date, $stock_id, $color, $lot_no, $chassis_no, $qty, $std_cost, $mcode) = $data;
 
-		if ($stock_id == "") {
+		if ($ob_date == "") {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Transaction Date is empty!"); 
+		}
+		else if (!is_date($ob_date)) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Transaction Date is invalid!"); 
+		}
+		else if ($stock_id == "") {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Stock ID is empty!"); 
 		}
@@ -254,7 +262,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		        $chassis_no,  
 		        $color_code,
 				'', 
-				$mcode, $masterfile
+				$mcode, $masterfile, $ob_date
             );
 
 			$CI++; $line_cnt++;
@@ -266,20 +274,17 @@ if (isset($_POST['import_btn']) && can_import()) {
 		$trans_no = add_stock_adjustment(1, 1, 
 			$_SESSION['adj_items']->line_items,
 			$_POST['StockLocation'], 
-			get_post('AdjDate'), 
+			null, 
 			$_POST['ref'], 
 			$_POST['memo_'], 
 			'', '',
 			getCompDet('open_inty')
 		);
 
-		new_doc_date($_POST['AdjDate']);
+		//new_doc_date($_POST['AdjDate']);
 		$_SESSION['adj_items']->clear_items();
 		unset($_SESSION['adj_items']);
 
-        // if ($trans_no) {
-        //     meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
-        // }
 	}
 	else {
 		display_error(_("No Item has been imported!"));
@@ -330,14 +335,34 @@ if ($action == 'import') {
 
     start_form(true);
 
-    display_order_header($_SESSION['adj_items'], 0);
-
-    start_outer_table(TABLESTYLE, "width='95%'", 10);
-
 	submit_center('download', _("Download CSV Template File for Inventory Opening"));
 	br();
+
+    start_outer_table(TABLESTYLE, "width = '95%'", 10);
+
+	start_table(TABLESTYLE2, "width = 30%");
+
+	table_section_title(_("Transaction Details"));
+
+	sql_type_list(_("Location: "), 'StockLocation', 
+		get_location_list(), 'loc_code', 'location_name', 
+		'label', null, true
+	);
+
+	ref_row(_("Reference: "), 'ref', '', 
+		$Refs->get_next(ST_INVADJUST, null, 
+		array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate'))),
+		false, ST_INVADJUST
+	);
+
+	sql_type_list(_("Category: "), 'category', 
+		get_category_list(), 'category_id', 'description', 
+		'label', null, true, '', false, true
+	);
+
+	end_table(1);
 	
-    start_table(TABLESTYLE2, "width=45%");
+    start_table(TABLESTYLE2, "width = 45%");
 
     if (!isset($_POST['sep'])) {
 	    $_POST['sep'] = ",";

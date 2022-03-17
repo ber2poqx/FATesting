@@ -11,7 +11,7 @@
 ***********************************************************************/
 
 function add_stock_adjustment($id = 0, $type = 1, //added by spyrax10 for Inventory_Beginning_Balances 
-	$items, $location, $date_, $reference, $memo_, 
+	$items, $location, $date_ = null, $reference, $memo_, 
 	$color = '', $person_id = '', $account_id = '') //added by spyrax10 for Inventory_Beginning_Balances 
 {
 	global $SysPrefs, $path_to_root, $Refs;
@@ -50,7 +50,7 @@ function add_stock_adjustment($id = 0, $type = 1, //added by spyrax10 for Invent
 			$adj_id, 
 			$line_item->stock_id, 
 			$location, 
-			$date_, 
+			$line_item->ob_date, 
 			$reference, 
 			$line_item->quantity, 
 			$line_item->standard_cost, 
@@ -68,10 +68,10 @@ function add_stock_adjustment($id = 0, $type = 1, //added by spyrax10 for Invent
 
 	}
 
-	add_comments(ST_INVADJUST, $adj_id, $date_, $memo_);
+	add_comments(ST_INVADJUST, $adj_id, Today(), $memo_);
 
 	$Refs->save(ST_INVADJUST, $adj_id, $reference);
-	add_audit_trail(ST_INVADJUST, $adj_id, $date_, "Posted Inventory Opening Adjustment");
+	add_audit_trail(ST_INVADJUST, $adj_id, Today(), "Posted Inventory Opening Balance");
 
 	$args->trans_no = $adj_id;
 	hook_db_postwrite($args, ST_INVADJUST);

@@ -206,7 +206,7 @@ function get_gl_trans($type, $trans_id)
 	set_global_connection();
 	$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
 			COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
-			IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
+			IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference, audit.gl_date AS ob_date
 	FROM ".TB_PREF."gl_trans as gl
 		LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
 		LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)

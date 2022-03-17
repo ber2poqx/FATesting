@@ -60,7 +60,7 @@ class items_cart
 	function add_to_cart($line_no, $stock_id, $qty, $standard_cost, $description=null, $manufacture_date='0000-00-00', $expire_date='0000-00-00', 
 		$lot_no='',$chasis_no='', $color='', $color_code='', $mt_lines = 0, $type_out = 0, $transno_out = 0, $remarks = '', 
 		$item_type = 'new', $stock_ref = '', $mcode = '', $master_file = '', //Added by spyrax10
-		$line_item='')
+		$line_item='', $ob_date = null)
 	{
 
 		if (isset($stock_id) && $stock_id != "" && isset($qty))
@@ -68,7 +68,7 @@ class items_cart
 		    $this->line_items[$line_no] = new line_item($stock_id, $qty, $standard_cost, $description, $manufacture_date, $expire_date, 
 				$lot_no, $chasis_no, $color, $color_code, $mt_lines, 
 				$type_out, $transno_out, $remarks, $item_type, $stock_ref, $mcode, $master_file,
-				$line_item
+				$line_item, $ob_date
 			);
 			return true;
 		}
@@ -677,14 +677,15 @@ class line_item
 	var $stock_ref; 
 	var $mcode;
 	var $master_file;
+	var $ob_date;
 	//
 	var $line_item_row; //Added by Herald 09/01/2021
 	
 	function __construct($stock_id, $qty, $standard_cost=null, $description=null,$manufacture_date='0000-00-00',$expire_date='0000-00-00', 
-		$lot_no='',$chasis_no='',$color='',$item_code, $mt_lines=0, 
-		$type_out=0, $transno_out=0, $remarks='', $item_type='new', 
+		$lot_no = '', $chasis_no = '', $color = '', $item_code, $mt_lines = 0, 
+		$type_out = 0, $transno_out = 0, $remarks = '', $item_type = 'new', 
 		$stock_ref = '', $mcode = '', $master_file = '', //Added by spyrax10
-		$line_item='')
+		$line_item = '', $ob_date = null)
 	{
 		$item_row = get_item($stock_id);
 
@@ -710,6 +711,7 @@ class line_item
 		$this->stock_ref = $stock_ref; 
 		$this->mcode = $mcode;
 		$this->master_file = $master_file;
+		$this->ob_date = $ob_date;
 		//
 		$this->line_item_row = $line_item;
 		

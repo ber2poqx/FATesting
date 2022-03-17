@@ -102,7 +102,7 @@ function get_stock_moves_list($reference, $loc_code, $from_date, $to_date, $cate
 	$sql .= " AND A.tran_date >= '" . date2sql($from_date) . "' 
 		AND A.tran_date <= '" . date2sql($to_date) . "'";
 	
-	$sql .= " GROUP BY A.trans_no ";
+	$sql .= " GROUP BY A.trans_no, A.tran_date ";
     $sql .= " ORDER BY A.tran_date DESC";
 
 	return $sql;
@@ -182,4 +182,4 @@ $table->width = "60%";
 display_db_pager($table);
 
 end_form();
-end_page(true);
+end_page();
