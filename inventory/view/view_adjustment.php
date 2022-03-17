@@ -49,10 +49,16 @@ while ($adjustment = db_fetch($adjustment_items))
 		start_row();
 		label_cells(_("At Location"), $adjustment['location_name'], "class='tableheader2'");
     	label_cells(_("Reference"), $adjustment['reference'], "class='tableheader2'", "colspan=6");
+
 		
-		if (!is_invty_open_bal('', $adjustment['reference'])) {
-			label_cells(_("Date"), sql2date($adjustment['tran_date']), "class='tableheader2'");
+		if (is_invty_open_bal('', $adjustment['reference'])) {
+			$trans_date = sql2date($adjustment['ob_date']);
 		}
+		else {
+			$trans_date = sql2date($adjustment['tran_date']);
+		}
+
+		label_cells(_("Date"), $trans_date, "class='tableheader2'");
 
 		label_cells(_("Item Type: "), strtoupper($adjustment['item_type']), "class='tableheader2'"); //Added by spyrax10
 		end_row();
