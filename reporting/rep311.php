@@ -96,9 +96,11 @@ function print_transaction()
 	else
 		$loc = get_location_name($location);
 
-	$cols = array(0, 40, 105, 175, 260, 310, 360,
-	440, 515, 
-	540, 630, 0);
+	$cols = array(
+		0, 50, 115, 220, 300, 360, 
+		400, 490,
+		580, 610, 660, 720, 0
+	);
 
 	$headers = array(
 		_('Brand'), 
@@ -107,18 +109,18 @@ function print_transaction()
         _('Sub_Category'), 
         _('Reference'), 
         _('QoH'),   
-        _('Serial #'), 
-        _('Chassis #'),
+        _('Serial Number'), 
+        _('Chassis Number'),
         _('Date'),
         _('Invty_Age'),
         _('Avg Cost'),
         _('Location')
 	);
 
-	$aligns = array('left',
-    	'left',	'left', 'left', 'left', 
-    	'center', 'left', 'left',
-    	'left', 'center', 'left', 'right'
+	$aligns = array(
+		'left', 'left', 'left', 'left', 'left', 'center', 
+		'left', 'left',
+		'center', 'center', 'center', 'center', 'right'
 	);
 
     $params = array( 	
@@ -129,8 +131,10 @@ function print_transaction()
 	);
 
     $rep = new FrontReport(_('Aging Inventory Report (Detailed)'), "InventoryValReport", 'LEGAL', 9, $orientation);
-    if ($orientation == 'L')
-    	recalculate_cols($cols);
+    
+	if ($orientation == 'L') {
+		recalculate_cols($cols);
+	}
 
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
@@ -140,14 +144,20 @@ function print_transaction()
 	$res = getTransactions($category, $location, $date);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
     $qtyTot = $demand_qty = $qoh = $qty = 0;
-	$catt = $code = $loc = $samp = $cor = '';
+	$catt = $code = $loc = $samp = $cor = $reference = '';
 
-	while ($trans = db_fetch($res))
-	{
-		if ($catt != $trans['cat_description'])
-		{		
-			if ($catt != '')
-			{
+	while ($trans = db_fetch($res)) {
+
+		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
+			$reference = $trans['reference'] . " (OB)";
+		}
+		else {
+			$reference = $trans['reference'];
+		}
+
+		if ($catt != $trans['cat_description']) {		
+			
+			if ($catt != '') {
 				$rep->NewLine();
 				$rep->Font('bold');
 				
@@ -172,11 +182,11 @@ function print_transaction()
 			$rep->fontSize -= 2;
 			$rep->TextCol(0, 1, $trans['Brand']);
 			$loc = $trans['loc_code'];  
-        	$rep->TextCol(1, 2, substr($trans['Code'], 0, 15));
+        	$rep->TextCol(1, 2, $trans['Code']);
 			$cor = $trans['Color'];
-			$rep->TextCol(2, 3, substr($cor, 0, 22)); //Limit Color to 22 characters
+			$rep->TextCol(2, 3, $cor);
         	$rep->TextCol(3, 4, $trans['Sub_Cat']);
-        	$rep->TextCol(4, 5, $trans['reference']);
+        	$rep->TextCol(4, 5, $reference);
         	$rep->TextCol(5, 6, $trans['QoH']);
         
         	$rep->TextCol(6, 7, $trans['Serial#']);

@@ -128,9 +128,11 @@ function print_transaction()
 	else
 		$loc = get_location_name($location);
 
-	$cols = array(0, 45, 110, 
-	175, 243, 300, 340, 
-	400, 480, 555, 615, 670, 0);
+	$cols = array(0, 45, 120, 205, 
+		283, 375, 
+		465, 500, 555, 605, 655, 695, 
+		720, 0
+	);
 
     $maxYear = (int)get_smo_max_year();
 	$maxYear_1 = (int)get_smo_max_year() - 1;
@@ -142,8 +144,8 @@ function print_transaction()
         _('Product Code'), 
         _('Sub_Category'),
         _('Reference'), 
-        _('Serial#'),
-        _('Chassis#'), 
+        _('Serial Number'),
+        _('Chassis Number'), 
         _('QoH'),
         _($maxYear),
         _($maxYear_1),
@@ -153,9 +155,10 @@ function print_transaction()
         _('Age')
     );
 
-	$aligns = array('left', 'left',	'left', 'left', 'left', 'left', 
-    	'center', 'left', 'left', 'left', 'left', 
-    	'left', 'right'
+	$aligns = array(
+		'left', 'left', 'left', 'left', 'left', 'left', 'center', 
+		'center', 'center', 'center', 'center',
+		'left', 'right'	
 	);
 
     $params = array( 	
@@ -177,16 +180,22 @@ function print_transaction()
 	$res = getTransactions($category, $location, $date);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
     $qtyTot = $demand_qty = $qoh = $qty = 0;
-	$catt = $code = $loc = $samp = '';
+	$catt = $code = $loc = $samp = $reference = '';
 	$m0 = $m1 = $m2 = $m3 = 0.0;
 	$am0 = $am1 = $am2 = $am3 = 0.0;
 
-	while ($trans = db_fetch($res))
-	{
-		if ($catt != $trans['cat_description'])
-		{		
-			if ($catt != '')
-			{
+	while ($trans = db_fetch($res)) {
+
+		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
+			$reference = $trans['reference'] . " (OB)";
+		}
+		else {
+			$reference = $trans['reference'];
+		}
+		
+		if ($catt != $trans['cat_description']) {	
+
+			if ($catt != '') {
 				$rep->NewLine();
 				$rep->Font('bold');	
 				
@@ -217,9 +226,9 @@ function print_transaction()
 		
 			$loc = $trans['loc_code'];
 		
-        	$rep->TextCol(1, 2, substr($trans['Code'], 0, 15));
-        	$rep->TextCol(2, 3, substr($trans['Sub_Cat'], 0, 15));
-        	$rep->TextCol(3, 4, $trans['reference']);
+        	$rep->TextCol(1, 2, $trans['Code']);
+        	$rep->TextCol(2, 3, $trans['Sub_Cat']);
+        	$rep->TextCol(3, 4, $reference);
         	$rep->TextCol(4, 5, $trans['Serial#']);
         	$rep->TextCol(5, 6, $trans['Chassis#']);
         	$rep->TextCol(6, 7, $trans['QoH']);

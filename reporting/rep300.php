@@ -108,7 +108,7 @@ function print_transaction()
 	else
 		$supplier = get_supplier_name($supp);
 
-	$cols = array(0, 55, 130, 190, 230, 280, 330, 
+	$cols = array(0, 55, 130, 190, 230, 280, 345, 
 		400, 480, 540, 590, 605, 650, 700, 0
 	);
 
@@ -142,8 +142,10 @@ function print_transaction()
 	);
 
     $rep = new FrontReport(_('Inventory On Hand Report (Detailed)'), "InventoryValReport", 'LEGAL', 9, $orientation);
-    if ($orientation == 'L')
-    	recalculate_cols($cols);
+    
+	if ($orientation == 'L') {
+		recalculate_cols($cols);
+	}
 
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
@@ -154,14 +156,20 @@ function print_transaction()
 
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
     $qtyTot = $demand_qty = $qoh = $qty = 0;
-	$catt = $code = $loc = $samp = $cor = '';
+	$catt = $code = $loc = $samp = $cor = $reference = '';
 
-	while ($trans = db_fetch($res))
-	{
-		if ($catt != $trans['cat_description'])
-		{		
-			if ($catt != '')
-			{
+	while ($trans = db_fetch($res)) {
+
+		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
+			$reference = $trans['reference'] . " (OB)";
+		}
+		else {
+			$reference = $trans['reference'];
+		}
+
+		if ($catt != $trans['cat_description']) {		
+			
+			if ($catt != '') {
 				$rep->NewLine();
 				$rep->Font('bold');
 				$rep->TextCol(0, 1, _('Sub_Total'));
@@ -196,7 +204,7 @@ function print_transaction()
 			$loc = $trans['loc_code'];  
         	$rep->TextCol(3, 4, $trans['Brand']);
         	$rep->TextCol(4, 5, sql2date($trans['Date']));
-        	$rep->TextCol(5, 6, $trans['reference']);
+        	$rep->TextCol(5, 6, $reference);
         	$rep->TextCol(6, 7, $trans['trans_no']);
         	$rep->TextCol(7, 8, $trans['Serial#']);
         	$rep->TextCol(8, 9, $trans['Chassis#']);
@@ -222,8 +230,7 @@ function print_transaction()
 		}
 	} //END while
 
-	if ($catt != '')
-	{
+	if ($catt != '') {
 		$rep->NewLine();
 		$rep->Font('bold');	
 		$rep->TextCol(0, 1, _('Sub_Total'));
