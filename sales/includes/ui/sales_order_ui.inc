@@ -724,7 +724,7 @@ function display_order_header(&$order, $editable, $date_text)
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
 		label_row(_("Deferred Gross Profit:"), price_format($deferred_gross_profit));
 		label_row(_("Profit Margin:"), price_format($profit_margin));
-		$payment_location_id = get_company_pref('payment_location');
+		$payment_location_id = get_payment_location_by_category(get_post('category_id'));
 		label_row(_("Payment Location:"), $payment_location_id ? "Lending" : "Branch");
 	}
 

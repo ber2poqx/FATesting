@@ -336,6 +336,11 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 			$sales_account = $category_gl_code['dflt_installment_sales_act'];
 		if (check_employee_customer($invoice->customer_id))
 			$sales_account = $company_data['isa_employee'];
+		/*Added by Albert */
+		if ($invoice->payment_location == "Lending"){
+			$sales_account = $category_gl_code['dflt_sales_act'];
+		}
+		/**/
 	} else {
 		$sales_account = $category_gl_code['dflt_sales_act'];
 	}
@@ -460,6 +465,16 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 				$ar_account = $branch_data["receivables_account"];
 				if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
 					$ar_account = $company_data["ar_reg_current_account"];
+
+					/*Added by Albert*/
+					if ($invoice->payment_location == "Lending"){
+						$ar_account = $company_data["ar_cash_sales_account"];
+						$amount = $entry_amount;
+					}else{
+						$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
+					}
+					/**/
+			
 				$total += add_gl_trans_customer(
 					ST_SALESINVOICE,
 					$invoice_no,
@@ -467,7 +482,8 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 					$ar_account,
 					0,
 					0,
-					(($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor, //Modified by spyrax10
+					$amount, //modfied by Albert
+					//(($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor, //Modified by spyrax10
 					// ($entry_amount + $charge_shipping + $items_added_tax + $freight_added_tax) * $prepaid_factor,
 					$invoice->customer_id,
 					"The total debtor GL posting could not be inserted"
@@ -507,7 +523,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		);
 	}
 
-	if (!check_employee_customer($invoice->customer_id) && $invoice->amortization > 0) {
+	if (!check_employee_customer($invoice->customer_id) && $invoice->amortization > 0 && $invoice->payment_location <> "Lending") {//modified by Albert
 		$deferred_gross_profit = $entry_amount - get_cost_of_sales_for_si($invoice->dr_ref);
 		//-------------09/13/2021 albert
 		if ($opening_balances == 1) {
