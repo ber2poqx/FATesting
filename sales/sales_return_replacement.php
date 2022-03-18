@@ -114,6 +114,14 @@ function sales_return_replacement($row)
         ICON_CREDIT
     );
 }
+function return_defective($row)
+{
+return $row['remarks'] <> 'defective unit' ? '' : pager_link(
+    _("Complimentary"),
+    "/inventory/complimentary_items.php?",
+    ICON_DOC
+);
+}
 
 // Retrieve Sales Return Replacement
 $sql = get_sales_return_replacement(0, $repo_type);
@@ -135,6 +143,7 @@ $cols = array(
     array('insert' => true, 'fun' => 'gl_view'),
     array('insert' => true, 'fun' => 'print_DR_replacement'), // Added by Prog6 7/08/2021
     array('insert' => true, 'fun' => 'sales_return_replacement'),
+    array('insert' => true, 'fun' => 'return_defective'),
 );
 $table = &new_db_pager('sales_return_tbl', $sql, $cols, null, null);
 $table->width = "90%";
