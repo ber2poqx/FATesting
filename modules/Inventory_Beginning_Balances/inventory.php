@@ -131,7 +131,6 @@ function handle_new_order() {
 
     $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
     $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
-	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
 }
 
 function clear_session() {
@@ -205,6 +204,10 @@ if (isset($_POST['import_btn']) && can_import()) {
 		else if ($qty == "") {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Empty Quantity!");
+		}
+		else if (!is_numeric($qty)) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Invalid Quantity!");
 		}
 		else if ($std_cost == "") {
 			$line_cnt++;
