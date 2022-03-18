@@ -284,8 +284,10 @@ if (isset($_POST['import'])) {
 			    else update_item_code($row6[0], $code, $color, $id, $colordesc, $pnpcolor, $cat, $qty1, $foreign, $brand, $manufacturer, $distributor, $importer);
 			    $k++;
 			}
-			
-			if ($type == 'ITEM') {
+
+			if ($cat != $_POST['category_id']) {					
+				display_error("Line $lines: The Category Did Not Match");
+			} else if ($cat == $_POST['category_id'] || $type == 'ITEM') {
                 $dim = 0;
                  /* if ($qty != '') {
 			        $dim = get_dimension_by_name($qty);
@@ -306,6 +308,8 @@ if (isset($_POST['import'])) {
 					    '{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", ".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", '{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}',".db_escape($serialised).")";
 
 				    db_query($sql, "The item could not be added");
+				    display_notification("Line $lines: Added $id $description");
+
 				    if ($mb_flag != "D") {
 					    $sql = "INSERT INTO ".TB_PREF."loc_stock (loc_code, stock_id) VALUES ('{$_POST['location']}', '$id')";
 
@@ -405,7 +409,8 @@ if (isset($_POST['import'])) {
 		}
 		@fclose($fp);
 
-		if ($i+$j > 0) display_notification("$i item posts created, $j item posts updated.");
+		if ($i+$j > 0) display_notification("$i item posts Added, $j item posts Updated.");
+		if ($i+$j > 0) display_notification("Import Successful.");
 		if ($dim_n > 0) display_notification("$dim_n Item Dimensions added.");
 		if ($k > 0) display_notification("$k sales kit components added or updated.");
 		if ($b > 0) display_notification("$b BOM components added or updated.");

@@ -146,7 +146,7 @@
 						{
 							add_branch_import($selectedlast_id, $name, $debtor_ref, $address, $area, $salesman,
 							$brchcode, $tax_group_id, $sales_account, get_company_pref('default_sales_discount_act'), 
-							get_company_pref('debtors_act'), get_company_pref('default_prompt_payment_act'), $$default_ship_via,
+							get_company_pref('debtors_act'), get_company_pref('default_prompt_payment_act'), $default_ship_via,
 						    $address, $group_no, $default_ship_via, $notes, $bank_account, $inactive);
 
         					$selectedlast_branch_id = db_insert_id();
