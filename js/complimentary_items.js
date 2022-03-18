@@ -353,6 +353,10 @@ Ext.onReady(function(){
 						var serialise_id = record.get('serialise_id');
 						var model = record.get('model');	
 						var AdjDate = Ext.getCmp('AdjDate').getValue();	
+
+						//item_model: record.get('model'),
+						Ext.getCmp('item_model').setValue('');
+
 						
 						Ext.Ajax.request({
 							url : '?action=RemoveItem',
@@ -365,8 +369,7 @@ Ext.onReady(function(){
 										view: 1
 									 }});
 								GLItemsStore.load();
-								GetTotalBalance();
-						
+								GetTotalBalance();								
 							}
 						});
 					}
@@ -1149,6 +1152,8 @@ Ext.onReady(function(){
 										var standard_cost = record.get('standard_cost');	
 										var serialised = record.get('serialised');	
 
+										Ext.getCmp('item_model').setValue(record.get('model'));
+								
 										MerchandiseTransStore.proxy.extraParams={
 											serialise_id: serialise_id, 
 											AdjDate: AdjDate, 
@@ -1790,6 +1795,14 @@ Ext.onReady(function(){
 												readOnly: true,
 												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
 												id:'totalcredit'
+											},
+											{
+												xtype:'textfield',
+												fieldLabel:'MODEL:',
+												readOnly: true,
+												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',								
+												id:'item_model',
+												hidden: true					      
 											}
 										]
 									}
@@ -1812,6 +1825,9 @@ Ext.onReady(function(){
 											var masterfile = Ext.getCmp('masterfile_header').getRawValue();
 											
 											var person_type = Ext.getCmp('masterfile_type_header').getValue();
+
+											var item_models = Ext.getCmp('item_model').getValue();
+
 											Ext.MessageBox.show({
 												msg: 'Saving Date, please wait...',
 												progressText: 'Saving...',
@@ -1836,7 +1852,8 @@ Ext.onReady(function(){
 													ref: reference,
 													person_type: person_type,
 													person_id: person_id,
-													masterfile: masterfile
+													masterfile: masterfile,
+													item_models: item_models
 												},
 												success: function (response){
 													var jsonData = Ext.JSON.decode(response.responseText);
@@ -1958,7 +1975,6 @@ function GetTotalBalance(){
 	});	
 	return true;
 }
-
 function setButtonDisabled(valpass=false){
 	Ext.getCmp('btnProcess').setDisabled(valpass);
 }

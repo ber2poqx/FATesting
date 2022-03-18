@@ -24,7 +24,7 @@ function get_all_stockmoves_repo($start,$end,$querystr='',$category=0,$branchcod
         $sql.=" AND serial.tran_date<=".db_escape($trans_date);
     }
     if($serialquery!=null){
-        $sql.=" AND (serial.lot_no = ".db_escape($serialquery).")";
+        $sql.=" AND (serial.lot_no LIKE '%".$serialquery."%')";
     }
     if($querystr!=''){
         $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";

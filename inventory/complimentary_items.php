@@ -204,6 +204,8 @@ if(!is_null($action) || !empty($action)){
             $person_id_header = $_POST['person_id'];
             $masterfile = $_POST['masterfile'];
 
+            $item_models = $_POST['item_models'];
+
             $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
 
              if($person_type==2)
@@ -226,6 +228,9 @@ if(!is_null($action) || !empty($action)){
 
             if(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
                 $errmg="Select Location";
+                echo '({"success":false,"errmsg":"'.$errmg.'"})';
+            }elseif(empty($item_models) || $item_models==''){
+                $errmg="Select Item";
                 echo '({"success":false,"errmsg":"'.$errmg.'"})';
             }elseif(empty($catcode) || $catcode==''){
                 $errmg="Select Category";
@@ -570,7 +575,14 @@ if(!is_null($action) || !empty($action)){
             //$brcode = $db_connections[user_company()]["branch_code"];
             //$sql = "SELECT *,count(sm.qty) as totalqty, sc.description as category FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id WHERE sm.loc_code<>'$branchcode' and sm.type='".ST_MERCHANDISETRANSFER."' GROUP BY sm.reference order by trans_id desc,tran_date desc";
                        
-            $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item,loc.location_name as loc_name, comments.memo_ as remarks FROM ".TB_PREF."stock_moves smoves INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id WHERE smoves.type='".ST_COMPLIMENTARYITEM."' GROUP BY smoves.trans_no ORDER BY smoves.tran_date desc, smoves.trans_id desc";
+            $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
+            loc.location_name as loc_name, comments.memo_ as remarks 
+            FROM ".TB_PREF."stock_moves smoves 
+            INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
+            INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
+            LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id 
+            WHERE smoves.type='".ST_COMPLIMENTARYITEM."' 
+            GROUP BY smoves.trans_no ORDER BY smoves.tran_date desc, smoves.trans_id desc";
             
             $result = db_query($sql, "could not get all Serial Items");
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
