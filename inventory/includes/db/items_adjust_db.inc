@@ -165,7 +165,7 @@ function add_stock_adjustment_item($id, $type = 1,
 				$account_id, $stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, $adj_value );
 			add_gl_masterfile(ST_INVADJUST, $adj_id, $account_id, $adj_value, $hoc_code, $hoc_masterfile, false);
 			add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, $stock_gl_codes['inventory_account'], 0, 0, $memo_, $inv_value);
-			add_gl_masterfile(ST_INVADJUST, $adj_id, $stock_gl_codes['inventory_account'], $inv_value, $person_id, $masterfile);
+			add_gl_masterfile(ST_INVADJUST, $adj_id, $stock_gl_codes['inventory_account'], $inv_value, $person_id, $masterfile, false);
 		}
 		//Inventory Adjustment!
 		else {
