@@ -694,7 +694,7 @@ function add_adj_gl(
 ) {
 	set_global_connection();
 
-	$mcode = sprintf(' %05d', $mcode);
+	//$mcode = sprintf(' %05d', $mcode);
 
 	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment_gl (sa_trans_no, sa_line_id, sa_adj_type, sa_reference, 
 		stock_id, color_code, lot_no, chassis_no, gl_type, account, amount, mcode, master_file, sa_adj_item) VALUES (
@@ -1456,24 +1456,26 @@ function check_item_brand($brand)
 	}
 }
 
-function get_brand_id($stock_id)
+function get_sup_id_by_stock($stock_id)
 {
-	$sql = "SELECT A.brand
+	$sql = "SELECT A.brand, SUP.supplier_id
 		FROM " . TB_PREF . "stock_master A
-		WHERE A.stock_id= " . db_escape($stock_id);
+			LEFT JOIN " . TB_PREF . "item_brand IB ON A.brand = IB.id
+			LEFT JOIN " . TB_PREF . "suppliers SUP ON IB.name = SUP.supp_ref
+		WHERE A.stock_id = " . db_escape($stock_id);
 	$sql .= " GROUP BY A.stock_id";
 
 	$result = db_query($sql, "Can't get item_brand! (spyrax10)");
 	$row = db_fetch_row($result);
-	return $row[0];
+	
+	return $row[1];
 }
 
-function get_brand_name($brand_id)
+function get_sup_name_by_sup($sup_id)
 {
-	$sql = "SELECT B.supp_name
-		FROM " . TB_PREF . "item_brand A
-		LEFT JOIN " . TB_PREF . "suppliers B ON A.name = B.supp_ref
-		WHERE A.id= " . db_escape($brand_id);
+	$sql = "SELECT A.supp_name
+		FROM " . TB_PREF . "suppliers A
+		WHERE A.supplier_id = " . db_escape($sup_id);
 
 	$result = db_query($sql, "Can't get brand_name! (spyrax10)");
 	$row = db_fetch_row($result);

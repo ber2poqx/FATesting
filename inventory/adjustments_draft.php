@@ -352,8 +352,8 @@ function display_adjustment_items($trans_no)
         amount_cell($sub_total);
 
         if ($sub_total > 0) {
-            $person_id = get_brand_id($row['stock_id']);
-		    $masterfile = get_brand_name(get_brand_id($row['stock_id']));
+            $person_id = get_sup_id_by_stock($row['stock_id']);
+		    $masterfile = get_sup_name_by_sup(get_sup_id_by_stock($row['stock_id']));
 
 		    $stock_gl_codes = get_stock_gl_code($row['stock_id']);
 		    $amount = $adj_type == 1 ? $row['qty'] * $row['standard_cost'] :

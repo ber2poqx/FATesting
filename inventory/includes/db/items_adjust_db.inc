@@ -743,7 +743,8 @@ function get_mcode($mcode) {
     $result = db_query($sql, "Can't get mcode! (spyrax10)");
     $row = db_fetch_row($result);
 
-    return sprintf('%05d', $row[0]);
+    //return sprintf('%05d', $row[0]);
+	return $row[0];
 }
 
 function get_masterfile($mcode) {
