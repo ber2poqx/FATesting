@@ -932,7 +932,7 @@ function add_gl_trans_mtbranch(
 		$err_msg,
 		$rate,
 		$mcode,
-		$master_file,
+		$master_file
 	);
 }
 /* */
