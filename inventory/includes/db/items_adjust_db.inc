@@ -184,7 +184,7 @@ function add_stock_adjustment_item($id, $type = 1,
 
 				add_gl_masterfile(ST_INVADJUST, $adj_id, getCompDet('default_adj_act'), 
 					$type == 1 ? -default_adjGL_total($adj_id, $line_no) : default_adjGL_total($adj_id, $line_no), 
-					get_default_adjGL_mcode($adj_id, $line_no), get_default_adjGL_masterfile($adj_id, $line_no)
+					get_default_adjGL_mcode($adj_id, $line_no), get_default_adjGL_masterfile($adj_id, $line_no), false
 				);
 
 				//Insert Entry to stock_adjustment_gl
@@ -214,7 +214,7 @@ function add_stock_adjustment_item($id, $type = 1,
 					);
 
 					add_gl_masterfile(ST_INVADJUST, $row2['sa_trans_no'], $account2, $amount2, 
-						$mcode2, $masterfile2
+						$mcode2, $masterfile2, false
 					);
 
 				} //End of while loop
@@ -240,7 +240,7 @@ function add_stock_adjustment_item($id, $type = 1,
 					);
 
 					add_gl_masterfile(ST_INVADJUST, 
-						$row['sa_trans_no'], $account, $amount, $mcode, $masterfile
+						$row['sa_trans_no'], $account, $amount, $mcode, $masterfile, false
 					);	
 
 				} //End of while loop
@@ -254,7 +254,7 @@ function add_stock_adjustment_item($id, $type = 1,
 				add_gl_masterfile(ST_INVADJUST, $adj_id, getCompDet('default_adj_act'), 
 					$type == 1 ? -$diff_total : $diff_total, 
 					get_default_adjGL_mcode($adj_id, $line_no), 
-					get_default_adjGL_masterfile($adj_id, $line_no)
+					get_default_adjGL_masterfile($adj_id, $line_no), false
 				);	
 
 				//Insert Entry to stock_adjustment_gl
@@ -280,7 +280,7 @@ function add_stock_adjustment_item($id, $type = 1,
 				$type == 1 ? default_adjGL_total($adj_id, $line_no) : 
 				-default_adjGL_total($adj_id, $line_no), 
 				get_default_adjGL_mcode($adj_id, $line_no), 
-				get_default_adjGL_masterfile($adj_id, $line_no)
+				get_default_adjGL_masterfile($adj_id, $line_no), false
 			);
 		}
 	}
