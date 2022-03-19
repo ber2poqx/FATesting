@@ -1033,7 +1033,7 @@ function get_slname_by_ref($ref)
 			FROM (
 				SELECT debtor_ref as ref, name as sl_name FROM " . TB_PREF . "debtors_master
 				UNION
-				SELECT supp_ref as ref, supp_name as sl_name FROM " . TB_PREF . "suppliers
+				SELECT supplier_id as ref, supp_name as sl_name FROM " . TB_PREF . "suppliers
 				UNION
 				SELECT user_id as ref, real_name as sl_name FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
 				UNION

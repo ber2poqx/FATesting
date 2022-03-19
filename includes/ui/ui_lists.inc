@@ -711,7 +711,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 	{
 		if ($send_type != null) {
 			if ($send_type == 1) {
-				$sql = "SELECT supp_ref as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
+				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
 			}
 			else if ($send_type == 2) {
 				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master";
@@ -726,7 +726,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 		else {
 			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master
 				UNION
-				SELECT supp_ref as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
+				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
 				/*SELECT user_id as ref, CONCAT(user_id, ' - ',real_name) as ref_label FROM ".TB_PREF."users WHERE role_id NOT IN(2,10)
 				UNION*/
@@ -737,7 +737,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 	{
 		if ($send_type != null) {
 			if ($send_type == 1) {
-				$sql = "SELECT supp_ref as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
+				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
 			}
 			else if ($send_type == 2) {
 				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master";
@@ -752,7 +752,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 		else {
 			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master
 				UNION
-				SELECT supp_ref as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
+				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
 				/*SELECT user_id as ref, CONCAT(user_id, ' - ',real_name) as ref_label FROM ".TB_PREF."users WHERE role_id NOT IN(2,10)
 				UNION*/
