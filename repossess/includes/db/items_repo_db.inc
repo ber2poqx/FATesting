@@ -49,6 +49,9 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
     hook_db_prewrite($args, ST_MERCHANDISETRANSFERREPO);
     
     $transfer_id = get_next_trans_no(ST_MERCHANDISETRANSFERREPO);
+
+    $mcode = $_POST['ToStockLocation'];
+    $master_file = get_db_location_name($_POST['ToStockLocation']);
     
     if ($SysPrefs->loc_notification() == 1)
     {
@@ -66,7 +69,8 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
             set_global_connection();
             $stock_gl_mt_code = get_stock_repo_gl_code($line_item->category_id);
             
-            $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $stock_gl_mt_code["dflt_repo_invty_act"], 0, 0,-(str_replace(",","",$line_item->standard_cost)*$line_item->quantity), '', 0, $line_item->stock_id);
+            $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $stock_gl_mt_code["dflt_repo_invty_act"], 0, 0,-(str_replace(",","",$line_item->standard_cost)*$line_item->quantity), '', 0, $line_item->stock_id, $mcode, 
+                $master_file);
             
             add_stock_merchandise_transfer_item_repo($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
             
@@ -78,7 +82,8 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
     add_comments(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $memo_);
     $accs = $db_connections[Get_db_coy($location_to)]["gl_account"];
     //$accs = get_supplier_accounts($po->supplier_id);
-    $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $accs, '', '', ($total)*-1, null);
+    $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $accs, '', '', ($total)*-1, '', 0, null, $mcode, 
+        $master_file);
     $Refs->save(ST_MERCHANDISETRANSFERREPO, $transfer_id, $reference);
     add_audit_trail(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_,'Merchandise Transfer Repo to '.$location_to);
     

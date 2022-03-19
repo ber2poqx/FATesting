@@ -21,6 +21,8 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
     hook_db_prewrite($args, ST_MERCHANDISETRANSFER);
     
     $transfer_id = get_next_trans_no(ST_MERCHANDISETRANSFER);
+    $mcode = $_POST['ToStockLocation'];
+    $master_file = get_db_location_name($_POST['ToStockLocation']);
     
     if ($SysPrefs->loc_notification() == 1)
     {
@@ -56,7 +58,8 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
             //if (is_inventory_item($stock_gl_code['stock_id']))
             {
                 //$total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], $stock_gl_mt_code['dimension_id'], $stock_gl_mt_code['dimension2_id'],-($line_item->standard_cost), '', 0, $line_item->stock_id);
-                $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,-(str_replace(",","",$line_item->standard_cost)*$line_item->quantity), '', 0, $line_item->stock_id);
+                $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,-(str_replace(",","",$line_item->standard_cost)*$line_item->quantity), '', 0, $line_item->stock_id, $mcode,
+                 $master_file);
                     /*update_average_material_cost($po->supplier_id, $order_line->stock_id, $order_line->price,
                         $order_line->receive_qty, $date_);*/
             }
@@ -90,7 +93,7 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
     add_comments(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $memo_);
     $accs = $db_connections[Get_db_coy($location_to)]["gl_account"];
     //$accs = get_supplier_accounts($po->supplier_id);
-    $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $accs, '', '', ($total)*-1, null);
+    $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $accs, '', '', ($total)*-1, '', 0, null, $mcode, $master_file);
     $Refs->save(ST_MERCHANDISETRANSFER, $transfer_id, $reference);
     add_audit_trail(ST_MERCHANDISETRANSFER, $transfer_id, $date_,'Merchandise Transfer to '.$location_to);
     

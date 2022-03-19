@@ -249,7 +249,7 @@ if(!is_null($action) || !empty($action)){
                     if (!isset($gl->date))
                         $gl->date = $_SESSION['transfer_items']->tran_date;
                         
-                    $total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, $gl->person_id,'',0,$rowresult['ref_gl'],$masterfile);
+                    $total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, $gl->person_id,'',0,$rowresult['id'],$masterfile);
                         
                 }
                 

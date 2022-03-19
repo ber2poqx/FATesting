@@ -910,7 +910,9 @@ function add_gl_trans_mtbranch(
 	$amount,
 	$err_msg = "",
 	$rate = 0,
-	$memo = ""
+	$memo = "",
+	$mcode, 
+	$master_file
 ) {
 	if ($err_msg == "")
 		$err_msg = "The MT GL transaction could not be inserted";
@@ -928,7 +930,9 @@ function add_gl_trans_mtbranch(
 		null,
 		null,
 		$err_msg,
-		$rate
+		$rate,
+		$mcode,
+		$master_file,
 	);
 }
 /* */
