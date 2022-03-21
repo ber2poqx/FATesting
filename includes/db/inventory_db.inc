@@ -1567,7 +1567,7 @@ function check_stock_id_exist($stock_id)
 {
 	$sql = "SELECT stock_id 
 		FROM ".TB_PREF."stock_master
-		WHERE stock_id =".db_escape($stock_id);
+		WHERE stock_id =".db_escape(trim($stock_id));
 
 	$result = db_query($sql, "Check Stock Code failed");
 
@@ -1628,7 +1628,7 @@ function check_color_exist($stock_id, $color_code, $check_only = false, $chk_cod
 		$sql .= " WHERE item_code = ".db_escape($color_code);
 	}
 	else {
-		$sql .= "WHERE stock_id = ".db_escape($stock_id).
+		$sql .= "WHERE stock_id = ".db_escape(trim($stock_id)).
 		" AND color = ".db_escape($color_code);
 	}
 	
