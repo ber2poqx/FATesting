@@ -1054,18 +1054,6 @@ function get_SO_total($order_no)
 	return $row[0];
 }
 
-function get_stock_catID($stock_id)
-{
-	set_global_connection();
-
-	$sql = "SELECT A.category_id 
-	FROM stock_master A
-	WHERE A.stock_id=" . db_escape($stock_id);
-
-	$result = db_query($sql, "Cant get stock category id! (spyrax10)");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
 //
 
 /* Added by Ronelle 11/11/2021 */
