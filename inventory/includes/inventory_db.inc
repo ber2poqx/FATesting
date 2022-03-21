@@ -620,11 +620,12 @@ function get_stock_name($stock_id = "") {
 }
 
 function get_stock_catID($stock_id) {
+	
 	set_global_connection();
 
 	$sql = "SELECT A.category_id 
-	FROM stock_master A
-	WHERE A.stock_id =" . db_escape(trim($stock_id));
+	FROM ".TB_PREF."stock_master A
+	WHERE A.stock_id = " . db_escape(trim($stock_id));
 
 	$result = db_query($sql, "Cant get stock category id! (spyrax10)");
 	$row = db_fetch_row($result);

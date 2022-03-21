@@ -195,7 +195,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 		else if (get_stock_catID($stock_id) != get_post('category')) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Invalid stock item based on given category!");
+			$err_arr[$line_cnt] = _("Invalid stock item based on given category! (" . $stock_id . ")");
 		}
 		else if (!check_stock_id_exist($stock_id)) {
 			$line_cnt++;
