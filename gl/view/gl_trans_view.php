@@ -165,6 +165,9 @@ function _gl_details() {
 	$termmode = $_GET['type_id'] == ST_SITERMMOD;
 	$restructured = $_GET['type_id'] == ST_RESTRUCTURED;
 	//
+	//jr
+	$payments = $_GET['type_id'] == ST_CUSTPAYMENT;
+
 	$dim = get_company_pref('use_dimension');
 
 	if ($dim == 2) {
@@ -180,7 +183,7 @@ function _gl_details() {
 			_("Debit"), _("Credit"), _("Memo"), 
 			_("") //Added by spyrax10
 		);
-	}	
+	}
 	else {
 		$th = array(_("ID"), //Added by spyrax10
 			_("Journal Date"), _("Account Code"), _("Account Name"), _("MCode"), _("Masterfile"),
@@ -230,7 +233,7 @@ function _gl_details() {
 		if ($receipts || $disbursement || $journal || $adjustment) {
 			label_cell($myrow['mcode']);
 			label_cell($myrow['master_file']);
-		} 
+		}
 		else if($merchandisetransfer) {//Added by Herald 12/02/2021 for Merchandise transfer header
 	    	$mt_header = get_mt_header($myrow["reference"]);
 	    	label_cell($mt_header["mt_header_tolocation"]);
@@ -259,7 +262,8 @@ function _gl_details() {
 				get_subaccount_fullname($_GET['type_id'], $_GET['trans_no']));
 		}
 		//Added by Albert
-		else if ($termmode|| $restructured) {
+		//modify jr 03/21/22
+		else if ($termmode|| $restructured || $payments) {
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 			get_subaccount_code($_GET['type_id'],$_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 

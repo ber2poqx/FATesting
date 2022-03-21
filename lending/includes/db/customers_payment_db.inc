@@ -803,3 +803,15 @@ function get_casheirCol()
 
 	return db_query($sql, "could not get user cashier/collector ");
 }
+
+function get_item_to_supplier($trans_no, $trans_type)
+{
+	$sql = "SELECT C.supplier_id, C.supp_name
+			FROM ".TB_PREF."debtor_trans_details A 
+				INNER JOIN ".TB_PREF."stock_master B ON B.stock_id = A.stock_id
+				INNER JOIN ".TB_PREF."suppliers C ON C.supplier_id = B.manufacturer
+			WHERE A.debtor_trans_no = ".db_escape($trans_no)."
+				AND A.debtor_trans_type = ".db_escape($trans_type);
+
+	return db_query($sql, "could not get item supplier");
+}

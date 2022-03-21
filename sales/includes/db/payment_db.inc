@@ -115,8 +115,11 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 			$discount1 = 0;
 		}
 		if($discount2 != 0){
+			//get supplier for gl reference
+			$itmsrlt = get_item_to_supplier($masterfile, ST_SALESINVOICE);
+			$supplier = db_fetch($itmsrlt);
 			$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_, $discount2_accnt, 0, 0, $discount2, $customer_id,
-											"Cannot insert a GL transaction for the downpayment discount 2", $rate, null, null, 0, $masterfile);
+											"Cannot insert a GL transaction for the downpayment discount 2", $rate, $supplier["supplier_id"], $supplier["supp_name"], 0, $masterfile);
 			$discount2 = 0;
 		}
 
