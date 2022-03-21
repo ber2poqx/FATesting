@@ -97,6 +97,8 @@ if (isset($_GET['AddedID'])) {
 
 	hyperlink_params("$path_to_root/admin/attachments.php", _("Add an Attachment"), "filterType=$trans_type&trans_no=$trans_no");
 
+	hyperlink_params("$path_to_root/gl/inquiry/journal_list.php", _("Back to Journal Entry Inquiry List"), "");
+
 	display_footer_exit();
 } 
 elseif (isset($_GET['UpdatedID'])) {
@@ -108,7 +110,9 @@ elseif (isset($_GET['UpdatedID'])) {
 
     display_note(get_gl_view_str($trans_type, $trans_no, _("&View this Journal Entry"), false, '', '', 1));
 
-   	hyperlink_no_params($path_to_root."/gl/inquiry/journal_inquiry.php", _("Return to Journal &Inquiry"));
+   	//hyperlink_no_params($path_to_root."/gl/inquiry/journal_inquiry.php", _("Return to Journal &Inquiry"));
+
+	hyperlink_params("$path_to_root/gl/inquiry/journal_list.php", _("Back to Journal Entry Inquiry List"), "");
 
 	display_footer_exit();
 }

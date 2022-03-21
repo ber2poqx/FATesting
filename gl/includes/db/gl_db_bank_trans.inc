@@ -549,6 +549,90 @@ function get_max_bank_trans($trans_type) {
 	return $row[0];
 }
 
+function get_journal_transactions($reference = '', $doc_ref = '', $from_date, $to_date, $interbranch = '') {
+
+	set_global_connection();
+
+	$sql = "SELECT JOR.* 
+		FROM " . TB_PREF . "journal JOR ";
+	
+	if ($interbranch != '') {
+		$sql .= " LEFT JOIN (
+			SELECT GL.* FROM " . TB_PREF . "gl_trans GL GROUP BY GL.type, GL.type_no
+		) GL ON JOR.trans_no = GL.type_no AND JOR.type = GL.type";
+	} 
+
+	$sql .= " WHERE JOR.type = " . ST_JOURNAL . " ";
+
+	if ($reference != '') {
+		$sql .= " AND JOR.reference = " .db_escape($reference);
+	} 
+
+	if ($doc_ref != '') {
+		$sql .= " AND JOR.source_ref = " .db_escape($doc_ref);
+	}
+
+	if ($interbranch != '') {
+		$sql .= " AND GL.interbranch = " .db_escape($interbranch);
+	}
+
+	$sql .= " AND JOR.tran_date >= '" . date2sql($from_date) . "' 
+		AND JOR.tran_date <= '" . date2sql($to_date) . "'";
+
+	if ($interbranch != '') {
+		$sql .= " GROUP BY GL.type, GL.type_no";
+	}
+
+	return $sql;
+
+}
+
+function get_banking_transactions($type = null, $reference = '', $doc_ref = '', $from_date, $to_date, $cashier_id = '', 
+$interbranch = '', $open_bal = '') {
+	
+	set_global_connection();
+
+	$sql = "SELECT BT.* 
+		FROM " . TB_PREF . "bank_trans BT ";
+	
+	if ($interbranch != '') {
+		$sql .= " LEFT JOIN (
+			SELECT GL.* FROM " . TB_PREF . "gl_trans GL GROUP BY GL.type, GL.type_no
+		) GL ON BT.trans_no = GL.type_no AND BT.type = GL.type";
+	} 
+
+	$sql .= " WHERE BT.type <> 0 AND BT.type = " .db_escape($type);
+	
+	if ($reference != '') {
+		$sql .= " AND BT.ref = " .db_escape($reference);
+	} 
+
+	if ($doc_ref != '') {
+		$sql .= " AND BT.receipt_no = " .db_escape($doc_ref);
+	}
+
+	if ($cashier_id != '') {
+		$sql .= " AND BT.cashier_user_id = " .db_escape($cashier_id);
+	}
+
+	if ($interbranch != '') {
+		$sql .= " AND GL.interbranch = " .db_escape($interbranch);
+	}
+
+	if ($open_bal != '') {
+		$sql .= " AND BT.opening_balance = " .db_escape($open_bal);
+	}
+
+	$sql .= " AND BT.trans_date >= '" . date2sql($from_date) . "' 
+		AND BT.trans_date <= '" . date2sql($to_date) . "'";
+
+	if ($interbranch != '') {
+		$sql .= " GROUP BY GL.type, GL.type_no";
+	}
+
+	return $sql;
+}
+
 function get_gl_items($trans_no = null, $trans_type = null, $group = false, $head = false) {
 
 	set_global_connection();
@@ -688,8 +772,11 @@ function get_dcpr_users() {
 	
 	set_global_connection();
 
-	$sql = "SELECT BT.cashier_user_id, USR.real_name FROM " . TB_PREF . "bank_trans BT 
-		INNER JOIN " . TB_PREF . "users USR ON BT.cashier_user_id = USR.id
+	$sql = "SELECT BT.cashier_user_id, USR.real_name 
+		FROM " . TB_PREF . "bank_trans BT 
+			LEFT JOIN " . TB_PREF . "users USR ON BT.cashier_user_id = USR.id
+
+		GROUP BY BT.cashier_user_id
 		ORDER BY USR.real_name";
 
 	return db_query($sql, _("Cant get DCPR users!"));

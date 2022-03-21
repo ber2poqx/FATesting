@@ -16,14 +16,26 @@ class general_ledger_app extends application
 		parent::__construct("GL", _($this->help_context = "&Banking and General Ledger"));
 
 		$this->add_module(_("Transactions"));
+		
+		//Modified by spyrax10 21 Mar 2022
 		$this->add_lapp_function(0, _("&Disbursement Entry"),
-			"gl/gl_bank.php?NewPayment=Yes", 'SA_PAYMENT', MENU_TRANSACTION);
+			"gl/inquiry/disbursement_list.php?", 'SA_PAYMENT', MENU_TRANSACTION
+		);
 		$this->add_lapp_function(0, _("&Receipts Entry"),
-			"gl/gl_bank.php?NewDeposit=Yes", 'SA_DEPOSIT', MENU_TRANSACTION);
+			"gl/inquiry/receipt_list.php?", 'SA_DEPOSIT', MENU_TRANSACTION
+		);
+		//
+		
 		$this->add_lapp_function(0, _("Bank Account &Transfers"),
-			"gl/bank_transfer.php?", 'SA_BANKTRANSFER', MENU_TRANSACTION);
+			"gl/bank_transfer.php?", 'SA_BANKTRANSFER', MENU_TRANSACTION
+		);
+
+		//Modified by spyrax10 21 Mar 2022	
 		$this->add_rapp_function(0, _("&Journal Entry"),
-			"gl/gl_journal.php?NewJournal=Yes", 'SA_JOURNALENTRY', MENU_TRANSACTION);
+			"gl/inquiry/journal_list.php?", 'SA_JOURNALENTRY', MENU_TRANSACTION
+		);
+		//
+		
 		$this->add_rapp_function(0, _("&Budget Entry"),
 			"gl/gl_budget.php?", 'SA_BUDGETENTRY', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("&Reconcile Bank Account"),

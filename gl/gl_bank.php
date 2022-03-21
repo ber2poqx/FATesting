@@ -112,9 +112,11 @@ if (isset($_GET['AddedID'])) {
 
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter Another &Disbursement"), "NewPayment=yes");
 
-	hyperlink_params($_SERVER['PHP_SELF'], _("Enter A &Receipts"), "NewDeposit=yes");
+	//hyperlink_params($_SERVER['PHP_SELF'], _("Enter A &Receipts"), "NewDeposit=yes");
 
 	hyperlink_params("$path_to_root/admin/attachments.php", _("Add an Attachment"), "filterType=$trans_type&trans_no=$trans_no");
+
+	hyperlink_params("$path_to_root/gl/inquiry/disbursement_list.php", _("Back to Disbursement Entry Inquiry List"), "");
 
 	display_footer_exit();
 }
@@ -129,7 +131,9 @@ if (isset($_GET['UpdatedID'])) {
 
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter Another &Payment"), "NewPayment=yes");
 
-	hyperlink_params($_SERVER['PHP_SELF'], _("Enter A &Deposit"), "NewDeposit=yes");
+	//hyperlink_params($_SERVER['PHP_SELF'], _("Enter A &Deposit"), "NewDeposit=yes");
+
+	hyperlink_params("$path_to_root/gl/inquiry/disbursement_list.php", _("Back to Disbursement Entry Inquiry List"), "");
 
 	display_footer_exit();
 }
@@ -144,7 +148,9 @@ if (isset($_GET['AddedDep'])) {
 
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter Another Receipts"), "NewDeposit=yes");
 
-	hyperlink_params($_SERVER['PHP_SELF'], _("Enter A Disbursement"), "NewPayment=yes");
+	//hyperlink_params($_SERVER['PHP_SELF'], _("Enter A Disbursement"), "NewPayment=yes");
+
+	hyperlink_params("$path_to_root/gl/inquiry/receipt_list.php", _("Back to Receipt Entry Inquiry List"), "");
 
 	display_footer_exit();
 }
@@ -158,7 +164,9 @@ if (isset($_GET['UpdatedDep'])) {
 
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter Another &Deposit"), "NewDeposit=yes");
 
-	hyperlink_params($_SERVER['PHP_SELF'], _("Enter A &Payment"), "NewPayment=yes");
+	//hyperlink_params($_SERVER['PHP_SELF'], _("Enter A &Payment"), "NewPayment=yes");
+
+	hyperlink_params("$path_to_root/gl/inquiry/disbursement_list.php", _("Back to Receipt Entry Inquiry List"), "");
 
 	display_footer_exit();
 }
