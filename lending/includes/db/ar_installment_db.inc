@@ -166,10 +166,21 @@ function get_ar_ledger_entries($type, $trans_no)
 
 function get_ar_item_detials($trans_no, $trans_type)
 {
-	$sql = "SELECT A.*
-		FROM ".TB_PREF."debtor_trans_details A 
-		WHERE A.debtor_trans_no = ".db_escape($trans_no)."
-			AND A.debtor_trans_type = ".db_escape($trans_type);
+	if($trans_type == ST_SITERMMOD){
+		$sql = "SELECT A.*
+			FROM ".TB_PREF."debtor_trans_details A 
+				INNER JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.debtor_trans_no
+				INNER JOIN ".TB_PREF."debtor_term_modification C ON C.invoice_ref_no = B.invoice_ref_no
+			WHERE A.debtor_trans_no = ".db_escape($trans_no)."
+				AND (A.debtor_trans_type = ".ST_SALESINVOICE." 
+					AND A.debtor_trans_type =".ST_ARINVCINSTLITM."
+					AND A.debtor_trans_type =".ST_SALESINVOICEREPO.") ";
+	}else{
+		$sql = "SELECT A.*
+			FROM ".TB_PREF."debtor_trans_details A 
+			WHERE A.debtor_trans_no = ".db_escape($trans_no)."
+				AND A.debtor_trans_type = ".db_escape($trans_type);
+	}
 	
 	return db_query($sql, "could not get sales invoice item details");	
 }

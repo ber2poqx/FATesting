@@ -4331,9 +4331,12 @@ Ext.onReady(function() {
 					window.open('../reports/prnt_official_receipt.php?reference='+ Ext.getCmp('rpt_syspk').getValue());
 					submit_window_InterB.close();
 				}
-			}, {
-				xtype: 'splitter'
-			}, {
+			}]
+		},{
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			margin: '2 0 2 2',
+			items:[{
 				xtype: 'button',
 				cls: 'rptbtn',
 				width: 200,
