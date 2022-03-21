@@ -157,14 +157,12 @@ function get_1stpay_stat($row)
 function print_sales_invoice_receipt($row)
 {
 	if ($row['payment_type'] == "CASH") {
-		//modified by spyrax10
-		if ($row['status'] == "fully-paid") {
-			return pager_link(
-				_("Print to receipt: Cash Sales Invoice"),
-				"/reports/prnt_cash_SalesInvoice.php?SI_num=" . $row["trans_no"],
-				ICON_PRINT
-			);
-		}
+		//modified by spyrax10 21 Mar 2022 Mantis Issue #815
+		return pager_link(
+			_("Print to receipt: Cash Sales Invoice"),
+			"/reports/prnt_cash_SalesInvoice.php?SI_num=" . $row["trans_no"],
+			ICON_PRINT
+		);
 	} else if ($row['payment_type'] == "INSTALLMENT") {
 		if ($row['status'] == "Open" || $row['status'] == "Approved") {
 			return pager_link(
