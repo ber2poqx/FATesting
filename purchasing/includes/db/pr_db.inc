@@ -380,3 +380,26 @@ function check_status_pr($pr_no)
 	}
 }
 /* */
+
+//Added by spyrax10
+
+function get_pr_total_qty($reference) {
+
+	set_global_connection();
+
+	$sql = "SELECT SUM(b.qty) as total_qty
+			FROM " . TB_PREF . "purch_request a 
+				INNER JOIN " . TB_PREF . "purch_request_details b ON b.pr_no = a.pr_no
+			WHERE a.reference = " . db_escape($reference);
+
+	$result = db_query($sql, "The status for purchase request " . $reference . " could not be retrieved");
+	if (db_num_rows($result) == 1) {
+		$row = db_fetch_row($result);
+		return $row[0];
+	}
+	else {
+		return 0;
+	}
+}
+
+//

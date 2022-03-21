@@ -150,6 +150,11 @@ function trans_ref_trans_view($row)
 	return get_trans_view_str(ST_PURCHREQUEST, $row["supp_reference"]);
 }
 
+//Added by spyrax10 21 Mar 2022 Mantis Issue #807
+function total_quantity($row) {
+	return get_pr_total_qty($row['supp_reference']);
+}
+
 //------------------------------------------------------------------------------------------------
 
 start_form();
@@ -237,6 +242,7 @@ $cols = array(
 	_("Served Status"),
 	_("Trans Ref #") => array('fun' => 'trans_ref_trans_view', 'ord' => '', 'align' => 'right'),
 	_("Date") => array('name' => 'tran_date', 'type' => 'date', 'ord' => 'desc'),
+	_("Total Qty") => array('fun' => 'total_quantity', 'align' => 'center'),
 	// _("Due Date") => array('type'=>'date', 'fun'=>'due_date'), 
 	// _("Currency") => array('align'=>'center'),
 	_("Amount") => array('align' => 'right', 'fun' => 'fmt_amount'),
@@ -259,7 +265,7 @@ if ($_POST['filterType'] != '2')
 $table = &new_db_pager('trans_tbl', $sql, $cols);
 $table->set_marker('check_overdue', _("Marked items are overdue."));
 
-$table->width = "95%";
+$table->width = "98%";
 
 display_db_pager($table);
 
