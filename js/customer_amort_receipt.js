@@ -57,7 +57,8 @@ Ext.onReady(function() {
 			{name:'payment_type', mapping:'payment_type'},
 			{name:'payment_type_v', mapping:'payment_type_v'},
 			{name:'collect_type', mapping:'collect_type'},
-			{name:'cashier', mapping:'cashier'}
+			{name:'cashier', mapping:'cashier'},
+			{name:'cashier_name', mapping:'cashier_name'}
 		]
 	});
     Ext.define('CustomersModel',{
@@ -513,7 +514,7 @@ Ext.onReady(function() {
 				return '<span style="color:green;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 			}
 		},
-		{header:'<b>Cashier</b>', dataIndex:'prepared_by', sortable:true, width:150,
+		{header:'<b>Cashier</b>', dataIndex:'cashier_name', sortable:true, width:150,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -563,7 +564,7 @@ Ext.onReady(function() {
 						Ext.getCmp('v_check_date_inb').setValue(records.get('check_date'));
 						Ext.getCmp('v_check_no_inb').setValue(records.get('check_no'));
 						Ext.getCmp('v_Bank_branch_inb').setValue(records.get('Bank_branch'));
-						Ext.getCmp('v_cashier_inb').setValue(records.get('cashier'));
+						Ext.getCmp('v_cashier_inb').setValue(records.get('cashier_name'));
 						Ext.getCmp('v_preparedby_inb').setValue(records.get('prepared_by'));
 
 						submit_window_InterB_view.setTitle('Inter-branch Collection Receipt Details - Reference No. : '+ records.get('reference'));
@@ -596,7 +597,7 @@ Ext.onReady(function() {
 						Ext.getCmp('check_no_dp').setValue(records.get('check_no'));
 						Ext.getCmp('bank_branch_dp').setValue(records.get('Bank_branch'));
 						Ext.getCmp('preparedby_dp').setValue(records.get('prepared_by'));
-						Ext.getCmp('cashier_dp').setValue(records.get('cashier'));
+						Ext.getCmp('cashier_dp').setValue(records.get('cashier_name'));
 
 						Ext.getCmp('tenderd_amount_dp').setReadOnly(true);
 						Ext.getCmp('customername_dp').setReadOnly(true);
@@ -640,7 +641,7 @@ Ext.onReady(function() {
 						Ext.getCmp('v_check_date_cash').setValue(records.get('check_date'));
 						Ext.getCmp('v_check_no_cash').setValue(records.get('check_no'));
 						Ext.getCmp('v_Bank_branch_cash').setValue(records.get('Bank_branch'));
-						Ext.getCmp('v_cashier_cash').setValue(records.get('cashier'));
+						Ext.getCmp('v_cashier_cash').setValue(records.get('cashier_name'));
 						Ext.getCmp('v_preparedby_cash').setValue(records.get('prepared_by'));
 
 						submit_window_cashview.setTitle('Cash Payment Receipt Details - Reference No. :'+ records.get('reference'));
@@ -674,7 +675,7 @@ Ext.onReady(function() {
 						Ext.getCmp('v_check_date').setValue(records.get('check_date'));
 						Ext.getCmp('v_check_no').setValue(records.get('check_no'));
 						Ext.getCmp('v_Bank_branch').setValue(records.get('Bank_branch'));
-						Ext.getCmp('v_cashier').setValue(records.get('cashier'));
+						Ext.getCmp('v_cashier').setValue(records.get('cashier_name'));
 						Ext.getCmp('v_preparedby').setValue(records.get('prepared_by'));
 						
 						submit_window_view.setTitle('Customer Amortization Receipt Details - Reference No. :'+ records.get('reference'));
@@ -1577,8 +1578,9 @@ Ext.onReady(function() {
 					queryMode: 'local',
 					labelWidth: 105,
 					width: 290,
-					forceSelection: true,
+					forceSelection: true,					
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
@@ -2176,6 +2178,7 @@ Ext.onReady(function() {
 					width: 280,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
@@ -2594,6 +2597,7 @@ Ext.onReady(function() {
 					width: 280,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
@@ -3047,6 +3051,7 @@ Ext.onReady(function() {
 					width: 280,
 					forceSelection: true,
 					selectOnFocus:true,
+					allowBlank: false,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
