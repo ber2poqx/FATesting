@@ -193,13 +193,13 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Stock ID is empty!"); 
 		}
+		else if (!check_stock_id_exist($stock_id)) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Stock ID does not exist! (" . $stock_id . ")");
+		}
 		else if (get_stock_catID($stock_id) != get_post('category')) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Invalid stock item based on given category! (" . $stock_id . ")");
-		}
-		else if (!check_stock_id_exist($stock_id)) {
-			$line_cnt++;
-			$err_arr[$line_cnt] = _("Stock ID does not exist!");
 		}
 		else if ($qty == "") {
 			$line_cnt++;
