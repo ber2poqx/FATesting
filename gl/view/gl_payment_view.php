@@ -66,7 +66,9 @@ label_cells(_("Amount"), number_format2(-$from_trans['amount'], user_price_dec()
 label_cells(_("Date"), sql2date($from_trans['trans_date']), "class='tableheader2'");
 end_row();
 start_row();
-label_cells(_("Pay To"), get_counterparty_name(ST_BANKPAYMENT, $from_trans['trans_no']), "class='tableheader2'", "colspan=$colspan1");
+//Modified by spyrax10 22 Mar 2022
+label_cells(_("Pay To"), payment_person_name($from_trans['person_type_id'], $from_trans['person_id']), "class='tableheader2'", "colspan=$colspan1");
+//
 if ($show_currencies)
 {
 	label_cells(_("Settle currency"), $from_trans['settle_curr'], "class='tableheader2'");

@@ -992,13 +992,17 @@ function numeric_type_list($label, $name, $val_array, $selected = null, $submit_
 }
 
 function company_list_row($label = null, $name, $submit_on_change = false, $all_text = false, 
-	$include_cur_comp = true, $bold = false) {
+	$include_cur_comp = true, $bold = false, $row = false) {
 	
 	global $db_connections;
 
 	$coy =  user_company();
 	$db_list = $all_arr = $sel_arr = array();
 	$bold = $bold ? 'label' : '';
+
+	if ($row) { 
+		echo "<tr>";
+	}
 
 	if ($label != null) {
 		echo "<td class=$bold>$label</td>\n";
@@ -1022,6 +1026,10 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 			'async' => false
 		) 
 	);
+
+	if ($row) { 
+		echo "</tr>";
+	}
 }
 
 function inty_list_cells($label, $name, $selected_id = null, $category, $all_option = false, $submit_on_change = false, $editkey = false, 

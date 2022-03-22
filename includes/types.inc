@@ -131,6 +131,7 @@ define('PT_SUPPLIER', 3);
 define('PT_QUICKENTRY', 4);
 define('PT_DIMESION', 5);
 define('PT_EMPLOYEE', 6);
+define('PT_BRANCH', 7); //Added by spyrax10 22 Mar 2022
 
 function payment_person_currency($type, $person_id)
 {
@@ -171,6 +172,10 @@ function payment_person_name($type, $person_id, $full = true)
 			return ($full ? $payment_person_types[$type] . " " : "") . sprintf("[%05s] %s", $person_id, get_supplier_name($person_id));
 		case PT_EMPLOYEE:
 		    return ($full ? $payment_person_types[$type] . " " : "") . sprintf("[%05s] %s", $person_id, get_user_name($person_id));
+		//Added by spyrax10 22 Mar 2022
+		case PT_BRANCH:
+			return ("Branch ") . sprintf("[%s] %s", get_company_value($person_id, 'branch_code'), get_company_value($person_id, 'name'));
+		//
 		default:
 			return '';
 	}

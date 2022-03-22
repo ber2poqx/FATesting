@@ -583,6 +583,8 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date, $t
 		$sql .= " GROUP BY GL.type, GL.type_no";
 	}
 
+	$sql .= " ORDER BY JOR.tran_date DESC, JOR.trans_no DESC";
+
 	return $sql;
 
 }
@@ -629,6 +631,8 @@ $interbranch = '', $open_bal = '') {
 	if ($interbranch != '') {
 		$sql .= " GROUP BY GL.type, GL.type_no";
 	}
+
+	$sql .= " ORDER BY BT.trans_date DESC, BT.trans_no DESC";
 
 	return $sql;
 }

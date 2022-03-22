@@ -53,7 +53,8 @@ function display_bank_header(&$order)
 		value_type_list(_("Pay To:"), 'PayType', 
     		array(
         		PT_CUSTOMER => 'Customer', 
-        		PT_SUPPLIER => 'Suppier' 
+        		PT_SUPPLIER => 'Suppier',
+				PT_BRANCH => 'Branch'
     		), 'label', null, true, '', true
 		);
 
@@ -98,6 +99,10 @@ function display_bank_header(&$order)
 					} else
 						display_warning(_("This customer account is on hold."));
 				}
+				break;
+			
+			case PT_BRANCH:
+				company_list_row(_('Branch: '), 'person_id', true, false, true, true, true);
 				break;
 	
 			/*

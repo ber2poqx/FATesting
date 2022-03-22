@@ -59,6 +59,13 @@ if (list_updated('PersonDetailID')) {
 	$Ajax->activate('person_id');
 }
 
+if (get_post('person_id') ) {
+	if (get_post('PayType') != PT_CUSTOMER) {
+		$_POST['PersonDetailID'] = get_post('person_id');
+		$Ajax->activate('PersonDetailID');
+	}
+}
+
 if (get_post('cashier_')) {
 	global $Ajax;
 	$_POST['cashier_teller'] = get_post('cashier_');

@@ -97,6 +97,13 @@ if (list_updated('PersonDetailID')) {
 	$Ajax->activate('person_id');
 }
 
+if (get_post('person_id') ) {
+	if (get_post('PayType') != PT_CUSTOMER) {
+		$_POST['PersonDetailID'] = get_post('person_id');
+		$Ajax->activate('PersonDetailID');
+	}
+}
+
 if (get_post('PayType') || get_post('bank_account')) {
     $Ajax->activate('gl_head');
 }
@@ -244,7 +251,8 @@ function display_gl_post($trans_no, $trans_type) {
 			value_type_list(_("Pay To:"), 'PayType', 
     			array(
         			PT_CUSTOMER => 'Customer', 
-        			PT_SUPPLIER => 'Suppier' 
+        			PT_SUPPLIER => 'Suppier',
+					PT_BRANCH => 'Branch'
     			), 'label', null, true, '', true
 			);
 	
@@ -275,6 +283,10 @@ function display_gl_post($trans_no, $trans_type) {
 							display_warning(_("This customer account is on hold."));
 					}
 					break;
+
+					case PT_BRANCH:
+						company_list_row(_('Branch: '), 'person_id', true, false, true, true, true);
+						break;
 
 				default:
 					break;
