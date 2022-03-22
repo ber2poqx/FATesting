@@ -36,7 +36,7 @@ function trans_num($row) {
 }
 
 function reference_row($row) {
-    return $row['ref'];
+    return get_trans_view_str($row["type"], $row["trans_no"], $row['ref']);
 }
 
 function trans_date($row) {
