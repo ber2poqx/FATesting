@@ -256,7 +256,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 
             add_to_order(
                 $_SESSION['adj_items'], 
-		        $stock_id,
+		        trim($stock_id),
 		        is_Serialized($stock_id) == 1 ? 1 : $qty, 
 		        $std_cost, 
 		        "0000-00-00", //Manufacture Date, 
