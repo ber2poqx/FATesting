@@ -59,7 +59,7 @@ function add_stock_adjustment($id = 0, $type = 1, //added by spyrax10 for Invent
 			$line_item->expire_date, 
 			$line_item->lot_no, 
 			$line_item->chasis_no, 
-			$line_item->category_id, 
+			get_stock_catID($line_item->stock_id), 
 			$line_item->color, 
 			$line_item->mcode, 
 			$line_item->master_file, 
