@@ -35,20 +35,21 @@ display_heading($title . $sub_title . $ext);
 
 br(1);
 $adjustment_items = get_stock_adjustment_items($trans_no);
-$k = $total = 0;
+$k = $total = $total_qty = 0;
 $header_shown = false;
 while ($adjustment = db_fetch($adjustment_items))
 {
 	$sub_total = abs($adjustment['qty']) * $adjustment['standard_cost'];
 	$total += $sub_total;
+	$total_qty += abs($adjustment['qty']);
 
 	if (!$header_shown)
 	{
 
-		start_table(TABLESTYLE2, "width='90%'");
+		start_table(TABLESTYLE2, "width='95%'");
 		start_row();
-		label_cells(_("At Location"), $adjustment['location_name'], "class='tableheader2'");
-    	label_cells(_("Reference"), $adjustment['reference'], "class='tableheader2'", "colspan=6");
+		label_cells(_("Location: "), $adjustment['location_name'], "class='tableheader2'");
+    	label_cells(_("Reference: "), $adjustment['reference'], "class='tableheader2'", "colspan=6");
 
 		
 		if (is_invty_open_bal('', $adjustment['reference'])) {
@@ -58,7 +59,7 @@ while ($adjustment = db_fetch($adjustment_items))
 			$trans_date = sql2date($adjustment['tran_date']);
 		}
 
-		label_cells(_("Date"), $trans_date, "class='tableheader2'");
+		label_cells(_("Transaction Date: "), $trans_date, "class='tableheader2'");
 
 		label_cells(_("Item Type: "), strtoupper($adjustment['item_type']), "class='tableheader2'"); //Added by spyrax10
 		end_row();
@@ -112,8 +113,14 @@ while ($adjustment = db_fetch($adjustment_items))
     end_row();
 }
 
-label_row(_("Document Total: "), number_format2($total,user_price_dec()), 
-			"align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0);
+label_row(_("Total Quantity: "), $total_qty,
+	"align=right colspan=4; style='font-weight:bold';", "style='font-weight:bold'; align=center", 0
+);
+
+label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
+	"align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+);
+
 end_table(1);
 
 is_voided_display(ST_INVADJUST, $trans_no, _("This adjustment has been voided."));

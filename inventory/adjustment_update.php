@@ -324,7 +324,9 @@ function display_adjustment_items($trans_no)
     }
 
     label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-                "align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0);
+        "align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+    );
+    
     end_table();
     div_end();
 }
