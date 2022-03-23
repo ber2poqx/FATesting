@@ -247,4 +247,41 @@ return $row[0];
 
 }
 
+function get_price_id($types){
+
+    if(get_cash_types($types)){
+        $sql = "SELECT
+                        max(a.id) as last_id
+                    FROM ".TB_PREF."cash_prices a";
+   
+    }else if(get_lcp_price_types($types)){
+
+            $sql = "SELECT
+                        max(a.id) as last_id
+                    FROM ".TB_PREF."prices a";
+    }else if(get_system_cost_types($types)){
+            $sql = "SELECT
+                        max(a.id) as last_id
+                    FROM ".TB_PREF."purch_data a";   
+    }else if(get_srp_types($types)){
+            $sql = "SELECT
+                        max(a.id) as last_id
+                    FROM ".TB_PREF."item_srp a";
+    
+    }else{
+          if(get_incentive_types($types)){
+
+            $sql = "SELECT
+                        max(a.id) as last_id
+                    FROM ".TB_PREF."incentive_prices a";
+
+          }
+
+    }
+        $result = db_query($sql, "check incentive types failed");
+        $row =  db_fetch($result);
+        
+        return $row[0];
+}
+
 ?>

@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded)
+function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded,$date_epic = '0000-00-00')  //date epic Added by Albert
 {
 	$sql = "INSERT INTO ".TB_PREF."price_cost_archive (
 					stock_id 
@@ -23,6 +23,8 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,incentive_id
 					,module_type
 					,date_defined
+					,inactive
+					,date_epic
 			) VALUES (
 			        ".db_escape($stock_id)."
 					,".db_escape($amount)."
@@ -35,6 +37,8 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,".db_escape($incentive_id)."
 				   	,".db_escape($module)."
 					,".db_escape($dateadded)."
+					,0
+					,".db_escape($date_epic)."
 			)";
 	
 	$ErrMsg = _('Could not insert the new price/cost history because ');

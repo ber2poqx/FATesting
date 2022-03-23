@@ -12,6 +12,7 @@
 	include_once($path_to_root . "/includes/ui.inc");
 	include_once($path_to_root . "/includes/data_checks.inc");
 	include_once($path_to_root . "/admin/db/company_db.inc");
+	include_once($path_to_root . "/includes/cost_and_pricing.inc");
 
     include_once($path_to_root . "/modules/Price_import/price_import.inc");
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
@@ -58,14 +59,19 @@
 	
 				while ($data = fgetcsv($fp, 4096, $sep)) {
 					if ($lines++ == 0) continue;
-				    list($supplier, $types, $stock_id, $price) = $data;
+				    list($supplier, $types, $stock_id, $price,$date_epic) = $data;
 
                     $stock_id = strtoupper($stock_id);
 
 					$types = normalize_chars($types);
 					$supplier = normalize_chars($supplier);
 
-					
+					if( empty($date_epic)){ 
+						$date_epic = "0000-00-00";
+
+					} else {
+						$date_epic = date("Y-m-d", strtotime($date_epic));
+					}
 					if( empty($supplier )){ 
 						$supplier = null;
 					}
@@ -88,7 +94,7 @@
 						display_error("Line $lines: Stock Id: $stock_id is Not Exist");
 
 					}else{
-
+						$Selected_id = get_price_id($types) + 1;
 
 						if( get_cash_types($types)==$types){
 
@@ -96,12 +102,19 @@
 						$types = get_cash_price_types_id($types), 
 						$stock_id, 
 						$price);
+
+						add_pricehistory($stock_id, $price, $Selected_id, 0, $types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"));
+
+
 						}
 						else if(get_lcp_price_types($types)==$types){
 						add_lcp_pricing(
 						$types = get_lcp_price_types_id($types),
 						$stock_id,
 						$price);
+
+						add_pricehistory($stock_id, $price, $Selected_id, 0, 0, $types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
+						
 						}
 						elseif( get_system_cost_types($types)==$types && $supplier <> null){
 
@@ -114,6 +127,9 @@
 						$supplierdesc,
 						$price);
 
+						add_pricehistory($stock_id, $price, $Selected_id, $supplier, 0, 0, $types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"));
+
+
 						}
 						elseif( get_srp_types($types)==$types && $supplier <> null){
 
@@ -122,13 +138,21 @@
 						$types = get_srp_types_id($types), 
 						$stock_id, 
 						$price);
-						
+
+						add_pricehistory($stock_id, $price, $Selected_id, $supplier, 0, 0, 0, $types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+
+												
 						}elseif( get_incentive_types($types)){
 							
 							add_incentives_pricing(
 							$types = get_incentive_types_id($types), 
 							$stock_id, 
 							$price);
+						
+						add_pricehistory($stock_id, $price, $Selected_id, 0, 0, 0, 0, 0, $types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+
 
 						}else {
 							if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){
