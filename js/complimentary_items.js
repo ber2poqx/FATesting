@@ -53,10 +53,10 @@ Ext.onReady(function(){
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
 					tooltip: 'Serial Items Detail',
-					hidden: true,
+					hidden: false,
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
-						id = record.get('trans_id');
+						id = record.get('trans_no');
                         reference = record.get('reference');
                         brcode = record.get('loc_code');
                         catcode = record.get('category_id');
@@ -65,8 +65,8 @@ Ext.onReady(function(){
 							MTItemListingStore.proxy.extraParams = {
 								catcode: catcode, 
 								branchcode:brcode,
-								reference:reference, 
-								trans_id:id
+								reference:reference,
+								trans_no:id
 							};
 							MTItemListingStore.load();	
 								
@@ -74,8 +74,8 @@ Ext.onReady(function(){
 								title:'Item Listing',
 								id:'windowItemSSerialList',
 								modal: true,
-								width: 1200,
-								height:600,
+								width: 990,
+								height:450,
 								bodyPadding: 5,
 								layout:'fit',
 								items:[
@@ -183,7 +183,7 @@ Ext.onReady(function(){
 						}else{
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].hide();
-							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="item_description"]')[0].hide();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="color"]')[0].hide();
 						}
 						windowItemSerialList.show();
 						
@@ -813,7 +813,7 @@ Ext.onReady(function(){
 	}
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty','category_id','reference'],
+		fields: ['trans_no', 'stock_id', 'lot_no', 'chasis_no', 'color', 'item_description', 'qty','category_id','reference'],
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -841,12 +841,11 @@ Ext.onReady(function(){
 	});
 
 	var columnItemSerialView = [
-		{header:'id', dataIndex:'serialise_id', sortable:true, width:60,hidden: true},
+		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, renderer: columnWrap,hidden: true},
 		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
-		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
-		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Item Description', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: true, align:'right'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
@@ -911,7 +910,12 @@ Ext.onReady(function(){
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
 		//selModel: {selType: 'cellmodel'},
-		plugins: [cellEditing1],
+		//plugins: [cellEditing1],
+		selModel: 'cellmodel',
+	    plugins: {
+	        ptype: 'cellediting',
+	        clicksToEdit: 1
+	    },
 		//padding: '5px',
 		border: false,
 		frame:false,
@@ -1244,8 +1248,13 @@ Ext.onReady(function(){
 		store: GLItemsStore,
 		columns: columnJEModel,
 		//plugins: [rowEditing],
-		selModel: {selType: 'cellmodel'},
-		plugins: [cellEditing],
+		//selModel: {selType: 'cellmodel'},
+		//plugins: [cellEditing],
+		selModel: 'cellmodel',
+	    plugins: {
+	        ptype: 'cellediting',
+	        clicksToEdit: 1
+	    },
 		border: false,
 		frame:false,
 		viewConfig:{

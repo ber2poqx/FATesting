@@ -52,11 +52,12 @@ function getmtreceipt($mt_header_reference)
 	mt_details.mt_details_item_code, mt_details.mt_details_serial_no, mt_details.mt_details_chasis_no,
 	item_codes.description AS dcolor, stock_master.description, stock_master.units
 	FROM " . TB_PREF . "mt_header 
-	INNER JOIN " . TB_PREF . "mt_details ON mt_details.mt_details_header_id = mt_header.mt_header_id 
-	INNER JOIN " . TB_PREF . "item_codes ON item_codes.item_code = mt_details.mt_details_item_code
-	INNER JOIN " . TB_PREF . "stock_master ON stock_master.stock_id = mt_details.mt_details_stock_id
+	LEFT JOIN " . TB_PREF . "mt_details ON mt_details.mt_details_header_id = mt_header.mt_header_id 
+	LEFT JOIN " . TB_PREF . "item_codes ON item_codes.item_code = mt_details.mt_details_item_code
+	LEFT JOIN " . TB_PREF . "stock_master ON stock_master.stock_id = mt_details.mt_details_stock_id
 	AND stock_master.stock_id = item_codes.stock_id
-	WHERE mt_header.mt_header_reference = mt_header_reference AND mt_header_reference='$mt_header_reference'";
+	WHERE mt_header.mt_header_reference = mt_header_reference AND mt_header_reference='$mt_header_reference'
+	GROUP BY mt_header.mt_header_id";
 
 	return db_query($sql, "No transactions were returned");
 }

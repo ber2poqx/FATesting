@@ -494,8 +494,13 @@ Ext.onReady(function(){
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
 		columnLines: true,
-		selModel: {selType: 'cellmodel'},
-		plugins: [cellEditing],
+		//selModel: {selType: 'cellmodel'},
+		//plugins: [cellEditing],
+		selModel: 'cellmodel',
+	    plugins: {
+	        ptype: 'cellediting',
+	        clicksToEdit: 1
+	    },
 		border: false,
 		frame:false,
 		viewConfig:{

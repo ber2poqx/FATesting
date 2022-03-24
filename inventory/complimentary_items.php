@@ -431,17 +431,17 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'MTserialitems':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection($def_coy);
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
-            //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
+            $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
-            $trans_id = (integer) (isset($_POST['trans_id']) ? $_POST['trans_id'] : $_GET['trans_id']);
-            $brcode = $db_connections[user_company()]["branch_code"];
+            $trans_id = (integer) (isset($_POST['trans_no']) ? $_POST['trans_no'] : $_GET['trans_no']);
+            //$brcode = $db_connections[user_company()]["branch_code"];
             
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
@@ -449,21 +449,24 @@ if(!is_null($action) || !empty($action)){
             //$result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,false,$reference);
             //$total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,$reference);
             
-            
-            $sql = "SELECT *, sc.description as category, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
+            $sql = "SELECT move.trans_no, move.stock_id, move.reference, move.lot_no, move.chassis_no, move.qty, 
+            move.category_id, code.description, items.id
+            FROM ".TB_PREF."stock_moves move 
+            LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
+            LEFT JOIN ".TB_PREF."complimentary_items items ON items.reference = move.reference
+            WHERE move.reference = '$reference'";
 
-            
             if($catcode!=0){
-                $sql.=" AND mh.mt_header_category_id=$catcode";
+                $sql.=" AND move.category_id = $catcode";
             }
             if($reference!=''){
-                $sql.=" AND mh.mt_header_reference='".$reference."'";
+                $sql.=" AND move.reference = '".$reference."'";
                 
             }
-            if($brcode!=''){
+            /*if($brcode!=''){
                 $sql.=" AND mh.mt_header_fromlocation='".$brcode."'";
                 
-            }
+            }*/
             /*if($querystr!=''){
                 $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
             }*/
@@ -486,17 +489,14 @@ if(!is_null($action) || !empty($action)){
                     //$serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
                     //$tandard_cost = Get_StandardCost_Plcy($branchcode,$catcode,$myrow["model"]);
                     
-                    $group_array[] = array('serialise_id'=>$serialise_id,
-                        'color' => $myrow["serialise_item_code"],
-                        'stock_description' => $myrow["stock_description"],
-                        'item_description' => $myrow["item_description"],
-                        'model' => $myrow["mt_details_stock_id"],
-                        'standard_cost' => number_format($myrow["standard_cost"],2),
-                        'qty' => number_format($myrow["mt_details_total_qty"],2),
+                    $group_array[] = array('trans_no' => $myrow["trans_no"],
+                        'model' => $myrow["stock_id"],
+                        'color' => $myrow["description"],
+                        'item_description' => $myrow["description"],
+                        'qty' => price_format(abs($myrow["qty"])),
                         'category_id'=>$catcode,
-                        'lot_no' => $myrow["mt_details_serial_no"],
-                        'chasis_no' => $myrow["mt_details_chasis_no"],
-                        'serialise_loc_code'=>$myrow["serialise_loc_code"]
+                        'lot_no' => $myrow["lot_no"],
+                        'chasis_no' => $myrow["chassis_no"]
                     );
                 //}
                 
