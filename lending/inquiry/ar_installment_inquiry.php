@@ -232,7 +232,12 @@ if(isset($_GET['get_LedgerEntry'])){
 
 if(isset($_GET['get_Item_details']))
 {
-    $result = get_ar_item_detials($_GET['transNo'], $_GET['transtype']);
+    if($_GET['transtype'] == ST_SITERMMOD){
+        $result = get_ar_item_detials($_GET['invoice_ref'], $_GET['transtype']);
+    }else{
+        $result = get_ar_item_detials($_GET['transNo'], $_GET['transtype']);
+    }
+    
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('stock_id'=>$myrow["stock_id"],

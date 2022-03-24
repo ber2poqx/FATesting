@@ -171,10 +171,10 @@ function get_ar_item_detials($trans_no, $trans_type)
 			FROM ".TB_PREF."debtor_trans_details A 
 				INNER JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.debtor_trans_no
 				INNER JOIN ".TB_PREF."debtor_term_modification C ON C.invoice_ref_no = B.invoice_ref_no
-			WHERE A.debtor_trans_no = ".db_escape($trans_no)."
+			WHERE B.invoice_ref_no = ".db_escape($trans_no)."
 				AND (A.debtor_trans_type = ".ST_SALESINVOICE." 
-					AND A.debtor_trans_type =".ST_ARINVCINSTLITM."
-					AND A.debtor_trans_type =".ST_SALESINVOICEREPO.") ";
+					OR A.debtor_trans_type =".ST_ARINVCINSTLITM."
+					OR A.debtor_trans_type =".ST_SALESINVOICEREPO.") ";
 	}else{
 		$sql = "SELECT A.*
 			FROM ".TB_PREF."debtor_trans_details A 

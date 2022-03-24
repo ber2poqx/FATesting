@@ -1386,7 +1386,7 @@ Ext.onReady(function(){
 					Entriestore.proxy.extraParams = {trans_no: records.get('trans_no'), trans_type: records.get('type')};
 					Entriestore.load();
 
-					SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('type')};
+					SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('type'), invoice_ref: records.get('invoice_ref_no'), };
 					SIitemStore.load();
 
 					if(records.get('module_type') == "REPO" || records.get('module_type') == "TEMP-REPO"){
