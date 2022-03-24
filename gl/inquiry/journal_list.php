@@ -56,7 +56,7 @@ function doc_ref($row) {
 }
 
 function is_interbranch($row) {
-    return has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT) ? "Interbranch Entry" : "Normal Entry";
+    return has_interbranch_entry($row['trans_no'], ST_JOURNAL) ? "Interbranch Entry" : "Normal Entry";
 }
 
 function amount_total($row) {
