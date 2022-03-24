@@ -29,7 +29,7 @@ function get_all_stockmoves_repo($start,$end,$querystr='',$category=0,$branchcod
     if($querystr!=''){
         $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
     }
-    $sql.=" group by serial.type_out, serial.transno_out, serial.stock_id, serial.color_code, serial.lot_no, serial.chassis_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
+    $sql.=" group by serial.type_out, serial.transno_out, serial.stock_id, serial.color_code, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
     
     if(!$all){
         $sql.=" LIMIT $start,$end";
