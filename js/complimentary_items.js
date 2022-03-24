@@ -1099,8 +1099,9 @@ Ext.onReady(function(){
 														}
 													}						
 												}
-											},{
+											/*},{
 												iconCls:'clear-search'
+											*/
 											},{
 												xtype:'textfield',
 												name:'searchSerial',

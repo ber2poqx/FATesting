@@ -627,18 +627,18 @@ Ext.onReady(function(){
 														}
 													}								
 												}
-											},{
-												iconCls:'clear-search',
-												handler: function(){
-													var catcode = Ext.getCmp('category').getValue();
-													var brcode = Ext.getCmp('fromlocation').getValue();
-													ItemListingStore.proxy.extraParams = { 
-														query:'', 
-														catcode: catcode,
-														branchcode: brcode
-													}
-													ItemListingStore.load();
-												}
+												/*},{
+													iconCls:'clear-search',
+													handler: function(){
+														var catcode = Ext.getCmp('category').getValue();
+														var brcode = Ext.getCmp('fromlocation').getValue();
+														ItemListingStore.proxy.extraParams = { 
+															query:'', 
+															catcode: catcode,
+															branchcode: brcode
+														}
+														ItemListingStore.load();
+													}*/
 											}]
 										}],
 										bbar : {
