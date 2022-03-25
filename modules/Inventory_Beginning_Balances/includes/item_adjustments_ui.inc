@@ -358,7 +358,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 			label_cell(get_post('lot_no'));
 		}
 		else {
-			text_cells(null, "lot_no", null, 40, 50);
+			text_cells(null, "lot_no", null, 40, 50, false, "", "", 'placeholder="Serial No."');
 		}	
 	}
 	else {
@@ -374,7 +374,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 			label_cell(get_post('chasis_no'));
 		}
 		else {
-			text_cells(null, "chasis_no", null, 40, 50);
+			text_cells(null, "chasis_no", null, 40, 50, false, "", "", 'placeholder="Chassis No."');
 		}	
 	}
 	else {
