@@ -544,8 +544,7 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 
 //---------------------------------------------------------------------------------
 
-function gl_options_controls($order)
-{
+function gl_options_controls($order = null) {
 	div_start('footer');
 	echo "<br><table align='center'>";
 
@@ -567,7 +566,7 @@ function gl_options_controls($order)
 			user_price_dec()
 		);
 	}*/
-	textarea_row(_("Memo"), 'memo_', null, 50, 3);
+	textarea_row(_("Memo: "), 'memo_', null, 50, 3);
 
 	echo "</table>";
 	div_end();

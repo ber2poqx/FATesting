@@ -442,12 +442,16 @@ if (isset($_POST['Process']) && !check_trans()) {
 
 	commit_transaction();
 
-	if ($new)
+	if ($new) {
 		meta_forward($_SERVER['PHP_SELF'], $trans_type == ST_BANKPAYMENT ?
-			"AddedID=$trans_no" : "AddedDep=$trans_no");
-	else
+			"AddedID=$trans_no" : "AddedDep=$trans_no"
+		);
+	}
+	else {
 		meta_forward($_SERVER['PHP_SELF'], $trans_type == ST_BANKPAYMENT ?
-			"UpdatedID=$trans_no" : "UpdatedDep=$trans_no");
+			"UpdatedID=$trans_no" : "UpdatedDep=$trans_no"
+		);
+	}
 }
 
 //-----------------------------------------------------------------------------------------------

@@ -31,37 +31,6 @@ include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_dailycash_sales();
 
-function getTransactions($from, $cashier = '', $cashier_name = '')
-{
-	$from = date2sql($from);
-	$RE = ST_BANKDEPOSIT;
-	$CPAY = ST_CUSTPAYMENT;
-
-	$sql = "SELECT A.ref, A.type, A.trans_date, abs(A.amount) AS amt, A.person_id, A.cashier_user_id, B.name, 
-			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
-			CASE 
-				WHEN A.type = $CPAY THEN 'Office Collection Receipt'
-    			WHEN A.type = $RE THEN 'Receipt Entries'
-			END AS 'receipt_type'
-
-			FROM ".TB_PREF."bank_trans A
-				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
-				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
-				LEFT JOIN ".TB_PREF."users D ON D.real_name = A.cashier_user_id
-			WHERE opening_balance = 0 AND A.type IN ($RE, $CPAY) ";
-
-	if ($cashier != '') {
-		$sql .= " AND (A.cashier_user_id = ".db_escape($cashier) . 
-			" OR D.real_name = ".db_escape($cashier_name) . ")";
-	}
-
-	$sql .= " AND A.trans_date = '$from'";
-			
-	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type DESC";
-
-    return db_query($sql,"No transactions were returned");
-}
-
 function disbursement_transactions($from, $cashier = '', $cashier_name = '')
 {
 	$from = date2sql($from);
@@ -77,8 +46,7 @@ function disbursement_transactions($from, $cashier = '', $cashier_name = '')
 			WHERE A.trans_date = '$from' AND A.type = $DE ";
 	
 	if ($cashier != '') {
-		$sql .= " AND (A.cashier_user_id = ".db_escape($cashier) . 
-			" OR D.real_name = ".db_escape($cashier_name) .")";
+		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
 			
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC";
@@ -96,8 +64,7 @@ function get_dailycash_balance_to($from, $cashier = '', $cashier_name = '')
 		WHERE A.type <> 0 AND A.trans_date < '$date' ";
 
 	if ($cashier != '') {
-		$sql .= " AND (A.cashier_user_id = ".db_escape($cashier) . 
-			" OR B.real_name = ".db_escape($cashier_name) .")";
+		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
 
 	$result = db_query($sql, "The starting balance on hand could not be calculated");
@@ -122,8 +89,7 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 	}
 
 	if ($cashier != '') {
-		$sql .= " AND (A.cashier_user_id = ".db_escape($cashier) . 
-			" OR B.real_name = ".db_escape($cashier_name) .")";
+		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
 
 	$sql .= " AND A.trans_date <= '$date' ";
@@ -201,15 +167,14 @@ function print_dailycash_sales()
 
 	$rep->NewLine();
 
-	$res = getTransactions($from, $cashier, $cashier_name);
+	$res = get_bank_transactions($from, $cashier);
 	$disburse_res = disbursement_transactions($from, $cashier, $cashier_name);
 
 	$total = $sum_receipt = $sub_total = $sum_dis = 0.0;
 	$trans_type = '';
 
 	//Office Collection Receipt
-	while ($trans = db_fetch($res))
-	{
+	while ($trans = db_fetch($res)) {
 		if ($trans_type != $trans['receipt_type']) {
 			
 			if ($trans_type != '') {

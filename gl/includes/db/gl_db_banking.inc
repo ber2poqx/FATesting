@@ -1069,4 +1069,5 @@ function cheque_exists($cheque_no) {
 	$row = db_fetch_row($result);
 	return $row[0];
 }
+
 //

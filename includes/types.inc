@@ -18,6 +18,7 @@ define('ST_JOURNAL', 0);
 define('ST_BANKPAYMENT', 1);
 define('ST_BANKDEPOSIT', 2);
 define('ST_BANKTRANSFER', 4);
+define('ST_REMITTANCE', 5); //Added by spyrax10 25 Mar 2022
 
 define('ST_SALESINVOICE', 10);
 define('ST_CUSTCREDIT', 11);

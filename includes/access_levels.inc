@@ -55,6 +55,7 @@ define('SS_DIM_A',	53<<8);
 define('SS_GL_C',	61<<8);
 define('SS_GL',		62<<8);
 define('SS_GL_A',	63<<8);
+define('SS_GL_B',	64<<8); //Added by spyrax10 25 Mar 2022
 
 define('SS_LEND_C',	71<<8); // configuration
 define('SS_LEND',	72<<8);	// transactions
@@ -89,6 +90,7 @@ $security_sections = array(
  	SS_GL_C => _("Banking & GL configuration"),
  	SS_GL => _("Banking & GL transactions"),
  	SS_GL_A => _("Banking & GL analytics"),
+	SS_GL_B => _("Remittance Transactions"), //Added by spyrax10 25 Mar 2022
 
  	SS_LEND_C => _("Lending configuration"),
  	SS_LEND => _("Lending transactions"),
@@ -397,6 +399,14 @@ $security_areas =array(
 	'SA_TAXREP' => array(SS_GL_A|2, _("Tax reports and inquiries")),
 	'SA_BANKREP' => array(SS_GL_A|3, _("Bank reports and inquiries")),
 	'SA_GLREP' => array(SS_GL_A|4, _("GL reports and inquiries")),
+
+	//Added by spyrax10 25 Mar 2022
+	'SA_REMIT' => array(SS_GL_B|1, _("Remittance Entry")),
+	'SA_REMIT_DRAFT' => array(SS_GL_B|2, _("Remittance Entry Approval")),
+	'SA_REMIT_POST' => array(SS_GL_B|3, _("Remittance Entry Posting")),
+	'SA_REMIT_INQ' => array(SS_GL_B|4, _("Remittance Entry Inquiry List")),
+	'SA_REMIT_VIEW' => array(SS_GL_B|4, _("Remittance Entry Viewer")),
+	//
 
 //
 // Lending related functions

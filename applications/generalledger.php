@@ -24,6 +24,10 @@ class general_ledger_app extends application
 		$this->add_lapp_function(0, _("&Receipts Entry"),
 			"gl/inquiry/receipt_list.php?", 'SA_DEPOSIT', MENU_TRANSACTION
 		);
+
+		$this->add_lapp_function(0, _("Re&mittance Entry"),
+			"gl/inquiry/remittance_list.php?", 'SA_REMIT_INQ', MENU_TRANSACTION
+		);
 		//
 		
 		$this->add_lapp_function(0, _("Bank Account &Transfers"),
