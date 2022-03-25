@@ -405,7 +405,7 @@ $security_areas =array(
 	'SA_REMIT_DRAFT' => array(SS_GL_B|2, _("Remittance Entry Approval")),
 	'SA_REMIT_POST' => array(SS_GL_B|3, _("Remittance Entry Posting")),
 	'SA_REMIT_INQ' => array(SS_GL_B|4, _("Remittance Entry Inquiry List")),
-	'SA_REMIT_VIEW' => array(SS_GL_B|4, _("Remittance Entry Viewer")),
+	'SA_REMIT_VIEW' => array(SS_GL_B|5, _("Remittance Entry Viewer")),
 	//
 
 //
