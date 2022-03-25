@@ -167,6 +167,8 @@ function clear_data()
 	unset($_POST['depreciation_rate']);
 	unset($_POST['depreciation_factor']);
 	unset($_POST['depreciation_start']);
+	unset($_POST['old_code']);
+	unset($_POST['sap_code']);
 	unset($_POST['serialised']);
 	unset($_POST['itemstatus']);
 	unset($_POST['size']);
@@ -240,7 +242,7 @@ if (isset($_POST['addupdate']))
 				$_POST['long_description'], $_POST['category_id'], 
 				$_POST['tax_type_id'], get_post('units'),
 				$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'],
-				check_value('serialised'),$_POST['itemstatus'], 
+				$_POST['old_code'],$_POST['sap_code'],check_value('serialised'),$_POST['itemstatus'], 
 				get_post('fixed_asset') ? 'F' : get_post('mb_flag'), $_POST['sales_account'],
 				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
 				$_POST['inventory_account'], $_POST['cogs_account'],
@@ -264,20 +266,23 @@ if (isset($_POST['addupdate']))
 
 			add_item($_POST['NewStockID'], $_POST['description'],
 				$_POST['long_description'], $_POST['category_id'], $_POST['tax_type_id'],
-				$_POST['units'],$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'], check_value('serialised'), $_POST['itemstatus'], get_post('fixed_asset') ? 'F' : get_post('mb_flag'), $_POST['sales_account'],
+				$_POST['units'],$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'],
+				$_POST['old_code'],$_POST['sap_code'],check_value('serialised'), $_POST['itemstatus'], 
+				get_post('fixed_asset') ? 'F' : get_post('mb_flag'), $_POST['sales_account'],
 				$_POST['installment_sales_account'], $_POST['regular_sales_account'],
 				$_POST['inventory_account'], $_POST['cogs_account'],
 				$_POST['adjustment_account'], $_POST['wip_account'], 
 				$_POST['dimension_id'], $_POST['dimension2_id'],
 				check_value('no_sale'), check_value('editable'), check_value('no_purchase'),
-				get_post('depreciation_method'), input_num('depreciation_rate'), input_num('depreciation_factor'), get_post('depreciation_start', null),
+				get_post('depreciation_method'), input_num('depreciation_rate'), input_num('depreciation_factor'), 
+				get_post('depreciation_start', null),
 			    get_post('fa_class_id'), get_post('size'), get_post('capacity'), 
 				check_value('allow_zero_cost')); //added by spyrax10
 
 			display_notification(_("A new item has been added."));
 			$_POST['stock_id'] = $_POST['NewStockID'] = 
-			$_POST['description'] = $_POST['long_description'] = '';
-			$_POST['serialised'] = $_POST['no_sale'] = $_POST['editable'] = $_POST['no_purchase'] =0;
+			$_POST['description'] = $_POST['long_description'] =  $_POST['old_code'] = $_POST['sap_code'] = '';
+			$_POST['serialised'] = $_POST['no_sale'] = $_POST['editable'] = $_POST['no_purchase'] = $_POST['allow_zero_cost'] = 0;
 			set_focus('NewStockID');
 		}
 		$Ajax->activate('_page_body');
@@ -369,7 +374,9 @@ function item_settings(&$stock_id, $new_item)
 	}
 	$fixed_asset = get_post('fixed_asset');
 
-	text_row(_("Name:"), 'description', null, 52, 200);
+	text_row(_("Old Code:"), 'old_code', null, 50, 50);
+	text_row(_("Sap Code:"), 'sap_code', null, 50, 50);
+	text_row(_("Name:"), 'description', null, 50, 50);
 
 	textarea_row(_('Long Description:'), 'long_description', null, 42, 3);
 
