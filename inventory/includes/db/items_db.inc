@@ -21,6 +21,8 @@ function update_item(
 	$manufacturer = '',
 	$distributor = '',
 	$importer = '',
+	$old_code,
+	$sap_code,
 	$serialised,
 	$itemstatus,
 	$mb_flag = '',
@@ -58,6 +60,8 @@ function update_item(
 		dimension_id=" . db_escape($dimension_id) . ",
 		dimension2_id=" . db_escape($dimension2_id) . ",
 		tax_type_id=" . db_escape($tax_type_id) . ",
+		old_code=" . db_escape($old_code) . ",
+		sap_code=" . db_escape($sap_code) . ",
 		serialised=" . db_escape($serialised) . ",
 		no_sale=" . db_escape($no_sale) . ",
 		no_purchase=" . db_escape($no_purchase) . ",
@@ -95,29 +99,53 @@ function update_item(
 	update_item_code(-1, $stock_id, $stock_id, $description, $category_id, 1, 0, $brand, $manufacturer, $distributor, $importer, $itemstatus);
 }
 
-function add_item($stock_id, $description, $long_description, $category_id, $tax_type_id, $units, $brand, $manufacturer, $distributor, $importer, $serialised, $itemstatus, $mb_flag,	$sales_account, $installment_sales_account, $regular_sales_account, $inventory_account, $cogs_account, $adjustment_account,	$wip_account, $dimension_id, $dimension2_id, $no_sale, $editable, $no_purchase,	$depreciation_method = 'D', $depreciation_rate = 100,  $depreciation_factor = 1, $depreciation_start = null, $fa_class_id = null, $size = null, $capacity = null, $alllow_zero_cost)
+function add_item($stock_id, $description, $long_description, $category_id, $tax_type_id, $units, $brand, $manufacturer, $distributor, 
+	$importer, $old_code, $sap_code, $serialised, $itemstatus, $mb_flag, $sales_account, $installment_sales_account, 
+	$regular_sales_account, $inventory_account, $cogs_account, $adjustment_account, $wip_account, $dimension_id, $dimension2_id,
+	$no_sale, $editable, $no_purchase, $depreciation_method = 'D', $depreciation_rate = 100, $depreciation_factor = 1, 
+	$depreciation_start = null, $fa_class_id = null, $size = null, $capacity = null, $alllow_zero_cost)
 {
-	$sql = "INSERT INTO " . TB_PREF . "stock_master (stock_id, description, long_description, category_id,
-		tax_type_id, units, mb_flag, sales_account, installment_sales_account, regular_sales_account, inventory_account, cogs_account,
-		adjustment_account, wip_account, dimension_id, dimension2_id, no_sale, no_purchase, editable,
-		depreciation_method, depreciation_rate, depreciation_factor"
-		. (isset($depreciation_start) ? ", depreciation_start, depreciation_date, fa_class_id" : "")
-		. ",brand,manufacturer,distributor,importer, serialised, size, capacity, allow_zero_cost) VALUES (" . db_escape($stock_id) . ", " . db_escape($description) . ", " . db_escape($long_description) . ",
-		" . db_escape($category_id) . ", " . db_escape($tax_type_id) . ", "
-		. db_escape($units) . ", " . db_escape($mb_flag) . ",
-		" . db_escape($sales_account) . ", " . db_escape($installment_sales_account) . ", " . db_escape($regular_sales_account) . ", 
-		" . db_escape($inventory_account)
-		. ", " . db_escape($cogs_account) . "," . db_escape($adjustment_account)
-		. ", " . db_escape($wip_account) . ", "
-		. db_escape($dimension_id) . ", " . db_escape($dimension2_id) . ","
-		. db_escape($no_sale) . ","
-		. db_escape($no_purchase) . ","
-		. db_escape($editable) . ","
-		. db_escape($depreciation_method) . "," . db_escape($depreciation_rate) . "," . db_escape($depreciation_factor)
-		. (isset($depreciation_start) ? ",'" . date2sql($depreciation_start) . "','" . date2sql($depreciation_start) . "'," . db_escape($fa_class_id) : "")
-		. "," . db_escape($brand) . "," . db_escape($manufacturer) . "," . db_escape($distributor) . "," . db_escape($importer) . ","
-		. db_escape($serialised) . "," . db_escape($size) . "," . db_escape($capacity) . ","
-		. db_escape($alllow_zero_cost) . ")"; //added by spyrax10
+	$sql = "INSERT INTO " . TB_PREF . "stock_master (stock_id, description, long_description, category_id, tax_type_id, units, 
+		mb_flag, sales_account, installment_sales_account, regular_sales_account, inventory_account, cogs_account, adjustment_account, 
+		wip_account, dimension_id, dimension2_id, no_sale, no_purchase, editable, depreciation_method, depreciation_rate, 
+		depreciation_factor" . (isset($depreciation_start) ? ", depreciation_start, depreciation_date, fa_class_id" : "") 
+		. ",brand, manufacturer, distributor, importer, old_code, sap_code, serialised, size, capacity, allow_zero_cost)
+		VALUES (
+		" . db_escape($stock_id) . ",
+		" . db_escape($description) . ", 
+		" . db_escape($long_description) . ",
+		" . db_escape($category_id) . ", 
+		" . db_escape($tax_type_id) . ", 
+		" . db_escape($units) . ",
+		" . db_escape($mb_flag) . ", 
+		" . db_escape($sales_account) . ",
+		" . db_escape($installment_sales_account) . ", 
+		" . db_escape($regular_sales_account) . ",
+		" . db_escape($inventory_account) . ", 
+		" . db_escape($cogs_account) . ",
+		" . db_escape($adjustment_account) . ", 
+		" . db_escape($wip_account) . ", 
+		" . db_escape($dimension_id) . ", 
+		" . db_escape($dimension2_id) . ",
+		" . db_escape($no_sale) . ", 
+		" . db_escape($no_purchase) . ",
+		" . db_escape($editable) . ",
+		" . db_escape($depreciation_method) . ",
+		" . db_escape($depreciation_rate) . ",
+		" . db_escape($depreciation_factor) . (isset($depreciation_start) ? ",
+		'" . date2sql($depreciation_start) . "',
+		'" . date2sql($depreciation_start) . "',
+		" . db_escape($fa_class_id) : "") . ",
+		" . db_escape($brand) . ",
+		" . db_escape($manufacturer) . ",
+		" . db_escape($distributor) . ",
+		" . db_escape($importer) . ",
+		" . db_escape($old_code) . ",
+		" . db_escape($sap_code) . ",
+		" . db_escape($serialised) . ",
+		" . db_escape($size) . ",
+		" . db_escape($capacity) . ",
+		" . db_escape($alllow_zero_cost) . ")"; //added by spyrax10
 
 	db_query($sql, "The item could not be added");
 

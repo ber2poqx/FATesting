@@ -125,6 +125,66 @@ function can_process()
 		return false;
 	} 
 
+	if (strstr($_POST['CustName'], "\"") || strstr($_POST['CustName'], "&") || strstr($_POST['CustName'], "?") 
+		|| strstr($_POST['CustName'], "ñ") || strstr($_POST['CustName'], "Ñ") || strstr($_POST['CustName'], "%")
+		|| strstr($_POST['CustName'], "$") || strstr($_POST['CustName'], "*")) 
+	{
+		$InputError = 1;
+		display_error( _('The Customer name cannot contain any of the following characters %, $, *, ?, Ñ, ñ, & OR quotes'));
+		set_focus('CustName');
+		return false;
+	}
+
+	if (strstr($_POST['address'], "\"") || strstr($_POST['address'], "&") || strstr($_POST['address'], "%")
+		|| strstr($_POST['address'], "?") || strstr($_POST['address'], "ñ") || strstr($_POST['address'], "Ñ") 
+		|| strstr($_POST['address'], "$") || strstr($_POST['address'], "*")) 
+	{
+		$InputError = 1;
+		display_error( _('The Address cannot contain any of the following characters %, $, *, ?, Ñ, ñ, & OR quotes'));
+		set_focus('address');
+		return false;	
+	}
+
+	if (strstr($_POST['barangay'], "\"") || strstr($_POST['barangay'], "&") || strstr($_POST['barangay'], "?") 
+		|| strstr($_POST['barangay'], "ñ") || strstr($_POST['barangay'], "Ñ") || strstr($_POST['barangay'], "%")
+		|| strstr($_POST['barangay'], "$") || strstr($_POST['barangay'], "*")) 
+	{
+		$InputError = 1;
+		display_error( _('The Barangay cannot contain any of the following characters %, $, *, ?, Ñ, ñ, & OR quotes'));
+		set_focus('barangay');
+		return false;	
+	}
+
+	if (strstr($_POST['province'], "\"") || strstr($_POST['province'], "&") || strstr($_POST['province'], "?") 
+		|| strstr($_POST['province'], "ñ") || strstr($_POST['province'], "Ñ") || strstr($_POST['province'], "%")
+		|| strstr($_POST['province'], "$") || strstr($_POST['province'], "*")) 
+	{
+		$InputError = 1;
+		display_error( _('The Province cannot contain any of the following characters %, $, *, ?, Ñ, ñ, & OR quotes'));
+		set_focus('province');
+		return false;		
+	}
+
+	if (strstr($_POST['name_mother'], "\"") || strstr($_POST['name_mother'], "&") || strstr($_POST['name_mother'], "?") 
+		|| strstr($_POST['name_mother'], "ñ") || strstr($_POST['name_mother'], "Ñ") || strstr($_POST['name_mother'], "%")
+		|| strstr($_POST['name_mother'], "$") || strstr($_POST['name_mother'], "*")) 
+	{
+		$InputError = 1;
+		display_error( _('The Mother name cannot contain any of the following characters  %, $, *, ?, Ñ, ñ, & OR quotes'));
+		set_focus('name_mother');
+		return false;
+	}
+
+	if (strstr($_POST['name_father'], "\"") || strstr($_POST['name_father'], "&") || strstr($_POST['name_father'], "?") 
+		|| strstr($_POST['name_father'], "ñ") || strstr($_POST['name_father'], "Ñ") || strstr($_POST['name_father'], "%")
+		|| strstr($_POST['name_father'], "$") || strstr($_POST['name_father'], "*")) 
+	{
+		$InputError = 1;
+		display_error( _('The Father name cannot contain any of the following characters %, $, *, ?, Ñ, ñ, & OR quotes'));
+		set_focus('name_father');
+		return false;
+	}
+
 	/*
 	if (strlen($_POST['collectors_name']) == 0) 
 	{

@@ -303,9 +303,14 @@ if (isset($_POST['import'])) {
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
 			    if (!$row) {
-				    $sql = "INSERT INTO ".TB_PREF."stock_master (stock_id, description, long_description, category_id, tax_type_id, units, mb_flag, sales_account, inventory_account, cogs_account, adjustment_account, wip_account, dimension_id, dimension2_id, brand, manufacturer, distributor, importer, installment_sales_account, regular_sales_account, serialised)
-					    VALUES ('$id',".db_escape($description).",'','$cat', {$_POST['tax_type_id']}, '$units', '$mb_flag','{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
-					    '{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", ".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", '{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}',".db_escape($serialised).")";
+				    $sql = "INSERT INTO ".TB_PREF."stock_master (stock_id, description, long_description, category_id, tax_type_id, units, mb_flag, sales_account, inventory_account, cogs_account, adjustment_account, wip_account, dimension_id, dimension2_id, brand, manufacturer, distributor, importer, installment_sales_account, regular_sales_account, 
+				    	old_code, sap_code, serialised)
+					    VALUES ('$id',".db_escape($description).",'','$cat', {$_POST['tax_type_id']}, '$units', '$mb_flag', 
+					    '{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
+					    '{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", 
+					    ".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", 
+					    '{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}', ".db_escape($oldcode).", 
+					    ".db_escape($sapitemno).", ".db_escape($serialised).")";
 
 				    db_query($sql, "The item could not be added");
 				    display_notification("Line $lines: Added $id $description");
@@ -337,6 +342,8 @@ if (isset($_POST['import'])) {
 						importer=".db_escape($importer).",
                         installment_sales_account='{$_POST['installment_sales_account']}',
                         regular_sales_account='{$_POST['regular_sales_account']}',
+					    old_code=".db_escape($oldcode).",
+					    sap_code=".db_escape($sapitemno).",
 					    serialised=".db_escape($serialised)."
                         WHERE stock_id='$id'";
 
