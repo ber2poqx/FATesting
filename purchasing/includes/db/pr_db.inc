@@ -401,5 +401,21 @@ function get_pr_total_qty($reference) {
 		return 0;
 	}
 }
+//Added by Albert
+
+function get_po_total_qty_recieved($reference) {
+
+	set_global_connection();
+
+	$sql = "SELECT SUM(b.quantity_received) as total_qty_received
+			FROM " . TB_PREF . "purch_orders a 
+				INNER JOIN " . TB_PREF . "purch_order_details b ON b.order_no = a.order_no
+			WHERE a.reference = " . db_escape($reference);
+
+	$result = db_query($sql, "The status for purchase order " . $reference . " could not be retrieved");
+
+		$row = db_fetch_row($result);
+		return $row[0];
+}
 
 //
