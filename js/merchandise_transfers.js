@@ -318,7 +318,7 @@ Ext.onReady(function(){
 		renderer: Ext.util.Format.numberRenderer('0,000.00')
 		},
         {header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, align:'center',
 			editor:{
 				completeOnEnter: true,
 				field:{
