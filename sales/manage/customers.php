@@ -111,7 +111,7 @@ function can_process()
 		return false;
 	} 
 
-	if (strlen($_POST['name_father']) == 0) 
+	/*if (strlen($_POST['name_father']) == 0) 
 	{
 		display_error(_("The father name cannot be empty."));
 		set_focus('name_father');
@@ -123,7 +123,7 @@ function can_process()
 		display_error(_("The mother name cannot be empty."));
 		set_focus('name_mother');
 		return false;
-	} 
+	}*/ 
 
 	if (strstr($_POST['CustName'], "\"") || strstr($_POST['CustName'], "&") || strstr($_POST['CustName'], "?") 
 		|| strstr($_POST['CustName'], "ñ") || strstr($_POST['CustName'], "Ñ") || strstr($_POST['CustName'], "%")
@@ -453,29 +453,29 @@ function customer_settings($selected_id)
 	}else{
 	//text_row(_("Customer Code:"), 'cust_ref', null, 35, 35);
  	}
-	text_row(_("Customer Name:"), 'CustName', $_POST['CustName'], 40, 80);
-	textarea_row(_("Complete Address:"), 'address', $_POST['address'], 34, 2);
-	text_row(_("Barangay:"), 'barangay', $_POST['barangay'], 35, 35);
-	text_row(_("Province:"), 'province', $_POST['province'], 35, 35);
-	sales_munizipcode_list_row( _("Municipality:"), 'municipality', null, true);
+	text_row(_("Customer Name: *"), 'CustName', $_POST['CustName'], 40, 80);
+	textarea_row(_("Complete Address: *"), 'address', $_POST['address'], 34, 2);
+	text_row(_("Barangay: *"), 'barangay', $_POST['barangay'], 35, 35);
+	text_row(_("Province: *"), 'province', $_POST['province'], 35, 35);
+	sales_munizipcode_list_row( _("Municipality: *"), 'municipality', null, true);
 	//text_row(_("Municipality:"), 'municipality', $_POST['municipality'], 35, 35);
 	//zipcode_list_cells( _("Zip Code:"), 'zip_code', null);
 	//text_row(_("Zip Code:"), 'zip_code', $_POST['zip_code'], 35, 35);
 
 	text_row(_("TINNo:"), 'tax_id', null, 35, 35);
-	date_cells(_("Birth Date:"), 'age', $_POST['age']);
+	date_cells(_("Birth Date: *"), 'age', $_POST['age']);
 	//text_row(_("Age:"), 'age', $_POST['age'], 35, 35);
-	gender_status_list_row(_("Gender:"), 'gender', $_POST['gender']);
+	gender_status_list_row(_("Gender: *"), 'gender', $_POST['gender']);
 	if ($selected_id) {
-		status_customer_list_row(_("Status:"), 'status', $_POST['status'], false, false, false, false);
-		text_row(_("Spouse Name:"), 'spouse', $_POST['spouse'], 35, 35);
+		status_customer_list_row(_("Status: *"), 'status', $_POST['status'], false, false, false, false);
+		text_row(_("Spouse Name: *"), 'spouse', $_POST['spouse'], 35, 35);
 	} else {
-		status_customer_list_row(_("Status:"), 'status', $_POST['status'], false, false, false, true);
+		status_customer_list_row(_("Status: *"), 'status', $_POST['status'], false, false, false, true);
 			switch ($_POST['status']) {
 				case DT_SINGLE:
 					break;
 				case DT_MARRIED:
-					text_row(_("Spouse Name:"), 'spouse', $_POST['spouse'], 35, 35);
+					text_row(_("Spouse Name: *"), 'spouse', $_POST['spouse'], 35, 35);
 					break;
 				case DT_WIDOWED:
 					break;
@@ -484,7 +484,7 @@ function customer_settings($selected_id)
 	text_row(_("Name of Father:"), 'name_father', $_POST['name_father'], 35, 35);
 	text_row(_("Name of Mother:"), 'name_mother', $_POST['name_mother'], 35, 35);
 
-	sales_areas_list_row( _("Collector Area:"), 'area', null, true);
+	sales_areas_list_row( _("Collector Area: *"), 'area', null, true);
 	//customer_collector_list_cells( _("Collector Name:"), 'collectors_name', null);
 
 	if (!$selected_id || is_new_customer($selected_id) || (!key_in_foreign_table($selected_id, 'debtor_trans', 'debtor_no') &&
@@ -499,7 +499,7 @@ function customer_settings($selected_id)
 	}
 	//modify by progjr on feb 23, 2021
 	//sales_types_list_row(_("Sales Type/Price List:"), 'sales_type', $_POST['sales_type']);
-	saleorder_types_row(_("Sales Type:"), 'sales_type', $_POST['sales_type'], false);
+	saleorder_types_row(_("Sales Type: *"), 'sales_type', $_POST['sales_type'], false);
 	//check_row(_("Employee: "), 'employee'); // Added by Ronelle 7/23/2021
 	
 	if($selected_id)
@@ -507,10 +507,10 @@ function customer_settings($selected_id)
 	elseif (isset($SysPrefs->auto_create_branch) && $SysPrefs->auto_create_branch == 1)
 	{
 		table_section_title(_("Branch"));
-		text_row(_("Phone:"), 'phone', null, 35, 35);
+		text_row(_("Phone: *"), 'phone', null, 35, 35);
 		text_row(_("Secondary Phone Number:"), 'phone2', null, 35, 35);
 		text_row(_("Fax Number:"), 'fax', null, 35, 35);
-		email_row(_("E-mail:"), 'email', null, 35, 55);
+		email_row(_("E-mail: *"), 'email', null, 35, 55);
 		email_row(_("Facebook:"), 'facebook', null, 35, 55);
 		text_row(_("Bank Account Number:"), 'bank_account', null, 35, 35);
 		sales_persons_list_row( _("Sales Person:"), 'salesman', null);
