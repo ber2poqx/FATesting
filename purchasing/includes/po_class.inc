@@ -102,18 +102,18 @@ class purch_order
 	}
 
 	//Added by spyrax10 26 Mar 2022
-	function find_cart_serial($lot_no) {
+	function find_cart_serial($serial_no) {
 		foreach($this->line_items as $line_no=>$line) {
-			if ($line->lot_no == $lot_no) {
+			if ($line->serial_no == $serial_no) {
 				return $this->line_items[$line_no];
 			}			
 		}
 		return null;
 	}
 
-	function find_cart_chassis($chasis_no) {
+	function find_cart_chassis($chassis_no) {
 		foreach($this->line_items as $line_no=>$line) {
-			if ($line->chasis_no == $chasis_no) {
+			if ($line->chassis_no == $chassis_no) {
 				return $this->line_items[$line_no];
 			}			
 		}
