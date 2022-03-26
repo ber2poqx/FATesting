@@ -110,6 +110,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	    border: 0px;
 	    text-decoration: underline;
 	    text-align: left;
+	    width:170px;
 	    font-size: 11px;
 	}
 	
@@ -126,7 +127,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	    border: 0px;
 	    text-decoration: underline;
 	    text-align: left;
-	    width:480px;
+	    width:450px;
 	    font-size: 11px;
 	}
 	.underlined{
@@ -483,8 +484,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 									echo '<td align=center style="border-right:0.5px solid; padding-left: 5px;">'.($counter).'</td>';
 							        echo '<td align=left style="border-right:0.5px solid; padding-left: 5px;">'.($myrow2["account"]).'</td>';
 							        echo '<td align=left style="border-right:0.5px solid; padding-left: 5px;">'.($myrow2["account_name"]).'</td>';
-									echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.$mccode.'</td>';							      
-							        echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.$masterfile.'</td>';
+									echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.($myrow2["mcode"]).'</td>';							      
+							        echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.($myrow2["master_file"]).'</td>';
 							        echo '<td align=right style="border-right:0.5px solid; padding-right: 5px;">'.($debit<=0?"-":price_format($debit)).'</td>';							      
 							        echo '<td align=right style="padding-right: 5px;">'.($credit==0?"-":price_format(-$credit)).'</td>';
 									echo '</tr>';

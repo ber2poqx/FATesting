@@ -64,14 +64,14 @@ Ext.onReady(function(){
 	
 	var columnModel =[
 		{header:'ID', dataIndex:'id', sortable:true, width:20,hidden: true},
-		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:50, hidden: false},
-		{header:'RR Ref#', dataIndex:'rrbrreference', sortable:true, width:50, hidden: false},
-		{header:'Trans<br/>Date', dataIndex:'trans_date', sortable:true, width:30, align:'center'},
+		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:60, hidden: false},
+		{header:'RR Ref#', dataIndex:'rrbrreference', sortable:true, width:70, hidden: false},
+		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:40, align:'center'},
 		{header:'From Location Code', dataIndex:'from_loc', sortable:true, width:90, hidden: true},
 		{header:'From Location', dataIndex:'fromlocation', sortable:true, width:90},
 		{header:'To Location', dataIndex:'tolocation', sortable:true, width:90, hidden: true},
 		{header:'Category', dataIndex:'category', sortable:true, width:50},
-		{header:'Total<br/>Items', dataIndex:'total_qty', sortable:true, width:30, align:'center'},
+		{header:'Total Items', dataIndex:'total_qty', sortable:true, width:50, align:'center'},
 		{header:'Remarks', dataIndex:'remarks', sortable:true, align:'left', renderer: columnWrap},
 		{header:'Status', dataIndex:'status_msg', sortable:true, width:40},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
