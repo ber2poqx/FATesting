@@ -230,6 +230,9 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 0
             );
 
+            // Added by Albert 03/26/2022
+            $si_trans_no = get_SI_by_reference($sales_return->si_no_ref);
+            //
             add_return_units(
                 $sales_return_no,
                 ST_SALESRETURN,
@@ -237,7 +240,9 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 $sales_return->trans_type_ref,
                 $sales_return_line->id,
                 $sales_return_line->stock_id,
-                $sales_return_line->qty_dispatched
+                $sales_return_line->qty_dispatched,
+                $si_trans_no['trans_no']
+
             );
 
             add_stock_move(
@@ -577,7 +582,8 @@ function add_return_units(
     $from_debtor_trans_type,
     $from_debtor_trans_details_id,
     $stock_id,
-    $quantity
+    $quantity,
+    $si_trans_no
 ) {
     $sql = "INSERT INTO " . TB_PREF . "returned_units (
         debtor_trans_no,
@@ -586,7 +592,8 @@ function add_return_units(
         from_debtor_trans_type,
         from_debtor_trans_details_id,
         stock_id,
-        quantity
+        quantity,
+        si_trans_no
         ) VALUES (
         " . db_escape($debtor_trans_no) . ",
         " . db_escape($debtor_trans_type) . ",
@@ -594,7 +601,8 @@ function add_return_units(
         " . db_escape($from_debtor_trans_type) . ",
         " . db_escape($from_debtor_trans_details_id) . ",
         " . db_escape($stock_id) . ",
-        " . db_escape($quantity) . ")";
+        " . db_escape($quantity) . ",
+        " . db_escape($si_trans_no) . ")";
 
     db_query($sql, "The debtor transaction detail could not be written");
 }
