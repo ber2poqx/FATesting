@@ -184,8 +184,8 @@ function add_stock_rrBranch($Items, $location_from, $location_to, $date_, $refer
     
     $transfer_id = get_next_trans_no(ST_RRBRANCH);
 
-    $mcode = $_POST['ToStockLocation'];
-    $master_file = get_db_location_name($_POST['ToStockLocation']);
+    $mcode = $_POST['from_loc_code'];
+    $master_file = get_db_location_name($_POST['from_loc_code']);
     
     if ($SysPrefs->loc_notification() == 1)
     {
