@@ -204,7 +204,7 @@ function print_dailycash_sales()
 		$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
 		$rep->TextCol(2, 3, $trans['memo_']);
 		$rep->TextCol(3, 4, $trans['ref']);
-		$rep->AmountCol(4, 5, $trans['amt'], $dec);
+		$rep->AmountCol(4, 5, ABS($trans['amt']), $dec);
 		$rep->NewLine(1);
 		
 		/*$curr = get_customer_currency($trans['debtor_no']);
@@ -214,8 +214,8 @@ function print_dailycash_sales()
 		$rep->NewLine(0.5);
 		$rep->fontSize = 9;*/
 
-		$sub_total += $trans['amt'];
-		$total += $trans['amt'];
+		$sub_total += ABS($trans['amt']);
+		$total += ABS($trans['amt']);
 		$sum_receipt = $total;
 		//------------------------------//
 	}

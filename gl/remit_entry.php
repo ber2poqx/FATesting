@@ -37,8 +37,11 @@ if (isset($_GET['AddedID'])) {
     $trans_no = $_GET['AddedID'];
 
     display_notification_centered(_("Remittance has been processed!"));
-    display_note(get_gl_view_str($trans_type, $trans_no, _("View the GL &Postings for this Remittance Entry")), 1, 0);
+    display_note(get_gl_view_str(ST_REMITTANCE, $trans_no, _("View the GL &Postings for this Remittance Entry")), 1, 0);
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter &Another Remittance Entry"), "");
+    hyperlink_params("$path_to_root/gl/inquiry/remittance_list.php", _("Back to Remittance Entry Inquiry List"), "");
+
+    display_footer_exit();
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -68,7 +71,7 @@ function doc_ref($row) {
 }
 
 function amount_total($row) {
-    return abs($row['amt']);
+    return ABS($row['amt']);
 }
 
 function systype_name($row) {
@@ -105,7 +108,7 @@ function can_process() {
     }
 
     if (get_post('memo_') == '') {
-        display_error(_("Please enter a memo for this transactions!"));
+        display_error(_("Please enter a memo for this transaction!"));
         set_focus('cashier_');
         return false;
     }
@@ -115,12 +118,14 @@ function can_process() {
 
 //-----------------------------------------------------------------------------------------------
 if (isset($_POST['Process']) && can_process()) {
+
+    if (!isset($_POST['date_'])) {
+        $_POST['date_'] = Today();
+    }
     
     $trans_no = write_remit_transactions(
-        ST_REMITTANCE, 
         get_post('ref'), 
         get_post('date_'),
-        0,
         $_SESSION["wa_current_user"]->user,
         get_post('cashier_'),
         get_post('memo_')

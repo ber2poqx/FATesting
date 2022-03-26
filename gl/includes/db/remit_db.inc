@@ -7,17 +7,18 @@
 
 function get_bank_transactions($from_date = null, $cashier = '', $report = true) {
 
+    set_global_connection();
+
 	if ($report) {
 		$from_date = date2sql($from_date);
 	}
 
 	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
-            abs(A.amount) AS amt, A.person_id, A.cashier_user_id, B.name, 
+            A.amount AS amt, A.person_id, A.cashier_user_id, B.name, 
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
 				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt'
     			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries'
-                WHEN A.type = " . ST_REMITTANCE . " THEN 'Remittance Entries'
 			END AS 'receipt_type'
 
 			FROM ".TB_PREF."bank_trans A
@@ -27,19 +28,23 @@ function get_bank_transactions($from_date = null, $cashier = '', $report = true)
 			WHERE opening_balance = 0";
 
     if ($report) {
-        $sql .= " AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ", " . ST_REMITTANCE . ")";
+        $sql .= " AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
     }
     
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
 
-	if ($report) {
+	if ($report && $from_date != null) {
 		$sql .= " AND A.trans_date = '$from_date'";
 	}
+
+    if (!$report) {
+        $sql .= " AND IFNULL(A.remit_stat, '') <> '' AND remit_from = 0";
+    }
 			
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type DESC";
-
+    
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
     }
@@ -48,70 +53,139 @@ function get_bank_transactions($from_date = null, $cashier = '', $report = true)
     }
 }
 
-function write_remit_transactions($trans_type, $reference = '', $date_, $total_amount, $user_id = 0, $remit_to = 0, $memo_ = ''
-) {
+function get_remit_transactions($reference = '', $remit_from = '', $from_date = null, $to_date = null, $details = false) {
+
+    set_global_connection();
+
+    if ($details) {
+        $sql = "SELECT RT.*
+            FROM ".TB_PREF."remittance RT";
+    }
+    else {
+        $sql = "SELECT RT.*, SUM(RT.amount) AS tot_amount
+            FROM ".TB_PREF."remittance RT";
+    }
+
+    if ($details) {
+        $sql .= " WHERE IFNULL(RT.remit_ref, '') <> ''";
+    }
+    else {
+        if ($from_date != null || $to_date != null) {
+            $sql .= " WHERE RT.remit_date >= '" . date2sql($from_date) . "' 
+                AND RT.remit_date <= '" . date2sql($to_date) . "'";
+        }
+        else {
+            $sql .= " WHERE IFNULL(RT.remit_ref, '') <> ''";
+        }
+    }
+
+    if ($reference != '') {
+        $sql .= " AND RT.remit_ref = ".db_escape($reference);
+    }
+    
+    if ($remit_from != '') {
+        $sql .= " AND RT.remit_from = " .db_escape($remit_from);
+    }
+
+    $sql .= " AND RT.remit_to = " .db_escape($_SESSION['wa_current_user']->user);
+
+    if ($details == false) {
+        $sql .= " GROUP BY RT.remit_ref";
+    }
+    
+    if ($details) {
+        return db_query($sql, _("No remittance transactions were returned from the database."));
+    }
+    else {
+        return $sql;
+    }
+}
+
+function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_to = 0, $memo_ = '') {
+
+    set_global_connection();
 
     global $Refs;
 
-    $trans_no = get_next_trans_no($trans_type);
+    $trans_no = get_next_trans_no(ST_REMITTANCE);
+    $result = get_bank_transactions(null, $user_id, true);
+    $inserted = 0;
 
-    add_bank_trans($trans_type, $trans_no,
-		3, //COH
-		$ref, $date_, $total_amount,
-		PT_EMPLOYEE, $user_id,
-		$remit_to, //Cashier
-		"Cash",
-        //For Cheque
-        '0000-00-00', 0, null,
-        //
-        $remit_to, //masterfile
-		0, //receeipt no
-		get_current_user_fullname(), //Prepared by 
-		null, //Checked by
-		null, //Approved by
-		null, //Module type
-		'', // 19
-		"Cannot insert a source bank transaction (remittance) ",// 20
-		0 //Opening Balance
-	);
+    while ($row = db_fetch($result)) {
 
-    remit_bank_trans(1, $user_id, $remit_to);
+        add_remit_entry(
+            $trans_no,
+            _('Draft'), 
+            $user_id, 
+            $remit_to, 
+            date2sql($date_), 
+            $reference,
+            $row['ref'],
+            $row['type'],
+            $row['trans_date'],
+            $row['amt'],
+            $memo_,
+            ''
+        );
 
-    add_gl_trans(
-        $trans_type, 
-        $trans_no, 
-        $date_, 
-        1060, //Temporary Account
-        0, 0, 
-        $memo_, 
-        $total_amount, 
-        null, PT_EMPLOYEE, $user_id, "", 0, 
-        '', '' //Masterfile
-    );
+        remit_bank_trans(_('Draft'), $user_id, $remit_to);
 
-    add_gl_trans(
-        $trans_type, 
-        $trans_no, 
-        $date_, 
-        1060, //Temporary Account
-        0, 0, 
-        $memo_, 
-        -$total_amount, 
-        null, PT_EMPLOYEE, $user_id, "", 0, 
-        '', '' //Masterfile
-    );
+        $inserted++;
+    }
 
-    add_comments($trans_type, $trans_no, $date_, $memo_);
-	$Refs->save($trans_type, $trans_no, $reference);
-	add_audit_trail($trans_type, $trans_no, $date_);
+    if ($inserted > 0) {
+        add_comments(ST_REMITTANCE, $trans_no, $date_, $memo_);
+        $Refs->save(ST_REMITTANCE, $trans_no, $reference);
+	    add_audit_trail(ST_REMITTANCE, $trans_no, $date_, _("Draft ref: " . $reference));
+    }
 
     return $trans_no;
 }
 
-function remit_bank_trans($remit_stat = 0, $user_id = 0, $remit_to = 0) {
+function add_remit_entry($remit_num = 0, $remit_stat = '', $remit_from = 0, $remit_to = 0, $remit_date = null,
+$remit_ref = '', $from_ref = '', $from_type = '', $from_date = null, $from_amt = 0, $remit_memo = '', $stat_memo = '') {
 
-    $sql = "UPDATE ".TB_PREF."bank_trans BT
-        SET BT.cashier_user_id = $remit_to, BT.remit_stat = $remit_stat, BT.remit_from = $user_id";
+    set_global_connection();
+
+    $sql = "INSERT INTO ".TB_PREF."remittance 
+        (remit_num, remit_stat, remit_from, remit_to, remit_date, remit_ref, from_ref, type, trans_date, amount, 
+        remit_memo, status_memo)";
+    
+    $sql .= " VALUES(
+        " . db_escape($remit_num) . ",
+        " . db_escape($remit_stat) . ",
+        " . db_escape($remit_from) . ",
+        " . db_escape($remit_to) . ",
+        " . db_escape($remit_date) . ",
+        " . db_escape($remit_ref) . ",
+        " . db_escape($from_ref) . ",
+        " . db_escape($from_type) . ",
+        " . db_escape($from_date) . ",
+        " . db_escape($from_amt) . ",
+        " . db_escape($remit_memo) . ",
+        " . db_escape($stat_memo) . "
+    )";
+
+    db_query($sql, _("Couldn't add remittance entry!"));
+}
+
+function remit_bank_trans($remit_stat = '', $user_id = 0, $remit_to = 0) {
+
+    $sql = "UPDATE ".TB_PREF."bank_trans BT 
+        SET BT.remit_stat = '$remit_stat'";
+
+    if ($remit_stat == "Closed") {
+        $sql .= ", BT.cashier_user_id = $remit_to";
+    }
+
+    if ($remit_stat != '') {
+        if ($remit_stat != "Closed") {
+            $sql .= ", BT.remit_from = $remit_to";
+        }
+        else {
+            $sql .= ", BT.remit_from = $user_id";
+        }
+    }
     
     $sql .= " WHERE BT.cashier_user_id = " .db_escape($user_id);
     

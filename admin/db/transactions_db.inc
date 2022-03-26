@@ -214,7 +214,7 @@ function get_systype_db_info($type)
         case     ST_BANKDEPOSIT  : return array(TB_PREF."bank_trans", "type", "trans_no", "ref", "trans_date");
         case     3               : return null;
         case     ST_BANKTRANSFER : return array(TB_PREF."bank_trans", "type", "trans_no", "ref", "trans_date");
-		case     ST_REMITTANCE  : return array(TB_PREF."bank_trans", "type", "trans_no", "ref", "trans_date"); //Added by spyrax10 25 Mar 2022
+		case     ST_REMITTANCE  : return array(TB_PREF."remittance", "remit_num", "remit_ref", "remit_date"); //Added by spyrax10 25 Mar 2022
         case     ST_SALESINVOICE : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_CUSTCREDIT   : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_CUSTPAYMENT  : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");

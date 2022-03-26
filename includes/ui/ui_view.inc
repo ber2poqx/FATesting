@@ -117,6 +117,19 @@ function get_customer_trans_view_str($type, $trans_no, $label="", $icon=false,
   return $preview_str;
 }
 
+function get_remit_trans_view_str($type, $trans_no, $label = "", 
+$icon = false, $class = '', $id = '', $interbranch = false) {
+
+	if ($label == "")
+		$label = $trans_no;
+
+		$viewer = "remit_trans_view.php";
+
+	return viewer_link($label, "gl/view/$viewer?trans_no=$trans_no&type=$type&ref=$label", 
+		$class, $id, $icon
+	);
+}
+
 //--------------------------------------------------------------------------------------
 
 //Modified by spyrax10 18 Feb 2022
@@ -279,9 +292,12 @@ function get_trans_view_str($type, $trans_no, $label = "", $icon=false,
 {
 	
 	if ($interbranch) {
-		$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id, $interbranch);
-		if ($view_str != null)
-			return $view_str;
+		if ($type == ST_BANKTRANSFER || $type == ST_BANKPAYMENT || $type == ST_BANKDEPOSIT) {
+			$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id, $interbranch);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
 	}
 	else {
 		$view_str = get_customer_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
@@ -292,14 +308,28 @@ function get_trans_view_str($type, $trans_no, $label = "", $icon=false,
 		if ($view_str != null)
 			return $view_str;
 
-		$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-		if ($view_str != null)
-			return $view_str;
+		//Modified by spyrax10 26 Mar 2022
+		if ($type == ST_BANKTRANSFER || $type == ST_BANKPAYMENT || $type == ST_BANKDEPOSIT) {
+			$view_str = get_banking_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
 
-		$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-		if ($view_str != null)
-			return $view_str;
-
+		if ($type == ST_REMITTANCE) {
+			$view_str = get_remit_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+		if ($type == ST_INVADJUST) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+		//
+	
 		$view_str = get_manufacturing_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
 		if ($view_str != null)
 			return $view_str;
@@ -308,9 +338,12 @@ function get_trans_view_str($type, $trans_no, $label = "", $icon=false,
 		if ($view_str != null)
 			return $view_str;
 
-		$view_str = get_journal_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
-		if ($view_str != null)
-			return $view_str;
+		if ($type == ST_JOURNAL) {
+			$view_str = get_journal_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
 	}
 	
 	return null;
