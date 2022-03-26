@@ -15,6 +15,12 @@ Ext.onReady(function(){
 	//Ext.QuickTips.init();
 	var global_master_id, branchcode;
 
+	var smCheckitem = Ext.create('Ext.selection.CheckboxModel',{
+		mode: 'MULTI'
+	});
+	var cellEditing = Ext.create('Ext.grid.plugin.CellEditing',{
+        clicksToEdit: 2
+    });
 
 	var GroupTypeStore = new Ext.create('Ext.data.Store',{
 		fields 	: 	['id','groupname'],
@@ -75,17 +81,6 @@ Ext.onReady(function(){
 		{header:'Remarks', dataIndex:'remarks', sortable:true, align:'left', renderer: columnWrap},
 		{header:'Status', dataIndex:'status_msg', sortable:true, width:40},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
-			/*renderer: function(val, metadata, record){
-				//console.log(record.get('rrbrreference'));
-				if(record.get('rrbrreference')==null){
-					this.items[1].tooltip = '';
-					this.items[1].icon = '';
-				}else{
-                	this.items[1].tooltip = record.get('rrbrreference');
-					this.items[1].icon = '../js/ext4/examples/shared/icons/printer.png';
-				}
-				return val;
-			},*/
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
@@ -193,15 +188,12 @@ Ext.onReady(function(){
 									xtype:'grid',
 									forceFit: true,
 									layout:'fit',
-									selModel:selModel1,
+									selModel:smCheckitem,
 									id:'ItemSerialListingView',
 									store: MTItemListingStore,
 									columns: columnItemSerial,
 									selModel: 'cellmodel',
-								    plugins: {
-								        ptype: 'cellediting',
-								        clicksToEdit: 1
-								    },								
+								    plugins: [cellEditing],
 									dockedItems:[{
 										dock:'top',
 										xtype:'toolbar',
