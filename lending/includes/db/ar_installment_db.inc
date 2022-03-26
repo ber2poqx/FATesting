@@ -184,3 +184,15 @@ function get_ar_item_detials($trans_no, $trans_type)
 	
 	return db_query($sql, "could not get sales invoice item details");	
 }
+
+function get_replace_item($trans_no)
+{
+	$sql = "SELECT B.id, B.stock_id, B.description, B.color_code, B.quantity, B.unit_price, B.standard_cost, B.lot_no, B.chassis_no
+			FROM ".TB_PREF."returned_units A 
+				INNER JOIN ".TB_PREF."debtor_trans_details B ON B.debtor_trans_no = A.debtor_trans_no AND B.debtor_trans_type = A.debtor_trans_type
+			WHERE A.si_trans_no = ".db_escape($trans_no)."
+				AND A.debtor_trans_details_id != B.id
+			ORDER BY B.id DESC";
+
+	return db_query($sql, "could not get a/r ledger entries because ");
+}

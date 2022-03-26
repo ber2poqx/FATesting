@@ -245,8 +245,22 @@ if(isset($_GET['get_Item_details']))
                                'qty'=>$myrow["quantity"],
                                'unit_price'=>$myrow["unit_price"],
                                'serial'=>$myrow["lot_no"],
-                               'chasis'=>$myrow["chassis_no"]
+                               'chasis'=>$myrow["chassis_no"],
+                               'type'=>$_GET['transtype']
                             );
+    }
+    $replaced_items = get_replace_item($_GET['transNo']);
+    if (db_num_rows($replaced_items) > 0) {
+        while ($myrow = db_fetch($replaced_items)) {
+            $status_array[] = array('stock_id'=>$myrow["stock_id"],
+            'description'=>$myrow["description"],
+            'qty'=>$myrow["quantity"],
+            'unit_price'=>$myrow["unit_price"],
+            'serial'=>$myrow["lot_no"],
+            'chasis'=>$myrow["chassis_no"],
+            'type'=>"XX"
+         );
+        }
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';

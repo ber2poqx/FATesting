@@ -162,7 +162,8 @@ Ext.onReady(function(){
 			{name:'qty',mapping:'qty'},
 			{name:'unit_price',mapping:'unit_price',type:'float'},
 			{name:'serial',mapping:'serial'},
-			{name:'chasis',mapping:'chasis'}
+			{name:'chasis',mapping:'chasis'},
+			{name:'type',mapping:'type'}
 		]
 	});
 	////define model for combobox
@@ -1141,6 +1142,28 @@ Ext.onReady(function(){
 									emptyMsg: "No records to display",
 									doRefresh : function(){
 										SIitemStore.load();
+									}
+								},
+								viewConfig: {
+									listeners: {
+										refresh: function(view) {      
+											// get all grid view nodes
+											var nodes = view.getNodes();
+					
+											for (var i = 0; i < nodes.length; i++) {
+												var node = nodes[i];
+												var record = view.getRecord(node);
+												// get all td elements
+												var cells = Ext.get(node).query('td');  
+												// set bacground color to all row td elements
+												for(var j = 0; j < cells.length; j++) {
+													//console.log(cells[j]);
+													if(record.get('type') != "XX"){
+														Ext.fly(cells[j]).setStyle('background-color', "#fca678");
+													}
+												}
+											}
+										}
 									}
 								}
 							},{
