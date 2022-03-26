@@ -193,10 +193,15 @@ Ext.onReady(function(){
 									xtype:'grid',
 									forceFit: true,
 									layout:'fit',
-									//selModel:selModel1,
+									selModel:selModel1,
 									id:'ItemSerialListingView',
 									store: MTItemListingStore,
 									columns: columnItemSerial,
+									selModel: 'cellmodel',
+								    plugins: {
+								        ptype: 'cellediting',
+								        clicksToEdit: 1
+								    },								
 									dockedItems:[{
 										dock:'top',
 										xtype:'toolbar',
@@ -263,8 +268,8 @@ Ext.onReady(function(){
 								title:'Item Listing - Merchandise Transfer',
 								id:'windowItemSSerialList',
 								modal: true,
-								width: 1200,
-								height:600,
+								width: 950,
+								height:500,
 								bodyPadding: 5,
 								layout:'fit',
 								items:[grid1],
@@ -732,8 +737,29 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
-		{header:'Standard<br/>Cost', dataIndex:'standard_cost', hidden:false, width:60, hidden: false, align:'right'},
+		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+			editor:{
+				completeOnEnter: true,
+				field:{
+					xtype:'numberfield',
+					allowBlank: false,
+					minValue:0,
+					listeners : {
+					    keyup: function(grid, rowIndex, colIndex) {
+						//var record = GRNItemsStore.getAt(rowIndex);
+                        //console.log('Keup Logs');
+
+                    },
+						specialkey: function(f,e){
+							if (e.getKey() == e.ENTER) {
+								//alert('Hello World'+f.value());
+							}
+						}
+					}
+				}
+			}
+		},
+		{header:'Standard Cost', dataIndex:'standard_cost', hidden:false, width:80, hidden: false},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: true},
 		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false}
@@ -1208,7 +1234,29 @@ Ext.onReady(function(){
 				}	
 			}
 			]	
-		}]
+		}],
+		listeners:{
+            validateedit: function(editor, e){
+                var catcode = Ext.getCmp('category').getValue();
+				var brcode = Ext.getCmp('fromlocation').getValue();
+
+                var record = MerchandiseTransStore.getAt(e.record.id);
+			    var id = record.get('id');
+                var currentqty = record.get('currentqty');
+                var qty = record.get('qty');
+                var stock_id = record.get('stock_id');
+                var serial_no = record.get('lot_no');
+
+                if(currentqty < e.value){
+                    alert('Sorry, Quantity '+e.value+' is Greater than Available Quantity On Hand: '+currentqty);
+                    
+                    return false;
+                }else return true;
+
+
+                //return true;
+            }
+        }
 	}
 		
 	Ext.create('Ext.grid.Panel', {
