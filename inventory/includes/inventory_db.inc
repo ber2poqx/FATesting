@@ -56,8 +56,7 @@ function getmtreceipt($mt_header_reference)
 	LEFT JOIN " . TB_PREF . "item_codes ON item_codes.item_code = mt_details.mt_details_item_code
 	LEFT JOIN " . TB_PREF . "stock_master ON stock_master.stock_id = mt_details.mt_details_stock_id
 	AND stock_master.stock_id = item_codes.stock_id
-	WHERE mt_header.mt_header_reference = mt_header_reference AND mt_header_reference='$mt_header_reference'
-	GROUP BY mt_header.mt_header_id";
+	WHERE mt_header.mt_header_reference = mt_header_reference AND mt_header_reference='$mt_header_reference'";
 
 	return db_query($sql, "No transactions were returned");
 }
