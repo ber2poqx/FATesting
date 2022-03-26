@@ -729,8 +729,12 @@ function handle_new_item()
 
 	update_header();
 	
-	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['serialeng_no'], $_POST['chassis_no'], $_POST['color_desc'], 
-		$_POST['lcp_price']);
+	//Modified by spyrax10 26 Mar 2022
+	$_POST['_stock_id_edit'] = $_POST['stock_id'] = $_POST['serialeng_no'] = $_POST['chassis_no'] = $_POST['lcp_price'] = 
+	$_POST['color_desc'] = '';
+	$_POST['qty'] = 0;
+	//
+	
 	page_modified();
 	line_start_focus();
 }

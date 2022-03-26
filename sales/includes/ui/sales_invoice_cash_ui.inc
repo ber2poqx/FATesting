@@ -311,8 +311,13 @@ function display_order_summary($title, &$order, $editable_items = false)
 	$Ajax->activate('lcp_amount');
 
 	if ($id == -1 && $editable_items) {
-		if (empty($_GET['NewInvoice']))
-			sales_order_item_controls($order, $k);
+		if (empty($_GET['NewInvoice'])) {
+			//Modified by spyrax10 26 Mar 2022
+			if ($title != _("Sales Invoice Items")) {
+				sales_order_item_controls($order, $k); 
+			}
+			//
+		}
 	}
 
 	end_table();
@@ -460,11 +465,11 @@ function display_order_header(&$order, $editable, $date_text)
 	} elseif ($order->trans_type == ST_SALESORDER) {
 		ref_row(_("Order No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
 	} else {
-		ref_row(_("Invoice No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
+		ref_row(_("Reference #") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
 		ref_row(_("DR No.") . ':', 'dr_ref', _('Reference number unique for this document type'), null, '', ST_CUSTDELIVERY, array('date' => @$_POST['OrderDate']));
 	}
 	if ($order->trans_type == ST_SALESINVOICE) {
-		text_row_ex(_("Reference No.") . ':', 'document_ref', 16);
+		text_row_ex(_("Sales Invoice #") . ':', 'document_ref', 16);
 	}
 
 

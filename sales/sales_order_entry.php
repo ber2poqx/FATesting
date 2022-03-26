@@ -106,8 +106,11 @@ if (isset($_GET['NewDelivery']) && is_numeric($_GET['NewDelivery'])) {
 	if (isset($_GET['FixedAsset'])) {
 		$_SESSION['page_title'] = _($help_context = "Fixed Assets Sale");
 		$_SESSION['Items']->fixed_asset = true;
-	} else
+	} else {
 		$_SESSION['page_title'] = _($help_context = "Sales Invoice Installment");
+	}
+
+
 } elseif (isset($_GET['CancelInvoice']) && is_numeric($_GET['CancelInvoice'])) {
 
 	create_cart(ST_SALESINVOICE, $_GET['CancelInvoice']);
@@ -609,7 +612,7 @@ function can_process()
 		return false;
 	}
 
-	if (($_SESSION['Items']->trans_type == ST_SALESINVOICE || $_SESSION['Items']->trans_type == ST_SALESORDER) 
+	if (($_SESSION['Items']->trans_type == ST_SALESINVOICE) 
 		&& !get_post('co_maker')) {
 	 	display_error(_("Co-maker is cannot be empty!"));
 	 	set_focus('co_maker');
@@ -1208,16 +1211,15 @@ function handle_new_item()
 		$_POST['smi'],
 		$_POST['incentives']
 	);
+
 	calculate_dp_discount();
-	// modified by Albert
-	unset(
-		$_POST['_stock_id_edit'],
-		$_POST['stock_id'],
-		$_POST['serialeng_no'],
-		$_POST['chassis_no'],
-		$_POST['color_desc'],
-		$_POST['lcp_price']
-	);
+	
+	//Modified by spyrax10 26 Mar 2022
+	$_POST['_stock_id_edit'] = $_POST['stock_id'] = $_POST['serialeng_no'] = $_POST['chassis_no'] = $_POST['lcp_price'] = 
+	$_POST['color_desc'] = '';
+	$_POST['qty'] = 0;
+	//
+
 	page_modified();
 	global $Ajax;
 	$Ajax->activate('_page_body');
