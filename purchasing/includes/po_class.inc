@@ -104,7 +104,7 @@ class purch_order
 	//Added by spyrax10 26 Mar 2022
 	function find_cart_serial($serial_no) {
 		foreach($this->line_items as $line_no=>$line) {
-			if ($line->serial_no == $serial_no) {
+			if ($line->serial == $serial_no) {
 				return $this->line_items[$line_no];
 			}			
 		}
@@ -113,7 +113,7 @@ class purch_order
 
 	function find_cart_chassis($chassis_no) {
 		foreach($this->line_items as $line_no=>$line) {
-			if ($line->chassis_no == $chassis_no) {
+			if ($line->chasis_no == $chassis_no) {
 				return $this->line_items[$line_no];
 			}			
 		}
