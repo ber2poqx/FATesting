@@ -365,14 +365,31 @@ function display_order_header(&$order, $editable, $date_text)
 			hidden('dimension2_id', $order->dimension2_id);
 		}
 	} else {
-		customer_list_row(_("Customer:"), 'customer_id', null, false, true, false, true);
 
+		$cust_row = get_customer($_POST['customer_id']);
+		$branch_row = get_customer_branch_details($_POST['customer_id']);
+
+		if (isset($_POST['customer_id']) && $order->trans_type != ST_SALESORDER) {
+			label_row(_("Customer:"), $cust_row['debtor_ref'] . " - " . get_customer_name($_POST['customer_id']));
+			hidden('customer_id', $_POST['customer_id']);
+		}
+		else {
+			customer_list_row(_("Customer:"), 'customer_id', null, false, true, false, true);
+		}
+		
 		if ($order->customer_id != get_post('customer_id', -1)) {
 			// customer has changed
 			$Ajax->activate('branch_id');
 		}
-		customer_branches_list_row(_("Cust Branch:"), $_POST['customer_id'], 'branch_id', null, false, true, true, true);
 
+		if (isset($_POST['branch_id']) && $order->trans_type != ST_SALESORDER) {
+
+			label_row(_("Cust Branch:"), $branch_row['branch_ref']);
+			hidden('branch_id', $_POST['branch_id']);
+		}
+		else {
+			customer_branches_list_row(_("Cust Branch:"), $_POST['customer_id'], 'branch_id', null, false, true, true, true);
+		}
 		if (($order->customer_id != get_post('customer_id', -1)) ||
 			($order->Branch != get_post('branch_id', -1)) ||
 			list_updated('customer_id')
@@ -568,8 +585,15 @@ function display_order_header(&$order, $editable, $date_text)
 	sales_persons_list_row(_("Sales Person:"), 'salesman_id', $_POST['salesman_id']);
 	saleorder_types_row(_("Sale Type:"), 'stype_id', $_POST['stype_id'], true);
 	hidden('sales_type', 2);
-	comaker_types_row(_("Co-maker:"), 'co_maker', $_POST['co_maker'], $order->customer_id, true);
-	
+	if ($order->trans_type != ST_SALESORDER) {
+		sql_type_list(_("Co-maker:"), 'co_maker', 
+			get_comaker($order->customer_id, '', true), 'comaker_id', 'comaker', 
+			'label', '', true, 'Select Co-maker'
+		);
+	}
+	else {
+		hidden('co_maker', 0);
+	}	
 	$previous_owner = get_stock_reference($order->line_items[0]->lot_no) != '' ? get_previous_owner(get_stock_reference($order->line_items[0]->lot_no)) : '';
 	label_row(_("Previous Owner:"), $previous_owner);
 	hidden('previous_owner',$previous_owner);

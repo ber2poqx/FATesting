@@ -561,7 +561,7 @@ function can_process()
 		return false;
 	}
 
-	if (($_SESSION['Items']->trans_type == ST_SALESINVOICEREPO || $_SESSION['Items']->trans_type == ST_SALESORDER) 
+	if (($_SESSION['Items']->trans_type == ST_SALESINVOICEREPO) 
 	&& !get_post('co_maker')) {
 	 display_error(_("Co-maker is cannot be empty!"));
 	 set_focus('co_maker');
@@ -733,7 +733,7 @@ function can_process()
 		display_error(_("Cant proceed! down payment is not yet paid!"));
 		return false;
 	}
-	if ($_SESSION['Items']->trans_type == ST_RESTRUCTURED && get_post('ar_genarate_by_amort') <> get_post('new_ar_amount') ) {
+	if ($_SESSION['Items']->trans_type == ST_RESTRUCTURED && get_post('ar_genarate_by_amort') <> get_post('new_ar_amount') && get_post('calculation_id') == 1 ) {
 		display_error(_("Cant proceed! ar_balance not equal to ar_amount genarated by amortazation!".get_post('ar_genarate_by_amort')));
 		return false;
 	}
