@@ -31,17 +31,17 @@ function get_customer_list($area = 0) {
 
         FROM ".TB_PREF."debtors_master DM 
             INNER JOIN ".TB_PREF."areas AR ON DM.area = AR.area_code
-            LEFT JOIN ".TB_PREF."cust_branch CB ON DM.debtor_no = CB.debtor_no
-            LEFT JOIN ".TB_PREF."crm_persons CP ON DM.debtor_ref = CP.ref
+            INNER JOIN ".TB_PREF."cust_branch CB ON DM.debtor_no = CB.debtor_no
+            INNER JOIN ".TB_PREF."crm_persons CP ON DM.debtor_ref = CP.ref
             INNER JOIN ".TB_PREF."sales_types ST ON DM.sales_type = ST.id
-            LEFT JOIN " . TB_PREF . "users CN ON AR.collectors_id = CN.user_id
+            INNER JOIN " . TB_PREF . "users CN ON AR.collectors_id = CN.user_id
         WHERE DM.inactive = 0";
     
     if ($area != 0) {
         $sql .= " AND DM.area = ".db_escape($area);
     }
 
-    $sql .= " GROUP BY DM.area, DM.debtor_no";
+    //$sql .= " GROUP BY DM.area, DM.debtor_no";
     $sql .= " ORDER BY DM.name, AR.description";
 
     return db_query($sql,"No transactions were returned");
@@ -73,18 +73,18 @@ function print_transaction() {
         $sarea = get_area_name($area);
     }
 
-    $cols = array(0, 60, 150, 300, 400, 0);
+    $cols = array(0, 60, 150, 300, 400, 490, 0);
 
     $headers = array(
         _("Customer Code"),
         _("Customer Name"),
         _("Customer Address"),
         _("Contact Number/s"),
-        _("Branch Delivery Address"),
+        _("Area Name"),
         _("Price List Type")
     );
 
-    $aligns = array('left', 'left', 'left', 'left', 'left', 'right');
+    $aligns = array('left', 'left', 'left', 'left', 'center', 'right');
 
     $params = array(
         0 => $comments,
@@ -113,24 +113,24 @@ function print_transaction() {
 
     while ($trans = db_fetch($res)) {
 
-        if ($area_ != $trans['area_name']) {
+        // if ($area_ != $trans['area_name']) {
 
-            $rep->Font('bold');	
-			$rep->SetTextColor(0, 0, 255);	
-			$rep->TextCol(0, 3, $trans['area_name'] );
-            $rep->TextCol(4, 6, " Collector Name: " . $trans['real_name']);
-			$area_ = $trans['area_name'];
-			$rep->Font();
-			$rep->SetTextColor(0, 0, 0);
-			$rep->NewLine(1.5);	
-        }
+        //     $rep->Font('bold');	
+		// 	$rep->SetTextColor(0, 0, 255);	
+		// 	$rep->TextCol(0, 3, $trans['area_name'] );
+        //     $rep->TextCol(4, 6, " Collector Name: " . $trans['real_name']);
+		// 	$area_ = $trans['area_name'];
+		// 	$rep->Font();
+		// 	$rep->SetTextColor(0, 0, 0);
+		// 	$rep->NewLine(1.5);	
+        // }
 
         $rep->NewLine(.5);
         $rep->TextCol(0, 1, $trans['debtor_ref']);
         $rep->TextCol(1, 2, $trans['name']);
         $rep->TextCol(2, 3, $trans['address']);
         $rep->TextCol(3, 4, $trans['contact_num']);
-        $rep->TextCol(4, 5, $trans['br_address']);
+        $rep->TextCol(4, 5, $trans['area_name']);
         $rep->TextCol(5, 6, $trans['sales_type']);
         $rep->NewLine();
     }
