@@ -5,7 +5,8 @@
  * Date Created: 25 Mar 2022
  */
 
-function get_bank_transactions($from_date = null, $cashier = '', $report = true) {
+function _bank_transactions($from_date = null, $cashier = '', $report = true, 
+    $type = '', $trans_date = '') {
 
     set_global_connection();
 
@@ -39,12 +40,17 @@ function get_bank_transactions($from_date = null, $cashier = '', $report = true)
 		$sql .= " AND A.trans_date = '$from_date'";
 	}
 
-    if (!$report) {
-        $sql .= " AND IFNULL(A.remit_stat, '') <> '' AND remit_from = 0";
+    if ($type != '') {
+        $sql .= " AND A.type = " .db_escape($type);
     }
-			
+
+    if ($trans_date != '') {
+        $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
+    }
+
+    $sql .= " AND A.remit_stat <> 'Closed'";	
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type DESC";
-    
+
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
     }
@@ -101,14 +107,15 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
     }
 }
 
-function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_to = 0, $memo_ = '') {
+function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_to = 0, $memo_ = '', 
+    $type = '', $trans_date = '') {
 
     set_global_connection();
 
     global $Refs;
 
     $trans_no = get_next_trans_no(ST_REMITTANCE);
-    $result = get_bank_transactions(null, $user_id, true);
+    $result = _bank_transactions(null, $user_id, true, $type, $trans_date);
     $inserted = 0;
 
     while ($row = db_fetch($result)) {

@@ -37,6 +37,7 @@ if (isset($_GET['AddedID'])) {
     $trans_no = $_GET['AddedID'];
 
     display_notification_centered(_("Remittance has been processed!"));
+    display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry")));
     display_note(get_gl_view_str(ST_REMITTANCE, $trans_no, _("View the GL &Postings for this Remittance Entry")), 1, 0);
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter &Another Remittance Entry"), "");
     hyperlink_params("$path_to_root/gl/inquiry/remittance_list.php", _("Back to Remittance Entry Inquiry List"), "");
@@ -117,6 +118,19 @@ function can_process() {
 }
 
 //-----------------------------------------------------------------------------------------------
+
+if (get_post('chk_date')) {
+	$Ajax->activate('pmt_header');
+}
+else {
+    $Ajax->activate('pmt_header');
+}
+
+if (check_value('chk_date') == 1) {
+    $_POST['date_2'] = '';
+}
+
+//-----------------------------------------------------------------------------------------------
 if (isset($_POST['Process']) && can_process()) {
 
     if (!isset($_POST['date_'])) {
@@ -128,33 +142,49 @@ if (isset($_POST['Process']) && can_process()) {
         get_post('date_'),
         $_SESSION["wa_current_user"]->user,
         get_post('cashier_'),
-        get_post('memo_')
+        get_post('memo_'),
+        get_post('trans_type'),
+        get_post('date_2') == null || !isset($_POST['date_2']) ? '' : get_post('date_2')
     );
 
     if ($trans_no) {
         meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
     }
 }
+
 //-----------------------------------------------------------------------------------------------
 
 start_form();
 
-start_table(TABLESTYLE2, "width = 30%");
+display_heading(_("Select Transaction/s to be Remitted:"));
+br();
 
-table_section_title(_("Remittance Details:"));
+div_start('pmt_header');
+start_outer_table(TABLESTYLE2, "width='40%'");
 
-ref_row(_("Transaction Reference: "), 'ref', '', 
-	$Refs->get_next(ST_REMITTANCE, null, null), false, ST_REMITTANCE
+table_section(1);
+check_row(_('All Transaction Date/s : '), 'chk_date', get_post('chk_date'), true);
+
+if (check_value('chk_date') == 0) {
+
+    date_row(_("Date:"), 'date_2', '', true, 0, 0, 0, null, true);
+}
+
+table_section(2);
+if (check_value('chk_date') == 0) {
+    label_row(null, ''); label_row(null, ''); label_row(null, ''); label_row(null, '');
+}
+
+value_type_list(_("Transaction Type:"), 'trans_type', 
+    array(
+        ST_BANKPAYMENT => 'Disbursement Entries', 
+        ST_BANKDEPOSIT => 'Receipt Entries',
+        ST_CUSTPAYMENT => 'Office Collection Receipt'
+    ), 'label', null, true, _("All Transaction Types"), true
 );
 
-date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);
-
-sql_type_list(_("Remit To:"), 'cashier_', 
-	allowed_dcpr_users(), 'id', 'real_name', 
-	'label', null, true, 'Select Cashier'
-);
-
-end_table(1);
+end_outer_table(1);
+div_end();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
@@ -165,7 +195,13 @@ $Ajax->activate('remit_items');
 end_row();
 end_table(); 
 
-$sql = get_bank_transactions(null, $_SESSION["wa_current_user"]->user, false);
+$sql = _bank_transactions(
+    null, 
+    $_SESSION["wa_current_user"]->user, 
+    false,
+    get_post('trans_type'),
+    get_post('date_2') == null ? '' : get_post('date_2')
+);
 
 $cols = array(
     _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
@@ -183,6 +219,28 @@ $table = &new_db_pager('remit_items', $sql, $cols, null, null, 25);
 $table->width = "70%";
 
 display_db_pager($table);
+
+br();
+display_heading(_("New Remittance Entry"));
+br();
+
+start_outer_table(TABLESTYLE2, "width='50%'");
+
+table_section(1);
+ref_row(_("Transaction Reference: "), 'ref', '', 
+	$Refs->get_next(ST_REMITTANCE, null, null), false, ST_REMITTANCE
+);
+
+table_section(2);
+date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);
+
+table_section(3);
+sql_type_list(_("Remit To:"), 'cashier_', 
+	allowed_dcpr_users(), 'id', 'real_name', 
+	'label', null, true, 'Select Cashier'
+);
+
+end_outer_table(1);
 
 gl_options_controls();
 

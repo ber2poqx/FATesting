@@ -167,7 +167,7 @@ function print_dailycash_sales()
 
 	$rep->NewLine();
 
-	$res = get_bank_transactions($from, $cashier);
+	$res = _bank_transactions($from, $cashier);
 	$disburse_res = disbursement_transactions($from, $cashier, $cashier_name);
 
 	$total = $sum_receipt = $sub_total = $sum_dis = 0.0;
