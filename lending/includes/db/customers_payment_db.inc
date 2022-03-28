@@ -98,7 +98,7 @@ function add_loan_ledger($trans_no, $debtor_no, $loansched_id, $typeto, $typefro
 
 		$ErrMsg = _('Could not update loan ledger because ');
 	}
-	
+	echo $sql;
 	db_query($sql, $ErrMsg);
 }
 

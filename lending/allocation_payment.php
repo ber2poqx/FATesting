@@ -481,6 +481,7 @@ if(isset($_GET['submitAllocDP']))
             
             $partialpay = $partialpayment;
             $tenderd_amount = $_POST['tenderd_amount'];
+            $ARAmount = 0;
 
             $branch_data = get_branch_accounts($BranchNo['branch_code']);
             $company_prefs = get_company_prefs();
@@ -499,17 +500,57 @@ if(isset($_GET['submitAllocDP']))
             $result = get_amort_downpayment($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
             while ($myrow = db_fetch($result)) {
                 if($tenderd_amount > 0){
+                    $ARAmount = $myrow["principal_due"];
                     $allocatedAmount = $tenderd_amount + $dp_discount;
 
                     if($myrow["principal_due"] == ($tenderd_amount + $dp_discount)){
+
                         add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
     
                     }elseif($myrow["principal_due"] > ($tenderd_amount + $dp_discount)){
+
                         $nextDPBal = ($myrow["principal_due"] - $_POST['tenderd_amount']);
-    
+
                         add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
+    
+                    }else{
+
+                        if($myrow["principal_due"] == $tenderd_amount){
+                            add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $_POST['tenderd_amount'], 0, 0, 0, $trans_date, $payment_no);
+                            update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
+                        }
+                        if($dp_discount > 0){
+                            //auto allocate to firstdue
+
+                            $debtor_loans = get_debtor_loans_info($_POST['InvoiceNo'], $_POST['customername']);
+                            $schedresult = get_loan_schedule($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
+
+                            while ($schedrow = db_fetch($schedresult)) {
+                                $RebateAmount = GetRebate($trans_date, $schedrow["date_due"], $debtor_loans["rebate"]);
+
+                                if($dp_discount == $schedrow["principal_due"]){
+
+                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $schedrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $dp_discount, 0, $RebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($schedrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
+                                    
+                                    $GLRebate += $RebateAmount;
+                                    $tenderd_amount = $dp_discount = 0;
+
+                                }elseif($dp_discount < $schedrow["principal_due"]){
+
+                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $schedrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $dp_discount, 0, 0, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial", 0);
+                                    
+                                    $tenderd_amount = $dp_discount = $GLRebate = 0;
+
+                                }
+                            }
+                        }
+
+                        //add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
+                        //update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
     
                     }
                     $tenderd_amount = 0;
@@ -556,13 +597,16 @@ if(isset($_GET['submitAllocDP']))
 
             //deferred -> debit; realized -> credit
             if($grossPM > 0){
-                $PM_amount = ($_POST['tenderd_amount'] *  $grossPM);
+                $PM_amount = ($ARAmount *  $grossPM);
                 if($PM_amount != 0){
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_prefs["dgp_account"], 0, 0, '', check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_prefs["rgp_account"], 0, 0, '', -check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
                 }
             }
-
+            if ($GLRebate != 0)	{
+                /* Now Debit discount account with discounts allowed*/
+                $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_prefs["payment_discount_account"], 0, 0, $GLRebate, $_POST['customername'], "Cannot insert a GL transaction for the payment discount debit", 0, null, null, 0, $_POST['InvoiceNo']);
+            }
             /*Post a balance post if $total != 0 due to variance in AR and bank posted values*/
             if ($GLtotal != 0)
             {
