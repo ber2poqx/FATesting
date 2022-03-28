@@ -515,50 +515,52 @@ function serial_summary_input()
 
 function can_process_serial()
 {
+    //Modified by spyrax10 28 Mar 2022
+    $line = 0;
     foreach ($_SESSION['PO']->line_items as $ln_itm) {
         if ($ln_itm->serialised) {
             $ctr = 0;
             while ($ctr < count($ln_itm->list_serial)) {
                 
-                $serial_no = $ln_itm->list_serial[$ctr]->serial_no;
+                $serial_no = $ln_itm->list_serial[$line]->serial_no;
 
                 if ($_SESSION['PO']->category_id == 14) {
-                    $chassis_no = $ln_itm->list_serial[$ctr]->chassis_no;
+                    $chassis_no = $ln_itm->list_serial[$line]->chassis_no;
                 }
 
                 //Modified by spyrax10 26 Mar 2022
                 if ($serial_no == "") {
                     display_error(_("Please input Serial No."));
-                    set_focus("serial_no$ctr");
+                    set_focus("serial_no$line");
                     return false;
                 } 
                 else if ($_SESSION['PO']->find_cart_serial($serial_no)) {
                     display_error(_("For Part: ") . $serial_no . " || " . "Serial / Engine # already existed!");
-                    set_focus("serial_no$ctr");
+                    set_focus("serial_no$line");
                     return false;
                 }
                 else if (serial_exist($serial_no)) {
                     display_error("Serial # Already Registered!");
-                    set_focus("serial_no$ctr");
+                    set_focus("serial_no$line");
                     return false;
                 }
                 else if ($chassis_no == "" && $_SESSION['PO']->category_id == 14) {
                     display_error(_("Please input Chassis No."));
-                    set_focus("chassis_no$ctr");
+                    set_focus("chassis_no$line");
                     return false;
                 }
                 else if ($_SESSION['PO']->find_cart_chassis($chassis_no) && $_SESSION['PO']->category_id == 14) {
                     display_error(_("For Part: ") . $chassis_no . " || " . "Chassis # already existed!");
-                    set_focus("chassis_no$ctr");
+                    set_focus("chassis_no$line");
                     return false;
                 }
                 else if (serial_exist($serial_no, $chassis_no) && $_SESSION['PO']->category_id == 14) {
                     display_error("Chassis # Already Registered!");
-                    set_focus("chassis_no$ctr");
+                    set_focus("chassis_no$line");
                     return false;
                 }
                 //
-                $ctr++;
+                $ctr++; $line++;
             }
         }
     }
