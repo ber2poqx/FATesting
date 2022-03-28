@@ -153,9 +153,9 @@ function trans_ref_trans_view($row)
 //Added by spyrax10 21 Mar 2022 Mantis Issue #807
 function total_quantity($row) {
 	//modified by Albert
-	$total_quantity_remain =  get_pr_total_qty($row['supp_reference']) - get_po_total_qty_recieved($row["po_no"]);
+	$total_quantity_received =  get_po_total_qty_recieved($row["po_no"]);
 	
-	return $total_quantity_remain;
+	return $total_quantity_received;
 }
 
 //------------------------------------------------------------------------------------------------
