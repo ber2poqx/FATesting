@@ -482,7 +482,8 @@ function serial_summary_input()
 
     table_header($th);
 
-    $k = 0; //row colour counter
+    //Modified by spyrax10 28 Mar 2022
+    $k = $line = 0; //row colour counter
 
     if (count($_SESSION['PO']->line_items) > 0) {
         foreach ($_SESSION['PO']->line_items as $ln_itm) {
@@ -490,18 +491,24 @@ function serial_summary_input()
                 $ctr = 0;
                 while ($ctr < $ln_itm->receive_qty) {
                     alt_table_row_color($k);
-                    text_cells(null, "serial_no$ctr", null, "", "", false, "", "", 'placeholder="Serial No."');
-                    if ($_SESSION['PO']->category_id == 14)
-                        text_cells(null, "chassis_no$ctr", null, "", "", false, "", "", 'placeholder="Chassis No."');
+                    text_cells(null, "serial_no$line", null, "", "", false, "", "", 'placeholder="Serial No."');
+                    
+                    if ($_SESSION['PO']->category_id == 14) {
+                        text_cells(null, "chassis_no$line", null, "", "", false, "", "", 'placeholder="Chassis No."');
+                    }
+
                     label_cell($ln_itm->stock_id);
                     label_cell($ln_itm->item_description);
-                    if ($_SESSION['PO']->category_id == 14)
+                    if ($_SESSION['PO']->category_id == 14) {
                         label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
-                    $ctr++;
+                    }
+
+                    $ctr++; $line++;
                 }
             }
         }
     }
+    //
     end_table();
     div_end();
 }
@@ -574,6 +581,8 @@ if (isset($_GET['PONumber']) && $_GET['PONumber'] > 0 && !isset($_POST['Update']
 
 if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
 
+    //Modified by spyrax10 28 Mar 2022
+    $line = 0;
     if (count($_SESSION['PO']->line_items) > 0) {
         foreach ($_SESSION['PO']->line_items as $ln_itm) {
             $ln_itm->list_serial = [];
@@ -581,15 +590,16 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
                 $ctr = 0;
                 while ($ctr < $ln_itm->receive_qty) {
                     $serial = new stdClass();
-                    $serial->serial_no = get_post("serial_no$ctr");
-                    $serial->chassis_no = $_SESSION['PO']->category_id == 14 ? get_post("chassis_no$ctr") : "";
+                    $serial->serial_no = get_post("serial_no$line");
+                    $serial->chassis_no = $_SESSION['PO']->category_id == 14 ? get_post("chassis_no$line") : "";
                     array_push($ln_itm->list_serial, $serial);
-                    $ctr++;
+                    $ctr++; $line++;
                 }
             }
         }
     }
-    
+    //
+
     if (count($_SESSION['PO']->line_items[0]->list_serial) > 0) {
         if (!can_process_serial()) {
             return;

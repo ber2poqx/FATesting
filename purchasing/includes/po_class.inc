@@ -119,6 +119,14 @@ class purch_order
 		}
 		return null;
 	}
+
+	function total_qty() {
+		$qty = 0;
+		foreach ($this->line_items as $items) {
+			$qty += $items->quantity;
+		} 
+		return $qty;
+	}
 	//
 
 	function remove_from_order($line_no)
