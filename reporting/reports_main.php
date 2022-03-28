@@ -87,15 +87,20 @@ $reports->addReport(RC_CUSTOMER, 115, _('Customer Trial Balance'),
             _('Comments') => 'TEXTBOX',
             _('Orientation') => 'ORIENTATION',
             _('Destination') => 'DESTINATION'));
-$reports->addReport(RC_CUSTOMER, 103, _('Customer &Detail Listing'),
-	array(	_('Activity Since') => 'DATEBEGIN',
-			_('Sales Areas') => 'AREAS',
-			_('Sales Folk') => 'SALESMEN',
-			_('Activity Greater Than') => 'TEXT',
-			_('Activity Less Than') => 'TEXT',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'));
+
+//Modified by spyrax10 28 Mar 2022
+$reports->addReport(RC_CUSTOMER, 98, _('Customer &Detail Listing'),
+	array(	
+		//_('Activity Since') => 'DATEBEGIN',
+		_('Sales Areas') => 'AREAS',
+		//_('Sales Folk') => 'SALESMEN',
+		//_('Activity Greater Than') => 'TEXT',
+		//_('Activity Less Than') => 'TEXT',
+		_('Comments') => 'TEXTBOX',
+		//_('Orientation') => 'ORIENTATION',
+		_('Destination') => 'DESTINATION'
+	)
+);
 
 $reports->addReport(RC_CUSTOMER, 104, _('&Item Lcp Price List Report'),
 	array(	_('Inventory Category') => 'CATEGORIES',
