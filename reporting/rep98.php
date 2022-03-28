@@ -27,13 +27,14 @@ function get_customer_list($area = 0) {
             WHEN IFNULL(CP.phone2, '') <> '' THEN CONCAT(CP.phone, ' / ', CP.phone2)
         ELSE CP.phone
         END AS contact_num,
-        CP.email, CP.facebook, ST.sales_type
+        CP.email, CP.facebook, ST.sales_type, CN.real_name
 
         FROM ".TB_PREF."debtors_master DM 
             INNER JOIN ".TB_PREF."areas AR ON DM.area = AR.area_code
             LEFT JOIN ".TB_PREF."cust_branch CB ON DM.debtor_no = CB.debtor_no
             LEFT JOIN ".TB_PREF."crm_persons CP ON DM.debtor_ref = CP.ref
             INNER JOIN ".TB_PREF."sales_types ST ON DM.sales_type = ST.id
+            LEFT JOIN " . TB_PREF . "users CN ON AR.collectors_id = CN.user_id
         WHERE DM.inactive = 0";
     
     if ($area != 0) {
@@ -116,7 +117,8 @@ function print_transaction() {
 
             $rep->Font('bold');	
 			$rep->SetTextColor(0, 0, 255);	
-			$rep->TextCol(0, 5, $trans['area_name']);
+			$rep->TextCol(0, 3, $trans['area_name'] );
+            $rep->TextCol(4, 6, " Collector Name: " . $trans['real_name']);
 			$area_ = $trans['area_name'];
 			$rep->Font();
 			$rep->SetTextColor(0, 0, 0);
