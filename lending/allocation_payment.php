@@ -577,11 +577,11 @@ if(isset($_GET['submitAllocDP']))
             if ($_POST['tenderd_amount'] != 0)	{
                 /* Now Credit Debtors account with receipts + discounts */
                 //$GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $branch_data["receivables_account"], 0, 0, -($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty)), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit");
-                $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -($_POST['tenderd_amount'] + check_isempty($dp_discount)), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -($_POST['tenderd_amount'] + check_isempty($data['dp_discount'])), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
             }
 
             //for dp discount
-            if($dp_discount != 0){
+            if($data['dp_discount'] != 0){
                 $dp_discount1_acct = $company_prefs["discount_dp_act"];
                 $dp_discount2_acct = $company_prefs["dp_discount2_act"];
 
@@ -591,13 +591,16 @@ if(isset($_GET['submitAllocDP']))
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dp_discount1_acct, 0, 0, $row_dpd["discount_downpayment"], $_POST['customername'], "Cannot insert a GL transaction for the downpayment discount 1", 0, null, null, 0, $_POST['InvoiceNo']);
                 }
                 if($row_dpd["discount_downpayment2"] != 0){
-                    $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dp_discount2_acct, 0, 0, $row_dpd["discount_downpayment2"], $_POST['customername'], "Cannot insert a GL transaction for the downpayment discount 2", 0, null, null, 0, $_POST['InvoiceNo']);
+                    //get supplier for gl reference
+                    $itmsrlt = get_item_to_supplier($_POST['InvoiceNo'], ST_SALESINVOICE);
+                    $supplier = db_fetch($itmsrlt);
+                    $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dp_discount2_acct, 0, 0, $row_dpd["discount_downpayment2"], $_POST['customername'], "Cannot insert a GL transaction for the downpayment discount 2", 0, $supplier["supplier_id"], $supplier["supp_name"], 0, $_POST['InvoiceNo']);
                 }
             }
 
             //deferred -> debit; realized -> credit
             if($grossPM > 0){
-                $PM_amount = ($ARAmount *  $grossPM);
+                $PM_amount = (($_POST['tenderd_amount'] + $data['dp_discount']) *  $grossPM);
                 if($PM_amount != 0){
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_prefs["dgp_account"], 0, 0, '', check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_prefs["rgp_account"], 0, 0, '', -check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
