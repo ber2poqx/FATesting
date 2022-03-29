@@ -97,7 +97,7 @@ function count_serialise_id($selected_id){
 	return $myrow[0];
 }
 
-function get_serialise_id($itemcode, $serial='', $chassis=''){
+function get_serialise_id($itemcode, $serial=''){
     $sql="SELECT serialise_id FROM ".TB_PREF."item_serialise WHERE serialise_item_code=".db_escape($itemcode)." AND (serialise_lot_no=".db_escape($serial).")";
     
     $result = db_query($sql, "could not query Serialise Items");
@@ -171,7 +171,7 @@ function get_all_stockmoves($start,$end,$querystr='',$category=0,$branchcode='',
     if($querystr!=''){
         $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
     }
-    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.color_code, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
+    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
     
     if($all){
         
