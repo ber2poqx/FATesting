@@ -263,7 +263,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		        "0000-00-00", //Expire Date, 
 		        $lot_no,
 		        $chassis_no,  
-		        $color_code,
+		        is_Serialized($stock_id) == 1 ? $color_code : $stock_id,
 				'', 
 				$mcode, $masterfile, $ob_date
             );

@@ -134,7 +134,7 @@ function add_stock_adjustment_item($id, $type = 1,
 	else {
 		$adj_item_id = add_stock_move(ST_INVADJUST, $stock_id, $adj_id, $location,
 	    $date_, $reference, $quantity, $standard_cost, 0, $lot_no, $chasis_no, $category_id, 
-		$color, $item_type == 'new' ? ST_INVADJUST : ST_RRREPO, $adj_id, $item_type);  
+		is_Serialized($stock_id) == 1 ? $color : $stock_id, $item_type == 'new' ? ST_INVADJUST : ST_RRREPO, $adj_id, $item_type);  
 	}
 		
 	add_stock_serialitems(ST_INVADJUST, $color, $adj_id, $location,
