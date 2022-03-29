@@ -395,7 +395,7 @@ function display_update_item($line_id) {
 function can_proceed($approve_stat = 0) {
 
 	if (!is_date_in_fiscalyear(Today())) {
-        display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+        display_error(_("The Today's Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		return false;
     }
 

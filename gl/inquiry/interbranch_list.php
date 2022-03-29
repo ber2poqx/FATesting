@@ -159,7 +159,8 @@ function reference_row($row) {
     return $row['status'] == "Approved" ? 
         get_trans_view_str($row['trantype_from_branch'], $row['transno_from_branch'], $row['ref_no'],
             false, '', '', true
-        ) : $row['ref_no'];
+        ) : 
+    $row['ref_no'];
 }
 
 function preparer_row($row) {

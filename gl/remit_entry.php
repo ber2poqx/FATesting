@@ -209,7 +209,7 @@ $cols = array(
     _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
     _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
-    _('Disbursement #') => array('align' => 'center', 'fun' => 'doc_ref'),
+    _('Receipt No.') => array('align' => 'center', 'fun' => 'doc_ref'),
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
 );
@@ -228,7 +228,7 @@ start_outer_table(TABLESTYLE2, "width='50%'");
 
 table_section(1);
 ref_row(_("Transaction Reference: "), 'ref', '', 
-	$Refs->get_next(ST_REMITTANCE, null, null), false, ST_REMITTANCE
+    $Refs->get_next(ST_REMITTANCE, null, null), true, ST_REMITTANCE
 );
 
 table_section(2);

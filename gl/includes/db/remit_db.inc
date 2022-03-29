@@ -25,7 +25,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
-				LEFT JOIN ".TB_PREF."users D ON D.real_name = A.cashier_user_id
+				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
 			WHERE opening_balance = 0";
 
     if ($report) {
@@ -48,8 +48,8 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
     }
 
-    $sql .= " AND A.remit_stat <> 'Closed'";	
-	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type DESC";
+    $sql .= " AND A.remit_stat = 'Open'";	
+	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type";
 
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
@@ -114,8 +114,8 @@ function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_
 
     global $Refs;
 
-    $trans_no = get_next_trans_no(ST_REMITTANCE);
-    $result = _bank_transactions(null, $user_id, true, $type, $trans_date);
+    $trans_no = max_remit_no() + 1;
+    $result = db_query(_bank_transactions(null, $user_id, false, $type, $trans_date));
     $inserted = 0;
 
     while ($row = db_fetch($result)) {
@@ -135,7 +135,7 @@ function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_
             ''
         );
 
-        remit_bank_trans(_('Draft'), $user_id, $remit_to);
+        remit_bank_trans(_('Draft'), $row['ref'], $user_id, $remit_to);
 
         $inserted++;
     }
@@ -176,7 +176,37 @@ $remit_ref = '', $from_ref = '', $from_type = '', $from_date = null, $from_amt =
     db_query($sql, _("Couldn't add remittance entry!"));
 }
 
-function remit_bank_trans($remit_stat = '', $user_id = 0, $remit_to = 0) {
+function max_remit_no() {
+    
+    set_global_connection();
+    
+    $sql = "SELECT MAX(remit_num) AS max_no FROM ".TB_PREF."remittance";
+    
+    $result = db_query($sql, "Could not get max remittance number");
+    $row = db_fetch($result);
+    
+    return $row[0];
+}
+
+function update_remit_trans($status = '', $reference = '', $remarks = '') {
+
+    set_global_connection();
+
+    $sql = "UPDATE ".TB_PREF."remittance RT 
+        SET RT.remit_stat = '$status'";
+    
+    if ($remarks != '') {
+        $sql .= ", status_memo = " .db_escape($remarks);
+    }
+
+    $sql .= " WHERE RT.remit_ref = " .db_escape($reference);
+    
+    db_query($sql, "Cannot update remit transaction!");
+}
+
+function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remit_to = 0) {
+
+    set_global_connection();
 
     $sql = "UPDATE ".TB_PREF."bank_trans BT 
         SET BT.remit_stat = '$remit_stat'";
@@ -194,7 +224,21 @@ function remit_bank_trans($remit_stat = '', $user_id = 0, $remit_to = 0) {
         }
     }
     
-    $sql .= " WHERE BT.cashier_user_id = " .db_escape($user_id);
+    $sql .= " WHERE BT.ref = " .db_escape($reference);
     
     db_query($sql, "Cannot update remit transaction!");
+}
+
+function remit_status($reference = '') {
+
+    set_global_connection();
+
+	$sql = "SELECT RT.remit_stat FROM " . TB_PREF . "remittance RT 
+		WHERE RT.remit_ref =" . db_escape($reference);
+	
+	$sql .= " GROUP BY RT.remit_ref";
+
+	$result = db_query($sql, "Cant get remit status! (spyrax10)");
+	$row = db_fetch_row($result);
+	return $row[0];
 }

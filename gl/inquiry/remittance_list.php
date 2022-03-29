@@ -48,6 +48,14 @@ function cashier_name($row) {
     return get_user_name($row['remit_from']);
 }
 
+function remit_stat($row) {
+    return $row['remit_stat'] == "Draft" ? pager_link($row['remit_stat'],
+        "/gl/manage/remit_draft.php?trans_no=" . $row['remit_num'] . 
+        "&reference=" . $row['remit_ref'] .
+        "&status=0", false
+    ) : $row['remit_stat'];
+}
+
 function amount_total($row) {
     return $row['tot_amount'];
 } 
@@ -106,6 +114,7 @@ $sql = get_remit_transactions(
 $cols = array(
     _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
     _('Reference') => array('align' => 'center', 'fun' => 'remit_ref'),
+    _('Status') => array('align' => 'center', 'fun' => 'remit_stat'),
     _('Remittance Date') => array('align' => 'center', 'fun' => 'ref_date'),
     _('Remittance From') => array('align' => 'center', 'fun' => 'cashier_name'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total')
