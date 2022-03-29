@@ -136,10 +136,10 @@ function add_stock_adjustment_item($id, $type = 1,
 	    $date_, $reference, $quantity, $standard_cost, 0, $lot_no, $chasis_no, $category_id, 
 		$color, $item_type == 'new' ? ST_INVADJUST : ST_RRREPO, $adj_id, $item_type);  
 	}
-	
 		
-	add_stock_serialitems(ST_INVADJUST, $stock_id, $adj_id, $location,
-        $date_, $reference, $quantity, $standard_cost,0, $lot_no, $adj_item_id, $chasis_no); 
+	add_stock_serialitems(ST_INVADJUST, $color, $adj_id, $location,
+        $date_, $reference, $quantity, $standard_cost, 0, $lot_no, $adj_item_id, $chasis_no
+	); 
 		
 	$inv_value = $standard_cost * $quantity;
 	$adj_value = $standard_cost * -($quantity);
@@ -822,9 +822,9 @@ function add_stock_serialitems($type, $stock_id, $trans_no, $location,
     )";
 	
 	//added by spyrax10
-	if (!serial_exist($lot_no, $chasis_no) && is_Serialized($stock_id) == 1) {
+	if ($lot_no != '' && !serial_exist($lot_no, $chasis_no)) {
 		db_query($sql, "The stock serial item movement record cannot be inserted");
 	}
-	
+
 	return db_insert_id();	
 }
