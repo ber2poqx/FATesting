@@ -513,6 +513,58 @@ function serial_summary_input()
     div_end();
 }
 
+//Added by spyrax10 29 Mar 2022
+function find_serial($serial_no, $line_no) {
+
+    foreach ($_SESSION['PO']->line_items as $ln_itm) {
+        if ($ln_itm->serialised) {
+            foreach($ln_itm->list_serial as $itm) {
+                if ($line_no != $itm->line_no) {
+                    if ($itm->serial_no == $serial_no) {
+					    return true;
+                    }
+                    if ($itm->chassis_no == $serial_no) {
+					    return true;
+                    }
+				}
+                else {
+                    if ($itm->chassis_no == $serial_no) {
+					    return true;
+                    }
+                }	
+            }
+        }
+    }
+
+    return false;
+}
+
+function find_chassis($chassis_, $line_no) {
+
+    foreach ($_SESSION['PO']->line_items as $ln_itm) {
+        if ($ln_itm->serialised) {
+            foreach($ln_itm->list_serial as $itm) {
+                if ($line_no != $itm->line_no) {
+                    if ($itm->chassis_no == $chassis_) {
+					    return true;
+                    }
+                    if ($itm->serial_no == $chassis_) {
+					    return true;
+                    }
+				}
+                else {
+                    if ($itm->serial_no == $chassis_) {
+					    return true;
+                    }
+                }	
+            }
+        }
+    }
+
+    return false;
+}
+//
+
 function can_process_serial()
 {
     //Modified by spyrax10 28 Mar 2022
@@ -522,10 +574,10 @@ function can_process_serial()
             $ctr = 0;
             while ($ctr < count($ln_itm->list_serial)) {
                 
-                $serial_no = $ln_itm->list_serial[$line]->serial_no;
+                $serial_no = $ln_itm->list_serial[$ctr]->serial_no;
 
                 if ($_SESSION['PO']->category_id == 14) {
-                    $chassis_no = $ln_itm->list_serial[$line]->chassis_no;
+                    $chassis_no = $ln_itm->list_serial[$ctr]->chassis_no;
                 }
 
                 //Modified by spyrax10 26 Mar 2022
@@ -534,32 +586,31 @@ function can_process_serial()
                     set_focus("serial_no$line");
                     return false;
                 } 
-                else if ($_SESSION['PO']->find_cart_serial($serial_no)) {
-                    display_error(_("For Part: ") . $serial_no . " || " . "Serial / Engine # already existed!");
-                    set_focus("serial_no$line");
-                    return false;
-                }
-                else if (serial_exist($serial_no)) {
-                    display_error("Serial # Already Registered!");
-                    set_focus("serial_no$line");
-                    return false;
-                }
                 else if ($chassis_no == "" && $_SESSION['PO']->category_id == 14) {
                     display_error(_("Please input Chassis No."));
                     set_focus("chassis_no$line");
                     return false;
                 }
-                else if ($_SESSION['PO']->find_cart_chassis($chassis_no) && $_SESSION['PO']->category_id == 14) {
-                    display_error(_("For Part: ") . $chassis_no . " || " . "Chassis # already existed!");
+                else if (find_serial($serial_no, $line)) {
+                    display_error("Serial / Engine # already existed in the list!" );
+                    set_focus("serial_no$line");
+                    return false;
+                }
+                else if (find_chassis($chassis_no, $line) && $_SESSION['PO']->category_id == 14) {
+                    display_error("Chassis # already existed in the list!" );
                     set_focus("chassis_no$line");
+                    return false;
+                }
+                else if (serial_exist($serial_no)) {
+                    display_error("Serial # Already Registered in the System!");
+                    set_focus("serial_no$line");
                     return false;
                 }
                 else if (serial_exist($serial_no, $chassis_no) && $_SESSION['PO']->category_id == 14) {
-                    display_error("Chassis # Already Registered!");
+                    display_error("Chassis # Already Registered in the System!");
                     set_focus("chassis_no$line");
                     return false;
                 }
-                //
                 $ctr++; $line++;
             }
         }
@@ -592,27 +643,26 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
                 $ctr = 0;
                 while ($ctr < $ln_itm->receive_qty) {
                     $serial = new stdClass();
+                    $serial->line_no = $line;
                     $serial->serial_no = get_post("serial_no$line");
                     $serial->chassis_no = $_SESSION['PO']->category_id == 14 ? get_post("chassis_no$line") : "";
                     array_push($ln_itm->list_serial, $serial);
+
                     $ctr++; $line++;
                 }
             }
         }
     }
-    //
 
-    if (count($_SESSION['PO']->line_items[0]->list_serial) > 0) {
-        if (!can_process_serial()) {
-            return;
-        }
+    if (count($_SESSION['PO']->line_items[0]->list_serial) > 0 && can_process_serial()) {
+        $grn = &$_SESSION['PO'];
+        $grn_no =  add_grn_new($grn);
+        unset($_SESSION['PO']->line_items);
+        unset($_SESSION['PO']);
+        meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
     }
+    //
         
-    $grn = &$_SESSION['PO'];
-    $grn_no =  add_grn_new($grn);
-    unset($_SESSION['PO']->line_items);
-    unset($_SESSION['PO']);
-    meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
 }
 
 if (isset($_SESSION['SetSerial'])) {

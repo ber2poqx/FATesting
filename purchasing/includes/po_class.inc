@@ -101,34 +101,6 @@ class purch_order
 		$this->line_items[$line_no]->color_code = $color_code;
 	}
 
-	//Added by spyrax10 26 Mar 2022
-	function find_cart_serial($serial_no) {
-		foreach($this->line_items as $line_no=>$line) {
-			if ($line->serial == $serial_no) {
-				return $this->line_items[$line_no];
-			}			
-		}
-		return null;
-	}
-
-	function find_cart_chassis($chassis_no) {
-		foreach($this->line_items as $line_no=>$line) {
-			if ($line->chasis_no == $chassis_no) {
-				return $this->line_items[$line_no];
-			}			
-		}
-		return null;
-	}
-
-	function total_qty() {
-		$qty = 0;
-		foreach ($this->line_items as $items) {
-			$qty += $items->quantity;
-		} 
-		return $qty;
-	}
-	//
-
 	function remove_from_order($line_no)
 	{
 		array_splice($this->line_items, $line_no, 1);
