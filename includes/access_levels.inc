@@ -219,7 +219,7 @@ $security_areas =array(
 	'SA_CUSTSTATREP' => array(SS_SALES_A|6, _("Customer status report")),
 	'SA_CUSTPAYMREP' => array(SS_SALES_A|7, _("Customer payments report")),
 
-	'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
+	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
 	'SA_SALES_ORDER_APPROVAL'=> array(SS_SALES|14, _("Account Specialist Approval Sales Order")), //Added by Albert
 	'SA_SALES_RETURN_UPDATE_STATUS' => array(SS_SALES|16, _("Sales Return Approval")),
 	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|16, _("Sales Restructured Approval")),
