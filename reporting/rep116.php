@@ -35,7 +35,7 @@ function remittance_transactions($from, $cashier = '') {
 	
 	$from = date2sql($from);
 
-	$sql = "SELECT RT.*, BT.person_id, BT.person_type_id 
+	$sql = "SELECT RT.*, BT.person_id, BT.person_type_id, BT.receipt_no 
 		FROM ".TB_PREF."remittance RT 
 			LEFT JOIN ".TB_PREF."bank_trans BT ON RT.from_ref = BT.ref
 
@@ -44,6 +44,8 @@ function remittance_transactions($from, $cashier = '') {
 	if ($cashier != '') {
 		$sql .= " AND RT.remit_to = ".db_escape($cashier);
 	}
+
+	$sql .= " AND RT.remit_stat = 'Approved'"; 
 
 	$sql .= " ORDER BY RT.remit_ref, RT.type DESC";
 
@@ -55,7 +57,7 @@ function disbursement_transactions($from, $cashier = '') {
 	$from = date2sql($from);
 
 	$sql = "SELECT A.ref, A.type, A.trans_date, abs(A.amount) AS amt, A.person_id, A.cashier_user_id, B.name, 
-			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile
+			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile, A.receipt_no
 			
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
@@ -130,10 +132,12 @@ function print_dailycash_sales()
 	$comments = $_POST['PARAM_2'];
 	$destination = $_POST['PARAM_3'];
 
-	if ($destination)
+	if ($destination) {
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
-	else
+	}
+	else {
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+	}
 
 	$orientation = 'P';
     $dec = user_price_dec();
@@ -146,12 +150,21 @@ function print_dailycash_sales()
 		$cashier_display = _("ALL CASHIER");
 		$cashier_name = '';
 	}
-	
-	$cols = array(3, 60, 230, 413, 0);
 
-	$headers = array(_('Date'), _('Customer'), _('Remarks'), _('Receipt Number'), _('Amount'));
+	$orientation = 'L';
 
-	$aligns = array('left', 'left',	'left', 'left', 'right');
+	$cols = array(0, 60, 205, 385, 470, 0);
+
+	$headers = array(
+		_('Date'), 
+		_('Customer'), 
+		_('Remarks'),
+		_('Reference'), 
+		_('Receipt Number'), 
+		_('Amount')
+	);
+
+	$aligns = array('left', 'left', 'left', 'left', 'left', 'right');
 
     $params =  array( 
 		0 => $comments,
@@ -160,8 +173,9 @@ function print_dailycash_sales()
 	);
 
     $rep = new FrontReport(_('Daily Cash Position Report'), "DCPR", "LETTER", 9, $orientation);
-   	if ($orientation == 'L')
-    	recalculate_cols($cols);
+   	if ($orientation == 'L') {
+		recalculate_cols($cols);
+	}
 
 	$rep->Font('bold');
 	//$rep->SetCommonData($myrow, null, $myrow, $baccount, ST_BANKPAYMENT, $contacts);
@@ -177,7 +191,7 @@ function print_dailycash_sales()
 	$rep->NewLine(.5);
 	$rep->Font('bold');
 	$rep->TextCol(2, 3, _('OPENING BALANCE PREVIOUS DAY:'));
-	$rep->AmountCol(4, 5, $prev_balance, $dec);
+	$rep->AmountCol(5, 6, $prev_balance, $dec);
 	//$rep->Line($rep->row - 2);
 	$rep->Font();
 	$rep->NewLine(.5);
@@ -201,7 +215,7 @@ function print_dailycash_sales()
 				$rep->NewLine(2);
     			$rep->Font('bold');
     			$rep->TextCol(0, 1, _('Sub Total'));
-				$rep->AmountCol(4, 5, $sub_total, $dec);
+				$rep->AmountCol(5, 6, $sub_total, $dec);
 				$rep->Line($rep->row  - 4);
 				$rep->NewLine(1.5);
 				$sub_total = 0.0;
@@ -224,7 +238,8 @@ function print_dailycash_sales()
 		$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
 		$rep->TextCol(2, 3, $trans['memo_']);
 		$rep->TextCol(3, 4, $trans['ref']);
-		$rep->AmountCol(4, 5, ABS($trans['amt']), $dec);
+		$rep->TextCol(4, 5, $trans['receipt_no']);
+		$rep->AmountCol(5, 6, ABS($trans['amt']), $dec);
 
 		/*$curr = get_customer_currency($trans['debtor_no']);
 		$rate = get_exchange_rate_from_home_currency($curr, sql2date($trans['trans_date']));
@@ -244,7 +259,7 @@ function print_dailycash_sales()
 		$rep->NewLine(2);
 		$rep->Font('bold');
 		$rep->TextCol(0, 1, _('Sub Total'));
-		$rep->AmountCol(4, 5, $sub_total, $dec);
+		$rep->AmountCol(5, 6, $sub_total, $dec);
 		$rep->Line($rep->row  - 4);
 		$rep->NewLine(1.5);
 	}
@@ -267,7 +282,7 @@ function print_dailycash_sales()
 				$rep->NewLine(2);
     			$rep->Font('bold');
     			$rep->TextCol(0, 1, _('Sub Total'));
-				$rep->AmountCol(4, 5, $sub_rtotal, $dec);
+				$rep->AmountCol(5, 6, $sub_rtotal, $dec);
 				$rep->Line($rep->row  - 4);
 				$rep->NewLine(1.5);
 				$sub_rtotal = 0.0;
@@ -293,8 +308,10 @@ function print_dailycash_sales()
 		$rep->TextCol(3, 4, $remit_trans['from_ref']);
 		$rep->SetTextColor(0, 0, 0);
 
+		$rep->TextCol(4, 5, $remit_trans['receipt_no']);
+
 		$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
-		$rep->AmountCol(4, 5, $remit_trans['amount'], $dec);
+		$rep->AmountCol(5, 6, $remit_trans['amount'], $dec);
 		$rep->SetTextColor(0, 0, 0);
 
 		$sub_rtotal += $remit_trans['amount'];
@@ -306,7 +323,7 @@ function print_dailycash_sales()
 		$rep->NewLine(2);
 		$rep->Font('bold');
 		$rep->TextCol(0, 1, _('Sub Total'));
-		$rep->AmountCol(4, 5, $sub_rtotal, $dec);
+		$rep->AmountCol(5, 6, $sub_rtotal, $dec);
 		$rep->Line($rep->row  - 4);
 		$rep->NewLine(1.5);
 	}
@@ -333,8 +350,9 @@ function print_dailycash_sales()
 		$rep->TextCol(1, 2, get_person_name($dis_trans['person_type_id'], $dis_trans['person_id']));
 		$rep->TextCol(2, 3, $dis_trans['memo_']);
 		$rep->TextCol(3, 4, $dis_trans['ref']);
+		$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 		$rep->SetTextColor(255, 0, 0);
-		$rep->AmountCol(4, 5, $dis_trans['amt'], $dec);
+		$rep->AmountCol(5, 6, $dis_trans['amt'], $dec);
 		$rep->SetTextColor(0, 0, 0);
 	
 		$sum_dis += $dis_trans['amt'];
@@ -344,7 +362,7 @@ function print_dailycash_sales()
 	$rep->Font('bold');
 	$rep->SetTextColor(255, 0, 0);
 	$rep->TextCol(0, 1, _('Sub Total'));
-	$rep->AmountCol(4, 5, $sum_dis, $dec);
+	$rep->AmountCol(5, 6, $sum_dis, $dec);
 	$rep->SetTextColor(0, 0, 0);
 	$rep->Line($rep->row  - 4);
 	$rep->NewLine(.5);
@@ -355,7 +373,7 @@ function print_dailycash_sales()
 	$rep->NewLine(2.5);
 	$rep->Font('bold');
 	$rep->TextCol(0, 4, _('ENDING BALANCE: '));
-	$rep->AmountCol(4, 5, $prev_balance + $sum_receipt + $sum_remit - $sum_dis, $dec);
+	$rep->AmountCol(5, 6, $prev_balance + $sum_receipt + $sum_remit - $sum_dis, $dec);
 	$rep->NewLine(.5);
 	$rep->fontSize -= 1.5;
 
@@ -370,15 +388,15 @@ function print_dailycash_sales()
 	$rep->Font();
 	$rep->NewLine(2);
 	$rep->TextCol(1, 3, _('Cash On Hand (COH): '));
-	$rep->AmountCol(4, 5, $coc, $dec);
+	$rep->AmountCol(5, 6, $coc, $dec);
 	$rep->NewLine(1.5);
 	$rep->TextCol(1, 3, _('Cheque & Other Cash Items (COCI): '));
-	$rep->AmountCol(4, 5, $coci, $dec);
+	$rep->AmountCol(5, 6, $coci, $dec);
 	
 	$rep->NewLine(2);
 	$rep->Font('bold');
 	$rep->TextCol(1, 3, _('Total Ending Balance: '));
-	$rep->AmountCol(4, 5, $coc + $coci, $dec);
+	$rep->AmountCol(5, 6, $coc + $coci, $dec);
 	$rep->Font();
 	$rep->fontSize -= 1;
 

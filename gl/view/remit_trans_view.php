@@ -75,7 +75,9 @@ $k = 0;
 
 while ($row = db_fetch_assoc($res_details)) {
 
-    $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $row['remit_from'], '', ''));
+    $cashier = $row['remit_stat'] == 'Approved' ? $row['remit_to'] : $row['remit_from'];
+
+    $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $cashier, '', ''));
     $bank_row = db_fetch_assoc($bank_);
 
     alt_table_row_color($k);

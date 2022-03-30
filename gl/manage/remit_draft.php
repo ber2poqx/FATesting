@@ -49,7 +49,7 @@ if (isset($_GET['AddedID'])) {
     $reference = $_GET['Ref'];
 
     display_notification_centered(_("Remittance Entry has been processed!"));
-    //display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry"), false, '', '', false, $reference));
+    display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry"), false, '', '', false, $reference));
     br();
     display_note(get_gl_view_str(ST_REMITTANCE, $trans_no, _("&View the GL Postings for this Remittance transaction"), false, '', '', 1));
     
@@ -135,7 +135,7 @@ if (isset($_POST['Approved']) && can_proceed()) {
         $Refs->save(ST_REMITTANCE, $trans_no, $reference);
 	    add_audit_trail(ST_REMITTANCE, $trans_no, $_POST['date_'], _("Draft ref: " . $reference));
 
-        meta_forward($_SERVER['PHP_SELF'], "AddedID=". $trans_no . "Ref=" . $reference);
+        meta_forward($_SERVER['PHP_SELF'], "AddedID=". $trans_no . "&Ref=" . $reference);
     }
     else {
 		display_error(_("Invalid Transaction!"));
@@ -218,7 +218,9 @@ $k = 0;
 
 while ($row = db_fetch_assoc($res_details)) {
 
-    $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $row['remit_from'], '', ''));
+    $cashier = $row['remit_stat'] == 'Approved' ? $row['remit_to'] : $row['remit_from'];
+
+    $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $cashier, '', ''));
     $bank_row = db_fetch_assoc($bank_);
 
     alt_table_row_color($k);

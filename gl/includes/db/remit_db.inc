@@ -106,8 +106,6 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
     }
 
     $sql .= " ORDER BY RT.type DESC";
-    
-    display_error($sql);
 
     if ($details) {
         return db_query($sql, _("No remittance transactions were returned from the database."));
