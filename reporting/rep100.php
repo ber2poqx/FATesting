@@ -251,8 +251,11 @@ function print_transaction() {
     $tot1_bal = $tot1_notDue = $tot1_dueNxt = $tot1_dueThis = $tot1_ovr1 = 
     $tot1_ovr2 = $tot1_past = $tot1_grand = 0.0;
 
+    $total_act = 0;
+
     while ($trans = db_fetch($res)) {
 
+        $total_act++;
         //display_error($trans['trans_no'] . " || " . $trans['trans_type'] . " || " . $trans['debtor_no']);
         //Parent
         $total_adjusment = total_adjusment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
@@ -404,7 +407,7 @@ function print_transaction() {
         $rep->NewLine();
         $rep->fontSize -= .5;
 
-        $rep->TextCol(0, 1, $trans['cust_name']);
+        $rep->TextCol(0, 1, $total_act . ".) " . $trans['cust_name']);
         $rep->SetTextColor(255, 0, 0);
         $rep->TextCol(1, 2, $trans['buy_date']);
         $rep->SetTextColor(0, 0, 0);
