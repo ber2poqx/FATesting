@@ -48,14 +48,15 @@ function disbursement_transactions($from, $cashier = '', $cashier_name = '')
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
+	
+	$sql .= " AND A.remit_stat <> 'Closed'";
 			
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC";
 
     return db_query($sql,"No transactions were returned");
 }
 
-function get_dailycash_balance_to($from, $cashier = '', $cashier_name = '')
-{
+function get_dailycash_balance_to($from, $cashier = '', $cashier_name = '') {
 	$date = date2sql($from);
 
 	$sql = "SELECT SUM(A.amount), A.cashier_user_id, B.real_name, B.user_id 
@@ -128,7 +129,7 @@ function print_dailycash_sales()
 		$cashier_name = '';
 	}
 	
-	$cols = array(3, 70, 170, 360, 0);
+	$cols = array(3, 60, 230, 413, 0);
 
 	$headers = array(_('Date'), _('Customer'), _('Remarks'), _('Receipt Number'), _('Amount'));
 
@@ -140,7 +141,7 @@ function print_dailycash_sales()
     	2 => array('text' => _('Cashier'), 'from' => $cashier_display)
 	);
 
-    $rep = new FrontReport(_('Daily Cash Position Report'), "DCPR", user_pagesize(), 9, $orientation);
+    $rep = new FrontReport(_('Daily Cash Position Report'), "DCPR", "LETTER", 9, $orientation);
    	if ($orientation == 'L')
     	recalculate_cols($cols);
 
@@ -157,9 +158,9 @@ function print_dailycash_sales()
 	
 	$rep->NewLine(.5);
 	$rep->Font('bold');
-	$rep->TextCol(0, 4, _('OPENING BALANCE PREVIOUS DAY:'));
+	$rep->TextCol(2, 3, _('OPENING BALANCE PREVIOUS DAY:'));
 	$rep->AmountCol(4, 5, $prev_balance, $dec);
-	$rep->Line($rep->row - 2);
+	//$rep->Line($rep->row - 2);
 	$rep->Font();
 	$rep->NewLine(.5);
 
@@ -178,7 +179,7 @@ function print_dailycash_sales()
 		if ($trans_type != $trans['receipt_type']) {
 			
 			if ($trans_type != '') {
-				$rep->NewLine(1);
+				$rep->NewLine(2);
     			$rep->Font('bold');
     			$rep->TextCol(0, 1, _('Sub Total'));
 				$rep->AmountCol(4, 5, $sub_total, $dec);
@@ -199,14 +200,13 @@ function print_dailycash_sales()
 			$rep->NewLine();
 		}
 
-		$rep->NewLine(1);
+		$rep->NewLine(1.2);
 		$rep->TextCol(0, 1, sql2date($trans['trans_date']));
 		$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
 		$rep->TextCol(2, 3, $trans['memo_']);
 		$rep->TextCol(3, 4, $trans['ref']);
 		$rep->AmountCol(4, 5, ABS($trans['amt']), $dec);
-		$rep->NewLine(1);
-		
+
 		/*$curr = get_customer_currency($trans['debtor_no']);
 		$rate = get_exchange_rate_from_home_currency($curr, sql2date($trans['trans_date']));
 		$trans['amt'] *= $rate;
@@ -222,7 +222,7 @@ function print_dailycash_sales()
 	// End of Office Collection Receipt
 
 	if ($trans_type != '') {
-		$rep->NewLine(1);
+		$rep->NewLine(2);
 		$rep->Font('bold');
 		$rep->TextCol(0, 1, _('Sub Total'));
 		$rep->AmountCol(4, 5, $sub_total, $dec);
@@ -238,13 +238,13 @@ function print_dailycash_sales()
 	$rep->SetTextColor(255, 0, 0);
 	$rep->TextCol(0, 4, _('Less : Disbursement Entries'));
 	$rep->SetTextColor(0, 0, 0);
-	$rep->NewLine(.5);
 	$rep->fontSize -= 1;
 	$rep->Font();
+	$rep->NewLine(1);
 	
 	while ($dis_trans = db_fetch($disburse_res)) {
 
-		$rep->NewLine(1.5);
+		$rep->NewLine(1.2);
 		$rep->TextCol(0, 1, sql2date($dis_trans['trans_date']));
 		$rep->TextCol(1, 2, get_person_name($dis_trans['person_type_id'], $dis_trans['person_id']));
 		$rep->TextCol(2, 3, $dis_trans['memo_']);
@@ -254,10 +254,9 @@ function print_dailycash_sales()
 		$rep->SetTextColor(0, 0, 0);
 	
 		$sum_dis += $dis_trans['amt'];
-		$rep->NewLine(1);
 	}
 
-	$rep->NewLine(1);
+	$rep->NewLine(2);
 	$rep->Font('bold');
 	$rep->SetTextColor(255, 0, 0);
 	$rep->TextCol(0, 1, _('Sub Total'));

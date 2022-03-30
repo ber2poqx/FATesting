@@ -194,6 +194,8 @@ function get_person_name($type, $person_id) {
 			return get_supplier_name($person_id);
 		case PT_EMPLOYEE:
 		    return get_user_name($person_id);
+		case PT_BRANCH:
+			return get_company_value($person_id, 'name');
 		default:
 			return '';
 	}

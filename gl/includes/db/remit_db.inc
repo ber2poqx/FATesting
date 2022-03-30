@@ -48,7 +48,13 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
     }
 
-    $sql .= " AND A.remit_stat = 'Open'";	
+    if ($report) {
+        $sql .= " AND A.remit_stat <> 'Closed'";
+    }
+    else {
+        $sql .= " AND A.remit_stat = 'Open'";
+    }
+
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type";
 
     if ($report) {

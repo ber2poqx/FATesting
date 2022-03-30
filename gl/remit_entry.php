@@ -81,6 +81,10 @@ function systype_name($row) {
 	return $systypes_array[$row['type']];
 }
 
+function payment_person($row) {
+    return payment_person_name($row['person_type_id'], $row['person_id']);
+}
+
 //-----------------------------------------------------------------------------------------------
 
 function can_process() {
@@ -206,8 +210,9 @@ $sql = _bank_transactions(
 $cols = array(
     _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
     _('Entry Type') => array('align' => 'left', 'fun' => 'is_interbranch'),
-    _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
+    _('Trans #') => array('align' => 'center', 'fun' => 'trans_num'),
     _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
+    _('Payment To') => array('align' => 'left', 'fun' => 'payment_person'),
     _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
     _('Receipt No.') => array('align' => 'center', 'fun' => 'doc_ref'),
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
@@ -216,7 +221,7 @@ $cols = array(
 
 $table = &new_db_pager('remit_items', $sql, $cols, null, null, 25);
 
-$table->width = "70%";
+$table->width = "85%";
 
 display_db_pager($table);
 

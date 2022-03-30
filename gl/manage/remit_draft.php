@@ -56,8 +56,15 @@ function can_proceed($approve_stat = 0) {
 
 if (isset($_POST['Approved']) && can_proceed(1)) {
 
+    $res_details = get_remit_transactions($reference, '', null, null, true);
+
     if (remit_status($reference) == 'Draft') {
-        update_remit_trans('Approved', $_GET['reference'], get_post('memo_'), );
+        update_remit_trans('Approved', $_GET['reference'], get_post('memo_'));
+
+        while ($row = db_fetch_assoc($res_details)) {
+            remit_bank_trans(_('Approved'), $row['from_ref']);
+        }
+
         meta_forward("../inquiry/remittance_list.php?");
     }
     else {
@@ -114,11 +121,12 @@ $th = array(
     _('Transaction Type'),
     //_('Transaction #'),
     _('Reference'),
+    _('Payment To'),
     _('Date'),
     _('Receipt No.'),
     _('Prepared By'),
     _('Payment Type'),
-    _('Total Amount')
+    _('Sub Total')
 );
 
 table_header($th);
@@ -136,7 +144,8 @@ while ($row = db_fetch_assoc($res_details)) {
 
     label_cell(_systype_name($row['type']), "nowrap align='left'");
     //label_cell($bank_row['trans_no']);
-    label_cell($row['from_ref'], "nowrap align='left'");
+    label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $bank_row['ref']), "nowrap align='center'");
+    label_cell(payment_person_name($bank_row['person_type_id'], $bank_row['person_id']), "nowrap align='left'");
     label_cell(sql2date($row['trans_date']), "nowrap align='center'");
     label_cell($bank_row['receipt_no'], "nowrap align='center'");
     label_cell($bank_row['prepared_by']);
@@ -145,7 +154,7 @@ while ($row = db_fetch_assoc($res_details)) {
 }
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-    "align=right colspan=6; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+    "align=right colspan=7; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table();
