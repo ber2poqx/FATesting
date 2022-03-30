@@ -117,15 +117,15 @@ function get_customer_trans_view_str($type, $trans_no, $label="", $icon=false,
   return $preview_str;
 }
 
-function get_remit_trans_view_str($type, $trans_no, $label = "", 
-$icon = false, $class = '', $id = '', $interbranch = false) {
+function get_remit_trans_view_str($type, $trans_no, $label = "", $reference = "",
+$icon = false, $class = '', $id = '') {
 
 	if ($label == "")
 		$label = $trans_no;
 
 		$viewer = "remit_trans_view.php";
 
-	return viewer_link($label, "gl/view/$viewer?trans_no=$trans_no&type=$type&ref=$label", 
+	return viewer_link($label, "gl/view/$viewer?trans_no=$trans_no&type=$type&ref=$reference", 
 		$class, $id, $icon
 	);
 }
@@ -288,7 +288,7 @@ function get_package_view_str($pkg, $label="", $icon=false, $class='', $id='')
 
 //Modified by spyrax10 18 Feb 2022
 function get_trans_view_str($type, $trans_no, $label = "", $icon=false, 
-	$class = '', $id = '', $interbranch = false)
+	$class = '', $id = '', $interbranch = false, $reference = "")
 {
 	
 	if ($interbranch) {
@@ -317,7 +317,7 @@ function get_trans_view_str($type, $trans_no, $label = "", $icon=false,
 		}
 
 		if ($type == ST_REMITTANCE) {
-			$view_str = get_remit_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			$view_str = get_remit_trans_view_str($type, $trans_no, $label, $reference, $icon, $class, $id);
 			if ($view_str != null) {
 				return $view_str;
 			}
@@ -455,18 +455,29 @@ function is_voided_display($type, $id, $label)
 }
 
 //--------------------------------------------------------------------------------------
-
-function comments_display_row($type, $id)
-{
+//Modified by spyrax10 30 Mar 2022
+function comments_display_row($type, $id, $colspan = 0) {
 	$comments = get_comments($type, $id);
-	if ($comments and db_num_rows($comments))
-	{
-		echo "<tr><td colspan=15>";
+	if ($comments and db_num_rows($comments)) {
+
+		$colspan = $colspan > 0 ? $colspan : 15;
+
+		if ($colspan == 0) {
+			echo "<tr>";
+		}
+
+		echo "<td colspan='$colspan'>";
+
     	while ($comment = db_fetch($comments))
     	{
     		echo nl2br($comment["memo_"]) . "<br>";
     	}
-		echo "</td></tr>";
+
+		echo "</td>";
+
+		if ($colspan == 0) {
+			echo "</tr>";
+		}
 	}
 }
 

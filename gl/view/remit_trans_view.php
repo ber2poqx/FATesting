@@ -46,9 +46,14 @@ label_cells(_("Remittance From: "), get_user_name($res_head['remit_from']), "cla
 
 end_row();
 
-comments_display_row(ST_REMITTANCE, $trans_no);
+start_row();
+comments_display_row(ST_REMITTANCE, $trans_no, 4);
+label_cells(_("Remittance Status: "), $res_head['remit_stat'], "class='tableheader2'", "colspan=4");
+end_row();
 
 end_table();
+
+br();
 
 start_table(TABLESTYLE, "width='95%'");
 
@@ -74,7 +79,8 @@ while ($row = db_fetch_assoc($res_details)) {
     $bank_row = db_fetch_assoc($bank_);
 
     alt_table_row_color($k);
-    $total += abs($row['amount']);
+    $total += $row['amount'];
+    $color = $row['amount'] > 0 ? "" : "style='color: red'";
 
     label_cell(_systype_name($row['type']), "nowrap align='left'");
     //label_cell($bank_row['trans_no']);
@@ -83,7 +89,7 @@ while ($row = db_fetch_assoc($res_details)) {
     label_cell($bank_row['receipt_no'], "nowrap align='center'");
     label_cell($bank_row['prepared_by']);
     label_cell($bank_row['pay_type'], "nowrap align='center'");
-    amount_cell(abs($row['amount']));
+    amount_cell($row['amount'], false, $color);
 }
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 

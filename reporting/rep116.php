@@ -31,10 +31,28 @@ include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_dailycash_sales();
 
-function disbursement_transactions($from, $cashier = '', $cashier_name = '')
-{
+function remittance_transactions($from, $cashier = '') {
+	
 	$from = date2sql($from);
-	$DE = ST_BANKPAYMENT;
+
+	$sql = "SELECT RT.*, BT.person_id, BT.person_type_id 
+		FROM ".TB_PREF."remittance RT 
+			LEFT JOIN ".TB_PREF."bank_trans BT ON RT.from_ref = BT.ref
+
+		WHERE RT.trans_date = '$from'";
+
+	if ($cashier != '') {
+		$sql .= " AND RT.remit_to = ".db_escape($cashier);
+	}
+
+	$sql .= " ORDER BY RT.remit_ref, RT.type DESC";
+
+	return db_query($sql, "No transactions were returned");
+}
+
+function disbursement_transactions($from, $cashier = '') {
+	
+	$from = date2sql($from);
 
 	$sql = "SELECT A.ref, A.type, A.trans_date, abs(A.amount) AS amt, A.person_id, A.cashier_user_id, B.name, 
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile
@@ -42,26 +60,26 @@ function disbursement_transactions($from, $cashier = '', $cashier_name = '')
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
-				LEFT JOIN ".TB_PREF."users D ON D.real_name = A.cashier_user_id
-			WHERE A.trans_date = '$from' AND A.type = $DE ";
+				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
+			WHERE A.trans_date = '$from' AND A.type = " . ST_BANKPAYMENT . " ";
 	
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
 	
-	$sql .= " AND A.remit_stat <> 'Closed'";
+	$sql .= " AND A.remit_stat <> 'Approved'";
 			
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC";
 
     return db_query($sql,"No transactions were returned");
 }
 
-function get_dailycash_balance_to($from, $cashier = '', $cashier_name = '') {
+function get_dailycash_balance_to($from, $cashier = '') {
 	$date = date2sql($from);
 
 	$sql = "SELECT SUM(A.amount), A.cashier_user_id, B.real_name, B.user_id 
 		FROM ".TB_PREF."bank_trans A 
-			LEFT JOIN ".TB_PREF."users B ON B.real_name = A.cashier_user_id
+			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 		WHERE A.type <> 0 AND A.trans_date < '$date' ";
 
 	if ($cashier != '') {
@@ -79,7 +97,7 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 
 	$sql = "SELECT SUM(A.amount), A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
-			LEFT JOIN ".TB_PREF."users B ON B.real_name = A.cashier_user_id
+			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 		WHERE A.type <> 0 AND A.opening_balance = 0";
 
 	if ($cash) {
@@ -154,7 +172,7 @@ function print_dailycash_sales()
 
 	//-----FOR PREVIOUS BALANCE-----//
 	$prev_balance = 0;
-	$prev_balance = get_dailycash_balance_to($from, $cashier, $cashier_name);
+	$prev_balance = get_dailycash_balance_to($from, $cashier);
 	
 	$rep->NewLine(.5);
 	$rep->Font('bold');
@@ -169,10 +187,11 @@ function print_dailycash_sales()
 	$rep->NewLine();
 
 	$res = _bank_transactions($from, $cashier);
-	$disburse_res = disbursement_transactions($from, $cashier, $cashier_name);
+	$disburse_res = disbursement_transactions($from, $cashier);
+	$remit_res = remittance_transactions($from, $cashier);
 
-	$total = $sum_receipt = $sub_total = $sum_dis = 0.0;
-	$trans_type = '';
+	$total = $rtotal = $sum_receipt = $sub_total = $sub_rtotal = $sum_dis = $sum_remit = 0.0;
+	$trans_type = $reference = '';
 
 	//Office Collection Receipt
 	while ($trans = db_fetch($res)) {
@@ -230,13 +249,78 @@ function print_dailycash_sales()
 		$rep->NewLine(1.5);
 	}
 
+	//Remittance Entry
+	$rep->NewLine(1);
+	$rep->fontSize += 1;
+	$rep->Font('bold');
+	$rep->SetTextColor(0, 0, 255);
+	$rep->TextCol(0, 4, _('REMITTANCE ENTRIES:'));
+	$rep->SetTextColor(0, 0, 0);
+	$rep->fontSize -= 1;
+	$rep->Font();
+	$rep->NewLine(1);
+
+	while ($remit_trans = db_fetch($remit_res)) {
+
+		if ($reference != $remit_trans['remit_ref']) {
+			if ($reference != '') {
+				$rep->NewLine(2);
+    			$rep->Font('bold');
+    			$rep->TextCol(0, 1, _('Sub Total'));
+				$rep->AmountCol(4, 5, $sub_rtotal, $dec);
+				$rep->Line($rep->row  - 4);
+				$rep->NewLine(1.5);
+				$sub_rtotal = 0.0;
+			}
+
+			$rep->NewLine();
+			$rep->fontSize += 1;
+			$rep->Font('bold');
+			$rep->TextCol(0, 5, $remit_trans['remit_ref']);
+			$rep->TextCol(2, 5, "From: " . get_user_name($remit_trans['remit_from']));
+			$reference = $remit_trans['remit_ref'];
+			$rep->Font();
+			$rep->fontSize -= 1;
+			$rep->NewLine();
+		}
+
+		$rep->NewLine(1.2);
+		$rep->TextCol(0, 1, sql2date($remit_trans['trans_date']));
+		$rep->TextCol(1, 2,	get_person_name($remit_trans['person_type_id'], $remit_trans['person_id']));
+		$rep->TextCol(2, 3, $remit_trans['status_memo']);
+
+		$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
+		$rep->TextCol(3, 4, $remit_trans['from_ref']);
+		$rep->SetTextColor(0, 0, 0);
+
+		$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
+		$rep->AmountCol(4, 5, $remit_trans['amount'], $dec);
+		$rep->SetTextColor(0, 0, 0);
+
+		$sub_rtotal += $remit_trans['amount'];
+		$rtotal += $remit_trans['amount'];
+		$sum_remit = $rtotal;
+	}
+
+	if ($reference != '') {
+		$rep->NewLine(2);
+		$rep->Font('bold');
+		$rep->TextCol(0, 1, _('Sub Total'));
+		$rep->AmountCol(4, 5, $sub_rtotal, $dec);
+		$rep->Line($rep->row  - 4);
+		$rep->NewLine(1.5);
+	}
+
+
+	//End Remittance Entry
+
 	//Disbursement Entry
 
 	$rep->NewLine(1);
 	$rep->fontSize += 1;
 	$rep->Font('bold');
 	$rep->SetTextColor(255, 0, 0);
-	$rep->TextCol(0, 4, _('Less : Disbursement Entries'));
+	$rep->TextCol(0, 4, _('Less : Disbursement Entries:'));
 	$rep->SetTextColor(0, 0, 0);
 	$rep->fontSize -= 1;
 	$rep->Font();
@@ -271,7 +355,7 @@ function print_dailycash_sales()
 	$rep->NewLine(2.5);
 	$rep->Font('bold');
 	$rep->TextCol(0, 4, _('ENDING BALANCE: '));
-	$rep->AmountCol(4, 5, $prev_balance + $sum_receipt - $sum_dis, $dec);
+	$rep->AmountCol(4, 5, $prev_balance + $sum_receipt + $sum_remit - $sum_dis, $dec);
 	$rep->NewLine(.5);
 	$rep->fontSize -= 1.5;
 

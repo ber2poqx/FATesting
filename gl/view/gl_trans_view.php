@@ -160,6 +160,7 @@ function _gl_details() {
 	$invoice = $_GET['type_id'] == ST_SALESINVOICE;
 	$sales_return = $_GET['type_id'] == ST_SALESRETURN;
 	$sup_recv = $_GET['type_id'] == ST_SUPPRECEIVE;
+	$remittance = $_GET['type_id'] == ST_REMITTANCE;
 	//
 	//Added by albert 
 	$termmode = $_GET['type_id'] == ST_SITERMMOD;
@@ -255,11 +256,13 @@ function _gl_details() {
 	    	label_cell(get_db_location_name($rrbranch_header["mt_header_fromlocation"]));
 		}	
 		//Added by spyrax10
-		else if ($invoice || $sales_return || $sup_recv) {
+		else if ($invoice || $sales_return || $sup_recv || $remittance) {
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
-				get_subaccount_code($_GET['type_id'], $_GET['trans_no']));
+				get_subaccount_code($_GET['type_id'], $_GET['trans_no'])
+			);
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 
-				get_subaccount_fullname($_GET['type_id'], $_GET['trans_no']));
+				get_subaccount_fullname($_GET['type_id'], $_GET['trans_no'])
+			);
 		}
 		//Added by Albert
 		//modify jr 03/21/22

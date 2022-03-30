@@ -18,8 +18,8 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
             A.amount AS amt, A.person_id, A.cashier_user_id, B.name, 
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
-				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt'
-    			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries'
+				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt:'
+    			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries:'
 			END AS 'receipt_type'
 
 			FROM ".TB_PREF."bank_trans A
@@ -49,7 +49,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
     }
 
     if ($report) {
-        $sql .= " AND A.remit_stat <> 'Closed'";
+        $sql .= " AND A.remit_stat <> 'Approved'";
     }
     else {
         $sql .= " AND A.remit_stat = 'Open'";
@@ -104,7 +104,11 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
     if ($details == false) {
         $sql .= " GROUP BY RT.remit_ref";
     }
+
+    $sql .= " ORDER BY RT.type DESC";
     
+    display_error($sql);
+
     if ($details) {
         return db_query($sql, _("No remittance transactions were returned from the database."));
     }
@@ -217,12 +221,12 @@ function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remi
     $sql = "UPDATE ".TB_PREF."bank_trans BT 
         SET BT.remit_stat = '$remit_stat'";
 
-    if ($remit_stat == "Closed") {
+    if ($remit_stat == "Approved") {
         $sql .= ", BT.cashier_user_id = $remit_to";
     }
 
     if ($remit_stat != '') {
-        if ($remit_stat != "Closed") {
+        if ($remit_stat != "Approved") {
             $sql .= ", BT.remit_from = $remit_to";
         }
         else {

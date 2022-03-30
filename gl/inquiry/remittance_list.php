@@ -37,7 +37,7 @@ function trans_num($row) {
 }
 
 function remit_ref($row) {
-    return get_trans_view_str(ST_REMITTANCE, $row["remit_num"], $row['remit_ref']);
+    return get_trans_view_str(ST_REMITTANCE, $row["remit_num"], $row['remit_ref'], false, '', '', false, $row['remit_ref']);
 }
 
 function ref_date($row) {
@@ -59,6 +59,11 @@ function remit_stat($row) {
 function amount_total($row) {
     return $row['tot_amount'];
 } 
+
+function gl_view($row) {
+	return $row['remit_stat'] == 'Approved' ? 
+        get_gl_view_str(ST_REMITTANCE, $row["remit_num"], '', false, '', '', 1) : null;
+}
 
 //---------------------------------------------------------------
 
@@ -117,7 +122,8 @@ $cols = array(
     _('Status') => array('align' => 'center', 'fun' => 'remit_stat'),
     _('Remittance Date') => array('align' => 'center', 'fun' => 'ref_date'),
     _('Remittance From') => array('align' => 'center', 'fun' => 'cashier_name'),
-    _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total')
+    _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
+    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center')
 );
 
 $table = &new_db_pager('remit_items', $sql, $cols, null, null, 25);

@@ -35,10 +35,11 @@ page(_("Remittance Entry"), false, false, '', $js);
 if (isset($_GET['AddedID'])) {
 
     $trans_no = $_GET['AddedID'];
+    $reference = $_GET['Ref'];
 
-    display_notification_centered(_("Remittance has been processed!"));
-    display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry")));
-    display_note(get_gl_view_str(ST_REMITTANCE, $trans_no, _("View the GL &Postings for this Remittance Entry")), 1, 0);
+    display_notification_centered(_("Remittance Entry has been processed!"));
+    //display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry"), false, '', '', false, $reference));
+
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter &Another Remittance Entry"), "");
     hyperlink_params("$path_to_root/gl/inquiry/remittance_list.php", _("Back to Remittance Entry Inquiry List"), "");
 
@@ -152,7 +153,7 @@ if (isset($_POST['Process']) && can_process()) {
     );
 
     if ($trans_no) {
-        meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
+        meta_forward($_SERVER['PHP_SELF'], "AddedID=". $trans_no . "&Ref=" . get_post('ref'));
     }
 }
 

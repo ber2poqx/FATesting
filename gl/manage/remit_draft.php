@@ -24,27 +24,52 @@ if (user_use_date_picker()) {
 	$js .= get_js_date_picker();	
 }
 
+$page_title = "";
+
 if (isset($_GET['trans_no'])) {
 	$trans_no = $_GET['trans_no'];
+    $page_title = _("Review Remittance Transaction #" . $trans_no);
 }
 
 if (isset($_GET['reference'])) {
 	$reference = $_GET['reference'];
 }
 
-page(_("Review Remittance Transaction #" . $trans_no), false, false, "", $js);
+if (isset($_GET['AddedID'])) {
+    $trans_no = $_GET['AddedID'];
+    $page_title = _("Posted Remittance Transaction #" . $trans_no);
+}
+
+page($page_title, false, false, "", $js);
 
 //-----------------------------------------------------------------------------------
 
-function can_proceed($approve_stat = 0) {
+if (isset($_GET['AddedID'])) {
+    $trans_no = $_GET['AddedID'];
+    $reference = $_GET['Ref'];
 
-	if (!is_date_in_fiscalyear(Today())) {
-        display_error(_("The Today's Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+    display_notification_centered(_("Remittance Entry has been processed!"));
+    //display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry"), false, '', '', false, $reference));
+    br();
+    display_note(get_gl_view_str(ST_REMITTANCE, $trans_no, _("&View the GL Postings for this Remittance transaction"), false, '', '', 1));
+    
+	hyperlink_params($_SERVER['PHP_SELF'], _("Enter &Another Remittance Entry"), "");
+    hyperlink_params("$path_to_root/gl/inquiry/remittance_list.php", _("Back to Remittance Entry Inquiry List"), "");
+
+    display_footer_exit();
+}
+
+//-----------------------------------------------------------------------------------
+
+function can_proceed() {
+
+	if (!is_date_in_fiscalyear($_POST['date_'])) {
+        display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		return false;
     }
 
-    if (get_post('memo_') == '' && $approve_stat == 2) {
-        display_error(_("Comments cannot be empty."));
+    if (get_post('memo_') == '') {
+        display_error(_("Please Enter Remarks!"));
         set_focus('memo_');
         return false;
     }
@@ -54,18 +79,63 @@ function can_proceed($approve_stat = 0) {
 
 //-----------------------------------------------------------------------------------
 
-if (isset($_POST['Approved']) && can_proceed(1)) {
+if (isset($_POST['Approved']) && can_proceed()) {
 
+    $res_head = db_fetch(db_query(get_remit_transactions($reference)));
     $res_details = get_remit_transactions($reference, '', null, null, true);
+    $total = 0;
 
     if (remit_status($reference) == 'Draft') {
         update_remit_trans('Approved', $_GET['reference'], get_post('memo_'));
 
         while ($row = db_fetch_assoc($res_details)) {
-            remit_bank_trans(_('Approved'), $row['from_ref']);
+
+            $total += $row['amount'];
+
+            remit_bank_trans(_('Approved'), $row['from_ref'], 
+                $res_head['remit_from'], $_SESSION["wa_current_user"]->user
+            );
         }
 
-        meta_forward("../inquiry/remittance_list.php?");
+        add_gl_trans(
+            ST_REMITTANCE,
+            $res_head['remit_num'],
+            $_POST['date_'],
+            1050,
+            0, 0, 
+            $_POST['memo_'],
+            $total,
+            null,
+            PT_EMPLOYEE,
+            $_SESSION["wa_current_user"]->user,
+            _("Cant add gl_trans! (Remittance Entry)"),
+            0,
+            $_SESSION["wa_current_user"]->user,
+            get_user_name($_SESSION["wa_current_user"]->user)
+        );
+
+        add_gl_trans(
+            ST_REMITTANCE,
+            $res_head['remit_num'],
+            $_POST['date_'],
+            1050,
+            0, 0, 
+            $_POST['memo_'],
+            -$total,
+            null,
+            PT_EMPLOYEE,
+            $res_head['remit_from'],
+            _("Cant add gl_trans! (Remittance Entry)"),
+            0,
+            $res_head['remit_from'],
+            get_user_name($res_head['remit_from'])
+        );
+
+        add_comments(ST_REMITTANCE, $trans_no, $_POST['date_'], $memo_);
+        $Refs->save(ST_REMITTANCE, $trans_no, $reference);
+	    add_audit_trail(ST_REMITTANCE, $trans_no, $_POST['date_'], _("Draft ref: " . $reference));
+
+        meta_forward($_SERVER['PHP_SELF'], "AddedID=". $trans_no . "Ref=" . $reference);
     }
     else {
 		display_error(_("Invalid Transaction!"));
@@ -73,7 +143,7 @@ if (isset($_POST['Approved']) && can_proceed(1)) {
 	}
 }
 
-if (isset($_POST['Disapproved']) && can_proceed(2)) {
+if (isset($_POST['Disapproved']) && can_proceed()) {
 
     $res_details = get_remit_transactions($reference, '', null, null, true);
     
@@ -99,9 +169,16 @@ start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 $res_head = db_fetch(db_query(get_remit_transactions($reference)));
 $res_details = get_remit_transactions($reference, '', null, null, true);
 
+start_table(TABLESTYLE);
+start_row();
+date_row(_("Posting Date:"), 'date_', '', true, 0, 0, 0, null, true);
+end_row();
+end_table();
+
 echo "<center>";
 
 echo "<br>";
+
 start_table(TABLESTYLE, "width='95%'");
 start_row();
 
@@ -111,9 +188,14 @@ label_cells(_("Remittance From: "), get_user_name($res_head['remit_from']), "cla
 
 end_row();
 
-comments_display_row(ST_REMITTANCE, $trans_no);
+start_row();
+comments_display_row(ST_REMITTANCE, $trans_no, 4);
+label_cells(_("Remittance Status: "), $res_head['remit_stat'], "class='tableheader2'", "colspan=4");
+end_row();
 
 end_table();
+
+br();
 
 start_table(TABLESTYLE, "width='95%'");
 
@@ -140,7 +222,8 @@ while ($row = db_fetch_assoc($res_details)) {
     $bank_row = db_fetch_assoc($bank_);
 
     alt_table_row_color($k);
-    $total += abs($row['amount']);
+    $total += $row['amount'];
+    $color = $row['amount'] > 0 ? "" : "style='color: red'";
 
     label_cell(_systype_name($row['type']), "nowrap align='left'");
     //label_cell($bank_row['trans_no']);
@@ -150,7 +233,7 @@ while ($row = db_fetch_assoc($res_details)) {
     label_cell($bank_row['receipt_no'], "nowrap align='center'");
     label_cell($bank_row['prepared_by']);
     label_cell($bank_row['pay_type'], "nowrap align='center'");
-    amount_cell(abs($row['amount']));
+    amount_cell($row['amount'], false, $color);
 }
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
@@ -159,10 +242,15 @@ label_row(_("Document Total: "), number_format2($total, user_price_dec()),
 
 end_table();
 
+br();
+
 start_table();
 textarea_row(_("Remarks: "), 'memo_', null, 50, 3);
 end_table();
 
+br();
+
+display_heading(_("NOTE: Approving this Remittance Entry will automatically transfer to you the listed Transaction/s from: " . get_user_name($res_head['remit_from'])));
 
 br();
 
