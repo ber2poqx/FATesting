@@ -67,6 +67,16 @@ function gl_view($row) {
 	return get_gl_view_str(ST_JOURNAL, $row["trans_no"], '', false, '', '', 1);
 }
 
+#Added by Prog6 (03/31/2022)
+function print_voucher($row)
+{
+	return pager_link(
+		_("Print: Journal Voucher"),
+		"/reports/journal_voucher.php?trans_num=" . $row["trans_no"],
+		ICON_PRINT
+	);
+}
+
 //---------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -129,7 +139,8 @@ $cols = array(
     _('Document Date') => array('align' => 'center', 'fun' => 'doc_date'),
     _('Event Date') => array('align' => 'center', 'fun' => 'event_date'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
-    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center')
+    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
