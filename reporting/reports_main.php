@@ -1088,7 +1088,7 @@ if ($dim == 2)
 				_('Dimension')." 1" =>  'DIMENSIONS1',
 				_('Dimension')." 2" =>  'DIMENSIONS2',
 				_('Comments') => 'TEXTBOX',
-				_('Orientation') => 'ORIENTATION',
+				//_('Orientation') => 'ORIENTATION',
 				_('Destination') => 'DESTINATION'
 			)
 		);
@@ -1164,7 +1164,7 @@ elseif ($dim == 1)
 				_('Only balances') => 'YES_NO',
 				_('Dimension') => 'DIMENSIONS1',
 				_('Comments') => 'TEXTBOX',
-				_('Orientation') => 'ORIENTATION',
+				//_('Orientation') => 'ORIENTATION',
 				_('Destination') => 'DESTINATION'
 			)
 		);
@@ -1236,7 +1236,7 @@ else
 				_('Zero values') => 'YES_NO',
 				_('Only balances') => 'YES_NO',
 				_('Comments') => 'TEXTBOX',
-				_('Orientation') => 'ORIENTATION',
+				//_('Orientation') => 'ORIENTATION',
 				_('Destination') => 'DESTINATION'
 			)
 		);

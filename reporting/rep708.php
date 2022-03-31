@@ -15,6 +15,8 @@ $page_security = 'SA_GLANALYTIC';
 // Creator:	Joe Hunt
 // date_:	2005-05-19
 // Title:	Trial Balance
+// Modified by: spyrax10
+// Date Modified: 31 Mar 2022
 // ----------------------------------------------------------------
 $path_to_root="..";
 
@@ -151,85 +153,89 @@ function print_trial_balance()
 	$to = $_POST['PARAM_1'];
 	$zero = $_POST['PARAM_2'];
 	$balances = $_POST['PARAM_3'];
-	if ($dim == 2)
-	{
+
+	if ($dim == 2) {
 		$dimension = $_POST['PARAM_4'];
 		$dimension2 = $_POST['PARAM_5'];
 		$comments = $_POST['PARAM_6'];
-		$orientation = $_POST['PARAM_7'];
-		$destination = $_POST['PARAM_8'];
-	}
-	else if ($dim == 1)
-	{
-		$dimension = $_POST['PARAM_4'];
-		$comments = $_POST['PARAM_5'];
-		$orientation = $_POST['PARAM_6'];
+		//$orientation = $_POST['PARAM_7'];
 		$destination = $_POST['PARAM_7'];
 	}
-	else
-	{
-		$comments = $_POST['PARAM_4'];
-		$orientation = $_POST['PARAM_5'];
-		$destination = $_POST['PARAM_6'];
+	else if ($dim == 1) {
+		$dimension = $_POST['PARAM_4'];
+		$comments = $_POST['PARAM_5'];
+		//$orientation = $_POST['PARAM_6'];
+		$destination = $_POST['PARAM_7'];
 	}
-	if ($destination)
+	else {
+		$comments = $_POST['PARAM_4'];
+		//$orientation = $_POST['PARAM_5'];
+		$destination = $_POST['PARAM_5'];
+	}
+
+	if ($destination) {
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
-	else
+	}
+	else {
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
-	$orientation = ($orientation ? 'L' : 'P');
+	}
+		
+	$orientation = 'L';
 	$dec = user_price_dec();
 
-	$cols2 = array(0, 50, 190, 310, 430, 530);
+	$cols2 = array(0, 20, 250, 370, 490, 600);
 	//-------------0--1---2----3----4----5--
 
 	$headers2 = array('', '', _('Brought Forward'),	_('This Period'), _('Balance'));
 
 	$aligns2 = array('left', 'left', 'left', 'left', 'left');
 
-	$cols = array(0, 50, 150, 210, 270,	330, 390, 450, 510,	570);
+	$cols = array(0, 60, 210, 270, 330,	390, 450, 510, 570,	630);
 	//------------0--1---2----3----4----5----6----7----8--
 
 	$headers = array(_('Account'), _('Account Name'), _('Debit'), _('Credit'), _('Debit'),
-		_('Credit'), _('Debit'), _('Credit'));
+		_('Credit'), _('Debit'), _('Credit')
+	);
 
 	$aligns = array('left',	'left',	'right', 'right', 'right', 'right',	'right', 'right');
 
-    if ($dim == 2)
-    {
-    	$params =   array( 	0 => $comments,
-    				    1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
-                    	2 => array('text' => _('Dimension')." 1",
-                            'from' => get_dimension_string($dimension), 'to' => ''),
-                    	3 => array('text' => _('Dimension')." 2",
-                            'from' => get_dimension_string($dimension2), 'to' => ''));
+    if ($dim == 2) {
+    	$params = array( 	
+			0 => $comments,
+    		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
+            2 => array('text' => _('Dimension')." 1", 'from' => get_dimension_string($dimension), 'to' => ''),
+            3 => array('text' => _('Dimension')." 2", 'from' => get_dimension_string($dimension2), 'to' => '')
+		);
     }
-    elseif ($dim == 1)
-    {
-    	$params =   array( 	0 => $comments,
-    				    1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
-                    	2 => array('text' => _('Dimension'),
-                            'from' => get_dimension_string($dimension), 'to' => ''));
+    elseif ($dim == 1) {
+    	$params = array( 	
+			0 => $comments,
+    		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
+            2 => array('text' => _('Dimension'), 'from' => get_dimension_string($dimension), 'to' => '')
+		);
     }
-    else
-    {
-    	$params =   array( 	0 => $comments,
-    				    1 => array('text' => _('Period'),'from' => $from, 'to' => $to));
+    else {
+    	$params = array( 	
+			0 => $comments,
+    		1 => array('text' => _('Period'),'from' => $from, 'to' => $to)
+		);
     }
 
-	$rep = new FrontReport(_('Trial Balance'), "TrialBalance", user_pagesize(), 9, $orientation);
-    if ($orientation == 'L')
-    {
+	$rep = new FrontReport(_('Trial Balance'), "TrialBalance", 'LETTER', 9, $orientation);
+
+    if ($orientation == 'L') {
     	recalculate_cols($cols);
     	recalculate_cols($cols2);
 	}
 
 	$rep->Font();
 	$rep->Info($params, $cols, $headers, $aligns, $cols2, $headers2, $aligns2);
+	$rep->SetHeaderType('PO_Header');
 	$rep->NewPage();
 
 	$classresult = get_account_classes(false);
-	while ($class = db_fetch($classresult))
-	{
+
+	while ($class = db_fetch($classresult)) {
 		$rep->Font('bold');
 		$rep->TextCol(0, 1, $class['cid']);
 		$rep->TextCol(1, 4, $class['class_name']);
