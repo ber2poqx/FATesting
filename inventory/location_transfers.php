@@ -613,10 +613,29 @@ if(!is_null($action) || !empty($action)){
                     db_query($sql_inner, "could not execure Update to Stock Moves Qty");
                 }
                 
-            }else{
+            }
+            /*else{
                 $sql_inner = "DELETE FROM ".TB_PREF."stock_moves WHERE reference=".db_escape($reference);
                 db_query($sql_inner, "could not execure Update to Stock Moves Qty");
+            }*/
+            
+            echo '({"ApprovalStatus":"'.$approval_value.'"})';
+            
+            exit;
+            break;
+        case 'disapproval':
+            $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
+            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
+            $total=0;
+            if($approval_value=='yes'){
+                $sql_inner = "DELETE FROM ".TB_PREF."stock_moves WHERE reference=".db_escape($reference);
+                db_query($sql_inner, "could not execure Update to Stock Moves Qty");
+                
             }
+            /*else{
+                $sql_inner = "DELETE FROM ".TB_PREF."stock_moves WHERE reference=".db_escape($reference);
+                db_query($sql_inner, "could not execure Update to Stock Moves Qty");
+            }*/
             
             echo '({"ApprovalStatus":"'.$approval_value.'"})';
             

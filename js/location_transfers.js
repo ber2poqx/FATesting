@@ -54,16 +54,16 @@ Ext.onReady(function(){
         return val;
     }
 	var columnModel =[
-		{header:'ID', dataIndex:'stock_moves_id', sortable:true, width:20, hidden: false},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:50},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:40},
-		{header:'From Location', dataIndex:'fromloc', sortable:true, width:90},
-		{header:'To Location', dataIndex:'loc_name', sortable:true, width:90},
-		{header:'Category', dataIndex:'category', sortable:true, width:90},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:50, align:'center', hidden: false},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150, align:'center'},
-		{header:'Approval', dataIndex:'approval', sortable:false, width:80, align:'center', hidden: false, renderer: Approval},
-		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
+		{header:'ID', dataIndex:'stock_moves_id', sortable:true, width:60, hidden: false},
+		{header:'Reference', dataIndex:'reference', sortable:true, width:150},
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:120},
+		{header:'From Location', dataIndex:'fromloc', sortable:true, width:160},
+		{header:'To Location', dataIndex:'loc_name', sortable:true, width:150},
+		{header:'Category', dataIndex:'category', sortable:true, width:110},
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:90, align:'center', hidden: false},
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:243, align:'center'},
+		{header:'Approval', dataIndex:'approval', sortable:false, width:100, align:'center', hidden: false, renderer: Approval},
+		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:90,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
@@ -183,12 +183,13 @@ Ext.onReady(function(){
 					}
 				},{
 					icon:'../js/ext4/examples/shared/icons/application_lightning.png',
+					tooltip: 'Approved',
 					hidden: false,
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
 						reference = record.get('reference');
                         
-	                    Ext.MessageBox.confirm('Approval', 'Proceed with approval? if No, will be cancelled.', ApprovalFunction);
+	                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Approved this record?', ApprovalFunction);
 	                    function ApprovalFunction(btn) {
 	                        Ext.Ajax.request({
 								url : '?action=approval',
@@ -205,7 +206,40 @@ Ext.onReady(function(){
 									Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
 								}
 							});
-	                     };
+	                    };
+	                },
+	                getClass : function(value, meta, record, rowIx, ColIx, store) {
+	                    if(record.get('approval') == 0 ) {
+                			return 'x-hidden-visibility';
+            			}
+	                    
+	                }
+				},{
+					icon:'../js/ext4/examples/shared/icons/application_lightning.png',
+					tooltip: 'Disapproved',
+					hidden: false,
+					handler: function(grid, rowIndex, colIndex) {
+						var record = myInsurance.getAt(rowIndex);
+						reference = record.get('reference');
+                        
+	                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Disapproved this record?', ApprovalFunction);
+	                    function ApprovalFunction(btn) {
+	                        Ext.Ajax.request({
+								url : '?action=disapproval',
+								method: 'POST',
+								params:{
+									reference: reference,
+									value: btn
+								},
+								success: function (response){
+									myInsurance.load();
+									//windowItemSerialList.close();										
+								},	
+								failure: function (response){
+									Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+								}
+							});
+	                    };
 	                },
 	                getClass : function(value, meta, record, rowIx, ColIx, store) {
 	                    if(record.get('approval') == 0 ) {
@@ -215,6 +249,7 @@ Ext.onReady(function(){
 	                }
 				},{
 					icon: '../js/ext4/examples/shared/icons/printer.png',
+					tooltip: 'View Report',
 					hidden: false,
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
@@ -760,8 +795,10 @@ Ext.onReady(function(){
 		store	    :	myInsurance,
 		id 		    : 'grid',
 		columns 	: columnModel,
-		forceFit 	: true,
-		frame		: false,
+		//forceFit 	: true,
+		frame: false,
+		width: 1275,
+		frame		: true,
 		columnLines	: true,
 		sortableColumns :true,
 		dockedItems: [{
