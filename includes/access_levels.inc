@@ -313,6 +313,9 @@ $security_areas =array(
 	'SA_REORDER' => array(SS_ITEMS_A|1, _("Reorder levels")),
 	'SA_ITEMSANALYTIC' => array(SS_ITEMS_A|2, _("Items analytical reports and inquiries")),
 	'SA_ITEMSVALREP' => array(SS_ITEMS_A|3, _("Inventory valuation report")),
+	//Added by spyrax10 31 Mar 202
+	'SA_INVTY_REP' => array(SS_ITEMS_A|4, _("Inventory Reports and Inquiries")),
+	//
 
 //
 // Fixed Assets

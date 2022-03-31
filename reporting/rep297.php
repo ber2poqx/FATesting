@@ -1,5 +1,5 @@
 <?php
-$page_security = 'SA_ITEMSVALREP';
+$page_security = 'SA_ITEMSANALYTIC';
 
 // ----------------------------------------------------------------
 // $ Revision:	    1.0 $

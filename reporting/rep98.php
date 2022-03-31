@@ -5,7 +5,7 @@
  * Date Created: 28 Mar 20222
  */
 
-$page_security = 'SA_CUSTBULKREP';
+$page_security = 'SA_CUSTSTATREP';
 
 $path_to_root="..";
 
