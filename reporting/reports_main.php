@@ -287,7 +287,8 @@ $reports->addReport(RC_CUSTOMER, 123, _('Sales Report - Actual vs. Target'),
 
 //Created by Prog6 (03-03-2022) =====================================
 $reports->addReport(RC_CUSTOMER, 124, _('Accts. with Term Modifications'),
-	array(	_('For the Month-Year of') => 'DATEBEGIN',
+	array(	_('PERIOD FROM') => 'DATEBEGINM',
+			_('TO') => 'DATEENDM',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'PDFDESTINATION'));
 //===================================================================

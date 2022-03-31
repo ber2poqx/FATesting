@@ -29,7 +29,7 @@ include_once($path_to_root . "/sales/includes/db/sales_target_db.inc");
 print_Accounts_with_Term_Modification();
 
 //GET TERM MODIFICATION TRANSACTIONS
-function getTransactions($year_param,$month_param)
+function getTransactions($period_from,$period_to)
 {	
 	$sql = "SELECT 
 				d.name
@@ -45,9 +45,9 @@ function getTransactions($year_param,$month_param)
 			INNER JOIN debtor_trans b ON b.trans_no = a.trans_no and a.type = b.type
 			LEFT JOIN debtor_loans c ON c.invoice_ref_no = a.invoice_ref_no
 			LEFT JOIN debtors_master d ON d.debtor_no = b.debtor_no
-			WHERE b.type = " . ST_SITERMMOD . " AND YEAR(a.term_mod_date) = '$year_param' AND MONTH(a.term_mod_date) = '$month_param'
-			ORDER BY a.term_mod_date";
-
+			WHERE b.type = '" . ST_SITERMMOD . "' 
+			AND a.term_mod_date BETWEEN '$period_from' AND '$period_to' ORDER BY a.term_mod_date ";
+	
 	return db_query($sql,"No transactions were returned");
 }
 
@@ -63,8 +63,9 @@ function print_Accounts_with_Term_Modification()
 	global $path_to_root;
 	
 	$date_param = $_POST['PARAM_0'];
-	$comments = $_POST['PARAM_1'];
-	$destination = $_POST['PARAM_2'];
+	$date_end = $_POST['PARAM_1'];
+	$comments = $_POST['PARAM_2'];
+	$destination = $_POST['PARAM_3'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -82,9 +83,12 @@ function print_Accounts_with_Term_Modification()
 	$last2_years = $year_param - 2;
 	$last3_years_and_below = $year_param - 3;
 
+	$period_from = date("Y-m-d",strtotime($date_param));
+	$period_to = date("Y-m-d",strtotime($date_end));
+
        
     $params = array(0 => $comments,	
-		 1 => array('text' => _('For the Month of'), 'from' => date("M",strtotime($date_param)), 'to' => $year_param));
+		 1 => array('text' => _('Period from'), 'from' => $date_param, 'to' => $date_end));
 
 	$cols = array(5, 95, 145, 205, 275, 305, 330, 390, 450, 510, 570, 630, 690, 750, 810);
 
@@ -144,12 +148,12 @@ function print_Accounts_with_Term_Modification()
 	$rep->TextCol(12, 13, $last3_years_and_below.' & below',null,null,1);
 	$rep->TextCol(13, 14, 'Total',null,null,1);
 	$rep->Font();	
-	$rep->NewLine(2);
+	$rep->NewLine(1.5);
 	//$rep->AmountCol2(1, 2, $actual_amount, $dec);
 	//$rep->AmountCol2(2, 3, $target_amount, $dec);
 
 	//Get data from Target DB
-	$res = getTransactions($year_param,$month_param);
+	$res = getTransactions($period_from,$period_to);
 	
 	//$rep->NewLine();
 	//$rep->Font('italic');
