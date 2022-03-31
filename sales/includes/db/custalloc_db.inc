@@ -47,6 +47,7 @@ function get_cust_allocation($trans_id)
 function update_debtor_trans_allocation($trans_type, $trans_no, $person_id)
 {
 	//modify for term mode allocation payment.
+	$criteria = '';
 	if($trans_type == ST_SITERMMOD){
 		$criteria = " AND (trans_type_to != ".ST_SALESINVOICE." AND trans_type_to != ".ST_ARINVCINSTLITM." AND trans_type_to != ".ST_SALESINVOICEREPO.")";
 	}

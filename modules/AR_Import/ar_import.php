@@ -98,7 +98,7 @@
 						$deferred_gross_profit, 
 						$profit_margin, 
 						$warranty_code) = $data;
-
+			
 				/*Auto calculation*/
 				$quotient_financing_rate = $f_rate / 100;
 				$diff_lcp_downpayment = $unit_price - $d_amount;
@@ -204,6 +204,21 @@
 					}else if($total_amount_cal != $ov_amount){
 						display_error("The Gross amount: $ov_amount not match with the system calculation Gross amount: $total_amount_cal !!!");
 					
+					}else if(date("m/d/Y", strtotime($tran_date)) != $tran_date ){
+						
+						display_error("Line $lines: tran_date paid is not a valid date: $tran_date!");
+
+					}else if(date("m/d/Y", strtotime($first_due_date)) != $first_due_date ){
+						
+						display_error("Line $lines: first_due_date is not a valid date: $first_due_date!");
+
+					}else if(date("m/d/Y", strtotime($maturity_date)) != $maturity_date ){
+						
+						display_error("Line $lines: maturity_date is not a valid date: $maturity_date!");
+
+					}else if(date("m/d/Y", strtotime($last_payment_paid)) != $last_payment_paid ){
+						
+						display_error("Line $lines: lastpayment paid is not a valid date: $last_payment_paid!");
 					} else {
 
 						if (check_customer_code_already_exist($debtor_no))
@@ -265,8 +280,8 @@
 							}
 							if ( empty($plcy_code )){ 
 								$plcy_code=0;
-							}
-
+							}						
+							
 							add_loan_schedule(
 							$trans_no,
 							$debtor_no, 
@@ -477,7 +492,7 @@
 							
 								$CI++;	
 									display_notification("Line  $lines: The Old Transaction No: $old_trans_no is successfully Added Ar Installment Opening Balances.  Customer No : $debtor_no");
-									
+								
 						}else{
 							display_error("Line $lines: Customer name  is not Exist!");
 								
