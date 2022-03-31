@@ -38,7 +38,7 @@ if (isset($_GET['AddedID'])) {
     $reference = $_GET['Ref'];
 
     display_notification_centered(_("Remittance Entry has been processed!"));
-    //display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry"), false, '', '', false, $reference));
+    display_note(get_trans_view_str(ST_REMITTANCE, $trans_no, _("&View this Remittance Entry"), false, '', '', false, $reference));
 
 	hyperlink_params($_SERVER['PHP_SELF'], _("Enter &Another Remittance Entry"), "");
     hyperlink_params("$path_to_root/gl/inquiry/remittance_list.php", _("Back to Remittance Entry Inquiry List"), "");

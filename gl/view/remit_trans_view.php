@@ -42,14 +42,15 @@ start_row();
 
 label_cells(_("Reference: "), $res_head['remit_ref'], "class='tableheader2'");
 label_cells(_("Remittance Date: "), sql2date($res_head['remit_date']), "class='tableheader2'");
-label_cells(_("Remittance From: "), get_user_name($res_head['remit_from']), "class='tableheader2'");
-
+label_cells(_("Remittance Status: "), $res_head['remit_stat'], "class='tableheader2'", "colspan=4");
 end_row();
 
 start_row();
-comments_display_row(ST_REMITTANCE, $trans_no, 4);
-label_cells(_("Remittance Status: "), $res_head['remit_stat'], "class='tableheader2'", "colspan=4");
+label_cells(_("Remittance From: "), get_user_name($res_head['remit_from']), "class='tableheader2'");
+label_cells(_("Remitted To: "), get_user_name($res_head['remit_to']), "class='tableheader2'");
 end_row();
+
+comments_display_row(ST_REMITTANCE, $trans_no);
 
 end_table();
 

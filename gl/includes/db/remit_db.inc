@@ -99,7 +99,7 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
         $sql .= " AND RT.remit_from = " .db_escape($remit_from);
     }
 
-    $sql .= " AND RT.remit_to = " .db_escape($_SESSION['wa_current_user']->user);
+    //$sql .= " AND RT.remit_to = " .db_escape($_SESSION['wa_current_user']->user);
 
     if ($details == false) {
         $sql .= " GROUP BY RT.remit_ref";
