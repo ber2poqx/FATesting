@@ -71,6 +71,16 @@ function gl_view($row) {
 	return get_gl_view_str(ST_BANKPAYMENT, $row["trans_no"], '', false, '', '', 1);
 }
 
+//Added by Prog6(03/31/2022)
+function print_voucher($row)
+{
+	return pager_link(
+		_("Print: Disbursement Voucher"),
+		"/reports/disbursement_voucher.php?trans_num=" . $row["trans_no"],
+		ICON_PRINT
+	);
+}
+
 //---------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -142,7 +152,8 @@ $cols = array(
     _('Prepared By') => array('align' => 'center', 'fun' => 'preparer_name'),
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
-    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center')
+    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
