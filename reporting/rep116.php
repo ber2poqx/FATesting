@@ -293,6 +293,7 @@ function print_dailycash_sales()
 			$rep->Font('bold');
 			$rep->TextCol(0, 5, $remit_trans['remit_ref']);
 			$rep->TextCol(2, 5, "From: " . get_user_name($remit_trans['remit_from']));
+			$rep->TextCol(5, 7, _('Remittance Date: ' . sql2date($remit_trans['remit_date'])));
 			$reference = $remit_trans['remit_ref'];
 			$rep->Font();
 			$rep->fontSize -= 1;
@@ -319,14 +320,12 @@ function print_dailycash_sales()
 		$sum_remit = $rtotal;
 	}
 
-	if ($reference != '') {
-		$rep->NewLine(2);
-		$rep->Font('bold');
-		$rep->TextCol(0, 1, _('Sub Total'));
-		$rep->AmountCol(5, 6, $sub_rtotal, $dec);
-		$rep->Line($rep->row  - 4);
-		$rep->NewLine(1.5);
-	}
+	$rep->NewLine(2);
+	$rep->Font('bold');
+	$rep->TextCol(0, 1, _('Sub Total'));
+	$rep->AmountCol(5, 6, $sub_rtotal, $dec);
+	$rep->Line($rep->row  - 4);
+	$rep->NewLine(1.5);
 
 
 	//End Remittance Entry
