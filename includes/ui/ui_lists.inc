@@ -4371,6 +4371,42 @@ function collector_area_list_row($label, $name, $selected_id=null, $spec_opt=tru
 	echo "</tr>\n";
 }
 
+function list_cashier_name($name, $selected_id=null, $spec_opt=true, $submit_on_change=false, $fixed_asset=false, $disabled = false)
+{
+
+	$sql = "SELECT A.cashier_user_id, B.real_name 
+			FROM ".TB_PREF."bank_trans A
+			LEFT JOIN users B ON A.cashier_user_id = B.id
+			GROUP BY A.cashier_user_id";
+	return combo_input($name, $selected_id, $sql, 'cashier_user_id', 'real_name',
+ 		array('order'=>'user_id',
+			'spec_option' => $spec_opt===true ?_("Select Cashier") : $spec_opt,
+			'spec_id' => '',
+            'order' => 'real_name',
+ 			'select_submit'=> $submit_on_change,
+ 			'async' => true,
+			/*  Added by chitz */
+			'disabled' => $disabled
+ 		));
+}
+
+function list_cashier_name_list_cells($label, $name, $selected_id=null, $spec_opt=true, $submit_on_change=false, $fixed_asset=false, $disabled = false)
+{
+	if ($label != null)
+		echo "<td>$label</td>\n";
+	echo "<td>";
+	echo list_cashier_name($name, $selected_id, $spec_opt, $submit_on_change, $fixed_asset, $disabled);
+	echo "</td>\n";
+}
+
+function list_cashier_name_list_row($label, $name, $selected_id=null, $spec_opt=true, $submit_on_change=false, $fixed_asset=false, 
+	$disabled = false)
+{
+	echo "<tr><td class='label'>$label</td>";
+	list_cashier_name_list_cells(null, $name, $selected_id, $spec_opt, $submit_on_change, $fixed_asset, $disabled);
+	echo "</tr>\n";
+}
+
 function employee_customer_list($name, $selected_id=null, $spec_opt=true, $submit_on_change=false, $fixed_asset=false, $disabled = false)
 {
 

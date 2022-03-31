@@ -527,14 +527,17 @@ class BoxReports
 					return main_status_order($name, null, _("ALL STATUS"));
 
 				case 'CASHIER_DCPR':
-					return sql_type_list(null, $name, 
-						get_dcpr_users(), 
-						'cashier_user_id', 'real_name', 'label', null, true, 
-						_("All Cashiers"), true
-					);
+				return sql_type_list(null, $name, 
+					get_dcpr_users(), 
+					'cashier_user_id', 'real_name', 'label', null, true, 
+					_("All Cashiers"), true
+				);
 
 				case 'COLLECTOR_COLLECTION':
 					return collector_area($name, null, _("All Collector"),  false, true);
+
+				case 'CASHIER_COLLECTION':
+					return list_cashier_name($name, null, _("All Cashier"),  false, true);
 
 				case 'STOCK_LIST_REPORT':
 				return stock_items_list($name, null);

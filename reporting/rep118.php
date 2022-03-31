@@ -40,17 +40,18 @@ include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_PO_Report();
 
-function getTransactions($from, $to, $cust_name = "", $collector, $Type, $group = 0)
+function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Type, $group = 0)
 {
 	$from = date2sql($from);
 	$to = date2sql($to);
 	$advanceDate = endCycle($to, 1);
 	
 	$sql ="SELECT A.tran_date, A.debtor_no, A.reference, A.ov_amount AS amt, A.ov_discount AS rebate, 
-			 A.payment_type AS Type, A.collect_id, B.payment_applied AS payment, B.penalty, C.date_due, C.month_no,
-			 D.invoice_date, D.category_id AS category, E.memo_, F.name, F.area, J.collectors_id, J.description AS AREA,
-			 G.real_name AS Collector_Name, G.user_id, H.description, I.collection, L.account_name AS Coa_name,
-
+			A.payment_type AS Type, A.collect_id, B.payment_applied AS payment, B.penalty, C.date_due, C.month_no,
+			D.invoice_date, D.category_id AS category, E.memo_, F.name, F.area, J.collectors_id, J.description AS AREA,
+			G.real_name AS Collector_Name, G.user_id, H.description, I.collection, L.account_name AS Coa_name,
+			N.id,
+			
 			A.ov_amount - IFNULL(B.penalty, 0) + A.ov_discount AS artotal,
 			A.ov_amount + A.ov_discount AS downtotal,
 			A.ov_amount - IFNULL(B.penalty, 0) + A.ov_discount AS advancetotal,
@@ -70,6 +71,8 @@ function getTransactions($from, $to, $cust_name = "", $collector, $Type, $group 
 			LEFT JOIN collection_types I ON I.collect_id = A.collect_id
             LEFT JOIN cust_branch K ON K.debtor_no = D.debtor_no
             LEFT JOIN chart_master L ON L.account_code = K.receivables_account
+            LEFT JOIN bank_trans M ON A.reference = M.ref AND A.type = M.type
+            LEFT JOIN users N ON M.cashier_user_id = N.id
 
 			WHERE A.type = 12 
 			AND A.tran_date>='$from'
@@ -78,17 +81,20 @@ function getTransactions($from, $to, $cust_name = "", $collector, $Type, $group 
 			AND A.module_type != 'CLTN-INTERB'";
 
 			if ($cust_name != 'ALL') {
-                $sql .= " AND F.name =".db_escape($cust_name);              
+            $sql .= " AND F.name =".db_escape($cust_name);              
             }
 
 			if ($collector != '') {
 			$sql .= " AND G.user_id =".db_escape($collector);
 			}
 
+			if ($cashier != '') {
+			$sql .= " AND N.id =".db_escape($cashier);
+			}
+
             if ($group == 1) {
                 $sql .= "GROUP BY A.reference, A.trans_no, Type";                
                 $sql .= " ORDER BY A.reference DESC";
-
             }
             else if ($group == 2) {
                 $sql .= "GROUP BY A.reference, A.trans_no, Type";                
@@ -111,6 +117,16 @@ function get_collector_name($id)
 	return $row[0];
 }
 
+function get_cashier_name($id)
+{
+	$sql = "SELECT real_name FROM ".TB_PREF."users WHERE id=".db_escape($id);
+
+	$result = db_query($sql, "could not get sales type");
+
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
 function print_PO_Report()
 {
     global $path_to_root;
@@ -119,9 +135,10 @@ function print_PO_Report()
 	$to 		= $_POST['PARAM_1'];
 	$customer = $_POST['PARAM_2'];
 	$collector 	= $_POST['PARAM_3'];
-    $group = $_POST['PARAM_4'];
-	$orientation= $_POST['PARAM_5'];
-	$destination= $_POST['PARAM_6'];
+	$cashier 	= $_POST['PARAM_4'];
+    $group = $_POST['PARAM_5'];
+	$orientation= $_POST['PARAM_6'];
+	$destination= $_POST['PARAM_7'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -144,7 +161,11 @@ function print_PO_Report()
 	else
    		$collector_collection = get_collector_name($collector);
 
-	
+   	if ($cashier == '')
+		$cashier_collection = _('ALL');
+	else
+   		$cashier_collection = get_cashier_name($cashier);
+
 	$date = explode('/', $to);
 	$year1 = $date[2];
 	$year2 = $year1 - 1;
@@ -159,7 +180,8 @@ function print_PO_Report()
 	$params = array(0 => $comments,
 		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
 		2 => array('text' => _('Customer'), 'from' => $cust, 'to' => ''),
-		3 => array('text' => _('Collector'), 'from' => $collector_collection, 'to' => '')
+		3 => array('text' => _('Collector'), 'from' => $collector_collection, 'to' => ''),
+		4 => array('text' => _('Cashier'), 'from' => $cashier_collection, 'to' => '')
 	);
 
 	$cols = array(0, 35, 90, 195, 250, 273, 323, 360, 
@@ -207,7 +229,7 @@ function print_PO_Report()
 	$Ar1 = $Ar2 = $Ar3 = $Ar4 = 0.0;
 	$grandtotal = $grandtotaladvance = $grandar1 = $grandar2 = $grandar3 = $grandar4 = $grandrebate = $grandpenalty = $grandcr = 0.0;
 
-	$res = getTransactions($from, $to, $cust, $collector, $Type, $group);
+	$res = getTransactions($from, $to, $cust, $collector, $cashier, $Type, $group);
     $Collector_Name = $Coa_name = '';
 
 	while ($DSOC = db_fetch($res))

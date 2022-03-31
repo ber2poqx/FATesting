@@ -240,6 +240,7 @@ $reports->addReport(RC_CUSTOMER, 118, _('&Daily Summary Of Collection V2'),
 			_('End Date') => 'DATEENDM',
 			_('Customer') => 'CUSTOMERS_NO_FILTER',
 			_('Collector') => 'COLLECTOR_COLLECTION',
+			_('Cashier') => 'CASHIER_COLLECTION',
 			_('Group By') => 'COA_COL',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'));
