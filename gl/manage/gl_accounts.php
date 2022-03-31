@@ -82,19 +82,23 @@ if (isset($_POST['add']) || isset($_POST['update']))
 
     	if ($selected_account) 
 		{
+			//Modified by spyrax10 31 Mar 2022
 			if (get_post('inactive') == 1 && is_bank_account($_POST['account_code']))
 			{
 				display_error(_("The account belongs to a bank account and cannot be inactivated."));
 			}
     		elseif (update_gl_account($_POST['account_code'], $_POST['account_name'], 
-    		    $_POST['account_type'], $_POST['account_code2'], $_POST['control'])) {
-				update_record_status($_POST['account_code'], $_POST['inactive'],
-					'chart_master', 'account_code');
-				update_tag_associations(TAG_ACCOUNT, $_POST['account_code'], 
-					$_POST['account_tags']);
+    		    $_POST['account_type'], $_POST['account_code2'], check_value($_POST['control']))
+			) {
+
+				update_record_status($_POST['account_code'], $_POST['inactive'], 'chart_master', 'account_code');
+
+				update_tag_associations(TAG_ACCOUNT, $_POST['account_code'], $_POST['account_tags']);
+
 				$Ajax->activate('account_code'); // in case of status change
 				display_notification(_("Account data has been updated."));
 			}
+			//
 		}
     	else 
 		{
