@@ -579,7 +579,7 @@ class items_cart
 				$amount, 
 				0, 
 				"", 
-				"", //Cashier
+				0, //Cashier
 				null, 
 				null, 
 				0, 
