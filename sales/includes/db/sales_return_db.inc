@@ -206,6 +206,9 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
         $sales_return->Comments
     );
     $total = 0;
+    //   Added by Albert 03/26/2022
+         $si_trans_no = get_SI_by_reference($sales_return->si_no_ref);
+            
     foreach ($sales_return->line_items as $line_no => $sales_return_line) {
         if ($sales_return_line->qty_dispatched > 0) {
             write_customer_trans_detail_item(
@@ -230,9 +233,6 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 0
             );
 
-            // Added by Albert 03/26/2022
-            $si_trans_no = get_SI_by_reference($sales_return->si_no_ref);
-            //
             add_return_units(
                 $sales_return_no,
                 ST_SALESRETURN,
