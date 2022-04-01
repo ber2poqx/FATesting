@@ -128,7 +128,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICEREP')) {
 	
 	$reports->addReport(RC_CUSTOMER, 104, _('&Item Lcp Price List Report'),
 		array(	
@@ -479,7 +479,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 		)
 	);
 
-	$reports->addReport(RC_SUPPLIER, 202, _('&Aged Supplier Analyses'),
+	$reports->addReport(RC_SUPPLIER, 202, _('&Aged Supplier Analysis'),
 		array(	
 			_('End Date') => 'DATE',
 			_('Supplier') => 'SUPPLIERS_NO_FILTER',
