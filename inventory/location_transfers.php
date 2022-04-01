@@ -857,9 +857,9 @@ if (isset($_GET['NewTransfer']) || !isset($_SESSION['transfer_items']))
 //-----------------------------------------------------------------------------------------------
 
 
-echo "<div id='merchandisetransfer-grid' style='padding:15px'></div>";
+/*echo "<div id='merchandisetransfer-grid' style='padding:15px'></div>";
 
-/*start_form();
+start_form();
 
 display_order_header($_SESSION['transfer_items']);
 
@@ -875,6 +875,18 @@ end_table(1);
 submit_center_first('Update', _("Update"), '', null);
 submit_center_last('Process', _("Process Transfer"), '',  'default');
 
-end_form();*/
-end_page(false,true);
+end_form();
+end_page(false,true);*/
+start_table(TABLESTYLE, "width='100%'");
+   echo "<div id='merchandisetransfer-grid' style='padding:15px'></div>";
+   echo "<style type='text/css' media='screen'>
+            .x-form-text-default.x-form-textarea {
+                line-height: 20px;
+                min-height: 30px;
+            }
+        </style>";
+end_table();
+
+//end_form();
+end_page();
 

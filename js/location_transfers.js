@@ -63,7 +63,7 @@ Ext.onReady(function(){
 		{header:'Total Items', dataIndex:'qty', sortable:true, width:90, align:'center', hidden: false},
 		{header:'Remarks', dataIndex:'remarks', sortable:true, width:243, align:'center'},
 		{header:'Approval', dataIndex:'approval', sortable:false, width:100, align:'center', hidden: false, renderer: Approval},
-		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:90,
+		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:86,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
@@ -789,17 +789,18 @@ Ext.onReady(function(){
 
 	Ext.create('Ext.grid.Panel', {
 		renderTo: 'merchandisetransfer-grid',
-		layout: 'fit',
 		//height	: 550,
-		title	: 'Item Location Transfer',
-		store	    :	myInsurance,
-		id 		    : 'grid',
-		columns 	: columnModel,
+		title: 'Item Location Transfer',
+		store:	myInsurance,
+		id: 'grid',
+		columns: columnModel,
+		layout: 'fit',
+
 		//forceFit 	: true,
 		frame: false,
 		width: 1275,
-		frame		: true,
-		columnLines	: true,
+		frame: true,
+		columnLines: true,
 		sortableColumns :true,
 		dockedItems: [{
             dock	: 'top',
