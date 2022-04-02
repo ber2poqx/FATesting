@@ -284,7 +284,9 @@ function get_rr_supplier_gl($type_no, $type)
 
 		$sql = "SELECT gl.account
 				,cm.account_name
-				,gl.amount 
+				,gl.amount
+				,gl.mcode
+				,gl.master_file
 			FROM " . TB_PREF . "gl_trans gl 
 				LEFT JOIN " . TB_PREF . "chart_master cm ON cm.account_code = gl.account 
 			WHERE gl.type=" . ST_RRBRANCH . "
@@ -298,7 +300,9 @@ function get_rr_supplier_gl($type_no, $type)
 
 		$sql = "SELECT gl.account
 				,cm.account_name
-				,gl.amount 
+				,gl.amount
+				,gl.mcode
+				,gl.master_file
 			FROM " . TB_PREF . "gl_trans gl 
 				LEFT JOIN " . TB_PREF . "chart_master cm ON cm.account_code = gl.account 
 			WHERE gl.type=" . ST_RRREPO . "
@@ -312,7 +316,9 @@ function get_rr_supplier_gl($type_no, $type)
 	{
 		$sql = "SELECT gl.account
 				,cm.account_name
-				,gl.amount 
+				,gl.amount
+				,gl.mcode
+				,gl.master_file
 			FROM " . TB_PREF . "gl_trans gl 
 				LEFT JOIN " . TB_PREF . "chart_master cm ON cm.account_code = gl.account 
 			WHERE gl.type='" . $type . "'
