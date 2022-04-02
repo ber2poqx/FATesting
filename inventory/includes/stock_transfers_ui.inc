@@ -257,6 +257,11 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
             $qty=get_qoh_on_date_new($stock_item->type_out,$stock_item->transno_out,$stock_item->stock_id,$FromStockLocation);
            $qty-=$demand_qty;
         }
+        if ($stock_item->lot_no == '') {
+           $stock_quantity = 0;
+        } else {
+            $stock_quantity = $stock_item->quantity;
+        }
         $group_array[] = array('id'=>$line_no,
             'stock_id'=>$stock_item->stock_id,
             'item_code'=>$stock_item->item_code,
@@ -264,7 +269,7 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
             'stock_description' => $stock_item->item_description,
             'standard_cost' => $stock_item->standard_cost,
             'currentqty' => $qty,
-            'qty' => $stock_item->quantity,
+            'qty' => $stock_quantity,
             'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
             'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
             'mt_lines' => $stock_item->mt_lines,

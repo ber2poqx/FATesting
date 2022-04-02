@@ -74,25 +74,29 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'AddItem';
-            $category_id = $_REQUEST['category'];
-            $serialise_id = $_REQUEST['serialise_id'];
-            $AdjDate = $_POST['AdjDate'];
-            $model = $_REQUEST['model'];
-            $lot_no = $_REQUEST['lot_no'];
-            $type_out = $_REQUEST['type_out'];
-            $transno_out = $_REQUEST['transno_out'];
-            $serialised = $_REQUEST['serialised'];
-            $rr_date = $_REQUEST['rr_date'];
-            $qty = $_REQUEST['qty'];
-            $brcode = $db_connections[user_company()]["branch_code"];
-            $_SESSION['transfer_items']->from_loc=$brcode;
-            //if(!isset($_REQUEST['view'])){
-            add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'new',$qty, $rr_date);
-                
-            //}
-            //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
+            $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+            //var_dump($objDataGrid);
+            foreach($objDataGrid as $value=>$data) 
+            {
+                //echo $data;
+                $serialise_id = $data['serialise_id'];
+                $category_id = $data['category'];
+                $AdjDate = $data['AdjDate'];
+                $model = $data['model'];
+                $lot_no = $data['lot_no'];
+                $type_out = $data['type_out'];
+                $transno_out = $data['transno_out'];
+                $serialised = $data['serialised'];
+                $rr_date = $data['rr_date'];
+                $qty = $data['qty'];
+                $brcode = $db_connections[user_company()]["branch_code"];
+                $_SESSION['transfer_items']->from_loc=$brcode;
+
+                add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
+                    $transno_out,'new',$qty, $rr_date);   
+            }
             display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
-            //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;
             break;
         case 'ManualAddItem';
@@ -119,21 +123,29 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'SaveTransfer';
             set_global_connection();
+
+            $qty = stripslashes(html_entity_decode($_POST['qty']));
+            $objDataGrid = json_decode($qty, true);
+
             $message="";
             $AdjDate = sql2date($_POST['AdjDate']);
-            
+
             $counteritem=$_SESSION['transfer_items']->count_items();
             $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
+
+            foreach($objDataGrid as $value=>$data) 
+            {
+                $stock_qty = $data['qty'];
+            }
+
             if($total_rrdate>0){
                 $message="This document cannot be processed because there is insufficient quantity for items marked.";
-                
-                
             }elseif($counteritem<=0){
                 //echo '({"success":"false","message":"No Item Selected"})';
-                $message="No Item Selected";
-                
-                
-            }else{
+                $message="No Item Selected";                     
+            }elseif($stock_qty == 0) {
+                $message="Quantity must not be zero.";
+            }else {
                 $AdjDate = sql2date($_POST['AdjDate']);
                 $catcode = $_POST['catcode'];
                 $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
