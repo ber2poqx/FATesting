@@ -243,29 +243,35 @@ function handle_new_item()
 	if (!check_item_data()) {
 		return;
 	}
-	add_to_order(
-		$_SESSION['ReplaceItems'],
-		get_post('_stock_id_edit'),
-		get_post('qoh'),
-		get_post('price'),
-		0,
-		get_post('description'),
-		$_POST['serialeng_no'],
-		$_POST['chassis_no'],
-		$_POST['color_desc'],
-		"new",
-		0,
-		0,
-		$_POST['standard_cost'],
-		get_post('qoh'),
-		get_post('trans_no'),
-		get_post('trans_type')
-	);
-	page_modified();
-	global $Ajax;
-	$Ajax->activate('replace_items');
-	$Ajax->activate('_page_body');
-	line_start_focus();
+
+	//Modified by spyrax10 2 Apr 2022
+	if (get_post('_stock_id_edit')) {
+		add_to_order(
+			$_SESSION['ReplaceItems'],
+			get_post('_stock_id_edit'),
+			get_post('qoh'),
+			get_post('price'),
+			0,
+			get_post('description'),
+			$_POST['serialeng_no'],
+			$_POST['chassis_no'],
+			$_POST['color_desc'],
+			"new",
+			0,
+			0,
+			$_POST['standard_cost'],
+			get_post('qoh'),
+			get_post('trans_no'),
+			get_post('trans_type')
+		);
+
+		page_modified();
+		global $Ajax;
+		$Ajax->activate('replace_items');
+		$Ajax->activate('_page_body');
+		line_start_focus();
+	}
+	
 }
 
 function copy_from_cart()
