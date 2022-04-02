@@ -14,6 +14,7 @@ $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/repossess/includes/repossessed.inc");
+include_once($path_to_root . "/lending/includes/db/ar_installment_db.inc");
 
 add_access_extensions();
 
@@ -25,6 +26,7 @@ add_js_ufile($path_to_root ."/js/temporary_repo_inquiry.js");
 //----------------------------------------------: for store js :---------------------------------------
 if(isset($_GET['get_Customer']))
 {
+    $counter=0;
     //$result = get_customer_account();
     $result = get_all_customer();
     $total = DB_num_rows($result);
@@ -48,22 +50,39 @@ if(isset($_GET['get_InvoiceNo']))
 
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
+        
+        if($_GET['isreplce'] == 'true'){
+            if($counter == 0){
+                $replace_result = get_replace_item($myrow['trans_no']);
+                $replace_itm = db_fetch($replace_result);
+                $counter = 1;
+            }
 
-        if($_GET['isTrmode'] == 'true') {
-            $invoice_no = $myrow["invoice_no"];
-            $invoice_type = $myrow["debtor_trans_type"];
+            $status_array[] = array('id'=>$myrow["trans_no"],
+                                'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$replace_itm["stock_id"].' > '.$replace_itm["description"]),
+                                'type'=>$myrow["type"],
+                                'tran_date'=>$myrow["tran_date"],
+                                'status'=>$myrow["status"],
+                                'trmd_inv_no'=>$invoice_no,
+                                'trmd_inv_type'=>$invoice_type
+                                );
         }else{
-            $invoice_no = $invoice_type = 0;
-        }
+            if($_GET['isTrmode'] == 'true') {
+                $invoice_no = $myrow["invoice_no"];
+                $invoice_type = $myrow["debtor_trans_type"];
+            }else{
+                $invoice_no = $invoice_type = 0;
+            }
 
-        $status_array[] = array('id'=>$myrow["trans_no"],
-                               'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["itemdesc"]),
-                               'type'=>$myrow["type"],
-                               'tran_date'=>$myrow["tran_date"],
-                               'status'=>$myrow["status"],
-                               'trmd_inv_no'=>$invoice_no,
-                               'trmd_inv_type'=>$invoice_type
-                            );
+            $status_array[] = array('id'=>$myrow["trans_no"],
+                                'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["itemdesc"]),
+                                'type'=>$myrow["type"],
+                                'tran_date'=>$myrow["tran_date"],
+                                'status'=>$myrow["status"],
+                                'trmd_inv_no'=>$invoice_no,
+                                'trmd_inv_type'=>$invoice_type
+                                );
+        }
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
@@ -71,17 +90,32 @@ if(isset($_GET['get_InvoiceNo']))
 }
 if(isset($_GET['get_Item_details']))
 {
-    $result = get_item_detials_to_repo($_GET['transNo'], $_GET['transtype']);
-    $total = DB_num_rows($result);
-    while ($myrow = db_fetch($result)) {
-        $status_array[] = array('stock_id'=>$myrow["stock_id"],
-                               'description'=>$myrow["description"],
-                               'qty'=>$myrow["quantity"],
-                               'unit_price'=>$myrow["unit_price"],
-                               'serial'=>$myrow["lot_no"],
-                               'chasis'=>$myrow["chassis_no"]
-                            );
+    if($_GET['isreplce'] == 'true'){
+        $result = get_replace_item($_GET['transNo']);
+        $total = DB_num_rows($result);
+        while ($myrow = db_fetch($result)) {
+            $status_array[] = array('stock_id'=>$myrow["stock_id"],
+                                   'description'=>$myrow["description"],
+                                   'qty'=>$myrow["quantity"],
+                                   'unit_price'=>$myrow["unit_price"],
+                                   'serial'=>$myrow["lot_no"],
+                                   'chasis'=>$myrow["chassis_no"]
+                                );
+        }
+    }else{
+        $result = get_item_detials_to_repo($_GET['transNo'], $_GET['transtype']);
+        $total = DB_num_rows($result);
+        while ($myrow = db_fetch($result)) {
+            $status_array[] = array('stock_id'=>$myrow["stock_id"],
+                                   'description'=>$myrow["description"],
+                                   'qty'=>$myrow["quantity"],
+                                   'unit_price'=>$myrow["unit_price"],
+                                   'serial'=>$myrow["lot_no"],
+                                   'chasis'=>$myrow["chassis_no"]
+                                );
+        }
     }
+
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
@@ -96,6 +130,7 @@ if(isset($_GET['Get_termrepo'])){
     while ($myrow = db_fetch($result)) {
 
         if($myrow['type'] == ST_SITERMMOD){
+
             $trmd_result = get_invtermode_to_repo($myrow['debtor_no'], true);
             $tmd_item = db_fetch($trmd_result);
 
@@ -104,7 +139,20 @@ if(isset($_GET['Get_termrepo'])){
             $model_desc = $tmd_item['itemdesc'];
             $trmd_trans_no = $tmd_item['invoice_no'];
             $trmd_trans_type = $tmd_item['debtor_trans_type'];
+
+        }else if($myrow['type'] == ST_SALESRETURN){
+
+            $rplc_result = get_replace_item($myrow['trans_no']);
+            $rplc_item = db_fetch($rplc_result);
+
+            $category_id = $myrow['category_id'];
+            $category_desc = $myrow['Catgry_desc'];
+            $model_desc = $rplc_item['description'];
+            $trmd_trans_no = 0;
+            $trmd_trans_type = 0;
+
         }else{
+
             $category_id = $myrow['category_id'];
             $category_desc = $myrow['Catgry_desc'];
             $model_desc = $myrow['item_desc'];

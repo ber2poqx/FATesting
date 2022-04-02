@@ -483,22 +483,46 @@ Ext.onReady(function(){
 			allowBlank: false,
 			hidden: true
 		},{
-			xtype: 'checkbox',
-			id: 'showtrmd',
-			name: 'showtrmd',
-			boxLabel: 'Show term mode account',
-			margin: '0 0 0 110',
-			listeners: {
-				change: function(checkbox, newValue, oldValue, eOpts) {
-					ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
-					ARInvoiceStore.load();
-					SIitemStore.proxy.extraParams = {transNo: 0};
-					SIitemStore.load();
-					Ext.getCmp('customercode').setValue();
-					Ext.getCmp('customername').setValue();
-					Ext.getCmp('InvoiceNo').setValue();
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			margin: '2 0 2 2',
+			items:[{
+				xtype: 'checkbox',
+				id: 'showtrmd',
+				name: 'showtrmd',
+				boxLabel: 'Show term mode account',
+				margin: '0 0 0 110',
+				listeners: {
+					change: function(checkbox, newValue, oldValue, eOpts) {
+						ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
+						ARInvoiceStore.load();
+						SIitemStore.proxy.extraParams = {transNo: 0};
+						SIitemStore.load();
+						Ext.getCmp('customercode').setValue();
+						Ext.getCmp('customername').setValue();
+						Ext.getCmp('InvoiceNo').setValue();
+						Ext.getCmp('showreplce').setValue();
+					}
 				}
-			}
+			},{
+				xtype: 'checkbox',
+				id: 'showreplce',
+				name: 'showreplce',
+				boxLabel: 'Show replace item',
+				margin: '0 0 0 110',
+				listeners: {
+					change: function(checkbox, newValue, oldValue, eOpts) {
+						ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
+						ARInvoiceStore.load();
+						SIitemStore.proxy.extraParams = {transNo: 0};
+						SIitemStore.load();
+						Ext.getCmp('customercode').setValue();
+						Ext.getCmp('customername').setValue();
+						Ext.getCmp('InvoiceNo').setValue();
+						Ext.getCmp('showtrmd').setValue();
+					}
+				}
+			}]
 		},{
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
@@ -529,7 +553,7 @@ Ext.onReady(function(){
 				listeners: {
 					select: function(combo, record, index) {
 						Ext.getCmp('customercode').setValue(record.get('debtor_ref'));
-						ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), isTrmode: Ext.getCmp('showtrmd').getValue()};
+						ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), isTrmode: Ext.getCmp('showtrmd').getValue(), isreplce: Ext.getCmp('showreplce').getValue()};
 						ARInvoiceStore.load();
 						SIitemStore.proxy.extraParams = {transNo: 0};
 						SIitemStore.load();
@@ -580,7 +604,7 @@ Ext.onReady(function(){
 					if(Ext.getCmp('showtrmd').getValue() == true){
 						SIitemStore.proxy.extraParams = {transNo: record.get('trmd_inv_no'), transtype: record.get('trmd_inv_type')};
 					}else{
-						SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
+						SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type'), transtype: record.get('type'), isreplce: Ext.getCmp('showreplce').getValue()};
 					}
 					
 					SIitemStore.load();
