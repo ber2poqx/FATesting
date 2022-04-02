@@ -78,7 +78,7 @@ function getActualQty($year_param, $month, $category)
 				LEFT JOIN `debtor_trans` dt ON dtd.debtor_trans_no = dt.trans_no
     				AND dtd.debtor_trans_type = dt.type
 				LEFT JOIN `debtor_loans` dl ON dl.trans_no = dt.trans_no
-			WHERE YEAR(dt.`tran_date`) = '$year_param' AND MONTH(dt.`tran_date`) = '$month' AND dl.category_id = '$category'
+			WHERE YEAR(dt.`tran_date`) = '$year_param' AND MONTH(dt.`tran_date`) = '$month' AND dl.category_id = '$category' AND dt.type = '".ST_SALESINVOICE."'
             GROUP BY MONTH(dt.`tran_date`)";
 
 	return db_query($sql,"No transactions were returned");
