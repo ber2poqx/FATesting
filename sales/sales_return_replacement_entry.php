@@ -410,11 +410,11 @@ function can_process()
 		return false;
 	}
 
-	if (count($_SESSION['ReplaceItems']->line_items) == 0) {
-		display_error(_("You must enter at least one non empty item line."));
-		set_focus('AddItem');
-		return false;
-	}
+	// if (count($_SESSION['ReplaceItems']->line_items) == 0) {
+	// 	display_error(_("You must enter at least one non empty item line."));
+	// 	set_focus('AddItem');
+	// 	return false;
+	// }
 
 
 	foreach ($_SESSION['ReplaceItems']->line_items as $line_no => $stock_item) {
