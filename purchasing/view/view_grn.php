@@ -1,4 +1,5 @@
 <?php
+
 /**********************************************************************
     Copyright (C) FrontAccounting, LLC.
 	Released under the terms of the GNU General Public License, GPL, 
@@ -8,7 +9,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
-***********************************************************************/
+ ***********************************************************************/
 $page_security = 'SA_SUPPTRANSVIEW';
 $path_to_root = "../..";
 include($path_to_root . "/purchasing/includes/po_class.inc");
@@ -22,9 +23,8 @@ page(_($help_context = "View Purchase Order Delivery"), true, false, "", $js);
 
 include($path_to_root . "/purchasing/includes/purchasing_ui.inc");
 
-if (!isset($_GET['trans_no']))
-{
-	die ("<BR>" . _("This page must be called with a Purchase Order Delivery number to review."));
+if (!isset($_GET['trans_no'])) {
+	die("<BR>" . _("This page must be called with a Purchase Order Delivery number to review."));
 }
 
 $purchase_order = new purch_order;
@@ -38,8 +38,10 @@ display_heading2(_("Line Details"));
 
 
 start_table(TABLESTYLE, "width='90%'");
-$th = array(_("Item Code"), _("Item Description"),_("Color Code"), _("Color"),_("Serial #"), _("Chassis #"), _("Quantity"),
-        _("Unit"), _("Price"), _("Line Total"), _("Quantity Invoiced"));
+$th = array(
+	_("Item Code"), _("Item Description"), _("Remarks"), _("Color Code"), _("Color"), _("Serial #"), _("Chassis #"), _("Quantity"),
+	_("Unit"), _("Price"), _("Line Total"), _("Quantity Invoiced")
+);
 
 table_header($th);
 
@@ -47,24 +49,21 @@ $total = 0;
 $k = 0;  //row colour counter
 $overdue_items = false;
 
-foreach ($purchase_order->line_items as $stock_item)
-{
+foreach ($purchase_order->line_items as $stock_item) {
 
 	$line_total = $stock_item->qty_received * $stock_item->price;
 
 	// if overdue and outstanding quantities, then highlight as so
-	if (date1_greater_date2($purchase_order->orig_order_date, $stock_item->req_del_date))
-	{
-    	start_row("class='overduebg'");
-    	$overdue_items = true;
-	}
-	else
-	{
+	if (date1_greater_date2($purchase_order->orig_order_date, $stock_item->req_del_date)) {
+		start_row("class='overduebg'");
+		$overdue_items = true;
+	} else {
 		alt_table_row_color($k);
 	}
 
 	label_cell($stock_item->stock_id);
 	label_cell($stock_item->item_description);
+	label_cell($stock_item->remarks);
 	label_cell($stock_item->color_code);
 	label_cell(get_color_description($stock_item->color_code, $stock_item->stock_id));
 	label_cell($stock_item->serial);
@@ -81,9 +80,14 @@ foreach ($purchase_order->line_items as $stock_item)
 	$total += $line_total;
 }
 
-$display_sub_tot = number_format2($total,user_price_dec());
-label_row(_("Sub Total"), $display_sub_tot,
-	"align=right colspan=8", "nowrap align=right", 1);
+$display_sub_tot = number_format2($total, user_price_dec());
+label_row(
+	_("Sub Total"),
+	$display_sub_tot,
+	"align=right colspan=8",
+	"nowrap align=right",
+	1
+);
 
 $taxes = $purchase_order->get_taxes();
 $tax_total = display_edit_tax_items($taxes, 8, $purchase_order->tax_included, 1);
@@ -91,7 +95,7 @@ $tax_total = display_edit_tax_items($taxes, 8, $purchase_order->tax_included, 1)
 $display_total = price_format(($total + $tax_total));
 
 start_row();
-label_cells(_("Amount Total"), $display_total, "colspan=8 align='right'","align='right'");
+label_cells(_("Amount Total"), $display_total, "colspan=8 align='right'", "align='right'");
 label_cell('');
 end_row();
 
@@ -104,4 +108,3 @@ if ($overdue_items)
 is_voided_display(ST_SUPPRECEIVE, $_GET['trans_no'], _("This delivery has been voided."));
 
 end_page(true, false, false, ST_SUPPRECEIVE, $_GET['trans_no']);
-

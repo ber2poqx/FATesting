@@ -95,7 +95,8 @@ function add_grn_new(&$po, $is_consign = false)
 				$order_line->receive_qty,
 				$order_line->price,
 				$order_line->quantity,
-				$order_line->color_code
+				$order_line->color_code,
+				$order_line->remarks
 			);
 
 			if (!$order_line->serialised) {

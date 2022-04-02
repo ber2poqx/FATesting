@@ -218,7 +218,7 @@ function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, 
 //-------------------------------------------------------------------------------------------------------------
 
 function add_grn_detail_item($grn_batch_id, $po_detail_item, $item_code, $description, $standard_unit_cost,
-	$quantity_received, $price, $quantity, $color_code="")
+	$quantity_received, $price, $quantity, $color_code="", $remarks = "")
 {
 	$sql = "UPDATE ".TB_PREF."purch_order_details
         SET quantity_received = quantity_received + ".db_escape($quantity_received).",
@@ -228,10 +228,10 @@ function add_grn_detail_item($grn_batch_id, $po_detail_item, $item_code, $descri
         WHERE po_detail_item = ".db_escape($po_detail_item);
 	db_query($sql, "a purchase order details record could not be updated. This receipt of goods has not been processed ");
 
-	$sql = "INSERT INTO ".TB_PREF."grn_items (grn_batch_id, po_detail_item, item_code, description, qty_recd, color_code)
+	$sql = "INSERT INTO ".TB_PREF."grn_items (grn_batch_id, po_detail_item, item_code, description, qty_recd, color_code, remarks)
 		VALUES (".db_escape($grn_batch_id).", "
 		.db_escape($po_detail_item).", ".db_escape($item_code).", ".db_escape($description)
-		.", ".db_escape($quantity_received).", ".db_escape($color_code).")";
+		.", ".db_escape($quantity_received).", ".db_escape($color_code).", ".db_escape($remarks).")";
 
 	db_query($sql, "A GRN detail item could not be inserted.");
 
@@ -400,7 +400,7 @@ function read_grn_items_to_order($grn_batch, &$order)
 				$order->add_to_order($order->lines_on_order, $myrow["item_code"],
 				$myrow["qty_recd"],$myrow["description"], $myrow["std_cost_unit"],$units,
 				sql2date($myrow["req_del_date"]), $myrow["quantity_inv"],
-			    $myrow["serialise_qty"], $myrow["serialise_qty"], $myrow["serialise_lot_no"], $myrow["color_code"], $myrow["serialise_chasis_no"]);
+			    $myrow["serialise_qty"], $myrow["serialise_qty"], $myrow["serialise_lot_no"], $myrow["color_code"], $myrow["serialise_chasis_no"], $myrow["remarks"]);
 
 			} else {
 				$order->add_to_order(
@@ -416,7 +416,8 @@ function read_grn_items_to_order($grn_batch, &$order)
 					$myrow["qty_recd"], 
 					"", 
 					"", 
-					""
+					"",
+					$myrow["remarks"]
 				);
 			}
 			$order->line_items[$order->lines_on_order-1]->po_detail_rec = $myrow["po_detail_item"];

@@ -78,12 +78,12 @@ class purch_order
 		$this->tax_group_array = get_tax_group_items_as_array($tax_group_id);
 	}
 	
-	function add_to_order($line_no, $stock_id, $qty, $item_descr, $price, $uom, $req_del_date, $qty_inv, $qty_recd, $out_qty = 0, $serial_no = "", $color_code = "", $chassis_no = "")
+	function add_to_order($line_no, $stock_id, $qty, $item_descr, $price, $uom, $req_del_date, $qty_inv, $qty_recd, $out_qty = 0, $serial_no = "", $color_code = "", $chassis_no = "", $remarks="")
 	{
 		if (isset($qty) && $qty != 0)
 		{
 			$this->line_items[$line_no] = new po_line_details($line_no, $stock_id, $item_descr, $qty, $price, $uom, 
-				$req_del_date, $qty_inv, $qty_recd, $out_qty, $serial_no, $color_code, $chassis_no);
+				$req_del_date, $qty_inv, $qty_recd, $out_qty, $serial_no, $color_code, $chassis_no, 0 , array(), $remarks);
 			$this->lines_on_order++;
 			return 1;
 		}
@@ -237,9 +237,11 @@ class po_line_details
 	var $serialised;//Added by Herald 03/15/2021 for non-serialise
 	
 	var $list_serial; // Added by Ronelle 2/13/2022 array for serial object
+
+	var $remarks;
 	
 	function __construct($line_no, $stock_item, $item_descr, $qty, $prc, $uom, $req_del_date, 
-		$qty_inv, $qty_recd, $qty_out, $serial="", $color_code = "", $chasis_no="", $grn_item_id=0, $list_serial = array())
+		$qty_inv, $qty_recd, $qty_out, $serial="", $color_code = "", $chasis_no="", $grn_item_id=0, $list_serial = array(), $remarks="")
 	{
 
 		/* Constructor function to add a new LineDetail object with passed params */
@@ -272,6 +274,7 @@ class po_line_details
 		$this->serialised = $item_row["serialised"];//Added by Herald 03/15/2021 for non-serialise
 
 		$this->list_serial = $list_serial;	// Added by Ronelle 2/13/2022 array for serial object
+		$this->remarks = $remarks;	// Added by Ronelle 4/3/2022 for line item remarks
 	}
 	
 	// Deprecated, use with care. If you need line value as it is calculated in invoice, use taxfree_charge_value below.

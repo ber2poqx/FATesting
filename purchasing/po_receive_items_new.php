@@ -67,8 +67,10 @@ function display_po_receive_items()
             );
         } else {
             $th = array(
-                _("Model Code"), _("Product Description"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
-                _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
+                _("Model Code"), _("Product Description"), _("Remarks"),
+                _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
+                _("Outstanding"), _("This Delivery"),
+                _("Unit Cost"), _("Total")
             );
         }
     } else {
@@ -79,7 +81,8 @@ function display_po_receive_items()
             );
         } else {
             $th = array(
-                _("Item Code"), _("Description"), _("Ordered"), _("Units"), _("Received"),
+                _("Item Code"), _("Description"),
+                _("Remarks"), _("Ordered"), _("Units"), _("Received"),
                 _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
             );
         }
@@ -114,6 +117,7 @@ function display_po_receive_items()
             $total += $line_total;
 
             label_cell($ln_itm->stock_id);
+
             if ($qty_outstanding > 0)
                 if ($_SESSION['PO']->is_consign == "Consignment")
                     label_cell($ln_itm->item_description);
@@ -121,6 +125,9 @@ function display_po_receive_items()
                     text_cells(null, $ln_itm->stock_id . "Desc", $ln_itm->item_description, 30, 50);
             else
                 label_cell($ln_itm->item_description);
+
+            text_cells_ex(null, 'rows_remarks' . $ln_itm->line_no, 16, null, $ln_itm->remarks, null, null, null, true);
+            $ln_itm->remarks = $_POST['rows_remarks' . $ln_itm->line_no];
             if ($_SESSION['PO']->is_consign == "Consignment") {
                 label_cell($ln_itm->serial);
                 if ($_SESSION['PO']->category_id == 14)
@@ -382,12 +389,12 @@ function serial_summary_po_receive_items()
     start_table(TABLESTYLE, "colspan=7 width='90%'");
     if ($_SESSION['PO']->category_id == 14) {
         $th = array(
-            _("Model Code"), _("Product Description"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
+            _("Model Code"), _("Product Description"), _("Remarks"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
             _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
         );
     } else {
         $th = array(
-            _("Item Code"), _("Description"), _("Ordered"), _("Units"), _("Received"),
+            _("Item Code"), _("Description"), _("Remarks"), _("Ordered"), _("Units"), _("Received"),
             _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
         );
     }
@@ -425,6 +432,7 @@ function serial_summary_po_receive_items()
                     label_cell($ln_itm->item_description);
                 else
                     label_cell($ln_itm->item_description);
+                label_cell($ln_itm->remarks);
                 if ($_SESSION['PO']->is_consign == "Consignment") {
                     label_cell($ln_itm->serial);
                     if ($_SESSION['PO']->category_id == 14)
@@ -492,7 +500,7 @@ function serial_summary_input()
                 while ($ctr < $ln_itm->receive_qty) {
                     alt_table_row_color($k);
                     text_cells(null, "serial_no$line", null, "", "", false, "", "", 'placeholder="Serial No."');
-                    
+
                     if ($_SESSION['PO']->category_id == 14) {
                         text_cells(null, "chassis_no$line", null, "", "", false, "", "", 'placeholder="Chassis No."');
                     }
@@ -503,7 +511,8 @@ function serial_summary_input()
                         label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
                     }
 
-                    $ctr++; $line++;
+                    $ctr++;
+                    $line++;
                 }
             }
         }
@@ -514,24 +523,24 @@ function serial_summary_input()
 }
 
 //Added by spyrax10 29 Mar 2022
-function find_serial($serial_no, $line_no) {
+function find_serial($serial_no, $line_no)
+{
 
     foreach ($_SESSION['PO']->line_items as $ln_itm) {
         if ($ln_itm->serialised) {
-            foreach($ln_itm->list_serial as $itm) {
+            foreach ($ln_itm->list_serial as $itm) {
                 if ($line_no != $itm->line_no) {
                     if ($itm->serial_no == $serial_no) {
-					    return true;
+                        return true;
                     }
                     if ($itm->chassis_no == $serial_no) {
-					    return true;
+                        return true;
                     }
-				}
-                else {
+                } else {
                     if ($itm->chassis_no == $serial_no) {
-					    return true;
+                        return true;
                     }
-                }	
+                }
             }
         }
     }
@@ -539,24 +548,24 @@ function find_serial($serial_no, $line_no) {
     return false;
 }
 
-function find_chassis($chassis_, $line_no) {
+function find_chassis($chassis_, $line_no)
+{
 
     foreach ($_SESSION['PO']->line_items as $ln_itm) {
         if ($ln_itm->serialised) {
-            foreach($ln_itm->list_serial as $itm) {
+            foreach ($ln_itm->list_serial as $itm) {
                 if ($line_no != $itm->line_no) {
                     if ($itm->chassis_no == $chassis_) {
-					    return true;
+                        return true;
                     }
                     if ($itm->serial_no == $chassis_) {
-					    return true;
+                        return true;
                     }
-				}
-                else {
+                } else {
                     if ($itm->serial_no == $chassis_) {
-					    return true;
+                        return true;
                     }
-                }	
+                }
             }
         }
     }
@@ -573,7 +582,7 @@ function can_process_serial()
         if ($ln_itm->serialised) {
             $ctr = 0;
             while ($ctr < count($ln_itm->list_serial)) {
-                
+
                 $serial_no = $ln_itm->list_serial[$ctr]->serial_no;
 
                 if ($_SESSION['PO']->category_id == 14) {
@@ -585,33 +594,29 @@ function can_process_serial()
                     display_error(_("Please input Serial No."));
                     set_focus("serial_no$line");
                     return false;
-                } 
-                else if ($chassis_no == "" && $_SESSION['PO']->category_id == 14) {
+                } else if ($chassis_no == "" && $_SESSION['PO']->category_id == 14) {
                     display_error(_("Please input Chassis No."));
                     set_focus("chassis_no$line");
                     return false;
-                }
-                else if (find_serial($serial_no, $line)) {
-                    display_error("Serial / Engine # already existed in the list!" );
+                } else if (find_serial($serial_no, $line)) {
+                    display_error("Serial / Engine # already existed in the list!");
                     set_focus("serial_no$line");
                     return false;
-                }
-                else if (find_chassis($chassis_no, $line) && $_SESSION['PO']->category_id == 14) {
-                    display_error("Chassis # already existed in the list!" );
+                } else if (find_chassis($chassis_no, $line) && $_SESSION['PO']->category_id == 14) {
+                    display_error("Chassis # already existed in the list!");
                     set_focus("chassis_no$line");
                     return false;
-                }
-                else if (serial_exist($serial_no)) {
+                } else if (serial_exist($serial_no)) {
                     display_error("Serial # Already Registered in the System!");
                     set_focus("serial_no$line");
                     return false;
-                }
-                else if (serial_exist($serial_no, $chassis_no) && $_SESSION['PO']->category_id == 14) {
+                } else if (serial_exist($serial_no, $chassis_no) && $_SESSION['PO']->category_id == 14) {
                     display_error("Chassis # Already Registered in the System!");
                     set_focus("chassis_no$line");
                     return false;
                 }
-                $ctr++; $line++;
+                $ctr++;
+                $line++;
             }
         }
     }
@@ -648,7 +653,8 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
                     $serial->chassis_no = $_SESSION['PO']->category_id == 14 ? get_post("chassis_no$line") : "";
                     array_push($ln_itm->list_serial, $serial);
 
-                    $ctr++; $line++;
+                    $ctr++;
+                    $line++;
                 }
             }
         }
@@ -662,7 +668,7 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
         meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
     }
     //
-        
+
 }
 
 if (isset($_SESSION['SetSerial'])) {
