@@ -28,7 +28,7 @@ function get_transactions($endDate, $cust_id = '', $group = 0, $filter = '') {
     $change_term = ST_SITERMMOD;
     $restruct = ST_RESTRUCTURED;
 
-    $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name,  
+    $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DT.stock_id,
             CASE 
 	            WHEN GL.gl_code = 1200 THEN 'A/R - Regular Current'
 	            WHEN GL.gl_code = 1201 THEN 'A/R - Installment Current'
@@ -73,6 +73,7 @@ function get_transactions($endDate, $cust_id = '', $group = 0, $filter = '') {
             LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
             LEFT JOIN " . TB_PREF . "areas A ON DM.area = A.area_code
             LEFT JOIN " . TB_PREF . "users CN ON A.collectors_id = CN.user_id
+            LEFT JOIN " . TB_PREF . "debtor_trans_details DT ON DL.trans_no = DT.debtor_trans_no AND DT.debtor_trans_type = 10
             LEFT JOIN (
 	            SELECT debtor_no, Y.account_code AS gl_code, Y.account_name AS gl_name 
                 FROM " . TB_PREF . " cust_branch X
@@ -179,20 +180,27 @@ function print_transaction() {
 
     $orientation = 'L'; // Lock print orientation
 
-    $cols = array(0, 10, 70, 105, 130, 185, 225, 265, 305, 
-        350, 395, 440, 485, 530, 575, 620, 665, 710, 0
+    $cols = array(0, 12, 70, 115, 145, 165, 
+        205, 255, 285, 325, 365, 400, 440, 495,
+        530, 575, 615, 655, 700, 0 
+    );
+
+    $aligns = array('left', 'left', 'left', 'center', 'center', 'center',
+        'center', 'center', 'center', 'center', 'center', 'center', 'center',
+        'center', 'center', 'center', 'center', 'center', 'center', 'center', 'right'
     );
 
     $headers = array(
         _(""),
         _('Account Name'), 
+        _('Model'), 
         _('Buy Date'), 
         _('Term'),
         _('Gross'),
         _('Down_Paymnt'),
         _('Adjstmnt'), 
         _('Rest_Adjmt'), 
-        _('Payments'), 
+        _('Payment'), 
         _('Adv_Paymnt'), 
         _('Balance'), 
         _('Not Yet Due'), 
@@ -202,11 +210,6 @@ function print_transaction() {
         _('Ovr Due 2Mon<<'),
         _('Past Due'),
         _('Collectibles')
-    );
-
-    $aligns = array('left', 'left', 'left', 'center', 'center', 'center', 'center', 
-        'center', 'center', 'center', 'center', 'center', 'center', 'center', 
-        'center', 'center', 'center', 'right'
     );
     
     $params = array(0 => $comments,
@@ -279,22 +282,22 @@ function print_transaction() {
                     $rep->NewLine(2);
                     $rep->Font('bold');
 				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(4, 5, $tot_gross, $dec);
-                    $rep->AmountCol(5, 6, $tot_down, $dec);
-                    $rep->AmountCol(6, 7, $tot_adj, $dec);
-                    $rep->AmountCol(7, 8, $tot_rest, $dec);
-                    $rep->AmountCol(8, 9, $tot_pay, $dec);
-                    $rep->AmountCol(9, 10, $tot_adv, $dec);
-                    $rep->AmountCol(10, 11, $tot_bal, $dec);
-                    $rep->AmountCol(11, 12, $tot_notDue, $dec);
-                    $rep->AmountCol(12, 13, $tot_dueNxt, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueThis, $dec);
+                    $rep->AmountCol(5, 6, $tot_gross, $dec);
+                    $rep->AmountCol(6, 7, $tot_down, $dec);
+                    $rep->AmountCol(7, 8, $tot_adj, $dec);
+                    $rep->AmountCol(8, 9, $tot_rest, $dec);
+                    $rep->AmountCol(9, 10, $tot_pay, $dec);
+                    $rep->AmountCol(10, 11, $tot_adv, $dec);
+                    $rep->AmountCol(11, 12, $tot_bal, $dec);
+                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
                     $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(14, 15, $tot_ovr1, $dec);
-                    $rep->AmountCol(15, 16, $tot_ovr2, $dec);
+                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
                     $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(16, 17, $tot_past, $dec);
-                    $rep->AmountCol(17, 18, $tot_grand, $dec);
+                    $rep->AmountCol(17, 18, $tot_past, $dec);
+                    $rep->AmountCol(18, 19, $tot_grand, $dec);
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
                     $rep->Font();
@@ -323,22 +326,22 @@ function print_transaction() {
                     $rep->NewLine(2);
                     $rep->Font('bold');
 				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(4, 5, $tot_gross, $dec);
-                    $rep->AmountCol(5, 6, $tot_down, $dec);
-                    $rep->AmountCol(6, 7, $tot_adj, $dec);
-                    $rep->AmountCol(7, 8, $tot_rest, $dec);
-                    $rep->AmountCol(8, 9, $tot_pay, $dec);
-                    $rep->AmountCol(9, 10, $tot_adv, $dec);
-                    $rep->AmountCol(10, 11, $tot_bal, $dec);
-                    $rep->AmountCol(11, 12, $tot_notDue, $dec);
-                    $rep->AmountCol(12, 13, $tot_dueNxt, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueThis, $dec);
+                    $rep->AmountCol(5, 6, $tot_gross, $dec);
+                    $rep->AmountCol(6, 7, $tot_down, $dec);
+                    $rep->AmountCol(7, 8, $tot_adj, $dec);
+                    $rep->AmountCol(8, 9, $tot_rest, $dec);
+                    $rep->AmountCol(9, 10, $tot_pay, $dec);
+                    $rep->AmountCol(10, 11, $tot_adv, $dec);
+                    $rep->AmountCol(11, 12, $tot_bal, $dec);
+                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
                     $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(14, 15, $tot_ovr1, $dec);
-                    $rep->AmountCol(15, 16, $tot_ovr2, $dec);
+                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
                     $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(16, 17, $tot_past, $dec);
-                    $rep->AmountCol(17, 18, $tot_grand, $dec);
+                    $rep->AmountCol(17, 18, $tot_past, $dec);
+                    $rep->AmountCol(18, 19, $tot_grand, $dec);
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
                     $rep->Font();
@@ -367,22 +370,22 @@ function print_transaction() {
                     $rep->NewLine(2);
                     $rep->Font('bold');
 				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(4, 5, $tot_gross, $dec);
-                    $rep->AmountCol(5, 6, $tot_down, $dec);
-                    $rep->AmountCol(6, 7, $tot_adj, $dec);
-                    $rep->AmountCol(7, 8, $tot_rest, $dec);
-                    $rep->AmountCol(8, 9, $tot_pay, $dec);
-                    $rep->AmountCol(9, 10, $tot_adv, $dec);
-                    $rep->AmountCol(10, 11, $tot_bal, $dec);
-                    $rep->AmountCol(11, 12, $tot_notDue, $dec);
-                    $rep->AmountCol(12, 13, $tot_dueNxt, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueThis, $dec);
+                    $rep->AmountCol(5, 6, $tot_gross, $dec);
+                    $rep->AmountCol(6, 7, $tot_down, $dec);
+                    $rep->AmountCol(7, 8, $tot_adj, $dec);
+                    $rep->AmountCol(8, 9, $tot_rest, $dec);
+                    $rep->AmountCol(9, 10, $tot_pay, $dec);
+                    $rep->AmountCol(10, 11, $tot_adv, $dec);
+                    $rep->AmountCol(11, 12, $tot_bal, $dec);
+                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
                     $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(14, 15, $tot_ovr1, $dec);
-                    $rep->AmountCol(15, 16, $tot_ovr2, $dec);
+                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
                     $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(16, 17, $tot_past, $dec);
-                    $rep->AmountCol(17, 18, $tot_grand, $dec);
+                    $rep->AmountCol(17, 18, $tot_past, $dec);
+                    $rep->AmountCol(18, 19, $tot_grand, $dec);
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
                     $rep->Font();
@@ -410,26 +413,27 @@ function print_transaction() {
 
         $rep->TextCol(0, 1, $total_act . ".) ");
         $rep->TextCol(1, 2, $trans['cust_name']);
+        $rep->TextCol(2, 3, $trans['stock_id']);
         $rep->SetTextColor(255, 0, 0);
-        $rep->TextCol(2, 3, $trans['buy_date']);
+        $rep->TextCol(3, 4, $trans['buy_date']);
         $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(3, 4, $trans['Term']);
-        $rep->AmountCol(4, 5, $trans['gross'], $dec);
-        $rep->AmountCol(5, 6, $trans['down_pay'], $dec);
-        $rep->AmountCol(6, 7, $total_adjusment, $dec);
-        $rep->AmountCol(7, 8, $trans['restruct'], $dec);
-        $rep->AmountCol(8, 9, $total_payment_this_month, $dec);
-        $rep->AmountCol(9, 10, $advance_payment, $dec);
-        $rep->AmountCol(10, 11, $current_balance, $dec);
-        $rep->AmountCol(11, 12, $not_yet_due, $dec);
-        $rep->AmountCol(12, 13, $due_nxt_month, $dec);
-        $rep->AmountCol(13, 14, $due_this_month, $dec);
+        $rep->TextCol(4, 5, $trans['Term']);
+        $rep->AmountCol(5, 6, $trans['gross'], $dec);
+        $rep->AmountCol(6, 7, $trans['down_pay'], $dec);
+        $rep->AmountCol(7, 8, $total_adjusment, $dec);
+        $rep->AmountCol(8, 9, $trans['restruct'], $dec);
+        $rep->AmountCol(9, 10, $total_payment_this_month, $dec);
+        $rep->AmountCol(10, 11, $advance_payment, $dec);
+        $rep->AmountCol(11, 12, $current_balance, $dec);
+        $rep->AmountCol(12, 13, $not_yet_due, $dec);
+        $rep->AmountCol(13, 14, $due_nxt_month, $dec);
+        $rep->AmountCol(14, 15, $due_this_month, $dec);
         $rep->SetTextColor(255, 0, 0);
-        $rep->AmountCol(14, 15, $overdue_1month, $dec);
-        $rep->AmountCol(15, 16, $overdue_2months, $dec);
+        $rep->AmountCol(15, 16, $overdue_1month, $dec);
+        $rep->AmountCol(16, 17, $overdue_2months, $dec);
         $rep->SetTextColor(0, 0, 0);
-        $rep->AmountCol(16, 17, $past_due, $dec);
-        $rep->AmountCol(17, 18, $total_collectibles, $dec);
+        $rep->AmountCol(17, 18, $past_due, $dec);
+        $rep->AmountCol(18, 19, $total_collectibles, $dec);
         $rep->fontSize += .5;
         $rep->NewLine(.5);
 
@@ -456,22 +460,22 @@ function print_transaction() {
             $rep->NewLine(2);
             $rep->Font('bold');
             $rep->TextCol(1, 2, _('Sub_Total'));
-            $rep->AmountCol(4, 5, $tot_gross, $dec);
-            $rep->AmountCol(5, 6, $tot_down, $dec);
-            $rep->AmountCol(6, 7, $tot_adj, $dec);
-            $rep->AmountCol(7, 8, $tot_rest, $dec);
-            $rep->AmountCol(8, 9, $tot_pay, $dec);
-            $rep->AmountCol(9, 10, $tot_adv, $dec);
-            $rep->AmountCol(10, 11, $tot_bal, $dec);
-            $rep->AmountCol(11, 12, $tot_notDue, $dec);
-            $rep->AmountCol(12, 13, $tot_dueNxt, $dec);
-            $rep->AmountCol(13, 14, $tot_dueThis, $dec);
+            $rep->AmountCol(5, 6, $tot_gross, $dec);
+            $rep->AmountCol(6, 7, $tot_down, $dec);
+            $rep->AmountCol(7, 8, $tot_adj, $dec);
+            $rep->AmountCol(8, 9, $tot_rest, $dec);
+            $rep->AmountCol(9, 10, $tot_pay, $dec);
+            $rep->AmountCol(10, 11, $tot_adv, $dec);
+            $rep->AmountCol(11, 12, $tot_bal, $dec);
+            $rep->AmountCol(12, 13, $tot_notDue, $dec);
+            $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+            $rep->AmountCol(14, 15, $tot_dueThis, $dec);
             $rep->SetTextColor(255, 0, 0);
-            $rep->AmountCol(14, 15, $tot_ovr1, $dec);
-            $rep->AmountCol(15, 16, $tot_ovr2, $dec);
+            $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+            $rep->AmountCol(16, 17, $tot_ovr2, $dec);
             $rep->SetTextColor(0, 0, 0);
-            $rep->AmountCol(16, 17, $tot_past, $dec);
-            $rep->AmountCol(17, 18, $tot_grand, $dec);
+            $rep->AmountCol(17, 18, $tot_past, $dec);
+            $rep->AmountCol(18, 19, $tot_grand, $dec);
             $rep->Line($rep->row  - 4);
             $rep->Font();
         }
@@ -481,22 +485,22 @@ function print_transaction() {
             $rep->NewLine(2);
             $rep->Font('bold');
             $rep->TextCol(1, 2, _('Sub_Total'));
-            $rep->AmountCol(4, 5, $tot_gross, $dec);
-            $rep->AmountCol(5, 6, $tot_down, $dec);
-            $rep->AmountCol(6, 7, $tot_adj, $dec);
-            $rep->AmountCol(7, 8, $tot_rest, $dec);
-            $rep->AmountCol(8, 9, $tot_pay, $dec);
-            $rep->AmountCol(9, 10, $tot_adv, $dec);
-            $rep->AmountCol(10, 11, $tot_bal, $dec);
-            $rep->AmountCol(11, 12, $tot_notDue, $dec);
-            $rep->AmountCol(12, 13, $tot_dueNxt, $dec);
-            $rep->AmountCol(13, 14, $tot_dueThis, $dec);
+            $rep->AmountCol(5, 6, $tot_gross, $dec);
+            $rep->AmountCol(6, 7, $tot_down, $dec);
+            $rep->AmountCol(7, 8, $tot_adj, $dec);
+            $rep->AmountCol(8, 9, $tot_rest, $dec);
+            $rep->AmountCol(9, 10, $tot_pay, $dec);
+            $rep->AmountCol(10, 11, $tot_adv, $dec);
+            $rep->AmountCol(11, 12, $tot_bal, $dec);
+            $rep->AmountCol(12, 13, $tot_notDue, $dec);
+            $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+            $rep->AmountCol(14, 15, $tot_dueThis, $dec);
             $rep->SetTextColor(255, 0, 0);
-            $rep->AmountCol(14, 15, $tot_ovr1, $dec);
-            $rep->AmountCol(15, 16, $tot_ovr2, $dec);
+            $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+            $rep->AmountCol(16, 17, $tot_ovr2, $dec);
             $rep->SetTextColor(0, 0, 0);
-            $rep->AmountCol(16, 17, $tot_past, $dec);
-            $rep->AmountCol(17, 18, $tot_grand, $dec);
+            $rep->AmountCol(17, 18, $tot_past, $dec);
+            $rep->AmountCol(18, 19, $tot_grand, $dec);
             $rep->Line($rep->row  - 4);
             $rep->Font();
         }
@@ -506,22 +510,22 @@ function print_transaction() {
             $rep->NewLine(2);
             $rep->Font('bold');
             $rep->TextCol(1, 2, _('Sub_Total'));
-            $rep->AmountCol(4, 5, $tot_gross, $dec);
-            $rep->AmountCol(5, 6, $tot_down, $dec);
-            $rep->AmountCol(6, 7, $tot_adj, $dec);
-            $rep->AmountCol(7, 8, $tot_rest, $dec);
-            $rep->AmountCol(8, 9, $tot_pay, $dec);
-            $rep->AmountCol(9, 10, $tot_adv, $dec);
-            $rep->AmountCol(10, 11, $tot_bal, $dec);
-            $rep->AmountCol(11, 12, $tot_notDue, $dec);
-            $rep->AmountCol(12, 13, $tot_dueNxt, $dec);
-            $rep->AmountCol(13, 14, $tot_dueThis, $dec);
+            $rep->AmountCol(5, 6, $tot_gross, $dec);
+            $rep->AmountCol(6, 7, $tot_down, $dec);
+            $rep->AmountCol(7, 8, $tot_adj, $dec);
+            $rep->AmountCol(8, 9, $tot_rest, $dec);
+            $rep->AmountCol(9, 10, $tot_pay, $dec);
+            $rep->AmountCol(10, 11, $tot_adv, $dec);
+            $rep->AmountCol(11, 12, $tot_bal, $dec);
+            $rep->AmountCol(12, 13, $tot_notDue, $dec);
+            $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+            $rep->AmountCol(14, 15, $tot_dueThis, $dec);
             $rep->SetTextColor(255, 0, 0);
-            $rep->AmountCol(14, 15, $tot_ovr1, $dec);
-            $rep->AmountCol(15, 16, $tot_ovr2, $dec);
+            $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+            $rep->AmountCol(16, 17, $tot_ovr2, $dec);
             $rep->SetTextColor(0, 0, 0);
-            $rep->AmountCol(16, 17, $tot_past, $dec);
-            $rep->AmountCol(17, 18, $tot_grand, $dec);
+            $rep->AmountCol(17, 18, $tot_past, $dec);
+            $rep->AmountCol(18, 19, $tot_grand, $dec);
             $rep->Line($rep->row  - 4);
             $rep->Font();
         }
@@ -533,22 +537,22 @@ function print_transaction() {
 	$rep->TextCol(1, 2, _('GRAND TOTAL:'));
     $rep->fontSize -= 2;
 
-    $rep->AmountCol(4, 5, $tot1_gross, $dec);
-    $rep->AmountCol(5, 6, $tot1_down, $dec);
-    $rep->AmountCol(6, 7, $tot1_adj, $dec);
-    $rep->AmountCol(7, 8, $tot1_rest, $dec);
-    $rep->AmountCol(8, 9, $tot1_pay, $dec);
-    $rep->AmountCol(9, 10, $tot1_adv, $dec);
-    $rep->AmountCol(10, 11, $tot1_bal, $dec);
-    $rep->AmountCol(11, 12, $tot1_notDue, $dec);
-    $rep->AmountCol(12, 13, $tot1_dueNxt, $dec);
-    $rep->AmountCol(13, 14, $tot1_dueThis, $dec);
+    $rep->AmountCol(5, 6, $tot1_gross, $dec);
+    $rep->AmountCol(6, 7, $tot1_down, $dec);
+    $rep->AmountCol(7, 8, $tot1_adj, $dec);
+    $rep->AmountCol(8, 9, $tot1_rest, $dec);
+    $rep->AmountCol(9, 10, $tot1_pay, $dec);
+    $rep->AmountCol(10, 11, $tot1_adv, $dec);
+    $rep->AmountCol(11, 12, $tot1_bal, $dec);
+    $rep->AmountCol(12, 13, $tot1_notDue, $dec);
+    $rep->AmountCol(13, 14, $tot1_dueNxt, $dec);
+    $rep->AmountCol(14, 15, $tot1_dueThis, $dec);
     $rep->SetTextColor(255, 0, 0);
-    $rep->AmountCol(14, 15, $tot1_ovr1, $dec);
-    $rep->AmountCol(15, 16, $tot1_ovr2, $dec);
+    $rep->AmountCol(15, 16, $tot1_ovr1, $dec);
+    $rep->AmountCol(16, 17, $tot1_ovr2, $dec);
     $rep->SetTextColor(0, 0, 0);
-    $rep->AmountCol(16, 17, $tot1_past, $dec);
-    $rep->AmountCol(17, 18, $tot1_grand, $dec);
+    $rep->AmountCol(17, 18, $tot1_past, $dec);
+    $rep->AmountCol(18, 19, $tot1_grand, $dec);
     
 	$rep->Line($rep->row  - 4);
     
