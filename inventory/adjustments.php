@@ -116,36 +116,31 @@ function can_process()
 
 	$adj = &$_SESSION['adj_items'];
 
-	if (count($adj->line_items) == 0)	{
+	if (count($adj->line_items) == 0) {
 		display_error(_("You must enter at least one non empty item line."));
 		set_focus('stock_id');
 		return false;
 	}
 
-	if (!check_reference($_POST['ref'], ST_INVADJUST))
-	{
+	if (!check_reference($_POST['ref'], ST_INVADJUST)) {
 		set_focus('ref');
 		return false;
 	}
 
-	if (!is_date($_POST['AdjDate'])) 
-	{
+	if (!is_date($_POST['AdjDate'])) {
 		display_error(_("The entered date for the adjustment is invalid."));
 		set_focus('AdjDate');
 		return false;
 	} 
-	elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) 
-	{
+	elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
 		display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		set_focus('AdjDate');
 		return false;
 	}
-	elseif (!$SysPrefs->allow_negative_stock())
-	{
+	elseif (!$SysPrefs->allow_negative_stock()) {
 		$low_stock = $adj->check_qoh($_POST['StockLocation'], $_POST['AdjDate']);
 
-		if ($low_stock)
-		{
+		if ($low_stock) {
     		display_error(_("The adjustment cannot be processed because it would cause negative inventory balance for marked items as of document date or later."));
 			unset($_POST['Process']);
 			return false;
@@ -206,8 +201,7 @@ function check_item_data()
 	$qoh = get_qoh_on_date($_POST['stock_id'], get_post("StockLocation"), null, get_item_type());
 	$qty = $qoh - $demand_qty;
 
-	if (input_num('qty') == 0)
-	{
+	if (input_num('qty') == 0) {
 		display_error(_("The quantity entered is invalid."));
 		set_focus('qty');
 		return false;
@@ -252,8 +246,7 @@ function check_item_data()
 	}
 	//
 
-	if (input_num('std_cost') == 0 && get_post('category') != 17 && get_post('adj_type') == 1)
-	{
+	if (input_num('std_cost') == 0 && get_post('category') != 17 && get_post('adj_type') == 1) {
 		display_error(_("Only PROMO ITEMS are allowed to have zero cost!"));
 		set_focus('std_cost');
 		return false;
@@ -270,8 +263,7 @@ function check_item_data()
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_update_item()
-{
+function handle_update_item() {
 	$id = $_POST['LineNo'];
 	$_SESSION['adj_items']->update_cart_item($id, input_num('qty'), 
 		input_num('std_cost'), 
@@ -283,26 +275,27 @@ function handle_update_item()
 	); 
 	
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
-		$_POST['lot_no'], $_POST['chasis_no']); //Added by spyrax10
+		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
+	);
 
 	line_start_focus();
 }
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_delete_item($id)
-{
+function handle_delete_item($id) {
 	$_SESSION['adj_items']->remove_from_cart($id);
 	
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
-		$_POST['lot_no'], $_POST['chasis_no']); //Added by spyrax10
+		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
+	); 
+
 	line_start_focus();
 }
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_new_item()
-{
+function handle_new_item() {
 	add_to_order($_SESSION['adj_items'], 
 		$_POST['stock_id'], 
 		input_num('qty'), 
@@ -316,15 +309,17 @@ function handle_new_item()
 	); 
 
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
-		$_POST['lot_no'], $_POST['chasis_no']); //Added by spyrax10
+		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
+	);
 	line_start_focus();
 }
 
 //-----------------------------------------------------------------------------------------------
 
 $id = find_submit('Delete');
-if ($id != -1)
+if ($id != -1) {
 	handle_delete_item($id);
+}
 
 if (isset($_POST['AddItem']) && check_item_data()) {
 	handle_new_item();
@@ -341,12 +336,13 @@ if (isset($_POST['CancelItemChanges'])) {
 
 //-----------------------------------------------------------------------------------------------
 
-if (isset($_GET['NewAdjustment']) || !isset($_SESSION['adj_items']))
-{
-	if (isset($_GET['FixedAsset']))
+if (isset($_GET['NewAdjustment']) || !isset($_SESSION['adj_items'])) {
+	if (isset($_GET['FixedAsset'])) {
 		check_db_has_disposable_fixed_assets(_("There are no fixed assets defined in the system."));
-	else
+	}
+	else {
 		check_db_has_costable_items(_("There are no inventory items defined in the system which can be adjusted (Purchased or Manufactured)."));
+	}
 
 	handle_new_order();
 }
