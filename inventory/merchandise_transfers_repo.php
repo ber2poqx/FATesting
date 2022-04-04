@@ -417,7 +417,7 @@ if(!is_null($action) || !empty($action)){
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
 
             
-            $sql = "SELECT *, sc.description as category, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
+            $sql = "SELECT *, sc.description as category, md.mt_details_status, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
 
             
             if($catcode!=0){
@@ -439,19 +439,28 @@ if(!is_null($action) || !empty($action)){
             
             while ($myrow = db_fetch($result))
             {
-                    
-                    $group_array[] = array('serialise_id'=>$serialise_id,
-                        'color' => $myrow["serialise_item_code"],
-                        'stock_description' => $myrow["stock_description"],
-                        'item_description' => $myrow["item_description"],
-                        'model' => $myrow["mt_details_stock_id"],
-                        'standard_cost' => number_format($myrow["standard_cost"],2),
-                        'qty' => number_format($myrow["mt_details_total_qty"],2),
-                        'category_id'=>$catcode,
-                        'lot_no' => $myrow["mt_details_serial_no"],
-                        'chasis_no' => $myrow["mt_details_chasis_no"],
-                        'serialise_loc_code'=>$myrow["serialise_loc_code"]
-                    );
+                if($myrow["mt_details_status"]==0){
+                    $status_msg='In-transit';
+                }elseif($myrow["mt_details_status"]==1){
+                    $status_msg='Partial';
+                }elseif($myrow["mt_details_status"]==2){
+                    $status_msg='Received';
+                }
+
+                $group_array[] = array('serialise_id'=>$serialise_id,
+                    'color' => $myrow["serialise_item_code"],
+                    'stock_description' => $myrow["stock_description"],
+                    'item_description' => $myrow["item_description"],
+                    'model' => $myrow["mt_details_stock_id"],
+                    'standard_cost' => number_format($myrow["standard_cost"],2),
+                    'qty' => number_format($myrow["mt_details_total_qty"],2),
+                    'category_id'=>$catcode,
+                    'lot_no' => $myrow["mt_details_serial_no"],
+                    'chasis_no' => $myrow["mt_details_chasis_no"],
+                    'serialise_loc_code'=>$myrow["serialise_loc_code"],
+                    'status_msg'=>$status_msg
+
+                );
                 
             }
             
