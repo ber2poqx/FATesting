@@ -154,7 +154,7 @@ function print_sales_order_report()
 
 	$rep->NewLine();
 	$rep->Line($rep->row - 2);
-	$rep->SetFooterType('compFooter');
+	//$rep->SetFooterType('compFooter');
 	$rep->fontSize -= 2;
     $rep->End();
 }

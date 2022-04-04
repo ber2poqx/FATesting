@@ -278,6 +278,6 @@ function print_PO_Report()
 	$rep->AmountCol(7, 8, $Othergrandtotal);
 	$rep->AmountCol(8, 9, $Promograndtotal);
 	$rep->AmountCol(9, 10, $Allgrandtotals);
-	$rep->SetFooterType('compFooter');
+	//$rep->SetFooterType('compFooter');
     $rep->End();
 }
