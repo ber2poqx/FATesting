@@ -1071,7 +1071,7 @@ function print_PO_Report()
         $rep->SetHeaderType('COLLECTION_Header');
     }
     else {
-        $rep->SetHeaderType('COLLECTION_Header');     
+        $rep->SetHeaderType('PO_Header');     
     }
     $rep->NewPage();
 
