@@ -351,7 +351,7 @@ class FrontReport extends Spreadsheet_Excel_Writer_Workbook
 		$str = _("Print Out Date") . ':';
 		$this->sheet->writeString($this->y, 0, $str, $this->formatLeft);
 		$this->sheet->writeString($this->y, 1, Today() . "  ".Now(), $this->formatLeft);
-		if ($this->company->writeString($this->['time_zone']))
+		if ($this->company['time_zone'])
 			$str .= ' ' . date('O') . ' GMT';
 		$str .= '  By:  ' . $this->user = $_SESSION["wa_current_user"]->name;
 
