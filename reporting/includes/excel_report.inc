@@ -334,6 +334,98 @@ class FrontReport extends Spreadsheet_Excel_Writer_Workbook
 		$this->NewLine();
 	}
 
+	//Robert Added
+	function COLLECTION_Header()
+	{
+		$tcol = $this->numcols - 1;
+		$this->sheet->setRow($this->y, 20);
+		for ($i = 0; $i < $this->numcols; $i++)
+			$this->sheet->writeBlank($this->y, $i, $this->formatTitle);
+		$this->sheet->writeString($this->y, 0, $this->title, $this->formatTitle);
+		$this->NewLine();
+		$this->sheet->mergeCells($this->y, 0, $this->y, $tcol);
+		$this->NewLine();
+		$str = _("Print Out Date") . ':';
+		$this->sheet->writeString($this->y, 0, $str, $this->formatLeft);
+		$this->sheet->writeString($this->y, 1, Today() . "  ".Now(), $this->formatLeft);
+		$this->sheet->writeString($this->y, $tcol-1, $this->company['coy_name'], $this->formatLeft);
+		$this->sheet->mergeCells($this->y, $tcol-1, $this->y, $tcol);
+
+		if ($this->company['time_zone'])
+			$str .= ' ' . date('O') . ' GMT';
+		$str .= '  By:  ' . $this->user = $_SESSION["wa_current_user"]->name;
+
+		/*$this->NewLine();
+		$str = _("Fiscal Year") . ':';
+		$this->sheet->writeString($this->y, 0, $str, $this->formatLeft);
+		$str = $this->fiscal_year;
+		$this->sheet->writeString($this->y, 1, $str, $this->formatLeft);
+		$this->sheet->mergeCells($this->y, $tcol-1, $this->y, $tcol);*/
+
+		for ($i = 1; $i < count($this->params); $i++)
+		{
+			if ($this->params[$i]['from'] != '')
+			{
+				$this->NewLine();
+				$str = $this->params[$i]['text'] . ':';
+				$this->sheet->writeString($this->y, 0, $str);
+				$str = $this->params[$i]['from'];
+				if ($this->params[$i]['to'] != '')
+					$str .= " - " . $this->params[$i]['to'];
+				$this->sheet->writeString($this->y, 1, $str, $this->formatLeft);
+				if ($i == 1)
+				{
+					$str = 'By: ' . $this->user;
+					$this->sheet->writeString($this->y, $tcol-1, $str, $this->formatLeft);
+					$this->sheet->mergeCells($this->y, $tcol-1, $this->y, $tcol);
+				}	
+			}
+		}
+		if ($this->params[0] != '') // Comments
+		{
+			$this->NewLine();
+			$str = _("Comments") . ':';
+			$this->sheet->writeString($this->y, 0, $str, $this->formatLeft);
+			$this->sheet->writeString($this->y, 1, $this->params[0], $this->formatLeft);
+		}
+		$this->NewLine(2);
+		// for column headers
+		
+		$this->formatHeaderRight->setBold(1);
+		$this->formatHeaderLeft->setBold(1);
+		
+		if ($this->headers2 != null)
+		{
+			for ($i = 0, $j = 0; $i < $this->numcols; $i++)
+			{
+				if ($this->cols2[$j] >= $this->cols[$i] && $this->cols2[$j] <= $this->cols[$i + 1])
+				{
+					if ($this->aligns2[$j] == "right")
+						$this->sheet->writeString($this->y, $i, $this->headers2[$j], $this->formatHeaderRight);
+					else	
+						$this->sheet->writeString($this->y, $i, $this->headers2[$j], $this->formatHeaderLeft);
+					$j++;	
+				}
+				else
+					$this->sheet->writeString($this->y, $i, "", $this->formatHeaderLeft);
+			}		
+			$this->NewLine();
+		}
+
+		for ($i = 0; $i < $this->numcols; $i++)
+		{
+			if (!isset($this->headers[$i]))
+				$header = "";
+			else
+				$header = $this->headers[$i];
+			if ($this->aligns[$i] == "right")
+				$this->sheet->writeString($this->y, $i, $header, $this->formatHeaderRight);
+			else	
+				$this->sheet->writeString($this->y, $i, $header, $this->formatHeaderLeft);
+		}
+		$this->NewLine();
+	}
+
 	function Header()
 	{
 		$tcol = $this->numcols - 1;
