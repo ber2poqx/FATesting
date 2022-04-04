@@ -340,18 +340,18 @@ class FrontReport extends Spreadsheet_Excel_Writer_Workbook
 		$tcol = $this->numcols - 1;
 		$this->sheet->setRow($this->y, 20);
 		for ($i = 0; $i < $this->numcols; $i++)
-			$this->sheet->writeBlank($this->y, $i, $this->formatTitle);
+		$this->sheet->writeBlank($this->y, $i, $this->formatTitle);
 		$this->sheet->writeString($this->y, 0, $this->title, $this->formatTitle);
+		$this->NewLine();
+		$this->sheet->writeString($this->y, $tcol-1, $this->company['coy_name'], $this->formatLeft);
+		$this->sheet->mergeCells($this->y, $tcol-1, $this->y, $tcol);
 		$this->NewLine();
 		$this->sheet->mergeCells($this->y, 0, $this->y, $tcol);
 		$this->NewLine();
 		$str = _("Print Out Date") . ':';
 		$this->sheet->writeString($this->y, 0, $str, $this->formatLeft);
 		$this->sheet->writeString($this->y, 1, Today() . "  ".Now(), $this->formatLeft);
-		$this->sheet->writeString($this->y, $tcol-1, $this->company['coy_name'], $this->formatLeft);
-		$this->sheet->mergeCells($this->y, $tcol-1, $this->y, $tcol);
-
-		if ($this->company['time_zone'])
+		if ($this->company->writeString($this->['time_zone']))
 			$str .= ' ' . date('O') . ' GMT';
 		$str .= '  By:  ' . $this->user = $_SESSION["wa_current_user"]->name;
 
