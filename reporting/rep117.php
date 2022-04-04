@@ -126,7 +126,13 @@ function print_sales_order_report()
 	$rep->fontSize -= 2;
     $rep->Info($params, $cols, $headers, $aligns, 
 		null, null, null, true, true, true);
-    $rep->SetHeaderType('COLLECTION_Header');
+    //$rep->SetHeaderType('COLLECTION_Header');
+    if ($destination) {
+        $rep->SetHeaderType('PO_Header');
+    }
+    else {
+        $rep->SetHeaderType('COLLECTION_Header');     
+    }
 	$rep->NewPage();
 
 	$res = getTransactions($from, $to, $Type, $status_order);

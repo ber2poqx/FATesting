@@ -218,7 +218,7 @@ function print_PO_Report()
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
     if ($destination) {
-        $rep->SetHeaderType('COLLECTION_Header');
+        $rep->SetHeaderType('PO_Header');
     }
     else {
         $rep->SetHeaderType('COLLECTION_Header');     

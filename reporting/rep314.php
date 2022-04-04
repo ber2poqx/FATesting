@@ -194,7 +194,13 @@ function print_PO_Report()
     $rep->fontSize -= 1;
     $rep->Info($params, $cols, $headers, $aligns, 
         null, null, null, true, true, true);
-    $rep->SetHeaderType('COLLECTION_Header');
+    //$rep->SetHeaderType('COLLECTION_Header');
+    if ($destination) {
+        $rep->SetHeaderType('PO_Header');
+    }
+    else {
+        $rep->SetHeaderType('COLLECTION_Header');     
+    }
     $rep->NewPage();
 
     $res = get_repo_register($to);

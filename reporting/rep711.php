@@ -102,9 +102,8 @@ function print_PO_Report()
     
     $from       = $_POST['PARAM_0'];
     $to         = $_POST['PARAM_1'];
-    $collector  = $_POST['PARAM_2'];
-    $orientation= $_POST['PARAM_3'];
-    $destination= $_POST['PARAM_4'];
+    $orientation= $_POST['PARAM_2'];
+    $destination= $_POST['PARAM_3'];
 
     if ($destination)
         include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -148,7 +147,13 @@ function print_PO_Report()
     $rep->fontSize -= 1;
     $rep->Info($params, $cols, $headers, $aligns, 
         null, null, null, true, true, true);
-    $rep->SetHeaderType('COLLECTION_Header');
+    //$rep->SetHeaderType('COLLECTION_Header');
+    if ($destination) {
+        $rep->SetHeaderType('PO_Header');
+    }
+    else {
+        $rep->SetHeaderType('COLLECTION_Header');     
+    }
     $rep->NewPage();
 
     $totalamount = 0.0;

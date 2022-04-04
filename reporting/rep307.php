@@ -166,7 +166,13 @@ function inventory_movements()
 
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
-    $rep->SetHeaderType('COLLECTION_Header');
+    //$rep->SetHeaderType('COLLECTION_Header');
+    if ($destination) {
+        $rep->SetHeaderType('PO_Header');
+    }
+    else {
+        $rep->SetHeaderType('COLLECTION_Header');     
+    }
     $rep->NewPage();
 
 	$result = fetch_items($brand_code, $category, $type);

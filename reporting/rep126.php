@@ -1068,10 +1068,10 @@ function print_PO_Report()
     $rep->Info($params, $cols, $headers, $aligns);
     //$rep->SetHeaderType('COLLECTION_Header');
     if ($destination) {
-        $rep->SetHeaderType('COLLECTION_Header');
+        $rep->SetHeaderType('PO_Header');
     }
     else {
-        $rep->SetHeaderType('PO_Header');     
+        $rep->SetHeaderType('COLLECTION_Header');     
     }
     $rep->NewPage();
 

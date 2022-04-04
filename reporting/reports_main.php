@@ -403,7 +403,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 	$reports->addReport(RC_CUSTOMER,  131, _('Collection &Report - Actual vs Target'),
 		array(	
 			_('Start Date') => 'DATEBEGIN',
-
 			_('End Date') => 'DATEEND',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'
