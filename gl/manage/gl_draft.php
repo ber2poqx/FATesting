@@ -291,7 +291,6 @@ function display_gl_post($trans_no, $trans_type) {
 				default:
 					break;
 			}
-			date_row(_("Posting Date:"), 'date_', '', true, 0, 0, 0, null, true);
 			ref_row(_("Transaction #:"), 'ref', '', $reference, false, $trans_type);
 	
 		
@@ -312,6 +311,7 @@ function display_gl_post($trans_no, $trans_type) {
 
 		if ($trans_type != 0) {
 			
+			date_row(_("Posting Date:"), 'date_', '', true, 0, 0, 0, null, true);
 			label_row($trans_type == ST_BANKDEPOSIT ? _("Receipts #: ") : _("Disbursement #: "), $row['ref_no']);
 			hidden('receipt_no', $row['ref_no']);
 

@@ -125,12 +125,12 @@ function display_bank_header(&$order)
 			*/
 		} //end of switch
 	}
-	
-	date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);
 
 	ref_row(_("Transaction #:"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
 
 	table_section(2, "33%");
+
+	date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);
 	//--------------ADDED BY ROBERT-------------//
 	$_POST['receipt_no'] = "";
 
