@@ -210,7 +210,7 @@ function get_ar_account_temprepo($start, $limit, $search)
 				LEFT JOIN ".TB_PREF."stock_category D ON D.category_id = C.category_id
 				LEFT JOIN ".TB_PREF."debtor_trans_details E ON E.debtor_trans_no = A.trans_no  AND E.debtor_trans_type = A.type
 			WHERE A.module_type = 'TEMP-REPO'
-				AND (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type = ".ST_SITERMMOD.") "
+				AND (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type = ".ST_SITERMMOD." OR A.type = ".ST_SALESRETURN.") "
 			.$sWhere."
 			ORDER BY A.repo_date DESC";
 	

@@ -140,24 +140,25 @@ if(isset($_GET['Get_termrepo'])){
             $trmd_trans_no = $tmd_item['invoice_no'];
             $trmd_trans_type = $tmd_item['debtor_trans_type'];
 
-        }else if($myrow['type'] == ST_SALESRETURN){
-
-            $rplc_result = get_replace_item($myrow['trans_no']);
-            $rplc_item = db_fetch($rplc_result);
-
-            $category_id = $myrow['category_id'];
-            $category_desc = $myrow['Catgry_desc'];
-            $model_desc = $rplc_item['description'];
-            $trmd_trans_no = 0;
-            $trmd_trans_type = 0;
-
         }else{
 
-            $category_id = $myrow['category_id'];
-            $category_desc = $myrow['Catgry_desc'];
-            $model_desc = $myrow['item_desc'];
-            $trmd_trans_no = 0;
-            $trmd_trans_type = 0;
+                $rplc_result = get_replace_item($myrow['trans_no']);
+                
+                if (db_num_rows($rplc_result) != 0){
+                    
+                    $rplc_item = db_fetch($rplc_result);
+                    $model_desc = $rplc_item['description'];
+                    $trmd_trans_no = 0;
+                    $trmd_trans_type = ST_SALESRETURN;
+
+                }else{
+                    $model_desc = $myrow['item_desc'];
+                    $trmd_trans_no = 0;
+                    $trmd_trans_type = 0;
+                }
+
+                $category_id = $myrow['category_id'];
+                $category_desc = $myrow['Catgry_desc'];
         }
 
         if($_GET['tag'] == 'zHun'){
@@ -196,8 +197,8 @@ if(isset($_GET['Get_termrepo'])){
                     'trmd_inv_type'=>$trmd_trans_type
                 );
             }
+        }
     }
-     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;

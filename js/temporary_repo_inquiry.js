@@ -200,11 +200,19 @@ Ext.onReady(function(){
 					
 					if(records.get('trans_type') == '56'){
 						Ext.getCmp('showtrmd').setValue(true);
+						Ext.getCmp('showreplce').setValue(false);
 						ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), isTrmode: true, view: true};
 						SIitemStore.proxy.extraParams = {transNo: records.get('trmd_inv_no'), transtype: records.get('trmd_inv_type')};
 					}else{
-						ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), view: true};
-						SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('trans_type')};
+						if(records.get('trmd_inv_type') == '55'){
+							Ext.getCmp('showreplce').setValue(true);
+							Ext.getCmp('showtrmd').setValue(false);
+							ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), view: true, isreplce: Ext.getCmp('showreplce').getValue()};
+							SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('trans_type'), isreplce: Ext.getCmp('showreplce').getValue()};
+						}else{
+							ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), view: true};
+							SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('trans_type')};
+						}
 					}
 					ARInvoiceStore.load();
 					SIitemStore.load();
@@ -278,11 +286,19 @@ Ext.onReady(function(){
 
 					if(records.get('trans_type') == '56'){
 						Ext.getCmp('showtrmd').setValue(true);
+						Ext.getCmp('showreplce').setValue(false);
 						ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), isTrmode: true, view: true};
 						SIitemStore.proxy.extraParams = {transNo: records.get('trmd_inv_no'), transtype: records.get('trmd_inv_type')};
 					}else{
-						ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), view: true};
-						SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('trans_type')};
+						if(records.get('trmd_inv_type') == '55'){
+							Ext.getCmp('showreplce').setValue(true);
+							Ext.getCmp('showtrmd').setValue(false);
+							ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), view: true, isreplce: Ext.getCmp('showreplce').getValue()};
+							SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('trans_type'), isreplce: Ext.getCmp('showreplce').getValue()};
+						}else{
+							ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), view: true};
+							SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('trans_type')};
+						}
 					}
 					ARInvoiceStore.load();
 					SIitemStore.load();
