@@ -34,6 +34,8 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/admin/db/users_db.inc");
 include_once($path_to_root . "/admin/db/branch_areas_db.inc");
 
+$_SESSION['language']->encoding = "UTF-8";
+
 //---------------definition for first branchlisting records in the datagrid---------
 if(isset($_GET['branchlistingleft'])){
     $admin_id = $_REQUEST['admin_id'];
@@ -205,7 +207,7 @@ if (($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM') && check_csrf_token())
     	{
     		update_user_prefs($selected_id,
     			get_post(array('user_id', 
-					normalize_chars('real_name'), 
+					'real_name', 
 					'phone', 'email', 'role_id', 'language',
 					'print_profile', 'rep_popup' => 0, 'pos', 'inactive' => 0)
 				)
@@ -218,11 +220,12 @@ if (($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM') && check_csrf_token())
     	} 
     	else 
     	{
-    		add_user($_POST['user_id'], 
-				normalize_chars($_POST['real_name']), 
-				md5($_POST['password']),
+    		add_user(
+				$_POST['user_id'], $_POST['real_name'], md5($_POST['password']),
 				$_POST['phone'], $_POST['email'], $_POST['role_id'], $_POST['language'],
-				$_POST['print_profile'], check_value('rep_popup'), $_POST['pos']);
+				$_POST['print_profile'], check_value('rep_popup'), $_POST['pos']
+			);
+			
 			$id = db_insert_id();
 			// use current user display preferences as start point for new user
 			$prefs = $_SESSION['wa_current_user']->prefs->get_all();
