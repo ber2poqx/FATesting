@@ -99,6 +99,7 @@
 						$profit_margin, 
 						$warranty_code) = $data;
 			
+				$debtor_no = utf8_encode($debtor_no);
 				/*Auto calculation*/
 				$quotient_financing_rate = $f_rate / 100;
 				$diff_lcp_downpayment = $unit_price - $d_amount;
