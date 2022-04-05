@@ -101,7 +101,7 @@ while ($row = db_fetch_assoc($res_details)) {
 }
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-    "align=right colspan=6; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+    "align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table();

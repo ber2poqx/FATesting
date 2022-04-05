@@ -16,12 +16,13 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
 include_once($path_to_root . "/includes/ui/items_cart.inc");
 
-$js = "";
+$js = '';
+
 if ($SysPrefs->use_popup_windows) {
-	$js .= get_js_open_window(800, 500);
+    $js .= get_js_open_window(900, 500);
 }
 if (user_use_date_picker()) {
-	$js .= get_js_date_picker();	
+    $js .= get_js_date_picker();
 }
 
 $page_title = "";
@@ -234,7 +235,7 @@ while ($row = db_fetch_assoc($res_details)) {
     //label_cell($bank_row['trans_no']);
     label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $bank_row['ref']), "nowrap align='center'");
     label_cell(payment_person_name($bank_row['person_type_id'], $bank_row['person_id']), "nowrap align='left'");
-    label_cell(sql2date($row['trans_date']), "nowrap align='center'");
+    label_cell(sql2date($row['trans_date']), "nowrap align='center'; style='color: blue';");
     label_cell($bank_row['receipt_no'], "nowrap align='center'");
     label_cell($bank_row['prepared_by']);
     label_cell($bank_row['pay_type'], "nowrap align='center'");
@@ -242,7 +243,7 @@ while ($row = db_fetch_assoc($res_details)) {
 }
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-    "align=right colspan=7; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+    "align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table();
