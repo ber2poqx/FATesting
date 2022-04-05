@@ -28,23 +28,28 @@ if (isset($_GET["trans_no"]))
 //Modified by spyrax10
 $title = smo_exists($trans_no, ST_INVADJUST) ? "" : "Pending ";
 $sub_title = is_invty_open_bal($trans_no, '') ? "Inventory Opening" :
-	 $systypes_array[ST_INVADJUST];
+	$systypes_array[ST_INVADJUST];
 $ext = is_smo_repo($trans_no, ST_INVADJUST) ? " (Repo) " . " #$trans_no" : " #$trans_no";
 
 display_heading($title . $sub_title . $ext);
 
 br(1);
 $adjustment_items = get_stock_adjustment_items($trans_no);
-$k = $total = $total_qty = 0;
+$k = $total = $total_qty = $count = 0;
 $header_shown = false;
-while ($adjustment = db_fetch($adjustment_items))
-{
+
+$qty_colspan = 4;
+$total_colspan = 9;
+
+while ($adjustment = db_fetch($adjustment_items)) {
+
+	$count++;
+
 	$sub_total = abs($adjustment['qty']) * $adjustment['standard_cost'];
 	$total += $sub_total;
 	$total_qty += abs($adjustment['qty']);
 
-	if (!$header_shown)
-	{
+	if (!$header_shown) {
 
 		start_table(TABLESTYLE2, "width='95%'");
 		start_row();
@@ -54,6 +59,8 @@ while ($adjustment = db_fetch($adjustment_items))
 		
 		if (is_invty_open_bal('', $adjustment['reference'])) {
 			$trans_date = sql2date($adjustment['ob_date']);
+			$qty_colspan = 5;
+			$total_colspan = 10;
 		}
 		else {
 			$trans_date = sql2date($adjustment['tran_date']);
@@ -82,23 +89,31 @@ while ($adjustment = db_fetch($adjustment_items))
 		start_table(TABLESTYLE, "width='100%'");
 
     	$th = array(
+			_(""),
 			is_invty_open_bal('', $adjustment['reference']) ? _("Date") : '',
 			_("Item Code"), 
 			_("Description"), 
 			_("Color"), 
 			_("Qty"),
     		_("Units"), 
-			_("Serial #"), _("Chassis #"), _("Unit Cost"), _("Sub Total"));
+			_("Serial #"), _("Chassis #"), _("Unit Cost"), _("Sub Total")
+		);
+
+		if (!is_invty_open_bal('', $adjustment['reference'])) {
+			unset($th[1]);
+		}
+
     	table_header($th);
 	}
 
     alt_table_row_color($k);
 
 	if (is_invty_open_bal('', $adjustment['reference'])) {
+		label_cell($count . ".)", "nowrap align='left'");
 		label_cell(sql2date($adjustment['tran_date']));
 	}
 	else {
-		label_cell('');
+		label_cell($count . ".)", "nowrap align='left'");
 	}
 
     label_cell($adjustment['stock_id']);
@@ -114,11 +129,11 @@ while ($adjustment = db_fetch($adjustment_items))
 }
 
 label_row(_("Total Quantity: "), $total_qty,
-	"align=right colspan=4; style='font-weight:bold';", "style='font-weight:bold'; align=center", 0
+	"align=right colspan=$qty_colspan; style='font-weight:bold';", "style='font-weight:bold'; align=center", 0
 );
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-	"align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+	"align=right colspan=$total_colspan; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table(1);
