@@ -236,7 +236,7 @@ function get_salesinvoice_trans($trans_no, $trans_type)
 	$sql = "SELECT
 			dm.name as Soldto
 		    ,dm.address as Address
-		    ,dt.tran_date as Date
+		    ,dt.tran_date as `Date`
 		    ,dl.months_term as Terms
 		    ,dtd.quantity as Qty
 		    ,dtd.description as Article
@@ -252,6 +252,48 @@ function get_salesinvoice_trans($trans_no, $trans_type)
 			LEFT JOIN " . TB_PREF . "debtor_loans dl on dt.debtor_no = dl.debtor_no AND dt.trans_no = dl.trans_no
 		WHERE 
 			dtd.debtor_trans_no = '" . $trans_no . "' AND dtd.quantity > 0 AND dt.type = '" . $trans_type . "'"; 	
+
+	// if ($trans_type != 1) {
+	// 	$sql .= " AND dtd.debtor_trans_type = dt.type";
+	// }
+	return db_query($sql, "No transactions were returned");
+}
+
+//ADDED BY: Prog6 04/05/2022
+function get_salesinvoice_trans_serialized($trans_no, $trans_type)
+{
+	set_global_connection();
+	$sql = "SELECT
+			dm.name as Soldto
+		    ,dm.address as Address
+		    ,dt.tran_date as `Date`
+		    ,dl.months_term as Terms
+		    ,dtd.quantity as Qty
+		    ,dtd.description as Article
+		    ,CASE
+		    	WHEN dtd.quantity <= 0 THEN ''
+		        WHEN dtd.quantity = 1 THEN 'unit'
+		        ELSE 'units' END as Unit
+		    ,CONCAT(dtd.stock_id,'-', dtd.description) as Articles
+		    ,dt.ov_amount as UnitCost 
+			,dtd.stock_id
+			,dtd.lot_no as `serial`
+			,dtd.chassis_no as `chassis`
+			,dl.firstdue_date
+			,dl.downpayment_amount as `downpayment`
+			,dl.amortization_amount as `amort`
+			,dl.rebate
+			,(dl.discount_downpayment + dl.discount_downpayment2) as `discount`
+			,SMAN.salesman_name AS `salesman`
+		FROM " . TB_PREF . "debtor_trans_details dtd
+			INNER JOIN " . TB_PREF . "debtor_trans dt on dtd.debtor_trans_no = dt.trans_no AND dtd.debtor_trans_type = dt.type
+			LEFT JOIN " . TB_PREF . "debtors_master dm on dt.debtor_no = dm.debtor_no
+			LEFT JOIN " . TB_PREF . "debtor_loans dl on dt.debtor_no = dl.debtor_no AND dt.trans_no = dl.trans_no
+			LEFT JOIN " . TB_PREF . "sales_orders SO ON dt.order_ = SO.order_no
+			LEFT JOIN " . TB_PREF . "salesman SMAN ON SO.salesman_id = SMAN.salesman_code
+		WHERE 
+			dtd.debtor_trans_no = '" . $trans_no . "' AND dtd.quantity > 0 AND dt.type = '" . $trans_type . "'
+		LIMIT 1"; 	
 
 	// if ($trans_type != 1) {
 	// 	$sql .= " AND dtd.debtor_trans_type = dt.type";
