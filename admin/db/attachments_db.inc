@@ -54,11 +54,18 @@ function delete_attachment($id)
 
 //----------------------------------------------------------------------------------------
 
-function get_attachment_string($type, $id)
-{
+function get_attachment_string($type, $id) {
 	global $path_to_root;
     $str_return = "";    
-    $sql = "SELECT * FROM ".TB_PREF."attachments WHERE type_no=".db_escape($type)." AND trans_no=".db_escape($id)." ORDER BY trans_no";
+    $sql = "SELECT * 
+		FROM ".TB_PREF."attachments 
+		WHERE type_no=".db_escape($type)." AND trans_no=".db_escape($id);
+
+	//Added by spyrax10 5 Apr 2022
+	$sql .= " AND description <> 'For Importing'";
+	$sql .= " ORDER BY trans_no";
+	//
+	
     $return = db_query($sql, "Could not retrieve attachments");
     while ($attachment = db_fetch($return))
     {
@@ -88,9 +95,16 @@ function get_attachment($id)
 	return db_fetch($result);
 }
 
-function has_attachment($type, $id)
-{
-	$sql = "SELECT DISTINCT * FROM ".TB_PREF."attachments WHERE type_no=".db_escape($type)." AND trans_no=".db_escape($id);
+function has_attachment($type, $id) {
+
+	$sql = "SELECT DISTINCT * 
+		FROM ".TB_PREF."attachments 
+		WHERE type_no=".db_escape($type)." AND trans_no=".db_escape($id);
+
+	//Added by spyrax10 5 Apr 2022
+	$sql .= " AND description <> 'For Importing'";
+	//
+
 	$result = db_query($sql, "Could not retrieve attachments");
 	$myrow = db_fetch($result);
 	if ($myrow === false)
