@@ -200,6 +200,7 @@ br();
 start_table(TABLESTYLE, "width='95%'");
 
 $th = array(
+    _(""),
     _('Transaction Type'),
     //_('Transaction #'),
     _('Reference'),
@@ -214,10 +215,11 @@ $th = array(
 table_header($th);
 
 $total = 0;
-$k = 0;
+$k = $count = 0;
 
 while ($row = db_fetch_assoc($res_details)) {
 
+    $count++;
     $cashier = $row['remit_stat'] == 'Approved' ? $row['remit_to'] : $row['remit_from'];
 
     $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $cashier, '', ''));
@@ -227,6 +229,7 @@ while ($row = db_fetch_assoc($res_details)) {
     $total += $row['amount'];
     $color = $row['amount'] > 0 ? "" : "style='color: red'";
 
+    label_cell($count . ".)", "nowrap align='left'");
     label_cell(_systype_name($row['type']), "nowrap align='left'");
     //label_cell($bank_row['trans_no']);
     label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $bank_row['ref']), "nowrap align='center'");
