@@ -345,29 +345,77 @@ if(!is_null($action) || !empty($action)){
             exit;
         break;
         case 'save_rrbr';
-            $brcode = $db_connections[user_company()]["branch_code"];
             
             set_global_connection();
-            $AdjDate = sql2date($_POST['trans_date']);
-            //$_POST['ref']=$_POST['RRBRReference'];
-            $MTreference=$_POST['MTreference'];
-            $from_loc_code=$_POST['from_loc_code'];
-            
 
-            $catcode = $_POST['catcode'];
+            $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
 
-            //display_transfer_items_serial($_SESSION['transfer_items'],$_POST['FromStockLocation'],$AdjDate);
-            //$_SESSION['transfer_items']->clear_items();
-            //unset($_SESSION['transfer_items']);
-            //exit;
-            //break;
-            $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$AdjDate, 'location'=> $brcode));
-            $totalline=count($_SESSION['transfer_items']->line_items);
-            $trans_no = add_stock_rrBranch($_SESSION['transfer_items']->line_items,$from_loc_code, $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], '', $catcode, $MTreference);
-            //new_doc_date($AdjDate);
-            $_SESSION['transfer_items']->clear_items();
-            unset($_SESSION['transfer_items']);
-            echo '({"total":"'.$totalline.'","reference":"'.$_POST['ref'].'"})';
+            //var_dump($objDataGrid);
+            if (count($objDataGrid) == 0){
+               $message = "Please Select Item";
+            } else {
+                foreach($objDataGrid as $value=>$data) 
+                {
+                    //echo $data['trans_date'];
+                    $AdjDate = sql2date($data['trans_date']);
+                    $MTreference = $data['MTreference'];
+                    $from_loc_code = $data['from_loc_code'];
+
+                    $line_item = $data['line_item'];
+                    $model = $data['model'];
+                    $quantity = $data['qty'];
+                    $currentqty = $data['currentqty'];
+                    $lot_no = $data['lot_no'];
+                    $chasis_no = $data['chasis_no'];
+                    $catcode = $data['catcode'];
+                    $item_code = $data['item_code'];
+                    $standard_cost = $data['standard_cost'];
+                    $rrbrreference = $data['rrbrreference'];
+
+                    //$AdjDate = sql2date($_POST['trans_dates']);
+                    //$_SESSION['transfer_items']->from_loc=$brcode;
+                }
+
+                $brcode = $db_connections[user_company()]["branch_code"];
+                if($rrbrreference=='') {
+                    $reference = $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$AdjDate, 'location'=> $brcode));
+                }else{
+                    $reference = $rrbrreference;
+                }    
+                if($quantity > $currentqty) {
+                    $message = "Sorry, Quantity you entered '".$quantity."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                }elseif($quantity==0) {
+                    $message = "Quantity must not be empty";
+                }else{
+                                
+                    $totalline=count($objDataGrid);
+                    
+                    //$trans_no = add_stock_rrBranch($_SESSION['transfer_items']->line_items,$from_loc_code, $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], '', $catcode, $MTreference);
+
+                    $trans_no = add_stock_rrBranch($objDataGrid, $from_loc_code, $brcode, $AdjDate, $reference, '', $catcode, 
+                    $MTreference);
+
+                    $_SESSION['transfer_items']->clear_items();
+                    unset($_SESSION['transfer_items']);
+                }
+                //$brcode = $db_connections[user_company()]["branch_code"];           
+                //$AdjDate = sql2date($_POST['trans_date']);
+                //$_POST['ref']=$_POST['RRBRReference'];
+                //$MTreference=$_POST['MTreference'];
+                //$from_loc_code=$_POST['from_loc_code'];
+                //$catcode = $_POST['catcode'];
+
+                //display_transfer_items_serial($_SESSION['transfer_items'],$_POST['FromStockLocation'],$AdjDate);
+                //$_SESSION['transfer_items']->clear_items();
+                //unset($_SESSION['transfer_items']);
+                //exit;
+                //break;
+                //$totalline=count($_SESSION['transfer_items']->line_items);
+                
+                //new_doc_date($AdjDate);               
+            }
+            echo '({"total":"'.$totalline.'","reference":"'.$reference.'","message":"'.$message.'"})';
             exit;
             break;
 
@@ -519,7 +567,7 @@ if(!is_null($action) || !empty($action)){
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
 
             
-            $sql = "SELECT *, sc.description as category, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
+            $sql = "SELECT *, sc.description as category, md.mt_details_status, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
 
             
             if($catcode!=0){
@@ -553,6 +601,14 @@ if(!is_null($action) || !empty($action)){
                 //if($myrow["serialise_qty"]>0){
                     //$serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
                     //$tandard_cost = Get_StandardCost_Plcy($branchcode,$catcode,$myrow["model"]);
+
+                    if($myrow["mt_details_status"]==0){
+                        $status_msg='In-transit';
+                    }elseif($myrow["mt_details_status"]==1){
+                        $status_msg='Partial';
+                    }elseif($myrow["mt_details_status"]==2){
+                        $status_msg='Received';
+                    }
                     
                     $group_array[] = array('serialise_id'=>$serialise_id,
                         'color' => $myrow["serialise_item_code"],
@@ -564,7 +620,8 @@ if(!is_null($action) || !empty($action)){
                         'category_id'=>$catcode,
                         'lot_no' => $myrow["mt_details_serial_no"],
                         'chasis_no' => $myrow["mt_details_chasis_no"],
-                        'serialise_loc_code'=>$myrow["serialise_loc_code"]
+                        'serialise_loc_code'=>$myrow["serialise_loc_code"],
+                        'status_msg'=>$status_msg
                     );
                 //}
                 
@@ -590,7 +647,15 @@ if(!is_null($action) || !empty($action)){
             if($start < 1)  $start = 0; if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
-            $sql = "SELECT *, sc.description as category, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description, md.mt_details_st_cost FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
+            $sql = "SELECT *, sc.description AS category, md.mt_details_total_qty AS totalqty, md.mt_details_recvd_qty AS totalrcvd,
+            sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) AS balance_total, ic.description AS item_description, 
+            sm.description AS stock_description, md.mt_details_st_cost 
+            FROM ".TB_PREF."mt_header mh 
+            LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
+            LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
+            LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code 
+            LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id 
+            WHERE mh.mt_header_id=$trans_id GROUP BY md.mt_details_id";
             
             
             $result = db_query($sql, "could not get all Serial Items");
@@ -598,6 +663,12 @@ if(!is_null($action) || !empty($action)){
             //$total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {
+                if($myrow["mt_details_status"]==2) {
+                    $balance = number_format($myrow["totalqty"],2);
+                }else{
+                    $balance = number_format($myrow["balance_total"],2);
+                }
+
                 if($myrow["mt_details_status"]==0){
                     $status_msg='In-transit';
                 }elseif($myrow["mt_details_status"]==1){
@@ -605,6 +676,7 @@ if(!is_null($action) || !empty($action)){
                 }elseif($myrow["mt_details_status"]==2){
                     $status_msg='Received';
                 }
+                
                 $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
                     'line_item' => $myrow["mt_details_id"],
                     'reference' => $myrow["mt_header_reference"],
@@ -613,7 +685,8 @@ if(!is_null($action) || !empty($action)){
                     'item_code' => $myrow["mt_details_item_code"],
                     'trans_date' => sql2date($myrow["mt_header_date"]),
                     'category' => $myrow["category"],
-                    'qty' => number_format($myrow["totalqty"],2),
+                    'qty' => $balance,
+                    'currentqty' => number_format($myrow["balance_total"],2),
                     'category_id'=>$catcode,
                     'lot_no' => $myrow["mt_details_serial_no"],
                     'chasis_no' => $myrow["mt_details_chasis_no"],
@@ -621,6 +694,7 @@ if(!is_null($action) || !empty($action)){
                     'stock_description' => $myrow["stock_description"],
                     'item_description' => $myrow["item_description"],
                     'status_msg'=>$status_msg,
+                    'status'=>$myrow["mt_details_status"],
                     'status'=>$myrow["mt_details_status"]
                 );
                 
@@ -646,15 +720,23 @@ if(!is_null($action) || !empty($action)){
             //$brcode = $db_connections[user_company()]["branch_code"];
             //$sql = "SELECT *,count(sm.qty) as totalqty, sc.description as category FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id WHERE sm.loc_code<>'$branchcode' and sm.type='".ST_MERCHANDISETRANSFER."' GROUP BY sm.reference order by trans_id desc,tran_date desc";
                        
-            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='new' GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
+            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,
+            sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 
+            FROM ".TB_PREF."mt_header mh 
+            LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
+            LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
+            WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='new' 
+            GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
             
             $result = db_query($sql, "could not get all Serial Items");
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             //$total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {
-                if($myrow["balance_total"]==0){
+                if($myrow["totalqty"]==$myrow["totalreceived"]){
                     $status='Received';
+                }elseif($myrow["totalreceived"]!=0) {
+                    $status ='Partial';
                 }else{
                     $status='In-Transit';
                 }
@@ -699,7 +781,12 @@ if(!is_null($action) || !empty($action)){
             }else{
                 $str_fromlocation="";
             }
-            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_qty FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id where mh.mt_header_tolocation='$branchcode' $str_fromlocation GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
+            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty, 
+            sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_qty 
+            FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
+            LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
+            WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation 
+            GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
             
             
             $result = db_query($sql, "could not get all Serial Items");
@@ -707,8 +794,10 @@ if(!is_null($action) || !empty($action)){
             //$total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {
-                if($myrow["balance_qty"]==0){
+                if($myrow["totalqty"]==$myrow["totalreceived"]){
                    $status_msg='Received'; 
+                }elseif ($myrow["totalreceived"] != 0) {
+                    $status_msg='Partial';
                 }else{
                     $status_msg='In-transit';
                 }

@@ -389,7 +389,7 @@ Ext.onReady(function(){
 	}
 
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty','category_id','reference'],
+		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty','category_id','reference','status_msg'],
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -484,6 +484,7 @@ Ext.onReady(function(){
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
 	
@@ -526,7 +527,11 @@ Ext.onReady(function(){
 				tooltip	: 'Select Item',
 				text 	: 'Select Item',
 				handler: function(){
-					
+					var categoryheader = Ext.getCmp('category').getValue();
+					if(categoryheader==null){
+						Ext.Msg.alert('Warning','Please select category');
+						return false;	
+					}	
 					if(!windowItemList){
 						var catcode = Ext.getCmp('category').getValue();
 						var brcode = Ext.getCmp('fromlocation').getValue();

@@ -172,20 +172,20 @@ function add_stock_merchandise_transfer_manual($Items, $location_from, $location
 }
 
 
-function add_stock_rrBranch($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0,$mtreference)
+function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, $reference, $memo_,$catcode=0,$mtreference)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('Items', 'location_from', 'location_to','date_', 'reference', 'memo_','catcode','mtreference'), $args);
+    $args = (object)array_combine(array('objDataGrid', 'location_from', 'branch_code','date_', 'reference', 'memo_','catcode','mtreference'), $args);
     $args->trans_no = 0;
     hook_db_prewrite($args,ST_RRBRANCH);
     
     $transfer_id = get_next_trans_no(ST_RRBRANCH);
 
-    $mcode = $_POST['from_loc_code'];
-    $master_file = get_db_location_name($_POST['from_loc_code']);
+    $mcode = $location_from;
+    $master_file = get_db_location_name($location_from);
     
     if ($SysPrefs->loc_notification() == 1)
     {
@@ -197,32 +197,48 @@ function add_stock_rrBranch($Items, $location_from, $location_to, $date_, $refer
     }
     $total = 0;
     include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
+    add_js_ufile($path_to_root.'/js/merchandise_transfers_in.js');
     update_mt_header($reference,$mtreference);
+
+    $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
     
-    foreach ($Items as $line_item)
+    foreach ($objDataGrid as $item)
     {
         //if ($SysPrefs->loc_notification() == 1)
             //$quantity=1;
             
             //set_global_connection();
-            update_stock_mt_details($line_item->mt_lines, $line_item->quantity);
+
+            $line_item = $item['line_item'];
+            $stock_id = $item['model'];
+            $quantity = $item['qty'];
+            $currentqty = $item['currentqty'];
+            $lot_no = $item['lot_no'];
+            $chasis_no = $item['chasis_no'];
+            $catcode = $item['catcode'];
+            $item_code = $item['item_code'];
+            $standard_cost = $item['standard_cost'];
+
+            update_stock_mt_details($line_item, $quantity, $currentqty);
             
-            $stock_gl_mt_code = get_stock_gl_code($line_item->stock_id);
-            $totalCost = $line_item->standard_cost * $line_item->quantity;
+            $stock_gl_mt_code = get_stock_gl_code($stock_id);
+            $totalCost =  str_replace(",","",$standard_cost) *  str_replace(",","",$quantity);
             /*$total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,
                 $totalCost, '', 0, $line_item->stock_id);*/
 
             $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,
-                $totalCost, '', 0, $line_item->stock_id, $mcode, $master_file);
+                $totalCost, '', 0, $stock_id, $mcode, $master_file);
             //$loc = calculate_reorder_level($location_from, $line_item, $st_ids, $st_names, $st_num, $st_reorder);
             
-            $refline = add_stock_rrbranch_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost);
+            $refline = add_stock_rrbranch_item($transfer_id, $stock_id, $location_from, $branch_code, $date_, $reference, 
+                $quantity, $lot_no, $chasis_no, $catcode,  $item_code, $standard_cost);
             //Added by Herald 03/25/2021 - insert serialise item
             //if($line_item->serialised){
                 //set_global_connection();
-                add_serialitems_detail($transfer_id,$refline,$line_item->lot_no,$line_item->quantity,'0000-00-00','0000-00-00',$line_item->item_code,$location_to, $line_item->chasis_no,ST_RRBRANCH);
-            //}
-            
+                add_serialitems_detail($transfer_id,$refline,$lot_no,$quantity,'0000-00-00','0000-00-00',
+                    $item_code,$branch_code, $chasis_no,ST_RRBRANCH);
+            //}     
     }
     
     add_comments(ST_RRBRANCH, $transfer_id, $date_, $memo_);
@@ -234,7 +250,7 @@ function add_stock_rrBranch($Items, $location_from, $location_to, $date_, $refer
     $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, '', 0, null, $mcode, $master_file);
     
     $Refs->save(ST_RRBRANCH, $transfer_id, $reference);
-    add_audit_trail(ST_RRBRANCH, $transfer_id, $date_,'RR Branch to '.$location_to);
+    add_audit_trail(ST_RRBRANCH, $transfer_id, $date_,'RR Branch to '.$branch_code);
     
     $args->trans_no = $transfer_id;
     hook_db_postwrite($args, ST_RRBRANCH);
@@ -473,12 +489,17 @@ function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $pr
     return $dbid;
 }
 
-function update_stock_mt_details($line_item,$qty=0)
+function update_stock_mt_details($line_item,$quantity=0,$currentqty)
 {
     global $def_coy;
     set_global_connection($def_coy);
+    if($quantity==$currentqty) {
+        $status = '2';
+    }else{
+        $status = '1';   
+    }
 
-    $sql = "UPDATE ".TB_PREF."mt_details SET mt_details_recvd_qty='".$qty."', mt_details_status=2";
+    $sql = "UPDATE ".TB_PREF."mt_details SET mt_details_recvd_qty='".$quantity."', mt_details_status='".$status."'";
     
         
     $sql .= " WHERE mt_details_id=".db_escape($line_item);
@@ -516,9 +537,10 @@ function add_stock_merchandise_transfer_item($transfer_id, $stock_id, $location_
     //add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, 0,0,$lot_no,$chasis_no, $category_id, $color_code);
     
 }
-function add_stock_rrbranch_item($transfer_id, $stock_id, $location_from, $location_to, $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0)
+function add_stock_rrbranch_item($transfer_id, $stock_id, $location_from, $branch_code, $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='', $standard_cost=0)
 {
-    return add_stock_move(ST_RRBRANCH, $stock_id, $transfer_id, $location_to,   $date_, $reference, $quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code);
+    return add_stock_move(ST_RRBRANCH, $stock_id, $transfer_id, $branch_code, $date_, $reference, $quantity, 
+        str_replace(",","",$standard_cost),0,$lot_no,$chasis_no, $category_id, $color_code);
     //Removed by Herald 02/06/2021
     //add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, 0,0,$lot_no,$chasis_no, $category_id, $color_code);
     

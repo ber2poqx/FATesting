@@ -70,9 +70,9 @@ Ext.onReady(function(){
 	
 	var columnModel =[
 		{header:'ID', dataIndex:'id', sortable:true, width:20,hidden: true},
-		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:60, hidden: false},
-		{header:'RR Ref#', dataIndex:'rrbrreference', sortable:true, width:70, hidden: false},
-		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:40, align:'center'},
+		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:70, hidden: false},
+		{header:'RR Ref#', dataIndex:'rrbrreference', sortable:true, width:80, hidden: false},
+		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:60, align:'center'},
 		{header:'From Location Code', dataIndex:'from_loc', sortable:true, width:90, hidden: true},
 		{header:'From Location', dataIndex:'fromlocation', sortable:true, width:90},
 		{header:'To Location', dataIndex:'tolocation', sortable:true, width:90, hidden: true},
@@ -188,12 +188,19 @@ Ext.onReady(function(){
 									xtype:'grid',
 									forceFit: true,
 									layout:'fit',
-									selModel:smCheckitem,
+									//selModel:selModel1,
+									selModel: {
+										selType: 'checkboxmodel',
+										id: 'checkidbox',
+										checkOnly: true,
+										mode: 'Multi'			
+									},	
+									plugins: [cellEditing],
 									id:'ItemSerialListingView',
 									store: MTItemListingStore,
 									columns: columnItemSerial,
-									selModel: 'cellmodel',
-								    plugins: [cellEditing],
+									//selModel: 'cellmodel',
+								    //plugins: [cellEditing],
 									dockedItems:[{
 										dock:'top',
 										xtype:'toolbar',
@@ -217,8 +224,9 @@ Ext.onReady(function(){
 												xtype:'datefield',
 												fieldLabel:'Received Date',
 												name:'trans_date',
-												id:'AdjDate'/*,
+												id:'AdjDate',/*,
 												value: new Date()*/
+												readOnly: true
 										},
 										{
 											xtype:'textfield',
@@ -269,32 +277,69 @@ Ext.onReady(function(){
 										text:'Process',
 										iconCls:'new',
 										id:'btnProcess',
-										handler: function(){
+										handler: function(grid, rowIndex, colIndex) {	
+										
+											var grid = Ext.getCmp('ItemSerialListingView');
+											var selected = grid.getSelectionModel().getSelection();
+											var gridRepoData = [];
+											count = 0;
+											Ext.each(selected, function(record) {
+												var ObjItem = {
+													RRBRReference: Ext.getCmp('RRBranchReference').getValue(),
+													from_loc_code: Ext.getCmp('from_loc_code').getValue(),
+													from_loc_code: Ext.getCmp('from_loc_code').getValue(),
+													trans_date: Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
+													MTreference: record.get('reference'),	
+													catcode: record.get('category_id'),
+
+													rrbrreference: record.get('rrbrreference'),
+
+													line_item: record.get('line_item'),
+													model: record.get('model'),	
+													qty: record.get('qty'),	
+													currentqty: record.get('currentqty'),
+													lot_no: record.get('lot_no'),
+													chasis_no: record.get('chasis_no'),
+													item_code: record.get('item_code'),
+													standard_cost: record.get('standard_cost')
+												};
+												gridRepoData.push(ObjItem);
+											});
+
+											//trans_dates: Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
+
+											//Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
 											
 											Ext.MessageBox.confirm('Confirm', 'Do you want to Process?', function (btn, text) {
 												if (btn == 'yes') {
-													Ext.getCmp('btnProcess').setDisabled(true);
+													//Ext.getCmp('btnProcess').setDisabled(true);
 													Ext.Ajax.request({
 														url : '?action=save_rrbr',
 														method: 'POST',
-														params:{
-															RRBRReference: Ext.getCmp('RRBranchReference').getValue(),
-															from_loc_code: Ext.getCmp('from_loc_code').getValue(),
-															trans_date: Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
-															ToStockLocation: to_loc,
-															FromStockLocation: from_loc,
-															catcode:catcode,
-															MTreference: reference
-														},
-														success: function (response){
+														params:{DataOnGrid: Ext.encode(gridRepoData), 
+														trans_dates: Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d")},
+														/*success: function (response){
 															
 															myInsurance.load();
 															windowItemSerialList.close();										
 														},	
 														failure: function (response){
-															Ext.getCmp('btnProcess').setDisabled(false);
+															//Ext.getCmp('btnProcess').setDisabled(false);
 													
 															Ext.MessageBox.alert('Error', 'Processing ' + records.get('id'));
+														}*/
+														success: function(response){
+															var jsonData = Ext.JSON.decode(response.responseText);
+															var errmsg = jsonData.message;
+															//Ext.getCmp('AdjDate').setValue(AdjDate);
+															if(errmsg!=''){
+																Ext.MessageBox.alert('Error',errmsg);
+															}else{
+																//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+																myInsurance.load();
+																windowItemSerialList.close();										
+																//Ext.MessageBox.alert('Success','Success Processing');
+															}
 														}
 													});
 												}
@@ -706,7 +751,7 @@ Ext.onReady(function(){
 	
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty','category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost'],
+		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item'],
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -1311,6 +1356,7 @@ Ext.onReady(function(){
 					hidden: true
 				},'->',{
 					iconCls:'windform',
+					hidden: true,
 					handler: function(){
 						//var catcode = Ext.getCmp('category').getValue();
 						
@@ -1596,7 +1642,7 @@ Ext.onReady(function(){
 		
 	}
 	function setRcvdButtonDisabled(valpass=false){
-		Ext.getCmp('btnProcess').setDisabled(valpass);
+		//Ext.getCmp('btnProcess').setDisabled(valpass);
 		
 	}
 });

@@ -454,16 +454,21 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 							<th align=right style="border:0.5px solid; padding-right: 5px;">Credit</th>					
 						</tr>
 						
-						<?php						  
-						  $type_no=$trans_num;
+						<?php				  
 						  $type = $trans_type;
-						
-						  $result = get_rr_supplier_gl($type_no,$type);				
+
+						  $trans_num_result = get_rrbranch_transno($rr_num,$trans_type = ST_RRBRANCH);
+							
+							$totaldeb = 0;
+							$totalcrid = 0;
+							$counter = 0;
+						  while ($transrow=db_fetch($trans_num_result))
+						  {
+							$type_no = $transrow["trans_no"];
+
+							$result = get_rr_supplier_gl($type_no,$type);				
 							if (db_num_rows($result) > 0)
-							{
-								$totaldeb = 0;
-								$totalcrid = 0;
-								$counter = 0;
+							{								
 								while ($myrow2=db_fetch($result))
 								{	
 									//for mcode and masterfile
@@ -494,17 +499,18 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 								    $totaldeb += $debit;
 								    $totalcrid += -$credit;
 
-								} //end while there are line items to print out
-								$display_sub_tot = price_format($totaldeb);
-								$display_sub_tots = price_format($totalcrid);
-								echo '<tr class="top_bordered">
-										<td colspan="5" style="padding-top: 5px;" align=right><b>Total</b></td>
-										<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tot.'</b></td>
-										<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tots.'</b></td>
-									</tr>';		
+								} 	
 							}
 							else
-							display_note(_("There are no line items on this dispatch."), 1, 2);										
+							display_note(_("There are no line items on this dispatch."), 1, 2);	
+						  }	//end while there are line items to print out
+							$display_sub_tot = price_format($totaldeb);
+							$display_sub_tots = price_format($totalcrid);
+							echo '<tr class="top_bordered">
+									<td colspan="5" style="padding-top: 5px;" align=right><b>Total</b></td>
+									<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tot.'</b></td>
+									<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tots.'</b></td>
+								</tr>';																
 						?>
 					</tbody>
 				</table>

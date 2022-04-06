@@ -167,7 +167,6 @@ function get_rr_details($rr_num, $trans_num, $trans_type)
 			INNER JOIN " . TB_PREF . "item_codes ic ON ic.item_code = sm.color_code
 		WHERE sm.type = '" . $trans_type . "'	
 			AND sm.item_type = 'new'		
-			AND trans_no = '" . $trans_num . "'
 			AND sm.reference = '" . $rr_num . "'";
 		return db_query($sql, "No transactions were returned");
 	}
