@@ -499,18 +499,18 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 								    $totaldeb += $debit;
 								    $totalcrid += -$credit;
 
-								} //end while there are line items to print out
-								$display_sub_tot = price_format($totaldeb);
-								$display_sub_tots = price_format($totalcrid);
-								echo '<tr class="top_bordered">
-										<td colspan="5" style="padding-top: 5px;" align=right><b>Total</b></td>
-										<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tot.'</b></td>
-										<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tots.'</b></td>
-									</tr>';		
+								} 	
 							}
 							else
 							display_note(_("There are no line items on this dispatch."), 1, 2);	
-						  }																
+						  }	//end while there are line items to print out
+							$display_sub_tot = price_format($totaldeb);
+							$display_sub_tots = price_format($totalcrid);
+							echo '<tr class="top_bordered">
+									<td colspan="5" style="padding-top: 5px;" align=right><b>Total</b></td>
+									<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tot.'</b></td>
+									<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tots.'</b></td>
+								</tr>';																
 						?>
 					</tbody>
 				</table>
