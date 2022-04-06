@@ -1034,7 +1034,7 @@ function get_customer_invoices($customer_id = '') {
 				AND DT.debtor_no = DL.debtor_no
 			INNER JOIN " . TB_PREF . "stock_category SC ON DL.category_id = SC.category_id
 			INNER JOIN " . TB_PREF . "debtors_master DM ON DT.debtor_no = DM.debtor_no
-		WHERE DT.type = " . ST_SALESINVOICE . "";
+		WHERE DT.type = " . ST_SALESINVOICE . " AND DT.payment_terms > 0";
 
 	if ($customer_id != '') {
 		$sql .= " AND DT.debtor_no = " .db_escape($customer_id);
