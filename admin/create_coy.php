@@ -86,6 +86,18 @@ function remove_connection($id) {
     return $err;
 }
 
+check_folder_directory();
+
+function check_folder_directory()
+{
+  global $SysPrefs;
+
+	if (!file_exists($SysPrefs->backup_dir_ho())) {
+		 // Create a new file or direcotry
+    	mkdir($SysPrefs->backup_dir_ho(), 0777, true);
+	}
+}
+
 //Added by Robert
 function db_import_ho($filename, $connection, $branch_code, $force=true, $init=true, $protect=false, $return_errors=false)
 {
