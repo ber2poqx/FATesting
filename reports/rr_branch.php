@@ -455,61 +455,66 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 						</tr>
 						
 						<?php				  
-						  $type = $trans_type;
+							$type = $trans_type;
 
-						  $trans_num_result = get_rrbranch_transno($rr_num,$trans_type = ST_RRBRANCH);
+							$trans_num_result = get_rrbranch_transno($rr_num,$trans_type = ST_RRBRANCH);
 							
 							$totaldeb = 0;
 							$totalcrid = 0;
 							$counter = 0;
-						  while ($transrow=db_fetch($trans_num_result))
-						  {
-							$type_no = $transrow["trans_no"];
+							while ($transrow=db_fetch($trans_num_result))
+							{
+								$type_no = $transrow["trans_no"];
 
-							$result = get_rr_supplier_gl($type_no,$type);				
-							if (db_num_rows($result) > 0)
-							{								
+								$result = get_rr_supplier_gl($type_no,$type);				
+															
 								while ($myrow2=db_fetch($result))
 								{	
-									//for mcode and masterfile
-    								$reference1 = $_GET['reference'];
-    								$rrbranch_header = get_mt_rrbranch_header($reference1);
-									$mccode = $rrbranch_header["mt_header_fromlocation"];
-									$masterfile = get_db_location_name($mccode);
-									//end//
+									if (db_num_rows($result) > 0)
+									{
+										//for mcode and masterfile
+    									$reference1 = $_GET['reference'];
+    									$rrbranch_header = get_mt_rrbranch_header($reference1);
+										$mccode = $rrbranch_header["mt_header_fromlocation"];
+										$masterfile = get_db_location_name($mccode);
+										//end//
 
-									$counter = $counter + 1;
-									$credit = $debit = 0;
-									if ($myrow2['amount'] > 0 ) 
-    									$debit += $myrow2['amount'];
+										$counter = $counter + 1;
+										$credit = $debit = 0;
+										if ($myrow2['amount'] > 0 ) 
+    										$debit += $myrow2['amount'];
     									else 
-    									$credit += $myrow2['amount'];
+    										$credit += $myrow2['amount'];
 
-									echo '<tr class="datatable">';	
-									echo '<td align=center style="border-right:0.5px solid; padding-left: 5px;">'.($counter).'</td>';
-							        echo '<td align=left style="border-right:0.5px solid; padding-left: 5px;">'.($myrow2["account"]).'</td>';
-							        echo '<td align=left style="border-right:0.5px solid; padding-left: 5px;">'.($myrow2["account_name"]).'</td>';
-									echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.($myrow2["mcode"]).'</td>';							      
-							        echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.($myrow2["master_file"]).'</td>';
-							        echo '<td align=right style="border-right:0.5px solid; padding-right: 5px;">'.($debit<=0?"-":price_format($debit)).'</td>';							      
-							        echo '<td align=right style="padding-right: 5px;">'.($credit==0?"-":price_format(-$credit)).'</td>';
-									echo '</tr>';
-								    //end_row();
+										echo '<tr class="datatable">';	
+										echo '<td align=center style="border-right:0.5px solid; padding-left: 5px;">'.($counter).'</td>';
+										echo '<td align=left style="border-right:0.5px solid; padding-left: 5px;">'.($myrow2["account"]).'</td>';
+										echo '<td align=left style="border-right:0.5px solid; padding-left: 5px;">'.($myrow2["account_name"]).'</td>';
+										echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.($myrow2["mcode"]).'</td>';							      
+										echo '<td align=left style= "border-right: 0.5px solid; padding-left: 5px;">'.($myrow2["master_file"]).'</td>';
+										echo '<td align=right style="border-right:0.5px solid; padding-right: 5px;">'.($debit<=0?"-":price_format($debit)).'</td>';							      
+										echo '<td align=right style="padding-right: 5px;">'.($credit==0?"-":price_format(-$credit)).'</td>';
+										echo '</tr>';
+										//end_row();
 
-								    $totaldeb += $debit;
-								    $totalcrid += -$credit;
-
-								} 	
-							}
-							else
-							display_note(_("There are no line items on this dispatch."), 1, 2);	
-						  }	//end while there are line items to print out
+										$totaldeb += $debit;
+										$totalcrid += -$credit;
+									}
+									else
+									{
+										display_note(_("There are no line items on this dispatch."), 1, 2);
+									}									
+								} 								
+							}	
+							
+							//end while there are line items to print out
+								
 							$display_sub_tot = price_format($totaldeb);
 							$display_sub_tots = price_format($totalcrid);
 							echo '<tr class="top_bordered">
-									<td colspan="5" style="padding-top: 5px;" align=right><b>Total</b></td>
-									<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tot.'</b></td>
-									<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tots.'</b></td>
+								<td colspan="5" style="padding-top: 5px;" align=right><b>Total</b></td>
+								<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tot.'</b></td>
+								<td style="text-align: right; padding-right: 5px;"><b>'.$display_sub_tots.'</b></td>
 								</tr>';																
 						?>
 					</tbody>

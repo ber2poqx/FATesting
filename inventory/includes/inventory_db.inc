@@ -221,11 +221,21 @@ function get_rrsupp_ref($trans_num)
 function get_rrbranch_transno($rr_num,$trans_type)
 {
 	set_global_connection();
-	$sql = "SELECT trans_no
-			FROM " . TB_PREF . "stock_moves 
-			WHERE reference = '" . $rr_num . "' AND type = '" . $trans_type . "'";
 
-	return db_query($sql, "No transactions were returned");
+	if ($trans_type == ST_RRBRANCH) {
+
+		$sql = "SELECT Distinct trans_no
+				FROM " . TB_PREF . "stock_moves 
+				WHERE reference = '" . $rr_num . "' AND type = '" . $trans_type . "'";
+		return db_query($sql, "No transactions were returned");
+	}
+	else
+	{
+		$sql = "SELECT trans_no
+				FROM " . TB_PREF . "stock_moves 
+				WHERE reference = '" . $rr_num . "' AND type = '" . $trans_type . "'";
+		return db_query($sql, "No transactions were returned");
+	}
 }
 
 //ADDED BY: Prog6 05/18/2021
