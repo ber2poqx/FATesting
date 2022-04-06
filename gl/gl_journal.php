@@ -389,7 +389,7 @@ if (isset($_POST['Process']))
 	$cart->tran_date = $_POST['date_'];
 	$cart->doc_date = $_POST['doc_date'];
 	$cart->event_date = $_POST['event_date'];
-	$cart->source_ref = $_POST['source_ref'];
+	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
 	$cart->ar_type = $_POST['ar_type'];
