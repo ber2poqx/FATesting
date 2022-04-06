@@ -392,11 +392,15 @@ if (isset($_POST['Process']))
 	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
-	$cart->ar_type = $_POST['ar_type'];
-	$cart->ar_date = $_POST['ar_date'];
-	$cart->ar_trans_no = $_POST['ar_trans_no'];
-	$cart->ar_trans_type = $_POST['ar_trans_type'];
-	$cart->ar_debtor_no = $_POST['person_id'];
+	
+	if (check_value('ar_alloc') == 1) {
+		$cart->ar_alloc = $_POST['ar_alloc'];
+		$cart->ar_type = $_POST['ar_type'];
+		$cart->ar_date = $_POST['ar_date'];
+		$cart->ar_trans_no = $_POST['ar_trans_no'];
+		$cart->ar_trans_type = $_POST['ar_trans_type'];
+		$cart->ar_debtor_no = $_POST['person_id'];
+	}
 
 	$cart->memo_ = $_POST['memo_'];
 
@@ -559,7 +563,7 @@ function check_item_data()
 	}
 
 	if (check_value('ar_alloc') == 1 && !get_post('ar_date')) {
-		display_error(_("Please Select Applied Date!"));
+		display_error(_("Please Select Loan Schedule Date!"));
 		return false;
 	}
 

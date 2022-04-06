@@ -140,18 +140,19 @@ function write_journal_entries(&$cart, $interbranch = false)
 		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date
 	);
 
-	insert_customer_alloc(
-		$date_,
-		$trans_id, 
-		$cart->ar_trans_no,
-		$cart->ar_trans_type,
-		$cart->ar_debtor_no,
-		$penalty_tot,
-		$rebate_tot,
-		0,
-		$cart->ar_date
-	);
-
+	if ($cart->ar_alloc == 1) {
+		insert_customer_alloc(
+			$date_,
+			$trans_id, 
+			$cart->ar_trans_no,
+			$cart->ar_trans_type,
+			$cart->ar_debtor_no,
+			$penalty_tot,
+			$rebate_tot,
+			0,
+			$cart->ar_date
+		);
+	}
 
 	$Refs->save($trans_type, $trans_id, $ref);
 	if ($new) {

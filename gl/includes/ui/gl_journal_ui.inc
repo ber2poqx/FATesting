@@ -31,7 +31,7 @@ function display_order_header(&$Order)
     	$Ajax->activate('ref');
     }
 
-	check_row(_('A/R Installment Allocation'), 'ar_alloc', null, true);
+	check_row(_('A/R Installment Allocation:'), 'ar_alloc', null, true);
 
 	if (check_value('ar_alloc') == 1) {
 		
@@ -61,7 +61,7 @@ function display_order_header(&$Order)
 			label_row("Model Description: ", $inv_row['model_desc']);
 			label_row("Color Description: ", $inv_row['color_code']);
 
-			sql_type_list(_("Applied For the Month of:"), 'ar_date', 
+			sql_type_list(_("Apply For the Month of:"), 'ar_date', 
 				get_customer_loansched(get_post('person_id'), $inv_row['trans_no'], $inv_row['type']), 'id', 'disp_date', 
 				'label', null, true, _("Select Schedule")
 			);
