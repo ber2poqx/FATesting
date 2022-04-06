@@ -660,13 +660,18 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
         }
     }
 
-    if (count($_SESSION['PO']->line_items[0]->list_serial) > 0 && can_process_serial()) {
-        $grn = &$_SESSION['PO'];
-        $grn_no =  add_grn_new($grn);
-        unset($_SESSION['PO']->line_items);
-        unset($_SESSION['PO']);
-        meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
+
+    if (count($_SESSION['PO']->line_items[0]->list_serial) > 0) {
+        if (!can_process_serial()) {
+            return;
+        }
     }
+
+    $grn = &$_SESSION['PO'];
+    $grn_no = add_grn_new($grn);
+    unset($_SESSION['PO']->line_items);
+    unset($_SESSION['PO']);
+    meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
     //
 
 }
