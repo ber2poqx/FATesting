@@ -514,7 +514,11 @@ Ext.onReady(function(){
 				tooltip	: 'Select Item Repo',
 				text 	: 'Select Item Repo',
 				handler: function(){
-					
+					var categoryheader = Ext.getCmp('category').getValue();
+					if(categoryheader==null){
+						Ext.Msg.alert('Warning','Please select category');
+						return false;	
+					}
 					if(!windowItemList){
 						var catcode = Ext.getCmp('category').getValue();
 						var brcode = Ext.getCmp('fromlocation').getValue();

@@ -195,6 +195,7 @@ Ext.onReady(function(){
 										checkOnly: true,
 										mode: 'Multi'			
 									},	
+									plugins: [cellEditing],
 									id:'ItemSerialListingView',
 									store: MTItemListingStore,
 									columns: columnItemSerial,
@@ -223,8 +224,9 @@ Ext.onReady(function(){
 												xtype:'datefield',
 												fieldLabel:'Received Date',
 												name:'trans_date',
-												id:'AdjDate'/*,
+												id:'AdjDate',/*,
 												value: new Date()*/
+												readOnly: true
 										},
 										{
 											xtype:'textfield',
