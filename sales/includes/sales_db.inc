@@ -1014,3 +1014,72 @@ function get_payment_location_by_category($category_id)
 	return $row[0];
 }
 /* */
+
+//Added by spyrax10 6 Apr 2022
+function get_customer_invoices($customer_id = '') {
+
+	set_global_connection();
+
+	$sql = "SELECT DT.*, DT.reference AS ar_ref, DTT.stock_id AS model, DM.debtor_ref,
+			DTT.description as model_desc, SC.description AS stock_name, DTT.color_code AS color_code,
+			CASE 
+				WHEN DT.opening_balances = 1 THEN 'Sales Invoice - Opening Balance'
+				WHEN DT.payment_terms = 0 THEN 'Sales Invoice - Cash'
+				WHEN DT.payment_terms > 0 THEN 'Sales Invoice - Installment'
+				WHEN DL.invoice_type = 'repo' THEN 'Sales Invoice - Repo'
+			END AS inv_type
+		FROM " . TB_PREF . "debtor_trans DT
+			INNER JOIN " . TB_PREF . "debtor_trans_details DTT ON DT.trans_no = DTT.debtor_trans_no
+			INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.trans_no = DL.trans_no 
+				AND DT.debtor_no = DL.debtor_no
+			INNER JOIN " . TB_PREF . "stock_category SC ON DL.category_id = SC.category_id
+			INNER JOIN " . TB_PREF . "debtors_master DM ON DT.debtor_no = DM.debtor_no
+		WHERE DT.type = " . ST_SALESINVOICE . "";
+
+	if ($customer_id != '') {
+		$sql .= " AND DT.debtor_no = " .db_escape($customer_id);
+	}
+
+	return db_query($sql, _("Cant get Customer's Invoice/s!"));
+}
+
+function get_customer_loansched($debtor_no, $trans_no, $trans_type) {
+
+	set_global_connection();
+
+	$sql = "SELECT DLS.*, DATE_FORMAT(DLS.date_due, '%M %Y') AS disp_date
+		FROM " . TB_PREF . "debtor_loan_schedule DLS 
+		WHERE DLS.trans_no = " .db_escape($trans_no) 
+			. " AND DLS.debtor_no = " .db_escape($debtor_no) 
+			. " AND DLS.trans_type = " .db_escape($trans_type);
+
+	return db_query($sql, _("Cant get Customer's Loan Schedule!"));
+}
+
+function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debtor_no, $penalty = 0, $rebate = 0, $interest = 0, $loan_id = 0) {
+
+	set_global_connection();
+
+	$date = date2sql($date_paid);
+
+	$sql = "INSERT INTO ".TB_PREF."debtor_loan_ledger 
+		(trans_no, debtor_no, trans_type_from, trans_type_to, payment_applied, penalty, rebate, interest, date_paid, payment_trans_no, alloc, loansched_id)";
+	
+	$sql .= "VALUES (
+		" . db_escape($trans_no) . ",
+		" . db_escape($debtor_no) . ",
+		" . db_escape(ST_JOURNAL) . ",
+		" . db_escape($trans_type) . ", 0, 
+		" . db_escape($penalty) . ",
+		" . db_escape($rebate) . ",
+		" . db_escape($interest) . ",
+		" . db_escape($date) . ",
+		" . db_escape($je_no) . ", 1,
+		" . db_escape($loan_id) . "
+	)";
+
+	db_query($sql, _("Cant insert Customer's Loan Allocation!"));
+}
+
+
+//

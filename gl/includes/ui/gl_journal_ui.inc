@@ -20,6 +20,8 @@ function display_order_header(&$Order)
 
 	$qes = has_quick_entries(QE_JOURNAL);
 	$new = $Order->order_id==0;
+
+	div_start('pmt_header');
 	start_outer_table(TABLESTYLE2, "width='90%'");
 	table_section(1);
 
@@ -28,6 +30,51 @@ function display_order_header(&$Order)
     	unset($_POST['ref']);
     	$Ajax->activate('ref');
     }
+
+	check_row(_('A/R Installment Allocation'), 'ar_alloc', null, true);
+
+	if (check_value('ar_alloc') == 1) {
+		
+		value_type_list(_("Entry Type: "), 'ar_type', 
+    		array(
+        		1 => 'Penalty', 
+        		2 => 'Rebate' 
+    		), 'label', null, true, '', true
+		);
+
+		customer_list_row(_("Customer:"), 'person_id', null, false, true, false, true);
+
+		if (get_post('person_id')) {
+			sql_type_list(_("Invoice No:"), 'ar_inv', 
+				get_customer_invoices(get_post('person_id')), 'ar_ref', 'ar_ref', 
+				'label', null, true, _("Select Invoice")
+			);
+		}
+	
+		if (get_post('ar_inv')) {
+
+			$inv_row = db_fetch_assoc(get_customer_invoices(get_post('person_id')));
+
+			label_row("Invoice Type: ", $inv_row['inv_type']);
+			label_row("Category: ", $inv_row['stock_name']);
+			label_row("Model: ", $inv_row['model']);
+			label_row("Model Description: ", $inv_row['model_desc']);
+			label_row("Color Description: ", $inv_row['color_code']);
+
+			sql_type_list(_("Applied For the Month of:"), 'ar_date', 
+				get_customer_loansched(get_post('person_id'), $inv_row['trans_no'], $inv_row['type']), 'id', 'disp_date', 
+				'label', null, true, _("Select Schedule")
+			);
+
+			$_POST['debtor_ref'] = $inv_row['debtor_ref'];
+			$_POST['ar_trans_no'] = $inv_row['trans_no'];
+			$_POST['ar_trans_type'] = $inv_row['type'];
+
+			hidden('debtor_ref');
+			hidden('ar_trans_no');
+			hidden('ar_trans_type');
+		}
+	}
 
 	// currencies_list_row(_('Currency:'), 'currency', null, true);
  	// if (list_updated('currency')) {
@@ -43,7 +90,14 @@ function display_order_header(&$Order)
 
     date_row(_("Document Date:"), 'doc_date', '', $new);
     date_row(_("Event Date:"), 'event_date', '', $new);
-    text_row(_("Source ref:"), 'source_ref', null, 30, 60);
+
+	if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
+		label_row(_("Source ref:"), get_post('ar_inv'));
+		hidden('source_ref', get_post('ar_inv'));
+	}
+	else {
+		text_row(_("Source ref:"), 'source_ref', null, 30, 60);
+	}
 
  	if ($new) {
 		table_section(3);
@@ -94,6 +148,7 @@ function display_order_header(&$Order)
         }
     }
 	end_outer_table(1);
+	div_end();
 }
 
 //---------------------------------------------------------------------------------
@@ -304,6 +359,10 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 			$Ajax->activate('code_id');
 			$Ajax->activate('sug_mcode');
 			$Ajax->activate('items_table');
+		}
+		if (check_value('ar_alloc') == 1 && get_post('ar_inv') ) {
+			$_POST['mcode'] = get_post('debtor_ref');
+			$Ajax->activate('mcode');
 		}
 
 		//Added by spyrax10

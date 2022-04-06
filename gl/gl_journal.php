@@ -28,6 +28,7 @@ include_once($path_to_root . "/includes/data_checks.inc");
 include_once($path_to_root . "/gl/includes/ui/gl_journal_ui.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
 include_once($path_to_root . "/gl/includes/gl_ui.inc");
+include_once($path_to_root . "/sales/includes/sales_db.inc");
 
 $js = '';
 if ($SysPrefs->use_popup_windows)
@@ -79,6 +80,18 @@ if (get_post('trans_db') && count($jnl->line_items) <= 0) {
 	global $Ajax;
 	$Ajax->activate('items_table');
 }
+
+if (get_post('ar_alloc')) {
+	$_POST['source_ref'] = '';
+	$Ajax->activate('pmt_header');
+	$Ajax->activate('items_table');
+}
+else {
+	$_POST['source_ref'] = '';
+	$Ajax->activate('pmt_header');
+	$Ajax->activate('items_table');
+}
+
 //
 
 //-----------------------------------------------------------------------------------------------
@@ -379,6 +392,11 @@ if (isset($_POST['Process']))
 	$cart->source_ref = $_POST['source_ref'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
+	$cart->ar_type = $_POST['ar_type'];
+	$cart->ar_date = $_POST['ar_date'];
+	$cart->ar_trans_no = $_POST['ar_trans_no'];
+	$cart->ar_trans_type = $_POST['ar_trans_type'];
+	$cart->ar_debtor_no = $_POST['person_id'];
 
 	$cart->memo_ = $_POST['memo_'];
 
@@ -527,6 +545,21 @@ function check_item_data()
 
 	if ($coy == $_POST['comp_id'] && $row['account_type'] == 13) {
 		display_error(_("Invalid GL Account for the selected branch!"));
+		return false;
+	}
+
+	if (check_value('ar_alloc') == 1 && !get_post('person_id')) {
+		display_error(_("Please Select Customer!"));
+		return false;
+	}
+	
+	if (check_value('ar_alloc') == 1 && !get_post('ar_inv')) {
+		display_error(_("Please Select Customer's Invoice!"));
+		return false;
+	}
+
+	if (check_value('ar_alloc') == 1 && !get_post('ar_date')) {
+		display_error(_("Please Select Applied Date!"));
 		return false;
 	}
 

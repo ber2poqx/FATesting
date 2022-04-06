@@ -36,8 +36,13 @@ class items_cart
 	var $rate;
 	var $source_ref;
 	//Added by spyrax10 10 Feb 2022
-	var $cashier; 
 	var $trans_db;
+	var $ar_type;
+	var $ar_alloc = 0;
+	var $ar_date;
+	var $ar_trans_no;
+	var $ar_trans_type;
+	var $ar_debtor_no;
 	//
 	var $vat_category;
     var $category_id; //Added by Herald 06/07/2021

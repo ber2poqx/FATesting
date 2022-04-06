@@ -100,6 +100,8 @@ function write_journal_entries(&$cart, $interbranch = false)
 {
 	global $Refs;
 
+	$rebate_tot = $penalty_tot = 0;
+
 	$date_ = $cart->tran_date;
 	$ref   = $cart->reference;
 	$memo_ = $cart->memo_;
@@ -125,10 +127,31 @@ function write_journal_entries(&$cart, $interbranch = false)
 
 	$cart->write_gl();
 
+	if ($cart->ar_type == 2) {
+		$rebate_tot = -$total;
+		$penalty_tot = 0;
+	}
+	else {
+		$penalty_tot = $total;
+		$rebate_tot = 0;
+	}
+
 	add_journal($trans_type, $trans_id, $total,	$date_ , $cart->currency, $ref,
 		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date
 	);
-	
+
+	insert_customer_alloc(
+		$date_,
+		$trans_id, 
+		$cart->ar_trans_no,
+		$cart->ar_trans_type,
+		$cart->ar_debtor_no,
+		$penalty_tot,
+		$rebate_tot,
+		0,
+		$cart->ar_date
+	);
+
 
 	$Refs->save($trans_type, $trans_id, $ref);
 	if ($new) {

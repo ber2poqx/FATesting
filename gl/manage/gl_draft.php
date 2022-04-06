@@ -562,7 +562,6 @@ function post_trans_entries($trans_type) {
 		$cart->doc_date = $_POST['doc_date'];
 		$cart->event_date = $_POST['event_date'];
 		$cart->source_ref = $row['ref_no'];
-		$cart->cashier = '';
 		$cart->trans_db = user_company();
 		$cart->memo_ = $_POST['memo_'];
 		$cart->currency = 'PHP';
