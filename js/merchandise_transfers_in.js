@@ -774,7 +774,7 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false, align:'center',
 			editor:{
 				completeOnEnter: true,
 				field:{
