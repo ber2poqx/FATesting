@@ -1024,7 +1024,6 @@ function get_customer_invoices($customer_id = '') {
 			DTT.description as model_desc, SC.description AS stock_name, DTT.color_code AS color_code,
 			CASE 
 				WHEN DT.opening_balances = 1 THEN 'Sales Invoice - Opening Balance'
-				WHEN DT.payment_terms = 0 THEN 'Sales Invoice - Cash'
 				WHEN DT.payment_terms > 0 THEN 'Sales Invoice - Installment'
 				WHEN DL.invoice_type = 'repo' THEN 'Sales Invoice - Repo'
 			END AS inv_type
