@@ -567,6 +567,11 @@ function check_item_data()
 		return false;
 	}
 
+	if ($row['account_type'] == 14 && !get_post('ar_inv')) {
+		display_error(_("Invalid GL Account! Sales Invoice Missing!"));
+		return false;
+	}
+
 	//
 
    	return true;
