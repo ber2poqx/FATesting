@@ -1079,7 +1079,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 	if ($invoice_no) {
 
 		if ($total < 0) {
-			
+
 			add_cust_allocation(
 				abs($total), 
 				ST_JOURNAL, 
@@ -1105,9 +1105,8 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
 		" . db_escape(ST_JOURNAL) . ",
-		" . db_escape($trans_type) . ", 0, 
-		" . db_escape($penalty) . ",
-		" . db_escape($rebate) . ",
+		" . db_escape($trans_type) . ", 
+		" . db_escape(abs($total)) . ", 0, 0, 
 		" . db_escape($interest) . ",
 		" . db_escape($date) . ",
 		" . db_escape($invoice_no) . ", 1,
