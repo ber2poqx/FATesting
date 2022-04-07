@@ -167,7 +167,7 @@ function print_sales_invoice_receipt($row)
 		if ($row['status'] == "Open" || $row['status'] == "Approved") {
 			return pager_link(
 				_("Print to receipt: Charge Sales Invoice"),
-				"/reports/prnt_charge_SalesInvoice.php?SI_num=" . $row["trans_no"],
+				"/reports/prnt_charge_SI_serialized.php?SI_num=" . $row["trans_no"],
 				ICON_PRINT
 			);
 		}
@@ -177,7 +177,7 @@ function print_sales_invoice_receipt($row)
 		if (get_1stpay_stat($row) == 'paid') {
 			return pager_link(
 				_("Print to receipt: Charge Sales Invoice"),
-				"/reports/prnt_charge_SalesInvoice.php?SI_num=" . $row["trans_no"],
+				"/reports/prnt_charge_SI_serialized.php?SI_num=" . $row["trans_no"],
 				ICON_PRINT
 			);
 		}

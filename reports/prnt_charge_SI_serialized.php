@@ -39,7 +39,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		margin: 0px;
 		font-size: 12px;
 		font-family: monospace;
-		font-weight: bold;
+		/*font-weight: bold;*/
 		color: blue;
 	}	
 
@@ -52,7 +52,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 
 		width: 8.5in;
 		height: 7in;
-		padding-left: 5px;
+		padding-left: 15px;
 		padding-right: 5px;
 		  }
 	  /* ... the rest of the rules ... */
@@ -79,7 +79,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	}
 
 	tr{
-		padding-bottom: 0.15cm;
+		padding-bottom: 0.10cm;
 	}
 
 
@@ -107,7 +107,7 @@ function get_detailed_unit($itemcode)
 {
 	set_global_connection();
 
-	$sql = "SELECT CONCAT(IFNULL(sc.description,'no category'), ' - ', IFNULL(ib.name,'no brand)) AS `brand`, `item_code` AS `model`, ic.color
+	$sql = "SELECT CONCAT(IFNULL(sc.description,'no category'), ' - ', IFNULL(ib.name,'no brand')) AS `brand`, `item_code` AS `model`, ic.color, sc.description as `cat_code`
 			FROM `item_codes` ic
 				LEFT JOIN `item_brand` ib ON ic.brand = ib.id
 				LEFT JOIN `stock_category` sc ON ic.category_id = sc.category_id
@@ -118,7 +118,7 @@ function get_detailed_unit($itemcode)
 ?>
 
 <?php
-	 // $si_num = "AGOR-SI00222021";
+	 //$si_num = "10";
 	$si_num = $_REQUEST['SI_num']; 
 
 	$si_result = get_salesinvoice_trans_serialized($si_num,$trans_type = ST_SALESINVOICE);
@@ -136,12 +136,14 @@ function get_detailed_unit($itemcode)
 	$ic_row = db_fetch($ic_result); //returns: brand, model & color
 
 	$qty = $myrow["Qty"];
+	$cat_code = $ic_row["cat_code"];
 	$brand = $ic_row["brand"];
 	$model = $ic_row["model"];
 	$serial = $myrow["serial"];
 	$chassis = $myrow["chassis"];
 	$color = $ic_row["color"];
-	$1st_due_date = $myrow["firstdue_date"];
+
+	$first_due_date = $myrow["firstdue_date"];
 	$downpayment = $myrow["downpayment"];
 	$monthly_payment = $myrow["amort"];
 	$rebate = $myrow["rebate"];
@@ -149,15 +151,13 @@ function get_detailed_unit($itemcode)
 	$unit_total = $qty * $unit_price;
 	$discount = $myrow["discount"];
 	$total_sales_VAT_incl = $unit_price - $discount;
-	$less_VAT = $total_sales_VAT_incl * 10.714%; // adjust tax rate percentage here
+	$less_VAT = $total_sales_VAT_incl * 0.10714; // adjust tax rate percentage here 10.7%
 	$amount_Net_of_VAT = $total_sales_VAT_incl - $less_VAT;
 	$amount_due = $amount_Net_of_VAT;
 	$add_VAT = $less_VAT;
 	$TOTAL_amount_due = $amount_due + $add_VAT;
 	$cashier = $_SESSION["wa_current_user"]->name;
 	$sales_agent = $myrow["salesman"];
-	
-		
 ?>
 
 
@@ -165,7 +165,7 @@ function get_detailed_unit($itemcode)
 
 	<div class="main printable">
 
-		<div style="height: 3.7cm"></div> <!-- header height -->
+		<div style="height: 3.5cm"></div> <!-- header height -->
 
 		<div class="row">
 			<div class="line1" style="width: 4.4cm;"></div> <!-- Sold_to Left indent -->
@@ -178,13 +178,13 @@ function get_detailed_unit($itemcode)
 		</div>
 
 
-		<div style="height: 0.2cm"> </div> <!-- Vertical height -->
+		<div style="height: 0.1cm"> </div> <!-- Vertical height -->
 
 
 		<div>
 			<div class="line1" style="width: 16.03cm;"></div>
 
-			<div class="line1" style="width: 3.1cm; text-align: center;"><?php echo $terms?> terms</div> <!-- Month Terms -->
+			<div class="line1" style="width: 3.1cm; text-align: center;"><?php echo $terms?> Months</div> <!-- Month Terms -->
 		</div>
 
 
@@ -198,7 +198,7 @@ function get_detailed_unit($itemcode)
 		</div>
 
 
-		<div style="height: 1.8cm"></div> <!-- table top spacing -->
+		<div style="height: 2cm"></div> <!-- table top spacing -->
 
 
 		<div style="border: 0px solid;height: 5.2cm">
@@ -206,39 +206,129 @@ function get_detailed_unit($itemcode)
 			<div class="line1" style="width: 1cm;"></div> <!-- table left spacing -->
 
 			<table class="line1">
-				<?php						  
-					  
-				  	$result = get_salesinvoice_trans($si_num,$trans_type = ST_SALESINVOICE);				
-					// if (db_num_rows($result) > 0 && db_num_rows($result) <= 5)
-					if (db_num_rows($result) <= 5)
+				<?php
+				  	echo '<tr >'; // 1st ROW
+					echo '<td align=left style="padding-left: 0px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">'.$qty.'  Brand : '.($brand).'</td>'; // QTY & BRAND
+					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.10cm;">'.price_format($unit_price,2).'</td>'; // UNIT COST
+					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.10cm;">'.price_format($unit_total,2).'</td>'; // SUBTOTAL
+					echo '</tr>';		
+					
+					echo '<tr >'; // 2nd ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Model : '.($model).'</td>'; // MODEL
+					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.10cm;">Discount: </td>'; // DISCOUNT LABEL
+					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.10cm;">'.price_format($discount,2).'</td>'; // DISCOUNT AMOUNT
+					echo '</tr>';
+
+					echo '<tr >'; // 3rd ROW
+					if($cat_code == "MOTORCYCLE")
 					{
-						$total = 0;
-						$subtotal = 0;
-
-						while ($myrow2=db_fetch($result))
-						{	
-							$subtotal = $myrow2["Qty"]*$myrow2["UnitCost"];
-							
-
-							echo '<tr >';
-							echo '<td align=center style="padding-left: 5px; width: 3.6cm; text-align: center; padding-bottom: 0.15cm;">'.($myrow2["Qty"]).'</td>';
-							echo '<td align=center style="padding-left: 5px;width: 2.1cm; text-align: center; padding-bottom: 0.15cm;">'.($myrow2["Unit"]).'</td>';
-							echo '<td align=center style="padding-left: 5px;width: 6.4cm; text-align: left; padding-bottom: 0.15cm;">'.($myrow2["Article"]).'</td>';
-							echo '<td align=center style="width: 2.9cm; text-align: right; padding-bottom: 0.15cm;">'.price_format($myrow2["UnitCost"],2).'</td>';
-							echo '<td align=center style="width: 2.5cm; text-align: right; padding-bottom: 0.15cm;">'.price_format($subtotal,2).'</td>';
-							echo '</tr>';
-						    //end_row();
-
-						    $total += $subtotal;
-
-						} //end while there are line items to print out
-						$display_total = price_format($total);
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Engine # : '.($serial).'</td>'; // MC ENGINE #
 					}
-					else if (db_num_rows($result) > 5) {
-						display_note(_("Number of items exceeded receipt lines."), 1, 2);
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Serial # : '.($serial).'</td>'; // SERIAL #
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 4th ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Chassis # : '.($chassis).'</td>'; // MC CHASSIS #
 					}
-					else
-					display_note(_("There are no line items on this dispatch."), 1, 2);										
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">1st Due Date : '.($first_due_date).'</td>'; // 1st due date
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 5th ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Color : '.($color).'</td>'; // MC COLOR
+					}
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Downpayment : '.price_format($downpayment,2).'</td>'; // downpayment
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 6th ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">1st Due Date : '.($first_due_date).'</td>'; // 1st due date
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($total_sales_VAT_incl,2).'</td>'; // total sales includes VAT
+					}
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Monthly payment : '.price_format($monthly_payment,2).'</td>'; // Monthly payment
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($total_sales_VAT_incl,2).'</td>'; // total sales includes VAT
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 7th ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Downpayment : '.price_format($downpayment,2).'</td>'; // downpayment
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($less_VAT,2).'</td>'; // less VAT
+					}
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Rebate : '.price_format($rebate,22).'</td>'; // rebate
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($less_VAT,2).'</td>'; // less VAT
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 8th ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Monthly payment : '.price_format($monthly_payment,2).'</td>'; // Monthly payment
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($amount_Net_of_VAT,2).'</td>'; // amount_Net_of_VAT
+					}
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($amount_Net_of_VAT,2).'</td>'; // amount_Net_of_VAT
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 9th ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Rebate : '.price_format($rebate,22).'</td>'; // rebate
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">.</td>'; // SC/PWD discount
+					}
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">.</td>'; // SC/PWD discount
+					}								
+					echo '</tr>';
+
+					echo '<tr >'; // 10th ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;"></td>'; // blank
+					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($amount_due,2).'</td>'; // Amount Due					
+					echo '</tr>';
+
+					echo '<tr >'; // 11th ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;"></td>'; // blank
+					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($add_VAT,2).'</td>'; // Add: VAT				
+					echo '</tr>';
+
+					echo '<tr >'; // 12th ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;"></td>'; // blank
+					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
+					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($TOTAL_amount_due,2).'</td>'; // Total Amount Due		
+					echo '</tr>';
 				?>
 			</table>	
 
@@ -246,10 +336,15 @@ function get_detailed_unit($itemcode)
 		<div id="Total"><?php echo $display_total ?></div> <!-- TOTAL AMOUNT POSITION -->
 
 		<div>
-			<div class="line1" style="border: 0px solid; width: 13cm;"></div> <!-- LEFT SPACING OF CASHIER NAME -->
+			<div class="line1" style="border: 0px solid; width: 5.5cm; text-align: center;"></div> <!-- LEFT SPACING OF sales agent -->
+			<div class="line1" style="border: 0px solid; width: 6cm; text-align: center;"><?php echo $sales_agent ?></div> <!-- SALES AGENT PLACEMENT -->
+			<div class="line1" style="border: 0px solid; width: 0.5cm; text-align: center;"></div> <!-- LEFT SPACING OF CASHIER NAME -->
 
-			<div class="line1" style="border: 0px solid; width: 5.6cm; text-align: center; text-transform: uppercase;"><?php echo $_SESSION["wa_current_user"]->name ?></div> <!-- CASHIER NAME POSITION -->
-		</div>		
+			<div class="line1" style="border-bottom: 0px solid; width: 5.6cm; text-align: center; text-transform: uppercase; padding-bottom: 0.02cm;"><?php echo $_SESSION["wa_current_user"]->name ?></div> <!-- CASHIER NAME POSITION -->
+		</div>	
+		<div class="line1" style="border: 0px solid; width: 5.5cm; text-align: center;"></div> <!-- LEFT SPACING OF sales agent -->
+		<div class="line1" style="border-top: 1px solid; width: 6cm; text-align: center;">Sales Agent</div> <!--  -->
+		<div class="line1" style="border: 0px solid; width: 1.5cm; text-align: center;"></div> <!-- LEFT SPACING OF CASHIER NAME -->
 
 	<script type="text/javascript">
 		window.print();
