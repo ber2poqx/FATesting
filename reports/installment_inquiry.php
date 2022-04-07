@@ -29,7 +29,7 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			F.stock_id, F.description AS ITEMDES, F.lot_no, F.chassis_no, F.quantity, 
 			F.unit_price, F.standard_cost, F.discount1 AS Discount,
 		    F.discount2 AS OtherDiscount,
-		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR,
+		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR, H.salesman_id, I.salesman_name,
 			CASE WHEN B.months_term = 0 THEN 'CASH'
 			ELSE 'INSTALLMENT' END AS Payment_type
 			FROM ".TB_PREF."debtor_trans A 
@@ -39,6 +39,8 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			LEFT JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 			LEFT JOIN ".TB_PREF."debtor_trans_details F ON F.debtor_trans_no = A.trans_no AND F.debtor_trans_type = A.type
 			LEFT JOIN ".TB_PREF."item_codes G ON G.item_code = F.color_code
+			LEFT JOIN ".TB_PREF."sales_orders H ON A.order_ = H.order_no
+			LEFT JOIN ".TB_PREF."salesman I ON H.salesman_id = I.salesman_code
 			WHERE (A.type = ".ST_SALESINVOICE.") 
 			AND A.trans_no = '" . $trans_no . "'
 			GROUP BY A.reference, A.trans_no, F.stock_id
@@ -57,7 +59,7 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			F.stock_id, F.description AS ITEMDES, F.lot_no, F.chassis_no, F.quantity, 
 			F.unit_price, F.standard_cost, F.discount1 AS Discount,
 		    F.discount2 AS OtherDiscount,
-		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR,
+		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR, H.salesman_id, I.salesman_name,
 			CASE WHEN B.months_term = 0 THEN 'CASH'
 			ELSE 'INSTALLMENT' END AS Payment_type
 			FROM ".TB_PREF."debtor_trans A 
@@ -67,6 +69,8 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			LEFT JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 			LEFT JOIN ".TB_PREF."debtor_trans_details F ON F.debtor_trans_no = A.trans_no AND F.debtor_trans_type = A.type
 			LEFT JOIN ".TB_PREF."item_codes G ON G.item_code = F.color_code
+			LEFT JOIN ".TB_PREF."sales_orders H ON A.order_ = H.order_no
+			LEFT JOIN ".TB_PREF."salesman I ON H.salesman_id = I.salesman_code
 			WHERE (A.type = ".ST_ARINVCINSTLITM.") 
 			AND A.trans_no = '" . $trans_no . "'
 			GROUP BY A.reference, A.trans_no, F.stock_id
@@ -85,7 +89,7 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			F.stock_id, F.description AS ITEMDES, F.lot_no, F.chassis_no, F.quantity, 
 			F.unit_price, F.standard_cost, F.discount1 AS Discount,
 		    F.discount2 AS OtherDiscount,
-		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR,
+		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR, H.salesman_id, I.salesman_name,
 			CASE WHEN B.months_term = 0 THEN 'CASH'
 			ELSE 'INSTALLMENT' END AS Payment_type
 			FROM ".TB_PREF."debtor_trans A 
@@ -95,6 +99,8 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			LEFT JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 			LEFT JOIN ".TB_PREF."debtor_trans_details F ON F.debtor_trans_no = A.trans_no AND F.debtor_trans_type = A.type
 			LEFT JOIN ".TB_PREF."item_codes G ON G.item_code = F.color_code
+			LEFT JOIN ".TB_PREF."sales_orders H ON A.order_ = H.order_no
+			LEFT JOIN ".TB_PREF."salesman I ON H.salesman_id = I.salesman_code
 			WHERE (A.type = ".ST_SALESINVOICEREPO.") 
 			AND A.trans_no = '" . $trans_no . "'
 			GROUP BY A.reference, A.trans_no, F.stock_id
@@ -108,7 +114,7 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			F.stock_id, F.description AS ITEMDES, F.lot_no, F.chassis_no, F.quantity, 
 			F.unit_price, F.standard_cost, F.discount1 AS Discount,
 		    F.discount2 AS OtherDiscount,
-		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR,
+		    F.unit_price * F.quantity AS linetotal, G.description AS COLOR, H.salesman_id, I.salesman_name,
 			CASE WHEN TM.months_term = 0 THEN 'CASH'
 			ELSE 'INSTALLMENT' END AS Payment_type
 			FROM ".TB_PREF."debtor_trans A 
@@ -119,6 +125,8 @@ function get_ar_installmentss($trans_no, $type, $branch_code)
 			LEFT JOIN ".TB_PREF."stock_category E ON E.category_id = TM.category_id
 			LEFT JOIN ".TB_PREF."debtor_trans_details F ON F.debtor_trans_no = B.trans_no
 			LEFT JOIN ".TB_PREF."item_codes G ON G.item_code = F.color_code
+			LEFT JOIN ".TB_PREF."sales_orders H ON A.order_ = H.order_no
+			LEFT JOIN ".TB_PREF."salesman I ON H.salesman_id = I.salesman_code
 			WHERE (A.type =".ST_SITERMMOD.") 
 			AND A.trans_no = '" . $trans_no . "'
 			GROUP BY A.reference, A.trans_no
@@ -399,6 +407,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 		$warranty_code = $myrow["warranty_code"];
 		$debtor_no = $myrow["debtor_no"];
 		$type = $myrow["type"];
+		$salesman_name = $myrow["salesman_name"];
 
 		$months_term = $myrow["monthterms"];
 		$rebate = price_format($myrow["rebate"]);
@@ -490,7 +499,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 							
 						</tr>
 						<tr class="text-left">
-							<td style= "border: 1px solid;"></td><td></td>
+							<td style= "border: 1px solid;">Sales Person</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $salesman_name?></td>
 							<td style= "border: 1px solid;">Gross</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $ar_amount?></td>	
 							<td style= "border: 1px solid;">Balance</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $balance_amount?></td>
 
