@@ -128,12 +128,12 @@ function write_journal_entries(&$cart, $interbranch = false)
 	$cart->write_gl();
 
 	if ($cart->ar_type == 2) {
-		$rebate_tot = -$total;
-		$penalty_tot = 0;
+		$penalty_tot = -$total;
+		$rebate_tot = 0;
 	}
 	else {
-		$penalty_tot = $total;
-		$rebate_tot = 0;
+		$rebate_tot = $total;
+		$penalty_tot = 0;
 	}
 
 	add_journal($trans_type, $trans_id, $total,	$date_ , $cart->currency, $ref,
@@ -150,7 +150,8 @@ function write_journal_entries(&$cart, $interbranch = false)
 			$penalty_tot,
 			$rebate_tot,
 			0,
-			$cart->ar_date
+			$cart->ar_date,
+			$ref
 		);
 	}
 

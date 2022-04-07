@@ -40,7 +40,7 @@ class items_cart
 	var $ar_type;
 	var $ar_alloc = 0;
 	var $ar_date;
-	var $ar_trans_no;
+	var $ar_trans_no = 0;
 	var $ar_trans_type;
 	var $ar_debtor_no;
 	//
@@ -477,8 +477,8 @@ class items_cart
 	/*
 		Write transaction GL postings, creating tax records and updating AP/AR/bank ledger if needed.
 	*/
-	function write_gl($check_balance = true)
-	{
+	function write_gl($check_balance = true) {
+
 		$coy = user_company();
 
 		$delta = $this->gl_items_total();
@@ -496,10 +496,26 @@ class items_cart
 			if (!isset($gl->date))
 				$gl->date = $this->tran_date;
 
-			$total_gl += add_gl_trans($this->trans_type, $this->order_id, $gl->date, $gl->code_id, $gl->dimension_id, $gl->dimension2_id, 
-				$this->memo_, $gl->amount, $this->currency, $gl->person_type_id, $gl->person_id, "", $this->rate, $gl->mcode, $gl->master_file, $gl->hocbc,
-				0, $gl->comp_id != $coy ? 1 : 0
-			);
+			$total_gl += 
+				add_gl_trans(
+					$this->trans_type, 
+					$this->order_id, 
+					$gl->date, 
+					$gl->code_id, 
+					$gl->dimension_id, 
+					$gl->dimension2_id, 
+					$this->memo_, 
+					$gl->amount, 
+					$this->currency, 
+					$gl->person_type_id, 
+					$gl->person_id, "", 
+					$this->rate, 
+					$gl->mcode, 
+					$gl->master_file, 
+					$gl->hocbc,
+					$this->order_id, 
+					$gl->comp_id != $coy ? 1 : 0
+				);
 
 			// post to first found bank account using given gl acount code.
 			$is_bank_to = is_bank_account($gl->code_id);
@@ -569,8 +585,14 @@ class items_cart
 		}
 		// post currency roundings if any
 		if ($check_balance && floatcmp($total_gl, 0))
-			add_gl_trans($this->trans_type, $this->order_id, $this->tran_date, 
-				get_company_pref($total_gl>0 ? 'rounding_db_act' : 'rounding_cr_act'), 0, 0, _('Exchange rate roundings'), -$total_gl);
+			add_gl_trans(
+				$this->trans_type, 
+				$this->order_id, 
+				$this->tran_date, 
+				get_company_pref($total_gl>0 ? 'rounding_db_act' : 'rounding_cr_act'), 0, 0, 
+				_('Exchange rate roundings'), 
+				-$total_gl
+			);
 
 		// update bank ledger if used
 		foreach($bank_trans as $bank_id => $amount)

@@ -31,14 +31,14 @@ function display_order_header(&$Order)
     	$Ajax->activate('ref');
     }
 
-	check_row(_('A/R Installment Allocation:'), 'ar_alloc', null, true);
+	check_row(_('A/R Installment Adjustment:'), 'ar_alloc', null, true);
 
 	if (check_value('ar_alloc') == 1) {
 		
 		value_type_list(_("Entry Type: "), 'ar_type', 
     		array(
-        		1 => 'Penalty', 
-        		2 => 'Rebate' 
+        		1 => 'Adjustment (+)', 
+        		2 => 'Adjustment (-)' 
     		), 'label', null, true, '', true
 		);
 

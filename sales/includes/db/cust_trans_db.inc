@@ -99,10 +99,13 @@ function write_customer_trans(
 		$Total = -$Total;
 
 	if ($new || !exists_customer_trans($trans_type, $trans_no)) {
-		if ($new) { //Modified by spyrax10
+		if ($new) { //Modified by spyrax10 7 Apr 2022
 			if ($trans_type == ST_SALESINVOICEREPO || $trans_type == ST_SALESINVOICE) {
 				$max_num = max(get_max_trans_no(ST_SALESINVOICE), get_max_trans_no(ST_SALESINVOICEREPO));
 				$trans_no =  $max_num + 1;
+			}
+			else if ($trans_type == ST_JOURNAL) {
+				$trans_no = get_max_trans_no(ST_JOURNAL);
 			}
 			else {
 				$trans_no = get_next_trans_no($trans_type);
