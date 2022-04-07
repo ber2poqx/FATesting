@@ -71,8 +71,8 @@ Ext.onReady(function(){
 								title:'Item Listing',
 								id:'windowItemSSerialList',
 								modal: true,
-								width: 900,
-								height:400,
+								width: 1000,
+								height:470,
 								bodyPadding: 5,
 								layout:'fit',
 								items:[

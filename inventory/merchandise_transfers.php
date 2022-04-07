@@ -366,6 +366,7 @@ if(!is_null($action) || !empty($action)){
                     $model = $data['model'];
                     $quantity = $data['qty'];
                     $currentqty = $data['currentqty'];
+                    $receivedqty = $data['receivedqty'];
                     $lot_no = $data['lot_no'];
                     $chasis_no = $data['chasis_no'];
                     $catcode = $data['catcode'];
@@ -687,6 +688,7 @@ if(!is_null($action) || !empty($action)){
                     'category' => $myrow["category"],
                     'qty' => $balance,
                     'currentqty' => number_format($myrow["balance_total"],2),
+                    'receivedqty' => number_format($myrow["totalrcvd"],2),
                     'category_id'=>$catcode,
                     'lot_no' => $myrow["mt_details_serial_no"],
                     'chasis_no' => $myrow["mt_details_chasis_no"],

@@ -298,6 +298,7 @@ Ext.onReady(function(){
 													model: record.get('model'),	
 													qty: record.get('qty'),	
 													currentqty: record.get('currentqty'),
+													receivedqty: record.get('receivedqty'),
 													lot_no: record.get('lot_no'),
 													chasis_no: record.get('chasis_no'),
 													item_code: record.get('item_code'),
@@ -751,7 +752,7 @@ Ext.onReady(function(){
 	
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item'],
+		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'receivedqty', 'category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item'],
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
