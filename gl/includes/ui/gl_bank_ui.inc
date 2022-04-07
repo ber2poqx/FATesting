@@ -423,22 +423,22 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 		if (isset($_POST['_code_id_update'])) {
 			$Ajax->activate('code_id');
 		}
-		if (list_updated('PayType') || list_updated('person_id')) {
-			if ($_POST['PayType'] == PT_CUSTOMER) {
-				$acc = get_branch_accounts($_POST['PersonDetailID']);
-				$_POST['code_id'] = $acc['receivables_account'];
-			} elseif ($_POST['PayType'] == PT_SUPPLIER) {
-				$acc = get_supplier_accounts($_POST['person_id']);
-				$_POST['code_id'] = $acc['payable_account'];
-				$_POST['dimension_id'] = $acc['dimension_id'];
-				$_POST['dimension2_id'] = $acc['dimension2_id'];
-			} else {
-				$_POST['code_id'] =
-					get_company_pref($payment ? 'default_cogs_act' : 'default_inv_sales_act');
-			}
-			$Ajax->activate('dimension_id');
-			$Ajax->activate('dimension2_id');
-		}
+		// if (list_updated('PayType') || list_updated('person_id')) {
+		// 	if ($_POST['PayType'] == PT_CUSTOMER) {
+		// 		$acc = get_branch_accounts($_POST['PersonDetailID']);
+		// 		$_POST['code_id'] = $acc['receivables_account'];
+		// 	} elseif ($_POST['PayType'] == PT_SUPPLIER) {
+		// 		$acc = get_supplier_accounts($_POST['person_id']);
+		// 		$_POST['code_id'] = $acc['payable_account'];
+		// 		$_POST['dimension_id'] = $acc['dimension_id'];
+		// 		$_POST['dimension2_id'] = $acc['dimension2_id'];
+		// 	} else {
+		// 		$_POST['code_id'] =
+		// 			get_company_pref($payment ? 'default_cogs_act' : 'default_inv_sales_act');
+		// 	}
+		// 	$Ajax->activate('dimension_id');
+		// 	$Ajax->activate('dimension2_id');
+		// }
 	}
 	//Added by spyrax10
 	company_list_row(null, 'comp_id', $id != -1 ? false : true);
