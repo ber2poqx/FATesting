@@ -38,7 +38,7 @@ if(isset($_GET['get_Customer']))
 {
     if(!empty($_GET['debtor_ref'])){
         $myrow = get_customer_by_ref($_GET['debtor_ref']);
-
+        
         $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                     'debtor_ref'=>$myrow["debtor_ref"],
                     'name'=>htmlentities($myrow["name"])
@@ -47,6 +47,7 @@ if(isset($_GET['get_Customer']))
         $result = get_customer_account_repo($_GET['rtype']);
 
         $total = DB_num_rows($result);
+        
         while ($myrow = db_fetch($result)) {
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                                    'debtor_ref'=>$myrow["debtor_ref"],
@@ -60,7 +61,11 @@ if(isset($_GET['get_Customer']))
 }
 if(isset($_GET['get_InvoiceNo']))
 {
-    $result = get_invoice_per_customer($_GET['debtor_id'], $_GET['rtype']);
+    if($_GET['rtype'] == 'trmode') {
+        $result = get_invtermode_to_repo($_GET['debtor_id'], true);
+    }else{
+        $result = get_invoice_per_customer_repo($_GET['debtor_id'], $_GET['rtype']);
+    }
     
     $total = DB_num_rows($result);
     $addon_amount = get_company_pref('addon_amount');
@@ -424,4 +429,3 @@ end_table();
 
 end_form();
 end_page();
-

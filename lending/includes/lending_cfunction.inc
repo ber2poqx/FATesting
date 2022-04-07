@@ -306,3 +306,13 @@ function check_transdate($due_date, $trans_date)
 
     return $value;
 }
+
+function check_two_dates($trans_date, $repo_date)
+{
+    $date1 =  new DateTime($trans_date);
+    $date2 =  new DateTime($repo_date);
+
+    $diffdate = date_diff($date1, $date2);
+
+    return $diffdate->format("%r%a");
+}

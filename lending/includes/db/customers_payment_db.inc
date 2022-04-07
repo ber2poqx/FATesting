@@ -721,16 +721,6 @@ function get_debtor_invoice_date($trans_no, $debtor_no, $type)
 	return $row[0];
 }
 
-function check_two_dates($trans_date, $repo_date)
-{
-    $date1 =  new DateTime($trans_date);
-    $date2 =  new DateTime($repo_date);
-
-    $diffdate = date_diff($date1, $date2);
-
-    return $diffdate->format("%r%a");
-}
-
 function get_deptors_termmode($trans_no, $debtor_no, $type)
 {
 	$sql = "SELECT A.*

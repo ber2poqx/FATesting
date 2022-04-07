@@ -123,11 +123,11 @@ Ext.onReady(function(){
 		data : 	[
             {"id":"new","name":"New"},
             {'id':'repo','name':'Repo'},
-			{"id":"trans","name":"Trans"},
-			{"id":"others","name":"Others"},
 			{"id":"replcmnt","name":"Replacement"},
-			{"id":"repoOthrB","name":"From Other Branch"},
-			{"id":"openar","name":"Opening AR Invoice"}
+			{"id":"mt","name":"Merchandise "},
+			{"id":"trmode","name":"AR Term mode"},
+			{"id":"openar","name":"AR Opening"},
+			{"id":"arlend","name":"From AR lending"}
         ]
 	});
 	var CustomerStore = Ext.create('Ext.data.Store', {
@@ -406,7 +406,7 @@ Ext.onReady(function(){
 		handler: function(){
 			submit_form.getForm().reset();
 			
-			CustomerStore.proxy.extraParams = {debtor_ref: ''};
+			CustomerStore.proxy.extraParams = {rtype: 'new', debtor_id: ''};
 			CustomerStore.load();
 
 			Ext.getCmp('repo_type').setValue("new");
@@ -534,7 +534,7 @@ Ext.onReady(function(){
 						fieldStyle: 'font-weight: bold; color: #210a04;',
 						listeners: {
 							select: function(combo, record, index) {
-								CustomerStore.proxy.extraParams = {rtype: record.get('id'), debtor_id: ''};
+								CustomerStore.proxy.extraParams = {rtype: record.get('id')};
 								CustomerStore.load();
 								ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
 								ARInvoiceStore.load();

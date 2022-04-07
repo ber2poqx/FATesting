@@ -124,6 +124,19 @@ function update_un_temprepo($trans_no, $trans_type, $reference)
 
 function get_customer_account_repo($type)
 {
+	if($type == 'new' || $type == 'openar'){
+		$criteria = ST_SALESINVOICE; //10
+	}else if($type == 'repo'){
+		$criteria = ST_SALESINVOICEREPO; //57
+	}else if($type == 'replcmnt'){
+		$criteria = ST_SALESRETURN; //55
+	}else if($type == 'mt'){
+		$criteria = ST_MERCHANDISETRANSFERREPO; //59
+	}else if($type == 'trmode'){
+		$criteria = ST_SITERMMOD; //56
+	}else if($type == 'arlend'){
+		$criteria = ST_ARINVCINSTLITM; //70
+	}
 	$swhere = " AND COALESCE(A.module_type, 0) = 'TEMP-REPO' ";
 
 	if($type == 'openar'){
@@ -134,9 +147,8 @@ function get_customer_account_repo($type)
 			FROM ".TB_PREF."debtor_trans A
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
 			WHERE A.payment_terms != 0
-				AND (A.type = '10' OR A.type = '70')"
+				AND (A.type = ".$criteria.") "
 				.$swhere ;
-
 	return db_query($sql, "could not get customer ");
 }
 
@@ -229,7 +241,7 @@ function get_itemcategory($id)
 	return db_query($sql, "could not get stock category");	
 }
 
-function get_invoice_per_customer($debtor_no, $rtype)
+function get_invoice_per_customer_repo($debtor_no, $rtype)
 {
 	$swhere = " AND COALESCE(A.module_type, 0) = 'TEMP-REPO' ";
 	

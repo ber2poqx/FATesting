@@ -13,7 +13,6 @@ include_once($path_to_root . "/sales/includes/sales_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 include_once($path_to_root . "/repossess/includes/db/repo_transaction_db.inc");
-
 include_once($path_to_root . "/repossess/includes/db/items_repo_db.inc");
 
 function get_branch_info($branch_code)
