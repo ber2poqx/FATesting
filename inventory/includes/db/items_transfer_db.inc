@@ -214,13 +214,14 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
             $stock_id = $item['model'];
             $quantity = $item['qty'];
             $currentqty = $item['currentqty'];
+            $receivedqty = $item['receivedqty'];
             $lot_no = $item['lot_no'];
             $chasis_no = $item['chasis_no'];
             $catcode = $item['catcode'];
             $item_code = $item['item_code'];
             $standard_cost = $item['standard_cost'];
 
-            update_stock_mt_details($line_item, $quantity, $currentqty);
+            update_stock_mt_details($line_item, $quantity, $currentqty, $receivedqty);
             
             $stock_gl_mt_code = get_stock_gl_code($stock_id);
             $totalCost =  str_replace(",","",$standard_cost) *  str_replace(",","",$quantity);
@@ -489,7 +490,7 @@ function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $pr
     return $dbid;
 }
 
-function update_stock_mt_details($line_item,$quantity=0,$currentqty)
+function update_stock_mt_details($line_item,$quantity=0,$currentqty,$receivedqty)
 {
     global $def_coy;
     set_global_connection($def_coy);
@@ -499,7 +500,9 @@ function update_stock_mt_details($line_item,$quantity=0,$currentqty)
         $status = '1';   
     }
 
-    $sql = "UPDATE ".TB_PREF."mt_details SET mt_details_recvd_qty='".$quantity."', mt_details_status='".$status."'";
+    $quantityreceived = $receivedqty + $quantity;
+
+    $sql = "UPDATE ".TB_PREF."mt_details SET mt_details_recvd_qty='".$quantityreceived."', mt_details_status='".$status."'";
     
         
     $sql .= " WHERE mt_details_id=".db_escape($line_item);

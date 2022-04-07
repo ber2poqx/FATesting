@@ -544,8 +544,8 @@ Ext.onReady(function(){
 							title:'Item Listing',
 							id:'windowItemList',
 							modal: true,
-							width: 990,
-							height:420,
+							width: 1000,
+							height:470,
 							bodyPadding: 3,
 							layout:'fit',
 							items:[
