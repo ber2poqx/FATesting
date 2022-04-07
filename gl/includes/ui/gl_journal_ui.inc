@@ -35,7 +35,7 @@ function display_order_header(&$Order)
 
 	if (check_value('ar_alloc') == 1) {
 		
-		value_type_list(_("Entry Type: "), 'ar_type', 
+		value_type_list(_("Adjustment Type: "), 'ar_type', 
     		array(
         		1 => 'Adjustment (+)', 
         		2 => 'Adjustment (-)' 

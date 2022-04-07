@@ -151,7 +151,8 @@ function write_journal_entries(&$cart, $interbranch = false)
 			$rebate_tot,
 			0,
 			$cart->ar_date,
-			$ref
+			$ref,
+			$cart->ar_type == 2 ? -$total : $total
 		);
 	}
 

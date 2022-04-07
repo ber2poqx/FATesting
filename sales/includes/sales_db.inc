@@ -1058,12 +1058,11 @@ function get_customer_loansched($debtor_no, $trans_no, $trans_type) {
 }
 
 function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debtor_no, $penalty = 0, $rebate = 0, $interest = 0, $loan_id = 0, 
-	$je_reference = '') {
+	$je_reference = '', $total = 0) {
 
 	set_global_connection();
 
 	$date = date2sql($date_paid);
-	$total = $penalty + $rebate;
 
 	$invoice_no = write_customer_trans(
 		ST_JOURNAL,
@@ -1072,27 +1071,31 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 		$debtor_no,
 		$date_paid,
 		$je_reference,
-		$total,
-		0, 0, 0, 0, 0, 0, 0, "", $total
+		abs($total),
+		0, 0, 0, 0, 0, 0, 0, "", 
+		$total < 0 ? abs($total) : 0
 	);
 
 	if ($invoice_no) {
 
-		add_cust_allocation(
-			-$total, 
-			ST_JOURNAL, 
-			$je_no, 
-			$trans_type, 
-			$trans_no, 
-			$debtor_no,  
-			$date_paid
-		);
-
-		update_debtor_trans_allocation( 
-			$trans_type, 
-			$trans_no, 
-			$debtor_no
-		);
+		if ($total < 0) {
+			
+			add_cust_allocation(
+				abs($total), 
+				ST_JOURNAL, 
+				$je_no, 
+				$trans_type, 
+				$trans_no, 
+				$debtor_no,  
+				$date_paid
+			);
+	
+			update_debtor_trans_allocation( 
+				$trans_type, 
+				$trans_no, 
+				$debtor_no
+			);
+		}
 	}
 
 	$sql = "INSERT INTO ".TB_PREF."debtor_loan_ledger 
@@ -1102,8 +1105,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
 		" . db_escape(ST_JOURNAL) . ",
-		" . db_escape($trans_type) . ", 
-		" . db_escape($total) . ", 
+		" . db_escape($trans_type) . ", 0, 
 		" . db_escape($penalty) . ",
 		" . db_escape($rebate) . ",
 		" . db_escape($interest) . ",
