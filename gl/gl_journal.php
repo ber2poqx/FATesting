@@ -537,6 +537,11 @@ function check_item_data()
 	$mcode_row = get_gl_account($_POST['mcode']);
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
 
+	if ($row['account_type'] == 13 && getCompDet('deployment_status', $_POST['comp_id']) == 1) {
+		display_error(_('Cannot Entry Branch Current Account! Company is Already Deployed!'));
+		return false;
+	}
+
 	if ($row['account_type'] == 13 && $comp_gl != $_POST['code_id']) {
 		display_error(_("GL Account is not match to the selected branch! Please select the appropriate GL Account."));
 		return false;

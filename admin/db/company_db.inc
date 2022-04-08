@@ -323,7 +323,7 @@ function get_db_location_glaccount($loc_code){
 
 //Added by spyrax10
 
-function get_company_value($company_id, $array_val = ''){
+function get_company_value($company_id, $array_val = '') {
     global $db_connections;
     $value = '';
     
@@ -336,9 +336,9 @@ function get_company_value($company_id, $array_val = ''){
     return $value;
 }
 
-function getCompDet($colName) 
-{
-	set_global_connection();
+function getCompDet($colName, $company_id = -1) {
+
+	set_global_connection($company_id);
 
 	$sql = "SELECT A.value FROM sys_prefs A 
 		WHERE A.name =".db_escape($colName);
