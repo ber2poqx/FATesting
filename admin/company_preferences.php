@@ -155,7 +155,7 @@ if (isset($_POST['update']) && $_POST['update'] != "")
 				'time_zone' => 0, 'company_logo_report' => 0, 'barcodes_on_stock' => 0, 'print_dialog_direct' => 0, 
 				'add_pct', 'round_to', 'login_tout', 'auto_curr_reval', 'bcc_email', 'alternative_tax_include_on_docs', 
 				'suppress_tax_rates', 'use_manufacturing', 'use_fixed_assets', 'pr_expired', 'penalty_rate',
-				'default_rebate_valid_month'))
+				'default_rebate_valid_month', 'deployment_status'))
 		);
 
 		$_SESSION['wa_current_user']->timeout = $_POST['login_tout'];
@@ -169,6 +169,9 @@ start_form(true);
 
 $myrow = get_company_prefs();
 
+//Added by spyrax10 8 Apr 2022
+$_POST['deployment_status'] = $myrow["deployment_status"];
+//
 $_POST['coy_name'] = $myrow["coy_name"];
 $_POST['gst_no'] = $myrow["gst_no"];
 $_POST['tax_prd'] = $myrow["tax_prd"];
@@ -261,6 +264,9 @@ start_outer_table(TABLESTYLE2);
 table_section(1);
 table_section_title(_("General settings"));
 
+//Added by spyrax10 8 Apr 2022
+check_row(_("Deployment Status:"), 'deployment_status', $_POST['deployment_status']);
+//
 text_row_ex(_("Name (to appear on reports):"), 'coy_name', 50, 50);
 text_row_ex(_("Branch Code:"), 'branch_code', 20, 50);
 textarea_row(_("Address:"), 'postal_address', $_POST['postal_address'], 34, 5);
