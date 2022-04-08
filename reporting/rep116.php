@@ -151,9 +151,7 @@ function print_dailycash_sales()
 		$cashier_name = '';
 	}
 
-	$orientation = 'L';
-
-	$cols = array(0, 60, 205, 385, 470, 0);
+	$cols = array(0, 45, 170, 420, 480, 530, 0);
 
 	$headers = array(
 		_('Date'), 
@@ -164,7 +162,7 @@ function print_dailycash_sales()
 		_('Amount')
 	);
 
-	$aligns = array('left', 'left', 'left', 'left', 'left', 'right');
+	$aligns = array('left', 'left', 'left', 'center', 'center', 'right');
 
     $params =  array( 
 		0 => $comments,
@@ -207,6 +205,8 @@ function print_dailycash_sales()
 	$total = $rtotal = $sum_receipt = $sub_total = $sub_rtotal = $sum_dis = $sum_remit = 0.0;
 	$trans_type = $reference = '';
 
+	$rep->fontSize -= 1;
+
 	//Office Collection Receipt
 	while ($trans = db_fetch($res)) {
 		if ($trans_type != $trans['receipt_type']) {
@@ -238,7 +238,9 @@ function print_dailycash_sales()
 		$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
 		$rep->TextCol(2, 3, $trans['memo_']);
 		$rep->TextCol(3, 4, $trans['ref']);
+		$rep->SetTextColor(0, 0, 255);
 		$rep->TextCol(4, 5, $trans['receipt_no']);
+		$rep->SetTextColor(0, 0, 0);
 		$rep->AmountCol(5, 6, ABS($trans['amt']), $dec);
 
 		/*$curr = get_customer_currency($trans['debtor_no']);
@@ -309,7 +311,9 @@ function print_dailycash_sales()
 		$rep->TextCol(3, 4, $remit_trans['from_ref']);
 		$rep->SetTextColor(0, 0, 0);
 
+		$rep->SetTextColor(0, 0, 255);
 		$rep->TextCol(4, 5, $remit_trans['receipt_no']);
+		$rep->SetTextColor(0, 0, 0);
 
 		$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
 		$rep->AmountCol(5, 6, $remit_trans['amount'], $dec);
@@ -349,7 +353,9 @@ function print_dailycash_sales()
 		$rep->TextCol(1, 2, get_person_name($dis_trans['person_type_id'], $dis_trans['person_id']));
 		$rep->TextCol(2, 3, $dis_trans['memo_']);
 		$rep->TextCol(3, 4, $dis_trans['ref']);
+		$rep->SetTextColor(0, 0, 255);
 		$rep->TextCol(4, 5, $dis_trans['receipt_no']);
+		$rep->SetTextColor(0, 0, 0);
 		$rep->SetTextColor(255, 0, 0);
 		$rep->AmountCol(5, 6, $dis_trans['amt'], $dec);
 		$rep->SetTextColor(0, 0, 0);
