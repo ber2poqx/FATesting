@@ -766,7 +766,7 @@ Ext.onReady(function(){
 				}	
 			}]
 		}],
-        listeners:{
+        /*listeners:{
             validateedit: function(editor, e){
                 var catcode = Ext.getCmp('category').getValue();
 				var brcode = Ext.getCmp('fromlocation').getValue();
@@ -787,7 +787,7 @@ Ext.onReady(function(){
 
                 //return true;
             }
-        }
+        }*/
 	}
 
 	Ext.create('Ext.grid.Panel', {
@@ -1012,7 +1012,8 @@ Ext.onReady(function(){
 											count = 0;
 											Ext.each(gridData, function(item) {
 												var ObjItem = {							
-													qty: item.get('qty')													
+													qty: item.get('qty'),
+													currentqty:item.get('currentqty')													
 												};
 												gridRepoData.push(ObjItem);
 											});

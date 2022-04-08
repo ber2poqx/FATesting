@@ -136,6 +136,7 @@ if(!is_null($action) || !empty($action)){
             foreach($objDataGrid as $value=>$data) 
             {
                 $stock_qty = $data['qty'];
+                $currentqty = $data['currentqty'];
             }
 
             if($total_rrdate>0){
@@ -145,6 +146,8 @@ if(!is_null($action) || !empty($action)){
                 $message="No Item Selected";                     
             }elseif($stock_qty == 0) {
                 $message="Quantity must not be zero.";
+            }elseif($stock_qty > $currentqty) {
+                $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
             }else {
                 $AdjDate = sql2date($_POST['AdjDate']);
                 $catcode = $_POST['catcode'];
