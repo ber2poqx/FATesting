@@ -132,23 +132,36 @@ if(!is_null($action) || !empty($action)){
 
             $counteritem=$_SESSION['transfer_items']->count_items();
             $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
-
+            
+            $isError = 0;
             foreach($objDataGrid as $value=>$data) 
             {
                 $stock_qty = $data['qty'];
                 $currentqty = $data['currentqty'];
+
+                if($total_rrdate>0){
+                    $isError = 1;
+                    $message="This document cannot be processed because there is insufficient quantity for items marked.";
+                    break;
+                }elseif($counteritem<=0){
+                    $isError = 1;
+                    //echo '({"success":"false","message":"No Item Selected"})';
+                    $message="No Item Selected";                     
+                    break;
+                }elseif($stock_qty == 0) {
+                    $isError = 1;
+                    $message="Quantity must not be zero.";
+                    break;
+                }elseif($stock_qty > $currentqty) {
+                    $isError = 1;
+                    $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                    break;
+                }
+
             }
 
-            if($total_rrdate>0){
-                $message="This document cannot be processed because there is insufficient quantity for items marked.";
-            }elseif($counteritem<=0){
-                //echo '({"success":"false","message":"No Item Selected"})';
-                $message="No Item Selected";                     
-            }elseif($stock_qty == 0) {
-                $message="Quantity must not be zero.";
-            }elseif($stock_qty > $currentqty) {
-                $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
-            }else {
+            //echo "gwapo - ".$stock_qty. ' - '.$currentqty;
+            if($isError != 1){
                 $AdjDate = sql2date($_POST['AdjDate']);
                 $catcode = $_POST['catcode'];
                 $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
@@ -355,6 +368,7 @@ if(!is_null($action) || !empty($action)){
             $objDataGrid = json_decode($DataOnGrid, true);
 
             //var_dump($objDataGrid);
+            $isError = 0;
             if (count($objDataGrid) == 0){
                $message = "Please Select Item";
             } else {
@@ -377,21 +391,26 @@ if(!is_null($action) || !empty($action)){
                     $standard_cost = $data['standard_cost'];
                     $rrbrreference = $data['rrbrreference'];
 
+                    if($quantity == 0) {
+                        $isError = 1;
+                        $message="Quantity must not be zero.";
+                        break;
+                    }elseif($quantity > $currentqty) {
+                        $isError = 1;
+                        $message = "Sorry, Quantity you entered '".$quantity."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                        break;
+                    }
                     //$AdjDate = sql2date($_POST['trans_dates']);
                     //$_SESSION['transfer_items']->from_loc=$brcode;
                 }
 
-                $brcode = $db_connections[user_company()]["branch_code"];
-                if($rrbrreference=='') {
-                    $reference = $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$AdjDate, 'location'=> $brcode));
-                }else{
-                    $reference = $rrbrreference;
-                }    
-                if($quantity > $currentqty) {
-                    $message = "Sorry, Quantity you entered '".$quantity."' is Greater than Available Quantity On Hand: '".$currentqty."'";
-                }elseif($quantity==0) {
-                    $message = "Quantity must not be empty";
-                }else{
+                if($isError != 1){
+                    $brcode = $db_connections[user_company()]["branch_code"];
+                    if($rrbrreference=='') {
+                        $reference = $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$AdjDate, 'location'=> $brcode));
+                    }else{
+                        $reference = $rrbrreference;
+                    }  
                                 
                     $totalline=count($objDataGrid);
                     

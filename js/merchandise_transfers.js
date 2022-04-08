@@ -54,8 +54,8 @@ Ext.onReady(function(){
 
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:20, hidden: true},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:65},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:50},
+		{header:'Reference', dataIndex:'reference', sortable:true, width:70},
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:55},
 		{header:'To Location', dataIndex:'loc_name', sortable:true, width:90},
 		{header:'Category', dataIndex:'category', sortable:true, width:90},
 		{header:'Total Items', dataIndex:'qty', sortable:true, width:50, align:'center'},
@@ -768,6 +768,8 @@ Ext.onReady(function(){
 		}],
         /*listeners:{
             validateedit: function(editor, e){
+				setButtonDisabled(false);
+
                 var catcode = Ext.getCmp('category').getValue();
 				var brcode = Ext.getCmp('fromlocation').getValue();
 
@@ -780,11 +782,10 @@ Ext.onReady(function(){
 
                 if(currentqty < e.value){
                     alert('Sorry, Quantity '+e.value+' is Greater than Available Quantity On Hand: '+currentqty);
-                    
+					setButtonDisabled(true);
+
                     return false;
                 }else return true;
-
-
                 //return true;
             }
         }*/
