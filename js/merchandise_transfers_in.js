@@ -19,7 +19,7 @@ Ext.onReady(function(){
 		mode: 'MULTI'
 	});
 	var cellEditing = Ext.create('Ext.grid.plugin.CellEditing',{
-        clicksToEdit: 2
+        clicksToEdit: 1
     });
 
 	var GroupTypeStore = new Ext.create('Ext.data.Store',{
@@ -195,7 +195,10 @@ Ext.onReady(function(){
 										checkOnly: true,
 										mode: 'Multi'			
 									},	
-									plugins: [cellEditing],
+									plugins: {
+								        ptype: 'cellediting',
+								        clicksToEdit: 1
+								    },
 									id:'ItemSerialListingView',
 									store: MTItemListingStore,
 									columns: columnItemSerial,
