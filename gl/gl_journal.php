@@ -528,7 +528,7 @@ function check_item_data()
 		return false;
 	}
 
-	if (!get_post('sug_mcode') && $_POST['comp_id'] != $coy) {
+	if (!get_post('sug_mcode') && $_POST['comp_id'] != $coy && $_POST['hocbc_id'] != 1) {
 		display_error(_("Please Select Suggested Entry!"));
 		return false;
 	}

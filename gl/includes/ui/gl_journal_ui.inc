@@ -252,7 +252,12 @@ function display_gl_items($title, &$order)
     		}	
 
 			if ($item->comp_id != $coy) {
-				label_cell($item->sug_mcode . " " . get_gl_account_name($item->sug_mcode), "nowrap align = 'center'");
+				if ($item->sug_mcode != '') {
+					label_cell($item->sug_mcode . " " . get_gl_account_name($item->sug_mcode), "nowrap align = 'center'");
+				}
+				else {
+					label_cell('', "align='center'");	
+				}
 			}
 			else {
 				label_cell('', "align='center'");
