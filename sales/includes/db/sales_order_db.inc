@@ -484,7 +484,8 @@ function read_sales_order($order_no, &$order, $trans_type, $copy_so = false)
 	$order->rebate = $myrow["rebate"];
 	$order->financing_rate = $myrow["financing_rate"];
 
-	$order->co_maker = $myrow["co_maker"];
+	/*comments by Albert 04/09/2022*/
+	// $order->co_maker = $myrow["co_maker"]; 
 	$order->discount_dp_amount = $myrow["discount_downpayment"];
 	$order->stype_id = $myrow["sales_type_id"];
 	$order->stype_name = $myrow["sales_type_name"];
