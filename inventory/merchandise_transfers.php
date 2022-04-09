@@ -157,10 +157,8 @@ if(!is_null($action) || !empty($action)){
                     $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
                     break;
                 }
-
             }
 
-            //echo "gwapo - ".$stock_qty. ' - '.$currentqty;
             if($isError != 1){
                 $AdjDate = sql2date($_POST['AdjDate']);
                 $catcode = $_POST['catcode'];

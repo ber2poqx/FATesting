@@ -44,10 +44,10 @@ Ext.onReady(function(){
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:20, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:80},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:60},
-		{header:'To Location', dataIndex:'loc_name', sortable:true, width:100},
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:55},
+		{header:'To Location', dataIndex:'loc_name', sortable:true, width:90},
 		{header:'Category', dataIndex:'category', sortable:true, width:90},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:50, align:'center'},
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:60, align:'center'},
 		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150, align:'center'},
 		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
@@ -71,8 +71,8 @@ Ext.onReady(function(){
 								title:'Item Listing',
 								id:'windowItemSSerialList',
 								modal: true,
-								width: 1000,
-								height:470,
+								width: 900,
+								height:400,
 								bodyPadding: 5,
 								layout:'fit',
 								items:[
@@ -311,7 +311,7 @@ Ext.onReady(function(){
 		renderer: Ext.util.Format.numberRenderer('0,000.00')
 		},
         {header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, align:'center',
 			editor:{
 				completeOnEnter: true,
 				field:{
@@ -552,7 +552,7 @@ Ext.onReady(function(){
 											selType: 'checkboxmodel',
 											id: 'checkidbox',
 											checkOnly: true,
-											mode: 'Single'			
+											mode: 'Multi'			
 										},		
 										dockedItems:[{
 											dock:'top',
@@ -738,7 +738,7 @@ Ext.onReady(function(){
 				}	
 			}]
 		}],
-        listeners:{
+        /*listeners:{
             validateedit: function(editor, e){
                 var catcode = Ext.getCmp('category').getValue();
 				var brcode = Ext.getCmp('fromlocation').getValue();
@@ -759,7 +759,7 @@ Ext.onReady(function(){
 
                 //return true;
             }
-        }
+        }*/
 	}
 
 			
@@ -990,7 +990,8 @@ Ext.onReady(function(){
 											count = 0;
 											Ext.each(gridData, function(item) {
 												var ObjItem = {							
-													qty: item.get('qty')													
+													qty: item.get('qty'),													
+													currentqty:item.get('currentqty')													
 												};
 												gridRepoData.push(ObjItem);
 											});

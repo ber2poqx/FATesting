@@ -270,7 +270,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				<td align=left>Target&nbsp;Branch:</td>
 				<th style="width: 60%;" align=left><?php echo $mt_header_tolocation;?></th>
 				<td>MT Num:</td>
-				<th><input type="text" value="<?php echo $mt_header_reference.$type.$type_no;?>" class="underline_input" readonly></th>
+				<th style="width: 17%;" align="left"><input style="width: 85%;" type="text" value="<?php echo $mt_header_reference.$type.$type_no;?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
 				<td align=left>Address:</td>
@@ -280,13 +280,13 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				<td align=left>Particulars:</td>
 				<th style="width: 60%;" align=left><?php echo $mt_header_comments;?></th>
 				<td>Issue Date:</td>
-				<th><input type="text" value="<?php echo $mt_header_date.$type.$type_no;?>" class="underline_input" readonly></th>
+				<th style="width: 17%;" align="left"><input style="width: 85%;" type="text" value="<?php echo $mt_header_date.$type.$type_no;?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
 				<td align=left>MT Served by:</td>
 				<th style="width: 60%;" align=left><?php echo $mt_header_servedby;?></th>
-				<td>RSD #:</td>
-				<th><input type="text" value="<?php echo $mt_header_rsd;?>" class="underline_input" readonly></th>
+				<!--<td>RSD #:</td>
+				<th style="width: 17%;" align="left"><input type="text" value="<?php echo $mt_header_rsd;?>" class="underline_input" readonly></th>-->
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 		</table>
