@@ -378,16 +378,18 @@ function db_export_ho($conn, $filename, $zip='no', $comment='')
 			$out .= "\nSET NAMES $mysql_enc;\n";
 	}
     // get auto_increment values and names of all tables
-    $res = db_query("show table status WHERE Name NOT IN ('attachments', 'audit_trail', 'bank_interbranch_trans', 'bank_trans', 
-    	'comments', 'complimentary_items', 'consignment', 'consignment_details', 'co_makers', 'crm_contacts', 'crm_persons', 
-    	'cust_allocations', 'cust_branch', 'debtors_master', 'debtor_loans', 'debtor_loan_ledger', 'debtor_loan_schedule', 
-    	'debtor_term_modification', 'debtor_trans', 'debtor_trans_checks', 'debtor_trans_details', 'gl_trans', 'grn_batch', 'grn_items', 
-    	'incoming_invoice', 'interbranch_trans', 'inventory_adjustment', 'item_serialise', 'journal', 'loc_stock', 'mt_details', 
-    	'mt_header', 'proof_of_cash', 'purch_data', 'purch_orders', 'purch_order_details', 'purch_request', 'purch_request_details', 
-    	'recurrent_invoices', 'repo_accounts', 'repo_item_details', 'requisitions', 'requisition_details', 'returned_units', 
-    	'rr_transword', 'sales_orders', 'sales_order_details', 'sales_order_details_serial', 'sales_return_replacement', 
-    	'sales_return_replacement_details', 'sql_trail', 'stock_adjustment', 'stock_adjustment_gl', 'stock_moves', 'supplier_request', 
-    	'supp_allocations', 'supp_invoice_items', 'supp_reorderlevel', 'supp_trans', 'trans_tax_details', 'useronline', 'voided')");
+    $res = db_query("show table status WHERE Name NOT IN ('areas', 'ar_installment', 'ar_installment_item', 'attachments', 'audit_trail', 'bank_interbranch_trans', 'bank_trans', 'collection_target_amount', 'collection_target_percentage', 
+    	'comments', 'complimentary_items', 'consignment', 'consignment_details', 'co_makers', 'crm_categories', 'crm_contacts', 
+    	'crm_persons', 'cust_allocations', 'cust_branch', 'debtors_master', 'debtor_loans', 'debtor_loan_ledger', 
+    	'debtor_loan_schedule', 'debtor_term_modification', 'debtor_trans', 'debtor_trans_checks',
+    	'debtor_trans_details', 'gl_trans', 'grn_batch', 'grn_items', 'incoming_invoice', 'interbranch_trans', 'inventory_adjustment', 
+    	'item_serialise', 'journal', 'locations', 'loc_stock', 'municipality_zipcode', 'mt_details', 'mt_header', 'proof_of_cash', 
+    	'purch_data', 'purch_orders', 'purch_order_details', 'purch_request', 'purch_request_details', 'refs', 'recurrent_invoices', 
+    	'repo_accounts', 'repo_item_details', 'requisitions', 'requisition_details', 'returned_units', 'rr_transword', 'sales_pos', 
+    	'sales_orders', 'sales_order_details', 'sales_order_details_serial', 'sales_return_replacement',
+    	'sales_return_replacement_details', 'sales_target', 'sales_target_control', 'sql_trail', 'stock_adjustment', 
+    	'stock_adjustment_gl', 'stock_moves', 'supplier_request', 'supp_allocations', 'supp_invoice_items', 'supp_reorderlevel', 
+    	'supp_trans', 'trans_tax_details', 'useronline', 'voided')");
     $all_tables = array();
     while($row = db_fetch($res))
     {
