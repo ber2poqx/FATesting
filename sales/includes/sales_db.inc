@@ -1057,7 +1057,7 @@ function get_customer_loansched($debtor_no, $trans_no, $trans_type) {
 	return db_query($sql, _("Cant get Customer's Loan Schedule!"));
 }
 
-function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debtor_no, $penalty = 0, $rebate = 0, $interest = 0, $loan_id = 0, 
+function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debtor_no, $loan_id = 0, 
 	$je_reference = '', $total = 0) {
 
 	set_global_connection();
@@ -1099,21 +1099,20 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 	}
 
 	$sql = "INSERT INTO ".TB_PREF."debtor_loan_ledger 
-		(trans_no, debtor_no, trans_type_from, trans_type_to, payment_applied, penalty, rebate, interest, date_paid, payment_trans_no, alloc, loansched_id)";
+		(trans_no, debtor_no, trans_type_from, trans_type_to, payment_applied, date_paid, payment_trans_no, alloc, loansched_id)";
 	
 	$sql .= " VALUES (
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
 		" . db_escape(ST_JOURNAL) . ",
 		" . db_escape($trans_type) . ", 
-		" . db_escape(abs($total)) . ", 0, 0, 
-		" . db_escape($interest) . ",
+		" . db_escape(abs($total)) . ", 
 		" . db_escape($date) . ",
 		" . db_escape($invoice_no) . ", 1,
 		" . db_escape($loan_id) . "
 	)";
 
-	if ($invoice_no) {
+	if ($invoice_no && $total < 0) {
 		db_query($sql, _("Cant insert Customer's Loan Allocation!"));
 	}
 }

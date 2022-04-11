@@ -127,15 +127,6 @@ function write_journal_entries(&$cart, $interbranch = false)
 
 	$cart->write_gl();
 
-	if ($cart->ar_type == 2) {
-		$penalty_tot = -$total;
-		$rebate_tot = 0;
-	}
-	else {
-		$rebate_tot = $total;
-		$penalty_tot = 0;
-	}
-
 	add_journal($trans_type, $trans_id, $total,	$date_ , $cart->currency, $ref,
 		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date
 	);
@@ -147,9 +138,6 @@ function write_journal_entries(&$cart, $interbranch = false)
 			$cart->ar_trans_no,
 			$cart->ar_trans_type,
 			$cart->ar_debtor_no,
-			$penalty_tot,
-			$rebate_tot,
-			0,
 			$cart->ar_date,
 			$ref,
 			$cart->ar_type == 2 ? -$total : $total
