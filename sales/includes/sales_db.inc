@@ -1108,7 +1108,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 		" . db_escape($trans_type) . ", 
 		" . db_escape(abs($total)) . ", 
 		" . db_escape($date) . ",
-		" . db_escape($invoice_no) . ", 1,
+		" . db_escape($invoice_no) . ", 0,
 		" . db_escape($loan_id) . "
 	)";
 
