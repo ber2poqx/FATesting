@@ -160,7 +160,8 @@ function add_debtor_loan(
 						$profit_margin=0,
 						$old_trans_no,
 						$ref_no, 
-						$status)
+						$status,
+						$invoice_type)
 {
 	// $first_due_date = date("Y-m-d", strtotime("+1 month", strtotime( $tran_date)));
 		$outstanding_ar_amount = $ov_amount-$d_amount;
@@ -204,7 +205,7 @@ function add_debtor_loan(
 						'$reference',
 						'$tran_date',
 						'$orig_branch_code',
-						'new',
+						'$invoice_type',
 						'$installmentplcy_id',
 						'$months_term', 
 						'$rebate', 
@@ -278,12 +279,12 @@ function add_loan_schedule(
 
 
 // not allowed document already exist
-function check_transaction_already_exist($old_trans_no)
+function check_transaction_already_exist($old_trans_no, $invoice_type)
 {
    $sql = " SELECT 
    				COUNT(*) 
    			FROM ".TB_PREF."debtor_loans
-		    WHERE old_trans_no = ".db_escape($old_trans_no);
+		    WHERE old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
 
    $result = db_query($sql, "check old_trans_no Code failed");
    $count =  db_fetch($result);

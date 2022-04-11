@@ -97,8 +97,10 @@
 						$unit_price,
 						$deferred_gross_profit, 
 						$profit_margin, 
-						$warranty_code) = $data;
-			
+						$warranty_code,
+						$date_cut_off,
+						$invoice_type) = $data;
+				$invoice_type = strtolower($invoice_type);	
 				$debtor_no = utf8_encode($debtor_no);
 				/*Auto calculation*/
 				$quotient_financing_rate = $f_rate / 100;
@@ -116,14 +118,14 @@
 				$total_amount_cal = $amort * $months_term + $d_amount;
 				/**/
 
-					if (check_transaction_already_exist($old_trans_no)) 
+					if (check_transaction_already_exist($old_trans_no, $invoice_type)) 
 					{
-				        $sql = "SELECT old_trans_no FROM ".TB_PREF."debtor_loans WHERE  old_trans_no = ".db_escape($old_trans_no);
+				        $sql = "SELECT old_trans_no FROM ".TB_PREF."debtor_loans WHERE  old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
 				       
 						$result = db_query($sql, "Could not search old transaction no");
 				        $row = db_fetch_row($result);
 				        $CI++;	
-				        display_error("Line $lines: The old Document no: $old_trans_no is Already Exist");
+				        display_error("Line $lines: The old Document no: $old_trans_no And The Invoice Type:$invoice_type is Already Exist");
 					
 					}else if (!check_stock_id_exist($stock_id)){
 					
@@ -153,9 +155,12 @@
 						
 						display_error("Line $lines: Itemcode is empty!");
 					
-					}else if ( $tran_date== "") { // Invoice Date can't be empty!
+					}else if ( $tran_date == "") { // Invoice Date can't be empty!
 						
 						display_error("Line $lines: Invoice Date is Empty empty!");
+					}else if ( $date_cut_off == "") { // Invoice Date can't be empty!
+						
+						display_error("Line $lines: Cutoff Date is Empty empty!");
 
 					}else if ( $first_due_date== "") { // First Duedate can't be empty!
 						
@@ -199,6 +204,10 @@
 						
 						display_error("Line $lines: Unit price/Lcp is Empty empty!");
 					
+					// }else if($invoice_type ==''){
+
+					// 	display_error("Line $lines: Invoice_type is Empty empty!");
+
 					}else if($amort != $amortization_amount){
 						display_error("The amortation amount: $amortization_amount not match with the system calculation amount: $amort !!!");
 					
@@ -220,6 +229,10 @@
 					}else if(date("m/d/Y", strtotime($last_payment_paid)) != $last_payment_paid ){
 						
 						display_error("Line $lines: lastpayment paid is not a valid date: $last_payment_paid!");
+
+					}else if(date("m/d/Y", strtotime($date_cut_off)) != $date_cut_off ){
+						
+						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!");
 					} else {
 
 						if (check_customer_code_already_exist($debtor_no))
@@ -257,7 +270,7 @@
 							}
 							//
 							if( empty($first_due_date )){ 
-								$tran_date = "0000-00-00";
+								$first_due_date = "0000-00-00";
 							 } else {
 								$first_due_date = date("Y-m-d", strtotime($first_due_date));
 							}
@@ -273,6 +286,12 @@
 								
 								$last_payment_paid = date("Y-m-d", strtotime($last_payment_paid));
 							}
+							if( empty($date_cut_off )){ 
+								$date_cut_off = "0000-00-00";
+							 } else {
+								
+								$date_cut_off = date("Y-m-d", strtotime($date_cut_off));
+							}
 							if ( empty($rebate )){ 
 								$rebate=0;
 							}
@@ -281,219 +300,228 @@
 							}
 							if ( empty($plcy_code )){ 
 								$plcy_code=0;
-							}						
-							
-							add_loan_schedule(
-							$trans_no,
-							$debtor_no, 
-							$tran_date,   
-							0, 
-							$d_amount, 
-							$principal_run_bal
-							);
-							
-							$sched_due_date = $first_due_date;
-							for ($i = 1; $i <= $months_term; $i++) 
-							{
-							
-								$principal_run_bal = $principal_run_bal -  $amortization_amount;
-								
-								add_loan_schedule(
-									$trans_no,
-									$debtor_no,
-									$sched_due_date,  
-									$i, 
-									$amortization_amount, 
-									$principal_run_bal, 
-									date('D', strtotime($sched_due_date)));
-								
-
-								$sched_due_date = date("Y-m-d", strtotime("+1 month", strtotime($sched_due_date)));
-										
+							}
+							if ( empty($invoice_type )){ 
+								$invoice_type='new';
 							}
 
-								add_debtor_trans(
-								$trans_no,
-								$debtor_no, 
-								$tran_date, 
-								$ref_num,  
-								$ov_amount,
-								$installmentplcy_id,
-								$total_amount_paid,
-							    $cust_branch['branch_code']);	
-
+							if((date("Y-m", strtotime($date_cut_off)) > date("Y-m", strtotime($last_payment_paid)))&& ($invoice_type =='new' || $invoice_type =='repo') ){
 								
-								add_debtor_loan( 
+								add_loan_schedule(
 								$trans_no,
 								$debtor_no, 
-								$ref_num, 
-								$tran_date, 
-								$orig_branch_code,
-								$installmentplcy_id,
-								$months_term, 
-								$rebate, 
-								$f_rate,  
-								$ov_amount, 
-								$first_due_date,
-								$maturity_date, 
-								$unit_price, 
+								$tran_date,   
+								0, 
 								$d_amount, 
-								$amortization_amount, 
-								$standard_cost,  
-								$category_id, 
-								$warranty_code,
-								$deferred_gross_profit,
-								$profit_margin,
-								$old_trans_no,
-								$ref_no,
-								$loans_status);
+								$principal_run_bal
+								);
 								
-								$item_color_code = check_color_exist($stock_id, $color_code);
-								add_debtor_trans_det(
-								$trans_no,	
-								$debtor_no,
-								$stock_id, 
-								$description, 
-								$quantity, 
-								$unit_price, 
-								$tran_date,
-								$standard_cost, 
-								$lot_no, 
-								$chassis_no, 
-								$item_color_code["item_code"]);
-
-								$oustanding_balance = $ov_amount - $total_amount_paid;
-
-								$hoc_code = get_company_value(0, 'branch_code');
-								$hoc_masterfile = get_company_value(0, 'name');
-
-								add_gl_trans_customer(
-									ST_SALESINVOICE,
-									$trans_no,
-									$date_,
-									$account_no =get_customer_receivables_account($debtor_no),
-									0,
-									0,
-									$ov_amount,
-									$debtor_no,
-									"The sales price GL posting could not be inserted"
-								);
-
-								add_gl_trans_customer(
-									ST_SALESINVOICE,
-									$trans_no,
-									$date_,
-									$account_no =get_customer_receivables_account($debtor_no),
-									0,
-									0,
-									-1 * $total_amount_paid,
-									$debtor_no,
-									"The sales price GL posting could not be inserted"
-								);	
+								$sched_due_date = $first_due_date;
+								for ($i = 1; $i <= $months_term; $i++) 
+								{
 								
-								add_gl_trans_customer(
-									ST_SALESINVOICE,
-									$trans_no,
-									$date_,
-									$account_no =get_customer_sales_account(),
-									0,
-									0,
-									-1 * abs($oustanding_balance),
-									$debtor_no,
-									"The sales price GL posting could not be inserted",
-									0,
-									$hoc_code,
-									$hoc_masterfile
-								);
-								add_gl_trans_customer(
-									ST_SALESINVOICE,
-									$trans_no,
-									$date_,
-									$account_no =get_account_code(),
-									0,
-									0,
-									(-$deferred_gross_profit) *1,
-									$debtor_no,
-									"The total debtor GL posting could not be inserted"
-								);
-						
-								add_gl_trans_customer(
-									ST_SALESINVOICE,
-									$trans_no,
-									$date_,
-									$account_no =get_customer_sales_account(),
-									0,
-									0,
-									($deferred_gross_profit) *1,
-									$debtor_no,
-									"The total debtor GL posting could not be inserted",
-									0,
-									$hoc_code,
-									$hoc_masterfile
-
-								);
-
-								/*alloc*/
-								$amortization_schedule = get_deptor_loan_schedule_ob($trans_no, $debtor_no, ST_SALESINVOICE);
-								$total_exist_payment = floatval($total_amount_paid);
-								while ($amort_sched = db_fetch($amortization_schedule)) {
-									if ($total_exist_payment == 0)
-										break;
-
-									$amount = 0;
-									$status = "paid";
-									if ($total_exist_payment >= $amortization_amount) {
-										$amount = $amort_sched["total_principaldue"];
-									} else {
-										$amount = $total_exist_payment;
-										$status = "partial";
-									}
-									add_loan_ledger_ct(
+									$principal_run_bal = $principal_run_bal -  $amortization_amount;
+									
+									add_loan_schedule(
 										$trans_no,
 										$debtor_no,
-										$amort_sched["id"],
-										ST_SALESINVOICE,
-										ST_SALESINVOICE,
-										$amount,
-										0,
-										0,
-										0,
-										$last_payment_paid,
-										$trans_no,
-										1
-									);
+										$sched_due_date,  
+										$i, 
+										$amortization_amount, 
+										$principal_run_bal, 
+										date('D', strtotime($sched_due_date)));
+									
 
-									$total_exist_payment -= $amount;
-									$loansched_id = $amort_sched["id"];
-									$sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
-										status=" . db_escape($status) . ",penalty_status=" . db_escape($status) . "
-										WHERE id=$loansched_id";
-
-									$ErrMsg = _('Could not update loan schedule because ');
-
-									db_query($sql, $ErrMsg);
+									$sched_due_date = date("Y-m-d", strtotime("+1 month", strtotime($sched_due_date)));
+											
 								}
 
-								add_cust_allocation(floatval(
-									$total_amount_paid), 
-									ST_SALESINVOICE, 
-									$trans_no, 
-									ST_SALESINVOICE, 
-									$trans_no, 
-									$debtor_no,  
-									$date_);
-    							update_debtor_trans_allocation( 
-									ST_SALESINVOICE, 
-									$trans_no, 
-									$debtor_no);
+									add_debtor_trans(
+									$trans_no,
+									$debtor_no, 
+									$tran_date, 
+									$ref_num,  
+									$ov_amount,
+									$installmentplcy_id,
+									$total_amount_paid,
+									$cust_branch['branch_code']);	
 
-								/**/
+									
+									add_debtor_loan( 
+									$trans_no,
+									$debtor_no, 
+									$ref_num, 
+									$tran_date, 
+									$orig_branch_code,
+									$installmentplcy_id,
+									$months_term, 
+									$rebate, 
+									$f_rate,  
+									$ov_amount, 
+									$first_due_date,
+									$maturity_date, 
+									$unit_price, 
+									$d_amount, 
+									$amortization_amount, 
+									$standard_cost,  
+									$category_id, 
+									$warranty_code,
+									$deferred_gross_profit,
+									$profit_margin,
+									$old_trans_no,
+									$ref_no,
+									$loans_status,
+									$invoice_type);
+									
+									$item_color_code = check_color_exist($stock_id, $color_code);
+									add_debtor_trans_det(
+									$trans_no,	
+									$debtor_no,
+									$stock_id, 
+									$description, 
+									$quantity, 
+									$unit_price, 
+									$tran_date,
+									$standard_cost, 
+									$lot_no, 
+									$chassis_no, 
+									$item_color_code["item_code"]);
 
-								
+									$oustanding_balance = $ov_amount - $total_amount_paid;
+
+									$hoc_code = get_company_value(0, 'branch_code');
+									$hoc_masterfile = get_company_value(0, 'name');
+
+									add_gl_trans_customer(
+										ST_SALESINVOICE,
+										$trans_no,
+										$date_,
+										$account_no =get_customer_receivables_account($debtor_no),
+										0,
+										0,
+										$ov_amount,
+										$debtor_no,
+										"The sales price GL posting could not be inserted"
+									);
+
+									add_gl_trans_customer(
+										ST_SALESINVOICE,
+										$trans_no,
+										$date_,
+										$account_no =get_customer_receivables_account($debtor_no),
+										0,
+										0,
+										-1 * $total_amount_paid,
+										$debtor_no,
+										"The sales price GL posting could not be inserted"
+									);	
+									
+									add_gl_trans_customer(
+										ST_SALESINVOICE,
+										$trans_no,
+										$date_,
+										$account_no =get_customer_sales_account(),
+										0,
+										0,
+										-1 * abs($oustanding_balance),
+										$debtor_no,
+										"The sales price GL posting could not be inserted",
+										0,
+										$hoc_code,
+										$hoc_masterfile
+									);
+									add_gl_trans_customer(
+										ST_SALESINVOICE,
+										$trans_no,
+										$date_,
+										$account_no =get_account_code(),
+										0,
+										0,
+										(-$deferred_gross_profit) *1,
+										$debtor_no,
+										"The total debtor GL posting could not be inserted"
+									);
 							
-								$CI++;	
-									display_notification("Line  $lines: The Old Transaction No: $old_trans_no is successfully Added Ar Installment Opening Balances.  Customer No : $debtor_no");
+									add_gl_trans_customer(
+										ST_SALESINVOICE,
+										$trans_no,
+										$date_,
+										$account_no =get_customer_sales_account(),
+										0,
+										0,
+										($deferred_gross_profit) *1,
+										$debtor_no,
+										"The total debtor GL posting could not be inserted",
+										0,
+										$hoc_code,
+										$hoc_masterfile
+
+									);
+
+									/*alloc*/
+									$amortization_schedule = get_deptor_loan_schedule_ob($trans_no, $debtor_no, ST_SALESINVOICE);
+									$total_exist_payment = floatval($total_amount_paid);
+									while ($amort_sched = db_fetch($amortization_schedule)) {
+										if ($total_exist_payment == 0)
+											break;
+
+										$amount = 0;
+										$status = "paid";
+										if ($total_exist_payment >= $amortization_amount) {
+											$amount = $amort_sched["total_principaldue"];
+										} else {
+											$amount = $total_exist_payment;
+											$status = "partial";
+										}
+										add_loan_ledger_ct(
+											$trans_no,
+											$debtor_no,
+											$amort_sched["id"],
+											ST_SALESINVOICE,
+											ST_SALESINVOICE,
+											$amount,
+											0,
+											0,
+											0,
+											$last_payment_paid,
+											$trans_no,
+											1
+										);
+
+										$total_exist_payment -= $amount;
+										$loansched_id = $amort_sched["id"];
+										$sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
+											status=" . db_escape($status) . ",penalty_status=" . db_escape($status) . "
+											WHERE id=$loansched_id";
+
+										$ErrMsg = _('Could not update loan schedule because ');
+
+										db_query($sql, $ErrMsg);
+									}
+
+									add_cust_allocation(floatval(
+										$total_amount_paid), 
+										ST_SALESINVOICE, 
+										$trans_no, 
+										ST_SALESINVOICE, 
+										$trans_no, 
+										$debtor_no,  
+										$date_);
+									update_debtor_trans_allocation( 
+										ST_SALESINVOICE, 
+										$trans_no, 
+										$debtor_no);
+
+									/**/
+
+									
 								
+									$CI++;	
+										display_notification("Line  $lines: The Old Transaction No: $old_trans_no is successfully Added Ar Installment Opening Balances.  Customer No : $debtor_no");
+							}else{
+									display_error("Line $lines: Import data is not valid date of cut off : $date_cut_off / Invoice Type is Invalid: $invoice_type Old Transaction No: $old_trans_no is not Added ");
+								
+							}			
 						}else{
 							display_error("Line $lines: Customer name  is not Exist!");
 								
