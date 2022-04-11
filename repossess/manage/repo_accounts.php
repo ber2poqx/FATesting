@@ -101,6 +101,19 @@ if(isset($_GET['get_InvoiceNo']))
             $PastDue = 0;
         }
 
+        if($myrow["total_amount"] == 0){
+            $unit_cost = get_unitcost($myrow["invoice_ref_no"]);
+        }else{
+            $unit_cost = $myrow["total_amount"];
+        }
+        if($_GET['rtype'] == 'trmode') {
+            $invoice_no = $myrow["invoice_no"];
+            $invoice_type = $myrow["debtor_trans_type"];
+        }else{
+            $invoice_no = $myrow["trans_no"];
+            $invoice_type = $myrow["type"];
+        }
+
         $status_array[] = array('id'=>$myrow["trans_no"],
                                'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["itemdesc"]),
                                'type'=>$myrow["type"],
@@ -113,7 +126,7 @@ if(isset($_GET['get_InvoiceNo']))
                                'first_duedate'=>$myrow["firstdue_date"],
                                'maturty_date'=>$myrow["maturity_date"],
                                'lcp_amount'=>$myrow["lcp_amount"],
-                               'unit_cost'=>$myrow["total_amount"],
+                               'unit_cost'=>$unit_cost,
                                'category_id'=>$myrow["category_id"],
                                'category_desc'=>$myrow["category"],
                                'addon_amount'=>$addon_amount,
@@ -122,7 +135,9 @@ if(isset($_GET['get_InvoiceNo']))
                                'overdue'=>$OverDue,
                                'pastdue'=>$PastDue,
                                'GPM'=>$myrow["profit_margin"],
-                               'CGPM'=>$CGPM
+                               'CGPM'=>$CGPM,
+                               'base_transno'=>$invoice_no,
+                               'base_transtype'=>$invoice_type
                             );
     }
     $jsonresult = json_encode($status_array);
@@ -134,7 +149,15 @@ if(isset($_GET['get_Item_details']))
     if(isset($_GET['repo_id'])){
         $result = get_repo_accounts_item_details($_GET['repo_id']);
     }else{
-        $result = get_item_detials_to_repo($_GET['transNo'], $_GET['transtype']);
+        if($_GET['rtype'] == 'trmode') {
+            $transNo = $_GET['base_transno'];
+            $transtype = $_GET['base_transtype'];
+        }else{
+            $transNo = $_GET['transNo'];
+            $transtype = $_GET['transtype'];
+        }
+
+        $result = get_item_detials_to_repo($transNo, $transtype);
     }
     
     $total = DB_num_rows($result);
@@ -150,7 +173,7 @@ if(isset($_GET['get_Item_details']))
                                'ar_trans_no'=>$myrow["ar_trans_no"],
                                'stock_id'=>$myrow["stock_id"],
                                'description'=>$myrow["description"],
-                               'qty'=>$myrow["qty"],
+                               'qty'=>$myrow["quantity"],
                                'unit_price'=>$myrow["unit_price"],
                                'serial_no'=>$serial,
                                'chassis_no'=>$myrow["chassis_no"],
@@ -336,8 +359,8 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Unit price must not be empty! Please try again.');
     }
-    
-    $result = get_item_detials_to_repo($_POST['InvoiceNo'], $_POST['transtype']);
+ 
+    $result = get_item_detials_to_repo($_POST['base_transno'], $_POST['base_transtype']);
     $item_row = db_fetch($result);
     if (empty($item_row['stock_id']) && empty($item_row['color_code'])) {
         $InputError = 1;
