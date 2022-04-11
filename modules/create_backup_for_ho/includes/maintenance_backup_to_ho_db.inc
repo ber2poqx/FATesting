@@ -389,7 +389,7 @@ function db_export_ho($conn, $filename, $zip='no', $comment='')
     	'sales_orders', 'sales_order_details', 'sales_order_details_serial', 'sales_return_replacement',
     	'sales_return_replacement_details', 'sales_target', 'sales_target_control', 'sql_trail', 'stock_adjustment', 
     	'stock_adjustment_gl', 'stock_moves', 'supplier_request', 'supp_allocations', 'supp_invoice_items', 'supp_reorderlevel', 
-    	'supp_trans', 'trans_tax_details', 'useronline', 'voided')");
+    	'supp_trans', 'sys_prefs', 'trans_tax_details', 'useronline', 'voided')");
     $all_tables = array();
     while($row = db_fetch($res))
     {
