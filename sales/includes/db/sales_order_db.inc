@@ -245,7 +245,7 @@ function update_sales_order($order)
 		ar_amount = $order->ar_amount,
 		first_due_date = '$first_due_date',
 		maturity_date = '$maturity_date',
-		co_maker = '$comaker_name',
+		co_maker = " . db_escape($order->co_maker) . ",
 		discount_downpayment = $order->discount_dp_amount,
 		so_type = " . db_escape($order->sales_type) . "
 
@@ -484,8 +484,7 @@ function read_sales_order($order_no, &$order, $trans_type, $copy_so = false)
 	$order->rebate = $myrow["rebate"];
 	$order->financing_rate = $myrow["financing_rate"];
 
-	/*comments by Albert 04/09/2022*/
-	// $order->co_maker = $myrow["co_maker"]; 
+	$order->co_maker = $myrow["co_maker"]; 
 	$order->discount_dp_amount = $myrow["discount_downpayment"];
 	$order->stype_id = $myrow["sales_type_id"];
 	$order->stype_name = $myrow["sales_type_name"];

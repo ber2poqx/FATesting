@@ -349,7 +349,7 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 // ------------------------------------------------------------------------------
 
-function display_order_header(&$order, $editable, $date_text)
+function display_order_header(&$order, $editable, $date_text, $title = '')
 {
 	global $Ajax, $SysPrefs;
 
@@ -596,7 +596,7 @@ function display_order_header(&$order, $editable, $date_text)
 
 	//Modified by spyrax10 5 Feb 2022
 	//comaker_types_row(_("Co-maker:"), 'co_maker', $_POST['co_maker'], $order->customer_id, true);//modified by Albert
-	
+
 	if ($order->trans_type != ST_SALESORDER) {
 		sql_type_list(_("Co-maker:"), 'co_maker', 
 			get_comaker($order->customer_id, '', true), 'comaker_id', 'comaker', 
@@ -604,7 +604,15 @@ function display_order_header(&$order, $editable, $date_text)
 		);
 	}
 	else {
-		hidden('co_maker', 0);
+		if ($title == 'Modifying Sales Order # ' . $order->order_no) {
+			sql_type_list(_("Co-maker:"), 'co_maker', 
+				get_comaker($order->customer_id, '', true), 'comaker_id', 'comaker', 
+				'label', '', true, 'Select Co-maker'
+			);
+		}
+		else {
+			hidden('co_maker', 0);
+		}
 	}
 
 	//

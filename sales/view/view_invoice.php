@@ -18,6 +18,9 @@ include_once($path_to_root . "/sales/includes/sales_ui.inc");
 
 include_once($path_to_root . "/sales/includes/sales_db.inc");
 
+//Added by spyrax10 12 Apr 2022
+$_SESSION['language']->encoding = "UTF-8";
+
 $js = "";
 if ($SysPrefs->use_popup_windows)
 	$js .= get_js_open_window(900, 600);
@@ -80,7 +83,7 @@ label_row(_("Sales Person: "), $header['salesman_name'], "class='tableheader2'")
 label_row(_("Sale Type: "), $header['sales_type'], "class='tableheader2'");
 
 //Modified by spyrax10 7 Feb 2022
-label_row(_("Co-maker: "), normalize_chars($header['co_maker']), "class='tableheader2'");
+label_row(_("Co-maker: "), $header['co_maker_name'], "class='tableheader2'");
 //
 
 /*Added by Albert*/
