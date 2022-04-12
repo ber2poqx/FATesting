@@ -56,47 +56,36 @@ function get_customer_trans_version($type, $trans_no)
 //----------------------------------------------------------------------------------------
 // $Total, $Tax, $Freight, $discount all in customer's currency
 // date_ is display date (non-sql)
+// Update Code Format by spyrax10 12 Apr 2022
 function write_customer_trans(
-	$trans_type,
-	$trans_no,
-	$debtor_no,
-	$BranchNo,
-	$date_,
-	$reference,
-	$Total = 0,
-	$discount = 0,
-	$Tax = 0,
-	$Freight = 0,
-	$FreightTax = 0,
-	$sales_type = 0,
+	$trans_type, $trans_no, $debtor_no, $BranchNo, $date_, $reference,
+	$Total = 0, 
+	$discount = 0, $Tax = 0, $Freight = 0, $FreightTax = 0, $sales_type = 0,
 	$order_no = 0,
-	$ship_via = 0,
-	$due_date = "",
+	$ship_via = 0, $due_date = "",
 	$AllocAmt = 0,
-	$rate = 0,
-	$dimension_id = 0,
-	$dimension2_id = 0,
-	$payment_terms = null,
-	$tax_included = 0,
-	$prep_amount = 0,
-	$opening_balances = 0,
-	$payment_type = null,
-	$collection_type = 0,
-	$module_type = null
-) {
+	$rate = 0, $dimension_id = 0, $dimension2_id = 0,
+	$payment_terms = null, $tax_included = 0, $prep_amount = 0,
+	$opening_balances = 0, $payment_type = null,
+	$collection_type = 0, $module_type = null) {
+
 	$new = $trans_no == 0;
 	$curr = get_customer_currency($debtor_no);
-	if ($rate == 0)
+	if ($rate == 0) {
 		$rate = get_exchange_rate_from_home_currency($curr, $date_);
+	}
 
 	$SQLDate = date2sql($date_);
-	if ($due_date == "")
+	if ($due_date == "") {
 		$SQLDueDate = "0000-00-00";
-	else
+	}
+	else {
 		$SQLDueDate = date2sql($due_date);
+	}
 
-	if ($trans_type == ST_BANKPAYMENT)
+	if ($trans_type == ST_BANKPAYMENT) {
 		$Total = -$Total;
+	}
 
 	if ($new || !exists_customer_trans($trans_type, $trans_no)) {
 		if ($new) { //Modified by spyrax10 7 Apr 2022
@@ -123,48 +112,78 @@ function write_customer_trans(
 			}
 		}
 
-		$sql = "INSERT INTO " . TB_PREF . "debtor_trans (
-		trans_no, type,
-		debtor_no, branch_code,
-		tran_date, due_date,
-		reference, tpe,
-		order_, ov_amount, ov_discount,
-		ov_gst, ov_freight, ov_freight_tax,
-		rate, ship_via, alloc,
-		dimension_id, dimension2_id, payment_terms, tax_included, prep_amount, opening_balances, status
-		,payment_type ,collect_id ,module_type
-		) VALUES (" . db_escape($trans_no) . ", " . db_escape($trans_type) . ",
-		" . db_escape($debtor_no) . ", " . db_escape($BranchNo) . ",
-		'$SQLDate', '$SQLDueDate', " . db_escape($reference) . ",
-		" . db_escape($sales_type) . ", " . db_escape($order_no) . ", $Total, " . db_escape($discount) . ", $Tax,
-		" . db_escape($Freight) . ",
-		$FreightTax, $rate, " . db_escape($ship_via) . ", $AllocAmt,
-		" . db_escape($dimension_id) . ", " . db_escape($dimension2_id) . ", "
-			. db_escape($payment_terms, true) . ", "
-			. db_escape($tax_included) . ", " . db_escape($prep_amount) . ", $opening_balances, " . db_escape($status) . ", "
-			. db_escape($payment_type) . ", " . db_escape($collection_type) . ", " . db_escape($module_type) . ")";
+		$sql = 
+		"INSERT INTO " . TB_PREF . "debtor_trans (
+			trans_no, type, debtor_no, branch_code, tran_date, due_date,
+			reference, tpe, order_, ov_amount, ov_discount, ov_gst, ov_freight, ov_freight_tax,
+			rate, ship_via, alloc,
+			dimension_id, dimension2_id, payment_terms, tax_included, prep_amount, opening_balances, 
+			status, payment_type, collect_id, module_type
+		) 
+		VALUES (
+			" . db_escape($trans_no) . ", 
+			" . db_escape($trans_type) . ",
+			" . db_escape($debtor_no) . ", 
+			" . db_escape($BranchNo) . ",
+			" . db_escape($SQLDate) . ",
+			" . db_escape($SQLDueDate) . ",
+			" . db_escape($reference) . ",
+			" . db_escape($sales_type) . ", 
+			" . db_escape($order_no) . ", 
+			" . db_escape($Total) . ", 
+			" . db_escape($discount) . ", 
+			" . db_escape($Tax) . ", 
+			" . db_escape($Freight) . ",
+			" . db_escape($FreightTax) . ",
+			" . db_escape($rate) . ",
+			" . db_escape($ship_via) . ", 
+			" . db_escape($AllocAmt) . ", 
+			" . db_escape($dimension_id) . ", 
+			" . db_escape($dimension2_id) . ", 
+			" . db_escape($payment_terms, true) . ", 
+			" . db_escape($tax_included) . ", 
+			" . db_escape($prep_amount) . ", 
+			" . db_escape($opening_balances) . ", 
+			" . db_escape($status) . ", 
+			" . db_escape($payment_type) . ", 
+			" . db_escape($collection_type) . ", 
+			" . db_escape($module_type) . "
+		)";
 
 		//echo $sql;
 	} else {	// may be optional argument should stay unchanged ?
 
-		$sql = "UPDATE " . TB_PREF . "debtor_trans SET
-		debtor_no=" . db_escape($debtor_no) . " , branch_code=" . db_escape($BranchNo) . ",
-		tran_date='$SQLDate', due_date='$SQLDueDate',
-		reference=" . db_escape($reference) . ", tpe=" . db_escape($sales_type) . ", order_=" . db_escape($order_no) . ",
-		ov_amount=$Total, ov_discount=" . db_escape($discount) . ", ov_gst=$Tax,
-		ov_freight=" . db_escape($Freight) . ", ov_freight_tax=$FreightTax, rate=$rate,
-		ship_via=" . db_escape($ship_via) . ", alloc=$AllocAmt,
-		dimension_id=" . db_escape($dimension_id) . ", dimension2_id=" . db_escape($dimension2_id) . ",
-		payment_terms=" . db_escape($payment_terms, true) . ",
-		tax_included=" . db_escape($tax_included) . ",
-		prep_amount =" . db_escape($prep_amount) . ",
-		payment_type = " . db_escape($payment_type) . ",
-		collect_id = " . db_escape($collection_type) . "
+		$sql = 
+		"UPDATE " . TB_PREF . "debtor_trans SET
+			debtor_no = " . db_escape($debtor_no) . ", 
+			branch_code = " . db_escape($BranchNo) . ",
+			tran_date = " . db_escape($SQLDate) . ", 
+			due_date = " . db_escape($SQLDueDate) . ",
+			reference = " . db_escape($reference) . ", 
+			tpe = " . db_escape($sales_type) . ", 
+			order_=" . db_escape($order_no) . ",
+			ov_amount = " . db_escape($Total) . ", 
+			ov_discount = " . db_escape($discount) . ", 
+			ov_gst = " . db_escape($Tax) . ",
+			ov_freight = " . db_escape($Freight) . ", 
+			ov_freight_tax = " . db_escape($FreightTax) . ", 
+			rate = " . db_escape($rate) . ", 
+			ship_via = " . db_escape($ship_via) . ", 
+			alloc = " . db_escape($AllocAmt) . ",
+			dimension_id = " . db_escape($dimension_id) . ", dimension2_id=" . db_escape($dimension2_id) . ",
+			payment_terms=" . db_escape($payment_terms, true) . ",
+			tax_included=" . db_escape($tax_included) . ",
+			prep_amount =" . db_escape($prep_amount) . ",
+			payment_type = " . db_escape($payment_type) . ",
+			collect_id = " . db_escape($collection_type) . "
+
 		WHERE trans_no=" . db_escape($trans_no) . " AND type=" . db_escape($trans_type);
 	}
 	db_query($sql, "The debtor transaction record could not be inserted");
-	if ($trans_type != ST_JOURNAL) // skip for journal entries
+	// skip for journal entries
+	if ($trans_type != ST_JOURNAL) {
 		add_audit_trail($trans_type, $trans_no, $date_, $new ? '' : _("Updated."));
+	} 
 	//echo $sql;
 	return $trans_no;
 }
