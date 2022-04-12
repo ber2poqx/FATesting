@@ -289,7 +289,6 @@ class items_cart
 	//--Robert Added--//
 	function update_gl_amount($index, $amount) 
 	{
-		
 		$this->gl_items[$index]->amount = $amount;
 	}
 
