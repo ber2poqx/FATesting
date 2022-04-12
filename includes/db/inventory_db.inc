@@ -10,15 +10,15 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
-function get_qoh_on_date(
-	$stock_id,
-	$location = null,
-	$date_ = null,
-	$item_type = 'new'
-) //Added by spyrax10
-{
-	if ($date_ == null)
+//Modified by spyrax10 12 Apr 2022
+function get_qoh_on_date($stock_id, $location = null,
+	$date_ = null, $item_type = 'new', $company_id = -1) {
+	
+	set_global_connection($company_id);
+
+	if ($date_ == null) {
 		$date_ = Today();
+	}
 
 	$date = date2sql($date_);
 	$sql = "SELECT SUM(qty)

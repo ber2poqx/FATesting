@@ -86,9 +86,11 @@ function update_status_items()
                 label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
 
             $dec = get_qty_dec($ln_itm->stock_id);
-            $qoh = get_qoh_on_date($ln_itm->stock_id, 0);
-            set_global_connection();
-            $qoo = get_on_porder_qty($ln_itm->stock_id, $_SESSION['PO']->Location);
+
+            //Modified by spyrax10 12 Apr 2022
+            $qoh = get_qoh_on_date($ln_itm->stock_id, 0, null, 'new', $_GET['branch_coy']);
+            $qoo = get_on_porder_qty($ln_itm->stock_id, $_SESSION['PO']->Location, $_GET['branch_coy']);
+
             qty_cell($ln_itm->quantity, false, $dec);
             qty_cell($qoh, false, 0);
             qty_cell($qoo, false, 0);
