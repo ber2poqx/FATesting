@@ -21,6 +21,7 @@ print_transaction();
 
 function get_transactions($category, $brand) {
     
+    set_global_connection(0);
     $sql = "SELECT SM.*, SC.description AS cat_name, SM.description AS prod_desc,
         IB.name AS item_brand, II.name AS class, ID.name AS sub_cat
 
