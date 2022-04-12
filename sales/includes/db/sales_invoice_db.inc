@@ -160,7 +160,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->co_maker,
 		$invoice->discount_dp_amount,
 		$invoice->deferred_gross_profit,
-		$invoice->profit_margin,
+		$invoice->profit_margin > 0 ? $invoice->profit_margin : 0,
 		$invoice->document_ref, //Added by spyrax10
 		$opening_balances == 1 ? $invoice->old_trans_no : 0,
 		$invoice->discount_dp_amount2 //Added by Albert
