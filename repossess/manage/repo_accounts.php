@@ -44,7 +44,11 @@ if(isset($_GET['get_Customer']))
                     'name'=>htmlentities($myrow["name"])
                 );
     }else{
-        $result = get_customer_account_repo($_GET['rtype']);
+        if($_GET['rtype'] == 'replcmnt'){
+            $result = get_customer_from_replacement();
+        }else{
+            $result = get_customer_account_repo($_GET['rtype']);
+        }
 
         $total = DB_num_rows($result);
         
@@ -63,6 +67,8 @@ if(isset($_GET['get_InvoiceNo']))
 {
     if($_GET['rtype'] == 'trmode') {
         $result = get_invtermode_to_repo($_GET['debtor_id'], true);
+    }else if($_GET['rtype'] == 'replcmnt') {
+        $result = get_replace_item_loans($_GET['debtor_id']);
     }else{
         $result = get_invoice_per_customer_repo($_GET['debtor_id'], $_GET['rtype']);
     }
@@ -148,6 +154,8 @@ if(isset($_GET['get_Item_details']))
 {
     if(isset($_GET['repo_id'])){
         $result = get_repo_accounts_item_details($_GET['repo_id']);
+    }else if($_GET['rtype'] == 'replcmnt') {
+        $result = get_replace_item_to_repo($_GET['transNo']);
     }else{
         if($_GET['rtype'] == 'trmode') {
             $transNo = $_GET['base_transno'];
@@ -360,7 +368,12 @@ if(isset($_GET['submit']))
         $dsplymsg = _('Unit price must not be empty! Please try again.');
     }
  
-    $result = get_item_detials_to_repo($_POST['base_transno'], $_POST['base_transtype']);
+    if($_POST['repo_type'] == 'replcmnt') {
+        $result = get_replace_item_to_repo($_POST['base_transno']);
+    }else{
+        $result = get_item_detials_to_repo($_POST['base_transno'], $_POST['base_transtype']);
+    }
+    
     $item_row = db_fetch($result);
     if (empty($item_row['stock_id']) && empty($item_row['color_code'])) {
         $InputError = 1;

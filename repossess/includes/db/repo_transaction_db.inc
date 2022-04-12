@@ -152,6 +152,16 @@ function get_customer_account_repo($type)
 	return db_query($sql, "could not get customer ");
 }
 
+function get_customer_from_replacement()
+{
+	$sql = "SELECT B.debtor_no, B.debtor_ref, B.name
+			FROM ".TB_PREF."returned_units A
+				INNER JOIN ".TB_PREF."debtor_trans B ON B.trans_no = A.si_trans_no
+				INNER JOIN ".TB_PREF."debtors_master C ON C.debtor_no = B.debtor_no
+			WHERE B.module_type = 'TEMP-REPO' ";
+	return db_query($sql, "could not get customer ");
+}
+
 function get_invoice_to_repo($debtor_no, $view=false)
 {
 	if($view == false ){
@@ -408,10 +418,36 @@ function get_item_termmode($debtor_no, $trans_no, $type)
 function get_unitcost($inv_reference)
 {
 	$sql = "SELECT A.total_amount
-				FROM debtor_loans A 
+				FROM ".TB_PREF."debtor_loans A 
 				WHERE A.invoice_ref_no = ".db_escape($inv_reference);
 
 	$result = db_query($sql, "could not get unit cost");
 	$row = db_fetch($result);
 	return $row[0];
+}
+
+function get_replace_item_loans($debtor_no)
+{
+	$sql = "SELECT B.*, D.stock_id, D.description itemdesc, E.description category, A.from_debtor_trans_type type, B.invoice_date tran_date
+			FROM ".TB_PREF."returned_units A
+				INNER JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.si_trans_no
+				INNER JOIN ".TB_PREF."debtors_master C ON C.debtor_no = B.debtor_no
+				INNER JOIN ".TB_PREF."debtor_trans_details D ON D.debtor_trans_no = A.debtor_trans_no AND D.debtor_trans_type = A.debtor_trans_type
+				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
+			WHERE A.debtor_trans_details_id != D.id
+				AND B.debtor_no = ".db_escape($debtor_no);
+			
+	return db_query($sql, "could not get debtor loans info in replace item because ");
+}
+
+function get_replace_item_to_repo($trans_no)
+{
+	$sql = "SELECT B.id, B.stock_id, B.description, B.color_code, B.quantity, B.unit_price, B.standard_cost, B.lot_no, B.chassis_no
+			FROM ".TB_PREF."returned_units A 
+				INNER JOIN ".TB_PREF."debtor_trans_details B ON B.debtor_trans_no = A.debtor_trans_no AND B.debtor_trans_type = A.debtor_trans_type
+			WHERE A.si_trans_no = ".db_escape($trans_no)."
+				AND A.debtor_trans_details_id != B.id
+			ORDER BY B.id DESC";
+
+	return db_query($sql, "could not get a/r ledger entries because ");
 }
