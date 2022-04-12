@@ -63,8 +63,8 @@ if(isset($_GET['get_InvoiceNo']))
                                 'type'=>$myrow["type"],
                                 'tran_date'=>$myrow["tran_date"],
                                 'status'=>$myrow["status"],
-                                'trmd_inv_no'=>$invoice_no,
-                                'trmd_inv_type'=>$invoice_type
+                                'trmd_inv_no'=>0,
+                                'trmd_inv_type'=>0
                                 );
         }else{
             if($_GET['isTrmode'] == 'true') {

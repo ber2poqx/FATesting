@@ -101,7 +101,9 @@ Ext.onReady(function(){
 			{name:'overdue', mapping:'overdue'},
 			{name:'pastdue', mapping:'pastdue'},
 			{name:'GPM', mapping:'GPM'},
-			{name:'CGPM', mapping:'CGPM'}
+			{name:'CGPM', mapping:'CGPM'},
+			{name:'base_transno', mapping:'base_transno'},
+			{name:'base_transtype', mapping:'base_transtype'}
 		]
     });
 	Ext.define('item_delailsModel',{
@@ -442,6 +444,20 @@ Ext.onReady(function(){
 			allowBlank: false,
 			hidden: true
 		},{
+			xtype: 'textfield',
+			id: 'base_transno',
+			name: 'base_transno',
+			fieldLabel: 'base_transno',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'base_transtype',
+			name: 'base_transtype',
+			fieldLabel: 'base_transtype',
+			allowBlank: false,
+			hidden: true
+		},{
 			xtype: 'panel',
 			id: 'mainpanel',
 			items: [{
@@ -503,7 +519,9 @@ Ext.onReady(function(){
 								Ext.getCmp('total_unrecovrd').setValue();
 								Ext.getCmp('past_due').setValue();
 								Ext.getCmp('over_due').setValue();
-	
+								Ext.getCmp('base_transno').setValue();
+								Ext.getCmp('base_transtype').setValue();
+
 								Ext.Ajax.request({
 									url : '?getReference=zHun',
 									async:false,
@@ -561,6 +579,8 @@ Ext.onReady(function(){
 								Ext.getCmp('gpm').setValue();
 								Ext.getCmp('total_unrecovrd').setValue();
 								Ext.getCmp('remarks').setValue();
+								Ext.getCmp('base_transno').setValue();
+								Ext.getCmp('base_transtype').setValue();
 							}
 						}
 					}]
@@ -585,7 +605,7 @@ Ext.onReady(function(){
 						fieldStyle: 'font-weight: bold; color: #210a04;',
 						listeners: {
 							select: function(combo, record, index) {
-								SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type'), amount: record.get('unrecoverd')};
+								SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type'), amount: record.get('unrecoverd'), rtype: Ext.getCmp('repo_type').getValue(), base_transno: record.get('base_transno'), base_transtype: record.get('base_transtype')};
 								SIitemStore.load();
 								
 								Ext.getCmp('transtype').setValue(record.get('type'));
@@ -608,6 +628,8 @@ Ext.onReady(function(){
 								Ext.getCmp('total_unrecovrd').setValue(record.get('totalunrecoverd'));
 								Ext.getCmp('past_due').setValue(record.get('pastdue'));
 								Ext.getCmp('over_due').setValue(record.get('overdue'));
+								Ext.getCmp('base_transno').setValue(record.get('base_transno'));
+								Ext.getCmp('base_transtype').setValue(record.get('base_transtype'));
 							}
 						}
 					},{
@@ -661,6 +683,8 @@ Ext.onReady(function(){
 								Ext.getCmp('total_unrecovrd').setValue();
 								Ext.getCmp('past_due').setValue();
 								Ext.getCmp('over_due').setValue();
+								Ext.getCmp('base_transno').setValue();
+								Ext.getCmp('base_transtype').setValue();
 							}
 						}
 					}]

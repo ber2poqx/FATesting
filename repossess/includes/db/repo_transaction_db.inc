@@ -177,7 +177,7 @@ function get_invtermode_to_repo($debtor_no, $view=false)
 	if($view == false ){
 		$sWhere = " AND COALESCE(A.module_type, 0) != 'TEMP-REPO' ";
 	}
-	$sql = "SELECT A.trans_no, A.reference, A.type, A.tran_date, A.status, stock_id, itemdesc, B.category_id, category, ITEM.trans_no invoice_no, ITEM.debtor_trans_type
+	$sql = "SELECT A.trans_no, A.reference, A.type, A.tran_date, A.status, stock_id, itemdesc, B.*, category, ITEM.trans_no invoice_no, ITEM.debtor_trans_type
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtor_term_modification B ON B.trans_no = A.trans_no AND B.debtor_no = A.debtor_no
 				LEFT JOIN ( 
@@ -204,7 +204,7 @@ function get_item_detials_to_repo($trans_no, $trans_type)
 		FROM ".TB_PREF."debtor_trans_details A 
 		WHERE A.debtor_trans_no = ".db_escape($trans_no)."
 			AND A.debtor_trans_type = ".db_escape($trans_type);
-	
+
 	return db_query($sql, "could not get sales invoice item details");	
 }
 
@@ -403,4 +403,15 @@ function get_item_termmode($debtor_no, $trans_no, $type)
 					
 	$result = db_query($sql, "could not get total payment due");
 	return db_fetch($result);
+}
+
+function get_unitcost($inv_reference)
+{
+	$sql = "SELECT A.total_amount
+				FROM debtor_loans A 
+				WHERE A.invoice_ref_no = ".db_escape($inv_reference);
+
+	$result = db_query($sql, "could not get unit cost");
+	$row = db_fetch($result);
+	return $row[0];
 }
