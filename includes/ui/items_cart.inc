@@ -286,6 +286,13 @@ class items_cart
 
 	}
 
+	//--Robert Added--//
+	function update_gl_amount($index, $amount) 
+	{
+		
+		$this->gl_items[$index]->amount = $amount;
+	}
+
 	function remove_gl_item($index)
 	{
 		array_splice($this->gl_items, $index, 1);

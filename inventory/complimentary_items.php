@@ -50,21 +50,29 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'AddItem';
-            $category_id = $_REQUEST['category'];
-            $serialise_id = $_REQUEST['serialise_id'];
-            $AdjDate = date("m/d/Y",strtotime($_REQUEST['AdjDate']));
-            $model = $_REQUEST['model'];
-            $lot_no = $_REQUEST['lot_no'];
-            $type_out = $_REQUEST['type_out'];
-            $transno_out = $_REQUEST['transno_out'];
-            $serialised = $_REQUEST['serialised'];
-            $qty = $_REQUEST['qty'];
-            $rr_date = $_REQUEST['rr_date'];
-            //$line_item = $_REQUEST['line_item'];
-            $brcode = $db_connections[user_company()]["branch_code"];
-            $_SESSION['transfer_items']->from_loc=$brcode;
-            if(!isset($_REQUEST['view'])){
-                add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'new',$qty, $rr_date, $AdjDate);
+            $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+            //var_dump($objDataGrid);
+            foreach($objDataGrid as $value=>$data) 
+            {
+                //echo $data;
+                $serialise_id = $data['serialise_id'];
+                $category_id = $data['category'];
+                //$AdjDate = $data['AdjDate'];
+                $AdjDate = date("m/d/Y",strtotime($data['AdjDate']));
+                $model = $data['model'];
+                $lot_no = $data['lot_no'];
+                $type_out = $data['type_out'];
+                $transno_out = $data['transno_out'];
+                $serialised = $data['serialised'];
+                $rr_date = $data['rr_date'];
+                $qty = $data['qty'];
+                $brcode = $db_connections[user_company()]["branch_code"];
+                $_SESSION['transfer_items']->from_loc=$brcode;
+
+                if(!isset($_REQUEST['view'])){
+                    add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'new',$qty, $rr_date, $AdjDate);
+                } 
             }
             display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             exit;
@@ -73,10 +81,15 @@ if(!is_null($action) || !empty($action)){
             $arrayremove = array("[","]");
             $onlyconsonants = str_replace($arrayremove, "", html_entity_decode($_REQUEST['dataUpdate']));
             $filter = json_decode($onlyconsonants, true);
+
             $_SESSION['transfer_items']->update_cart_item($filter['id'], $filter['qty'],$filter['standard_cost'],'0000-00-00','0000-00-00',$filter['lot_no'],$filter['chasis_no']);
-        
-        
-            echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'"})';
+
+            $amount = $filter['qty'] * $filter['standard_cost'];
+            $amount=-$amount;
+            
+            $_SESSION['transfer_items']->update_gl_amount($filter['id'] ,$amount);
+
+            echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'", "amount":"'.$amount.'"})';
             exit;
             break;
         case 'updateGLData';
@@ -193,8 +206,6 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'SaveTransfer';
-            $brcode = $db_connections[user_company()]["branch_code"];
-        
             set_global_connection();
             $AdjDate = sql2date($_POST['AdjDate']);
             $catcode = $_POST['catcode'];
@@ -207,64 +218,91 @@ if(!is_null($action) || !empty($action)){
             $item_models = $_POST['item_models'];
 
             $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
+            $brcode = $db_connections[user_company()]["branch_code"];
 
-             if($person_type==2)
-                    $sql = "SELECT d.debtor_no as id, d.debtor_ref as ref_gl, d.name AS name, 'Customer' as mastertype FROM "
-                        .TB_PREF."debtors_master d,"
-                        .TB_PREF."cust_branch c WHERE d.debtor_no='$person_id_header'
-                        AND NOT d.inactive ORDER BY name asc";
-            elseif($person_type==3) 
-                    $sql = "SELECT supplier_id as id, supp_ref as ref_gl, supp_name as name, 'Supplier' as mastertype FROM "
-                                    .TB_PREF."suppliers s
-                      WHERE supplier_id='$person_id_header' AND NOT s.inactive ORDER BY name asc";
-            elseif($person_type==6){
-                $sql = "SELECT s.id, s.user_id as ref_gl, s.real_name as name, 'Employee' as mastertype FROM "
-                    .TB_PREF."users s
-                      WHERE NOT s.inactive ORDER BY name asc";
-            }
+            $Dataongrid = stripslashes(html_entity_decode($_POST['Dataongrid']));
+            $objDataGrid = json_decode($Dataongrid, true);
 
-            $result = db_query($sql, 'cannot retrieve counterparty name');
-            $rowresult = db_fetch($result);
+            $errmsg="";
 
-            if(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
-                $errmg="Select Location";
-                echo '({"success":false,"errmsg":"'.$errmg.'"})';
-            }elseif(empty($item_models) || $item_models==''){
-                $errmg="Select Item";
-                echo '({"success":false,"errmsg":"'.$errmg.'"})';
-            }elseif(empty($catcode) || $catcode==''){
-                $errmg="Select Category";
-                echo '({"success":false,"errmsg":"'.$errmg.'"})';
-            }elseif($total_rrdate>0){
-                $errmg="This document cannot be processed because there is insufficient quantity for items marked.";
-                echo '({"success":false,"errmsg":"'.$errmg.'"})';
-                
-            }elseif($totaldebit==$totalcredit && ($totaldebit!=0 || $totalcredit!=0)){
-                //$_POST['ref']=$Refs->get_next(ST_COMPLIMENTARYITEM, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                $trans_no = add_stock_Complimentary_Items($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
-                
-                //$total_gl = 0;
-                foreach($_SESSION['transfer_items']->gl_items as $gl)
+            $isError = 0;
+            if (count($objDataGrid) == 0){
+               $errmsg = "Please Select Item";
+            } else {
+                foreach($objDataGrid as $value=>$data) 
                 {
-                    if (!isset($gl->date))
-                        $gl->date = $_SESSION['transfer_items']->tran_date;
-                        
-                    $total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, $gl->person_id,'',0,$rowresult['id'],$masterfile);
-                        
+                    $stock_qty = $data['qty'];
+                    $currentqty = $data['currentqty'];
+                    $stock_id = $data['stock_id'];
+
+                    if($stock_qty == 0) {
+                        $isError = 1;
+                        $errmsg="Quantity must not be zero.";
+                        break;
+                    }elseif($stock_qty > $currentqty) {
+                        $isError = 1;
+                        $errmsg = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                        break;
+                    }
                 }
-                
-                new_doc_date($AdjDate);
-                $_SESSION['transfer_items']->clear_items();
-                unset($_SESSION['transfer_items']);
-                echo '({"success":true,"total":"'.$AdjDate.'","reference":"'.$_POST['ref'].'","trans_no":"'.$trans_no.'"})';
-                
-                
-            }else{
+
+                if($person_type==2)
+                    $sql = "SELECT d.debtor_no as id, d.debtor_ref as ref_gl, d.name AS name, 'Customer' as mastertype 
+                    FROM ".TB_PREF."debtors_master d,".TB_PREF."cust_branch c 
+                    WHERE d.debtor_no='$person_id_header'
+                    AND NOT d.inactive ORDER BY name asc";
+                elseif($person_type==3) 
+                    $sql = "SELECT supplier_id as id, supp_ref as ref_gl, supp_name as name, 'Supplier' as mastertype 
+                    FROM ".TB_PREF."suppliers s
+                    WHERE supplier_id='$person_id_header' AND NOT s.inactive ORDER BY name asc";
+                elseif($person_type==6){
+                    $sql = "SELECT s.id, s.user_id as ref_gl, s.real_name as name, 'Employee' as mastertype 
+                    FROM ".TB_PREF."users s
+                    WHERE NOT s.inactive ORDER BY name asc";
+                }
+
+                $result = db_query($sql, 'cannot retrieve counterparty name');
+                $rowresult = db_fetch($result);
+
+                if(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
+                    $errmsg="Select Location";
+                    //echo '({"success":false,"errmsg":"'.$errmg.'"})';
+                }elseif(empty($catcode) || $catcode==''){
+                    $errmsg="Select Category";
+                    //echo '({"success":false,"errmsg":"'.$errmg.'"})';
+                }elseif($total_rrdate>0){
+                    $errmsg="This document cannot be processed because there is insufficient quantity for items marked.";
+                    //echo '({"success":false,"errmsg":"'.$errmg.'"})';
+                    
+                }elseif($totaldebit==$totalcredit && ($totaldebit!=0 || $totalcredit!=0) && $isError != 1){
+                    //$_POST['ref']=$Refs->get_next(ST_COMPLIMENTARYITEM, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
+                    $trans_no = add_stock_Complimentary_Items($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
+                    
+
+                    $totalline=count($objDataGrid);
+                    //$total_gl = 0;
+                    foreach($_SESSION['transfer_items']->gl_items as $gl)
+                    {
+                        if (!isset($gl->date))
+                            $gl->date = $_SESSION['transfer_items']->tran_date;
+                            
+                        $total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, $gl->person_id,'',0,$rowresult['id'],$masterfile);
+                            
+                    }             
+                    new_doc_date($AdjDate);
+                    $_SESSION['transfer_items']->clear_items();
+                    unset($_SESSION['transfer_items']);
+                }
+            }
+            
+                echo '({"success":true,"total":"'.$totalline.'","reference":"'.$_POST['ref'].'","trans_no":"'.$trans_no.'",
+                    "errmsg":"'.$errmsg.'"})';   
+            /*}else{
                 
                 $errmg="Not Balance";
                 echo '({"success":false,"errmsg":"'.$errmg.'"})';
                 
-            }
+            }*/
             exit;
             break;
         case 'receive_header';
