@@ -253,8 +253,9 @@ $id = find_submit('CopyToPO');
 if ($id != -1) {
 	global $path_to_root;
 	$value = $_POST["CopyToPO$id"];
+	$coy = $_POST['selected_pr_branch'];
 	$_SESSION["selected_pr_branch"] = $_POST['selected_pr_branch'];
-	meta_forward($_SERVER['PHP_SELF'], "PRNumber=$value");
+	meta_forward($_SERVER['PHP_SELF'], "PRNumber=$value&coy=$coy");
 }
 
 function pr_branch_display_pr_order_items()
@@ -308,9 +309,9 @@ function pr_branch_display_pr_order_items()
 
 			$dec = get_qty_dec($ln_itm->stock_id);
 
-			set_global_connection();
-			$qoh = get_qoh_on_date($ln_itm->stock_id, 0);
-			$qoo = get_on_porder_qty($ln_itm->stock_id, $_POST['Location']);
+			//Modified by spyrax10 12 Apr 2022
+			$qoh = get_qoh_on_date($ln_itm->stock_id, 0, null, 'new', $_GET['coy']);
+			$qoo = get_on_porder_qty($ln_itm->stock_id, $_POST['Location'], $_GET['coy']);
 
 			qty_cell($ln_itm->quantity, false, $dec);
 			qty_cell($qoh, false, 0);
@@ -530,7 +531,7 @@ function copy_to_po($row)
 		"CopyToPO$id",
 		$value,
 		"Copy to PO",
-		ICON_RECEIVE
+		ICON_RECEIVE, '', get_post('selected_pr_branch')
 	);
 }
 
