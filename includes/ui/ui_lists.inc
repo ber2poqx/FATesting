@@ -2964,7 +2964,7 @@ function main_brand($brand, $selected_id=null, $spec_opt=false, $submit_on_chang
 
 	$sql = "SELECT id, name, inactive FROM ".TB_PREF."item_brand";
 	return combo_input($brand, $selected_id, $sql, 'name', 'inactive',
- 		array('order'=>'id',
+ 		array('order'=>'name', //Modified by spyrax10
 			'spec_option' => $spec_opt,
 			'spec_id' => -1,
  			'select_submit'=> $submit_on_change,

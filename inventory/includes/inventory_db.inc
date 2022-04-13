@@ -690,3 +690,14 @@ function get_stock_catID($stock_id) {
 	$row = db_fetch_row($result);
 	return $row[0];
 }
+
+function clean_spaces($table_name = '', $column = '', $company_id = -1) {
+	
+	set_global_connection($company_id);
+
+	$sql = "UPDATE $table_name 
+	SET $column = REPLACE
+	(REPLACE(REPLACE($column, ' ', ''), '\t', ''), '\n', '');";
+
+	db_query($sql, "Cannot clean spaces!");
+}

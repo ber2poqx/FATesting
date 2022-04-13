@@ -30,6 +30,8 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
+$_SESSION['language']->encoding = "UTF-8";
+
 $mode = get_company_pref('no_item_list');
 if ($mode != 0)
 	$js = get_js_set_combo_item();
