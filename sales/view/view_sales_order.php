@@ -117,7 +117,7 @@ label_row(
 	"colspan=3"
 );
 label_row(_("Comments"), nl2br($_SESSION['View']->Comments), "class='tableheader2'", "colspan=3");
-label_row(_("Account Specialist Remarks"), nl2br(get_account_specialist_remarks($_GET['trans_no'])), "class='tableheader2'", "colspan=3"); //Added by Albert 10/25/2021
+// label_row(_("Account Specialist Remarks"), nl2br(get_account_specialist_remarks($_GET['trans_no'])), "class='tableheader2'", "colspan=3"); //Added by Albert 10/25/2021
 end_table();
 
 if ($_GET['trans_type'] != ST_SALESQUOTE) {
