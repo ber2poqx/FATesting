@@ -695,9 +695,17 @@ function clean_spaces($table_name = '', $column = '', $company_id = -1) {
 	
 	set_global_connection($company_id);
 
+	$alter_sql1 = "ALTER TABLE `$table_name` DROP PRIMARY KEY;";
+
+	db_query($alter_sql1, "Cannot Alter Table: " . $table_name);
+
 	$sql = "UPDATE $table_name 
 	SET $column = REPLACE
 	(REPLACE(REPLACE($column, ' ', ''), '\t', ''), '\n', '');";
 
 	db_query($sql, "Cannot clean spaces!");
+
+	$alter_sql2 = "ALTER TABLE `$table_name` ADD PRIMARY KEY (`$column`);";
+
+	db_query($alter_sql2, "Cannot Alter Table: " . $table_name);
 }

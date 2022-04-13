@@ -357,13 +357,6 @@ if (isset($_POST['import'])) {
 				if (!$row) add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 				else update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 
-				/**
-				 * Added by spyrax10 13 Apr 2022
-				 * Note: To remove Newline space value/s to a particular table/s after an Item is Added or Updated
-				 */
-				//clean_spaces('stock_master', 'stock_id');
-				//clean_spaces('item_codes', 'item_code');
-				//clean_spaces('item_codes', 'stock_id');
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
@@ -421,7 +414,18 @@ if (isset($_POST['import'])) {
 					$p++;
 				} else display_notification("Stock Code $code does not exist");
 			}
-		}
+
+		} //End of While loop
+
+		/**
+			* Added by spyrax10 13 Apr 2022
+			* Note: To remove Newline space value/s to a particular table/s after an Item is Added or Updated
+		*/
+
+		//clean_spaces('stock_master', 'stock_id');
+		//clean_spaces('item_codes', 'item_code');
+		//clean_spaces('item_codes', 'stock_id');
+
 		@fclose($fp);
 
 		if ($i+$j > 0) display_notification("$i item posts Added, $j item posts Updated.");
