@@ -14,7 +14,6 @@ $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/repossess/includes/repossessed.inc");
-include_once($path_to_root . "/lending/includes/db/ar_installment_db.inc");
 
 add_access_extensions();
 
@@ -53,7 +52,7 @@ if(isset($_GET['get_InvoiceNo']))
         
         if($_GET['isreplce'] == 'true'){
             if($counter == 0){
-                $replace_result = get_replace_item($myrow['trans_no']);
+                $replace_result = get_replace_item_to_repo($myrow['trans_no']);
                 $replace_itm = db_fetch($replace_result);
                 $counter = 1;
             }
@@ -91,7 +90,7 @@ if(isset($_GET['get_InvoiceNo']))
 if(isset($_GET['get_Item_details']))
 {
     if($_GET['isreplce'] == 'true'){
-        $result = get_replace_item($_GET['transNo']);
+        $result = get_replace_item_to_repo($_GET['transNo']);
         $total = DB_num_rows($result);
         while ($myrow = db_fetch($result)) {
             $status_array[] = array('stock_id'=>$myrow["stock_id"],
@@ -142,7 +141,7 @@ if(isset($_GET['Get_termrepo'])){
 
         }else{
 
-                $rplc_result = get_replace_item($myrow['trans_no']);
+                $rplc_result = get_replace_item_to_repo($myrow['trans_no']);
                 
                 if (db_num_rows($rplc_result) != 0){
                     
