@@ -1157,4 +1157,17 @@ function get_so_item_type($order_no, $type)
 
 	return $row[0];
 }
+function get_so_items($reference)
+{
+
+	$sql = "SELECT 
+				sorder.account_specialist_remarks
+			FROM " . TB_PREF . "sales_orders as sorder
+				WHERE sorder.reference = " . db_escape($reference);
+			$result = db_query($sql, "Can't Get item type!!!");
+
+			$row = db_fetch_row($result);
+
+			return $row[0];
+}
 /*---END by Albert*/

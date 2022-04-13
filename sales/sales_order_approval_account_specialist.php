@@ -72,6 +72,7 @@ function copy_from_cart()
 
 	$_POST['customer_id'] = -1;
 
+
 	//new added by progjr on 2-20-2021
 	// $_POST['document_ref'] = $cart->document_ref;
 	$_POST['salesman_id'] = $cart->salesman_id;
@@ -166,9 +167,9 @@ function display_sales_order_update_status_items(&$cart)
     end_table();
     div_end();
 }
-
 if (isset($_POST['Approved'])) {
     // $_SESSION['Items']->status = "Approved";
+	
 	$_SESSION['Items']->account_specialist_remarks = $_POST['account_specialist_remarks'];
     $update_message = update_so_approval_account_specialist($_SESSION['Items']);
 	processing_end();
@@ -183,8 +184,8 @@ display_sales_order_update_status_header($_SESSION['Items']);
 display_sales_order_update_status_items($_SESSION['Items']);
 
 start_table(TABLESTYLE2);
-
-textarea_row(_("Account Specialist Remarks:"), 'account_specialist_remarks', null, 70, 4);
+$so_as_remarks = get_so_items(get_post('ref'));
+textarea_row(_("Account Specialist Remarks:"), 'account_specialist_remarks', $so_as_remarks, 70, 4);
 
 end_table(1);
 

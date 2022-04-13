@@ -102,6 +102,7 @@ function display_sales_order_update_status_header(&$cart)
     // label_row(_("Reference No"), $cart->document_ref);
     label_row(_("Order Date"), $cart->document_date);
 	label_row(_("Sale's Type"), $cart->stype_name);
+	label_row(_("Account Specialist Remarks"), get_so_items(get_post('ref')));
     table_section(2);
     // label_row(_("WRC/EW Code"), $cart->warranty_code);
     // label_row(_("FSC Series"), $cart->fsc_series);
