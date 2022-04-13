@@ -101,7 +101,8 @@
 						add_cash_price( 
 						$types = get_cash_price_types_id($types), 
 						$stock_id, 
-						$price);
+						$price,
+						$date_epic);
 
 						add_pricehistory($stock_id, $price, $Selected_id, 0, $types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"));
 
@@ -111,7 +112,8 @@
 						add_lcp_pricing(
 						$types = get_lcp_price_types_id($types),
 						$stock_id,
-						$price);
+						$price,
+						$date_epic);
 
 						add_pricehistory($stock_id, $price, $Selected_id, 0, 0, $types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 						
@@ -125,7 +127,8 @@
 						$types = get_system_cost_types_id($types), 
 						$stock_id, 
 						$supplierdesc,
-						$price);
+						$price,
+						$date_epic);
 
 						add_pricehistory($stock_id, $price, $Selected_id, $supplier, 0, 0, $types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"));
 
@@ -137,7 +140,8 @@
 						$supplier = pr_get_supplier_id($supplier), 
 						$types = get_srp_types_id($types), 
 						$stock_id, 
-						$price);
+						$price,
+						$date_epic);
 
 						add_pricehistory($stock_id, $price, $Selected_id, $supplier, 0, 0, 0, $types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
 
