@@ -9,23 +9,47 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
+$page_security = 'SA_SETUPDISPLAY'; // A very low access level. The real access level is inside the routines.
+$path_to_root = "..";
 
-if (isset($_GET['sel_app']))
-{
-	$page_security = 'SA_SETUPDISPLAY'; // A very low access level. The real access level is inside the routines.
-	$path_to_root = "..";
+include_once($path_to_root . "/includes/session.inc");
+include_once($path_to_root . "/includes/ui.inc");
+include_once($path_to_root . "/reporting/includes/class.graphic.inc");
+include_once($path_to_root . "/includes/dashboard.inc"); // here are all the dashboard routines.
 
-	include_once($path_to_root . "/includes/session.inc");
-	include_once($path_to_root . "/includes/ui.inc");
-	include_once($path_to_root . "/reporting/includes/class.graphic.inc");
-	include_once($path_to_root . "/includes/dashboard.inc"); // here are all the dashboard routines.
+$js = "";
+if ($SysPrefs->use_popup_windows) {
+    $js .= get_js_open_window(800, 500);
+}
 
-	$js = "";
-	if ($SysPrefs->use_popup_windows)
-		$js .= get_js_open_window(800, 500);
+page(_($help_context = "Dashboard"), false, false, "", $js);
 
-	page(_($help_context = "Dashboard"), false, false, "", $js);
-	dashboard($_GET['sel_app']);
+start_form();
+
+if (get_post('trans_type')) {
+    $_GET['sel_app'] = get_post('trans_type');
+    $Ajax->activate('_page_body');
+}
+
+start_table(TABLESTYLE_NOBORDER);
+start_row();
+
+value_type_list(_("Transaction Type:"), 'trans_type', 
+    array(
+        'ALL' => 'All Transaction Summary',
+        'orders' => 'Sales',
+        'AP' => 'Purchases',
+		'stock' => 'Items and Inventory',
+        'GL' => 'Banking and General Ledger'
+    ), '', null, true, '', true
+);
+
+end_row();
+end_table(); 
+
+if (isset($_GET['sel_app'])) {
+	dashboard($_GET['sel_app'], get_post('trans_type'));
+    end_form();
 	end_page();
 	exit;
 }

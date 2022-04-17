@@ -10,7 +10,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function dashboard($sel_app)
+function dashboard($sel_app, $type = "")
 {
 	$selected_app = $sel_app;
 
@@ -35,22 +35,30 @@ function dashboard($sel_app)
 	}
 
 	//check_for_overdue_recurrent_invoices();
-	if ($selected_app == "orders")
+	if ($selected_app == "orders" && $type == "orders") {
 		display_customer_topten();
-	elseif ($selected_app == "AP")
+	}
+	elseif ($selected_app == "AP") {
 		display_supplier_topten();
-	elseif ($selected_app == "stock")
+	}
+	elseif ($selected_app == "stock") {
 		display_stock_topten();
-	elseif ($selected_app == "manuf")
+	}
+	elseif ($selected_app == "manuf") {
 		display_stock_topten(1);
-	elseif ($selected_app == "assets")
+	}
+	elseif ($selected_app == "assets") {
 		display_stock_topten(2);
-	elseif ($selected_app == "proj")
+	}
+	elseif ($selected_app == "proj") {
 		display_dimension_topten();
-	elseif ($selected_app == "GL")
+	}
+	elseif ($selected_app == "GL") {
 		display_gl_info();
-	else	
+	}
+	else{
 		display_all();
+	}
 }
 
 function display_title($title)
