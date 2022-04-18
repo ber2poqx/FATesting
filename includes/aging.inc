@@ -66,6 +66,19 @@ function debtor_remaining_month($trans_no, $trans_type = ST_SALESINVOICE, $debto
     return $row[0];
 }
 
+function get_customer_loansched($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
+
+	set_global_connection();
+
+	$sql = "SELECT DLS.*, DATE_FORMAT(DLS.date_due, '%M %Y') AS disp_date
+		FROM " . TB_PREF . "debtor_loan_schedule DLS 
+		WHERE DLS.month_no <> 0 AND DLS.trans_no = " .db_escape($trans_no) 
+			. " AND DLS.debtor_no = " .db_escape($debtor_no) 
+			. " AND DLS.trans_type = " .db_escape($trans_type);
+
+	return db_query($sql, _("Cant get Customer's Loan Schedule!"));
+}
+
 function invoice_type_status($trans_no, $debtor_no, $end_date) {
 
     $sql = "SELECT 
@@ -88,6 +101,40 @@ function invoice_type_status($trans_no, $debtor_no, $end_date) {
     $row = db_fetch_row($res);
 
     return $row[0] != null ? $row[0] : 'new';
+}
+
+function get_payment_for_loanID($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $loan_schedID) {
+
+    $total = 0;
+    $table_name = ar_table_name($trans_type);
+    $inv_date = ar_invoice_date($trans_type);
+
+    $sql = "SELECT SUM(A.payment_applied) 
+        FROM ".TB_PREF."debtor_loan_ledger A ";
+
+    $sql .= " WHERE A.debtor_no = ".db_escape($debtor_no) . 
+        " AND A.trans_no = ".db_escape($trans_no) . 
+        " AND A.trans_type_to = ".db_escape($trans_type) . 
+        " AND A.loansched_id = ".db_escape($loan_schedID);
+
+    $res = db_query($sql, 'Cant get total payment for given loan_ID! < ');
+    $row = db_fetch_row($res);
+    $total = $row[0];
+
+    return $total;
+}
+
+function update_DLS_status($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no,  
+    $loan_schedID, $status = '') {
+
+    $sql = "UPDATE ".TB_PREF."debtor_loan_schedule SET status = '$status'";
+
+    $sql .= " WHERE debtor_no = ".db_escape($debtor_no) . 
+        " AND trans_no = ".db_escape($trans_no) . 
+        " AND trans_type = ".db_escape($trans_type) . 
+        " AND id = ".db_escape($loan_schedID);
+
+    db_query($sql, _("Can't update loan status!"));
 }
 
 function total_payment_for_month($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date, 

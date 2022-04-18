@@ -29,6 +29,7 @@ include_once($path_to_root . "/gl/includes/ui/gl_journal_ui.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
 include_once($path_to_root . "/gl/includes/gl_ui.inc");
 include_once($path_to_root . "/sales/includes/sales_db.inc");
+include_once($path_to_root . "/includes/aging.inc");
 
 $js = '';
 if ($SysPrefs->use_popup_windows)
@@ -271,6 +272,7 @@ function update_tax_info()
 if (isset($_POST['Process']))
 {
 	$input_error = 0;
+	$docu_total = $_SESSION['journal_items']->gl_items_total_debit();
 
 	if ($_SESSION['journal_items']->count_gl_items() < 1) {
 		display_error(_("You must enter at least one journal line."));
@@ -363,17 +365,10 @@ if (isset($_POST['Process']))
 		}
 	}
 
-	//Added by spyrax10 10 Feb 2022
-	// if ($_POST['cashier_teller'] == '') {
-	// 	display_error(_("Please Select Cashier/Teller!"));
-	// 	$input_error = 1;
-	// }
-
-	// if ($_POST['source_ref'] == '') {
-	// 	display_error(_("Source Ref cannot be empty!"));
-	// 	$input_error = 1;
-	// }
-	//
+	if (check_value('ar_alloc') == 1 && $docu_total > get_post('current_bal')) {
+		display_error(_("Cannot allocate more than the current Invoice Balance."));
+		return false;
+	}
 
 	if ($input_error == 1) {
 		unset($_POST['Process']);
@@ -396,7 +391,6 @@ if (isset($_POST['Process']))
 	if (check_value('ar_alloc') == 1) {
 		$cart->ar_alloc = $_POST['ar_alloc'];
 		$cart->ar_type = $_POST['ar_type'];
-		$cart->ar_date = $_POST['ar_date'];
 		$cart->ar_trans_no = $_POST['ar_trans_no'];
 		$cart->ar_trans_type = $_POST['ar_trans_type'];
 		$cart->ar_debtor_no = $_POST['person_id'];
@@ -564,11 +558,6 @@ function check_item_data()
 	
 	if (check_value('ar_alloc') == 1 && !get_post('ar_inv')) {
 		display_error(_("Please Select Customer's Invoice!"));
-		return false;
-	}
-
-	if (check_value('ar_alloc') == 1 && !get_post('ar_date')) {
-		display_error(_("Please Select Loan Schedule Date!"));
 		return false;
 	}
 

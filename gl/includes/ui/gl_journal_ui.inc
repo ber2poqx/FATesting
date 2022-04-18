@@ -54,6 +54,12 @@ function display_order_header(&$Order)
 		if (get_post('ar_inv')) {
 
 			$inv_row = db_fetch_assoc(get_customer_invoices(get_post('person_id')));
+			$current_bal = current_balance_display(
+				$inv_row['trans_no'],
+				$inv_row['type'],
+				$inv_row['cust_id'],
+				date2sql(Today())
+			);
 
 			label_row("Invoice Type: ", $inv_row['inv_type']);
 			label_row("Category: ", $inv_row['stock_name']);
@@ -61,18 +67,19 @@ function display_order_header(&$Order)
 			label_row("Model Description: ", $inv_row['model_desc']);
 			label_row("Color Description: ", $inv_row['color_code']);
 
-			sql_type_list(_("Apply For the Month of:"), 'ar_date', 
-				get_customer_loansched(get_post('person_id'), $inv_row['trans_no'], $inv_row['type']), 'id', 'disp_date', 
-				'label', null, true, _("Select Schedule")
+			label_row("Current Invoice Balance: ", 
+				price_format($current_bal)
 			);
 
 			$_POST['debtor_ref'] = $inv_row['debtor_ref'];
 			$_POST['ar_trans_no'] = $inv_row['trans_no'];
 			$_POST['ar_trans_type'] = $inv_row['type'];
-
+			$_POST['current_bal'] = $current_bal;
+			
 			hidden('debtor_ref');
 			hidden('ar_trans_no');
 			hidden('ar_trans_type');
+			hidden('current_bal');
 		}
 	}
 

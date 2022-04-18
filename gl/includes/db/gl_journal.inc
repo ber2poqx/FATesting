@@ -138,7 +138,6 @@ function write_journal_entries(&$cart, $interbranch = false)
 			$cart->ar_trans_no,
 			$cart->ar_trans_type,
 			$cart->ar_debtor_no,
-			$cart->ar_date,
 			$ref,
 			$cart->ar_type == 2 ? -$total : $total
 		);

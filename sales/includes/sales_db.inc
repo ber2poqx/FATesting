@@ -1022,7 +1022,7 @@ function get_customer_invoices($customer_id = '') {
 
 	set_global_connection();
 
-	$sql = "SELECT DT.*, DT.reference AS ar_ref, DTT.stock_id AS model, DM.debtor_ref,
+	$sql = "SELECT DT.*, DT.reference AS ar_ref, DTT.stock_id AS model, DM.debtor_ref, DT.debtor_no AS cust_id, 
 			DTT.description as model_desc, SC.description AS stock_name, DTT.color_code AS color_code,
 			CASE 
 				WHEN DT.opening_balances = 1 THEN 'Sales Invoice - Opening Balance'
@@ -1044,25 +1044,13 @@ function get_customer_invoices($customer_id = '') {
 	return db_query($sql, _("Cant get Customer's Invoice/s!"));
 }
 
-function get_customer_loansched($debtor_no, $trans_no, $trans_type) {
-
-	set_global_connection();
-
-	$sql = "SELECT DLS.*, DATE_FORMAT(DLS.date_due, '%M %Y') AS disp_date
-		FROM " . TB_PREF . "debtor_loan_schedule DLS 
-		WHERE DLS.trans_no = " .db_escape($trans_no) 
-			. " AND DLS.debtor_no = " .db_escape($debtor_no) 
-			. " AND DLS.trans_type = " .db_escape($trans_type);
-
-	return db_query($sql, _("Cant get Customer's Loan Schedule!"));
-}
-
-function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debtor_no, $loan_id = 0, 
+function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debtor_no, 
 	$je_reference = '', $total = 0) {
 
 	set_global_connection();
 
 	$date = date2sql($date_paid);
+	$allocation = 0;
 
 	$invoice_no = write_customer_trans(
 		ST_JOURNAL,
@@ -1080,23 +1068,124 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 
 		if ($total < 0) {
 
-			add_cust_allocation(
-				abs($total), 
-				ST_JOURNAL, 
-				$je_no, 
-				$trans_type, 
-				$trans_no, 
-				$debtor_no,  
-				$date_paid
-			);
+			$total_alloc = abs($total);
+			$remain_month = debtor_remaining_month($trans_no, $trans_type, $debtor_no);
+			
+			if ($remain_month > 0) {
+				$allocation = $total_alloc / $remain_month;
+
+				add_cust_allocation(
+					abs($total), 
+					ST_JOURNAL, 
+					$je_no, 
+					$trans_type, 
+					$trans_no, 
+					$debtor_no,  
+					$date_paid
+				);
+		
+				update_debtor_trans_allocation( 
+					$trans_type, 
+					$trans_no, 
+					$debtor_no
+				);
+
+				while ($total_alloc > 0) {
+
+					$res = get_customer_loansched($trans_no, $trans_type, $debtor_no);
+
+					while ($trans = db_fetch($res)) {
+
+						$total_pay_month = get_payment_for_loanID($trans_no, $trans_type, $debtor_no, $trans['id']);
+						$month_bal = $trans['principal_due'] - $total_pay_month;
+
+						if ($allocation > 0) {
 	
-			update_debtor_trans_allocation( 
-				$trans_type, 
-				$trans_no, 
-				$debtor_no
-			);
+							if ($trans['status'] == 'unpaid') {
+
+								add_to_DLL(
+									$trans_no,
+									$debtor_no, 
+									ST_JOURNAL,
+									$trans_type,
+									$date,
+									$invoice_no,
+									1,
+									$trans['id'],
+									$allocation
+								);
+
+								if ($month_bal == 0) {
+									update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
+								}
+								else {
+									update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
+								}
+	
+								$total_alloc = $total_alloc - $allocation;
+							}
+							else if ($trans['status'] == 'partial') {
+	
+								if ($allocation <= $month_bal) {
+									add_to_DLL(
+										$trans_no,
+										$debtor_no, 
+										ST_JOURNAL,
+										$trans_type,
+										$date,
+										$invoice_no,
+										1,
+										$trans['id'],
+										$allocation
+									);
+
+									if ($month_bal == 0) {
+										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
+									}
+									else {
+										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
+									}
+		
+									$total_alloc = $total_alloc - $allocation;
+								}
+								else {
+									add_to_DLL(
+										$trans_no,
+										$debtor_no, 
+										ST_JOURNAL,
+										$trans_type,
+										$date,
+										$invoice_no,
+										1,
+										$trans['id'],
+										$month_bal
+									);
+
+									if ($month_bal == 0) {
+										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
+									}
+									else {
+										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
+									}
+		
+									$total_alloc = $total_alloc - $month_bal;
+								}
+	
+							}
+						}
+					} //End of while loop
+
+				} //End of total alloc while loop
+			}
+
 		}
 	}
+}
+
+function add_to_DLL($trans_no, $debtor_no, $type_from, $type_to, $date_paid, $invoice_no, $is_alloc = 0, 
+	$loan_shed, $total = 0) {
+
+	set_global_connection();
 
 	$sql = "INSERT INTO ".TB_PREF."debtor_loan_ledger 
 		(trans_no, debtor_no, trans_type_from, trans_type_to, payment_applied, date_paid, payment_trans_no, alloc, loansched_id)";
@@ -1104,17 +1193,16 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 	$sql .= " VALUES (
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
-		" . db_escape(ST_JOURNAL) . ",
-		" . db_escape($trans_type) . ", 
-		" . db_escape(abs($total)) . ", 
-		" . db_escape($date) . ",
-		" . db_escape($invoice_no) . ", 0,
-		" . db_escape($loan_id) . "
+		" . db_escape($type_from) . ",
+		" . db_escape($type_to) . ", 
+		" . db_escape($total) . ", 
+		" . db_escape($date_paid) . ",
+		" . db_escape($invoice_no) . ", 
+		" . db_escape($is_alloc) . ",
+		" . db_escape($loan_shed) . "
 	)";
 
-	if ($invoice_no && $total < 0) {
-		db_query($sql, _("Cant insert Customer's Loan Allocation!"));
-	}
+	db_query($sql, _("Cant insert Customer's Loan Allocation!"));
 }
 
 
