@@ -27,6 +27,8 @@ include_once($path_to_root . "/includes/ui/items_cart.inc");
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search)
 	$js .= get_js_open_window(900, 500);
+if (user_use_date_picker()) 
+	$js .= get_js_date_picker();
 page(_($help_context = "Inventory Item SRP Amount"), false, false, "", $js);
 
 //---------------------------------------------------------------------------------------------------
@@ -117,22 +119,22 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
     	if ($selected_id != -1) 
 		{
 			//editing an existing cost
-			update_item_stdcost($selected_id, $_POST['srptype_id'], $_POST['curr_abrev'], input_num('stdcost'), $_POST['supplier_id']);
+			update_item_stdcost($selected_id, $_POST['srptype_id'], $_POST['curr_abrev'], input_num('stdcost'), $_POST['supplier_id'], date2sql($_POST['date_epic']));
 			
 			//for price archiving
 			update_pricehistory($_POST['stock_id'], $_POST['supplier_id'], 0, 0, 0, $_POST['srptype_id'], 0, 'SRPPLCY');
-			add_pricehistory($_POST['stock_id'], input_num('stdcost',0), $selected_id, $_POST['supplier_id'], 0, 0, 0, $_POST['srptype_id'], 0, 'SRPPLCY', date("Y-m-d H:i:s"));
+			add_pricehistory($_POST['stock_id'], input_num('stdcost',0), $selected_id, $_POST['supplier_id'], 0, 0, 0, $_POST['srptype_id'], 0, 'SRPPLCY', date("Y-m-d H:i:s"), date2sql(get_post('date_epic')));
 			
 			$msg = _("This cost has been updated.");
 		}
 		else
 		{
-			add_item_stdcost($_POST['stock_id'], $_POST['srptype_id'], $_POST['curr_abrev'], input_num('stdcost'), $_POST['supplier_id']);
+			add_item_stdcost($_POST['stock_id'], $_POST['srptype_id'], $_POST['curr_abrev'], input_num('stdcost'), $_POST['supplier_id'], date2sql($_POST['date_epic']));
 			
 			//for price archiving
 			$lastInsrtID = db_insert_id();
 			update_pricehistory($_POST['stock_id'], $_POST['supplier_id'], 0, 0, 0, $_POST['srptype_id'], 0, 'SRPPLCY');
-			add_pricehistory($_POST['stock_id'], input_num('stdcost',0), $lastInsrtID, $_POST['supplier_id'], 0, 0, 0, $_POST['srptype_id'], 0, 'SRPPLCY', date("Y-m-d H:i:s"));
+			add_pricehistory($_POST['stock_id'], input_num('stdcost',0), $lastInsrtID, $_POST['supplier_id'], 0, 0, 0, $_POST['srptype_id'], 0, 'SRPPLCY', date("Y-m-d H:i:s"), date2sql(get_post('date_epic')));
 			
 			$msg = _("The new cost has been added.");
 		}
@@ -216,6 +218,7 @@ if ($Mode == 'Edit')
 	$_POST['curr_abrev'] = $myrow["curr_abrev"];
 	$_POST['srptype_id'] = $myrow["srptype_id"];
 	$_POST['stdcost'] = price_format($myrow["standard_cost"]);
+	$_POST['date_epic'] = sql2date($myrow["date_epic"]); //Added by albert 04/18/2022
 }
 
 echo "<br>";
@@ -234,6 +237,19 @@ if (!isset($_POST['stdcost'])) {
 
 $kit = get_item_code_dflts($_POST['stock_id']);
 small_amount_row(_("Standard Cost:"), 'stdcost', null, '', _('per') .' '.$kit["units"]);
+/*Added by albert 04/18/2022*/
+date_row(
+	"Date Epic:",
+	'date_epic',
+	_('Date of Effectivity'),
+	'',
+	0,
+	0,
+	0,
+	null,
+	true
+);
+/* */
 
 end_table(1);
 if ($calculated)

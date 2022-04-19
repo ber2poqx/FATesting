@@ -11,20 +11,21 @@
 ***********************************************************************/
 
 function add_item_supplrcost($supplier_id, $stock_id, $price, $suppliers_uom, 
-						$conversion_factor, $supplier_description, $cost_type_id)
+						$conversion_factor, $supplier_description, $cost_type_id, $date_epic)
 {
 	$sql = "INSERT INTO ".TB_PREF."purch_data (supplier_id, stock_id, price, suppliers_uom, 
-				conversion_factor, supplier_description, cost_type_id) VALUES (";
+				conversion_factor, supplier_description, cost_type_id, date_epic) VALUES (";
 	$sql .= db_escape($supplier_id).", ".db_escape($stock_id). ", "
 		.$price . ", ".db_escape($suppliers_uom ). ", "
 		.$conversion_factor . ", "
 		.db_escape($supplier_description) . ", "
-		.db_escape($cost_type_id). ")";
+		.db_escape($cost_type_id). ","
+		.db_escape($date_epic). ")";
 
 	db_query($sql,"The supplier purchasing details could not be added");
 }
 
-function update_item_supplrcost($selected_id, $stock_id, $price, $suppliers_uom, $conversion_factor, $supplier_description, $cost_type_id)
+function update_item_supplrcost($selected_id, $stock_id, $price, $suppliers_uom, $conversion_factor, $supplier_description, $cost_type_id, $date_epic)
 {
 	/*supplier_id=".db_escape($selected_id);*/
 
@@ -32,7 +33,8 @@ function update_item_supplrcost($selected_id, $stock_id, $price, $suppliers_uom,
 		suppliers_uom=".db_escape($suppliers_uom) . ",
 		conversion_factor=" . $conversion_factor . ",
 		supplier_description=" . db_escape($supplier_description) . ",
-		cost_type_id =" . db_escape($cost_type_id) . "
+		cost_type_id =" . db_escape($cost_type_id) . ",
+		date_epic =" . db_escape($date_epic) . "
 		WHERE stock_id=".db_escape($stock_id) . " AND
 		id = ".db_escape($selected_id);
 

@@ -26,6 +26,8 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search)
 	$js .= get_js_open_window(900, 500);
+if (user_use_date_picker()) 
+	$js .= get_js_date_picker();
 page(_($help_context = "Inventory Item Sales prices"), false, false, "", $js);
 
 //---------------------------------------------------------------------------------------------------
@@ -119,22 +121,22 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
     	if ($selected_id != -1) 
 		{
 			//editing an existing price
-			update_item_price($selected_id, $_POST['sales_type_id'], $_POST['curr_abrev'], input_num('price'));
+			update_item_price($selected_id, $_POST['sales_type_id'], $_POST['curr_abrev'], input_num('price'), date2sql($_POST['date_epic']));
 
 			//for price archiving
 			update_pricehistory($_POST['stock_id'], 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY');
-			add_pricehistory($_POST['stock_id'], input_num('price',0), $selected_id, 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"));
+			add_pricehistory($_POST['stock_id'], input_num('price',0), $selected_id, 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"), date2sql(get_post('date_epic')));
 
 			$msg = _("This price has been updated.");
 		}
 		else
 		{
-			add_item_price($_POST['stock_id'], $_POST['sales_type_id'], $_POST['curr_abrev'], input_num('price'));
+			add_item_price($_POST['stock_id'], $_POST['sales_type_id'], $_POST['curr_abrev'], input_num('price'), date2sql($_POST['date_epic']));
 
 			//for price archiving
 			$lastInsrtID = db_insert_id();
 			update_pricehistory($_POST['stock_id'], 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY');
-			add_pricehistory($_POST['stock_id'], input_num('price',0), $lastInsrtID, 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"));
+			add_pricehistory($_POST['stock_id'], input_num('price',0), $lastInsrtID, 0, 0, $_POST['sales_type_id'], 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"), date2sql(get_post('date_epic')));
 
 			$msg = _("The new price has been added.");
 		}
@@ -217,6 +219,7 @@ if ($Mode == 'Edit')
 	$_POST['curr_abrev'] = $myrow["curr_abrev"];
 	$_POST['sales_type_id'] = $myrow["sales_type_id"];
 	$_POST['price'] = price_format($myrow["price"]);
+	$_POST['date_epic'] = sql2date($myrow["date_epic"]); //Added by albert 04/18/2022
 }
 
 hidden('selected_id', $selected_id);
@@ -235,6 +238,20 @@ if (!isset($_POST['price'])) {
 
 $kit = get_item_code_dflts($_POST['stock_id']);
 small_amount_row(_("Price:"), 'price', null, '', _('per') .' '.$kit["units"]);
+
+/*Added by albert 04/18/2022*/
+date_row(
+	"Date Epic:",
+	'date_epic',
+	_('Date of Effectivity'),
+	'',
+	0,
+	0,
+	0,
+	null,
+	true
+);
+/* */
 
 end_table(1);
 if ($calculated)

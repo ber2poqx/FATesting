@@ -9,20 +9,21 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_item_scashprice($stock_id, $scash_type_id, $curr_abrev, $price)
+function add_item_scashprice($stock_id, $scash_type_id, $curr_abrev, $price, $date_epic)
 {
-	$sql = "INSERT INTO ".TB_PREF."cash_prices (stock_id, scash_type_id, curr_abrev, price) 
+	$sql = "INSERT INTO ".TB_PREF."cash_prices (stock_id, scash_type_id, curr_abrev, price, date_epic) 
 		VALUES (".db_escape($stock_id).", ".db_escape($scash_type_id)
-		.", ".db_escape($curr_abrev).", ".db_escape($price).")";
+		.", ".db_escape($curr_abrev).", ".db_escape($price).", ".db_escape($date_epic).")";
 
 	db_query($sql,"an item cash price could not be added");
 }
 
-function update_item_scashprice($price_id, $scash_type_id, $curr_abrev, $price)
+function update_item_scashprice($price_id, $scash_type_id, $curr_abrev, $price, $date_epic)
 {
 	$sql = "UPDATE ".TB_PREF."cash_prices SET scash_type_id=".db_escape($scash_type_id).", 
 					curr_abrev=".db_escape($curr_abrev).", 
-					price=".db_escape($price)." 
+					price=".db_escape($price).",
+					date_epic = ".db_escape($date_epic)."
 			WHERE id=".db_escape($price_id);
 
 	db_query($sql,"an item cash price could not be updated");

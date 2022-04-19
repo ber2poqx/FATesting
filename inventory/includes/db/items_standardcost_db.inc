@@ -9,25 +9,27 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_item_stdcost($stock_id, $srptype_id, $curr_abrev, $cost, $supplier_id)
+function add_item_stdcost($stock_id, $srptype_id, $curr_abrev, $cost, $supplier_id, $date_epic)
 {
-	$sql = "INSERT INTO ".TB_PREF."item_srp (stock_id, srptype_id, curr_abrev, standard_cost, supplier_id) 
+	$sql = "INSERT INTO ".TB_PREF."item_srp (stock_id, srptype_id, curr_abrev, standard_cost, supplier_id, date_epic) 
 		VALUES (".db_escape($stock_id)
 				.", ".db_escape($srptype_id)
 				.", ".db_escape($curr_abrev)
 				.", ".db_escape($cost)
-				.", ".db_escape($supplier_id).")";
+				.", ".db_escape($supplier_id)
+				.", ".db_escape($date_epic).")";
 
 	db_query($sql,"an item standard retail price could not be added");
 }
 
-function update_item_stdcost($stdcost_id, $srptype_id, $curr_abrev, $cost, $supplier_id)
+function update_item_stdcost($stdcost_id, $srptype_id, $curr_abrev, $cost, $supplier_id, $date_epic)
 {
 	$sql = "UPDATE ".TB_PREF."item_srp 
 				SET srptype_id=".db_escape($srptype_id).", 
 					curr_abrev=".db_escape($curr_abrev).", 
 					standard_cost=".db_escape($cost).",
-					supplier_id =".db_escape($supplier_id)."
+					supplier_id =".db_escape($supplier_id).",
+					date_epic = ".db_escape($date_epic)."
 		 WHERE id=".db_escape($stdcost_id);
 
 	db_query($sql,"an item standard retail price could not be updated");

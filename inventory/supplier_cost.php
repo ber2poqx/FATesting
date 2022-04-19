@@ -24,6 +24,8 @@ include_once($path_to_root . "/includes/data_checks.inc");
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search)
 	$js .= get_js_open_window(900, 500);
+if (user_use_date_picker()) 
+	$js .= get_js_date_picker();
 page(_($help_context = "System Cost"), false, false, "", $js);
 
 check_db_has_purchasable_items(_("There are no purchasable inventory items defined in the system."));
@@ -95,12 +97,12 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
        	{
 			add_item_supplrcost($_POST['supplier_id'], $_POST['stock_id'], input_num('price',0),
 				$_POST['suppliers_uom'], input_num('conversion_factor'), $_POST['supplier_description'],
-				$_POST['cost_type_id']);
+				$_POST['cost_type_id'], date2sql($_POST['date_epic']));
 			
 			//for price archiving
 			$lastInsrtID = db_insert_id();
 			update_pricehistory($_POST['stock_id'], $_POST['supplier_id'], 0, 0, $_POST['cost_type_id'], 0, 0, 'CSTPLCY');
-			add_pricehistory($_POST['stock_id'], input_num('price',0), $lastInsrtID, $_POST['supplier_id'], 0, 0, $_POST['cost_type_id'], 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"));
+			add_pricehistory($_POST['stock_id'], input_num('price',0), $lastInsrtID, $_POST['supplier_id'], 0, 0, $_POST['cost_type_id'], 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),date2sql(get_post('date_epic')));
 
 			display_notification(_("This supplier purchasing data has been added."));
        	}
@@ -108,11 +110,11 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
        	{
 			update_item_supplrcost($selected_id, $_POST['stock_id'], input_num('price',0),
 				   $_POST['suppliers_uom'], input_num('conversion_factor'), $_POST['supplier_description'],
-				   $_POST['cost_type_id']);
+				   $_POST['cost_type_id'], date2sql($_POST['date_epic']));
 
 			//for price archiving
 			update_pricehistory($_POST['stock_id'], $_POST['supplier_id'], 0, 0, $_POST['cost_type_id'], 0, 0, 'CSTPLCY');
-			add_pricehistory($_POST['stock_id'], input_num('price',0), $selected_id, $_POST['supplier_id'], 0, 0, $_POST['cost_type_id'], 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"));
+			add_pricehistory($_POST['stock_id'], input_num('price',0), $selected_id, $_POST['supplier_id'], 0, 0, $_POST['cost_type_id'], 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"), date2sql(get_post('date_epic')));
 
     	  	display_notification(_("Supplier purchasing data has been updated."));
        	}
@@ -240,12 +242,13 @@ if ($Mode =='Edit')
     $_POST['suppliers_uom'] = $myrow["suppliers_uom"];
     $_POST['supplier_description'] = $myrow["supplier_description"];
 	$_POST['conversion_factor'] = maxprec_format($myrow["conversion_factor"]);
+	$_POST['date_epic'] = sql2date($myrow["date_epic"]); //Added by albert 04/18/2022
 }
 
 br();
 hidden('selected_id', $selected_id);
 
-start_table(TABLESTYLE2);
+start_table(TABLESTYLE2);  
 
 if ($Mode == 'Edit')
 {
@@ -268,6 +271,19 @@ if (!isset($_POST['conversion_factor']) || $_POST['conversion_factor'] == "")
 }
 amount_row(_("Conversion Factor (to our UOM):"), 'conversion_factor', null, null, null, 'max');
 text_row(_("Supplier's Code or Description:"), 'supplier_description', null, 50, 51);
+/*Added by albert 04/18/2022*/
+date_row(
+	"Date Epic:",
+	'date_epic',
+	_('Date of Effectivity'),
+	'',
+	0,
+	0,
+	0,
+	null,
+	true
+);
+/* */
 
 end_table(1);
 
