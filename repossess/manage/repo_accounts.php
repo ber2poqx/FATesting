@@ -408,7 +408,7 @@ if(isset($_GET['submit']))
         $repo_invty_act =  get_repo_invty_act($_POST['category']);
         if(isset($repo_invty_act)){
 
-            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, null, null, 0, $_POST['InvoiceNo']);
+            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
        
         }
 
@@ -417,7 +417,7 @@ if(isset($_GET['submit']))
         if(isset($dgp_account)){
 
             $deferred_amount = ($_POST['balance'] - $_POST['unrecovrd_cost']);
-            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $dgp_account, 0, 0, $deferred_amount, $_POST['customername'], "Cannot insert a GL transaction for the deferred account", 0, null, null, 0, $_POST['InvoiceNo']);
+            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $dgp_account, 0, 0, $deferred_amount, $_POST['customername'], "Cannot insert a GL transaction for the deferred account", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
         
         }
         //for A/R customer - credit
@@ -429,7 +429,7 @@ if(isset($_GET['submit']))
 
         if(isset($debtors_account)){
 
-            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $debtors_account, 0, 0, -$_POST['balance'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, null, null, 0, $_POST['InvoiceNo']);
+            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $debtors_account, 0, 0, -$_POST['balance'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
             //$GLtotal += add_gl_trans(ST_RRREPO, $repo_id, $trans_date, $debtors_account, 0, 0, '', $_POST['balance'], get_customer_currency($_POST['customername']), PT_CUSTOMER, $_POST['customername'],
                                         //'', 0, '','',0, 0, 0);
         

@@ -458,6 +458,13 @@ Ext.onReady(function(){
 			allowBlank: false,
 			hidden: true
 		},{
+			xtype: 'textfield',
+			id: 'custname',
+			name: 'custname',
+			fieldLabel: 'custname',
+			allowBlank: false,
+			hidden: true
+		},{
 			xtype: 'panel',
 			id: 'mainpanel',
 			items: [{
@@ -493,6 +500,7 @@ Ext.onReady(function(){
 						listeners: {
 							select: function(combo, record, index) {
 								Ext.getCmp('customercode').setValue(record.get('debtor_ref'));
+								Ext.getCmp('custname').setValue(record.get('name'));
 								ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), repo_date: Ext.getCmp('repo_date').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
 								ARInvoiceStore.load();
 								SIitemStore.proxy.extraParams = {transNo: 0};
@@ -581,6 +589,7 @@ Ext.onReady(function(){
 								Ext.getCmp('remarks').setValue();
 								Ext.getCmp('base_transno').setValue();
 								Ext.getCmp('base_transtype').setValue();
+								Ext.getCmp('custname').setValue();
 							}
 						}
 					}]
