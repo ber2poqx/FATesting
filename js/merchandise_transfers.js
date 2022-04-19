@@ -15,7 +15,7 @@ Ext.require(['Ext.toolbar.Paging',
 
 Ext.onReady(function(){
 	Ext.QuickTips.init();
-	var itemsPerPage = 50;   // set the number of items you want per page on grid.
+	var itemsPerPage = 20;   // set the number of items you want per page on grid.
 	var all = false;
 	var global_master_id;
     const queryString = window.location.search;

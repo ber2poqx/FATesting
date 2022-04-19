@@ -601,28 +601,30 @@ if(!is_null($action) || !empty($action)){
         case 'view':
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
+            //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
             //$sql = "SELECT *,count(sm.qty) as totalqty, sc.description as category FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id WHERE sm.loc_code<>'$branchcode' and sm.type='".ST_MERCHANDISETRANSFER."' GROUP BY sm.reference order by trans_id desc,tran_date desc";
                        
-            $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
+            /*$sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
             loc.location_name as loc_name, comments.memo_ as remarks 
             FROM ".TB_PREF."stock_moves smoves 
             INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
             INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
             LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id 
             WHERE smoves.type='".ST_COMPLIMENTARYITEM."' 
-            GROUP BY smoves.trans_no ORDER BY smoves.tran_date desc, smoves.trans_id desc";
-            
-            $result = db_query($sql, "could not get all Serial Items");
+            GROUP BY smoves.trans_no ORDER BY smoves.tran_date desc, smoves.trans_id desc";*/
+            //$result = db_query($sql, "could not get all Serial Items");
+
+            $result = get_all_complimentary_item($start,$limit,$querystr,$branchcode,false,'');
+            $total_result = get_all_complimentary_item($start,$limit,$querystr,$branchcode,true,'');
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
-            //$total = db_num_rows($total_result);
+            $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))
             {
                 $group_array[] = array('trans_no'=>$myrow["trans_no"],
@@ -634,12 +636,11 @@ if(!is_null($action) || !empty($action)){
                     'category_id' => $myrow["category_id"],
                     'category_name' => $myrow["category_name"],
                     'qty' => number_format(abs($myrow["total_item"]),2)
-                );
-                
+                );    
             }
             
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
         case 'viewin':

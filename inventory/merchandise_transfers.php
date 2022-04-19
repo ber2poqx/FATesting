@@ -720,31 +720,35 @@ if(!is_null($action) || !empty($action)){
             break;
             
         case 'view':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection($def_coy);
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
+            //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
             //$sql = "SELECT *,count(sm.qty) as totalqty, sc.description as category FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id WHERE sm.loc_code<>'$branchcode' and sm.type='".ST_MERCHANDISETRANSFER."' GROUP BY sm.reference order by trans_id desc,tran_date desc";
                        
-            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,
+            /*$sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,
             sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 
             FROM ".TB_PREF."mt_header mh 
             LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
             LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
             WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='new' 
-            GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
+            GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";*/
             
-            $result = db_query($sql, "could not get all Serial Items");
+            //$result = db_query($sql, "could not get all Serial Items");
+
+            $result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,false,'');
+            $total_result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,true,'');
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
-            //$total = db_num_rows($total_result);
+            $total = DB_num_rows($result);
+
             while ($myrow = db_fetch($result))
             {
                 if($myrow["totalqty"]==$myrow["totalreceived"]){
@@ -767,12 +771,11 @@ if(!is_null($action) || !empty($action)){
                     'chasis_no' => $myrow["serialise_chasis_no"],
                     'serialise_loc_code'=>$myrow["serialise_loc_code"],
                     'status'=>$status
-                );
-                
+                );               
             }
             
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
         case 'viewin':

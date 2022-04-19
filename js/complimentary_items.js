@@ -16,7 +16,7 @@ Ext.require(['Ext.toolbar.Paging',
 Ext.onReady(function(){
 	Ext.QuickTips.init();
 	var global_master_id;
-	var itemsPerPage = 50;
+	var itemsPerPage = 20;
 	var all = false;
 
 	const queryString = window.location.search;
@@ -235,6 +235,7 @@ Ext.onReady(function(){
 		model : 'insurance',
 		name : 'myInsurance',
 		method : 'POST',
+		pageSize: itemsPerPage,
 		proxy : {
 			type: 'ajax',
 			url	: '?action=view',
@@ -1998,6 +1999,7 @@ Ext.onReady(function(){
 		bbar : {
 			xtype : 'pagingtoolbar',
 			store : myInsurance,
+			pageSize: itemsPerPage,
 			displayInfo : true
 		}
 

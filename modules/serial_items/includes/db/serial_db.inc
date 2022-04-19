@@ -210,6 +210,57 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
     return $result;
 }
 
+/*Added by robert 04/19/2022*/
+function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',$all=false){
+    global $def_coy;
+    set_global_connection($def_coy);
+
+    $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,
+    sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 
+    FROM ".TB_PREF."mt_header mh 
+    LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
+    LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
+    WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='new' 
+    GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all merchandise transfer");
+    }else{
+        $result = db_query($sqllimit, "could not get all merchandise transfer");
+    }
+    //echo $sql;
+
+    return $result;
+}
+
+/*Added by robert 04/19/2022*/
+function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$all=false){
+
+    $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
+    loc.location_name as loc_name, comments.memo_ as remarks 
+    FROM ".TB_PREF."stock_moves smoves 
+    INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
+    INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
+    LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id 
+    WHERE smoves.type='".ST_COMPLIMENTARYITEM."' AND smoves.loc_code='$branchcode'
+    GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all complimentary item");
+    }else{
+        $result = db_query($sqllimit, "could not get all complimentary item");
+    }
+    //echo $sql;
+
+    return $result;
+}
+
 //added by Herald 09/22/2021 for Manual Entry MT
 function get_all_items_listing($start,$end,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null, $brand=0){
     $sql = "SELECT smaster.stock_id as model, icode.item_code as item_code, smaster.description as stock_description, icode.description as item_description, smaster.serialised, icode.color as color, icode.category_id, item_brand.name as brand_name, smaster.brand as brand_id FROM ".TB_PREF."item_codes icode INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
