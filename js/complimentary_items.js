@@ -16,7 +16,8 @@ Ext.require(['Ext.toolbar.Paging',
 Ext.onReady(function(){
 	Ext.QuickTips.init();
 	var global_master_id;
-	var itemsPerPage = 25;
+	var itemsPerPage = 50;
+	var all = false;
 
 	const queryString = window.location.search;
 	const urlParams = new URLSearchParams(queryString);
@@ -973,6 +974,11 @@ Ext.onReady(function(){
 						Ext.Msg.alert('Warning','Please select masterfile');
 						return false;	
 					}	
+					var categoryheader = Ext.getCmp('category').getValue();
+					if(categoryheader==null){
+						Ext.Msg.alert('Warning','Please select category');
+						return false;	
+					}	
 					if(!windowItemList){
 						var catcode = Ext.getCmp('category').getValue();
 						var brcode = Ext.getCmp('fromlocation').getValue();
@@ -1164,6 +1170,7 @@ Ext.onReady(function(){
 										bbar : {
 											xtype : 'pagingtoolbar',
 											store : ItemListingStore,
+											pageSize: itemsPerPage,
 											displayInfo : true
 										}
 									}]

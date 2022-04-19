@@ -136,18 +136,33 @@ function get_all_serial($start,$end,$querystr='',$category=0,$branchcode='',$all
     
 }
 
-function get_all_stockmoves($start,$end,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null){
+function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null){
 
 
     $sql = "SELECT SUM(serial.qty) as serialise_qty, serial.stock_id as model, serial.color_code as serialise_item_code, 
     serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
     smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out, 
-    serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type 
+    serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,
+    IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
+    IFNULL(SPGEN.QTY, NULL) /*Added by Robert */
     FROM ".TB_PREF."stock_moves serial 
     LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code
     INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
-    WHERE ISNULL(v.id) AND serial.item_type = 'new'";
+
+    LEFT JOIN (
+    SELECT robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no, SUM(robert.qty) AS QTY
+    FROM stock_moves robert
+    GROUP BY robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no
+    )QTYOUT ON QTYOUT.type_out = serial.type_out AND QTYOUT.transno_out =  QTYOUT.transno_out 
+     AND QTYOUT.stock_id = serial.stock_id AND QTYOUT.lot_no = serial.lot_no
+
+    LEFT JOIN ( 
+    SELECT jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.lot_no, SUM(jayhil.qty) AS QTY 
+    FROM stock_moves jayhil GROUP BY jayhil.type_out, jayhil.transno_out, jayhil.stock_id
+    )SPGEN ON SPGEN.type_out = serial.type_out AND SPGEN.transno_out = SPGEN.transno_out AND SPGEN.stock_id = serial.stock_id 
+ 
+    WHERE ISNULL(v.id) AND serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
 
     if($category!=0){
         $sql.=" AND smaster.category_id=$category";
@@ -173,14 +188,26 @@ function get_all_stockmoves($start,$end,$querystr='',$category=0,$branchcode='',
     }
     $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
     
-    if($all){
+    /*if($all){
         
     }else{
-        $sql.=" LIMIT $start,$end";
+        $sql.=" limit $start,$limit";
+    }
+    echo $sql;
+    //die();
+    return db_query($sql, "could not get all Serial Items");*/
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all Serial Items");
+    }else{
+        $result = db_query($sqllimit, "could not get all Serial Items");
     }
     //echo $sql;
-    //die();
-    return db_query($sql, "could not get all Serial Items");
+
+    return $result;
 }
 
 //added by Herald 09/22/2021 for Manual Entry MT

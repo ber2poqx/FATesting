@@ -15,7 +15,8 @@ Ext.require(['Ext.toolbar.Paging',
 
 Ext.onReady(function(){
 	Ext.QuickTips.init();
-	var itemsPerPage = 25;   // set the number of items you want per page on grid.
+	var itemsPerPage = 50;   // set the number of items you want per page on grid.
+	var all = false;
 	var global_master_id;
     const queryString = window.location.search;
 	//console.log(queryString);
@@ -405,6 +406,7 @@ Ext.onReady(function(){
 	var ItemListingStore = Ext.create('Ext.data.Store', {
 		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised'],
 		autoLoad: false,
+		pageSize: itemsPerPage, // items per page
 		proxy : {
 			type: 'ajax',
 			url	: '?action=serial_items',
@@ -651,6 +653,7 @@ Ext.onReady(function(){
 										bbar : {
 											xtype : 'pagingtoolbar',
 											store : ItemListingStore,
+											pageSize : itemsPerPage,
 											displayInfo : true
 										}
 									}]

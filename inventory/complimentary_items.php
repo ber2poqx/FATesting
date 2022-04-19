@@ -410,7 +410,7 @@ if(!is_null($action) || !empty($action)){
         case 'serial_items':
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $trans_date = (isset($_POST['trans_date']) ? $_POST['trans_date'] : $_GET['trans_date']);
@@ -418,17 +418,19 @@ if(!is_null($action) || !empty($action)){
             $querystrserial = (isset($_POST['serialquery']) ? $_POST['serialquery'] : $_GET['serialquery']);
 
             
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
+            //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
-            $result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
-            $total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
-            $total = db_num_rows($total_result);
+            $result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
+            $total_result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
+
+            $total = DB_num_rows($result);
+
             while ($myrow = db_fetch($result))
             {
                 
                 if($myrow["serialised"]){
-                    $qty=$myrow["serialise_qty"];
+                    $qty=$myrow["qty_serialise"];
                 }else{
                     $demand_qty = get_demand_qty($myrow["model"], $branchcode);
                     $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
@@ -455,17 +457,13 @@ if(!is_null($action) || !empty($action)){
                             'lot_no' => $myrow["serialise_lot_no"]==null?'':$myrow["serialise_lot_no"],
                             'chasis_no' => $myrow["serialise_chasis_no"]==null?'':$myrow["serialise_chasis_no"],
                             'serialise_loc_code'=>$myrow["serialise_loc_code"]
-                        );
-                        
+                        );                        
                     }
-                }
-               
-                
-                
+                }                                
             }
             
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
         case 'MTserialitems':
