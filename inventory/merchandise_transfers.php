@@ -668,7 +668,7 @@ if(!is_null($action) || !empty($action)){
             LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
             LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code 
             LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id 
-            WHERE mh.mt_header_id=$trans_id AND mh.mt_header_item_type = 'new' GROUP BY md.mt_details_id";
+            WHERE mh.mt_header_id=$trans_id GROUP BY md.mt_details_id";
             
             
             $result = db_query($sql, "could not get all Serial Items");
@@ -799,7 +799,7 @@ if(!is_null($action) || !empty($action)){
             sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_qty 
             FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
             LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
-            WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation 
+            WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation AND mh.mt_header_item_type = 'new'
             GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
             
             
