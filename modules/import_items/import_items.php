@@ -422,9 +422,9 @@ if (isset($_POST['import'])) {
 			* Note: To remove Newline space value/s to a particular table/s after an Item is Added or Updated
 		*/
 
-		//clean_spaces('stock_master', 'stock_id');
-		//clean_spaces('item_codes', 'item_code');
-		//clean_spaces('item_codes', 'stock_id');
+		clean_spaces('stock_master', 'stock_id');
+		clean_spaces('item_codes', 'item_code');
+		clean_spaces('item_codes', 'stock_id');
 
 		@fclose($fp);
 
