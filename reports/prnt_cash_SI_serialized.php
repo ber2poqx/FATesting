@@ -23,7 +23,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>To Print Receipt, CHARGE SALES INVOICE SERIALIZED</title>
+<title>To Print Receipt, CASH SALES INVOICE SERIALIZED</title>
 <style type="text/css">
 	.main{
 		width: 8.3in;
