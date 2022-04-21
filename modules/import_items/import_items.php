@@ -380,7 +380,6 @@ if (isset($_POST['import'])) {
 						$id, 
 						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
 					);
-				clean_spaces('stock_master', 'stock_id');
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
@@ -438,6 +437,8 @@ if (isset($_POST['import'])) {
 					$p++;
 				} else display_notification("Stock Code $code does not exist");
 			}
+				clean_spaces('stock_master', 'stock_id');
+			
 
 		} //End of While loop
 
