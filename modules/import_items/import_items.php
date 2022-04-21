@@ -166,6 +166,7 @@ if (isset($_POST['import'])) {
 		// type, item_code, stock_id, description, category, units, qty, mb_flag, currency, price
 		while ($data = fgetcsv($fp, 4096, $sep)) {
 			if ($lines++ == 0) continue;
+
 			list($type, $code, $id, $description, $category, $units, $qty, $mb_flag, $currency, $price, $brand, $manufacturer, $distributor,$importer,$type_prod, $status, $model, $oldcode, $sapitemno, $color, $colordesc, $pnpcolor, $serialised) = $data;
 			$type = strtoupper($type);
 			$mb_flag = strtoupper($mb_flag);
@@ -363,14 +364,14 @@ if (isset($_POST['import'])) {
 					add_item_code(
 						$code, 
 						$color, 
-						trim($id), 
+						$id, 
 						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
 					);
 				else 
 					update_item_code(
 						$row[0], $code, $color, 
-						trim($id), 
-						$description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer
+						$id, 
+						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
 					);
 
 			}
