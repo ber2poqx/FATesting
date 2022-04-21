@@ -214,7 +214,8 @@ if (isset($_POST['import'])) {
 			    } else $cat = $row[0];
 				
 				//Added by Herald Felisilda for brand, manufacturer, distributor
-				$sql1 = "SELECT id, name FROM ".TB_PREF."item_brand WHERE UPPER(name)=".db_escape(strtoupper($brand));
+				$sql1 = "SELECT id, name FROM ".TB_PREF."item_brand 
+					WHERE UPPER(name)=".db_escape(strtoupper(trim($brand)));
 				$result1 = db_query($sql1, "could not get item brand");
 				$row1 = db_fetch_row($result1);
 			    if (!$row1) {
@@ -246,7 +247,8 @@ if (isset($_POST['import'])) {
 					$units = db_insert_id();
 			    } else $units = $row3[0];
 				
-				$sql4 = "SELECT id, name FROM ".TB_PREF."item_distributor WHERE UPPER(name)=".db_escape(strtoupper($distributor));
+				$sql4 = "SELECT id, name FROM ".TB_PREF."item_distributor 
+					WHERE UPPER(name)=".db_escape(strtoupper(trim($distributor)));
 				$result4 = db_query($sql4, "could not get item distributor");
 				$row4 = db_fetch_row($result4);
 			    if (!$row4) {
@@ -299,18 +301,21 @@ if (isset($_POST['import'])) {
                                     $dim_n++;
                                 }
                             }  */
-			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id='$id'";
+			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape(trim($id));
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
 			    if (!$row) {
 				    $sql = "INSERT INTO ".TB_PREF."stock_master (stock_id, description, long_description, category_id, tax_type_id, units, mb_flag, sales_account, inventory_account, cogs_account, adjustment_account, wip_account, dimension_id, dimension2_id, brand, manufacturer, distributor, importer, installment_sales_account, regular_sales_account, 
 				    	old_code, sap_code, serialised)
-					    VALUES ('$id',".db_escape($description).",'','$cat', {$_POST['tax_type_id']}, '$units', '$mb_flag', 
-					    '{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
-					    '{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", 
-					    ".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", 
-					    '{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}', ".db_escape($oldcode).", 
-					    ".db_escape($sapitemno).", ".db_escape($serialised).")";
+					    VALUES (
+							".db_escape(trim($id)).",
+							".db_escape($description).",'','$cat', {$_POST['tax_type_id']}, '$units', '$mb_flag', 
+					    	'{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
+					    	'{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", 
+					    	".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", 
+					    	'{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}', ".db_escape($oldcode).", 
+					    	".db_escape($sapitemno).", ".db_escape($serialised)."
+						)";
 
 				    db_query($sql, "The item could not be added");
 				    display_notification("Line $lines: Added $id $description");
@@ -345,17 +350,28 @@ if (isset($_POST['import'])) {
 					    old_code=".db_escape($oldcode).",
 					    sap_code=".db_escape($sapitemno).",
 					    serialised=".db_escape($serialised)."
-                        WHERE stock_id='$id'";
+                        WHERE stock_id = " .db_escape(trim($id));
 
 				    db_query($sql, "The item could not be updated");
 				    display_notification("Line $lines: Update $id $description");
 				    $j++;
 			    }
-			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
+			    $sql = "SELECT stock_id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
-				if (!$row) add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
-				else update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
+				if (!$row) 
+					add_item_code(
+						$code, 
+						$color, 
+						trim($id), 
+						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
+					);
+				else 
+					update_item_code(
+						$row[0], $code, $color, 
+						trim($id), 
+						$description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer
+					);
 
 			}
 
@@ -422,9 +438,9 @@ if (isset($_POST['import'])) {
 			* Note: To remove Newline space value/s to a particular table/s after an Item is Added or Updated
 		*/
 
-		clean_spaces('stock_master', 'stock_id');
-		clean_spaces('item_codes', 'item_code');
-		clean_spaces('item_codes', 'stock_id');
+		//clean_spaces('stock_master', 'stock_id');
+		//clean_spaces('item_codes', 'item_code');
+		//clean_spaces('item_codes', 'stock_id');
 
 		@fclose($fp);
 
