@@ -221,7 +221,7 @@ if (isset($_POST['import'])) {
 				
 				//Added by Herald Felisilda for brand, manufacturer, distributor
 				$sql1 = "SELECT id, name FROM ".TB_PREF."item_brand 
-					WHERE UPPER(name)=".db_escape(strtoupper(trim($brand)));
+					WHERE UPPER(name)=".db_escape(strtoupper($brand));
 				$result1 = db_query($sql1, "could not get item brand");
 				$row1 = db_fetch_row($result1);
 			    if (!$row1) {
@@ -254,7 +254,7 @@ if (isset($_POST['import'])) {
 			    } else $units = $row3[0];
 				
 				$sql4 = "SELECT id, name FROM ".TB_PREF."item_distributor 
-					WHERE UPPER(name)=".db_escape(strtoupper(trim($distributor)));
+					WHERE UPPER(name)=".db_escape(strtoupper($distributor));
 				$result4 = db_query($sql4, "could not get item distributor");
 				$row4 = db_fetch_row($result4);
 			    if (!$row4) {
@@ -364,7 +364,7 @@ if (isset($_POST['import'])) {
 				    display_notification("Line $lines: Update $id $description");
 				    $j++;
 			    }
-			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
+			    $sql = "SELECT stock_id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
 				if (!$row) 
