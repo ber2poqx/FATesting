@@ -307,8 +307,8 @@ if (isset($_POST['import'])) {
                                     $dim_n++;
                                 }
                             }  */
-                    $id = preg_replace('/\s+/', ' ', $id);
-                    $code = preg_replace('/\s+/', ' ', $code);
+                    //$id = preg_replace('/\s+/', ' ', $id);
+                    //$code = preg_replace('/\s+/', ' ', $code);
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape($id);
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
@@ -380,6 +380,7 @@ if (isset($_POST['import'])) {
 						$id, 
 						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
 					);
+				clean_spaces('stock_master', 'stock_id');
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
@@ -445,7 +446,7 @@ if (isset($_POST['import'])) {
 			* Note: To remove Newline space value/s to a particular table/s after an Item is Added or Updated
 		*/
 
-		//clean_spaces('stock_master', 'stock_id');
+		//
 		//clean_spaces('item_codes', 'item_code');
 		//clean_spaces('item_codes', 'stock_id');
 
