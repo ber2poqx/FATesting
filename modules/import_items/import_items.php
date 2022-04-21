@@ -172,9 +172,9 @@ if (isset($_POST['import'])) {
 			$type = strtoupper($type);
 			$mb_flag = strtoupper($mb_flag);
 
-			if ($id == "") {
+			/*if ($id == "") {
 				break;
-			}
+			}*/
 
 			if ($type == 'NOTE') continue; // a comment
 			if ($type == 'BOM') {
@@ -309,7 +309,7 @@ if (isset($_POST['import'])) {
                             }  */
                     //$id = preg_replace('/\s+/', ' ', $id);
                     //$code = preg_replace('/\s+/', ' ', $code);
-			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape($id);
+			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id='$id'";
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
 			    if (!$row) {
@@ -358,28 +358,17 @@ if (isset($_POST['import'])) {
 					    old_code=".db_escape($oldcode).",
 					    sap_code=".db_escape($sapitemno).",
 					    serialised=".db_escape($serialised)."
-                        WHERE stock_id = " .db_escape($id);
+                        WHERE stock_id='$id'";
 
 				    db_query($sql, "The item could not be updated");
 				    display_notification("Line $lines: Update $id $description");
 				    $j++;
 			    }
-			    $sql = "SELECT stock_id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
+			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
-				if (!$row) 
-					add_item_code(
-						$code, 
-						$color, 
-						$id, 
-						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
-					);
-				else 
-					update_item_code(
-						$row[0], $code, $color, 
-						$id, 
-						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
-					);
+				if (!$row) add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
+				else update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
