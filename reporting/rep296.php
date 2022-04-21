@@ -23,7 +23,7 @@ function get_transactions($category, $brand) {
     
     set_global_connection(0);
     $sql = "SELECT SM.*, SC.description AS cat_name, SM.description AS prod_desc,
-        IB.name AS item_brand, II.name AS class, ID.name AS sub_cat
+        IB.name AS item_brand, II.name AS class, ID.name AS sub_cat, SM.old_code
 
         FROM ".TB_PREF."stock_master SM
             LEFT JOIN ".TB_PREF."stock_category as SC ON SM.category_id = SC.category_id 
@@ -86,19 +86,20 @@ function print_transaction() {
 	else {
         $brand_name = get_brand_descr($brand);
     }
-		
-    $cols = array(0, 100, 230, 290, 360, 470);
-
+	
     $headers = array(
         _('Item Code'),
         _('Description'),
         _('Category'),
         _('Brand'),
         _('Sub-Category'),
-        _('Classification')
+        _('Classification'),
+        _("Old Code")
     );
+	
+    $cols = array(0, 100, 220, 260, 320, 410, 475, 0);
 
-    $aligns = array('left', 'left', 'center', 'center', 'left', 'left');
+    $aligns = array('left', 'left', 'center', 'center', 'left', 'left', 'right');
 
     $params = array( 
 		0 => $comments,
@@ -140,6 +141,7 @@ function print_transaction() {
         $rep->TextCol(3, 4, $trans['item_brand']);
         $rep->TextCol(4, 5, $trans['sub_cat']);
         $rep->TextCol(5, 6, $trans['class']);
+        $rep->TextCol(6, 7, $trans['old_code']);
         $rep->fontSize += 1;
         $rep->NewLine();
     }
