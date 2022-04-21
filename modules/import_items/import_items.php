@@ -307,6 +307,8 @@ if (isset($_POST['import'])) {
                                     $dim_n++;
                                 }
                             }  */
+                    $id = trim($id);
+                    $code = trim($code);
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape(trim($id));
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
@@ -378,7 +380,6 @@ if (isset($_POST['import'])) {
 						$id, 
 						$description, $pnpcolor, $cat, $qty, 0, $brand, $manufacturer, $distributor, $importer
 					);
-
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
