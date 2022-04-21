@@ -158,11 +158,22 @@ function print_sales_invoice_receipt($row)
 {
 	if ($row['payment_type'] == "CASH") {
 		//modified by spyrax10 21 Mar 2022 Mantis Issue #815
-		return pager_link(
+		if($row['category'] == "MOTORCYCLE" || $row['category'] == "APPLIANCE" || $row['category'] == "POWERPRDUCT") // SERIALIZED 
+		{
+			return pager_link(
 			_("Print to receipt: Cash Sales Invoice"),
 			"/reports/prnt_cash_SI_serialized.php?SI_num=" . $row["trans_no"],
 			ICON_PRINT
-		);
+			);
+		}
+		else // NON-SERIALIZED
+		{ // Modified by Prog6 for serialized & non-serialized items
+			return pager_link(
+			_("Print to receipt: Cash Sales Invoice"),
+			"/reports/prnt_cash_SalesInvoice.php?SI_num=" . $row["trans_no"],
+			ICON_PRINT
+			);
+		}
 	} else if ($row['payment_type'] == "INSTALLMENT") {
 		if ($row['status'] == "Open" || $row['status'] == "Approved") {
 			return pager_link(
