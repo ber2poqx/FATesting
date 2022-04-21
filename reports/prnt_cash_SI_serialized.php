@@ -262,7 +262,7 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 					}
 					else 
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">1st Due Date : '.($first_due_date).'</td>'; // 1st due date
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">.</td>'; // 1st due date
 					}					
 					echo '</tr>';
 
@@ -273,20 +273,20 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 					}
 					else 
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Downpayment : '.price_format($downpayment,2).'</td>'; // downpayment
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">.</td>'; // downpayment
 					}					
 					echo '</tr>';
 
 					echo '<tr >'; // 6th ROW
 					if($cat_code == "MOTORCYCLE")
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">1st Due Date : '.($first_due_date).'</td>'; // 1st due date
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">.</td>'; // 1st due date
 						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
 						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($total_sales_VAT_incl,2).'</td>'; // total sales includes VAT
 					}
 					else 
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Monthly payment : '.price_format($monthly_payment,2).'</td>'; // Monthly payment
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">.</td>'; // Monthly payment
 						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
 						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($total_sales_VAT_incl,2).'</td>'; // total sales includes VAT
 					}					
@@ -295,13 +295,13 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 					echo '<tr >'; // 7th ROW
 					if($cat_code == "MOTORCYCLE")
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Downpayment : '.price_format($downpayment,2).'</td>'; // downpayment
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">.</td>'; // downpayment
 						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
 						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($less_VAT,2).'</td>'; // less VAT
 					}
 					else 
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Rebate : '.price_format($rebate,22).'</td>'; // rebate
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">.</td>'; // rebate
 						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
 						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($less_VAT,2).'</td>'; // less VAT
 					}					
@@ -310,7 +310,7 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 					echo '<tr >'; // 8th ROW
 					if($cat_code == "MOTORCYCLE")
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Monthly payment : '.price_format($monthly_payment,2).'</td>'; // Monthly payment
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">.</td>'; // Monthly payment
 						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
 						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">'.price_format($amount_Net_of_VAT,2).'</td>'; // amount_Net_of_VAT
 					}
@@ -325,7 +325,7 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 					echo '<tr >'; // 9th ROW
 					if($cat_code == "MOTORCYCLE")
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">Rebate : '.price_format($rebate,22).'</td>'; // rebate
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.01cm;">.</td>'; // rebate
 						echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.01cm;"></td>'; // blank
 						echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.01cm;">.</td>'; // SC/PWD discount
 					}
