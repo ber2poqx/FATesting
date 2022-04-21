@@ -309,7 +309,7 @@ if (isset($_POST['import'])) {
                             }  */
                     $id = trim($id);
                     $code = trim($code);
-			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape(trim($id));
+			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape($id);
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
 			    if (!$row) {
