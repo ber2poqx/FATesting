@@ -307,8 +307,8 @@ if (isset($_POST['import'])) {
                                     $dim_n++;
                                 }
                             }  */
-                    $id = trim($id);
-                    $code = trim($code);
+                    $id = preg_replace('/\s+/', '', $id);
+                    $code = preg_replace('/\s+/', '', $code);
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape($id);
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
