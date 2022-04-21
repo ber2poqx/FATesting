@@ -362,7 +362,7 @@ if (isset($_POST['import'])) {
 				    display_notification("Line $lines: Update $id $description");
 				    $j++;
 			    }
-			    $sql = "SELECT stock_id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
+			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
 				if (!$row) 
