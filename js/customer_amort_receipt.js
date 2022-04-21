@@ -4304,6 +4304,13 @@ Ext.onReady(function() {
 			//allowBlank: false,
 			hidden: true
 		}, {
+			xtype: 'textfield',
+			id: 'rpt_syspk',
+			name: 'rpt_syspk',
+			fieldLabel: 'rpt_syspk',
+			//allowBlank: false,
+			hidden: true
+		}, {
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 2',
@@ -4344,7 +4351,7 @@ Ext.onReady(function() {
 				icon: '../js/ext4/examples/shared/icons/script.png',
 				margin: '2 2 2 2',
 				handler: function () {
-					window.open('../reports/prnt_cash_SalesInvoice.php?SI_num=' + Ext.getCmp('rpt_transnum').getValue());
+					window.open('../reports/prnt_cash_SI_serialized.php?SI_req=YES&SI_num=' + Ext.getCmp('rpt_syspk').getValue());
 					submit_window_InterB.close();
 				}
 			}]
