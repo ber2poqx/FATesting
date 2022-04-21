@@ -310,10 +310,10 @@ if (isset($_POST['import'])) {
                     //$id = preg_replace('/\s+/', '\n', '', $id);
                     //$code = preg_replace('/\s+/', '\n', '', $code);
 
-                    $id = preg_replace("/[\r\n]+/", "\n", $id); /*Replace Multiple Newline, Tab*/
+                    //$id = preg_replace("/[\r\n]+/", "\n", $id); /*Replace Multiple Newline, Tab*/
 					$id = preg_replace("/\s+/", ' ', $id); /*Replace Multiple Space*/
 
-					$code = preg_replace("/[\r\n]+/", "\n", $code); /*Replace Multiple Newline, Tab*/
+					//$code = preg_replace("/[\r\n]+/", "\n", $code); /*Replace Multiple Newline, Tab*/
 					$code = preg_replace("/\s+/", ' ', $code); /*Replace Multiple Space*/
 
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id = ".db_escape($id);
