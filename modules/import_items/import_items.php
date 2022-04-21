@@ -314,7 +314,7 @@ if (isset($_POST['import'])) {
 				    $sql = "INSERT INTO ".TB_PREF."stock_master (stock_id, description, long_description, category_id, tax_type_id, units, mb_flag, sales_account, inventory_account, cogs_account, adjustment_account, wip_account, dimension_id, dimension2_id, brand, manufacturer, distributor, importer, installment_sales_account, regular_sales_account, 
 				    	old_code, sap_code, serialised)
 					    VALUES (
-							".db_escape(trim($id)).",
+							".db_escape($id).",
 							".db_escape($description).",'','$cat', {$_POST['tax_type_id']}, '$units', '$mb_flag', 
 					    	'{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
 					    	'{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", 
@@ -356,7 +356,7 @@ if (isset($_POST['import'])) {
 					    old_code=".db_escape($oldcode).",
 					    sap_code=".db_escape($sapitemno).",
 					    serialised=".db_escape($serialised)."
-                        WHERE stock_id = " .db_escape(trim($id));
+                        WHERE stock_id = " .db_escape($id);
 
 				    db_query($sql, "The item could not be updated");
 				    display_notification("Line $lines: Update $id $description");
