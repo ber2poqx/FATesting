@@ -167,9 +167,14 @@ if (isset($_POST['import'])) {
 		while ($data = fgetcsv($fp, 4096, $sep)) {
 			if ($lines++ == 0) continue;
 
+
 			list($type, $code, $id, $description, $category, $units, $qty, $mb_flag, $currency, $price, $brand, $manufacturer, $distributor,$importer,$type_prod, $status, $model, $oldcode, $sapitemno, $color, $colordesc, $pnpcolor, $serialised) = $data;
 			$type = strtoupper($type);
 			$mb_flag = strtoupper($mb_flag);
+
+			if ($id == "") {
+				break;
+			}
 
 			if ($type == 'NOTE') continue; // a comment
 			if ($type == 'BOM') {
@@ -447,7 +452,7 @@ if (isset($_POST['import'])) {
 
 		if ($i+$j > 0) display_notification("$i item posts Added, $j item posts Updated.");
 		if ($i+$j > 0) display_notification("Import Successful.");
-		if ($dim_n > 0) display_notification("$dim_n Item Dimensions added.");
+		//if ($dim_n > 0) display_notification("$dim_n Item Dimensions added.");
 		if ($k > 0) display_notification("$k sales kit components added or updated.");
 		if ($b > 0) display_notification("$b BOM components added or updated.");
 		if ($u > 0) display_notification("$u Units of Measure added or updated.");
