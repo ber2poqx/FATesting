@@ -108,10 +108,22 @@ function get_detailed_unit($itemcode)
 	set_global_connection();
 
 	$sql = "SELECT CONCAT(IFNULL(sc.description,'no category'), ' - ', IFNULL(ib.name,'no brand')) AS `brand`, `item_code` AS `model`, ic.color, sc.description as `cat_code`
-			FROM `item_codes` ic
-				LEFT JOIN `item_brand` ib ON ic.brand = ib.id
-				LEFT JOIN `stock_category` sc ON ic.category_id = sc.category_id
+			FROM " . TB_PREF . "`item_codes` ic
+				LEFT JOIN " . TB_PREF . "`item_brand` ib ON ic.brand = ib.id
+				LEFT JOIN " . TB_PREF . "`stock_category` sc ON ic.category_id = sc.category_id
 			WHERE item_code = '$itemcode'"; 	
+
+	return db_query($sql, "No transactions were returned");
+}
+
+function get_SI_trans_no_from_amort_payments($trans_ref)
+{
+	set_global_connection();
+
+	$sql = "SELECT dt.trans_no AS `SI_transno`, dt.reference, bt.ref
+			FROM " . TB_PREF . "`debtor_trans` dt
+				LEFT JOIN " . TB_PREF . "`bank_trans` bt ON dt.order_ = bt.masterfile
+			WHERE bt.type = ".ST_CUSTPAYMENT." AND dt.type = ".ST_SALESINVOICE." AND bt.ref = '".$trans_ref."'";
 
 	return db_query($sql, "No transactions were returned");
 }
@@ -119,8 +131,21 @@ function get_detailed_unit($itemcode)
 
 <?php
 	 //$si_num = "10";
-	$si_num = $_REQUEST['SI_num']; 
+	if($_REQUEST['SI_req']=="YES")
+	{
+		$trans_ref = $_REQUEST['SI_num'];
 
+		$trans_ref_result = get_SI_trans_no_from_amort_payments($trans_ref);
+
+		$myrow2=db_fetch($trans_ref_result);
+
+		$si_num = $myrow2["SI_transno"];
+	}
+	else
+	{
+		$si_num = $_REQUEST['SI_num'];
+	}
+	 
 	$si_result = get_salesinvoice_trans_serialized($si_num,$trans_type = ST_SALESINVOICE);
 	
 	$myrow=db_fetch($si_result);
