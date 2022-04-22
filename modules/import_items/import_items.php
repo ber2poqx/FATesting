@@ -308,14 +308,13 @@ if (isset($_POST['import'])) {
                                     $dim_n++;
                                 }
                             }  */
-	                    $id = preg_replace('/\s+/', '', $id);
-	                    $code = preg_replace('/\s+/', '', $code);
-	                    $oldcode = preg_replace('/\s+/', '', $oldcode);
-	                    $description = preg_replace('/\s+/', '', $description);
-                      //$id = trim(htmlentities($id));
-                      //$code = trim(htmlentities($code));
-                      //$oldcode = trim(htmlentities($oldcode));
-                      //$description = trim(htmlentities($description));
+	                    //$id = preg_replace('/\s+/', '', $id);
+	                    //$code = preg_replace('/\s+/', '', $code);
+	                    //$oldcode = preg_replace('/\s+/', '', $oldcode);
+                      $id = trim(htmlentities($id));
+                      $code = trim(htmlentities($code));
+                      $oldcode = trim(htmlentities($oldcode));
+                      $description = trim(htmlentities($description));
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id='$id'";
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
