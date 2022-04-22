@@ -323,12 +323,14 @@ if (isset($_POST['import'])) {
 				    	old_code, sap_code, serialised)
 					    VALUES (
 							".db_escape($id).",
-							".db_escape($description).",'', ".db_escape($cat).", '{$_POST['tax_type_id']}', '$units', '$mb_flag', 
-					    	'{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
-					    	'{$_POST['adjustment_account']}', '{$_POST['wip_account']}', ".db_escape($dim).", 0, ".db_escape($brand).", 
+							".db_escape($description).",'', ".db_escape($cat).", ".db_escape($_POST['tax_type_id']).", 
+							".db_escape($units).", ".db_escape($mb_flag).", 
+					    	".db_escape($_POST['sales_account']).", ".db_escape($_POST['inventory_account']).", 
+					    	".db_escape($_POST['cogs_account']).", ".db_escape($_POST['adjustment_account']).", 
+					    	".db_escape($_POST['wip_account']).", ".db_escape($dim).", '0', ".db_escape($brand).", 
 					    	".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", 
-					    	'{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}', ".db_escape($oldcode).", 
-					    	".db_escape($sapitemno).", ".db_escape($serialised)."
+					    	".db_escape($_POST['installment_sales_account']).", ".db_escape($_POST['regular_sales_account']).",
+					    	".db_escape($oldcode).", ".db_escape($sapitemno).", ".db_escape($serialised)."
 						)";
 
 				    db_query($sql, "The item could not be added");
