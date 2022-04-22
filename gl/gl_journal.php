@@ -532,7 +532,7 @@ function check_item_data()
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
 
 	if ($row['account_type'] == 13 && getCompDet('deployment_status', $_POST['comp_id']) == 1) {
-		display_error(_('Cannot Entry Branch Current Account! Company is Already Deployed!'));
+		display_error(_('Cannot Entry Branch Current Account! Company Selected is Already Deployed!'));
 		return false;
 	}
 
