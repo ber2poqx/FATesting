@@ -734,7 +734,7 @@ function get_mcode($mcode) {
 		UNION
 		SELECT id as id_no FROM ".TB_PREF."item_brand WHERE name = " . db_escape($mcode) . "
         UNION
-        SELECT supplier_id as id_no FROM ".TB_PREF."suppliers WHERE supp_ref = " . db_escape($mcode) . "
+        SELECT supplier_id as id_no FROM ".TB_PREF."suppliers WHERE supplier_id = " . db_escape($mcode) . "
 		UNION
 		SELECT id as id_no FROM ".TB_PREF."users WHERE role_id NOT IN(2,10) AND user_id = " .db_escape($mcode) . "
 		UNION
@@ -742,7 +742,6 @@ function get_mcode($mcode) {
 
     $result = db_query($sql, "Can't get mcode! (spyrax10)");
     $row = db_fetch_row($result);
-
     //return sprintf('%05d', $row[0]);
 	return $row[0];
 }

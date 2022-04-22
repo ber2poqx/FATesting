@@ -88,15 +88,23 @@ function get_adjust_head($trans_no) {
 	return $result;
 }
 
-function get_adjust_items($trans_no) {
+function get_adjust_items($trans_no, $include_child = false) {
 	
 	$sql = "SELECT A.trans_id, A.line_id, A.trans_no, A.item_type, A.stock_id, A.color_code, A.loc_code, 
-                A.tran_date, A.reference, abs(A.qty) AS qty, A.standard_cost, A.lot_no, A.chassis_no,
-                A.category_id, A.adjustment_type, A.status, SM.description, SM.units, A.trans_no_out, A.trans_type_out
+        A.tran_date, A.reference, abs(A.qty) AS qty, A.standard_cost, A.lot_no, A.chassis_no,
+        A.category_id, A.adjustment_type, A.status, SM.description, SM.units, A.trans_no_out, A.trans_type_out,
+        C.mcode, C.master_file
+
         FROM " . TB_PREF . "stock_adjustment A 
             LEFT JOIN " . TB_PREF . "stock_master SM ON A.stock_id = SM.stock_id
-        WHERE A.trans_no=" .db_escape($trans_no);
+            LEFT JOIN " . TB_PREF . "stock_adjustment_gl C ON A.trans_id = C.sa_trans_no 
+                AND A.line_id = C.sa_line_id";
     
+    if (!$include_child) {
+        $sql .= " AND C.gl_type = 'DEFAULT'";
+    }
+
+    $sql .= " WHERE A.trans_no=" .db_escape($trans_no);
 	$result = db_query($sql, "No Items return for stock_adjustments! (spyrax10)");
 	set_global_connection();
 	return $result;
@@ -406,7 +414,7 @@ function can_proceed($approve_stat = 0) {
 }
 
 function can_post() {
-    $result = get_adjust_items($_GET['trans_no']);
+    $result = get_adjust_items($_GET['trans_no'], true);
 
     $trans_date = $_POST['AdjDate'];
 
@@ -431,6 +439,10 @@ function can_post() {
             }
             else if ($row['adjustment_type'] == "OUT" && $qoh < abs($row['qty'])) {
                 display_error(_("Can't Proceed! There is NOT enough quantity in stock for Stock ID: " .$stock_id));
+                return false;
+            }
+            else if ($row['mcode'] == '' || $row['master_file'] == '') {
+                display_error(_("Cant' Proceed! There are missing masterfile in some entries!"));
                 return false;
             }
         }
