@@ -516,7 +516,7 @@ class items_cart
 					$gl->person_type_id, 
 					$gl->person_id, "", 
 					$this->rate, 
-					$gl->mcode, 
+					$this->ar_alloc == 1 ? get_person_id(PT_CUSTOMER, $gl->mcode) : $gl->mcode, 
 					$gl->master_file, 
 					$gl->hocbc,
 					$this->order_id, 

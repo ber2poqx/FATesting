@@ -135,9 +135,18 @@ function get_customer_details($customer_id, $to=null, $all=true)
 
 }
 
-function get_customer($customer_id)
-{
-	$sql = "SELECT * FROM ".TB_PREF."debtors_master WHERE debtor_no=".db_escape($customer_id);
+//Modified by spyrax10 22 Apr 2022
+function get_customer($customer_id = '', $customer_ref = '') {
+
+	$sql = "SELECT * FROM ".TB_PREF."debtors_master WHERE inactive = 0";
+	
+	if ($customer_id != '') {
+		$sql .=	" AND debtor_no = ".db_escape($customer_id);
+	}
+
+	if ($customer_ref != '') {
+		$sql .=	" AND debtor_ref = ".db_escape($customer_ref);
+	}
 
 	$result = db_query($sql, "could not get customer");
 

@@ -740,7 +740,7 @@ function write_bank_transaction(
 			$person_id,
 			"",
 			0,
-			$gl_item->mcode,
+			get_person_id($person_type_id, $gl_item->mcode),
 			$gl_item->master_file,
 			$gl_item->hocbc,
 			0,

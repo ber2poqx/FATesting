@@ -200,6 +200,25 @@ function get_person_name($type, $person_id) {
 			return '';
 	}
 }
+
+function get_person_id($type, $person_ref) {
+
+
+	if ($type == PT_CUSTOMER) {
+		$cust_row = get_customer('', $person_ref);
+		if ($cust_row['debtor_no'] != null) {
+			$mcode = $cust_row['debtor_no'];
+		}
+		else {
+			$mcode = $person_ref;	
+		}
+	}
+	else {
+		$mcode = $person_ref;
+	}
+
+	return $mcode;
+}
 //
 
 function payment_person_name_ver2($type, $person_id, $full = false)
