@@ -371,11 +371,8 @@ if (isset($_POST['import'])) {
 			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
-				if (!$row) { 
-					add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
-				} else {
-					update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
-				}
+				if (!$row) add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
+				else update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
