@@ -220,7 +220,6 @@ if (isset($_POST['import'])) {
 			    } else $cat = $row[0];
 				
 				//Added by Herald Felisilda for brand, manufacturer, distributor
-				$brand = trim($brand);
 				$sql1 = "SELECT id, name FROM ".TB_PREF."item_brand 
 					WHERE UPPER(name)=".db_escape(strtoupper($brand));
 				$result1 = db_query($sql1, "could not get item brand");
@@ -336,12 +335,6 @@ if (isset($_POST['import'])) {
 				    db_query($sql, "The item could not be added");
 				    display_notification("Line $lines: Added $id $description");
 
-				    if ($mb_flag != "D") {
-					    $sql = "INSERT INTO ".TB_PREF."loc_stock (loc_code, stock_id) VALUES ('{$_POST['location']}', '$id')";
-
-					    db_query($sql, "The item locstock could not be added");
-				    }
-
 				    $i++;
 			    } else {
 				    $sql = "UPDATE ".TB_PREF."stock_master SET long_description='',
@@ -372,6 +365,18 @@ if (isset($_POST['import'])) {
 				    display_notification("Line $lines: Update $id $description");
 				    $j++;
 			    }
+			    $sql = "SELECT stock_id from ".TB_PREF."loc_stock WHERE stock_id='$id' AND loc_code = ".db_escape($_POST['location']);
+			    $result = db_query($sql, "location stock could not be retreived");
+			    $row = db_fetch_row($result);
+				if (!$row) {
+				 	if ($mb_flag != "D") {
+					    $sql = "INSERT INTO ".TB_PREF."loc_stock (loc_code, stock_id) 
+					    VALUES (".db_escape($_POST['location']).", ".db_escape($id).")";
+
+					    db_query($sql, "The item locstock could not be added");
+				    }
+				}
+
 			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
