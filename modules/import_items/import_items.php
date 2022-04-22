@@ -220,6 +220,7 @@ if (isset($_POST['import'])) {
 			    } else $cat = $row[0];
 				
 				//Added by Herald Felisilda for brand, manufacturer, distributor
+				$brand = trim($brand);
 				$sql1 = "SELECT id, name FROM ".TB_PREF."item_brand 
 					WHERE UPPER(name)=".db_escape(strtoupper($brand));
 				$result1 = db_query($sql1, "could not get item brand");
@@ -309,8 +310,9 @@ if (isset($_POST['import'])) {
                             }  */
                     //$id = preg_replace('/\s+/', ' ', $id);
                     //$code = preg_replace('/\s+/', ' ', $code);
-                      $id = trim($id);
-                      $code = trim($code);
+                      $id = trim(htmlentities($id));
+                      $code = trim(htmlentities($code));
+                      $oldcode = trim(htmlentities($oldcode));
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id='$id'";
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
