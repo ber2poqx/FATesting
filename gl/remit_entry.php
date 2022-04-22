@@ -48,46 +48,6 @@ if (isset($_GET['AddedID'])) {
 
 //-----------------------------------------------------------------------------------------------
 
-function trans_num($row) {
-    return $row['trans_no'];
-}
-
-function reference_row($row) {
-    return get_trans_view_str($row["type"], $row["trans_no"], $row['ref']);
-}
-
-function trans_date($row) {
-    return sql2date($row['trans_date']);
-}
-
-function pay_type($row) {
-    return strtoupper($row['pay_type']);
-}
-
-function is_interbranch($row) {
-    return has_interbranch_entry($row['trans_no'], $row['type']) ? "Interbranch Entry" : "Normal Entry";
-}
-
-function doc_ref($row) {
-    return $row['receipt_no'];
-}
-
-function amount_total($row) {
-    return ABS($row['amt']);
-}
-
-function systype_name($row) {
-	global $systypes_array;
-	
-	return $systypes_array[$row['type']];
-}
-
-function payment_person($row) {
-    return payment_person_name($row['person_type_id'], $row['person_id']);
-}
-
-//-----------------------------------------------------------------------------------------------
-
 function can_process() {
 
     if (!check_reference($_POST['ref'], ST_REMITTANCE)) {
@@ -126,9 +86,11 @@ function can_process() {
 
 if (get_post('chk_date')) {
 	$Ajax->activate('pmt_header');
+    $Ajax->activate('remit_items');
 }
 else {
     $Ajax->activate('pmt_header');
+    $Ajax->activate('remit_items');
 }
 
 if (check_value('chk_date') == 1) {
@@ -200,31 +162,63 @@ $Ajax->activate('remit_items');
 end_row();
 end_table(); 
 
-$sql = _bank_transactions(
-    null, 
-    $_SESSION["wa_current_user"]->user, 
-    false,
-    get_post('trans_type'),
-    get_post('date_2') == null ? '' : get_post('date_2')
+div_start("remit_items");
+start_table(TABLESTYLE, "width='85%'");
+
+$sql = db_query(
+    _bank_transactions(
+        null, 
+        $_SESSION["wa_current_user"]->user, 
+        false,
+        get_post('trans_type'),
+        get_post('date_2') == null ? '' : get_post('date_2')
+    )
 );
 
-$cols = array(
-    _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
-    _('Entry Type') => array('align' => 'left', 'fun' => 'is_interbranch'),
-    _('Trans #') => array('align' => 'center', 'fun' => 'trans_num'),
-    _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
-    _('Payment To') => array('align' => 'left', 'fun' => 'payment_person'),
-    _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
-    _('Receipt No.') => array('align' => 'center', 'fun' => 'doc_ref'),
-    _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
-    _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
+$th = array(
+    _(""),
+    _('Transaction Type'),
+    _('Entry Type'),
+    _('Trans #'),
+    _('Reference'),
+    _('Payment To'),
+    _('Date'),
+    _('Receipt No.'),
+    _('Payment Type'),
+    _('Document Total')
 );
 
-$table = &new_db_pager('remit_items', $sql, $cols, null, null, 25);
+table_header($th);
 
-$table->width = "85%";
+$total = 0;
+$k = $count = 0;
 
-display_db_pager($table);
+while ($row = db_fetch_assoc($sql)) {
+
+    $count++;
+    $total += $row['amt'];
+    $color = $row['amt'] > 0 ? "" : "style='color: red'";
+
+    alt_table_row_color($k);
+
+    label_cell($count . ".)", "nowrap align='left'");
+    label_cell(_systype_name($row['type']), "nowrap align='left'");
+    label_cell(has_interbranch_entry($row['trans_no'], $row['type']) ? "Interbranch Entry" : "Normal Entry", "nowrap align='left'");
+    label_cell($row['trans_no'], "nowrap align='center'");
+    label_cell(get_trans_view_str($row["type"], $row["trans_no"], $row['ref']), "nowrap align='center'");
+    label_cell(payment_person_name($row['person_type_id'], $row['person_id']), "nowrap align='left'");
+    label_cell(sql2date($row['trans_date']), "nowrap align='center'");
+    label_cell($row['receipt_no'], "nowrap align='center'");
+    label_cell($row['pay_type'], "nowrap align='center'");
+    amount_cell($row['amt'], false, $color);
+}
+
+label_row(_("Pending Remittance Total: "), number_format2($total, user_price_dec()), 
+    "align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+);
+
+end_table();
+div_end();
 
 br();
 display_heading(_("New Remittance Entry"));
