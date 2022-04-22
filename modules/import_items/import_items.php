@@ -323,9 +323,9 @@ if (isset($_POST['import'])) {
 				    	old_code, sap_code, serialised)
 					    VALUES (
 							".db_escape($id).",
-							".db_escape($description).",'','$cat', {$_POST['tax_type_id']}, '$units', '$mb_flag', 
+							".db_escape($description).",'', ".db_escape($cat).", '{$_POST['tax_type_id']}', '$units', '$mb_flag', 
 					    	'{$_POST['sales_account']}', '{$_POST['inventory_account']}', '{$_POST['cogs_account']}',
-					    	'{$_POST['adjustment_account']}', '{$_POST['wip_account']}', $dim, 0, ".db_escape($brand).", 
+					    	'{$_POST['adjustment_account']}', '{$_POST['wip_account']}', ".db_escape($dim).", 0, ".db_escape($brand).", 
 					    	".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", 
 					    	'{$_POST['installment_sales_account']}', '{$_POST['regular_sales_account']}', ".db_escape($oldcode).", 
 					    	".db_escape($sapitemno).", ".db_escape($serialised)."
@@ -370,14 +370,14 @@ if (isset($_POST['import'])) {
 				    display_notification("Line $lines: Update $id $description");
 				    $j++;
 			    }
-			    /*$sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
+			    $sql = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
 				if (!$row) {
 				 	add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 				} else {
 				 	update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
-				}*/
+				}
 			}
 
 			if ($type == 'ITEM1' || $type == 'KIT' || $type == 'PRICE') {
