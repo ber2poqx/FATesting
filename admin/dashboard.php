@@ -16,6 +16,7 @@ include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/reporting/includes/class.graphic.inc");
 include_once($path_to_root . "/includes/dashboard.inc"); // here are all the dashboard routines.
+include_once($path_to_root . "/includes/db/dashboard_db.inc"); 
 
 $js = "";
 if ($SysPrefs->use_popup_windows) {

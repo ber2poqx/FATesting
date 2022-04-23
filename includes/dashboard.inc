@@ -120,14 +120,21 @@ function display_stock_topten($type=0)
 	$today = Today();
 	$title = stock_top($today, 10, 66, $type, $pg);
 	table_two();
-	if ($type == 2)
+
+	if ($type == 2) {
 		$source = _("Fixed Assets");
-	elseif ($type == 1)
+	}
+	elseif ($type == 1) {
 		$source = _("Manufacturing");
-	else	
+	}
+	else {
 		$source = _("Items");
+	}
+	
 	source_graphic($today, $title, $source, $pg, ($type == 0 ? _("Sales") : _("Amount")), 
-		($type == 0 ? _("Costs") : null));
+		($type == 0 ? _("Costs") : null)
+	);
+
 	table_end();
 }
 
@@ -255,72 +262,66 @@ function supplier_top($today, $limit=10, $width="33", &$pg=null)
 	return $title;
 }
 
-function stock_top($today, $limit=10, $width="33", $type=0, &$pg=null)
-{
-	if ($type == 2)
+function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null) {
+	
+	if ($type == 2) {
 		$sec = 'SA_ASSETSANALYTIC';
-	elseif ($type == 1)
+	}
+	elseif ($type == 1) {
 		$sec = 'SA_WORKORDERANALYTIC';
-	else
+	}
+	else {
 		$sec = 'SA_ITEMSTRANSVIEW';
-	$begin = begin_fiscalyear();
-	$begin1 = date2sql($begin);
-	$today1 = date2sql($today);
-	if ($type == 0)
-	{
-		$sql = "SELECT SUM((trans.unit_price * trans.quantity) * d.rate) AS total, s.stock_id, s.description, 
-			SUM(trans.quantity) AS qty, SUM((s.material_cost + s.overhead_cost + s.labour_cost) * trans.quantity) AS costs FROM
-			".TB_PREF."debtor_trans_details AS trans, ".TB_PREF."stock_master AS s, ".TB_PREF."debtor_trans AS d 
-			WHERE trans.stock_id=s.stock_id AND trans.debtor_trans_type=d.type AND trans.debtor_trans_no=d.trans_no
-			AND (d.type = ".ST_SALESINVOICE." OR d.type = ".ST_CUSTCREDIT.") ";
 	}
-	else
-	{
-		$sql = "SELECT SUM(m.qty * (s.material_cost + s.labour_cost + s.overhead_cost)) AS total, s.stock_id, s.description, 
-			SUM(qty) AS qty FROM ".TB_PREF."stock_master AS s, ".TB_PREF."stock_moves AS m 
-			WHERE s.stock_id=m.stock_id ";
-		if ($type == 1)
-			$sql .= "AND s.mb_flag='M' AND m.type <> ".ST_CUSTDELIVERY." AND m.type <> ".ST_CUSTCREDIT." ";
-		elseif ($type == 2)	
-			$sql .= "AND s.mb_flag='F' ";
-	}
-	if ($type != 2)
-		$sql .= "AND tran_date >= '$begin1' ";
-	$sql .= "AND tran_date <= '$today1' GROUP by s.stock_id ORDER BY total DESC, s.stock_id 
-		LIMIT $limit";
-	$result = db_query($sql);
-	if ($type == 1)
+
+	if ($type == 1) {
 		$title = sprintf(_("Top %s Manufactured Items in fiscal year"), $limit);
-	elseif ($type == 2)
+	}
+	elseif ($type == 2) {
 		$title = sprintf(_("Top %s Fixed Assets"), $limit);
-	else	
+	}
+	else {
 		$title = sprintf(_("Top %s Sold Items in fiscal year"), $limit);
+	}	
+
+	$result = get_stock_top($today, $limit, $type);
+
 	display_title($title);	
-	if ($type == 0)	
+	
+	if ($type == 0) {
 		$th = array(_("Item"), _("Sales"), _("Costs"), _("Quantity"));
-	else	
+	}	
+	else {
 		$th = array(_("Item"), _("Amount"), _("Quantity"));
+	}	
+		
 	start_table(TABLESTYLE, "width='$width%'");
 	table_header($th);
 	check_page_security($sec);
+
 	$k = 0; //row colour counter
 	$i = 0;
-	while ($myrow = db_fetch($result))
-	{
+
+	while ($myrow = db_fetch($result)) {
+
 		alt_table_row_color($k);
 		$name = $myrow["description"];
 		label_cell($name);
 		amount_cell($myrow['total']);
-		if ($type == 0)
+		
+		if ($type == 0) {
 			amount_cell($myrow['costs']);
+		}
+
 		qty_cell($myrow['qty']);
-		if ($pg != NULL)
-		{
+		
+		if ($pg != NULL) {
 			$pg->x[$i] = $name; 
 			$pg->y[$i] = $myrow['total'];
 			if ($type == 0)
 				$pg->z[$i] = $myrow['costs'];
 		}	
+
 		$i++;
 		end_row();
 	}
