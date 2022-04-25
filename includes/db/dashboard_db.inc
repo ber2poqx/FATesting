@@ -56,3 +56,32 @@ function get_stock_top($today, $limit = 10, $type = 0) {
 
     return db_query($sql);
 }
+
+function source_graphic($today, $title, $x_axis, $pg, $graphic1, $graphic2 = null, $type = 2) {
+	if (count($pg->y) ==0 || (count($pg->y) == 1 && $pg->y[0] == 0)) {
+		return;
+	}
+
+	display_title("$title ($today)");	
+	//$pg->title     = $title . " - " . $today;
+	$pg->axis_x    = $x_axis;
+	$pg->axis_y    = _("Amount");
+	$pg->graphic_1 = $graphic1;
+	
+	if ($graphic2 != null) {
+		$pg->graphic_2 = $graphic2;
+	}
+	
+	$pg->type      = $type;
+	$pg->skin      = 1;
+	$pg->built_in  = false;
+	$filename = company_path(). "/pdf_files/". random_id().".png";
+	$pg->display($filename, true);
+	start_table(TABLESTYLE);
+	start_row();
+	echo "<td>";
+	echo "<img src='$filename' border='0' alt='$title'>";
+	echo "</td>";
+	end_row();
+	end_table(1);
+}
