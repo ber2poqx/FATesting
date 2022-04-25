@@ -102,6 +102,7 @@ Ext.onReady(function(){
 			{name:'pastdue', mapping:'pastdue'},
 			{name:'GPM', mapping:'GPM'},
 			{name:'CGPM', mapping:'CGPM'},
+			{name:'remarks', mapping:'remarks'},
 			{name:'base_transno', mapping:'base_transno'},
 			{name:'base_transtype', mapping:'base_transtype'}
 		]
@@ -118,6 +119,14 @@ Ext.onReady(function(){
 			{name:'color_code',mapping:'color_code'}
 		]
 	});
+    Ext.define('mtModel',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'id', mapping:'id'},
+			{name:'desc', mapping:'desc'},
+			{name:'fk_id', mapping:'fk_id'}
+		]
+    });
 	//------------------------------------: stores :----------------------------------------
 	var rTypeStore = Ext.create('Ext.data.Store',{
 		fields: ['id','name'],
@@ -126,7 +135,7 @@ Ext.onReady(function(){
             {"id":"new","name":"New"},
             {'id':'repo','name':'Repo'},
 			{"id":"replcmnt","name":"Replacement"},
-			{"id":"mt","name":"Merchandise "},
+			{"id":"mt","name":"Merchandise Transfer"},
 			{"id":"trmode","name":"AR Term mode"},
 			{"id":"openar","name":"AR Opening"},
 			{"id":"arlend","name":"From AR lending"}
@@ -221,6 +230,44 @@ Ext.onReady(function(){
 		sorters : [{
 			property : 'tran_date',
 			direction : 'DESC'
+		}]
+	});
+	var Branchstore = Ext.create('Ext.data.Store', {
+		name: 'Branchstore',
+		fields:['id','name','area','gl_account'],
+		autoLoad : true,
+        proxy: {
+			url: '?getbranch=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'name',
+			direction : 'ASC'
+		}]
+	});
+    var mtstore = Ext.create('Ext.data.Store', {
+		name: 'mtstore',
+        model: 'mtModel',
+		//autoLoad : true,
+        proxy: {
+			url: '?getmtItem=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'desc',
+			direction : 'ASC'
 		}]
 	});
 	//-----------------------------------//
@@ -417,7 +464,9 @@ Ext.onReady(function(){
 			Ext.getCmp('btncancel').setText('Cancel');
 			Ext.getCmp('InvoiceNo').setVisible(true);
 			Ext.getCmp('vw_InvoiceNo').setVisible(false);
-
+			Ext.getCmp('cBranch').setVisible(false);
+			Ext.getCmp('mt_ref').setVisible(false);
+			
 			submit_window.show();
 			submit_window.setTitle('Receiving Report Repo - Add');
 			submit_window.setPosition(320,23);
@@ -475,6 +524,59 @@ Ext.onReady(function(){
 					layout: 'hbox',
 					margin: '2 0 2 0',
 					items:[{
+						xtype: 'combobox',
+						id: 'cBranch',
+						name: 'cBranch',
+						fieldLabel: 'Branch ',
+						allowBlank: false,
+						store : Branchstore,
+						displayField: 'name',
+						valueField: 'id',
+						queryMode: 'local',
+						emptyText: "Select From Branch",
+						labelWidth: 80,
+						width: 410,
+						hidden: true,
+						forceSelection: true,
+						selectOnFocus:true,
+						fieldStyle: 'font-weight: bold; color: #210a04;',
+						listeners: {
+							select: function(combo, record, index) {
+								mtstore.proxy.extraParams = {from_branch: record.get('id')};
+								mtstore.load();
+							}
+						}
+					},{
+						xtype: 'combobox',
+						id: 'mt_ref',
+						name: 'mt_ref',
+						fieldLabel: 'MT Reference ',
+						allowBlank: false,
+						store : mtstore,
+						displayField: 'desc',
+						valueField: 'id',
+						queryMode: 'local',
+						width: 410,
+						hidden: true,
+						forceSelection: true,
+						selectOnFocus:true,
+						fieldStyle: 'font-weight: bold; color: #210a04;',
+						listeners: {
+							select: function(combo, record, index) {
+								CustomerStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
+								CustomerStore.load();
+								ARInvoiceStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
+								ARInvoiceStore.load();
+								SIitemStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
+								SIitemStore.load();
+							}
+						}
+					}]
+				},{
+					xtype: 'fieldcontainer',
+					layout: 'hbox',
+					margin: '2 0 2 0',
+					items:[{
 						xtype: 'textfield',
 						fieldLabel: 'Customer ',
 						id: 'customercode',
@@ -501,11 +603,13 @@ Ext.onReady(function(){
 							select: function(combo, record, index) {
 								Ext.getCmp('customercode').setValue(record.get('debtor_ref'));
 								Ext.getCmp('custname').setValue(record.get('name'));
-								ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), repo_date: Ext.getCmp('repo_date').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
-								ARInvoiceStore.load();
-								SIitemStore.proxy.extraParams = {transNo: 0};
-								SIitemStore.load();
 
+								if(Ext.getCmp('repo_type').getValue() != 'mt'){
+									ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), repo_date: Ext.getCmp('repo_date').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
+									ARInvoiceStore.load();
+									SIitemStore.proxy.extraParams = {transNo: 0};
+									SIitemStore.load();
+								}
 								Ext.getCmp('InvoiceNo').setValue();
 								Ext.getCmp('transtype').setValue();
 								Ext.getCmp('release_date').setValue();
@@ -590,6 +694,16 @@ Ext.onReady(function(){
 								Ext.getCmp('base_transno').setValue();
 								Ext.getCmp('base_transtype').setValue();
 								Ext.getCmp('custname').setValue();
+								Ext.getCmp('cBranch').setValue();
+								Ext.getCmp('mt_ref').setValue();
+
+								if(record.get('id') == 'mt'){
+									Ext.getCmp('cBranch').setVisible(true);
+									Ext.getCmp('mt_ref').setVisible(true);
+								}else{
+									Ext.getCmp('cBranch').setVisible(false);
+									Ext.getCmp('mt_ref').setVisible(false);
+								}
 							}
 						}
 					}]
@@ -614,9 +728,11 @@ Ext.onReady(function(){
 						fieldStyle: 'font-weight: bold; color: #210a04;',
 						listeners: {
 							select: function(combo, record, index) {
-								SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type'), amount: record.get('unrecoverd'), rtype: Ext.getCmp('repo_type').getValue(), base_transno: record.get('base_transno'), base_transtype: record.get('base_transtype')};
-								SIitemStore.load();
-								
+								if(Ext.getCmp('repo_type').getValue() != 'mt'){
+									SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type'), amount: record.get('unrecoverd'), rtype: Ext.getCmp('repo_type').getValue(), base_transno: record.get('base_transno'), base_transtype: record.get('base_transtype')};
+									SIitemStore.load();
+								}
+
 								Ext.getCmp('transtype').setValue(record.get('type'));
 								Ext.getCmp('release_date').setValue(record.get('tran_date'));
 								Ext.getCmp('months_term').setValue(record.get('term'));
@@ -637,6 +753,7 @@ Ext.onReady(function(){
 								Ext.getCmp('total_unrecovrd').setValue(record.get('totalunrecoverd'));
 								Ext.getCmp('past_due').setValue(record.get('pastdue'));
 								Ext.getCmp('over_due').setValue(record.get('overdue'));
+								Ext.getCmp('remarks').setValue(record.get('remarks'));
 								Ext.getCmp('base_transno').setValue(record.get('base_transno'));
 								Ext.getCmp('base_transtype').setValue(record.get('base_transtype'));
 							}
@@ -666,7 +783,7 @@ Ext.onReady(function(){
 						value: Ext.Date.format(new Date(), 'Y-m-d'),
 						listeners: {
 							change: function(combo, record, index) {
-								ARInvoiceStore.proxy.extraParams = {debtor_id: Ext.getCmp('customername').getValue(), repo_date: Ext.getCmp('repo_date').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
+								ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
 								ARInvoiceStore.load();
 								SIitemStore.proxy.extraParams = {transNo: 0};
 								SIitemStore.load();
@@ -694,6 +811,8 @@ Ext.onReady(function(){
 								Ext.getCmp('over_due').setValue();
 								Ext.getCmp('base_transno').setValue();
 								Ext.getCmp('base_transtype').setValue();
+								Ext.getCmp('cBranch').setValue();
+								Ext.getCmp('mt_ref').setValue();
 							}
 						}
 					}]

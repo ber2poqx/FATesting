@@ -154,11 +154,12 @@ function get_customer_account_repo($type)
 
 function get_customer_from_replacement()
 {
-	$sql = "SELECT B.debtor_no, B.debtor_ref, B.name
+	$sql = "SELECT B.debtor_no, C.debtor_ref, C.name
 			FROM ".TB_PREF."returned_units A
 				INNER JOIN ".TB_PREF."debtor_trans B ON B.trans_no = A.si_trans_no
 				INNER JOIN ".TB_PREF."debtors_master C ON C.debtor_no = B.debtor_no
 			WHERE B.module_type = 'TEMP-REPO' ";
+	
 	return db_query($sql, "could not get customer ");
 }
 
@@ -450,4 +451,62 @@ function get_replace_item_to_repo($trans_no)
 			ORDER BY B.id DESC";
 
 	return db_query($sql, "could not get a/r ledger entries because ");
+}
+
+function get_mt_per_branch($home_branch, $from_branch)
+{
+	global $def_coy;
+    set_global_connection($def_coy);
+	
+	$sql = "SELECT A.mt_header_id, A.mt_header_reference, B.mt_details_stock_id, C.description, D.description category, A.mt_header_repo_account_id
+			FROM ".TB_PREF."mt_header A 
+				INNER JOIN ".TB_PREF."mt_details B ON B.mt_details_header_id = A.mt_header_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = B.mt_details_stock_id
+				INNER JOIN ".TB_PREF."stock_category D ON D.category_id = A.mt_header_category_id
+			WHERE A.mt_header_tolocation = ".db_escape($home_branch)."
+				AND A.mt_header_fromlocation = ".db_escape($from_branch)."
+				AND A.mt_header_item_type = 'repo'
+				AND B.mt_details_status = 0
+			ORDER BY A.mt_header_reference ASC";
+
+	$result = db_query($sql, "could not get repo merchandise transfer item because");
+
+	set_global_connection();
+	
+	return $result;
+}
+
+function get_mt_customer($repo_id, $from_branch)
+{
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
+
+	$sql = "SELECT B.debtor_no, B.name, B.debtor_ref
+			FROM ".TB_PREF."repo_accounts A
+				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
+			WHERE A.id = ".db_escape($repo_id);
+
+	$result = db_query($sql, "could not get customer info from ".$from_branch. " because");
+
+	set_global_connection();
+	
+	return $result;
+}
+
+function get_mt_repo_account($repo_id, $from_branch)
+{
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
+
+	$sql = "SELECT A.*, B.*, C.description category
+			FROM ".TB_PREF."repo_accounts A
+				INNER JOIN ".TB_PREF."repo_item_details B ON B.repo_id = A.id
+				INNER JOIN ".TB_PREF."stock_category C ON C.category_id = A.category_id
+			WHERE A.id = ".db_escape($repo_id);
+
+	$result = db_query($sql, "could not get repo accounts info from ".$from_branch. " because");
+
+	set_global_connection();
+	
+	return $result;
 }

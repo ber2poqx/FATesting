@@ -46,6 +46,8 @@ if(isset($_GET['get_Customer']))
     }else{
         if($_GET['rtype'] == 'replcmnt'){
             $result = get_customer_from_replacement();
+        }else if($_GET['rtype'] == 'mt'){
+            $result = get_mt_customer($_GET['repo_id'], $_GET['from_branch']);
         }else{
             $result = get_customer_account_repo($_GET['rtype']);
         }
@@ -65,107 +67,145 @@ if(isset($_GET['get_Customer']))
 }
 if(isset($_GET['get_InvoiceNo']))
 {
-    if($_GET['rtype'] == 'trmode') {
-        $result = get_invtermode_to_repo($_GET['debtor_id'], true);
-    }else if($_GET['rtype'] == 'replcmnt') {
-        $result = get_replace_item_loans($_GET['debtor_id']);
+    if($_GET['rtype'] == 'mt') {
+        $result = get_mt_repo_account($_GET['repo_id'], $_GET['from_branch']);
+        while ($myrow = db_fetch($result)) {
+            $status_array[] = array('id'=>$myrow["id"],
+                                   'name'=>($myrow["reference_no"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["description"]),
+                                   'type'=>$myrow["ar_trans_type"],
+                                   'tran_date'=>$myrow["trans_date"],
+                                   'term'=>$myrow["term"],
+                                   'dp_amount'=>$myrow["downpayment"],
+                                   'out_ar'=>$myrow["outstanding_ar"],
+                                   'monthly_amort'=>$myrow["monthly_amount"],
+                                   'balance'=>$myrow["balance"],
+                                   'first_duedate'=>$myrow["firstdue_date"],
+                                   'maturty_date'=>$myrow["maturity_date"],
+                                   'lcp_amount'=>$myrow["lcp_amount"],
+                                   'unit_cost'=>$myrow["unit_price"],
+                                   'category_id'=>$myrow["category_id"],
+                                   'category_desc'=>$myrow["category"],
+                                   'addon_amount'=>$myrow["addon_amount"],
+                                   'unrecoverd'=>$myrow["unrecovered_cost"],
+                                   'totalunrecoverd'=>$myrow["total_unrecovered"],
+                                   'overdue'=>$myrow["over_due"],
+                                   'pastdue'=>$myrow["past_due"],
+                                   'GPM'=>$myrow["gpm"],
+                                   'CGPM'=>$CGPM,
+                                   'remarks'=>$myrow["comments"],
+                                   'base_transno'=>$myrow["id"],
+                                   'base_transtype'=>$myrow["type"]
+                                );
+        }
     }else{
-        $result = get_invoice_per_customer_repo($_GET['debtor_id'], $_GET['rtype']);
-    }
-    
-    $total = DB_num_rows($result);
-    $addon_amount = get_company_pref('addon_amount');
-
-    while ($myrow = db_fetch($result)) {
-        $totalpayment = get_payment_applied($myrow["type"], $myrow["trans_no"]);
-        $costofsales = get_cost_Sales($myrow["type"], $myrow["trans_no"]);
-
-        $balance = ($myrow["ar_amount"] - $totalpayment);
-
-        //**** unrecovered cost = ((total payment * (1-profit margin)) - cost of sales) */
-        $CGPM = (1 - $myrow["profit_margin"]);
-        $dgp = ($totalpayment * $CGPM);
-        $unrecoverd = ($costofsales - $dgp);
-
-        if($myrow["category_id"] != 14){
-            $addon_amount = 0;
-        }
-        $totalunrecoverd = (abs($unrecoverd) + $addon_amount);
-        
-        //**** overdue amount = (unpaid months to date repo) */
-        //**** pastdue amount = (AR - total payment  or balance) */
-        if(date('Y-m-d', strtotime($myrow["maturity_date"])) < date('Y-m-d', strtotime($_GET['repo_date']))){
-            //maturity :: pastdue
-            $month_due = mos_interval_r($myrow["maturity_date"], $_GET['repo_date']);
-            $amount_due = ($myrow["amortization_amount"] * $month_due);
-
-            $PastDue = ($balance + $amount_due);
-            $OverDue = 0;
-        }else{
-            //overdue
-            $OverDue = (get_sched_loans_due($myrow["type"], $myrow["trans_no"], date('Y-m-d', strtotime($_GET['repo_date']))) - get_total_payment_applied($myrow["type"], $myrow["trans_no"]));
-            $PastDue = 0;
-        }
-
-        if($myrow["total_amount"] == 0){
-            $unit_cost = get_unitcost($myrow["invoice_ref_no"]);
-        }else{
-            $unit_cost = $myrow["total_amount"];
-        }
         if($_GET['rtype'] == 'trmode') {
-            $invoice_no = $myrow["invoice_no"];
-            $invoice_type = $myrow["debtor_trans_type"];
+            $result = get_invtermode_to_repo($_GET['debtor_id'], true);
+        }else if($_GET['rtype'] == 'replcmnt') {
+            $result = get_replace_item_loans($_GET['debtor_id']);
         }else{
-            $invoice_no = $myrow["trans_no"];
-            $invoice_type = $myrow["type"];
+            $result = get_invoice_per_customer_repo($_GET['debtor_id'], $_GET['rtype']);
         }
-
-        $status_array[] = array('id'=>$myrow["trans_no"],
-                               'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["itemdesc"]),
-                               'type'=>$myrow["type"],
-                               'tran_date'=>$myrow["tran_date"],
-                               'term'=>$myrow["months_term"],
-                               'dp_amount'=>$myrow["downpayment_amount"],
-                               'out_ar'=>$myrow["outstanding_ar_amount"],
-                               'monthly_amort'=>$myrow["amortization_amount"],
-                               'balance'=>$balance,
-                               'first_duedate'=>$myrow["firstdue_date"],
-                               'maturty_date'=>$myrow["maturity_date"],
-                               'lcp_amount'=>$myrow["lcp_amount"],
-                               'unit_cost'=>$unit_cost,
-                               'category_id'=>$myrow["category_id"],
-                               'category_desc'=>$myrow["category"],
-                               'addon_amount'=>$addon_amount,
-                               'unrecoverd'=>abs($unrecoverd),
-                               'totalunrecoverd'=>$totalunrecoverd,
-                               'overdue'=>$OverDue,
-                               'pastdue'=>$PastDue,
-                               'GPM'=>$myrow["profit_margin"],
-                               'CGPM'=>$CGPM,
-                               'base_transno'=>$invoice_no,
-                               'base_transtype'=>$invoice_type
-                            );
+        
+        $total = DB_num_rows($result);
+        $addon_amount = get_company_pref('addon_amount');
+    
+        while ($myrow = db_fetch($result)) {
+            $totalpayment = get_payment_applied($myrow["type"], $myrow["trans_no"]);
+            $costofsales = get_cost_Sales($myrow["type"], $myrow["trans_no"]);
+    
+            $balance = ($myrow["ar_amount"] - $totalpayment);
+    
+            //**** unrecovered cost = ((total payment * (1-profit margin)) - cost of sales) */
+            $CGPM = (1 - $myrow["profit_margin"]);
+            $dgp = ($totalpayment * $CGPM);
+            $unrecoverd = ($costofsales - $dgp);
+    
+            if($myrow["category_id"] != 14){
+                $addon_amount = 0;
+            }
+            $totalunrecoverd = (abs($unrecoverd) + $addon_amount);
+            
+            //**** overdue amount = (unpaid months to date repo) */
+            //**** pastdue amount = (AR - total payment  or balance) */
+            if(date('Y-m-d', strtotime($myrow["maturity_date"])) < date('Y-m-d', strtotime($_GET['repo_date']))){
+                //maturity :: pastdue
+                $month_due = mos_interval_r($myrow["maturity_date"], $_GET['repo_date']);
+                $amount_due = ($myrow["amortization_amount"] * $month_due);
+    
+                $PastDue = ($balance + $amount_due);
+                $OverDue = 0;
+            }else{
+                //overdue
+                $OverDue = (get_sched_loans_due($myrow["type"], $myrow["trans_no"], date('Y-m-d', strtotime($_GET['repo_date']))) - get_total_payment_applied($myrow["type"], $myrow["trans_no"]));
+                $PastDue = 0;
+            }
+    
+            if($myrow["total_amount"] == 0){
+                $unit_cost = get_unitcost($myrow["invoice_ref_no"]);
+            }else{
+                $unit_cost = $myrow["total_amount"];
+            }
+            if($_GET['rtype'] == 'trmode') {
+                $invoice_no = $myrow["invoice_no"];
+                $invoice_type = $myrow["debtor_trans_type"];
+            }else{
+                $invoice_no = $myrow["trans_no"];
+                $invoice_type = $myrow["type"];
+            }
+    
+            $status_array[] = array('id'=>$myrow["trans_no"],
+                                   'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["itemdesc"]),
+                                   'type'=>$myrow["type"],
+                                   'tran_date'=>$myrow["tran_date"],
+                                   'term'=>$myrow["months_term"],
+                                   'dp_amount'=>$myrow["downpayment_amount"],
+                                   'out_ar'=>$myrow["outstanding_ar_amount"],
+                                   'monthly_amort'=>$myrow["amortization_amount"],
+                                   'balance'=>$balance,
+                                   'first_duedate'=>$myrow["firstdue_date"],
+                                   'maturty_date'=>$myrow["maturity_date"],
+                                   'lcp_amount'=>$myrow["lcp_amount"],
+                                   'unit_cost'=>$unit_cost,
+                                   'category_id'=>$myrow["category_id"],
+                                   'category_desc'=>$myrow["category"],
+                                   'addon_amount'=>$addon_amount,
+                                   'unrecoverd'=>abs($unrecoverd),
+                                   'totalunrecoverd'=>$totalunrecoverd,
+                                   'overdue'=>$OverDue,
+                                   'pastdue'=>$PastDue,
+                                   'GPM'=>$myrow["profit_margin"],
+                                   'CGPM'=>$CGPM,
+                                   'remarks'=>"",
+                                   'base_transno'=>$invoice_no,
+                                   'base_transtype'=>$invoice_type
+                                );
+        }
     }
+
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
 if(isset($_GET['get_Item_details']))
 {
-    if(isset($_GET['repo_id'])){
-        $result = get_repo_accounts_item_details($_GET['repo_id']);
-    }else if($_GET['rtype'] == 'replcmnt') {
-        $result = get_replace_item_to_repo($_GET['transNo']);
+    if($_GET['rtype'] == 'mt'){
+        $result = get_mt_repo_account($_GET['repo_id'], $_GET['from_branch']);
     }else{
-        if($_GET['rtype'] == 'trmode') {
-            $transNo = $_GET['base_transno'];
-            $transtype = $_GET['base_transtype'];
+        if(isset($_GET['repo_id'])){
+            $result = get_repo_accounts_item_details($_GET['repo_id']);
+        }else if($_GET['rtype'] == 'replcmnt') {
+            $result = get_replace_item_to_repo($_GET['transNo']);
         }else{
-            $transNo = $_GET['transNo'];
-            $transtype = $_GET['transtype'];
-        }
+            if($_GET['rtype'] == 'trmode') {
+                $transNo = $_GET['base_transno'];
+                $transtype = $_GET['base_transtype'];
+            }else{
+                $transNo = $_GET['transNo'];
+                $transtype = $_GET['transtype'];
+            }
 
-        $result = get_item_detials_to_repo($transNo, $transtype);
+            $result = get_item_detials_to_repo($transNo, $transtype);
+        }
     }
     
     $total = DB_num_rows($result);
@@ -173,15 +213,17 @@ if(isset($_GET['get_Item_details']))
     while ($myrow = db_fetch($result)) {
         if(isset($_GET['repo_id'])){
             $serial = $myrow["serial_no"];
+            $qty = $myrow["qty"];
         }else{
             $serial = $myrow["lot_no"];
+            $qty = $myrow["quantity"];
         }
         $status_array[] = array('id'=>$myrow["id"],
                                'repo_id'=>$myrow["repo_id"],
                                'ar_trans_no'=>$myrow["ar_trans_no"],
                                'stock_id'=>$myrow["stock_id"],
                                'description'=>$myrow["description"],
-                               'qty'=>$myrow["quantity"],
+                               'qty'=>$qty,
                                'unit_price'=>$myrow["unit_price"],
                                'serial_no'=>$serial,
                                'chassis_no'=>$myrow["chassis_no"],
@@ -251,6 +293,40 @@ if(isset($_GET['get_repodetails']))
     return;
 }
 
+if(isset($_GET['getbranch'])){
+    global $db_connections;
+    $conn = $db_connections;
+    $total = count($conn);
+
+	for ($i = 0; $i < $total; $i++)
+	{
+        $status_array[] = array('id'=>$conn[$i]['branch_code'],
+                                'name'=>$conn[$i]['name'],
+                                'area'=>$conn[$i]['branch_area'],
+                                'gl_account'=>$conn[$i]['gl_account']);
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+
+}
+
+if(isset($_GET['getmtItem']))
+{
+    $branch_code = get_company_pref("branch_code");
+    $result = get_mt_per_branch($branch_code, $_GET['from_branch']);
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+        $status_array[] = array('id'=>$myrow["mt_header_id"],
+                               'desc'=>($myrow["mt_header_reference"] . ' - ' . $myrow["category"] . ' - ' . $myrow["mt_details_stock_id"] . ' - ' . $myrow["description"]),
+                               'fk_id'=>$myrow["mt_header_repo_account_id"]
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
+
 if(isset($_GET['submit']))
 {
     //initialise no input errors assumed initially before we proceed
@@ -281,8 +357,8 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Type must not be empty.');
     }
-    if($_POST['repo_type'] == "repoOthrB"){
-        $branch_code = $_POST['branch_code'];
+    if($_POST['repo_type'] == "mt"){
+        $branch_code = $_POST['cBranch'];
     }else{
         $branch_code = get_company_pref("branch_code");
     }
@@ -370,6 +446,8 @@ if(isset($_GET['submit']))
  
     if($_POST['repo_type'] == 'replcmnt') {
         $result = get_replace_item_to_repo($_POST['base_transno']);
+    }else if($_POST['repo_type'] == 'mt') {
+            $result = get_mt_repo_account($_POST['base_transno'], $_POST['cBranch']);
     }else{
         $result = get_item_detials_to_repo($_POST['base_transno'], $_POST['base_transtype']);
     }
@@ -391,18 +469,37 @@ if(isset($_GET['submit']))
         $trans_date = date('m/d/Y');
         $company_record = get_company_prefs();
 
-        $repo_id = add_repo_accounts(ST_RRREPO, $_POST['InvoiceNo'], $_POST['transtype'], $trans_date, $_POST['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
-                                        $_POST['customername'], $_POST['lcp_amount'], $_POST['downpayment'], $_POST['outs_ar_amount'], $_POST['amort_amount'],
-                                        $_POST['months_term'], $_POST['release_date'], $_POST['firstdue_date'], $_POST['maturity_date'], $_POST['balance'],
-                                        $_POST['spotcash'], $_POST['total_amount'], $_POST['unrecovrd_cost'], $_POST['addon_cost'], $_POST['total_unrecovrd'],
-                                        check_isempty($_POST['over_due']), check_isempty($_POST['past_due']), $_POST['category'], $branch_code, $_POST['remarks'], $_POST['gpm']);
+        if($_POST['repo_type'] == 'mt') {
+            //auto create customer 
 
-        add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['quantity'], $_POST['unrecovrd_cost'],
-                        $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
+            //copy info from originating branch
+            $result = get_mt_repo_account($_POST['base_transno'], $_POST['cBranch']);
+            $repoacct_row = db_fetch($result);
 
-        add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
-                        0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
-        
+            $repo_id = add_repo_accounts(ST_RRREPO, 0, 0, $trans_date, $repoacct_row['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
+                                            $_POST['customername'], $repoacct_row['lcp_amount'], $repoacct_row['downpayment'], $repoacct_row['outstanding_ar'], $repoacct_row['monthly_amount'],
+                                            $repoacct_row['term'], $repoacct_row['release_date'], $repoacct_row['firstdue_date'], $repoacct_row['maturity_date'], $repoacct_row['balance'],
+                                            $repoacct_row['spot_cash_amount'], $repoacct_row['total_amount'], $repoacct_row['unrecovered_cost'], $repoacct_row['addon_amount'], $repoacct_row['total_unrecovered'],
+                                            $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm']);
+
+            add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+                            $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
+
+            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+                            0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+        }else{
+            $repo_id = add_repo_accounts(ST_RRREPO, $_POST['InvoiceNo'], $_POST['transtype'], $trans_date, $_POST['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
+                                            $_POST['customername'], $_POST['lcp_amount'], $_POST['downpayment'], $_POST['outs_ar_amount'], $_POST['amort_amount'],
+                                            $_POST['months_term'], $_POST['release_date'], $_POST['firstdue_date'], $_POST['maturity_date'], $_POST['balance'],
+                                            $_POST['spotcash'], $_POST['total_amount'], $_POST['unrecovrd_cost'], $_POST['addon_cost'], $_POST['total_unrecovrd'],
+                                            check_isempty($_POST['over_due']), check_isempty($_POST['past_due']), $_POST['category'], $branch_code, $_POST['remarks'], $_POST['gpm']);
+
+            add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+                            $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
+
+            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+                            0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+        }
         //for gl entry
         //Repossessed Inventory - debit
         $repo_invty_act =  get_repo_invty_act($_POST['category']);
