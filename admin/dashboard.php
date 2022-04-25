@@ -35,7 +35,7 @@ if (get_post('trans_type')) {
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-value_type_list(_("Transaction Type:"), 'trans_type', 
+value_type_list(_("Application Type: "), 'trans_type', 
     array(
         'ALL' => 'All Transaction Summary',
         'orders' => 'Sales',

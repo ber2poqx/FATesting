@@ -280,10 +280,10 @@ class graph
             }
 
             // Axis X
-            $this->_imagestring($this->img, $this->size, $this->graphic_area_x2+40, $this->graphic_area_y2+3, $this->axis_x, $this->color['title']);
+            $this->_imagestring($this->img, $this->size, $this->graphic_area_x2 + 50, $this->graphic_area_y2+3, $this->axis_x, $this->color['title']);
             imageline($this->img, $this->graphic_area_x1, $this->graphic_area_y2, $this->graphic_area_x2, $this->graphic_area_y2, $this->color['axis_line']);
             // Axis Y
-            $this->_imagestring($this->img, $this->size, 20, $this->graphic_area_y1-20, $this->axis_y, $this->color['title']);
+            $this->_imagestring($this->img, $this->size, 20, $this->graphic_area_y1 - 20, $this->axis_y, $this->color['title']);
             imageline($this->img, $this->graphic_area_x1, $this->graphic_area_y1, $this->graphic_area_x1, $this->graphic_area_y2, $this->color['axis_line']);
         }
 
@@ -400,7 +400,7 @@ class graph
                 $x1   = $this->graphic_area_x1 + 1;
                 $y1   = $this->graphic_area_y1 + $y;
                 $x2   = $x1 + $size;
-                $y2   = $y1 + 15;
+                $y2   = $y1 + 15; //Bar height
                 $y   += $this->space_between_bars;
 
                 imageline($this->img, ($x1), ($y2+1), $x2, ($y2+1), $this->color['bars_shadow']);

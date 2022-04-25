@@ -16,12 +16,14 @@ function get_stock_top($today, $limit = 10, $type = 0) {
         "SELECT SUM((trans.unit_price * trans.quantity) * d.rate) AS total, 
             s.stock_id, s.description, 
 			SUM(trans.quantity) AS qty, 
-            SUM((s.material_cost + s.overhead_cost + s.labour_cost) * trans.quantity) AS costs 
+            SUM((s.material_cost + s.overhead_cost + s.labour_cost) * trans.quantity) AS costs,
+			IB.name AS brand_name
         
         FROM ".TB_PREF."debtor_trans_details AS trans 
             INNER JOIN ".TB_PREF."stock_master s ON trans.stock_id = s.stock_id 
             INNER JOIN ".TB_PREF."debtor_trans d ON trans.debtor_trans_no = d.trans_no
                 AND trans.debtor_trans_type = d.type  
+			INNER JOIN ".TB_PREF."item_brand IB ON s.brand = IB.id
             
 		WHERE (d.type = ".ST_SALESINVOICE." OR d.type = ".ST_CUSTCREDIT.") ";
 	}
@@ -48,15 +50,16 @@ function get_stock_top($today, $limit = 10, $type = 0) {
 	}
 
 	$sql .= "AND tran_date <= '$today1' 
-        GROUP by s.stock_id 
+        GROUP by s.brand
         ORDER BY total DESC, s.stock_id 
 		LIMIT $limit";
 
     return db_query($sql);
 }
 
-function source_graphic($today, $title, $x_axis, $pg, $graphic1, $graphic2 = null, $type = 2) {
-	if (count($pg->y) ==0 || (count($pg->y) == 1 && $pg->y[0] == 0)) {
+function _source_graphic($today, $title, $x_axis, $pg, $graphic1, $graphic2 = null, $type = 2) {
+	
+	if (count($pg->y) == 0 || (count($pg->y) == 1 && $pg->y[0] == 0)) {
 		return;
 	}
 
@@ -73,8 +76,10 @@ function source_graphic($today, $title, $x_axis, $pg, $graphic1, $graphic2 = nul
 	$pg->type      = $type;
 	$pg->skin      = 1;
 	$pg->built_in  = false;
+
 	$filename = company_path(). "/pdf_files/". random_id().".png";
 	$pg->display($filename, true);
+
 	start_table(TABLESTYLE);
 	start_row();
 	echo "<td>";
