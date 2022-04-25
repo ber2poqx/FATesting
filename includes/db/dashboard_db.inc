@@ -18,14 +18,12 @@ function get_stock_top($today, $limit = 10, $type = 0) {
 			SUM(trans.quantity) AS qty, 
             SUM((s.material_cost + s.overhead_cost + s.labour_cost) * trans.quantity) AS costs 
         
-        FROM ".TB_PREF."debtor_trans_details AS trans, 
-            ".TB_PREF."stock_master AS s, 
-            ".TB_PREF."debtor_trans AS d 
+        FROM ".TB_PREF."debtor_trans_details AS trans 
+            INNER JOIN ".TB_PREF."stock_master s ON trans.stock_id = s.stock_id 
+            INNER JOIN ".TB_PREF."debtor_trans d ON trans.debtor_trans_no = d.trans_no
+                AND trans.debtor_trans_type = d.type  
             
-		WHERE trans.stock_id = s.stock_id 
-            AND trans.debtor_trans_type = d.type 
-            AND trans.debtor_trans_no = d.trans_no
-			AND (d.type = ".ST_SALESINVOICE." OR d.type = ".ST_CUSTCREDIT.") ";
+		WHERE (d.type = ".ST_SALESINVOICE." OR d.type = ".ST_CUSTCREDIT.") ";
 	}
 	else {
 		$sql = 
