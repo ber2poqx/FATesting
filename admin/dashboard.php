@@ -31,25 +31,61 @@ if (get_post('trans_type')) {
     $_GET['sel_app'] = get_post('trans_type');
     $Ajax->activate('_page_body');
 }
+else {
+    if (get_post('category_id')) {
+        $Ajax->activate('_page_body');
+    }
+}
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
+br();
 
-value_type_list(_("Application Type: "), 'trans_type', 
-    array(
-        'ALL' => 'All Transaction Summary',
-        'orders' => 'Sales',
-        'AP' => 'Purchases',
-		'stock' => 'Items and Inventory',
-        'GL' => 'Banking and General Ledger'
-    ), '', null, true, '', true
-);
+if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 
-end_row();
-end_table(); 
+    start_table(TABLESTYLE2, "width = 21%");
+
+    value_type_list(_("Application Type: "), 'trans_type', 
+        array(
+            'ALL' => 'All Transaction Summary',
+            'orders' => 'Sales',
+            'AP' => 'Purchases',
+            'stock' => 'Items and Inventory',
+            'GL' => 'Banking and General Ledger'
+        ), '', null, true, '', true
+    );
+
+    end_table();
+}
+else {
+    
+    start_outer_table(TABLESTYLE2, "width = '40%'", 10);
+
+    table_section(1);
+
+    value_type_list(_("Application Type:"), 'trans_type', 
+        array(
+            'ALL' => 'All Transaction Summary',
+            'orders' => 'Sales',
+            'AP' => 'Purchases',
+		    'stock' => 'Items and Inventory',
+            'GL' => 'Banking and General Ledger'
+        ), '', null, true, '', true
+    );
+
+    if ($_GET['sel_app'] == 'stock') {
+    
+        table_section(2);
+        sql_type_list(_("Select Category"), 'category_id', 
+            get_category_list(), 'category_id', 'description', 
+            '', null, true, _("All Category")
+        );
+    }
+
+    end_outer_table(1);
+}
+
 
 if (isset($_GET['sel_app'])) {
-	dashboard($_GET['sel_app'], get_post('trans_type'));
+	dashboard($_GET['sel_app'], get_post('trans_type'), get_post('category_id'));
     end_form();
 	end_page();
 	exit;

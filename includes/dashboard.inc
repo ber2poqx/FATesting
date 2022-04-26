@@ -10,7 +10,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function dashboard($sel_app, $type = "")
+function dashboard($sel_app, $type = "", $category_id = null)
 {
 	$selected_app = $sel_app;
 
@@ -38,11 +38,11 @@ function dashboard($sel_app, $type = "")
 	if ($selected_app == "orders" && $type == "orders") {
 		display_customer_topten();
 	}
-	elseif ($selected_app == "AP") {
+	elseif ($selected_app == "AP" && $type == "AP") {
 		display_supplier_topten();
 	}
-	elseif ($selected_app == "stock") {
-		display_stock_topten();
+	elseif ($selected_app == "stock" && $type == "stock") {
+		display_stock_topten(0, $category_id);
 	}
 	elseif ($selected_app == "manuf") {
 		display_stock_topten(1);
@@ -53,7 +53,7 @@ function dashboard($sel_app, $type = "")
 	elseif ($selected_app == "proj") {
 		display_dimension_topten();
 	}
-	elseif ($selected_app == "GL") {
+	elseif ($selected_app == "GL" && $type == "GL") {
 		display_gl_info();
 	}
 	else{
@@ -112,12 +112,12 @@ function display_supplier_topten()
 	table_end();
 }
 
-function display_stock_topten($type = 0) {
+function display_stock_topten($type = 0, $category_id = null) {
 	$pg = new graph();
 
 	table_one();
 	$today = Today();
-	$title = stock_top($today, 10, 66, $type, $pg);
+	$title = stock_top($today, 10, 66, $type, $pg, $category_id);
 	table_two();
 
 	if ($type == 2) {
@@ -169,17 +169,20 @@ function display_gl_info()
 function display_all()
 {
 	$today = Today();
-	$pg = new graph();
 
+	$pg = new graph();
 	table_one();
 	$title = customer_top($today, 3, 66, $pg);
 	_source_graphic($today, $title, _("Customer"), $pg, _("Sales"));
+
 	$pg = new graph();
 	$title = supplier_top($today, 3, 66, $pg);
 	_source_graphic($today, $title, _("Supplier"), $pg, _("Purchases"));
+
 	$pg = new graph();
 	$title = stock_top($today, 3, 66, 0, $pg);
-	_source_graphic($today, $title, _("Items"), $pg, _("Sales"), _("Costs"));
+	_source_graphic($today, $title, _("Brand"), $pg, _("Sales"), _("Costs"));
+	
 	table_two();
 	dimension_top($today, 3, 66);
 	$pg = new graph();
@@ -264,7 +267,8 @@ function supplier_top($today, $limit=10, $width="33", &$pg=null)
 	return $title;
 }
 
-function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null) {
+function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null, 
+	$category_id = null) {
 	
 	if ($type == 2) {
 		$sec = 'SA_ASSETSANALYTIC';
@@ -283,10 +287,15 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null) {
 		$title = sprintf(_("Top %s Fixed Assets"), $limit);
 	}
 	else {
-		$title = sprintf(_("Top %s Sold Brands in fiscal year"), $limit);
+		$sub_title = $category_id != null ? "(" . get_category_name($category_id) . ")" : "";
+		$title = 
+		sprintf(
+			_("Top %s Sold Brands in fiscal year $sub_title"), 
+			$limit
+		);
 	}	
 
-	$result = get_stock_top($today, $limit, $type);
+	$result = get_stock_top($today, $limit, $type, $category_id);
 
 	display_title($title);	
 	

@@ -5,7 +5,7 @@
  * Date Added: 23 Apr 2022
  */
 
-function get_stock_top($today, $limit = 10, $type = 0) {
+function get_stock_top($today, $limit = 10, $type = 0, $category_id = null) {
 
     $begin = begin_fiscalyear();
 	$begin1 = date2sql($begin);
@@ -26,6 +26,10 @@ function get_stock_top($today, $limit = 10, $type = 0) {
 			INNER JOIN ".TB_PREF."item_brand IB ON s.brand = IB.id
             
 		WHERE (d.type = ".ST_SALESINVOICE." OR d.type = ".ST_CUSTCREDIT.") ";
+
+		if ($category_id != null) {
+			$sql .= " AND s.category_id = " . db_escape($category_id);
+		}
 	}
 	else {
 		$sql = 
