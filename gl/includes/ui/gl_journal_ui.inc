@@ -60,6 +60,7 @@ function display_order_header(&$Order)
 				$inv_row['cust_id'],
 				date2sql(Today())
 			);
+			$gross_profit = $inv_row['ar_amount'] * $inv_row['profit_margin'];
 
 			label_row("Invoice Type: ", $inv_row['inv_type']);
 			label_row("Category: ", $inv_row['stock_name']);
@@ -70,16 +71,19 @@ function display_order_header(&$Order)
 			label_row("Current Invoice Balance: ", 
 				price_format($current_bal)
 			);
+			label_row("Gross Profit: ", price_format($gross_profit));
 
 			$_POST['debtor_ref'] = $inv_row['debtor_ref'];
 			$_POST['ar_trans_no'] = $inv_row['trans_no'];
 			$_POST['ar_trans_type'] = $inv_row['type'];
 			$_POST['current_bal'] = $current_bal;
+			$_POST['gross_profit'] = $gross_profit;
 			
 			hidden('debtor_ref');
 			hidden('ar_trans_no');
 			hidden('ar_trans_type');
 			hidden('current_bal');
+			hidden('gross_profit');
 		}
 	}
 

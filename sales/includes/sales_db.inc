@@ -1028,7 +1028,8 @@ function get_customer_invoices($customer_id = '') {
 				WHEN DT.opening_balances = 1 THEN 'Sales Invoice - Opening Balance'
 				WHEN DT.payment_terms > 0 THEN 'Sales Invoice - Installment'
 				WHEN DL.invoice_type = 'repo' THEN 'Sales Invoice - Repo'
-			END AS inv_type
+			END AS inv_type, DL.ar_amount, DL.profit_margin
+
 		FROM " . TB_PREF . "debtor_trans DT
 			INNER JOIN " . TB_PREF . "debtor_trans_details DTT ON DT.trans_no = DTT.debtor_trans_no
 			INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.trans_no = DL.trans_no 
@@ -1072,7 +1073,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 			$remain_month = debtor_remaining_month($trans_no, $trans_type, $debtor_no);
 			
 			if ($remain_month > 0) {
-				$allocation = $total_alloc / $remain_month;
+				$allocation = $total_alloc / amort_this_month($trans_no, $trans_type, $debtor_no, date2sql(Today()));
 
 				add_cust_allocation(
 					abs($total), 

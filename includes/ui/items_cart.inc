@@ -43,6 +43,7 @@ class items_cart
 	var $ar_trans_no = 0;
 	var $ar_trans_type;
 	var $ar_debtor_no;
+	var $gross_profit = 0;
 	//
 	var $vat_category;
     var $category_id; //Added by Herald 06/07/2021
@@ -522,6 +523,31 @@ class items_cart
 					$this->order_id, 
 					$gl->comp_id != $coy ? 1 : 0
 				);
+
+			if ($this->ar_alloc == 1) {
+
+				$account_id = $this->gross_profit > 0 ? getCompDet('dgp_account') : getCompDet('rgp_account');
+
+				add_gl_trans(
+					$this->trans_type, 
+					$this->order_id, 
+					$gl->date, 
+					$gl->code_id, 
+					$gl->dimension_id, 
+					$gl->dimension2_id, 
+					$this->memo_, 
+					$this->gross_profit, 
+					$this->currency, 
+					$gl->person_type_id, 
+					$gl->person_id, "", 
+					$this->rate, 
+					$this->ar_alloc == 1 ? get_person_id(PT_CUSTOMER, $gl->mcode) : $gl->mcode, 
+					$gl->master_file, 
+					$gl->hocbc,
+					$this->order_id, 
+					$gl->comp_id != $coy ? 1 : 0
+				);
+			}
 
 			// post to first found bank account using given gl acount code.
 			$is_bank_to = is_bank_account($gl->code_id);

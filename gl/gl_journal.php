@@ -394,6 +394,7 @@ if (isset($_POST['Process']))
 		$cart->ar_trans_no = $_POST['ar_trans_no'];
 		$cart->ar_trans_type = $_POST['ar_trans_type'];
 		$cart->ar_debtor_no = $_POST['person_id'];
+		$cart->gross_profit = $_POST['gross_profit'];
 	}
 
 	$cart->memo_ = $_POST['memo_'];
