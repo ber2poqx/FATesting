@@ -240,7 +240,7 @@ if(!is_null($action) || !empty($action)){
             {
                 if($myrow["serialise_qty"]>0){
                     if($myrow["serialised"]){
-                        $qty=$myrow["serialise_qty"];
+                        $qty=$myrow["qty_serialise"];
                     }else{
                         $demand_qty = get_demand_qty($myrow["model"], $branchcode);
                         $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);

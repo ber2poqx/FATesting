@@ -74,13 +74,14 @@ if(!is_null($action) || !empty($action)){
                 $serialised = $data['serialised'];
                 $rr_date = $data['rr_date'];
                 $qty = $data['qty'];
+                $repo_id = $data['repo_id'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
                 add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
-                    $transno_out,'new',$qty, $rr_date);   
+                    $transno_out,'repo',$qty, $rr_date);   
             }
-            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
+            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id, $repo_id);
             exit;
             break;
         case 'ManualAddItem';
@@ -118,6 +119,7 @@ if(!is_null($action) || !empty($action)){
             foreach($objDataGrid as $value=>$data) {
                 $stock_qty = $data['qty'];
                 $currentqty = $data['currentqty'];
+                $repo_id = $data['repo_id'];
 
                 if($total_rrdate>0){
                     $isError = 1;
@@ -143,7 +145,8 @@ if(!is_null($action) || !empty($action)){
                 $AdjDate = sql2date($_POST['AdjDate']);
                 $catcode = $_POST['catcode'];
                 $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFERREPO, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                $trans_no = add_stock_merchandise_transfer_repo($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $_POST['rsdno'],$_POST['servedby']);
+                $trans_no = add_stock_merchandise_transfer_repo($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $_POST['rsdno'],$_POST['servedby'], 
+                    $repo_id);
             }
             echo '({"success":"true","reference":"'.$_POST['ref'].'","message":"'.$message.'"})';
             exit;
@@ -325,17 +328,17 @@ if(!is_null($action) || !empty($action)){
             
         case 'serial_items':
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $trans_date = (isset($_POST['trans_date']) ? $_POST['trans_date'] : $_GET['trans_date']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             $querystrserial = (isset($_POST['serialquery']) ? $_POST['serialquery'] : $_GET['serialquery']);
             
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
+            //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
 
-            $result = get_all_stockmoves_repo($start,$end,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
-            $total_result = get_all_stockmoves_repo($start,$end,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
+            $result = get_all_stockmoves_repo($start,$limit,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
+            $total_result = get_all_stockmoves_repo($start,$limit,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
             $total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {
@@ -366,7 +369,8 @@ if(!is_null($action) || !empty($action)){
                             'serialised'=>$myrow["serialised"],
                             'lot_no' => $myrow["serialise_lot_no"]==null?'':$myrow["serialise_lot_no"],
                             'chasis_no' => $myrow["serialise_chasis_no"]==null?'':$myrow["serialise_chasis_no"],
-                            'serialise_loc_code'=>$myrow["serialise_loc_code"]
+                            'serialise_loc_code'=>$myrow["serialise_loc_code"],
+                            'repo_id'=>$myrow["repo_id"]                           
                         );
                     }
                 }
@@ -536,21 +540,25 @@ if(!is_null($action) || !empty($action)){
             break;
             
         case 'view':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection($def_coy);
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
+            //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
                        
-            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='repo' GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
-            
-            $result = db_query($sql, "could not get all Serial Items");
+            /*$sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='repo' GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";*/
+
+            $result = get_all_merchandise_repo_transfer($start,$limit,$querystr,$branchcode,false,'');
+            $total_result = get_all_merchandise_repo_transfer($start,$limit,$querystr,$branchcode,true,'');
+
+            $total = DB_num_rows($result);
+
             while ($myrow = db_fetch($result))
             {
                 if($myrow["balance_total"]==0){
@@ -576,7 +584,7 @@ if(!is_null($action) || !empty($action)){
             }
             
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
         case 'viewin':

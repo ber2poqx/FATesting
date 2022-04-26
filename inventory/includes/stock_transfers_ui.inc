@@ -240,7 +240,7 @@ function display_transfer_items($title, &$order)
 
 //---------------------------------------------------------------------------------
 //Added by Herald [12-18-2020] for new MT Module
-function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $type_out=0, $transno_out=0)
+function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $repo_id='', $type_out=0, $transno_out=0)
 {
    // global $path_to_root;
 
@@ -282,7 +282,8 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
             'brand_name' => $myrow["brand_name"],
             'item_type' => $stock_item->item_type,
             'line_item' => $stock_item->line_item_row,
-            'rr_date' => $stock_item->manufacture_date
+            'rr_date' => $stock_item->manufacture_date,
+            'repo_id'=>$repo_id
         );
     }
     $jsonresult = json_encode($group_array);

@@ -1,15 +1,25 @@
 <?php
-function get_all_stockmoves_repo($start,$end,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null){
+function get_all_stockmoves_repo($start,$limit,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null){
     
     $sql = "SELECT SUM(serial.qty) as serialise_qty, serial.stock_id as model, serial.color_code as serialise_item_code,
-     serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
-     smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out,
-     serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type 
-     FROM ".TB_PREF."stock_moves serial 
-     LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
-     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code 
-     INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
-     WHERE ISNULL(v.id) AND serial.item_type = 'repo'";
+    serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
+    smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out,
+    serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,repo.repo_id,
+    IFNULL(QTYOUT.QTY, NULL) AS qty_serialise /*Added by Robert */
+    FROM ".TB_PREF."stock_moves serial 
+    LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
+    INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code 
+    INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
+
+    LEFT JOIN (
+    SELECT robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no, SUM(robert.qty) AS QTY
+    FROM stock_moves robert
+    GROUP BY robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no
+    )QTYOUT ON QTYOUT.type_out = serial.type_out AND QTYOUT.transno_out =  QTYOUT.transno_out 
+    AND QTYOUT.stock_id = serial.stock_id AND QTYOUT.lot_no = serial.lot_no
+
+    LEFT JOIN repo_item_details repo ON serial.stock_id=repo.stock_id AND serial.lot_no=repo.serial_no
+    WHERE ISNULL(v.id) AND serial.item_type = 'repo' AND IFNULL(QTYOUT.QTY, 1) > 0"; /*Added by Robert */
     
     if($category!=0){
         $sql.=" AND smaster.category_id=$category";
@@ -31,19 +41,29 @@ function get_all_stockmoves_repo($start,$end,$querystr='',$category=0,$branchcod
     }
     $sql.=" group by serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
     
-    if(!$all){
-        $sql.=" LIMIT $start,$end";
+    /*if(!$all){
+        $sql.=" limit $start,$limit";
     }
-    return db_query($sql, "could not get all Serial Items");
+    return db_query($sql, "could not get all Serial Items");*/
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all Serial Items");
+    }else{
+        $result = db_query($sqllimit, "could not get all Serial Items");
+    }
+    //echo $sql;
+
+    return $result;
 }
 
-function add_stock_merchandise_transfer_repo($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null)
+function add_stock_merchandise_transfer_repo($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null, $repo_id)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('Items', 'location_from', 'location_to','date_', 'reference', 'memo_','catcode','rsdno','servedby'), $args);
+    $args = (object)array_combine(array('Items', 'location_from', 'location_to','date_', 'reference', 'memo_','catcode','rsdno','servedby','repo_id'), $args);
     $args->trans_no = 0;
     
     hook_db_prewrite($args, ST_MERCHANDISETRANSFERREPO);
@@ -62,7 +82,7 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
         $st_reorder = array();
     }
     $total = 0;
-    $mt_header_id = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby);
+    $mt_header_id = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id);
     
     foreach ($Items as $line_item)
     {
@@ -109,13 +129,13 @@ function update_repo_status($trans_no){
 }
 
 //Added by Herald - 02/03/2021
-function add_mt_header_repo($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby){
+function add_mt_header_repo($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $repo_id){
     global $def_coy;
     set_global_connection($def_coy);
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_rsd, mt_header_servedby, mt_header_item_type) VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($rsdno).", ".db_escape($servedby).", 'repo')";
+    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_rsd, mt_header_servedby, mt_header_item_type, mt_header_repo_account_id) VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($rsdno).", ".db_escape($servedby).", 'repo', ".db_escape($repo_id).")";
     
     db_query($sql, "The MT Header Repo record cannot be inserted");
     
@@ -171,4 +191,30 @@ function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost
                         
     set_global_connection();
     return $dbid;
+}
+
+/*Added by robert 04/26/2022*/
+function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcode='',$all=false){
+    global $def_coy;
+    set_global_connection($def_coy);
+
+    $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty, 
+    sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 
+    FROM ".TB_PREF."mt_header mh 
+    LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
+    LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
+    WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='repo' 
+    GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all merchandise repo transfer");
+    }else{
+        $result = db_query($sqllimit, "could not get all merchandise repo transfer");
+    }
+    //echo $sql;
+
+    return $result;
 }

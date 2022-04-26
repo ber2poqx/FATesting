@@ -15,6 +15,8 @@ Ext.require(['Ext.toolbar.Paging',
 
 Ext.onReady(function(){
 	Ext.QuickTips.init();
+	var itemsPerPage = 20;   // set the number of items you want per page on grid.
+	var all = false;
 	var global_master_id;
     const queryString = window.location.search;
 	//console.log(queryString);
@@ -204,6 +206,7 @@ Ext.onReady(function(){
 	var myInsurance = Ext.create('Ext.data.Store', {
 		model : 'insurance',
 		name : 'myInsurance',
+		pageSize: itemsPerPage, // items per page
 		method : 'POST',
 		proxy : {
 			type: 'ajax',
@@ -268,7 +271,7 @@ Ext.onReady(function(){
 	
 	var MerchandiseTransStore = Ext.create('Ext.data.Store', {
 	    storeId:'DetaiItemsTransferListStore',
-		fields: ['stock_id','stock_description','trans_date','price','reference','currentqty','qty','standard_cost', 'lot_no', 'chasis_no', 'category_id','serialise_id','color','type_out','transno_out','rr_date'],
+		fields: ['stock_id','stock_description','trans_date','price','reference','currentqty','qty','standard_cost', 'lot_no', 'chasis_no', 'category_id','serialise_id','color','type_out','transno_out','rr_date', 'repo_id'],
 		autoLoad: false,
 		autoSync: true,
 		proxy : {
@@ -299,6 +302,7 @@ Ext.onReady(function(){
 	
 	var columnTransferModel = [
 		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', hidden: true},
+		{header:'Type', dataIndex:'repo_id', sortable:true, width:40, renderer: columnWrap,hidden: true},
 		{header:'Type', dataIndex:'type_out', sortable:true, width:40, renderer: columnWrap,hidden: true},
 		{header:'Trans No', dataIndex:'transno_out', sortable:true, width:40, renderer: columnWrap,hidden: true},
 		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, hidden: false},
@@ -393,8 +397,9 @@ Ext.onReady(function(){
 	});
 	
 	var ItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised'],
+		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised', 'repo_id'],
 		autoLoad: false,
+		pageSize: itemsPerPage, // items per page
 		proxy : {
 			type: 'ajax',
 			url	: '?action=serial_items',
@@ -408,6 +413,7 @@ Ext.onReady(function(){
 	
 	var columnItemSerial = [
 		{header:'id', dataIndex:'serialise_id', sortable:true, width:60,hidden: true},
+		{header:'Repo id', dataIndex:'repo_id', sortable:true, width:30, renderer: columnWrap,hidden: true},
 		{header:'Serialise', dataIndex:'serialised', sortable:true, width:30, renderer: columnWrap,hidden: true},
 		{header:'Type', dataIndex:'type_out', sortable:true, width:30, renderer: columnWrap,hidden: true},
 		{header:'Transno', dataIndex:'transno_out', sortable:true, width:30, renderer: columnWrap,hidden: true},
@@ -552,7 +558,7 @@ Ext.onReady(function(){
 											selType: 'checkboxmodel',
 											id: 'checkidbox',
 											checkOnly: true,
-											mode: 'Multi'			
+											mode: 'Single'			
 										},		
 										dockedItems:[{
 											dock:'top',
@@ -624,6 +630,7 @@ Ext.onReady(function(){
 										bbar : {
 											xtype : 'pagingtoolbar',
 											store : ItemListingStore,
+											pageSize : itemsPerPage,
 											displayInfo : true
 										}
 									}]
@@ -656,6 +663,7 @@ Ext.onReady(function(){
 											var standard_cost = record.get('standard_cost');	
 											var serialised = record.get('serialised');	
 											var rr_date = record.get('tran_date');
+											var repo_id = record.get('repo_id');
 							
 											Ext.toast({
 												icon   	: '../js/ext4/examples/shared/icons/accept.png',
@@ -686,7 +694,8 @@ Ext.onReady(function(){
 												transno_out: record.get('transno_out'),
 												standard_cost: record.get('standard_cost'),	
 												serialised: record.get('serialised'),	
-												rr_date: record.get('tran_date')
+												rr_date: record.get('tran_date'),
+												repo_id: record.get('repo_id')											
 											};
 											gridRepoData.push(ObjItem);
 										});
@@ -991,7 +1000,8 @@ Ext.onReady(function(){
 											Ext.each(gridData, function(item) {
 												var ObjItem = {							
 													qty: item.get('qty'),													
-													currentqty:item.get('currentqty')													
+													currentqty:item.get('currentqty'),
+													repo_id:item.get('repo_id')																																					
 												};
 												gridRepoData.push(ObjItem);
 											});
