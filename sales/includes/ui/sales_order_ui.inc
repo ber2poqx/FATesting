@@ -802,7 +802,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 
 	start_outer_table(TABLESTYLE2, "width='98%'");
 
-	table_section(1);
+	table_section(1);  
 	table_section_title("Customer Information");
 	$customer_error = "";
 	$change_prices = 0;
@@ -1627,8 +1627,8 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 			stock_disposable_fa_list_cells(null, 'stock_id', null, _('[Select item]'), true, $order->line_items);
 		else {
 			if (!isset($_POST['stock_id'])) {   // Check if stock_id dosesn't exist
-				$_POST['stock_id'] = last_sales_order_detail($order, 'stk_code');  //get the llast sales stock id.
-			}
+				$_POST['stock_id'] = last_sales_order_detail($order, 'stk_code');  //get the llast sales stock id.			
+			}			 
 			//Modified by spyrax10
 			si_list_cells(null, 'stock_id', get_post('StockLocation'), $_POST['stock_id'], $_POST['category_id'], false, true, true);
 		}
@@ -1647,12 +1647,19 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 
 		//get price base on policy - progjr
 		//$price = get_kit_price($_POST['stock_id'], $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
-		/*Added by Albert 10/08/2021*/
 		$lot_no = get_post('serialeng_no');
 		if (Get_Repo($lot_no, $_POST['stock_id'])) {
 			$price = Get_Repo_Installment_Price($_POST['stock_id'], $lot_no);
 		} else {
-			$price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
+			/*modified by Albert 04/23/2022*/
+			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+
+			if ( date2sql(get_post('OrderDate')) < $date_epic){
+				$price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'], $last_date_updated);
+			}else{
+				$price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
+			}
 		}/*end Albert*/
 		$_POST['price'] = price_format($price);
 		// default to the customer's discount %

@@ -91,10 +91,23 @@ while ($myrow = db_fetch_assoc($result)) {
 	alt_table_row_color($k);
 	$value = $myrow['stock_id'];
 
-	//Modified by spyrax10
-	$price = $repo == "new" ? Get_Policy_Installment_Price($loc_code, $category_id, $myrow["stock_id"]) : 
+	/*modified by Albert*/
+	$date = Today();
+	$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated($loc_code,$category_id, $myrow["stock_id"]);
+
+	if( date2sql($date) < Get_Policy_Installment_Effectivity_Date($loc_code, $category_id, $myrow["stock_id"])){
+
+		$price = $repo == "new" ? Get_Previous_Policy_Installment_Price($loc_code, $category_id, $myrow["stock_id"], $last_date_updated) : 
+			Get_Repo_Installment_Price($myrow["stock_id"], $myrow["serialeng_no"]);
+	}else{
+		//Modified by spyrax10
+		$price = $repo == "new" ? Get_Policy_Installment_Price($loc_code, $category_id, $myrow["stock_id"]) : 
 		Get_Repo_Installment_Price($myrow["stock_id"], $myrow["serialeng_no"]);
-	//
+		//
+	}
+	/*End */
+
+
 
 	$text = $myrow['description'];
 	$ref_doc = $myrow['reference'];

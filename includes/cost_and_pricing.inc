@@ -285,3 +285,54 @@ function Get_AP_Support_Price($stockID, $apsupptype_id){
     set_global_connection();
     return $ap_price;
 }
+/*Added by Albert 04-23-2022*/
+function Get_Previous_Policy_Installment_Price($branchCode, $categoryID, $stockID, $last_date_updated)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+	
+	$sql = "SELECT D.Amount
+			FROM ".TB_PREF."prices A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcyprice_id = A.sales_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcyprice_id = A.sales_type_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'PRCPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID)."
+				AND D.date_defined = ".db_escape($last_date_updated);
+	$sql.= "order by D.id desc";
+	$result = db_query($sql, "The LCP for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$price = $row[0];
+
+	set_global_connection();
+	return $price;
+}
+function Get_Previous_Policy_CashPrice($branchCode, $categoryID, $stockID, $last_date_updated)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+
+	
+	$sql = "SELECT D.amount
+			FROM ".TB_PREF."cash_prices A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcycashprice_id = A.scash_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcycashprice_id = A.scash_type_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'CSHPRCPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID)."
+				AND D.date_defined = ".db_escape($last_date_updated);
+	$sql.= "order by D.id desc";
+	$result = db_query($sql, "The cash price for the selected branch and item could not be retrieved");
+
+	$row = db_fetch_row($result);
+	$price = $row[0];
+
+	set_global_connection();
+	return $price;;
+}

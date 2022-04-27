@@ -731,15 +731,26 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$lot_no = get_post('serialeng_no');
 		if (Get_Repo($lot_no, $_POST['stock_id'])) {
 			$price = Get_Repo_Installment_Price($_POST['stock_id'], $lot_no);
-			// $lcp_price = Get_Repo_Installment_Price($_POST['stock_id'],$lot_no);
-
+						
 		} else {
-			$price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
+			/*modified by Albert 04/23/2022*/
+			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+			$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+			$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'],$last_date_updated);
+
+				if (date2sql(get_post('OrderDate')) < $date_epic){
+
+				    $price = $previous_price;
+
+				}else{
+					$price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
+				}
+			/*end Albert*/
 		}
+		
 		$lcp_price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Added by spyrax10
 		$discount1 = Get_Sales_Discount1($_POST['stock_id']);
-		$discount2 = Get_Sales_Discount2($_POST['stock_id']);
-		/*end Albert*/
+		$discount2 = Get_Sales_Discount2($_POST['stock_id']);		
 		$_POST['lcp_price'] = price_format($lcp_price); //Added by spyrax10
 		$_POST['price'] = price_format($price);
 		// default to the customer's discount %

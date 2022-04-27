@@ -1170,4 +1170,94 @@ function get_so_items($reference)
 
 			return $row[0];
 }
+function Get_Policy_Installment_Effectivity_Date($branchCode, $categoryID, $stockID)
+{
+	global $def_coy;
+    set_global_connection($def_coy);
+	
+	$sql = "SELECT A.date_epic
+			FROM ".TB_PREF."prices A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcyprice_id = A.sales_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+			WHERE B.module_type = 'PRCPLCY'
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID);
+
+	$result = db_query($sql, "The LCP for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	set_global_connection();
+
+	return $row[0];
+}
+function Get_Policy_CashPrice_Effectivity_Date($branchCode, $categoryID, $stockID)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+	
+	$sql = "SELECT A.date_epic
+			FROM ".TB_PREF."cash_prices A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcycashprice_id = A.scash_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+			WHERE B.module_type = 'CSHPRCPLCY'
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID);
+
+	$result = db_query($sql, "The cash price for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$price = $row[0];
+
+	set_global_connection();
+	return $price;
+}
+function Get_Previous_Policy_CashPrice_last_date_updated($branchCode, $categoryID, $stockID)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+
+	
+	$sql = "SELECT  max(D.date_defined)
+			FROM ".TB_PREF."cash_prices A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcycashprice_id = A.scash_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcycashprice_id = A.scash_type_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'CSHPRCPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID);
+
+	$result = db_query($sql, "The cash price for the selected branch and item could not be retrieved");
+
+	$row = db_fetch_row($result);
+	$date_defined = $row[0];
+
+	set_global_connection();
+	return $date_defined;
+}
+
+function Get_Previous_Policy_Installment_Price_last_date_updated($branchCode, $categoryID, $stockID)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+	
+	$sql = "SELECT max(D.date_defined)
+			FROM ".TB_PREF."prices A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcyprice_id = A.sales_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcyprice_id = A.sales_type_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'PRCPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID);
+
+	$result = db_query($sql, "The LCP for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$date_defined = $row[0];
+
+	set_global_connection();
+	return $date_defined;
+}
 /*---END by Albert*/
