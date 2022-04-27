@@ -201,6 +201,34 @@ end_table(1);
 $voided = is_voided_display(ST_SALESINVOICE, $trans_id, _("This invoice has been voided."));
 
 if (!$voided) {
+
+	//Added by spyrax10 27 Apr 2022
+	if (get_AR_adjusted_amount($header["debtor_no"], $header["si_no"], true) > 0) {
+	
+		$je_total = 0;
+		$je_res = get_AR_adjusted_amount($header["debtor_no"], $header["si_no"], false);
+		display_heading(_("Journal Adjusted Entries"));
+
+		start_table(TABLESTYLE, "width='45%'");
+
+		$th = array(_("JE Date"), _("JE Refernce"), _("Document Total"));
+		table_header($th);
+
+		while ($trans = db_fetch($je_res)) {
+			$je_total += $trans['ov_amount'];
+			label_cell(sql2date($trans['tran_date']), "nowrap align='center'");
+			label_cell($trans['reference'], "nowrap align='center'");
+			amount_cell($trans['ov_amount']);
+		}
+
+		label_row(_("Total Ajustment: "), number_format2($je_total, user_price_dec()), 
+			"align=right colspan=2; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+		);
+
+		end_table(1);
+	} 
+	//
+
 	display_allocations_to(PT_CUSTOMER, $myrow['debtor_no'], ST_SALESINVOICE, $trans_id, $myrow['Total']);
 }
 

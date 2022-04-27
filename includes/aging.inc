@@ -103,6 +103,29 @@ function invoice_type_status($trans_no, $debtor_no, $end_date) {
     return $row[0] != null ? $row[0] : 'new';
 }
 
+function add_to_DLL($trans_no, $debtor_no, $type_from, $type_to, $date_paid, $invoice_no, $is_alloc = 0, 
+	$loan_shed, $total = 0) {
+
+	set_global_connection();
+
+	$sql = "INSERT INTO ".TB_PREF."debtor_loan_ledger 
+		(trans_no, debtor_no, trans_type_from, trans_type_to, payment_applied, date_paid, payment_trans_no, alloc, loansched_id)";
+	
+	$sql .= " VALUES (
+		" . db_escape($trans_no) . ",
+		" . db_escape($debtor_no) . ",
+		" . db_escape($type_from) . ",
+		" . db_escape($type_to) . ", 
+		" . db_escape($total) . ", 
+		" . db_escape($date_paid) . ",
+		" . db_escape($invoice_no) . ", 
+		" . db_escape($is_alloc) . ",
+		" . db_escape($loan_shed) . "
+	)";
+
+	db_query($sql, _("Cant insert Customer's Loan Allocation!"));
+}
+
 function get_payment_for_loanID($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $loan_schedID) {
 
     $total = 0;
@@ -120,7 +143,7 @@ function get_payment_for_loanID($trans_no, $trans_type = ST_SALESINVOICE, $debto
     $res = db_query($sql, 'Cant get total payment for given loan_ID! < ');
     $row = db_fetch_row($res);
     $total = $row[0] != null ? $row[0] : 0;
-    
+
     return $total;
 }
 
@@ -135,6 +158,29 @@ function update_DLS_status($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no,
         " AND id = ".db_escape($loan_schedID);
 
     db_query($sql, _("Can't update loan status!"));
+}
+
+function update_AR_amount($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $addted_ar = 0) {
+
+    $table_name = ar_table_name($trans_type);
+    $resRow = get_DL_details($trans_no, $trans_type, $debtor_no);
+    $current_ar = $resRow['ar_amount'];
+    $new_ar = $current_ar + $addted_ar;
+
+    $sql = "UPDATE ".TB_PREF."$table_name SET ar_amount = " .db_escape($new_ar);
+
+    $sql .= " WHERE debtor_no = ".db_escape($debtor_no) . 
+        " AND trans_no = ".db_escape($trans_no);
+
+    db_query($sql, _("Can't update DL AR Amount!"));
+
+    $sql2 = "UPDATE ".TB_PREF."debtor_trans SET ov_amount = " .db_escape($new_ar);
+
+    $sql2 .= " WHERE debtor_no = ".db_escape($debtor_no) . 
+        " AND trans_no = ".db_escape($trans_no) . 
+        " AND type = ".db_escape($trans_type);
+    
+    db_query($sql2, _("Can't update DT OV Amount!"));
 }
 
 function total_payment_for_month($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date, 

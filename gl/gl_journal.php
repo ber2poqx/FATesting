@@ -365,7 +365,8 @@ if (isset($_POST['Process']))
 		}
 	}
 
-	if (check_value('ar_alloc') == 1 && $docu_total > get_post('current_bal')) {
+	if (check_value('ar_alloc') == 1 && get_post('ar_type') == 2 
+		&& $docu_total > get_post('current_bal')) {
 		display_error(_("Cannot allocate more than the current Invoice Balance."));
 		return false;
 	}

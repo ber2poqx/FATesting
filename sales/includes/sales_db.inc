@@ -1074,7 +1074,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 			$remain_month = debtor_remaining_month($trans_no, $trans_type, $debtor_no);
 			
 			if ($remain_month > 0) {
-				
+
 				add_cust_allocation(
 					abs($total), 
 					ST_JOURNAL, 
@@ -1174,31 +1174,40 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 				} //End of total alloc while loop
 			}
 
-		}
+		} //Adjustment Type (-)
+		else {
+			update_AR_amount($trans_no, $trans_type, $debtor_no, $total_alloc);
+		} //Adjustment Type (+)
 	}
 }
 
-function add_to_DLL($trans_no, $debtor_no, $type_from, $type_to, $date_paid, $invoice_no, $is_alloc = 0, 
-	$loan_shed, $total = 0) {
+function get_AR_adjusted_amount($debtor_no, $si_ref = '', $get_total = false) {
 
 	set_global_connection();
 
-	$sql = "INSERT INTO ".TB_PREF."debtor_loan_ledger 
-		(trans_no, debtor_no, trans_type_from, trans_type_to, payment_applied, date_paid, payment_trans_no, alloc, loansched_id)";
+	if ($get_total) {
+		$sql = "SELECT SUM(ov_amount) AS ar_amount";
+	}
+	else {
+		$sql = "SELECT *";
+	}
 	
-	$sql .= " VALUES (
-		" . db_escape($trans_no) . ",
-		" . db_escape($debtor_no) . ",
-		" . db_escape($type_from) . ",
-		" . db_escape($type_to) . ", 
-		" . db_escape($total) . ", 
-		" . db_escape($date_paid) . ",
-		" . db_escape($invoice_no) . ", 
-		" . db_escape($is_alloc) . ",
-		" . db_escape($loan_shed) . "
-	)";
+	$sql .= " FROM " . TB_PREF . "debtor_trans DT
+			INNER JOIN " . TB_PREF . "journal JE ON DT.reference = JE.reference 
+		WHERE DT.type = " . ST_JOURNAL . " AND DT.ov_amount > 0 AND DT.alloc = 0";
 
-	db_query($sql, _("Cant insert Customer's Loan Allocation!"));
+	$sql .= " AND DT.debtor_no = " .db_escape($debtor_no) . 
+		" AND JE.source_ref = " .db_escape($si_ref);
+
+	$res =  db_query($sql, _("get_AR_adjusted_amount"));
+	
+	if ($get_total) {
+		$row = db_fetch_row($res);
+		return $row[0];
+	}
+	else {
+		return $res;
+	}
 }
 
 
