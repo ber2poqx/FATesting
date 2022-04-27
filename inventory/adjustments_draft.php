@@ -441,10 +441,10 @@ function can_post() {
                 display_error(_("Can't Proceed! There is NOT enough quantity in stock for Stock ID: " .$stock_id));
                 return false;
             }
-            else if ($row['mcode'] == '' || $row['master_file'] == '') {
-                display_error(_("Cant' Proceed! There are missing masterfile in some entries!"));
-                return false;
-            }
+            // else if ($row['mcode'] == '' || $row['master_file'] == '') {
+            //     display_error(_("Cant' Proceed! There are missing masterfile in some entries!"));
+            //     return false;
+            // }
         }
     }
     return true;
