@@ -633,8 +633,20 @@ function display_order_header(&$order, $editable, $date_text)
 		$tot_discount = get_total_discount($order->order_no);
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
-			$line->lcp_price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-		}
+			
+			/*Modified by Albert 04/27/2022*/
+			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			
+
+			if ( date2sql(get_post('OrderDate')) < $date_epic){
+
+				$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+			}else{
+		
+				$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+			}
+			/*End by Albert*/			}
 		$Ajax->activate('items_table');
 	} else {
 		$tot_discount = price_format(get_post('total_discount'));
@@ -652,8 +664,20 @@ function display_order_header(&$order, $editable, $date_text)
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
-			$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
-		}
+			
+			/*Modified by Albert 04/27/2022*/
+			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			
+
+			if ( date2sql(get_post('OrderDate')) < $date_epic){
+
+				$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+			}else{
+		
+				$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+			}
+			/*End by Albert*/			}
 		$Ajax->activate('items_table');
 	}
 
