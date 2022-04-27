@@ -1051,7 +1051,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 	set_global_connection();
 
 	$date = date2sql($date_paid);
-	$allocation = 0;
+	$alloc_4_unpaid = $alloc_4_partial = 0;
 
 	$invoice_no = write_customer_trans(
 		ST_JOURNAL,
@@ -1060,21 +1060,21 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 		$debtor_no,
 		$date_paid,
 		$je_reference,
-		abs($total),
+		$total > 0 ? abs($total) : 0,
 		0, 0, 0, 0, 0, 0, 0, "", 
 		$total < 0 ? abs($total) : 0
 	);
+
+	$total_alloc = abs($total);
 
 	if ($invoice_no) {
 
 		if ($total < 0) {
 
-			$total_alloc = abs($total);
 			$remain_month = debtor_remaining_month($trans_no, $trans_type, $debtor_no);
 			
 			if ($remain_month > 0) {
-				$allocation = $total_alloc / amort_this_month($trans_no, $trans_type, $debtor_no, date2sql(Today()));
-
+				
 				add_cust_allocation(
 					abs($total), 
 					ST_JOURNAL, 
@@ -1097,83 +1097,78 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 
 					while ($trans = db_fetch($res)) {
 
-						$total_pay_month = get_payment_for_loanID($trans_no, $trans_type, $debtor_no, $trans['id']);
-						$month_bal = $trans['principal_due'] - $total_pay_month;
-
-						if ($allocation > 0) {
-	
-							if ($trans['status'] == 'unpaid') {
-
-								add_to_DLL(
-									$trans_no,
-									$debtor_no, 
-									ST_JOURNAL,
-									$trans_type,
-									$date,
-									$invoice_no,
-									1,
-									$trans['id'],
-									$allocation
-								);
-
-								if ($month_bal == 0) {
-									update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
-								}
-								else {
-									update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
-								}
-	
-								$total_alloc = $total_alloc - $allocation;
-							}
-							else if ($trans['status'] == 'partial') {
-	
-								if ($allocation <= $month_bal) {
-									add_to_DLL(
-										$trans_no,
-										$debtor_no, 
-										ST_JOURNAL,
-										$trans_type,
-										$date,
-										$invoice_no,
-										1,
-										$trans['id'],
-										$allocation
-									);
-
-									if ($month_bal == 0) {
-										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
-									}
-									else {
-										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
-									}
-		
-									$total_alloc = $total_alloc - $allocation;
-								}
-								else {
-									add_to_DLL(
-										$trans_no,
-										$debtor_no, 
-										ST_JOURNAL,
-										$trans_type,
-										$date,
-										$invoice_no,
-										1,
-										$trans['id'],
-										$month_bal
-									);
-
-									if ($month_bal == 0) {
-										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
-									}
-									else {
-										update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
-									}
-		
-									$total_alloc = $total_alloc - $month_bal;
-								}
-	
-							}
+						if ($total_alloc == 0) {
+							break;
 						}
+
+						if ($trans['status'] == 'unpaid') {
+
+							if ($total_alloc >= $trans['principal_due']) {
+								$alloc_4_unpaid = $trans['principal_due'];
+							}
+							else if ($total_alloc < $trans['principal_due']) {
+								$alloc_4_unpaid = $total_alloc;	
+							}
+							
+							add_to_DLL(
+								$trans_no,
+								$debtor_no, 
+								ST_JOURNAL,
+								$trans_type,
+								$date,
+								$invoice_no,
+								1,
+								$trans['id'],
+								$alloc_4_unpaid
+							);
+
+							$total_pay_month = get_payment_for_loanID($trans_no, $trans_type, $debtor_no, $trans['id']);
+							$month_bal = $trans['principal_due'] - $total_pay_month;
+
+							if ($month_bal == 0) {
+								update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
+							}
+							else {
+								update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
+							}
+
+							$total_alloc -= $alloc_4_unpaid;
+							
+						}
+						else if ($trans['status'] == 'partial') {
+
+							$total_pay_month = get_payment_for_loanID($trans_no, $trans_type, $debtor_no, $trans['id']);
+							$month_bal = $trans['principal_due'] - $total_pay_month;
+
+							if ($total_alloc >= $month_bal) {
+								$alloc_4_partial = $month_bal;
+							}
+							else if ($total_alloc < $month_bal) {
+								$alloc_4_partial = $total_alloc;	
+							}
+
+							add_to_DLL(
+								$trans_no,
+								$debtor_no, 
+								ST_JOURNAL,
+								$trans_type,
+								$date,
+								$invoice_no,
+								1,
+								$trans['id'],
+								$alloc_4_partial
+							);
+
+							$total_alloc -= $alloc_4_partial;
+						}
+
+						if ($trans['principal_due'] - get_payment_for_loanID($trans_no, $trans_type, $debtor_no, $trans['id']) == 0) {
+							update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'paid');
+						}
+						else {
+							update_DLS_status($trans_no, $trans_type, $debtor_no, $trans['id'], 'partial');
+						}
+
 					} //End of while loop
 
 				} //End of total alloc while loop

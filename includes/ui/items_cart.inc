@@ -44,6 +44,7 @@ class items_cart
 	var $ar_trans_type;
 	var $ar_debtor_no;
 	var $gross_profit = 0;
+	var $profit_margin;
 	//
 	var $vat_category;
     var $category_id; //Added by Herald 06/07/2021
@@ -526,17 +527,17 @@ class items_cart
 
 			if ($this->ar_alloc == 1) {
 
-				$account_id = $this->gross_profit > 0 ? getCompDet('dgp_account') : getCompDet('rgp_account');
+				$account_id = $gl->amount > 0 ? getCompDet('dgp_account') : getCompDet('rgp_account');
 
 				add_gl_trans(
 					$this->trans_type, 
 					$this->order_id, 
 					$gl->date, 
-					$gl->code_id, 
+					$account_id, 
 					$gl->dimension_id, 
 					$gl->dimension2_id, 
 					$this->memo_, 
-					$this->gross_profit, 
+					$gl->amount > 0 ? $this->gross_profit : -$this->gross_profit, 
 					$this->currency, 
 					$gl->person_type_id, 
 					$gl->person_id, "", 

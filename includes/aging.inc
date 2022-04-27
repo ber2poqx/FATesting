@@ -119,8 +119,8 @@ function get_payment_for_loanID($trans_no, $trans_type = ST_SALESINVOICE, $debto
 
     $res = db_query($sql, 'Cant get total payment for given loan_ID! < ');
     $row = db_fetch_row($res);
-    $total = $row[0];
-
+    $total = $row[0] != null ? $row[0] : 0;
+    
     return $total;
 }
 
