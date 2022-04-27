@@ -788,6 +788,18 @@ function can_process()
 		display_error(_("Cant proceed! ar_balance not equal to ar_amount genarated by amortazation!".get_post('ar_genarate_by_amort')));
 		return false;
 	}
+
+	//Added by spyrax10 (Mantis Issue #867) 27 Apr 2022
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && get_post('down_pay') == 0) {
+
+		$total_discount = get_post('discount_dp_amount') + get_post('discount_dp2_amount');
+
+		if ($total_discount > 0) {
+			display_error(_("Item is discounted! Please enter downpayment"));
+			return false;
+		}
+	}
+
 	/*----------*/
 	return true;
 }
