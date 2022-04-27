@@ -41,7 +41,7 @@ br();
 
 if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 
-    start_table(TABLESTYLE2, "width = 22%");
+    start_table(TABLESTYLE2, "width = 25%");
 
     value_type_list(_("Application Type: "), 'trans_type', 
         array(
