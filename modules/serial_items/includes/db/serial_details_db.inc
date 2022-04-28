@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_serialitems_detail($grnid, $grnlineid, $lot_no, $order_quantity, $manufacture_date, $expire_date,$item_code,$loc_code, $chasis_no='', $trans_type = 25, $lcp_promotional=0, $remarks) // modified by albert 04/28/2022
+function add_serialitems_detail($grnid, $grnlineid, $lot_no, $order_quantity, $manufacture_date, $expire_date,$item_code,$loc_code, $chasis_no='', $trans_type = 25, $lcp_promotional=0, $remarks='') // modified by albert 04/28/2022
 {
 	if(is_date($manufacture_date)){
 	
