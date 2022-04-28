@@ -48,6 +48,8 @@ if(isset($_GET['get_Customer']))
             $result = get_customer_from_replacement();
         }else if($_GET['rtype'] == 'mt'){
             $result = get_mt_customer($_GET['repo_id'], $_GET['from_branch']);
+        }else if($_GET['rtype'] == 'all'){
+            $result = get_all_customer();
         }else{
             $result = get_customer_account_repo($_GET['rtype']);
         }
@@ -471,18 +473,31 @@ if(isset($_GET['submit']))
 
         if($_POST['repo_type'] == 'mt') {
             //auto create customer 
+            if($_POST['autocreatecust'] == "on"){
+                $ncustomerst = get_new_added_customer($_POST['customercode'], $_POST['custname']);
+                if($ncustomerst['debtor_no'] == 0){
+
+                    auto_create_customer($_POST['customercode'], $_POST['cBranch']);
+
+                    //retrieve new added customer
+                    $ncustomerst = get_new_added_customer($_POST['customercode'], $_POST['custname']);
+                }
+                $debtor_no = $ncustomerst['debtor_no'];
+            }else{
+                $debtor_no = $_POST['customername'];
+            }
 
             //copy info from originating branch
             $result = get_mt_repo_account($_POST['base_transno'], $_POST['cBranch']);
             $repoacct_row = db_fetch($result);
 
-            $repo_id = add_repo_accounts(ST_RRREPO, 0, 0, $trans_date, $repoacct_row['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
-                                            $_POST['customername'], $repoacct_row['lcp_amount'], $repoacct_row['downpayment'], $repoacct_row['outstanding_ar'], $repoacct_row['monthly_amount'],
-                                            $repoacct_row['term'], $repoacct_row['release_date'], $repoacct_row['firstdue_date'], $repoacct_row['maturity_date'], $repoacct_row['balance'],
+            $repo_id = add_repo_accounts(ST_RRREPO, $repoacct_row['ar_trans_no'], $repoacct_row['ar_trans_type'], $trans_date, date('m/d/Y',strtotime($repoacct_row['repo_date'])), $_POST['repo_type'], $_POST['reference_no'],
+                                            $debtor_no, $repoacct_row['lcp_amount'], $repoacct_row['downpayment'], $repoacct_row['outstanding_ar'], $repoacct_row['monthly_amount'],
+                                            $repoacct_row['term'], date('m/d/Y', strtotime($repoacct_row['release_date'])), date('m/d/Y', strtotime($repoacct_row['firstdue_date'])), date('m/d/Y', strtotime($repoacct_row['maturity_date'])), $repoacct_row['balance'],
                                             $repoacct_row['spot_cash_amount'], $repoacct_row['total_amount'], $repoacct_row['unrecovered_cost'], $repoacct_row['addon_amount'], $repoacct_row['total_unrecovered'],
                                             $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm']);
 
-            add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+            add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['qty'], $_POST['unrecovrd_cost'],
                             $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
 
             add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],

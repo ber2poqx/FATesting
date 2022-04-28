@@ -11,7 +11,7 @@
 ***********************************************************************/
 function add_repo_accounts($trans_type, $trans_no, $ar_trans_type, $trans_date_, $repo_date_, $repo_type, $reference_no, $debtor_no, $lcp, $downpayment, $out_ar, 
 							$monthly, $term, $release_date_, $firstdue_date_, $maturity_date_, $balance, $spot_cash, $total_amount, $unrecovered,
-							$addon, $total_unrecovered, $over_due=0, $past_due=0, $category_id, $branch_code, $comments, $gpm)
+							$addon, $total_unrecovered, $over_due=0, $past_due=0, $category_id, $branch_code, $comments, $gpm, $transfer_id=0)
 {
 	global $Refs;
 	
@@ -24,14 +24,14 @@ function add_repo_accounts($trans_type, $trans_no, $ar_trans_type, $trans_date_,
 	$sql = "INSERT INTO ".TB_PREF."repo_accounts (
 					type, ar_trans_no, ar_trans_type, trans_date, repo_date, repo_type, reference_no, debtor_no, lcp_amount, downpayment, outstanding_ar,
 					monthly_amount, term, release_date, firstdue_date, maturity_date, balance, spot_cash_amount, total_amount, unrecovered_cost,
-					addon_amount, total_unrecovered, over_due, past_due, category_id, branch_code, comments, gpm
+					addon_amount, total_unrecovered, over_due, past_due, category_id, branch_code, comments, gpm, transfer_id
 			) VALUES (
 					".db_escape($trans_type).", ".db_escape($trans_no).", ".db_escape($ar_trans_type).", ".db_escape($trans_date).", ".db_escape($repo_date).", ".db_escape($repo_type).",
 					".db_escape($reference_no).", ".db_escape($debtor_no).", ".db_escape($lcp).", ".db_escape($downpayment).", ".db_escape($out_ar).",
 					".db_escape($monthly).", ".db_escape($term).", ".db_escape($release_date).", ".db_escape($firstdue_date).", ".db_escape($maturity_date).",
 					".db_escape($balance).", ".db_escape($spot_cash).", ".db_escape($total_amount).", ".db_escape($unrecovered).", ".db_escape($addon).",
 					".db_escape($total_unrecovered).", ".db_escape($over_due).", ".db_escape($past_due).", ".db_escape($category_id).", ".db_escape($branch_code).",
-					".db_escape($comments).", ".db_escape($gpm)."
+					".db_escape($comments).", ".db_escape($gpm).", ".db_escape($transfer_id)."
 			)";
 
 	db_query($sql, "The rr repo account record cannot be inserted");
@@ -509,4 +509,15 @@ function get_mt_repo_account($repo_id, $from_branch)
 	set_global_connection();
 	
 	return $result;
+}
+
+function get_new_added_customer($interb_ref, $custname)
+{
+	$sql = "SELECT A.*
+			FROM ".TB_PREF."debtors_master A
+			WHERE A.interb_ref = ".db_escape($interb_ref)."
+				AND A.name = ".db_escape($custname);
+
+	$result = db_query($sql, "could not get new added customer accounts because");
+	return db_fetch($result);
 }

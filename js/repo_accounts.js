@@ -156,7 +156,7 @@ Ext.onReady(function(){
 		},
 		simpleSortMode : true,
 		sorters : [{
-			property : 'id',
+			property : 'debtor_no',
 			direction : 'ASC'
 		}]
 	});
@@ -466,6 +466,8 @@ Ext.onReady(function(){
 			Ext.getCmp('vw_InvoiceNo').setVisible(false);
 			Ext.getCmp('cBranch').setVisible(false);
 			Ext.getCmp('mt_ref').setVisible(false);
+			Ext.getCmp('autocreatecust').setVisible(false);
+			Ext.getCmp('btnloadc').setVisible(false);
 			
 			submit_window.show();
 			submit_window.setTitle('Receiving Report Repo - Add');
@@ -564,12 +566,66 @@ Ext.onReady(function(){
 						listeners: {
 							select: function(combo, record, index) {
 								CustomerStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
-								CustomerStore.load();
+								CustomerStore.load({
+									callback: function(records) {                 
+										Ext.getCmp('customercode').setValue(records[i].get('debtor_ref'));
+										Ext.getCmp('customername').setValue(records[i].get('debtor_no'));
+										Ext.getCmp('custname').setValue(records[i].get('name'));
+									}
+								});
+
 								ARInvoiceStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
 								ARInvoiceStore.load();
 								SIitemStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
 								SIitemStore.load();
+
+								Ext.Ajax.request({
+									url : '?getReference=zHun',
+									async:false,
+									success: function (response){
+										var result = Ext.JSON.decode(response.responseText);
+										Ext.getCmp('reference_no').setValue(result.reference);
+										submit_window.setTitle('Receiving Report Repo -: '+ result.reference + ' *new');
+									}
+								});
+								
+								if(Ext.getCmp('customername').getValue() != ''){
+									Ext.getCmp('autocreatecust').setVisible(true);
+									Ext.getCmp('btnloadc').setVisible(true);
+								}else{
+									Ext.getCmp('autocreatecust').setVisible(false);
+									Ext.getCmp('btnloadc').setVisible(false);
+								}
+								Ext.getCmp('autocreatecust').setDisabled(false);
 							}
+						}
+					}]
+				},{
+					xtype: 'fieldcontainer',
+					layout: 'hbox',
+					margin: '2 0 2 0',
+					items:[{
+						xtype: 'checkbox',
+						id: 'autocreatecust',
+						name: 'autocreatecust',
+						hidden: true,
+						boxLabel: 'Pls check to auto create customer or click button to reload all existing customers',
+						margin: '0 45 0 85'
+					},{
+						xtype: 'button',
+						id: 'btnloadc',
+						hidden: true,
+						text: 'Reload existing customers',
+						tooltip: 'Reload all existing customers',
+						icon: '../../js/ext4/examples/shared/icons/table_lightning.png',
+						handler : function() {
+							Ext.getCmp('autocreatecust').setValue();
+							Ext.getCmp('customercode').setValue();
+							Ext.getCmp('customername').setValue();
+							Ext.getCmp('custname').setValue();
+							Ext.getCmp('autocreatecust').disable();
+							CustomerStore.proxy.extraParams = {rtype: 'all'};
+							CustomerStore.load();
 						}
 					}]
 				},{
@@ -609,31 +665,31 @@ Ext.onReady(function(){
 									ARInvoiceStore.load();
 									SIitemStore.proxy.extraParams = {transNo: 0};
 									SIitemStore.load();
+									
+									Ext.getCmp('InvoiceNo').setValue();
+									Ext.getCmp('transtype').setValue();
+									Ext.getCmp('release_date').setValue();
+									Ext.getCmp('months_term').setValue();
+									Ext.getCmp('downpayment').setValue();
+									Ext.getCmp('outs_ar_amount').setValue();
+									Ext.getCmp('amort_amount').setValue();
+									Ext.getCmp('balance').setValue();
+									Ext.getCmp('firstdue_date').setValue();
+									Ext.getCmp('maturity_date').setValue();
+									Ext.getCmp('category').setValue();
+									Ext.getCmp('lcp_amount').setValue();
+									Ext.getCmp('spotcash').setValue();
+									Ext.getCmp('gpm').setValue();
+									//Ext.getCmp('cgpm').setValue();
+									Ext.getCmp('addon_cost').setValue();
+									Ext.getCmp('total_amount').setValue();
+									Ext.getCmp('unrecovrd_cost').setValue();
+									Ext.getCmp('total_unrecovrd').setValue();
+									Ext.getCmp('past_due').setValue();
+									Ext.getCmp('over_due').setValue();
+									Ext.getCmp('base_transno').setValue();
+									Ext.getCmp('base_transtype').setValue();
 								}
-								Ext.getCmp('InvoiceNo').setValue();
-								Ext.getCmp('transtype').setValue();
-								Ext.getCmp('release_date').setValue();
-								Ext.getCmp('months_term').setValue();
-								Ext.getCmp('downpayment').setValue();
-								Ext.getCmp('outs_ar_amount').setValue();
-								Ext.getCmp('amort_amount').setValue();
-								Ext.getCmp('balance').setValue();
-								Ext.getCmp('firstdue_date').setValue();
-								Ext.getCmp('maturity_date').setValue();
-								Ext.getCmp('category').setValue();
-								Ext.getCmp('lcp_amount').setValue();
-								Ext.getCmp('spotcash').setValue();
-								Ext.getCmp('gpm').setValue();
-								//Ext.getCmp('cgpm').setValue();
-								Ext.getCmp('addon_cost').setValue();
-								Ext.getCmp('total_amount').setValue();
-								Ext.getCmp('unrecovrd_cost').setValue();
-								Ext.getCmp('total_unrecovrd').setValue();
-								Ext.getCmp('past_due').setValue();
-								Ext.getCmp('over_due').setValue();
-								Ext.getCmp('base_transno').setValue();
-								Ext.getCmp('base_transtype').setValue();
-
 								Ext.Ajax.request({
 									url : '?getReference=zHun',
 									async:false,
@@ -696,13 +752,18 @@ Ext.onReady(function(){
 								Ext.getCmp('custname').setValue();
 								Ext.getCmp('cBranch').setValue();
 								Ext.getCmp('mt_ref').setValue();
+								Ext.getCmp('autocreatecust').setValue();
 
 								if(record.get('id') == 'mt'){
 									Ext.getCmp('cBranch').setVisible(true);
 									Ext.getCmp('mt_ref').setVisible(true);
+									//Ext.getCmp('autocreatecust').setVisible(true);
+									//Ext.getCmp('btnloadc').setVisible(true);
 								}else{
 									Ext.getCmp('cBranch').setVisible(false);
 									Ext.getCmp('mt_ref').setVisible(false);
+									//Ext.getCmp('autocreatecust').setVisible(false);
+									//Ext.getCmp('btnloadc').setVisible(false);
 								}
 							}
 						}
