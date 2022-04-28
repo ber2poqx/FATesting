@@ -61,6 +61,30 @@ function get_stock_top($today, $limit = 10, $type = 0, $category_id = null) {
     return db_query($sql);
 }
 
+function get_customer_top($today, $limit = 10) {
+
+	$begin = begin_fiscalyear();
+	$begin1 = date2sql($begin);
+	$today1 = date2sql($today);
+
+	$sql = 
+	"SELECT SUM((ov_amount + ov_discount) * rate * IF(trans.type = ".ST_CUSTCREDIT.", -1, 1)) AS total, 
+		d.debtor_no, d.name, d.debtor_ref, AR.description AS area_name 
+	
+	FROM ".TB_PREF."debtor_trans AS trans 
+		INNER JOIN ".TB_PREF."debtors_master AS d ON trans.debtor_no = d.debtor_no
+		INNER JOIN ".TB_PREF."areas AS AR ON d.area = AR.area_code 
+		
+	WHERE (trans.type = ".ST_SALESINVOICE." OR trans.type = ".ST_CUSTCREDIT.")
+		AND tran_date >= '$begin1' AND tran_date <= '$today1' 
+	
+	GROUP by d.debtor_no 
+	ORDER BY total DESC, d.debtor_no 
+	LIMIT $limit";
+	
+	return db_query($sql);
+}
+
 function _source_graphic($today, $title, $x_axis, $pg, $graphic1, $graphic2 = null, $type = 2) {
 	
 	if (count($pg->y) == 0 || (count($pg->y) == 1 && $pg->y[0] == 0)) {
