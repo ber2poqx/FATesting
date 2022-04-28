@@ -10,7 +10,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function dashboard($sel_app, $type = "", $category_id = null)
+function dashboard($sel_app, $type = "", $category_id = null, $sales_grp = 0)
 {
 	$selected_app = $sel_app;
 
@@ -36,7 +36,7 @@ function dashboard($sel_app, $type = "", $category_id = null)
 
 	//check_for_overdue_recurrent_invoices();
 	if ($selected_app == "orders" && $type == "orders") {
-		display_customer_topten();
+		display_customer_topten($sales_grp);
 	}
 	elseif ($selected_app == "AP" && $type == "AP") {
 		display_supplier_topten();
@@ -85,15 +85,23 @@ function table_end()
 	echo "</td></tr></table>\n";
 }
 
-function display_customer_topten() {
+function display_customer_topten($sales_grp = 0) {
 	$pg = new graph();
+
+	if ($sales_grp == 2) {
+		$sub_title = "Area";
+	}
+	else {
+		$sub_title = "Customer";
+	}
 
 	table_one();
 	$today = Today();
-	$title = customer_top($today, 10, 66, $pg);
+	$title = customer_top($today, 10, 66, $pg, $sales_grp);
 	customer_trans($today);
+
 	table_two();
-	_source_graphic($today, $title, _("Customer"), $pg, _("Sales"));
+	_source_graphic($today, $title, $sub_title, $pg, _("Sales"));
 	customer_recurrent_invoices($today);
 	table_end();
 }
@@ -192,15 +200,27 @@ function display_all()
 	table_end();
 }
 
-function customer_top($today, $limit = 10, $width = "33", &$pg = null) {
+function customer_top($today, $limit = 10, $width = "33", &$pg = null, $sales_grp = 0) {
 	
-	$result = get_customer_top($today, $limit);
+	$result = get_customer_top($today, $limit, $sales_grp);
 
-	$title = sprintf(_("Top %s Customers in Fiscal Year"), $limit);
+	if ($sales_grp == 2) {
+		$sub_title = "Areas";
+	}
+	else {
+		$sub_title = "Customers";
+	}
+
+	$title = sprintf(_("Top %s $sub_title in Fiscal Year"), $limit);
 
 	display_title($title);
 
-	$th = array(_("Area"), _("Customer"), _("Amount"));
+	if ($sales_grp == 2) {
+		$th = array(_("Area"), _("Amount"));
+	}
+	else {
+		$th = array(_("Area"), _("Customer"), _("Amount"));
+	}
 
 	start_table(TABLESTYLE, "width='$width%'");
 	table_header($th);
@@ -209,17 +229,30 @@ function customer_top($today, $limit = 10, $width = "33", &$pg = null) {
 	
 	$k = 0; //row colour counter
 	$i = 0;
+	$name = '';
 
 	while ($row = db_fetch($result)) {
 		alt_table_row_color($k);
-		$name = $row["debtor_ref"]." - ".htmlspecialchars_decode($row["name"]);
 		
-		label_cell($row['area_name']);
-		label_cell($name);
+		if ($sales_grp == 2) {
+			$name = $row['area_name'];
+		}
+		else {
+			$name = $row["debtor_ref"]." - ".htmlspecialchars_decode($row["name"]);
+		}
+		
+		if ($sales_grp == 2) {
+			label_cell($row['area_name']);
+		}
+		else {
+			label_cell($row['area_name']);
+			label_cell($name);
+		}
+
 		amount_cell($row['total']);
 		
 		if ($pg != null) {
-			$pg->x[$i] = $name; 
+			$pg->x[$i] = $name . " "; 
 			$pg->y[$i] = $row['total'];
 		}	
 		$i++;
@@ -469,45 +502,46 @@ function gl_performance($today, $width="33", $weeks=5)
 	_source_graphic($today, $title, _("Week"), $pg, _("Sales"), _("Costs"), 1);
 }
 
-function customer_trans($today)
-{
-	$today = date2sql($today);
+function customer_trans($today) {
 
-	$sql = "SELECT trans.trans_no, trans.reference,	trans.tran_date, trans.due_date, debtor.debtor_no, 
-		debtor.name, branch.br_name, debtor.curr_code,
-		(trans.ov_amount + trans.ov_gst + trans.ov_freight 
-			+ trans.ov_freight_tax + trans.ov_discount)	AS total,  
-		(trans.ov_amount + trans.ov_gst + trans.ov_freight 
-			+ trans.ov_freight_tax + trans.ov_discount - trans.alloc) AS remainder,
-		DATEDIFF('$today', trans.due_date) AS days 	
-		FROM ".TB_PREF."debtor_trans as trans, ".TB_PREF."debtors_master as debtor, 
-			".TB_PREF."cust_branch as branch
-		WHERE debtor.debtor_no = trans.debtor_no AND trans.branch_code = branch.branch_code
-			AND trans.type = ".ST_SALESINVOICE." AND (trans.ov_amount + trans.ov_gst + trans.ov_freight 
-			+ trans.ov_freight_tax + trans.ov_discount - trans.alloc) > ".FLOAT_COMP_DELTA." 
-			AND DATEDIFF('$today', trans.due_date) > 0 ORDER BY days DESC";
-	$result = db_query($sql);
+	$result = _customer_trans($today);
+
 	$title = db_num_rows($result) . _(" Overdue Sales Invoices");
   	display_title($title);
-	$th = array("#", _("Ref."), _("Date"), _("Due Date"), _("Customer"), _("Branch"), _("Currency"), 
-		_("Total"), _("Remainder"),	_("Days"));
-	start_table(TABLESTYLE);
+
+	$th = array(
+		_("Reference"), 
+		_(""), _(""),
+		_("Invoice Date"), 
+		_(""), _(""),
+		_("Customer"), 
+		_("Total"), 
+		_("Remainder"),	
+		_(""), _(""),
+		_("Total Days")
+	);
+
+	start_table(TABLESTYLE,"width='95%'");
 	table_header($th);
   	$k = 0; //row colour counter
-	while ($row = db_fetch($result))
-	{
+
+	while ($row = db_fetch($result)) {
+		
 		alt_table_row_color($k);
-		label_cell(get_trans_view_str(ST_SALESINVOICE, $row["trans_no"]));
-		label_cell($row['reference']);
-		label_cell(sql2date($row['tran_date']));
-		label_cell(sql2date($row['due_date']));
-		$name = $row["debtor_no"]." ".$row["name"];
-		label_cell($name);
-		label_cell($row['br_name']);
-		label_cell($row['curr_code']);
+
+		label_cell(get_trans_view_str(ST_SALESINVOICE, $row["trans_no"], $row['reference']), "nowrap align='left'");
+		label_cell(''); label_cell('');
+		label_cell(sql2date($row['tran_date']), "style='color: blue'");
+		label_cell(''); label_cell('');
+
+		$name = $row["debtor_ref"] . " - ". $row["name"];
+		label_cell($name, "nowrap align='left'");
+
 		amount_cell($row['total']);
-		amount_cell($row['remainder']);
-		label_cell($row['days'], "align='right'");
+		amount_cell($row['remainder'], "bold");
+		label_cell(''); label_cell('');
+		label_cell($row['days'], "nowrap align='right'");
+
 		end_row();
 	}
 	end_table(2);

@@ -35,6 +35,10 @@ else {
     if (get_post('category_id')) {
         $Ajax->activate('_page_body');
     }
+    
+    if (get_post('sales_grp')) {
+        $Ajax->activate('_page_body');
+    }
 }
 
 br();
@@ -79,13 +83,30 @@ else {
             '', null, true, _("All Category")
         );
     }
+    else if ($_GET['sel_app'] == 'orders') {
+        table_section(2);
+
+        value_type_list(_("Group By: "), 'sales_grp', 
+            array(
+               1 => 'Customer',
+               2 => 'Area'
+            ), '', null, true, '', true
+        );
+    }
 
     end_outer_table(1);
 }
 
 
 if (isset($_GET['sel_app'])) {
-	dashboard($_GET['sel_app'], get_post('trans_type'), get_post('category_id'));
+	
+    dashboard(
+        $_GET['sel_app'], 
+        get_post('trans_type'), 
+        get_post('category_id'), 
+        get_post('sales_grp')
+    );
+    
     end_form();
 	end_page();
 	exit;

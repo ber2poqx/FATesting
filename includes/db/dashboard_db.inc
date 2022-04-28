@@ -61,7 +61,7 @@ function get_stock_top($today, $limit = 10, $type = 0, $category_id = null) {
     return db_query($sql);
 }
 
-function get_customer_top($today, $limit = 10) {
+function get_customer_top($today, $limit = 10, $sales_grp = 0) {
 
 	$begin = begin_fiscalyear();
 	$begin1 = date2sql($begin);
@@ -76,11 +76,41 @@ function get_customer_top($today, $limit = 10) {
 		INNER JOIN ".TB_PREF."areas AS AR ON d.area = AR.area_code 
 		
 	WHERE (trans.type = ".ST_SALESINVOICE." OR trans.type = ".ST_CUSTCREDIT.")
-		AND tran_date >= '$begin1' AND tran_date <= '$today1' 
+		AND tran_date >= '$begin1' AND tran_date <= '$today1'";
+
+	if ($sales_grp == 2) {
+		$sql .= " GROUP by d.area";
+	}
+	else {
+		$sql .= " GROUP by d.debtor_no";
+	}
 	
-	GROUP by d.debtor_no 
-	ORDER BY total DESC, d.debtor_no 
+	$sql .= " ORDER BY total DESC, d.debtor_no 
 	LIMIT $limit";
+
+	return db_query($sql);
+}
+
+function _customer_trans($today) {
+	$today = date2sql($today);
+
+	$sql = 
+	"SELECT trans.trans_no, trans.reference, trans.tran_date, trans.due_date, debtor.debtor_no, 
+		debtor.name, branch.br_name, debtor.curr_code, debtor.debtor_ref, 
+		(trans.ov_amount + trans.ov_gst + trans.ov_freight 
+			+ trans.ov_freight_tax + trans.ov_discount)	AS total,  
+		(trans.ov_amount + trans.ov_gst + trans.ov_freight 
+			+ trans.ov_freight_tax + trans.ov_discount - trans.alloc) AS remainder,
+		DATEDIFF('$today', trans.due_date) AS days 
+
+	FROM ".TB_PREF."debtor_trans AS trans  
+		INNER JOIN ".TB_PREF."debtors_master AS debtor ON debtor.debtor_no = trans.debtor_no
+		INNER JOIN ".TB_PREF."cust_branch AS branch ON trans.branch_code = branch.branch_code
+
+	WHERE trans.type = ".ST_SALESINVOICE." 
+		AND (trans.ov_amount + trans.ov_gst + trans.ov_freight 
+			+ trans.ov_freight_tax + trans.ov_discount - trans.alloc) > ".FLOAT_COMP_DELTA." 
+		AND DATEDIFF('$today', trans.due_date) > 0 ORDER BY days DESC";
 	
 	return db_query($sql);
 }
