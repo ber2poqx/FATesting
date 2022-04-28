@@ -376,8 +376,8 @@ if (isset($_POST['Process']))
 	}
 }
 
-if (isset($_POST['Process']))
-{
+if (isset($_POST['Process'])) {
+
 	$cart = &$_SESSION['journal_items'];
 	$new = $cart->order_id == 0;
 
@@ -385,7 +385,7 @@ if (isset($_POST['Process']))
 	$cart->tran_date = $_POST['date_'];
 	$cart->doc_date = $_POST['doc_date'];
 	$cart->event_date = $_POST['event_date'];
-	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref'];
+	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref2'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
 	

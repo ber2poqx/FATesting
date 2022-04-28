@@ -102,10 +102,9 @@ function display_order_header(&$Order)
 
 	if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
 		label_row(_("Source ref:"), get_post('ar_inv'));
-		hidden('source_ref', get_post('ar_inv'));
 	}
 	else {
-		text_row(_("Source ref:"), 'source_ref', null, 30, 60);
+		text_row(_("Source ref:"), 'source_ref2', null, 30, 60);
 	}
 
  	if ($new) {

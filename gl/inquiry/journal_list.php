@@ -52,7 +52,11 @@ function doc_date($row) {
 }
 
 function doc_ref($row) {
-    return $row['source_ref'];
+
+    $debtor_row = get_SI_by_reference($row['source_ref']);
+
+    return $debtor_row["trans_no"] != null ? 
+        get_trans_view_str(ST_SALESINVOICE, $debtor_row["trans_no"], $row['source_ref']) : $row['source_ref'];
 }
 
 function is_interbranch($row) {
