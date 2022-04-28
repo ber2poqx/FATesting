@@ -67,7 +67,7 @@ function display_po_receive_items()
             );
         } else {
             $th = array(
-                _("Model Code"), _("Product Description"), _("Remarks"),
+                _("Model Code"), _("Product Description"),
                 _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
                 _("Outstanding"), _("This Delivery"),
                 _("Unit Cost"), _("Total")
@@ -82,7 +82,7 @@ function display_po_receive_items()
         } else {
             $th = array(
                 _("Item Code"), _("Description"),
-                _("Remarks"), _("Ordered"), _("Units"), _("Received"),
+                _("Ordered"), _("Units"), _("Received"),
                 _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
             );
         }
@@ -126,8 +126,8 @@ function display_po_receive_items()
             else
                 label_cell($ln_itm->item_description);
 
-            text_cells_ex(null, 'rows_remarks' . $ln_itm->line_no, 16, null, $ln_itm->remarks, null, null, null, true);
-            $ln_itm->remarks = $_POST['rows_remarks' . $ln_itm->line_no];
+            // text_cells_ex(null, 'rows_remarks' . $ln_itm->line_no, 16, null, $ln_itm->remarks, null, null, null, true);
+            // $ln_itm->remarks = $_POST['rows_remarks' . $ln_itm->line_no];
             if ($_SESSION['PO']->is_consign == "Consignment") {
                 label_cell($ln_itm->serial);
                 if ($_SESSION['PO']->category_id == 14)
@@ -389,12 +389,12 @@ function serial_summary_po_receive_items()
     start_table(TABLESTYLE, "colspan=7 width='90%'");
     if ($_SESSION['PO']->category_id == 14) {
         $th = array(
-            _("Model Code"), _("Product Description"), _("Remarks"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
+            _("Model Code"), _("Product Description"), _("Color Description - (Code)"), _("Ordered"), _("Units"), _("Received"),
             _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
         );
     } else {
         $th = array(
-            _("Item Code"), _("Description"), _("Remarks"), _("Ordered"), _("Units"), _("Received"),
+            _("Item Code"), _("Description"), _("Ordered"), _("Units"), _("Received"),
             _("Outstanding"), _("This Delivery"), _("Unit Cost"), _("Total")
         );
     }
@@ -432,7 +432,7 @@ function serial_summary_po_receive_items()
                     label_cell($ln_itm->item_description);
                 else
                     label_cell($ln_itm->item_description);
-                label_cell($ln_itm->remarks);
+                // label_cell($ln_itm->remarks);
                 if ($_SESSION['PO']->is_consign == "Consignment") {
                     label_cell($ln_itm->serial);
                     if ($_SESSION['PO']->category_id == 14)
@@ -479,7 +479,7 @@ function serial_summary_input()
 
     $th = array(
         _("Serial No. / Engine No."), _("Chassis No."),
-        _("Model Code"), _("Product Description"), _("Color Description - (Code)")
+        _("Model Code"), _("Product Description"), _("Color Description - (Code)"), _("Remarks")
     );
 
     if ($_SESSION['PO']->category_id != 14) {
@@ -510,6 +510,8 @@ function serial_summary_input()
                     if ($_SESSION['PO']->category_id == 14) {
                         label_cell(get_color_description($ln_itm->color_code, $ln_itm->stock_id));
                     }
+                    text_cells(null, "remarks$line", null, "", "", false, "", "", 'placeholder="Remarks."');// Added by albert 04/28/2022
+
 
                     $ctr++;
                     $line++;
@@ -651,6 +653,8 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
                     $serial->line_no = $line;
                     $serial->serial_no = get_post("serial_no$line");
                     $serial->chassis_no = $_SESSION['PO']->category_id == 14 ? get_post("chassis_no$line") : "";
+                    $serial->remarks = get_post("remarks$line"); // Added by albert 04/28/2022
+                    
                     array_push($ln_itm->list_serial, $serial);
 
                     $ctr++;

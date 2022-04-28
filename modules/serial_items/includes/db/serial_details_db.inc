@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_serialitems_detail($grnid, $grnlineid, $lot_no, $order_quantity, $manufacture_date, $expire_date,$item_code,$loc_code, $chasis_no='', $trans_type = 25, $lcp_promotional=0)
+function add_serialitems_detail($grnid, $grnlineid, $lot_no, $order_quantity, $manufacture_date, $expire_date,$item_code,$loc_code, $chasis_no='', $trans_type = 25, $lcp_promotional=0, $remarks) // modified by albert 04/28/2022
 {
 	if(is_date($manufacture_date)){
 	
@@ -32,8 +32,8 @@ function add_serialitems_detail($grnid, $grnlineid, $lot_no, $order_quantity, $m
 	if(!get_serialise_id($item_code,$lot_no)){
 	    
 	
-	   $sql = "INSERT INTO ".TB_PREF."item_serialise (serialise_grn_id, serialise_grn_items_id, serialise_lot_no, serialise_qty, serialise_manufacture_date, serialise_expire_date, serialise_item_code, serialise_loc_code, serialise_chasis_no, serialise_trans_type, serialise_lcp_promotional) VALUES (".
-	   	   db_escape($grnid).", ".db_escape($grnlineid).", ".db_escape($lot_no).", ".db_escape($order_quantity).", ".db_escape($manufacture_date).", ".db_escape($expire_date).", ".db_escape($item_code).", ".db_escape($loc_code).", ".db_escape($chasis_no).", ".db_escape($trans_type).", ".db_escape($lcp_promotional).")";
+	   $sql = "INSERT INTO ".TB_PREF."item_serialise (serialise_grn_id, serialise_grn_items_id, serialise_lot_no, serialise_qty, serialise_manufacture_date, serialise_expire_date, serialise_item_code, serialise_loc_code, serialise_chasis_no, serialise_trans_type, serialise_lcp_promotional, remarks) VALUES (".
+	   	   db_escape($grnid).", ".db_escape($grnlineid).", ".db_escape($lot_no).", ".db_escape($order_quantity).", ".db_escape($manufacture_date).", ".db_escape($expire_date).", ".db_escape($item_code).", ".db_escape($loc_code).", ".db_escape($chasis_no).", ".db_escape($trans_type).", ".db_escape($lcp_promotional).", ".db_escape($remarks).")";
 
 	   db_query($sql, "could not add serial items details");
 	}

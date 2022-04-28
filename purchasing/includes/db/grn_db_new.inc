@@ -95,8 +95,7 @@ function add_grn_new(&$po, $is_consign = false)
 				$order_line->receive_qty,
 				$order_line->price,
 				$order_line->quantity,
-				$order_line->color_code,
-				$order_line->remarks
+				$order_line->color_code
 			);
 
 			if (!$order_line->serialised) {
@@ -117,7 +116,7 @@ function add_grn_new(&$po, $is_consign = false)
 					$order_line->stock_id
 				);
 			} else {
-				$ctr = 0;
+				$ctr = 0;	
 				while ($ctr < count($order_line->list_serial)) {
 					add_stock_move(
 						ST_SUPPRECEIVE,
@@ -144,7 +143,9 @@ function add_grn_new(&$po, $is_consign = false)
 						$order_line->stock_id,
 						$po->Location,
 						$order_line->list_serial[$ctr]->chassis_no,
-						ST_SUPPRECEIVE
+						ST_SUPPRECEIVE,
+						0,
+						$order_line->list_serial[$ctr]->remarks // Added by albert 04/28/2022
 					);
 					$ctr++;
 				}
