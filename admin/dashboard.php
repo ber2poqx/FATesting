@@ -32,11 +32,10 @@ if (get_post('trans_type')) {
     $Ajax->activate('_page_body');
 }
 else {
-    if (get_post('category_id')) {
-        $Ajax->activate('_page_body');
-    }
-    
-    if (get_post('sales_grp')) {
+    if (get_post('category_id') || 
+        get_post('sales_grp') || 
+        get_post('invty_grp')
+    ) {
         $Ajax->activate('_page_body');
     }
 }
@@ -78,6 +77,14 @@ else {
     if ($_GET['sel_app'] == 'stock') {
     
         table_section(2);
+
+        value_type_list(_("Group By: "), 'invty_grp', 
+            array(
+               1 => 'Brand',
+               2 => 'Item'
+            ), '', null, true, '', true, true
+        );
+
         sql_type_list(_("Select Category"), 'category_id', 
             get_category_list(), 'category_id', 'description', 
             '', null, true, _("All Category")
@@ -89,7 +96,8 @@ else {
         value_type_list(_("Group By: "), 'sales_grp', 
             array(
                1 => 'Customer',
-               2 => 'Area'
+               2 => 'Area',
+               3 => 'Collector'
             ), '', null, true, '', true
         );
     }
@@ -104,7 +112,8 @@ if (isset($_GET['sel_app'])) {
         $_GET['sel_app'], 
         get_post('trans_type'), 
         get_post('category_id'), 
-        get_post('sales_grp')
+        get_post('sales_grp'),
+        get_post('invty_grp')
     );
     
     end_form();

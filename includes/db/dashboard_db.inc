@@ -5,7 +5,7 @@
  * Date Added: 23 Apr 2022
  */
 
-function get_stock_top($today, $limit = 10, $type = 0, $category_id = null) {
+function get_stock_top($today, $limit = 10, $type = 0, $category_id = null, $invty_grp = 0) {
 
     $begin = begin_fiscalyear();
 	$begin1 = date2sql($begin);
@@ -53,9 +53,16 @@ function get_stock_top($today, $limit = 10, $type = 0, $category_id = null) {
 		$sql .= "AND tran_date >= '$begin1' ";
 	}
 
-	$sql .= "AND tran_date <= '$today1' 
-        GROUP by s.brand
-        ORDER BY total DESC, s.stock_id 
+	$sql .= "AND tran_date <= '$today1'";
+
+	if ($invty_grp == 2) {
+		$sql .= " GROUP BY trans.stock_id ";
+	}
+	else {
+		$sql .= " GROUP BY s.brand ";
+	}
+
+    $sql .= " ORDER BY total DESC, s.stock_id 
 		LIMIT $limit";
 
     return db_query($sql);
@@ -69,20 +76,24 @@ function get_customer_top($today, $limit = 10, $sales_grp = 0) {
 
 	$sql = 
 	"SELECT SUM((ov_amount + ov_discount) * rate * IF(trans.type = ".ST_CUSTCREDIT.", -1, 1)) AS total, 
-		d.debtor_no, d.name, d.debtor_ref, AR.description AS area_name 
+		d.debtor_no, d.name, d.debtor_ref, AR.description AS area_name, CN.real_name AS collector_name 
 	
 	FROM ".TB_PREF."debtor_trans AS trans 
 		INNER JOIN ".TB_PREF."debtors_master AS d ON trans.debtor_no = d.debtor_no
 		INNER JOIN ".TB_PREF."areas AS AR ON d.area = AR.area_code 
+		LEFT JOIN " . TB_PREF . "users CN ON AR.collectors_id = CN.user_id
 		
 	WHERE (trans.type = ".ST_SALESINVOICE." OR trans.type = ".ST_CUSTCREDIT.")
 		AND tran_date >= '$begin1' AND tran_date <= '$today1'";
 
 	if ($sales_grp == 2) {
-		$sql .= " GROUP by d.area";
+		$sql .= " GROUP BY d.area";
+	}
+	else if ($sales_grp == 3) {
+		$sql .= " GROUP BY AR.collectors_id";
 	}
 	else {
-		$sql .= " GROUP by d.debtor_no";
+		$sql .= " GROUP BY d.debtor_no";
 	}
 	
 	$sql .= " ORDER BY total DESC, d.debtor_no 

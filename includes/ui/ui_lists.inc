@@ -931,10 +931,15 @@ function sql_type_list($label, $name, $query, $ret_id = '', $ret_val = '', $clas
 }
 
 function value_type_list($label, $name, $val_array, $class = '', $selected = null, $submit_on_change = false, 
-	$all_text = '', $with_key = false) {
+	$all_text = '', $with_key = false, $row = false) {
 
-	if ($label != null)
+	if ($row) { 
+		echo "<tr>";
+	}
+
+	if ($label != null) {
 		echo "<td class=$class>$label</td>";
+	}
 	echo "<td>\n";
 
 	$allocs = array();
@@ -949,6 +954,10 @@ function value_type_list($label, $name, $val_array, $class = '', $selected = nul
 	);
 
 	echo "</td>\n";
+
+	if ($row) { 
+		echo "</tr>";
+	}
 }
 
 function numeric_type_list($label, $name, $val_array, $selected = null, $submit_on_change = false, 

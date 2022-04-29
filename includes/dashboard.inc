@@ -10,7 +10,8 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 
-function dashboard($sel_app, $type = "", $category_id = null, $sales_grp = 0)
+function dashboard($sel_app, $type = "", $category_id = null, 
+	$sales_grp = 0, $invty_grp = 0)
 {
 	$selected_app = $sel_app;
 
@@ -42,7 +43,7 @@ function dashboard($sel_app, $type = "", $category_id = null, $sales_grp = 0)
 		display_supplier_topten();
 	}
 	elseif ($selected_app == "stock" && $type == "stock") {
-		display_stock_topten(0, $category_id);
+		display_stock_topten(0, $category_id, $invty_grp);
 	}
 	elseif ($selected_app == "manuf") {
 		display_stock_topten(1);
@@ -91,17 +92,27 @@ function display_customer_topten($sales_grp = 0) {
 	if ($sales_grp == 2) {
 		$sub_title = "Area";
 	}
+	else if ($sales_grp == 3) {
+		$sub_title = "Collector's Name";
+	}
 	else {
 		$sub_title = "Customer";
 	}
 
 	table_one();
 	$today = Today();
-	$title = customer_top($today, 10, 66, $pg, $sales_grp);
+	$title = customer_top($today, 10, 85, $pg, $sales_grp);
 	customer_trans($today);
 
 	table_two();
-	_source_graphic($today, $title, $sub_title, $pg, _("Sales"));
+	_source_graphic(
+		$today, 
+		_("Graphical View of ") . $title, 
+		$sub_title, 
+		$pg, 
+		_("Sales")
+	);
+	
 	customer_recurrent_invoices($today);
 	table_end();
 }
@@ -119,12 +130,12 @@ function display_supplier_topten()
 	table_end();
 }
 
-function display_stock_topten($type = 0, $category_id = null) {
+function display_stock_topten($type = 0, $category_id = null, $invty_grp = 0) {
 	$pg = new graph();
 
 	table_one();
 	$today = Today();
-	$title = stock_top($today, 10, 66, $type, $pg, $category_id);
+	$title = stock_top($today, 10, 66, $type, $pg, $category_id, $invty_grp);
 	table_two();
 
 	if ($type == 2) {
@@ -134,7 +145,12 @@ function display_stock_topten($type = 0, $category_id = null) {
 		$source = _("Manufacturing");
 	}
 	else {
-		$source = _("Brand");
+		if ($invty_grp == 2) {
+			$source = _("Item Description");
+		}
+		else {
+			$source = _("Brand");
+		}
 	}
 	
 	_source_graphic($today, 
@@ -173,30 +189,29 @@ function display_gl_info()
 	table_end();
 }	
 
-function display_all()
-{
+function display_all() {
 	$today = Today();
 
 	$pg = new graph();
 	table_one();
-	$title = customer_top($today, 3, 66, $pg);
+	$title = customer_top($today, 5, 85, $pg);
 	_source_graphic($today, $title, _("Customer"), $pg, _("Sales"));
 
 	$pg = new graph();
-	$title = supplier_top($today, 3, 66, $pg);
+	$title = supplier_top($today, 5, 66, $pg);
 	_source_graphic($today, $title, _("Supplier"), $pg, _("Purchases"));
 
 	$pg = new graph();
-	$title = stock_top($today, 3, 66, 0, $pg);
+	$title = stock_top($today, 5, 66, 0, $pg);
 	_source_graphic($today, $title, _("Brand"), $pg, _("Sales"), _("Costs"));
 	
 	table_two();
-	dimension_top($today, 3, 66);
+	dimension_top($today, 5, 66);
 	$pg = new graph();
 	$title = gl_top($today, 66, $pg);
 	_source_graphic($today, $title, _("Class"), $pg, _("Amount"), null, 5);
-	stock_top($today, 3, 66, 2);
-	stock_top($today, 3, 66, 1);
+	stock_top($today, 5, 66, 2);
+	stock_top($today, 5, 66, 1);
 	table_end();
 }
 
@@ -207,6 +222,9 @@ function customer_top($today, $limit = 10, $width = "33", &$pg = null, $sales_gr
 	if ($sales_grp == 2) {
 		$sub_title = "Areas";
 	}
+	if ($sales_grp == 3) {
+		$sub_title = "Collectors";
+	}
 	else {
 		$sub_title = "Customers";
 	}
@@ -215,11 +233,11 @@ function customer_top($today, $limit = 10, $width = "33", &$pg = null, $sales_gr
 
 	display_title($title);
 
-	if ($sales_grp == 2) {
-		$th = array(_("Area"), _("Amount"));
+	if ($sales_grp == 2 || $sales_grp == 3) {
+		$th = array(_("Area"), _("Designated Collector"), _("Amount"));
 	}
 	else {
-		$th = array(_("Area"), _("Customer"), _("Amount"));
+		$th = array(_("Area"), _("Designated Collector"), _("Customer"), _("Amount"));
 	}
 
 	start_table(TABLESTYLE, "width='$width%'");
@@ -235,23 +253,29 @@ function customer_top($today, $limit = 10, $width = "33", &$pg = null, $sales_gr
 		alt_table_row_color($k);
 		
 		if ($sales_grp == 2) {
-			$name = $row['area_name'];
+			$name = strtoupper($row['area_name']) . " ";
+		}
+		else if ($sales_grp == 3) {
+			$name = $row['collector_name'] . " ";
 		}
 		else {
 			$name = $row["debtor_ref"]." - ".htmlspecialchars_decode($row["name"]);
 		}
 		
-		if ($sales_grp == 2) {
-			label_cell($row['area_name']);
+		if ($sales_grp == 2 || $sales_grp == 3) {
+			label_cell(strtoupper($row['area_name']));
+			label_cell($row['collector_name']);
 		}
 		else {
-			label_cell($row['area_name']);
+			label_cell(strtoupper($row['area_name']));
+			label_cell($row['collector_name']);
 			label_cell($name);
 		}
 
 		amount_cell($row['total']);
 		
 		if ($pg != null) {
+
 			$pg->x[$i] = $name . " "; 
 			$pg->y[$i] = $row['total'];
 		}	
@@ -301,7 +325,7 @@ function supplier_top($today, $limit=10, $width="33", &$pg=null)
 }
 
 function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null, 
-	$category_id = null) {
+	$category_id = null, $invty_grp = 0) {
 	
 	if ($type == 2) {
 		$sec = 'SA_ASSETSANALYTIC';
@@ -320,10 +344,13 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		$title = sprintf(_("Top %s Fixed Assets"), $limit);
 	}
 	else {
+		
+		$head_title = $invty_grp == 2 ? "Items" : "Brands";
 		$sub_title = $category_id != null ? "(" . get_category_name($category_id) . ")" : "";
+		
 		$title = 
 		sprintf(
-			_("Top %s Sold Brands in Fiscal Year $sub_title"), 
+			_("Top %s Sold $head_title in Fiscal Year $sub_title"), 
 			$limit
 		);
 	}	
@@ -333,16 +360,16 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 	display_title($title);	
 	
 	if ($type == 0) {
-		$th = array(_("Brand"), 
-			//_("Item"), 
-			_("Sales"), _("Costs"), _("Quantity Sold")
-		);
+
+		if ($invty_grp == 2) {
+			$th = array(_("Item Description"), _("Sales"), _("Costs"), _("Quantity Sold"));
+		}
+		else {
+			$th = array(_("Brand"), _("Sales"), _("Costs"), _("Quantity Sold"));
+		}
 	}	
 	else {
-		$th = array(_("Brand"), 
-			//_("Item"), 
-			_("Amount"), _("Quantity Sold")
-		);
+		$th = array(_("Brand"), _("Amount"), _("Quantity Sold"));
 	}	
 		
 	start_table(TABLESTYLE, "width='$width%'");
@@ -359,8 +386,13 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		$name = $row["description"];
 		$brand_name = strtoupper($row["brand_name"]); 
 
-		label_cell($brand_name);
-		//label_cell($name);
+		if ($invty_grp == 2) {
+			label_cell($name);
+		}
+		else {
+			label_cell($brand_name);
+		}
+		
 		amount_cell($row['total']);
 		
 		if ($type == 0) {
@@ -370,7 +402,14 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		label_cell($row['qty'], "align='center'");
 		
 		if ($pg != NULL) {
-			$pg->x[$i] = $brand_name . " "; 
+
+			if ($invty_grp == 2) {
+				$pg->x[$i] = $name . " "; 
+			}
+			else {
+				$pg->x[$i] = $brand_name . " "; 
+			}
+
 			$pg->y[$i] = $row['total'];
 			// if ($type == 0) {
 			// 	$pg->z[$i] = $row['costs'];
