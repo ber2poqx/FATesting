@@ -135,7 +135,7 @@ function display_stock_topten($type = 0, $category_id = null, $invty_grp = 0) {
 
 	table_one();
 	$today = Today();
-	$title = stock_top($today, 10, 66, $type, $pg, $category_id, $invty_grp);
+	$title = stock_top($today, 10, 80, $type, $pg, $category_id, $invty_grp);
 	table_two();
 
 	if ($type == 2) {
