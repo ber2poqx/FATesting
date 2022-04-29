@@ -11,8 +11,7 @@
 ***********************************************************************/
 
 function dashboard($sel_app, $type = "", $category_id = null, 
-	$sales_grp = 0, $invty_grp = 0)
-{
+	$sales_grp = 0, $invty_grp = 0) {
 	$selected_app = $sel_app;
 
 
@@ -648,8 +647,10 @@ function supplier_trans($today)
 	$title = db_num_rows($result) . _(" overdue Purchase Invoices");
 	display_title($title);
 	$th = array("#", _("Ref."), _("Date"), _("Due Date"), _("Supplier"), _("Currency"), _("Total"), 
-		_("Remainder"),	_("Days"));
-	start_table(TABLESTYLE);
+		_("Remainder"),	_("Days")
+	);
+
+	start_table(TABLESTYLE, "width=100%");
 	table_header($th);
 	$k = 0; //row colour counter
 	while ($row = db_fetch($result))

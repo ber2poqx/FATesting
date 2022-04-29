@@ -44,19 +44,35 @@ br();
 
 if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 
-    start_table(TABLESTYLE2, "width = 25%");
+    if (user_company() != 0) {
+        start_table(TABLESTYLE2, "width = 25%");
 
-    value_type_list(_("Application Type: "), 'trans_type', 
-        array(
-            'ALL' => 'All Transaction Summary',
-            'orders' => 'Sales',
-            'AP' => 'Purchases',
-            'stock' => 'Items and Inventory',
-            'GL' => 'Banking and General Ledger'
-        ), '', null, true, '', true
-    );
+        value_type_list(_("Application Type: "), 'trans_type', 
+            array(
+                'ALL' => 'All Transaction Summary',
+                'orders' => 'Sales',
+                'AP' => 'Purchases',
+                'stock' => 'Items and Inventory',
+                'GL' => 'Banking and General Ledger'
+            ), '', null, true, '', true
+        );
+    
+        end_table();
+    }
+    else {
 
-    end_table();
+        start_outer_table(TABLESTYLE2, "width = '40%'", 10);
+        
+        table_section(1);
+        
+        value_type_list(_("Application Type: "), 'trans_type', 
+            array(
+                'AP' => 'Purchases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+            ), '', null, true, '', true
+        );
+
+        end_outer_table(1);
+    }
 }
 else {
     
@@ -109,8 +125,8 @@ else {
 if (isset($_GET['sel_app'])) {
 	
     dashboard(
-        $_GET['sel_app'], 
-        get_post('trans_type'), 
+        user_company() == 0 ? "AP" : $_GET['sel_app'], 
+        user_company() == 0 ? "AP" : get_post('trans_type'), 
         get_post('category_id'), 
         get_post('sales_grp'),
         get_post('invty_grp')
