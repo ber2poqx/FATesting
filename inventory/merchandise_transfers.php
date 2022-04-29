@@ -234,11 +234,7 @@ if(!is_null($action) || !empty($action)){
                 
                 $countrec=count($_SESSION['transfer_items']->line_items);
                 $_SESSION['transfer_items']->add_to_cart($countrec, $myrow["mt_details_stock_id"], $myrow["totalqty"], $myrow["mt_details_st_cost"], $myrow['stock_description'],'0000-00-00','0000-00-00', $myrow["mt_details_serial_no"], $myrow["mt_details_chasis_no"], $myrow['item_description'], $myrow["mt_details_item_code"], $myrow["mt_details_id"]);
-                
-                
-            }
-            
-            
+            } 
             echo '({"AdjDate":"'.$_POST['AdjDate'].'","branchcode":"'.$brcode.'","from_loc":"'.$from_loc.'","RRBRReference":"'.$_POST['ref'].'","MTreference":"'.$MTReference.'","Record Count":"'.count($_SESSION['transfer_items']->line_items).'","total":"'.$total.'","from_loc_code":"'.$from_loc_code.'"})';
             exit;
             break;
@@ -783,17 +779,17 @@ if(!is_null($action) || !empty($action)){
             set_global_connection($def_coy);
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $fromlocation = (isset($_POST['fromlocation']) ? $_POST['fromlocation'] : $_GET['fromlocation']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             $branchcode = $db_connections[user_company()]["branch_code"];
             
-            if($start < 1)  $start = 0; if($end < 1) $end = 25;
+            //if($start < 1)  $start = 0; if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
-            if($fromlocation!=null || isset($fromlocation)){
+            /*if($fromlocation!=null || isset($fromlocation)){
                 $str_fromlocation=" AND  mh.mt_header_fromlocation='".$fromlocation."'";
             }else{
                 $str_fromlocation="";
@@ -803,12 +799,15 @@ if(!is_null($action) || !empty($action)){
             FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
             LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
             WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation AND mh.mt_header_item_type = 'new'
-            GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
+            GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";*/
             
-            
-            $result = db_query($sql, "could not get all Serial Items");
+            //$result = db_query($sql, "could not get all Serial Items");
+
+            $result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,false);
+            $total_result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,true);
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
-            //$total = db_num_rows($total_result);
+            $total = DB_num_rows($result);
+
             while ($myrow = db_fetch($result))
             {
                 if($myrow["totalqty"]==$myrow["totalreceived"]){
@@ -834,12 +833,11 @@ if(!is_null($action) || !empty($action)){
                     'remarks' => $myrow["mt_header_comments"],
                     'status_msg'=>$status_msg,
                     'status'=>$myrow["mt_header_status"]
-                );
-                
+                );                
             }
             
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
             

@@ -664,22 +664,28 @@ Ext.onReady(function(){
 											var serialised = record.get('serialised');	
 											var rr_date = record.get('tran_date');
 											var repo_id = record.get('repo_id');
-							
-											Ext.toast({
-												icon   	: '../js/ext4/examples/shared/icons/accept.png',
-											    html: '<b>' + 'Model:' + record.get('model') + ' <br><br/> ' + 'Serial #:' + record.get('lot_no') + '<b/>',
-											    title: 'Selected Item',
-											    width: 250,
-											    bodyPadding: 10,
-											    align: 'tr'
-											});	
+											
+											var countrec0 = MerchandiseTransStore.getCount();
+											if (countrec0 == 0) {
+												Ext.toast({
+													icon   	: '../js/ext4/examples/shared/icons/accept.png',
+												    html: '<b>' + 'Model:' + record.get('model') + ' <br><br/> ' + 'Serial #:' + record.get('lot_no') + '<b/>',
+												    title: 'Selected Item',
+												    width: 250,
+												    bodyPadding: 10,
+												    align: 'tr'
+												});	
+											}else{
+												break;
+											}		
 										}
 
 										var grid = Ext.getCmp('ItemSerialListing');
 										var selected = grid.getSelectionModel().getSelection();
-										var gridRepoData = [];
-										count = 0;
-										Ext.each(selected, function(record) {
+										var gridRepoData = [];										
+										var count = 0;
+									
+										Ext.each(selected, function(record) {					
 											var ObjItem = {
 												serialise_id: record.get('serialise_id'),	
 												model: record.get('model'),	
@@ -700,7 +706,17 @@ Ext.onReady(function(){
 											gridRepoData.push(ObjItem);
 										});
 
-										MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+										if (gridRepoData == "") {
+											Ext.MessageBox.alert('Error','Please Select Item..');
+											return false;
+										}
+										var countrec1 = MerchandiseTransStore.getCount();
+										if (countrec1 == 0) {
+											MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+										}else{
+											Ext.MessageBox.alert('Error','Only one item per transaction..');
+											return false;
+										}
 
 										MerchandiseTransStore.load({
 											scope: this,
@@ -712,7 +728,6 @@ Ext.onReady(function(){
 													setButtonDisabled(true);
 												}								
 											}	
-
 										});																															
 										ItemListingStore.load();
 									}
@@ -726,11 +741,6 @@ Ext.onReady(function(){
 								}
 							]
 						});
-
-
-
-
-
 					}						
 					
 					var v = Ext.getCmp('category').getValue();
@@ -770,7 +780,6 @@ Ext.onReady(function(){
             }
         }*/
 	}
-
 			
 	Ext.create('Ext.grid.Panel', {
 		renderTo: 'merchandisetransfer-grid',
@@ -937,8 +946,7 @@ Ext.onReady(function(){
 																});
 															}
 														}
-													}
-													
+													}													
 												]
 											},{
 												xtype:'fieldcontainer',
@@ -1065,8 +1073,7 @@ Ext.onReady(function(){
 														//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
 														myInsurance.load();
 														Ext.MessageBox.alert('Success','Success Processing');
-													}
-													
+													}													
 												}
 											});
 											Ext.MessageBox.hide();
@@ -1079,8 +1086,7 @@ Ext.onReady(function(){
 											windowNewTransfer.close();
 										}
 									}
-								]
-								
+								]								
 							});
 						}
 						//var AdjDate = Ext.getCmp('AdjDate').getValue();	
@@ -1124,7 +1130,6 @@ Ext.onReady(function(){
 			store : myInsurance,
 			displayInfo : true
 		}
-
 	});
 
 	Ext.Ajax.request({

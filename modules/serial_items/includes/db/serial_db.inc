@@ -261,6 +261,35 @@ function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$a
     return $result;
 }
 
+/*Added by robert 04/28/2022*/
+function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode='',$fromlocation='',$all=false){
+
+    if($fromlocation!=null || isset($fromlocation)){
+        $str_fromlocation=" AND  mh.mt_header_fromlocation='".$fromlocation."'";
+    }else{
+        $str_fromlocation="";
+    }
+    $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty, 
+    sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_qty 
+    FROM ".TB_PREF."mt_header mh 
+    LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
+    LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
+    WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation AND mh.mt_header_item_type = 'new'
+    GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all receiving item");
+    }else{
+        $result = db_query($sqllimit, "could not get all receiving item");
+    }
+    //echo $sql;
+
+    return $result;
+}
+
 //added by Herald 09/22/2021 for Manual Entry MT
 function get_all_items_listing($start,$end,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$serialquery=null, $brand=0){
     $sql = "SELECT smaster.stock_id as model, icode.item_code as item_code, smaster.description as stock_description, icode.description as item_description, smaster.serialised, icode.color as color, icode.category_id, item_brand.name as brand_name, smaster.brand as brand_id FROM ".TB_PREF."item_codes icode INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 

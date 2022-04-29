@@ -696,7 +696,6 @@ Ext.onReady(function(){
 												});	
 											}
 
-
 											var grid = Ext.getCmp('ItemSerialListing');
 											var selected = grid.getSelectionModel().getSelection();
 											var gridRepoData = [];
@@ -721,7 +720,12 @@ Ext.onReady(function(){
 												gridRepoData.push(ObjItem);
 											});
 
-											MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+											if (gridRepoData == "") {
+												Ext.MessageBox.alert('Error','Please Select Item..');
+												return false;
+											}else{
+												MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+											}
 
 											MerchandiseTransStore.load({
 												scope: this,
@@ -734,8 +738,7 @@ Ext.onReady(function(){
 													}								
 												}	
 
-											});
-											
+											});											
 											ItemListingStore.load();
 										}
 										/*---------End Here---------*/			
@@ -748,11 +751,6 @@ Ext.onReady(function(){
 								}
 							]
 						});
-
-
-
-
-
 					}						
 					
 					var v = Ext.getCmp('category').getValue();
@@ -956,8 +954,7 @@ Ext.onReady(function(){
 																});
 															}
 														}
-													}
-													
+													}													
 												]
 											},{
 												xtype:'fieldcontainer',
@@ -1081,8 +1078,7 @@ Ext.onReady(function(){
 														//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
 														myInsurance.load();
 														Ext.MessageBox.alert('Success','Success Processing');
-													}
-													
+													}													
 												} 
 											});
 											Ext.MessageBox.hide();
@@ -1140,7 +1136,6 @@ Ext.onReady(function(){
 			store : myInsurance,
 			displayInfo : true
 		}
-
 	});
 
 	Ext.Ajax.request({

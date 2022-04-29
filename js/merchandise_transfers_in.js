@@ -12,7 +12,8 @@ Ext.require(['Ext.toolbar.Paging',
 
 
 Ext.onReady(function(){
-	//Ext.QuickTips.init();
+	Ext.QuickTips.init();
+	var itemsPerPage = 20;   // set the number of items you want per page on grid.
 	var global_master_id, branchcode;
 
 	var smCheckitem = Ext.create('Ext.selection.CheckboxModel',{
@@ -378,6 +379,7 @@ Ext.onReady(function(){
 					}
 				},{
 					icon: '../js/ext4/examples/shared/icons/printer.png',
+					tooltip: 'View Receiving Report',
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
 						reference = record.get('rrbrreference');
@@ -434,6 +436,7 @@ Ext.onReady(function(){
 		model : 'insurance',
 		name : 'myInsurance',
 		method : 'POST',
+		pageSize: itemsPerPage, // items per page
 		proxy : {
 			type: 'ajax',
 			url	: '?action=viewin',

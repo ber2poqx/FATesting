@@ -1239,8 +1239,13 @@ Ext.onReady(function(){
 											};
 											gridRepoData.push(ObjItem);
 										});
-																
-										MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+
+										if (gridRepoData == "") {
+											Ext.MessageBox.alert('Error','Please Select Item..');
+											return false;
+										} else{
+											MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+										}											
 
 										MerchandiseTransStore.load({
 											scope: this,
