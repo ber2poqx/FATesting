@@ -495,14 +495,32 @@ if(isset($_GET['submit']))
                                             $debtor_no, $repoacct_row['lcp_amount'], $repoacct_row['downpayment'], $repoacct_row['outstanding_ar'], $repoacct_row['monthly_amount'],
                                             $repoacct_row['term'], date('m/d/Y', strtotime($repoacct_row['release_date'])), date('m/d/Y', strtotime($repoacct_row['firstdue_date'])), date('m/d/Y', strtotime($repoacct_row['maturity_date'])), $repoacct_row['balance'],
                                             $repoacct_row['spot_cash_amount'], $repoacct_row['total_amount'], $repoacct_row['unrecovered_cost'], $repoacct_row['addon_amount'], $repoacct_row['total_unrecovered'],
-                                            $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm']);
+                                            $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm'], $_POST['mt_ref']);
 
             add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['qty'], $_POST['unrecovrd_cost'],
-                            $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
+                            $item_row['serial_no'], $item_row['chassis_no'], $item_row['color_code']);
 
-            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
-                            0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['qty'], $_POST['unrecovrd_cost'],
+                            0, $item_row['serial_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+
+            //for gl entry
+            //Repossessed Inventory - debit
+            $repo_invty_act =  get_repo_invty_act($_POST['category']);
+            if(isset($repo_invty_act)){
+                $branch = get_branch_info($_POST['cBranch']);
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['cBranch'], array_column($branch, 'name'), 0, $_POST['mt_ref']);
+            }
+            // Branch Current -credit
+            if(isset($debtors_account)){
+                $branch = get_branch_info($_POST['cBranch']);
+                $PerBranchGL = array_column($branch, 'gl_account');
+
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $PerBranchGL, 0, 0, -$_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['cBranch'], array_column($branch, 'name'), 0, $_POST['mt_ref']);
+            
+            }
+
         }else{
+
             $repo_id = add_repo_accounts(ST_RRREPO, $_POST['InvoiceNo'], $_POST['transtype'], $trans_date, $_POST['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
                                             $_POST['customername'], $_POST['lcp_amount'], $_POST['downpayment'], $_POST['outs_ar_amount'], $_POST['amort_amount'],
                                             $_POST['months_term'], $_POST['release_date'], $_POST['firstdue_date'], $_POST['maturity_date'], $_POST['balance'],
@@ -514,45 +532,47 @@ if(isset($_GET['submit']))
 
             add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
                             0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
-        }
-        //for gl entry
-        //Repossessed Inventory - debit
-        $repo_invty_act =  get_repo_invty_act($_POST['category']);
-        if(isset($repo_invty_act)){
-
-            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
-       
-        }
-
-        //deferred account - debit
-        $dgp_account = $company_record["dgp_account"];
-        if(isset($dgp_account)){
-
-            $deferred_amount = ($_POST['balance'] - $_POST['unrecovrd_cost']);
-            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $dgp_account, 0, 0, $deferred_amount, $_POST['customername'], "Cannot insert a GL transaction for the deferred account", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
         
-        }
-        //for A/R customer - credit
-        if($_POST['months_term'] <= 3) {
-            $debtors_account = $company_record["ar_reg_current_account"];
-        }else{
-            $debtors_account = $company_record["debtors_act"];
-        }
+            //for gl entry
+            //Repossessed Inventory - debit
+            $repo_invty_act =  get_repo_invty_act($_POST['category']);
+            if(isset($repo_invty_act)){
 
-        if(isset($debtors_account)){
-
-            $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $debtors_account, 0, 0, -$_POST['balance'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
-            //$GLtotal += add_gl_trans(ST_RRREPO, $repo_id, $trans_date, $debtors_account, 0, 0, '', $_POST['balance'], get_customer_currency($_POST['customername']), PT_CUSTOMER, $_POST['customername'],
-                                        //'', 0, '','',0, 0, 0);
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
         
+            }
+
+            //deferred account - debit
+            $dgp_account = $company_record["dgp_account"];
+            if(isset($dgp_account)){
+
+                $deferred_amount = ($_POST['balance'] - $_POST['unrecovrd_cost']);
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $dgp_account, 0, 0, $deferred_amount, $_POST['customername'], "Cannot insert a GL transaction for the deferred account", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
+            
+            }
+
+            //for A/R customer - credit
+            if($_POST['months_term'] <= 3) {
+                $debtors_account = $company_record["ar_reg_current_account"];
+            }else{
+                $debtors_account = $company_record["debtors_act"];
+            }
+
+            if(isset($debtors_account)){
+
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $debtors_account, 0, 0, -$_POST['balance'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['customername'], $_POST['custname'], 0, $_POST['InvoiceNo']);
+                //$GLtotal += add_gl_trans(ST_RRREPO, $repo_id, $trans_date, $debtors_account, 0, 0, '', $_POST['balance'], get_customer_currency($_POST['customername']), PT_CUSTOMER, $_POST['customername'],
+                                            //'', 0, '','',0, 0, 0);
+            
+            }
+
+            //allocate A/R balance 
+            add_cust_allocation($_POST['balance'], ST_RRREPO, $repo_id, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['repo_date']);
+            update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
+
+            //update module to repo and status to close
+            update_debtor_trans_to_repo("REPO", $_POST['repo_date'], $_POST['InvoiceNo'], $_POST['transtype']);
         }
-
-        //allocate A/R balance 
-        add_cust_allocation($_POST['balance'], ST_RRREPO, $repo_id, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['repo_date']);
-        update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
-
-        //update module to repo and status to close
-        update_debtor_trans_to_repo("REPO", $_POST['repo_date'], $_POST['InvoiceNo'], $_POST['transtype']);
 
         $dsplymsg = _("Repo transaction has been successfully entered...");
 
