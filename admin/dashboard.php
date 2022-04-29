@@ -45,7 +45,7 @@ br();
 if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 
     if (user_company() != 0) {
-        start_table(TABLESTYLE2, "width = 25%");
+        start_table(TABLESTYLE2, "width = 23%");
 
         value_type_list(_("Application Type: "), 'trans_type', 
             array(
@@ -76,7 +76,7 @@ if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 }
 else {
     
-    start_outer_table(TABLESTYLE2, "width = '40%'", 10);
+    start_outer_table(TABLESTYLE2, "width = '45%'", 10);
 
     table_section(1);
 
@@ -101,7 +101,7 @@ else {
             ), '', null, true, '', true, true
         );
 
-        sql_type_list(_("Select Category"), 'category_id', 
+        sql_type_list(_("Select Category: "), 'category_id', 
             get_category_list(), 'category_id', 'description', 
             '', null, true, _("All Category")
         );
