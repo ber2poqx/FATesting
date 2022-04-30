@@ -1,7 +1,7 @@
 <?php
 	/**********************************************
-	Author: Joe Hunt
-	Author: Tom Moulton - added Export of many types and import of the same
+	Author: Robert Dusal
+	Author: Robert Dusal - added Export of many types and import of the same
 	Name: Import of CSV formatted items
 	Free software under GNU GPL
 	***********************************************/
@@ -128,6 +128,8 @@
 
 					if ($credit_limit == '') {					
 						display_error("Line $lines: The credit limit must not be empty");
+						$CI++;
+           				break;
 					} else if ($area == '') {
 						display_error("Line $lines: The area must not be empty");
 					} else if (check_customer_code_already_exist($debtor_ref)) {
@@ -136,12 +138,14 @@
 				        $row = db_fetch_row($result);
 				        $CI++;	
 				        display_error("Line $lines: The Customer Could Not Be Added Customer Code: $debtor_ref is Already Exist");	
+           				break;
 			    	} else if (check_customer_name_already_exist($name)) {
 			    		$sql = "SELECT name FROM ".TB_PREF."debtors_master WHERE name = ".db_escape($name);
 				        $result = db_query($sql, "Could not search Customer Name");
 				        $row = db_fetch_row($result);
 				        $CI++;	
 				        display_error("Line $lines: The Customer Could Not Be Added Customer Name: $name is Already Exist");	
+           				break;
 			    	} elseif ($type == 'CSVCUSTOM') {	
 			    		
 						add_customer_import($name, $debtor_ref, $address, $barangay, $municipality, $province, $zip_code, $tax_id, $age,
@@ -178,6 +182,7 @@
 					   	}
 				   	} else {
 				   		display_error("ERROR: Please check the Import customer template CSV file if correct..");
+           				break;
 				   	}						
 				}			
 			@fclose($fp);
