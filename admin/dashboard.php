@@ -23,6 +23,9 @@ if ($SysPrefs->use_popup_windows) {
     $js .= get_js_open_window(800, 500);
 }
 
+$begin_fiscal = date("M d Y", strtotime(begin_fiscalyear()));
+$end_fiscal = date("M d Y", strtotime(end_fiscalyear()));
+
 page(_($help_context = "Dashboard"), false, false, "", $js);
 
 start_form();
@@ -75,7 +78,7 @@ if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
     }
 }
 else {
-    
+
     start_outer_table(TABLESTYLE2, "width = '45%'", 10);
 
     table_section(1);
@@ -97,16 +100,20 @@ else {
         value_type_list(_("Group By: "), 'invty_grp', 
             array(
                1 => 'Brand',
-               2 => 'Item'
+               2 => 'Item',
+               3 => 'Category'
             ), '', null, true, '', true, true
         );
 
-        sql_type_list(_("Select Category: "), 'category_id', 
-            get_category_list(), 'category_id', 'description', 
-            '', null, true, _("All Category")
-        );
+        if (get_post('invty_grp') != 3) {
+            sql_type_list(_("Select Category: "), 'category_id', 
+                get_category_list(), 'category_id', 'description', 
+                '', null, true, _("All Category")
+            );
+        }
     }
     else if ($_GET['sel_app'] == 'orders') {
+
         table_section(2);
 
         value_type_list(_("Group By: "), 'sales_grp', 
@@ -121,7 +128,6 @@ else {
     end_outer_table(1);
 }
 
-
 if (isset($_GET['sel_app'])) {
 	
     dashboard(
@@ -132,6 +138,8 @@ if (isset($_GET['sel_app'])) {
         get_post('invty_grp')
     );
     
+    display_note(_("Current Fiscal Year: ") . $begin_fiscal . " - " . $end_fiscal, 1, 0, "class='currentfg'");
+
     end_form();
 	end_page();
 	exit;

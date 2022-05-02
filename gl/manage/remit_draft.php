@@ -256,7 +256,9 @@ end_table();
 
 br();
 
-display_heading(_("NOTE: Approving this Remittance Entry will automatically transfer to you the listed Transaction/s from: " . get_user_name($res_head['remit_from'])));
+display_note(_("Approving this Remittance Entry will automatically transfer to you the listed Transaction/s from: " . get_user_name($res_head['remit_from'])), 
+    0, 1, "class='currentfg'"
+);
 
 br();
 

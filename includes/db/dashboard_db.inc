@@ -17,7 +17,7 @@ function get_stock_top($today, $limit = 10, $type = 0, $category_id = null, $inv
             s.stock_id, s.description, 
 			SUM(trans.quantity) AS qty, 
             SUM((s.material_cost + s.overhead_cost + s.labour_cost) * trans.quantity) AS costs,
-			IB.name AS brand_name
+			IB.name AS brand_name, s.category_id
         
         FROM ".TB_PREF."debtor_trans_details AS trans 
             INNER JOIN ".TB_PREF."stock_master s ON trans.stock_id = s.stock_id 
@@ -27,7 +27,7 @@ function get_stock_top($today, $limit = 10, $type = 0, $category_id = null, $inv
             
 		WHERE (d.type = ".ST_SALESINVOICE." OR d.type = ".ST_CUSTCREDIT.") ";
 
-		if ($category_id != null) {
+		if ($category_id != null && $invty_grp != 3) {
 			$sql .= " AND s.category_id = " . db_escape($category_id);
 		}
 	}
@@ -57,6 +57,9 @@ function get_stock_top($today, $limit = 10, $type = 0, $category_id = null, $inv
 
 	if ($invty_grp == 2) {
 		$sql .= " GROUP BY trans.stock_id ";
+	}
+	else if ($invty_grp == 3) {
+		$sql .= " GROUP BY s.category_id ";
 	}
 	else {
 		$sql .= " GROUP BY s.brand ";

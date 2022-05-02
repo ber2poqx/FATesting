@@ -147,6 +147,9 @@ function display_stock_topten($type = 0, $category_id = null, $invty_grp = 0) {
 		if ($invty_grp == 2) {
 			$source = _("Item Description");
 		}
+		else if ($invty_grp == 3) {
+			$source = _("Item Category");
+		}
 		else {
 			$source = _("Brand");
 		}
@@ -343,6 +346,16 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		$title = sprintf(_("Top %s Fixed Assets"), $limit);
 	}
 	else {
+		$head_title = '';
+		if ($invty_grp == 2) {
+			$head_title == "Items";
+		}
+		else if ($invty_grp == 3) {
+			$head_title == "Category";
+		}
+		else {
+			$head_title == "Brands";
+		}
 		
 		$head_title = $invty_grp == 2 ? "Items" : "Brands";
 		$sub_title = $category_id != null ? "(" . get_category_name($category_id) . ")" : "";
@@ -354,7 +367,7 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		);
 	}	
 
-	$result = get_stock_top($today, $limit, $type, $category_id);
+	$result = get_stock_top($today, $limit, $type, $category_id, $invty_grp);
 
 	display_title($title);	
 	
@@ -362,6 +375,9 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 
 		if ($invty_grp == 2) {
 			$th = array(_("Item Description"), _("Sales"), _("Costs"), _("Quantity Sold"));
+		}
+		else if ($invty_grp == 3) {
+			$th = array(_("Item Category"), _("Sales"), _("Costs"), _("Quantity Sold"));
 		}
 		else {
 			$th = array(_("Brand"), _("Sales"), _("Costs"), _("Quantity Sold"));
@@ -383,10 +399,14 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		alt_table_row_color($k);
 
 		$name = $row["description"];
+		$category_name = get_category_name($row["category_id"]);
 		$brand_name = strtoupper($row["brand_name"]); 
 
 		if ($invty_grp == 2) {
 			label_cell($name);
+		}
+		else if ($invty_grp == 3) {
+			label_cell($category_name);
 		}
 		else {
 			label_cell($brand_name);
@@ -404,6 +424,9 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 
 			if ($invty_grp == 2) {
 				$pg->x[$i] = $name . " "; 
+			}
+			else if ($invty_grp == 3) {
+				$pg->x[$i] = $category_name . "  "; 
 			}
 			else {
 				$pg->x[$i] = $brand_name . " "; 
