@@ -705,8 +705,7 @@ function islamic_to_gregorian($i_y, $i_m, $i_d)
 }
 
 //Added by spyrax10
-function date_interval($months, DateTime $dateObject) 
-{
+function date_interval($months, DateTime $dateObject) {
     $next = new DateTime($dateObject->format('Y-m-d'));
     $next->modify('last day of +'.$months.' month');
 
@@ -718,8 +717,7 @@ function date_interval($months, DateTime $dateObject)
     }
 }
 
-function endCycle($d1, $months)
-{
+function endCycle($d1, $months) {
     $date = new DateTime($d1);
 
     // call second function to add the months
@@ -740,14 +738,16 @@ function endCycle($d1, $months)
     return $dateReturned;
 }
 
-function get_month_year($date)
-{
+function get_month_year($date) {
 	return date("m-Y", strtotime($date));
 }
 
-function get_year($date)
-{
+function get_year($date) {
 	return date("Y", strtotime($date));
+}
+
+function phil_short_date($date) {
+	return date("M d, Y", strtotime($date));
 }
 
 //

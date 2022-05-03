@@ -135,7 +135,9 @@ function _source_graphic($today, $title, $x_axis, $pg, $graphic1, $graphic2 = nu
 		return;
 	}
 
-	display_title("$title ($today)");	
+	$date_ = phil_short_date($today);
+
+	display_title("$title ($date_)");	
 	//$pg->title     = $title . " - " . $today;
 	$pg->axis_x    = $x_axis;
 	$pg->axis_y    = _("Amount");

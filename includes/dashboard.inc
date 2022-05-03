@@ -200,20 +200,21 @@ function display_all() {
 	_source_graphic($today, $title, _("Customer"), $pg, _("Sales"));
 
 	$pg = new graph();
-	$title = supplier_top($today, 5, 66, $pg);
-	_source_graphic($today, $title, _("Supplier"), $pg, _("Purchases"));
-
+	$title = gl_top($today, 66, $pg);
+	_source_graphic($today, $title, _("Class"), $pg, _("Amount"), null, 5);
+	
+	table_two();
 	$pg = new graph();
 	$title = stock_top($today, 5, 66, 0, $pg);
 	_source_graphic($today, $title, _("Brand"), $pg, _("Sales"), _("Costs"));
-	
-	table_two();
-	dimension_top($today, 5, 66);
+
 	$pg = new graph();
-	$title = gl_top($today, 66, $pg);
-	_source_graphic($today, $title, _("Class"), $pg, _("Amount"), null, 5);
-	stock_top($today, 5, 66, 2);
-	stock_top($today, 5, 66, 1);
+	$title = supplier_top($today, 5, 66, $pg);
+	_source_graphic($today, $title, _("Supplier"), $pg, _("Purchases"));
+
+	//dimension_top($today, 5, 66);
+	//stock_top($today, 5, 66, 2);
+	//stock_top($today, 5, 66, 1);
 	table_end();
 }
 
@@ -456,7 +457,7 @@ function dimension_top($today, $limit=10, $width="33", &$pg=null)
 		(t.dimension_id = d.id OR t.dimension2_id = d.id) AND
 		t.tran_date >= '$begin1' AND t.tran_date <= '$today1' GROUP BY d.id ORDER BY total DESC LIMIT $limit";
 	$result = db_query($sql, "Transactions could not be calculated");
-	$title = sprintf(_("Top %s Dimensions in fiscal year"), $limit);
+	$title = sprintf(_("Top %s Dimensions in Fiscal Year"), $limit);
 	display_title($title);
 	$th = array(_("Dimension"), _("Amount"));
 	start_table(TABLESTYLE, "width='$width%'");
@@ -592,7 +593,7 @@ function customer_trans($today) {
 
 		label_cell(get_trans_view_str(ST_SALESINVOICE, $row["trans_no"], $row['reference']), "nowrap align='left'");
 		label_cell(''); label_cell('');
-		label_cell(sql2date($row['tran_date']), "style='color: blue'");
+		label_cell(phil_short_date($row['tran_date']), "nowrap align='left'; style='color: blue'");
 		label_cell(''); label_cell('');
 
 		$name = $row["debtor_ref"] . " - ". $row["name"];

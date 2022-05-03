@@ -23,8 +23,8 @@ if ($SysPrefs->use_popup_windows) {
     $js .= get_js_open_window(800, 500);
 }
 
-$begin_fiscal = date("M d Y", strtotime(begin_fiscalyear()));
-$end_fiscal = date("M d Y", strtotime(end_fiscalyear()));
+$begin_fiscal = phil_short_date(begin_fiscalyear());
+$end_fiscal = phil_short_date(end_fiscalyear());
 
 page(_($help_context = "Dashboard"), false, false, "", $js);
 
