@@ -259,7 +259,7 @@ else
 
 text_row_ex(_("Account Code 2:"), 'account_code2', 15);
 
-text_row_ex(_("Account Name:"), 'account_name', 60);
+text_row_ex(_("Account Name:"), 'account_name', 65);
 
 gl_account_types_list_row(_("Account Group:"), 'account_type', null);
 
