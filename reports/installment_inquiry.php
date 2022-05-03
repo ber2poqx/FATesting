@@ -264,7 +264,10 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 		padding-left: 7px;
 		padding-right: 6px;
 	
-		  }
+		}
+		.noprint {
+          visibility: hidden;
+       }
 	  /* ... the rest of the rules ... */
 	}
 	.underline_input{
@@ -277,49 +280,41 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 		font-weight: bold;
 
 	}
-
 	/*
 		CSS FOR TABLES
 	*/
 	.left{
-			float: center;
-			width: 10%;
-	  		padding: 0px;
-		}
-
+		float: center;
+		width: 10%;
+  		padding: 0px;
+	}
 	/* Clearfix (clear floats) */
 	.row::after {
 	  content: "";
 	  clear: both;
 	  display: table;
 	}
-
 	table {
 	  border-collapse: collapse;
 	  border-spacing: 0;
 	  width: 50%;
 	  border: 2px solid black;
 	}
-
 	td {
 	  /*text-align: center;*/
 	  padding: 5px;
 	}
-
 	.text-left {
 		font-size: 12px;
 		font-weight: bold;
 	}
-
 	.text-design {
 		font-size: 68%;
 	}
-
 	.text-sample {
 		font-size: 90%;
 		font-weight: bold;
 	}
-
 	.companyDes {
 		font-size: 25px;
 	}
@@ -327,22 +322,18 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 	.Branchcompany {
 		font-size: 15px;	
 	}
-
 	.CompanyAdd {
 		font-size: 75%;
 	}
-
 	.datatable {
 		font-size: 11px;
 		font-weight: bold;
 	}
-
 	.foot {
 		text-align: center;
 		margin-right: 70px;
 		font-family: monospace;
 	}
-
 	.footer_names{
 	    border: 0px solid black;
 	    text-align: left;
@@ -351,7 +342,6 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 	    font-size: 11px;
 		font-family: century gothic;		
 	}
-
 	#header{
 	   font-size: 15px; width: 100%; float: left; border: 0px solid black;
 	}
@@ -359,12 +349,31 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 	#header td{
 	   padding:2px;
 	}
-
 	#footer{
 		font-size: 10px;			
 		width: 100%;
 		border: 0px solid;
 	}
+	.noprint{
+		margin: 0;
+		position: absolute;
+    	top:04%;
+    	font-family: Arial;
+    	left: 44%;
+    	background-color:#0a0a23;
+    	color: #fff;
+    	border:none;
+	    border-radius:10px;
+	    box-shadow: 0px 0px 2px 2px rgb(0,0,0);
+	    min-height:30px; 
+    	min-width: 120px;
+	}
+	.noprint:hover {
+      background-color:red;
+      transition: 0.7s;
+  	}
+
+	
 </style>
 </head>
 
@@ -432,9 +441,17 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 	$comadd =  $db_connections[user_company()]["postal_address"];
 	$comadd = get_company_pref("postal_address")
 ?>
-
 <body>
 	<div class="main printable" style="">
+
+		<div class="container">
+			<div class="center">	
+				<form action="" method="post">					
+					<button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint">
+					Export To Excel</button>
+				</form>
+			</div>
+		</div>		
 
 		<div style="width: 100%; text-align: center;padding-top: 0.45in;float: left;">
 			<h4 style="margin: 0px">
@@ -663,9 +680,29 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 					</tbody>
 				</table>
 			</div>
-		</div>																
+		</div>
+			<?php
+				if(isset($_POST["dataExport"])) {	
+					$fileName = "installment_inquiry".date('Ymd') . ".xls";			
+					header("Content-Type: application/vnd.ms-excel");
+					header("Content-Disposition: attachment; filename=\"$fileName\"");	
+					$showColoumn = false;
+					if(!empty($myrow)) {
+					  foreach($myrow as $myrow) {
+						if(!$showColoumn) {		 
+						  echo implode("\t", array_keys($myrow)) . "\n";
+						  $showColoumn = true;
+						}
+						echo implode("\t", array_values($myrow)) . "\n";
+					  }
+					}
+					exit;  
+				}
+			?>																
 	</tbody>
 	</table>
+	<!--<button class="noprint" type="submit" id="dataExport" name="dataExport" value="Export to excel" class="btn btn-info">Export To Excel</button>-->
+	
 	<script type="text/javascript">
 		window.print();
 	</script>
