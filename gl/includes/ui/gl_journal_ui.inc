@@ -31,7 +31,7 @@ function display_order_header(&$Order)
     	$Ajax->activate('ref');
     }
 
-	check_row(_('A/R Installment Adjustment:'), 'ar_alloc', null, true);
+	check_row(_('A/R Installment Adjustment: &nbsp;'), 'ar_alloc', null, true);
 
 	if (check_value('ar_alloc') == 1) {
 		
@@ -97,14 +97,14 @@ function display_order_header(&$Order)
 
 	table_section(2);
 
-    date_row(_("Document Date:"), 'doc_date', '', $new);
+    date_row(_("Document Date: &nbsp;"), 'doc_date', '', $new);
     date_row(_("Event Date:"), 'event_date', '', $new);
 
 	if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
-		label_row(_("Source ref:"), get_post('ar_inv'));
+		label_row(_("Source Reference: &nbsp;"), get_post('ar_inv'));
 	}
 	else {
-		text_row(_("Source ref:"), 'source_ref2', null, 30, 60);
+		text_row(_("Source Reference: &nbsp;"), 'source_ref2', null, 30, 60);
 	}
 
  	if ($new) {

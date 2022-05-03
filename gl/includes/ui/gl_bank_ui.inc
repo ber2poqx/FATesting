@@ -126,7 +126,7 @@ function display_bank_header(&$order)
 		} //end of switch
 	}
 
-	ref_row(_("Transaction #:"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
+	ref_row(_("Transaction #: &nbsp;"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
 
 	table_section(2, "33%");
 
@@ -135,10 +135,10 @@ function display_bank_header(&$order)
 	$_POST['receipt_no'] = "";
 
 	if ($order->trans_type == ST_BANKDEPOSIT) {
-		text_row(_("Receipts #: "), 'receipt_no', $_POST['receipt_no'], 28, 28);
+		text_row(_("Receipts #: &nbsp;"), 'receipt_no', $_POST['receipt_no'], 28, 28);
 	}
 	else {
-		label_row(_("Disbursement #: "), auto_disburse_no());
+		label_row(_("Disbursement #: &nbsp;"), auto_disburse_no());
 		hidden('receipt_no', auto_disburse_no());
 	}
 	
@@ -157,7 +157,7 @@ function display_bank_header(&$order)
 	}
 
 	if ($order->trans_type == ST_BANKDEPOSIT) {
-		sql_type_list(_("Collection Type:"), 'typecollection', 
+		sql_type_list(_("Collection Type: &nbsp;"), 'typecollection', 
 			collection_type_list(), 'collect_id', 'collection', 
 			'label', null, true, '', false, true
 		);
@@ -189,7 +189,7 @@ function display_bank_header(&$order)
 
 	if ($order->trans_type == ST_BANKDEPOSIT)
 	{
-		label_row("Total Amount: ", price_format(abs($order->gl_items_total_credit())));
+		label_row("Total Amount: &nbsp;", price_format(abs($order->gl_items_total_credit())));
 		label_row("Pay Amount: ", price_format(abs($order->gl_items_total_credit()) - $_SESSION['pay_items']->gl_items_total_debit()));
 	}
 	if ($order->trans_type == ST_BANKPAYMENT)

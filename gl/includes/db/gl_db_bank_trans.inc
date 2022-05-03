@@ -691,7 +691,7 @@ function display_gl_draft($trans_no = null, $trans_type, $title = '') {
         label_cell(_systype_name($trans_type) . " #" . $trans_no);
         label_cell(get_db_location_name($row['branch_code_from']), "align = 'center'");
         label_cell($row['ref_no'], "align = 'center'");
-        label_cell(sql2date($row['trans_date']), "align = 'center'");
+        label_cell(phil_short_date($row['trans_date']), "align = 'center'");
 		label_cell($interbranch['pay_type'], "align = 'center'");
         end_row();
 
@@ -717,7 +717,7 @@ function display_gl_details($trans_no, $trans_type, $post = 0) {
     start_table(TABLESTYLE, "width = '$width%'");
     
     if ($post == 1) {
-        display_heading(_('Interbranch Line Details'));
+        display_heading(_('Transaction Line Details: '));
     }
     $th = array (
 		_('ID'),

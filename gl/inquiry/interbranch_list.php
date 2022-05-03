@@ -147,7 +147,7 @@ function trans_num($row) {
 }
 
 function trans_date($row) {
-    return sql2date($row['trans_date']);
+    return phil_short_date($row['trans_date']);
 }
 
 function origin_branch($row) {
@@ -168,7 +168,7 @@ function preparer_row($row) {
 }
 
 function approved_date($row) {
-    return sql2date($row['approved_date']);
+    return phil_short_date($row['approved_date']);
 }
 
 function approver($row) {
@@ -176,7 +176,7 @@ function approver($row) {
 }
 
 function post_date($row) {
-    return sql2date($row['post_date']);
+    return phil_short_date($row['post_date']);
 }
 
 //-----------------------------------------------------------------------------------

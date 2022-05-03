@@ -40,15 +40,15 @@ function reference_row($row) {
 }
 
 function trans_date($row) {
-    return sql2date($row['tran_date']);
+    return phil_short_date($row['tran_date']);
 }
 
 function event_date($row) {
-    return sql2date($row['event_date']);
+    return phil_short_date($row['event_date']);
 }
 
 function doc_date($row) {
-    return sql2date($row['doc_date']);
+    return phil_short_date($row['doc_date']);
 }
 
 function doc_ref($row) {
@@ -138,7 +138,7 @@ $cols = array(
     _('Entry Type') => array('align' => 'left', 'fun' => 'is_interbranch'),
     _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
     _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
-    _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
+    _('Journal Date') => array('align' => 'center', 'fun' => 'trans_date'),
     _('Source Ref') => array('align' => 'center', 'fun' => 'doc_ref'),
     _('Document Date') => array('align' => 'center', 'fun' => 'doc_date'),
     _('Event Date') => array('align' => 'center', 'fun' => 'event_date'),

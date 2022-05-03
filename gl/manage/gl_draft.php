@@ -194,11 +194,11 @@ function display_gl_post($trans_no, $trans_type) {
     div_start('gl_head');
     start_outer_table(TABLESTYLE2, "width='95%'");
 
-	table_section(1, "21%");
+	table_section(1, "22%");
 	label_row(_("From Branch: "), get_db_location_name($row['branch_code_from']));
 	label_row(_("Originating Type: "), _systype_name($row['trantype_from_branch']));
 	label_row(null, ''); label_row(null, ''); label_row(null, '');
-	label_row(_("Transaction Date: "), sql2date($row['trans_date']));
+	label_row(_("Transaction Date: &nbsp;"), phil_short_date($row['trans_date']));
 
 	if (has_COH_entry($_GET['trans_no'], $_GET['type'])) {
 		label_row(_("Transaction Type: "), _systype_name(ST_BANKPAYMENT));
@@ -219,7 +219,7 @@ function display_gl_post($trans_no, $trans_type) {
 	$reference = $Refs->get_next($trans_type, null, sql2date($row['trans_date']));
 	
 	if ($trans_type != -1) {
-		table_section(2, "27%");
+		table_section(2, "31%");
 
 		if ($trans_type != 0) {
 			if (!isset($_POST['PayType'])) {
@@ -291,7 +291,7 @@ function display_gl_post($trans_no, $trans_type) {
 				default:
 					break;
 			}
-			ref_row(_("Transaction #:"), 'ref', '', $reference, false, $trans_type);
+			ref_row(_("Transaction Reference: &nbsp;"), 'ref', '', $reference, false, $trans_type);
 	
 		
 		}
@@ -303,16 +303,16 @@ function display_gl_post($trans_no, $trans_type) {
 				$Ajax->activate('ref');
 			}
 			
-			ref_row(_("Transaction #:"), 'ref', '', $reference, false, $trans_type);
+			ref_row(_("Transaction Reference: &nbsp;"), 'ref', '', $reference, false, $trans_type);
 			hidden('ref_original');		
 		}
     
-    	table_section(3, "24%");
+    	table_section(3, "22.5%");
 
 		if ($trans_type != 0) {
 			
 			date_row(_("Posting Date:"), 'date_', '', true, 0, 0, 0, null, true);
-			label_row($trans_type == ST_BANKDEPOSIT ? _("Receipts #: ") : _("Disbursement #: "), $row['ref_no']);
+			label_row($trans_type == ST_BANKDEPOSIT ? _("Receipts #: &nbsp;") : _("Disbursement #: &nbsp;"), $row['ref_no']);
 			hidden('receipt_no', $row['ref_no']);
 
 			if (get_user_role($_SESSION["wa_current_user"]->user) == 'Cashier/Teller') {
@@ -329,7 +329,7 @@ function display_gl_post($trans_no, $trans_type) {
 			}
 	
 			if ($trans_type == ST_BANKDEPOSIT) {
-				sql_type_list(_("Collection Type:"), 'typecollection', 
+				sql_type_list(_("Collection Type: &nbsp;"), 'typecollection', 
 					collection_type_list(), 'collect_id', 'collection', 
 					'label', null, true, '', false, true
 				);
@@ -338,10 +338,10 @@ function display_gl_post($trans_no, $trans_type) {
 		else {
 			date_row(_("Document Date:"), 'doc_date', '');
     		date_row(_("Event Date:"), 'event_date', '');
-			label_row(_("Source ref: "),  $row['ref_no']);
+			label_row(_("Source Reference: &nbsp;"),  $row['ref_no']);
 		}
 
-    	table_section(4, "24%");
+    	table_section(4, "23%");
 
 		if ($trans_type != 0) {
 			
@@ -349,12 +349,12 @@ function display_gl_post($trans_no, $trans_type) {
 				'label', null, true, _("Select Bank Account")
 			);
 
-			label_row("Total Amount: ", price_format(get_interbranch_total($trans_no, $_GET['type'])));
+			label_row("Total Amount: &nbsp;", price_format(get_interbranch_total($trans_no, $_GET['type'])));
 	
 			if (get_post('bank_account') == BT_CHECK) {
 				date_row(_("Check Date:"), 'check_date', '');
 				text_row(_("Check #:"), 'check_no', null, 35, 35);
-				text_row(_("Bank Branch:"), 'bank_branch', null, 35, 35);
+				text_row(_("Bank Branch: &nbsp;"), 'bank_branch', null, 35, 35);
 			}
 	
 			if ($payment) {

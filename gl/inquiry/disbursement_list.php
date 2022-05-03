@@ -40,7 +40,7 @@ function reference_row($row) {
 }
 
 function trans_date($row) {
-    return sql2date($row['trans_date']);
+    return phil_short_date($row['trans_date']);
 }
 
 function cashier_name($row) {

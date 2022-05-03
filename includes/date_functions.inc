@@ -747,8 +747,8 @@ function get_year($date) {
 }
 
 function phil_short_date($date = null) {
-	if ($date == "0000-00-00") {
-		return $date;
+	if ($date == "0000-00-00" || $date == null) {
+		return "0000-00-00";
 	}
 	else {
 		return date("M d, Y", strtotime($date));
