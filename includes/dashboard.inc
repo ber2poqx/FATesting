@@ -204,9 +204,15 @@ function display_all() {
 	_source_graphic($today, $title, _("Class"), $pg, _("Amount"), null, 5);
 	
 	table_two();
+	//Item Brand
 	$pg = new graph();
 	$title = stock_top($today, 5, 66, 0, $pg);
 	_source_graphic($today, $title, _("Brand"), $pg, _("Sales"), _("Costs"));
+
+	//Item Descriptiom
+	$pg = new graph();
+	$title = stock_top($today, 5, 85, 0, $pg, null, 2);
+	_source_graphic($today, $title, _("Item Description"), $pg, _("Sales"), null);
 
 	$pg = new graph();
 	$title = supplier_top($today, 5, 66, $pg);
@@ -375,7 +381,7 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 	if ($type == 0) {
 
 		if ($invty_grp == 2) {
-			$th = array(_("Item Description"), _("Sales"), _("Costs"), _("Quantity Sold"));
+			$th = array(_("Category"), _("Item Description"), _("Sales"), _("Costs"), _("Quantity Sold"));
 		}
 		else if ($invty_grp == 3) {
 			$th = array(_("Item Category"), _("Sales"), _("Costs"), _("Quantity Sold"));
@@ -404,6 +410,7 @@ function stock_top($today, $limit = 10, $width = "33", $type = 0, &$pg = null,
 		$brand_name = strtoupper($row["brand_name"]); 
 
 		if ($invty_grp == 2) {
+			label_cell($category_name);
 			label_cell($name);
 		}
 		else if ($invty_grp == 3) {

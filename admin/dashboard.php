@@ -48,7 +48,7 @@ br();
 if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 
     if (user_company() != 0) {
-        start_table(TABLESTYLE2, "width = 23%");
+        start_table(TABLESTYLE_NOBORDER, "width = 23%");
 
         value_type_list(_("Application Type: "), 'trans_type', 
             array(
