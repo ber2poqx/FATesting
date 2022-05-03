@@ -72,7 +72,7 @@ label_cells(_("Amount"), number_format2($to_trans['amount'], user_price_dec()), 
 end_row();
 
 start_row();
-label_cells(_("Date"), sql2date($to_trans['trans_date']), "class='tableheader2'");
+label_cells(_("Date"), phil_short_date($to_trans['trans_date']), "class='tableheader2'");
 label_cells(_("Cashier / Teller: "), get_user_name($to_trans['cashier_user_id']), "class='tableheader2'",  "colspan=$colspan1");
 if ($show_currencies)
 {

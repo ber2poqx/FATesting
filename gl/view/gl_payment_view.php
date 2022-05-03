@@ -21,16 +21,16 @@ include_once($path_to_root . "/includes/ui.inc");
 
 include_once($path_to_root . "/gl/includes/gl_db.inc");
 
-if (isset($_GET["trans_no"]))
-{
+if (isset($_GET["trans_no"])) {
 	$trans_no = $_GET["trans_no"];
 }
 
 // get the pay-from bank payment info
 $result = get_bank_trans(ST_BANKPAYMENT, $trans_no);
 
-if (db_num_rows($result) != 1)
+if (db_num_rows($result) != 1) {
 	display_db_error("duplicate payment bank transaction found", "");
+}
 
 $from_trans = db_fetch($result);
 
@@ -63,7 +63,7 @@ label_cells(_("From Bank Account"), $from_trans['bank_account_name'], "class='ta
 if ($show_currencies)
 	label_cells(_("Currency"), $from_trans['bank_curr_code'], "class='tableheader2'");
 label_cells(_("Amount"), number_format2(-$from_trans['amount'], user_price_dec()), "class='tableheader2'", "align=right");
-label_cells(_("Date"), sql2date($from_trans['trans_date']), "class='tableheader2'");
+label_cells(_("Date"), phil_short_date($from_trans['trans_date']), "class='tableheader2'");
 end_row();
 start_row();
 //Modified by spyrax10 22 Mar 2022
@@ -91,12 +91,10 @@ $voided = is_voided_display(ST_BANKPAYMENT, $trans_no, _("This payment has been 
 
 $items = get_gl_trans(ST_BANKPAYMENT, $trans_no);
 
-if (db_num_rows($items)==0)
-{
+if (db_num_rows($items) == 0) {
 	display_note(_("There are no items for this payment."));
 }
-else
-{
+else {
 
 	display_heading2(_("Items for this Payment"));
 	if ($show_currencies)
@@ -119,8 +117,7 @@ else
     $k = 0; //row colour counter
 	$total_amount = 0;
 
-    while ($item = db_fetch($items))
-    {
+    while ($item = db_fetch($items)) {
 
 		if ($item["account"] != $from_trans["account_code"])
 		{

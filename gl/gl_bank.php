@@ -13,8 +13,8 @@
 $path_to_root = "..";
 include_once($path_to_root . "/includes/ui/items_cart.inc");
 include_once($path_to_root . "/includes/session.inc");
-$page_security = isset($_GET['NewPayment']) ||
-	@($_SESSION['pay_items']->trans_type == ST_BANKPAYMENT)
+
+$page_security = isset($_GET['NewPayment']) || @($_SESSION['pay_items']->trans_type == ST_BANKPAYMENT)
 	? 'SA_PAYMENT' : 'SA_DEPOSIT';
 
 include_once($path_to_root . "/includes/date_functions.inc");

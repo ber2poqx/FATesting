@@ -207,7 +207,7 @@ while ($row = db_fetch_assoc($sql)) {
     label_cell($row['trans_no'], "nowrap align='center'");
     label_cell(get_trans_view_str($row["type"], $row["trans_no"], $row['ref']), "nowrap align='center'");
     label_cell(payment_person_name($row['person_type_id'], $row['person_id']), "nowrap align='left'");
-    label_cell(sql2date($row['trans_date']), "nowrap align='center'");
+    label_cell(phil_short_date($row['trans_date']), "nowrap align='center'; style='color: blue'");
     label_cell($row['receipt_no'], "nowrap align='center'");
     label_cell($row['pay_type'], "nowrap align='center'");
     amount_cell($row['amt'], false, $color);

@@ -41,15 +41,20 @@ function remit_ref($row) {
 }
 
 function ref_date($row) {
-    return sql2date($row['remit_date']);
+    return phil_short_date($row['remit_date']);
 }
 
 function cashier_name($row) {
     return get_user_name($row['remit_from']);
 }
 
+function remit_to($row) {
+    return get_user_name($row['remit_to']);
+}
+
 function remit_stat($row) {
-    return $row['remit_stat'] == "Draft" ? pager_link($row['remit_stat'],
+    return $row['remit_stat'] == "Draft"
+        && $row['remit_to'] == $_SESSION["wa_current_user"]->user ? pager_link($row['remit_stat'],
         "/gl/manage/remit_draft.php?trans_no=" . $row['remit_num'] . 
         "&reference=" . $row['remit_ref'] .
         "&status=0", false
@@ -122,6 +127,7 @@ $cols = array(
     _('Status') => array('align' => 'center', 'fun' => 'remit_stat'),
     _('Remittance Date') => array('align' => 'center', 'fun' => 'ref_date'),
     _('Remittance From') => array('align' => 'center', 'fun' => 'cashier_name'),
+    _('Remitted To') => array('align' => 'center', 'fun' => 'remit_to'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center')
 );

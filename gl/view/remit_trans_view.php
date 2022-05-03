@@ -41,7 +41,7 @@ start_table(TABLESTYLE, "width='95%'");
 start_row();
 
 label_cells(_("Reference: "), $res_head['remit_ref'], "class='tableheader2'");
-label_cells(_("Remittance Date: "), sql2date($res_head['remit_date']), "class='tableheader2'");
+label_cells(_("Remittance Date: "), phil_short_date($res_head['remit_date']), "class='tableheader2'");
 label_cells(_("Remittance Status: "), $res_head['remit_stat'], "class='tableheader2'", "colspan=4");
 end_row();
 
@@ -91,9 +91,9 @@ while ($row = db_fetch_assoc($res_details)) {
     label_cell($count . ".)", "nowrap align='left'");
     label_cell(_systype_name($row['type']), "nowrap align='left'");
     //label_cell($bank_row['trans_no']);
-    label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $bank_row['ref']), "nowrap align='center'");
+    label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $row['from_ref']), "nowrap align='center'");
     label_cell(payment_person_name($bank_row['person_type_id'], $bank_row['person_id']), "nowrap align='left'");
-    label_cell(sql2date($row['trans_date']), "nowrap align='center'; style='color: blue';");
+    label_cell(phil_short_date($row['trans_date']), "nowrap align='center'; style='color: blue';");
     label_cell($bank_row['receipt_no'], "nowrap align='center'");
     label_cell($bank_row['prepared_by'], "nowrap align='center'");
     label_cell($bank_row['pay_type'], "nowrap align='center'");
