@@ -168,6 +168,7 @@ function _gl_details() {
 	//
 	//jr
 	$payments = $_GET['type_id'] == ST_CUSTPAYMENT;
+	$rrepo = $_GET['type_id'] == ST_RRREPO;
 
 	$dim = get_company_pref('use_dimension');
 
@@ -266,7 +267,7 @@ function _gl_details() {
 		}
 		//Added by Albert
 		//modify jr 03/21/22
-		else if ($termmode|| $restructured || $payments) {
+		else if ($termmode|| $restructured || $payments || $rrepo) {
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 			get_subaccount_code($_GET['type_id'],$_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 

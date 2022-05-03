@@ -481,7 +481,7 @@ function get_mt_customer($repo_id, $from_branch)
 	$db_coy = Get_db_coy($from_branch);
     set_global_connection($db_coy);
 
-	$sql = "SELECT B.debtor_no, B.name, B.debtor_ref
+	$sql = "SELECT B.*
 			FROM ".TB_PREF."repo_accounts A
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
 			WHERE A.id = ".db_escape($repo_id);
@@ -519,5 +519,16 @@ function get_new_added_customer($interb_ref, $custname)
 				AND A.name = ".db_escape($custname);
 
 	$result = db_query($sql, "could not get new added customer accounts because");
+	return db_fetch($result);
+}
+
+function check_existing_customer($custname, $bdate)
+{
+	$sql = "SELECT A.*
+			FROM ".TB_PREF."debtors_master A
+			WHERE A.name = ".db_escape($custname)."
+				AND A.age = ".db_escape($bdate);
+
+	$result = db_query($sql, "could not get customer accounts because");
 	return db_fetch($result);
 }

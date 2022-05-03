@@ -66,7 +66,8 @@ Ext.onReady(function(){
 			{name:'category_desc', mapping:'category_desc'},
 			{name:'branch_code', mapping:'branch_code'},
 			{name:'comments', mapping:'comments'},
-			{name:'gpm', mapping:'gpm'}
+			{name:'gpm', mapping:'gpm'},
+			{name:'transfer_id', mapping:'transfer_id'}
 		]
     });
     Ext.define('CustomersModel',{
@@ -307,8 +308,21 @@ Ext.onReady(function(){
 				handler: function(grid, rowIndex, colIndex) {
 					var records = RepoDetailsStore.getAt(rowIndex);
 
-					CustomerStore.proxy.extraParams = {debtor_ref: records.get('debtor_ref')};
-					CustomerStore.load();
+					if(records.get('repo_type') == 'mt'){
+						/*var mydata = [
+							[debtor_no: records.get('debtor_no'), 
+							records.get('name')]
+						];
+						CustomerStore.loadData(mydata, false); */
+						CustomerStore.add({
+							debtor_no: records.get('debtor_no'),
+							debtor_ref:  records.get('debtor_no'),
+							name:  records.get('name')
+						});
+					}else{
+						CustomerStore.proxy.extraParams = {debtor_ref: records.get('debtor_ref')};
+						CustomerStore.load();
+					}
 
 					SIitemStore.proxy.extraParams = {repo_id: records.get('id')};
 					SIitemStore.load();
@@ -318,6 +332,11 @@ Ext.onReady(function(){
 					//Ext.getCmp('btncancel').setVisible(false);
 					Ext.getCmp('btnsave').setVisible(false);
 					Ext.getCmp('btncancel').setText('Close');
+					
+					Ext.getCmp('cBranch').setVisible(false);
+					Ext.getCmp('mt_ref').setVisible(false);
+					//Ext.getCmp('autocreatecust').setVisible(false);
+					Ext.getCmp('btnloadc').setVisible(false);
 
 					Ext.getCmp('sysid').setValue(records.get('id'));
 					Ext.getCmp('transtype').setValue(records.get('ar_trans_type'));
@@ -466,8 +485,9 @@ Ext.onReady(function(){
 			Ext.getCmp('vw_InvoiceNo').setVisible(false);
 			Ext.getCmp('cBranch').setVisible(false);
 			Ext.getCmp('mt_ref').setVisible(false);
-			Ext.getCmp('autocreatecust').setVisible(false);
+			//Ext.getCmp('autocreatecust').setVisible(false);
 			Ext.getCmp('btnloadc').setVisible(false);
+			Ext.getCmp('customername').setWidth(390);
 			
 			submit_window.show();
 			submit_window.setTitle('Receiving Report Repo - Add');
@@ -588,15 +608,16 @@ Ext.onReady(function(){
 										submit_window.setTitle('Receiving Report Repo -: '+ result.reference + ' *new');
 									}
 								});
-								
 								if(Ext.getCmp('customername').getValue() != ''){
-									Ext.getCmp('autocreatecust').setVisible(true);
+									//Ext.getCmp('autocreatecust').setVisible(true);
 									Ext.getCmp('btnloadc').setVisible(true);
+									Ext.getCmp('customername').setWidth(350);
 								}else{
-									Ext.getCmp('autocreatecust').setVisible(false);
+									//Ext.getCmp('autocreatecust').setVisible(false);
 									Ext.getCmp('btnloadc').setVisible(false);
+									Ext.getCmp('customername').setWidth(390);
 								}
-								Ext.getCmp('autocreatecust').setDisabled(false);
+								//Ext.getCmp('autocreatecust').setDisabled(false);
 							}
 						}
 					}]
@@ -605,28 +626,14 @@ Ext.onReady(function(){
 					layout: 'hbox',
 					margin: '2 0 2 0',
 					items:[{
-						xtype: 'checkbox',
+						/*xtype: 'checkbox',
 						id: 'autocreatecust',
 						name: 'autocreatecust',
 						hidden: true,
 						boxLabel: 'Pls check to auto create customer or click button to reload all existing customers',
-						margin: '0 45 0 85'
+						margin: '0 45 0 85'*/
 					},{
-						xtype: 'button',
-						id: 'btnloadc',
-						hidden: true,
-						text: 'Reload existing customers',
-						tooltip: 'Reload all existing customers',
-						icon: '../../js/ext4/examples/shared/icons/table_lightning.png',
-						handler : function() {
-							Ext.getCmp('autocreatecust').setValue();
-							Ext.getCmp('customercode').setValue();
-							Ext.getCmp('customername').setValue();
-							Ext.getCmp('custname').setValue();
-							Ext.getCmp('autocreatecust').disable();
-							CustomerStore.proxy.extraParams = {rtype: 'all'};
-							CustomerStore.load();
-						}
+
 					}]
 				},{
 					xtype: 'fieldcontainer',
@@ -702,6 +709,22 @@ Ext.onReady(function(){
 							}
 						}
 					},{
+						xtype: 'button',
+						id: 'btnloadc',
+						hidden: true,
+						//text: 'Reload existing customers',
+						tooltip: 'Reload all existing customers',
+						icon: '../../js/ext4/examples/shared/icons/table_lightning.png',
+						handler : function() {
+							//Ext.getCmp('autocreatecust').setValue();
+							Ext.getCmp('customercode').setValue();
+							Ext.getCmp('customername').setValue();
+							Ext.getCmp('custname').setValue();
+							//Ext.getCmp('autocreatecust').disable();
+							CustomerStore.proxy.extraParams = {rtype: 'all'};
+							CustomerStore.load();
+						}
+					},{
 						xtype: 'combobox',
 						id: 'repo_type',
 						name: 'repo_type',
@@ -752,18 +775,22 @@ Ext.onReady(function(){
 								Ext.getCmp('custname').setValue();
 								Ext.getCmp('cBranch').setValue();
 								Ext.getCmp('mt_ref').setValue();
-								Ext.getCmp('autocreatecust').setValue();
+								//Ext.getCmp('autocreatecust').setValue();
+								Ext.getCmp('customername').setWidth(390);
+								Ext.getCmp('btnloadc').setVisible(false);
 
 								if(record.get('id') == 'mt'){
 									Ext.getCmp('cBranch').setVisible(true);
 									Ext.getCmp('mt_ref').setVisible(true);
 									//Ext.getCmp('autocreatecust').setVisible(true);
 									//Ext.getCmp('btnloadc').setVisible(true);
+									//Ext.getCmp('customername').setWidth(350);
 								}else{
 									Ext.getCmp('cBranch').setVisible(false);
 									Ext.getCmp('mt_ref').setVisible(false);
 									//Ext.getCmp('autocreatecust').setVisible(false);
 									//Ext.getCmp('btnloadc').setVisible(false);
+									//Ext.getCmp('customername').setWidth(390);
 								}
 							}
 						}
