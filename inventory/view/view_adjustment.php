@@ -58,12 +58,12 @@ while ($adjustment = db_fetch($adjustment_items)) {
 
 		
 		if (is_invty_open_bal('', $adjustment['reference'])) {
-			$trans_date = sql2date($adjustment['ob_date']);
+			$trans_date = phil_short_date($adjustment['ob_date']);
 			$qty_colspan = 5;
 			$total_colspan = 10;
 		}
 		else {
-			$trans_date = sql2date($adjustment['tran_date']);
+			$trans_date = phil_short_date($adjustment['tran_date']);
 		}
 
 		label_cells(_("Transaction Date: "), $trans_date, "class='tableheader2'");
@@ -110,7 +110,7 @@ while ($adjustment = db_fetch($adjustment_items)) {
 
 	if (is_invty_open_bal('', $adjustment['reference'])) {
 		label_cell($count . ".)", "nowrap align='left'");
-		label_cell(sql2date($adjustment['tran_date']));
+		label_cell(phil_short_date($adjustment['tran_date']));
 	}
 	else {
 		label_cell($count . ".)", "nowrap align='left'");

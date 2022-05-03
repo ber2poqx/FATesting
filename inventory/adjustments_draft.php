@@ -286,14 +286,14 @@ function display_adjustment_header($trans_no)
         label_row(_("Location: "), _branch_name($row['loc_code']));
         
         if ($_GET['status'] == 1) {
-            label_row(_("Transaction Date: "), sql2date($row['tran_date']), "", "", 0, 'orig_date');
+            label_row(_("Transaction Date: "), phil_short_date($row['tran_date']), "", "", 0, 'orig_date');
             if (!isset($_POST['AdjDate'])) {
                 $_POST['AdjDate'] = sql2date($date);
             }
             date_row(_("Posting Date: "), 'AdjDate', '', null, 0, 0, 0, null, true);
         }
         else {
-            label_row(_("Transaction Date: "), sql2date($row['tran_date']));
+            label_row(_("Transaction Date: "), phil_short_date($row['tran_date']));
         }
 
         label_row(_("Adjustment Type: "), $row['adjustment_type']);

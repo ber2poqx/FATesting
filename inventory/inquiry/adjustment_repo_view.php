@@ -14,10 +14,13 @@ include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/ui.inc");
 
 $js = "";
-if ($SysPrefs->use_popup_windows)
+if ($SysPrefs->use_popup_windows) {
 	$js .= get_js_open_window(900, 500);
-if (user_use_date_picker())
+}
+if (user_use_date_picker()) {
 	$js .= get_js_date_picker();
+}
+
 page(_($help_context = "Inventory Adjustment - Repo List"), false, false, "", $js);
 
 //-----------------------------------------------------------------------------------
@@ -113,7 +116,7 @@ function approver_row($row) {
 }
 
 function date_approved($row) {
-	return sql2date($row['date_approved']);
+	return phil_short_date($row['date_approved']);
 }
 
 function type_row($row) {
@@ -129,11 +132,11 @@ function get_category($row) {
 }
 
 function trans_date($row) {
-	return sql2date($row['tran_date']);
+	return phil_short_date($row['tran_date']);
 }
 
 function post_date($row) {
-	return sql2date($row['post_date']);
+	return phil_short_date($row['post_date']);
 }
 
 function location($row) {

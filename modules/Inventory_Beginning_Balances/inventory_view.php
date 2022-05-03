@@ -30,7 +30,7 @@ if (user_use_date_picker()) {
 	$js .= get_js_date_picker();
 }
 
-$_SESSION['page_title'] = _($help_context = "Inventory Opening Balances");
+$_SESSION['page_title'] = _($help_context = "Inventory Opening Balances List");
 page($_SESSION['page_title'], false, false, "", $js);
 
 //-----------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ function doc_total($row) {
 }
 
 function trans_date($row) {
-	return sql2date($row['tran_date']);
+	return phil_short_date($row['tran_date']);
 }
 
 //---------------------------------------------------------------------------------------------

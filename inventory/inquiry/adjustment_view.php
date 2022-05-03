@@ -14,10 +14,13 @@ include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/ui.inc");
 
 $js = "";
-if ($SysPrefs->use_popup_windows)
+if ($SysPrefs->use_popup_windows) {
 	$js .= get_js_open_window(900, 500);
-if (user_use_date_picker())
+}
+if (user_use_date_picker()) {
 	$js .= get_js_date_picker();
+}
+
 page(_($help_context = "Inventory Adjustment List"), false, false, "", $js);
 
 //---------------------------------------------------------------------------------------------
@@ -29,7 +32,8 @@ function get_stock_adjust_list($reference, $loc_code, $adj_type, $from_date, $to
 	
 	$type = ST_INVADJUST;
 
-	$sql = "SELECT A.trans_no, A.type, A.status, A.reference, A.stock_id, A.adjustment_type, A.tran_date, B.tran_date AS post_date, 
+	$sql = "SELECT A.trans_no, A.type, A.status, A.reference, A.stock_id, A.adjustment_type, A.tran_date, 
+				IFNULL(B.tran_date, '0000-00-00') AS post_date, 
 				A.comments, A.date_approved, A.approver, A.loc_code, SUM(A.standard_cost * abs(A.qty)) AS Total 
 			FROM stock_adjustment A 
 			LEFT JOIN stock_moves B ON A.trans_no = B.trans_no AND A.type = B.type
@@ -115,7 +119,7 @@ function approver_row($row) {
 }
 
 function date_approved($row) {
-	return sql2date($row['date_approved']);
+	return phil_short_date($row['date_approved']);
 }
 
 function type_row($row) {
@@ -131,11 +135,11 @@ function get_category($row) {
 }
 
 function trans_date($row) {
-	return sql2date($row['tran_date']);
+	return phil_short_date($row['tran_date']);
 }
 
 function post_date($row) {
-	return sql2date($row['post_date']);
+	return phil_short_date($row['post_date']);
 }
 
 function location($row) {

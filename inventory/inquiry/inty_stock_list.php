@@ -14,10 +14,17 @@ include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 $mode = get_company_pref('no_item_list');
-if ($mode != 0)
+
+if ($mode != 0) {
 	$js = inty_get_js_set_combo_item();
-else
+}
+else {
 	$js = get_js_select_combo_item();
+}
+
+if ($SysPrefs->use_popup_windows) {
+	$js .= get_js_open_window(900, 500);
+}
 
 page(_($help_context = "Items"), true, false, "", $js);
 
@@ -102,6 +109,10 @@ function select_cell($row) {
 	return $cell;
 }
 
+function reference_row($row) {
+	return get_trans_view_str($row['type'], $row["trans_no"], $row['reference']);
+}
+
 #----------------------------------------------#
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -155,7 +166,7 @@ if ($_POST['serialized'] == 1 && $_GET['type'] == 1) {
 }
 else if ($_POST['serialized'] == 1 && $_GET['type'] == 2) {
 	$cols = array (
-		_("Transaction Reference") => array('name' => 'reference'),
+		_("Reference") => array('fun' => 'reference_row'),
 		_("Brand") => array('name' => 'brand'),
 		_("Item Code") => array('name' => 'stock_id'),
 		_("Description") => array('name' => 'description'),
@@ -168,7 +179,7 @@ else if ($_POST['serialized'] == 1 && $_GET['type'] == 2) {
 }
 else if ($_POST['serialized'] == 0 && $_GET['type'] == 2) {
 	$cols = array (
-		_("Transaction Reference") => array('name' => 'reference'),
+		_("Reference") => array('fun' => 'reference_row'),
 		_("Brand") => array('name' => 'brand'),
 		_("Item Code") => array('name' => 'stock_id'),
 		_("Description") => array('name' => 'description'),

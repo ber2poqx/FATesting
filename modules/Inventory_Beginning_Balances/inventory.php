@@ -107,16 +107,16 @@ function can_import() {
 		    return false;
     	}
 
-	    if (!is_date($_POST['AdjDate'])) {
-		    display_error(_("The entered date for the adjustment is invalid."));
-		    set_focus('AdjDate');
-		    return false;
-	    } 
-	    elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
-            display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
-			set_focus('AdjDate');
-		    return false;
-	    }
+	    // if (!is_date($_POST['AdjDate'])) {
+		//     display_error(_("The entered date for the adjustment is invalid."));
+		//     set_focus('AdjDate');
+		//     return false;
+	    // } 
+	    // elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
+        //     display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		// 	set_focus('AdjDate');
+		//     return false;
+	    // }
     }
 
     return true;

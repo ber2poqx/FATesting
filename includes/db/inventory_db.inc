@@ -960,7 +960,7 @@ function get_available_item_for_inty(
 			a.color_code, 
 			a.lot_no as serialeng_no, 
 			a.chassis_no as chassis_no,
-			a.trans_no, a.type_out
+			a.trans_no, a.type_out, a.type
 			/*d.description as category, 
 			a.standard_cost,
 			a.item_type, a.trans_no, a.type, a.type_out,
