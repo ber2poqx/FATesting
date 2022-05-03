@@ -19,6 +19,27 @@ include($path_to_root . "/includes/ui.inc");
 
 simple_page_mode(true);
 
+function can_process()
+{
+	$input_error1 = 0;
+	if(municipality_already_exist($_POST['municipality'], $_POST['muni_code']))
+	{
+        $input_error1 = 1;
+        display_error(_("Municipality already exists."));	
+        set_focus('municipality');
+		return false;		
+    }
+
+    if(zipcode_already_exist($_POST['zipcode'], $_POST['muni_code']))
+	{
+        $input_error1 = 1;
+        display_error(_("ZipCode already exists."));	
+        set_focus('zipcode');
+		return false;		
+    }
+    return true;
+}
+
 if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM') 
 {
 
@@ -29,6 +50,7 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 		$input_error = 1;
 		display_error(_("The Municipality cannot be empty."));
 		set_focus('municipality');
+		return false;		
 	}
 
 	if (strlen($_POST['zipcode']) == 0) 
@@ -36,21 +58,8 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 		$input_error = 1;
 		display_error(_("The ZipCode cannot be empty."));
 		set_focus('zipcode');
+		return false;		
 	}
-
-	if(municipality_already_exist($_POST['municipality'], $_POST['muni_code']))
-	{
-        $input_error = 1;
-        display_error(_("Municipality already exists."));	
-        set_focus('municipality');
-    }
-
-    if(zipcode_already_exist($_POST['zipcode'], $_POST['muni_code']))
-	{
-        $input_error = 1;
-        display_error(_("ZipCode already exists."));	
-        set_focus('zipcode');
-    }
 
 	if ($input_error != 1)
 	{
@@ -61,8 +70,15 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
     	} 
     	else 
     	{
-    		add_muni_zipcode($_POST['municipality'], $_POST['zipcode']);
-			$note = _('New municipality has been added');
+    		if (!can_process()) 
+    		{
+    			return true;
+    		}else{
+    			//begin_transaction();
+
+	    		add_muni_zipcode($_POST['municipality'], $_POST['zipcode']);
+				$note = _('New municipality has been added');
+    		}	
     	}
     
 		display_notification($note);    	

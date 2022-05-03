@@ -383,7 +383,7 @@ function db_export_ho($conn, $filename, $zip='no', $comment='')
     	'crm_persons', 'cust_allocations', 'cust_branch', 'debtors_master', 'debtor_loans', 'debtor_loan_ledger', 
     	'debtor_loan_schedule', 'debtor_term_modification', 'debtor_trans', 'debtor_trans_checks',
     	'debtor_trans_details', 'gl_trans', 'grn_batch', 'grn_items', 'incoming_invoice', 'interbranch_trans', 'inventory_adjustment', 
-    	'item_serialise', 'journal', 'locations', 'loc_stock', 'municipality_zipcode', 'mt_details', 'mt_header', 'proof_of_cash', 
+    	'item_serialise', 'journal', 'locations', 'loc_stock', 'mt_details', 'mt_header', 'proof_of_cash', 
     	'purch_orders', 'purch_order_details', 'purch_request', 'purch_request_details', 'refs', 'recurrent_invoices', 
     	'repo_accounts', 'repo_item_details', 'requisitions', 'requisition_details', 'returned_units', 'rr_transword', 'sales_pos', 
     	'sales_orders', 'sales_order_details', 'sales_order_details_serial', 'sales_return_replacement',
