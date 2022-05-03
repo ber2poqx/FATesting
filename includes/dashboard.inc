@@ -101,6 +101,7 @@ function display_customer_topten($sales_grp = 0) {
 	table_one();
 	$today = Today();
 	$title = customer_top($today, 10, 85, $pg, $sales_grp);
+	br(2);
 	customer_trans($today);
 
 	table_two();
