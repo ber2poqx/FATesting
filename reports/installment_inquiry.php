@@ -268,6 +268,9 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 		.noprint {
           visibility: hidden;
        }
+       .noprintth {
+          display:none;
+       }
 	  /* ... the rest of the rules ... */
 	}
 	.underline_input{
@@ -355,16 +358,10 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 		border: 0px solid;
 	}
 	.noprint{
-		margin: 0;
-		position: absolute;
-    	top:04%;
     	font-family: Arial;
-    	left: 44%;
     	background-color:#0a0a23;
     	color: #fff;
-    	border:none;
 	    border-radius:10px;
-	    box-shadow: 0px 0px 2px 2px rgb(0,0,0);
 	    min-height:30px; 
     	min-width: 120px;
 	}
@@ -372,8 +369,6 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
       background-color:red;
       transition: 0.7s;
   	}
-
-	
 </style>
 </head>
 
@@ -443,15 +438,6 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 ?>
 <body>
 	<div class="main printable" style="">
-
-		<div class="container">
-			<div class="center">	
-				<form action="" method="post">					
-					<button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint">
-					Export To Excel</button>
-				</form>
-			</div>
-		</div>		
 
 		<div style="width: 100%; text-align: center;padding-top: 0.45in;float: left;">
 			<h4 style="margin: 0px">
@@ -679,8 +665,18 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 						?>
 					</tbody>
 				</table>
+				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
+					<div class="container">
+						<div class="center">	
+							<form action="" method="post">					
+								<th class="noprintth"><button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint">
+								Export To Excel</button></th>
+							</form>
+						</div>
+					</div>	
+				</table>
 			</div>
-		</div>
+		</div>	
 			<?php
 				if(isset($_POST["dataExport"])) {	
 					$fileName = "installment_inquiry".date('Ymd') . ".xls";			
@@ -703,9 +699,5 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 	</table>
 	<script type="text/javascript">
 		window.print();
-
-		$('#dataExport'){
-			$('#dataExport').remove();
-		}
 	</script>
 </body></html>
