@@ -688,6 +688,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSANALYTIC')) {
 		array(	
 			_('Category') => 'CATEGORIES',
 			_('Brand') => 'FBRAND',
+			_('Separate Old Code?') => 'YES_NO',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'DESTINATION'
 		)

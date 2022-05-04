@@ -53,8 +53,9 @@ function print_transaction() {
 
     $category = $_POST['PARAM_0'];
     $brand = $_POST['PARAM_1'];
-    $comments = $_POST['PARAM_2'];
-	$destination = $_POST['PARAM_3'];
+    $separate_code = $_POST['PARAM_2'];
+    $comments = $_POST['PARAM_3'];
+	$destination = $_POST['PARAM_4'];
 
     if ($destination) {
         include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -120,6 +121,7 @@ function print_transaction() {
 
     $res = get_transactions($category, $brand);
     $cat = '';
+    $old_code_arr = array();
 
     while ($trans = db_fetch($res)) {
 
@@ -134,16 +136,37 @@ function print_transaction() {
 			$rep->NewLine(2);		
         }
 
-        $rep->fontSize -= 1;
-        $rep->TextCol(0, 1, $trans['stock_id']);
-        $rep->TextCol(1, 2, $trans['prod_desc']);
-        $rep->TextCol(2, 3, $trans['cat_name']);
-        $rep->TextCol(3, 4, $trans['item_brand']);
-        $rep->TextCol(4, 5, $trans['sub_cat']);
-        $rep->TextCol(5, 6, $trans['class']);
-        $rep->TextCol(6, 7, $trans['old_code']);
-        $rep->fontSize += 1;
-        $rep->NewLine();
+        $old_code = $trans['old_code'];
+
+        if ($old_code != '' && $separate_code == 1) {
+
+            $old_code_arr = explode('/', $old_code);
+
+            foreach ($old_code_arr as $key => $val) {
+                $rep->fontSize -= 1;
+                $rep->TextCol(0, 1, $trans['stock_id']);
+                $rep->TextCol(1, 2, $trans['prod_desc']);
+                $rep->TextCol(2, 3, $trans['cat_name']);
+                $rep->TextCol(3, 4, $trans['item_brand']);
+                $rep->TextCol(4, 5, $trans['sub_cat']);
+                $rep->TextCol(5, 6, $trans['class']);
+                $rep->TextCol(6, 7, $val);
+                $rep->fontSize += 1;
+                $rep->NewLine();
+            }
+        }
+        else {
+            $rep->fontSize -= 1;
+            $rep->TextCol(0, 1, $trans['stock_id']);
+            $rep->TextCol(1, 2, $trans['prod_desc']);
+            $rep->TextCol(2, 3, $trans['cat_name']);
+            $rep->TextCol(3, 4, $trans['item_brand']);
+            $rep->TextCol(4, 5, $trans['sub_cat']);
+            $rep->TextCol(5, 6, $trans['class']);
+            $rep->TextCol(6, 7, $trans['old_code']);
+            $rep->fontSize += 1;
+            $rep->NewLine();
+        }
     }
 
     $rep->End();
