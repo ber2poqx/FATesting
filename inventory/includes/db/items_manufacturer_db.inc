@@ -69,3 +69,21 @@ function get_all_manufacturer($all=false) {
 	$sql .= " ORDER BY name";
     return  db_query($sql, "could not get manufacturer");
 }
+
+//Added by spyrax10 4 May 2022
+function manufacturer_exists($manufacturer = '', $get_id = false) {
+	
+	$sql = "SELECT id 
+		FROM ".TB_PREF."item_manufacturer 
+		WHERE name = ".db_escape($manufacturer);
+
+	$result = db_query($sql, "could not check manufacturer");
+	$row = db_fetch_row($result);
+
+	if ($get_id) {
+		return $row[0];
+	}
+	else {
+		return $row[0] != null ? true : false;
+	}
+}

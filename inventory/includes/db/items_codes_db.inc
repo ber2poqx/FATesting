@@ -13,7 +13,8 @@
 	item_codes table is used to store both multiply foreign codes (aliases) and 
 	sales kits definition.
 */
-function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0, $itemstatus=0)
+function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0, $itemstatus=0,
+	$old_code = "")
 {
 	$sql = "UPDATE ".TB_PREF."item_codes SET
 	 	item_code = ".db_escape($item_code).",
@@ -28,7 +29,8 @@ function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp
 	 	importer = ".db_escape($importer).",
 		product_status = ".db_escape($itemstatus).",
 		pnp_color = ".db_escape($pnp_color).",
-		color = ".db_escape($color)."
+		color = ".db_escape($color).",
+		old_code = ".db_escape($old_code)."
         	WHERE ";
 			
 	if ($id == -1) // update with unknown $id i.e. from items table editor
@@ -40,22 +42,31 @@ function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp
 	db_query($sql,"an item code could not be updated");
 }
 
-function add_item_code($item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0, $itemstatus=0)
+//Modify by spyrax10 4 May 2022
+function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_color = null, $category, $qty, 
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null)
 {
 	$sql = "INSERT INTO ".TB_PREF."item_codes
-			(item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer, product_status, pnp_color, color) 
-			VALUES( ".db_escape($item_code).",".db_escape($stock_id).",
-	  		".db_escape($description).",
-            ".db_escape($category).",  
-            ".db_escape($qty).", 
-            ".db_escape($foreign).", 
-            ".db_escape($brand).", 
-            ".db_escape($manufacturer).", 
-            ".db_escape($distributor).", 
-            ".db_escape($importer).", 
-            ".db_escape($itemstatus).", 
-            ".db_escape($pnp_color).",  
-            ".db_escape($color)."
+			(
+				item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer, 
+				product_status, pnp_color, color, old_code
+			) 
+			
+			VALUES ( 
+				".db_escape($item_code).", 
+				".db_escape($stock_id).",
+	  			".db_escape($description).",
+            	".db_escape($category).",  
+            	".db_escape($qty).", 
+            	".db_escape($foreign).", 
+            	".db_escape($brand).", 
+            	".db_escape($manufacturer).", 
+            	".db_escape($distributor).", 
+            	".db_escape($importer).", 
+            	".db_escape($itemstatus).", 
+            	".db_escape($pnp_color).",  
+            	".db_escape($color).",
+				".db_escape($old_code)." 
             )";
 
 	db_query($sql,"an item code could not be added");
@@ -96,6 +107,22 @@ function get_item_code($id)
 	$result = db_query($sql,"item code could not be retrieved");
 
 	return db_fetch($result);
+}
+
+//Added by spyrax10 4 May 2022
+function item_code_has_parent($stock_id = '') {
+	
+	set_global_connection(0);
+
+	$sql = "SELECT is_foreign 
+		FROM ".TB_PREF."item_codes 
+		WHERE is_foreign = 0 AND stock_id = ".db_escape($stock_id);
+	
+	$result = db_query($sql,"Item Code parent could not be retrieved");
+
+	$row = db_fetch_row($result);
+
+	return $row[0] != null ? true : false;
 }
 
 //Modified by spyrax10 11 Mar 2022

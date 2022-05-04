@@ -64,7 +64,7 @@ if ($Mode == 'ADD_ITEM' || $Mode == 'UPDATE_ITEM') {
 				$_POST['pnp_color'],
 				$_POST['category_id'],
 				$_POST['quantity'],
-				1
+				1, 0, 0, 0, 0, 0, $_POST['old_code']
 			);
 
 			display_notification(_("New item code has been added."));
@@ -78,7 +78,7 @@ if ($Mode == 'ADD_ITEM' || $Mode == 'UPDATE_ITEM') {
 				$_POST['pnp_color'],
 				$_POST['category_id'],
 				$_POST['quantity'],
-				1
+				1, 0, 0, 0, 0, 0, $_POST['old_code']
 			);
 
 			display_notification(_("Item code has been updated."));
@@ -127,10 +127,10 @@ $dflt_cat = $result['category_id'];
 
 $result = get_all_item_codes($_POST['stock_id']);
 div_start('code_table');
-start_table(TABLESTYLE, "width='60%'");
+start_table(TABLESTYLE, "width='90%'");
 
-$th = array(
-	_("Item Code"), _("Color"), _("Quantity"), _("Units"),
+$th = array(_("Old System Code"),
+	_("FA Item Code"), _("Color Code"), _("Quantity"), _("Units"),
 	_("Color Description"), _("PNP Color"), _("Category"), "", ""
 );
 
@@ -141,6 +141,7 @@ $k = $j = 0; //row colour counter
 while ($myrow = db_fetch($result)) {
 	alt_table_row_color($k);
 
+	label_cell($myrow["old_code"]);
 	label_cell($myrow["item_code"]);
 	label_cell($myrow["color"]);
 	qty_cell($myrow["quantity"], $dec);
@@ -173,6 +174,7 @@ if ($selected_id != '') {
 		$_POST['description'] = $myrow["description"];
 		$_POST['pnp_color'] = $myrow["pnp_color"];
 		$_POST['category_id'] = $myrow["category_id"];
+		$_POST['old_code'] = $myrow["old_code"];
 	}
 	hidden('selected_id', $selected_id);
 } else {
@@ -190,6 +192,7 @@ hidden('item_code', $_POST['stock_id']);
 qty_row(_("Quantity:"), 'quantity', null, '', $units, $dec);
 text_row(_("Color Description:"), 'description', null, 50, 200);
 text_row(_("PNP Color:"), 'pnp_color', null, 20, 21);
+text_row(_("Old System Code:"), 'old_code', null, 50, 50);
 stock_categories_list_row(_("Category:"), 'category_id', null);
 
 end_table(1);

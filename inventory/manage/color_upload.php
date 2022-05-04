@@ -58,7 +58,13 @@ if (isset($_POST['action'])) {
 
 page(_("Import Item Color Code"), false, false, "", $js);
 
-simple_page_mode(true);
+//simple_page_mode(true);
+
+if (isset($_GET['Rows_Uploaded'])) {
+
+	$total_rows = $_GET['Rows_Uploaded'];
+	display_notitfication(_("Rows Uploaded: ") . $total_rows);
+}
 
 //-----------------------------------------------------------------------------------------------
 function can_import() {
@@ -69,6 +75,22 @@ function can_import() {
     }
 	
 	return true;
+}
+//-----------------------------------------------------------------------------------------------
+function clear_session() {
+	global $Ajax;
+
+	$_FILES['impCSVS']['name'] = "";
+	
+	if (isset($_POST['impCSVS'])) {
+		unset($_POST['impCSVS']);
+	}
+
+	if (isset($_POST['import_btn'])) {
+		unset($_POST['import_btn']);
+	}
+
+	unset($_FILES['impCSVS']['name']);
 }
 //-----------------------------------------------------------------------------------------------
 
@@ -85,21 +107,17 @@ if (isset($_POST['import_btn']) && can_import()) {
 
 	$lines = $CI = 0;
 	$err_arr = array();
-	$line_cnt = 0;
+	$line_cnt = $status_id = $manu_id = $brand_id = 0;
 
 	while ($data = fgetcsv($fp, 4096, $sep)) {
 
 		if ($lines++ == 0) continue;
 
-		list($stock_id, $color_code, $color, $color_desc, $pnp_color) = $data;
+		list($stock_id, $color, $pnp_color, $old_code, $color_desc, $brand_name, $manufacturer, $status) = $data;
 
 		if ($stock_id == "") {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Stock ID is empty!"); 
-		}
-		else if ($color_code == "") {
-			$line_cnt++;
-			$err_arr[$line_cnt] = _("Item Color Code is empty!"); 
 		}
 		else if ($color == "") {
 			$line_cnt++;
@@ -109,24 +127,82 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("PNP Color is empty!"); 
 		}
-		else if (!check_stock_id_exist($stock_id)) {
+		else if ($color_desc == "") {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Color Description is empty!"); 
+		}
+		else if ($brand_name == "") {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Brand is empty!"); 
+		}
+		else if (!check_stock_id_exist(trim($stock_id))) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Stock ID does not exist!");
 		}
-		else if (check_color_exist($stock_id, $color_code, true, true)) {
+		else if (check_color_exist(trim($stock_id), trim($stock_id) . "-" . $color, true, true)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this item!");
+			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . trim($stock_id) . "-" . $color . ")");
+		}
+		else if (!brand_exists($brand_name)) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Brand does not exist!");
 		}
 		else {
-			add_item_code($color_code, $color, $stock_id, $color_desc, 
-				$pnp_color, get_stock_catID($stock_id), 1, 1
-			);
+			
+			$item_code = trim($stock_id) . "-" . $color;
+			$manu_id = !manufacturer_exists($manufacturer) || $manufacturer == "" ? 0 : manufacturer_exists($manufacturer, true);
+			$brand_id = !brand_exists($brand_name) || $brand_name == "" ? 0 : brand_exists($brand_name, true);
+
+			if ($status == "") {
+				$status_id = 0;
+			}
+			else {
+				if ($status == "PHASE-OUT") {
+					$status_id = 1;
+				}
+				else {
+					$status_id = 0;
+				}
+			}
+			$status = $status != "" ? $status : "0";
+
+			if (item_code_has_parent(trim($stock_id))) {
+				add_item_code(
+					$item_code, $color, trim($stock_id), $color_desc, $pnp_color, 
+					get_stock_catID(trim($stock_id)), 
+					1, 1,
+					$brand_id,
+					$manu_id, 
+					0, 0, $status_id,
+					$old_code
+				);
+			}
+			else {
+				add_item_code(
+					trim($stock_id), null, trim($stock_id), 
+					get_item_description(trim($stock_id)), null, 
+					get_stock_catID(trim($stock_id)), 
+					1, 0,
+					$brand_id,
+					$manu_id, 
+					0, 0, $status_id, null
+				);
+
+				add_item_code(
+					$item_code, $color, trim($stock_id), $color_desc, $pnp_color, 
+					get_stock_catID(trim($stock_id)), 
+					1, 1,
+					$brand_id,
+					$manu_id, 
+					0, 0, $status_id,
+					$old_code
+				);
+			}
 
 			$CI++; $line_cnt++;
 		}
 
 	} //end of while loop
-
 
 	if (count($err_arr) > 0) {
 		display_error(_(count($err_arr) . " item/s unsuccessfully uploaded!"));
@@ -137,16 +213,15 @@ if (isset($_POST['import_btn']) && can_import()) {
 	}
 
 	if ($CI > 0) {
-		display_error(_("$CI Item Color Code(s) Imported Successfully!"));
+		display_notification(_("$CI Item Color Code(s) Imported Successfully!"));
+		//meta_forward($_SERVER['PHP_SELF'], "Rows_Uploaded=" . $CI);
 	}
 	else {
 		display_error(_("No Item has been imported!"));
 	}
 
 	@fclose($fp);
-
-	unset($_POST['import_btn']);
-	unset($_POST['impCSVS']);
+	clear_session();
 }
 
 //-----------------------------------------------------------------------------------------------

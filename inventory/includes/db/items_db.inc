@@ -397,3 +397,18 @@ function check_item_serialized($stock_id)
 	return $row[0];
 }
 /* */
+
+//Added by spyrax10 4 May 2022
+function get_item_description($stock_id = "") {
+
+	set_global_connection();
+
+	$sql = "SELECT description 
+		FROM ".TB_PREF."stock_master 
+		WHERE stock_id = ".db_escape($stock_id);
+
+	$result = db_query($sql, "Item Description could not retrive!");
+	$row = db_fetch_row($result);
+
+	return $row[0];
+}

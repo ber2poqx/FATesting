@@ -77,3 +77,24 @@ function get_all_brand($all=false) {
 	$sql .= " ORDER BY ib.name";
     return  db_query($sql, "could not get brand");
 }
+
+//Added by spyrax10 4 May 2022
+
+function brand_exists($brand_name = '', $get_id = false) {
+
+	set_global_connection();
+
+	$sql = "SELECT id 
+		FROM ".TB_PREF."item_brand 
+		WHERE name = ".db_escape($brand_name);
+
+	$result = db_query($sql, "could not get brand");
+	$row = db_fetch_row($result);
+	
+	if ($get_id) {
+		return $row[0];
+	}
+	else {
+		return $row[0] != null ? true : false;
+	}
+} 
