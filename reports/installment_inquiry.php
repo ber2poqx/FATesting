@@ -701,9 +701,11 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 			?>																
 	</tbody>
 	</table>
-	<!--<button class="noprint" type="submit" id="dataExport" name="dataExport" value="Export to excel" class="btn btn-info">Export To Excel</button>-->
-	
 	<script type="text/javascript">
 		window.print();
+
+		$('#dataExport'){
+			$('#dataExport').remove();
+		}
 	</script>
 </body></html>
