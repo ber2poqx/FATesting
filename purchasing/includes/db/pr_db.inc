@@ -417,5 +417,54 @@ function get_po_total_qty_recieved($reference) {
 		$row = db_fetch_row($result);
 		return $row[0];
 }
+/*Added by Albert 05/04/2022*/
+function Get_Policy_SRP_Effectivity_Date($branchCode, $categoryID, $stockID, $supplierID)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
 
-//
+	$sql = "SELECT A.date_epic
+			FROM ".TB_PREF."item_srp A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcysrp_id = A.srptype_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+			WHERE B.module_type = 'SRPPLCY'
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID)."
+				AND A.supplier_id = ".db_escape($supplierID);
+
+	$result = db_query($sql, "The standard cost for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$price = $row[0];
+
+	set_global_connection();
+	return $price;
+}
+
+
+function Get_Previous_Policy_SRP_last_date_updated($branchCode, $categoryID, $stockID, $supplierID)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+
+	$sql = "SELECT max(D.date_defined)
+			FROM ".TB_PREF."item_srp A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcysrp_id = A.srptype_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcysrp_id =  A.srptype_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'SRPPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID)."
+				AND A.supplier_id = ".db_escape($supplierID);
+
+	$result = db_query($sql, "The standard cost for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$date_defined = $row[0];
+
+	set_global_connection();
+	return $date_defined;
+}
+
+/*END by Albert*/

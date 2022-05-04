@@ -78,7 +78,7 @@ if (isset($_SESSION['selected_pr_branch']) && isset($_GET['PRNumber'])) {
 	pr_branch_display_pr_order_items();
 	echo '<br>';
 	submit_center_first('Update', _("Update"), '', true);
-	submit_center_last('ProcessPO', _("Process Order Items"), _("Clear all GL entry fields"), 'default');
+	submit_center_last('ProcessPO', _("Process Order Items"), _("Clear all GL entry fields"), 'default');	
 	end_form();
 	display_footer_exit();
 }
@@ -279,7 +279,6 @@ function pr_branch_display_pr_order_items()
 
 	$total = 0;
 	$k = 0; //row colour counter
-
 	if (count($_SESSION['PR']->line_items) > 0) {
 		foreach ($_SESSION['PR']->line_items as $ln_itm) {
 
@@ -287,7 +286,18 @@ function pr_branch_display_pr_order_items()
 
 			$qty_outstanding = $ln_itm->quantity - $ln_itm->qty_ordered;
 			// $ln_itm->price = get_purchase_price($_SESSION['PR']->supplier_id, $ln_itm->stock_id);
-			$price =  Get_Policy_SRP($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'));
+
+			/*modified by Albert base on effectivity date 05/03/2022*/
+			$last_date_updated =  Get_Previous_Policy_SRP_last_date_updated($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'));
+			if(date2sql($_SESSION['PR']->orig_order_date) <  Get_Policy_SRP_Effectivity_Date($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'))){
+			
+				$price = Get_Previous_Policy_SRP($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'),$last_date_updated );
+			}else{
+				
+				$price =  Get_Policy_SRP($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'));
+
+			}
+			/*End by Albert*/		
 			if ($price == "")
 				$price = 0;
 			$ln_itm->price  = $price;
@@ -453,6 +463,19 @@ if (isset($_POST['Update']) || isset($_POST['ProcessPO'])) {
 			if (isset($_POST[$line->stock_id . "Desc"]) && strlen($_POST[$line->stock_id . "Desc"]) > 0) {
 				$_SESSION['PR']->line_items[$line->line_no]->item_description = $_POST[$line->stock_id . "Desc"];
 			}
+			/*Added by Albert base on effectivity date 05/03/2022*/
+			$last_date_updated =  Get_Previous_Policy_SRP_last_date_updated(get_post('Location'), $_SESSION['PR']->category_id, $line->stock_id, get_post('supplier_id'));
+			
+			if(date2sql($_POST['DefaultReceivedDate']) <  Get_Policy_SRP_Effectivity_Date(get_post('Location'), $_SESSION['PR']->category_id, $line->stock_id, get_post('supplier_id'))){
+			
+				$_SESSION['PR']->line_items[$line->line_no]->price = Get_Previous_Policy_SRP(get_post('Location'), $_SESSION['PR']->category_id, $line->stock_id, get_post('supplier_id'),$last_date_updated );
+			}else{
+				
+				$_SESSION['PR']->line_items[$line->line_no]->price =  Get_Policy_SRP(get_post('Location'), $_SESSION['PR']->category_id, $line->stock_id, get_post('supplier_id'));
+
+			}	
+			display_error($_SESSION['PR']->line_items[$line->line_no]->price);
+			/*End by Albert*/
 		}
 	}
 	$Ajax->activate('order_items');

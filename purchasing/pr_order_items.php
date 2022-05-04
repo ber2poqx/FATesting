@@ -75,7 +75,17 @@ function display_pr_order_items()
 
 			$qty_outstanding = $ln_itm->quantity - $ln_itm->qty_ordered;
 			// $ln_itm->price = get_purchase_price($_SESSION['PR']->supplier_id, $ln_itm->stock_id);
-			$price =  Get_Policy_SRP($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'));
+			/*modified by Albert 05/04/2022*/
+			$last_date_updated =  Get_Previous_Policy_SRP_last_date_updated($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'));
+			if(get_post('DefaultReceivedDate') <  Get_Policy_SRP_Effectivity_Date($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'))){
+			
+				$price = Get_Previous_Policy_SRP($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'),$last_date_updated );			
+			}else{
+
+				$price = Get_Policy_SRP($branch_code, $_SESSION['PR']->category_id, $ln_itm->stock_id, get_post('supplier_id'));
+			
+			}
+			/*End by Albert*/
 			if ($price == "")
 				$price = 0;
 			$ln_itm->price  = $price;

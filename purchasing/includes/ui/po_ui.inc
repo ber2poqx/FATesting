@@ -527,11 +527,25 @@ function po_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$dec = $item_info["decimals"];
 		$_POST['qty'] =	number_format2(get_purchase_conversion_factor($order->supplier_id, $_POST['stock_id']), $dec);
 		// $_POST['price'] = price_decimal_format(Get_Policy_SRP($branch_code, $_POST['category'], $_POST['stock_id']), $dec2);
-
+		/*modified by Albert 05/04/2022*/
 		if ($order->trans_type == ST_SUPPRECEIVE)
-			$_POST['price'] = price_decimal_format(Get_Policy_Cost($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id']), $dec2);
+			$last_date_updated = Get_Policy_Cost_last_date_updated ($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id']);
+			if (get_post('OrderDate') > Get_Policy_Cost_Effectivity_Date($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id'])){
+			
+				$_POST['price'] = price_decimal_format(Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined), $dec2);
+			}else{
+				$_POST['price'] = price_decimal_format(Get_Policy_Cost($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id']), $dec2);
+			}
+
 		if ($order->trans_type == ST_PURCHORDER)
-			$_POST['price'] = price_decimal_format(Get_Policy_SRP($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id']), $dec2);
+
+			$last_date_updated =  Get_Previous_Policy_SRP_last_date_updated($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id']);
+			if(date2sql(get_post('OrderDate')) <  Get_Policy_SRP_Effectivity_Date($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id'])){
+				$_POST['price'] = price_decimal_format(Get_Previous_Policy_SRP($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id'],$last_date_updated ), $dec2);
+			}else{
+				$_POST['price'] = price_decimal_format(Get_Policy_SRP($branch_code, $_POST['category'], $_POST['stock_id'], $_POST['supplier_id']), $dec2);
+			}
+		/*END by Albert*/
 			$_POST['req_del_date'] = add_days(Today(), $SysPrefs->default_receival_required_by());
 		$qty_rcvd = '';
 	}

@@ -336,3 +336,56 @@ function Get_Previous_Policy_CashPrice($branchCode, $categoryID, $stockID, $last
 	set_global_connection();
 	return $price;;
 }
+
+function Get_Previous_Policy_SRP($branchCode, $categoryID, $stockID, $supplierID, $last_date_updated)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+
+	$sql = "SELECT D.amount
+			FROM ".TB_PREF."item_srp A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcysrp_id = A.srptype_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcysrp_id =  A.srptype_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'SRPPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID)."
+				AND A.supplier_id = ".db_escape($supplierID)."
+				AND D.date_defined = ".db_escape($last_date_updated);
+	$sql.= "order by D.id desc";
+	$result = db_query($sql, "The standard cost for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$price = $row[0];
+
+	set_global_connection();
+	return $price;
+}
+function Get_Previous_Policy_Cost($branchCode, $categoryID, $stockID, $supplierID, $date_defined)
+{
+    global $def_coy;
+    set_global_connection($def_coy);
+	
+	$sql = "SELECT D.amount
+			FROM ".TB_PREF."purch_data A 
+				INNER JOIN ".TB_PREF."branch_policy B ON B.plcysplrcost_id = A.cost_type_id
+    			INNER JOIN ".TB_PREF."stock_master C ON C.stock_id = A.stock_id AND C.category_id = B.category_id
+				INNER JOIN ".TB_PREF."price_cost_archive D ON D.plcycost_id = A.cost_type_id and D.stock_id = A.stock_id
+			WHERE B.module_type = 'CSTPLCY'
+				AND D.inactive = 1
+				AND B.branch_code = ".db_escape($branchCode)."
+				AND C.category_id = ".db_escape($categoryID)."
+    			AND A.stock_id = ".db_escape($stockID)."
+				AND A.supplier_id = ".db_escape($supplierID)."
+				And D.date_defined = ".db_escape($date_defined);
+	$sql.= "order by D.id desc";
+	
+	$result = db_query($sql, "The supplier cost for the selected branch and item could not be retrieved");
+	$row = db_fetch_row($result);
+	$price = $row[0];
+
+	set_global_connection();
+	return $price;
+}
+/*END by Albert*/

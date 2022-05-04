@@ -108,8 +108,16 @@ function display_po_receive_items()
             if (!isset($_POST['Update']) && !isset($_POST['ProcessGoodsReceived']) && $ln_itm->receive_qty == 0) {   //If no quantites yet input default the balance to be received
                 $ln_itm->receive_qty = $qty_outstanding;
             }
-            $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
-            if ($price == "")
+            /*Modified by Albert 05/04/2022*/
+            $date_defined = Get_Policy_Cost_last_date_updated($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+            if (date2sql(get_post('DefaultReceivedDate')) < Get_Policy_Cost_Effectivity_Date($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id)){
+               
+                $price = Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined);
+            }else{
+                $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+            }
+            /*End by Albert*/
+               if ($price == "")
                 $price = 0;
             $ln_itm->price = $price;
             $ln_itm->standard_cost = $price;
@@ -419,7 +427,15 @@ function serial_summary_po_receive_items()
                 if (!isset($_POST['Update']) && !isset($_POST['ProcessGoodsReceived']) && $ln_itm->receive_qty == 0) {   //If no quantites yet input default the balance to be received
                     $ln_itm->receive_qty = $qty_outstanding;
                 }
-                $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                /*Modified by Albert 05/04/2022*/
+                $date_defined = Get_Policy_Cost_last_date_updated($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                if (date2sql($_SESSION['PO']->orig_order_date) < Get_Policy_Cost_Effectivity_Date($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id)){
+            
+                    $price = Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined);
+                }else{
+                    $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                }
+                /*END by Albert*/
                 if ($price == "")
                     $price = 0;
                 $ln_itm->price = $price;
@@ -748,6 +764,8 @@ if (isset($_POST['ProcessGoodsReceived'])) {
 
 start_form();
 edit_grn_summary($_SESSION['PO'], true);
+$Ajax->activate('grn_items'); //Added by Albert 05/04/2022
+
 display_heading(_("Items to Receive"));
 display_po_receive_items();
 
