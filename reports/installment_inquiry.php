@@ -369,11 +369,14 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
       background-color:red;
       transition: 0.7s;
   	}
-  	img {
-	  width: 120px;
-	  height: 30px;
-	  object-fit: cover;
-	}
+  	button:after {
+        content:"Export To Excel";
+    	background-color:#0a0a23;
+    	color: #fff;
+	    border-radius:10px;
+	    min-height:30px; 
+    	min-width: 120px;
+    }
 </style>
 </head>
 
@@ -674,7 +677,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 					<div class="container">
 						<div class="center">	
 							<form action="" method="post">					
-								<th class="noprintth"><button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint" im><img src="https://thumbs.dreamstime.com/b/export-button-export-button-export-rounded-isolated-sign-export-158488315.jpg"/></button></th>
+								<th class="noprintth"><button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint"></button></th>
 							</form>
 						</div>
 					</div>	
@@ -682,12 +685,6 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 			</div>
 		</div>	
 			<?php
-
-				function filterData(&$str){ 
-				    $str = preg_replace("/\t/", "\\t", $str); 
-				    $str = preg_replace("/\r?\n/", "\\n", $str); 
-				    if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"'; 
-				}
 				if(isset($_POST["dataExport"])) {	
 					$fileName = "installment_inquiry".date('Ymd') . ".xls";			
 					header("Content-Type: application/vnd.ms-excel");
@@ -699,7 +696,6 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 						  echo implode("\t", array_keys($myrow)) . "\n";
 						  $showColoumn = true;
 						}
-						array_walk($row, 'filterData'); 
 						echo implode("\t", array_values($myrow)) . "\n";
 					  }
 					}
