@@ -369,6 +369,11 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
       background-color:red;
       transition: 0.7s;
   	}
+  	img {
+	  width: 120px;
+	  height: 30px;
+	  object-fit: cover;
+	}
 </style>
 </head>
 
@@ -669,8 +674,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 					<div class="container">
 						<div class="center">	
 							<form action="" method="post">					
-								<th class="noprintth"><button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint">
-								Export To Excel</button></th>
+								<th class="noprintth"><button type="submit" id="dataExport" name="dataExport" value="Export to excel" class="noprint" im><img src="https://thumbs.dreamstime.com/b/export-button-export-button-export-rounded-isolated-sign-export-158488315.jpg"/></button></th>
 							</form>
 						</div>
 					</div>	
