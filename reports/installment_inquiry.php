@@ -665,7 +665,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 						?>
 					</tbody>
 				</table>
-				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
+				<table id="forexport" style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<div class="container">
 						<div class="center">	
 							<form action="" method="post">					
@@ -678,6 +678,12 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 			</div>
 		</div>	
 			<?php
+
+				function filterData(&$str){ 
+				    $str = preg_replace("/\t/", "\\t", $str); 
+				    $str = preg_replace("/\r?\n/", "\\n", $str); 
+				    if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"'; 
+				}
 				if(isset($_POST["dataExport"])) {	
 					$fileName = "installment_inquiry".date('Ymd') . ".xls";			
 					header("Content-Type: application/vnd.ms-excel");
@@ -689,6 +695,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 						  echo implode("\t", array_keys($myrow)) . "\n";
 						  $showColoumn = true;
 						}
+						array_walk($row, 'filterData'); 
 						echo implode("\t", array_values($myrow)) . "\n";
 					  }
 					}
