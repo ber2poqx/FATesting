@@ -162,7 +162,6 @@ if (isset($_POST['import_btn']) && can_import()) {
 					$status_id = 0;
 				}
 			}
-			$status = $status != "" ? $status : "0";
 
 			if (item_code_has_parent(trim($stock_id))) {
 				add_item_code(
