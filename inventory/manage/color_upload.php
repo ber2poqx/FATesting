@@ -143,15 +143,17 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . trim($stock_id) . "-" . $color . ")");
 		}
-		else if (!brand_exists($brand_name)) {
+		//For parent Item Code
+		else if (!check_color_exist(trim($stock_id), trim($stock_id), true, true)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Brand does not exist!");
+			$err_arr[$line_cnt] = _("Parent Item Code Already Existed!");
 		}
 		else {
 			
 			$item_code = trim($stock_id) . "-" . $color;
 			$manu_id = !manufacturer_exists($manufacturer) || $manufacturer == "" ? 0 : manufacturer_exists($manufacturer, true);
 			$brand_id = !brand_exists($brand_name) || $brand_name == "" ? 0 : brand_exists($brand_name, true);
+			$importer_id = get_importer_id(trim($stock_id));
 
 			if ($status == "") {
 				$status_id = 0;
@@ -173,7 +175,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					1, 1,
 					$brand_id,
 					$manu_id, 
-					0, 0, $status_id,
+					0, $importer_id, $status_id,
 					$old_code
 				);
 			}
@@ -185,7 +187,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					1, 0,
 					$brand_id,
 					$manu_id, 
-					0, 0, $status_id, null
+					0, $importer_id, $status_id, null
 				);
 
 				add_item_code(
@@ -194,7 +196,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					1, 1,
 					$brand_id,
 					$manu_id, 
-					0, 0, $status_id,
+					0, $importer_id, $status_id,
 					$old_code
 				);
 			}
