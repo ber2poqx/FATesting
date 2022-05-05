@@ -142,7 +142,7 @@ function print_transaction() {
 			$rep->NewLine(2);		
         }
 
-        $old_code = $separate_code == 1 ? $trans['ic_old_code'] : $trans['sm_old_code'];
+        $old_code = $separate_code == 1 && $category == 14 ? $trans['ic_old_code'] : $trans['sm_old_code'];
 
         $rep->fontSize -= 1;
         $rep->TextCol(0, 1, $trans['stock_id']);
