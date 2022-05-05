@@ -13,7 +13,8 @@
 	item_codes table is used to store both multiply foreign codes (aliases) and 
 	sales kits definition.
 */
-function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, $foreign=0, $brand=0, $manufacturer=0, $distributor=0, $importer=0, $itemstatus=0,
+function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, 
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0,
 	$old_code = "")
 {
 	$sql = "UPDATE ".TB_PREF."item_codes SET

@@ -19,14 +19,20 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 print_transaction();
 //----------------------------------------------------------------------------------------------------
 
-function get_transactions($category, $brand) {
+function get_transactions($category, $brand, $separate_code = 0) {
     
     set_global_connection(0);
     $sql = "SELECT SM.*, SC.description AS cat_name, SM.description AS prod_desc,
-        IB.name AS item_brand, II.name AS class, ID.name AS sub_cat, SM.old_code
+        IB.name AS item_brand, II.name AS class, ID.name AS sub_cat";
 
-        FROM ".TB_PREF."stock_master SM
-            LEFT JOIN ".TB_PREF."stock_category as SC ON SM.category_id = SC.category_id 
+    $sql .= $separate_code == 1 ? ", IC.item_code AS ic_old_code" : ", SM.old_code AS sm_old_code";
+
+    $sql .= " FROM ".TB_PREF."stock_master SM";
+    
+    $sql .= $separate_code == 1 ? " LEFT JOIN ".TB_PREF."item_codes IC ON SM.stock_id = IC.stock_id 
+        AND IC.is_foreign = 1" : "";
+    
+    $sql .= " LEFT JOIN ".TB_PREF."stock_category SC ON SM.category_id = SC.category_id 
             LEFT JOIN ".TB_PREF."item_brand IB ON SM.brand = IB.id 
             LEFT JOIN ".TB_PREF."item_importer II ON SM.importer = II.id
             LEFT JOIN ".TB_PREF."item_distributor ID ON SM.distributor = ID.id 
@@ -119,7 +125,7 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = get_transactions($category, $brand);
+    $res = get_transactions($category, $brand, $separate_code);
     $cat = '';
     $old_code_arr = array();
 
@@ -136,37 +142,18 @@ function print_transaction() {
 			$rep->NewLine(2);		
         }
 
-        $old_code = $trans['old_code'];
+        $old_code = $separate_code == 1 ? $trans['ic_old_code'] : $trans['sm_old_code'];
 
-        if ($old_code != '' && $separate_code == 1) {
-
-            $old_code_arr = explode('/', $old_code);
-
-            foreach ($old_code_arr as $key => $val) {
-                $rep->fontSize -= 1;
-                $rep->TextCol(0, 1, $trans['stock_id']);
-                $rep->TextCol(1, 2, $trans['prod_desc']);
-                $rep->TextCol(2, 3, $trans['cat_name']);
-                $rep->TextCol(3, 4, $trans['item_brand']);
-                $rep->TextCol(4, 5, $trans['sub_cat']);
-                $rep->TextCol(5, 6, $trans['class']);
-                $rep->TextCol(6, 7, $val);
-                $rep->fontSize += 1;
-                $rep->NewLine();
-            }
-        }
-        else {
-            $rep->fontSize -= 1;
-            $rep->TextCol(0, 1, $trans['stock_id']);
-            $rep->TextCol(1, 2, $trans['prod_desc']);
-            $rep->TextCol(2, 3, $trans['cat_name']);
-            $rep->TextCol(3, 4, $trans['item_brand']);
-            $rep->TextCol(4, 5, $trans['sub_cat']);
-            $rep->TextCol(5, 6, $trans['class']);
-            $rep->TextCol(6, 7, $trans['old_code']);
-            $rep->fontSize += 1;
-            $rep->NewLine();
-        }
+        $rep->fontSize -= 1;
+        $rep->TextCol(0, 1, $trans['stock_id']);
+        $rep->TextCol(1, 2, $trans['prod_desc']);
+        $rep->TextCol(2, 3, $trans['cat_name']);
+        $rep->TextCol(3, 4, $trans['item_brand']);
+        $rep->TextCol(4, 5, $trans['sub_cat']);
+        $rep->TextCol(5, 6, $trans['class']);
+        $rep->TextCol(6, 7, $old_code);
+        $rep->fontSize += 1;
+        $rep->NewLine();
     }
 
     $rep->End();

@@ -697,6 +697,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSANALYTIC')) {
 	$reports->addReport(RC_INVENTORY, 297, _('Color Code List Report'),
 		array(	
 			_('Category') => 'CATEGORIES',
+			_('Brand') => 'FBRAND',
 			_('Stock ID') => 'ITEMS_ALL',
 			_('Display Items that has no Color?') => 'YES_NO',
 			_('Comments') => 'TEXTBOX',
