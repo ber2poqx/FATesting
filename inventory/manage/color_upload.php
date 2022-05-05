@@ -131,22 +131,18 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Color Description is empty!"); 
 		}
-		else if ($brand_name == "") {
-			$line_cnt++;
-			$err_arr[$line_cnt] = _("Brand is empty!"); 
-		}
 		else if (!check_stock_id_exist(trim($stock_id))) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Stock ID does not exist!");
+			$err_arr[$line_cnt] = _("Stock ID does not exist! " . "(" . $stock_id . ")");
 		}
 		else if (check_color_exist(trim($stock_id), trim($stock_id) . "-" . $color, true, true)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . trim($stock_id) . "-" . $color . ")");
+			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . $stock_id . "-" . $color . ")");
 		}
 		//For parent Item Code
 		else if (!check_color_exist(trim($stock_id), trim($stock_id), true, true)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Parent Item Code Already Existed!");
+			$err_arr[$line_cnt] = _("Parent Item Code Already Existed for this Item! ". "(" . $stock_id .")");
 		}
 		else {
 			
