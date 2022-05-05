@@ -120,8 +120,6 @@ function price_total($row) {
 }
 
 #----------------------------------------------#
-$category_id = $_GET["itemgroup"] != '' && is_numeric($_GET['itemgroup']) ? $_GET["itemgroup"] : get_post("category");
-//
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
@@ -129,19 +127,21 @@ start_table(TABLESTYLE_NOBORDER);
 
 start_row();
 
-text_cells(_("Description"), "description");
+text_cells(_("Description: &nbsp;"), "description");
 
 /* Modified Ronelle 9/28/2020 */
-if ($_GET["itemgroup"] == '') { //Added by spyrax10
+if ($_GET["itemgroup"] == '' || $_GET["itemgroup"] == -1) { //Added by spyrax10
 	if ($_GET["type"] != "pr" && $_GET['type'] != "sales") {
-		stock_categories_list_cells(_("Category"), "category", null, _("All Categories"), 
-			true //Added by spyrax10
-		);
+		sql_type_list(_("Select Category: &nbsp;"), 'category', 
+            get_category_list(), 'category_id', 'description', 
+            '', null, true, _("All Categories")
+        );
 	}
 }
 else if (!is_numeric($_GET['itemgroup'])) {
-	stock_categories_list_cells(_("Category"), "category", null, _("All Categories"), 
-		true //Added by spyrax10
+	sql_type_list(_("Select Category: &nbsp;"), 'category', 
+		get_category_list(), 'category_id', 'description', 
+		'', null, true, _("All Categories")
 	);
 }
 
@@ -154,12 +154,7 @@ end_row();
 
 end_table();
 
-//Added by spyrax10
-if ($_GET["itemgroup"] != '' && is_numeric($_GET['itemgroup'])) {
-	display_heading("Category: " . get_category_name($category_id));
-	br();
-}
-//
+$category_id = $_GET["itemgroup"] > 0 ? $_GET["itemgroup"] : get_post("category");
 
 $sql = ($_GET['type'] == "pr"|| $_GET['type'] == "sales") ?
 get_items_search(get_post("description"), @$_GET['type'], @$_GET['itemgroup'], @$_GET['supplier']) :
@@ -180,7 +175,7 @@ $cols = array (
 );
 
 
-$table = &new_db_pager('item_tbl', $sql, $cols, null, null, 20);
+$table = &new_db_pager('item_tbl', $sql, $cols, null, null, 15);
 
 $table->width = "98%";
 

@@ -253,13 +253,13 @@ function item_in_foreign_codes($stock_id)
 	return $msg;
 }
 
-function get_items_search($description, $type, $category = -1, $supplier_id = 0)
-{
-	//Modified by spyrax10
+//Modified by spyrax10 5 May 2022
+function get_items_search($description, $type, $category = -1, $supplier_id = 0) {
+	
 	global $SysPrefs, $def_coy;
 	set_global_connection($def_coy); 
 	$stmt_category = "";
-	//
+	
 
 	/* $sql = "SELECT COUNT(i.item_code) AS kit, i.item_code, i.description, c.description category
 		FROM ".TB_PREF."stock_master s, ".TB_PREF."item_codes i
@@ -270,7 +270,6 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 				i.description LIKE " . db_escape("%" . get_post("description"). "%") . " OR 
 				c.description LIKE " . db_escape("%" . get_post("description"). "%") . ") "; */
 
-	//Modified by spyrax10
 	if ($category != null) {
 		if ($category != -1) {
 			$stmt_category = " AND c.category_id = " . db_escape($category);
@@ -278,54 +277,54 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 	} else {
 		$stmt_category = "";
 	}
-	//
 	
 	$sql = 
 	"SELECT 
-		COUNT(i.item_code) AS kit, 
-		i.item_code, i.description, 
+		COUNT(s.stock_id) AS kit, 
+		s.stock_id AS item_code, s.description, 
 		c.description AS category, 
 		b.name AS brand_name,
 		m.name AS manufacturer_name, s.units, s.stock_id, 
 		d.name AS distributor_name, 
 		ii.name AS importer_name
-	FROM stock_master s 
-		INNER JOIN item_codes i ON i.stock_id = s.stock_id
-		LEFT JOIN stock_category c ON i.category_id = c.category_id	
-		LEFT JOIN item_brand b ON s.brand = b.id 
-		LEFT JOIN item_manufacturer m ON s.manufacturer = m.id
-		LEFT JOIN item_distributor d ON s.distributor = d.id 
-		LEFT JOIN item_importer ii ON s.importer = ii.id	
+	FROM ".TB_PREF."stock_master s 
+		LEFT JOIN ".TB_PREF."stock_category c ON s.category_id = c.category_id	
+		LEFT JOIN ".TB_PREF."item_brand b ON s.brand = b.id 
+		LEFT JOIN ".TB_PREF."item_manufacturer m ON s.manufacturer = m.id
+		LEFT JOIN ".TB_PREF."item_distributor d ON s.distributor = d.id 
+		LEFT JOIN ".TB_PREF."item_importer ii ON s.importer = ii.id	
 			
-	WHERE i.inactive = 0 AND s.inactive = 0";
+	WHERE s.inactive = 0";
 
 	if ($description != "") {
 		$sql .= 
-		" AND (i.item_code LIKE " . db_escape("%" . $description . "%") . " OR
-			i.description LIKE " . db_escape("%" . $description . "%") . " OR
+		" AND (s.stock_id LIKE " . db_escape("%" . $description . "%") . " OR
+			s.description LIKE " . db_escape("%" . $description . "%") . " OR
 			b.name LIKE " . db_escape("%" . $description . "%") . "  OR
 			m.name LIKE " . db_escape("%" . $description . "%") . "
-		)" . $stmt_category;
+		)";
 	}
 
 	if ($type == "pr") {
-		$sql = "SELECT COUNT(i.item_code) AS kit, i.item_code, i.description, c.description as category, 
+		$sql = "SELECT COUNT(s.stock_id) AS kit, s.stock_id AS item_code, s.description, c.description as category, 
 			b.name as brand_name, m.name as manufacturer_name, s.units, s.stock_id, d.name as distributor_name, ii.name as importer_name
-				FROM stock_master s 
-					INNER JOIN purch_data pd on pd.stock_id = s.stock_id AND pd.supplier_id = " . db_escape($supplier_id) . "
-					INNER JOIN item_codes i ON i.stock_id=s.stock_id AND i.is_foreign = 0 
-					LEFT JOIN stock_category c ON i.category_id=c.category_id 
-					LEFT JOIN item_brand b ON s.brand=b.id 
-					LEFT JOIN item_manufacturer m ON s.manufacturer=m.id 
-					LEFT JOIN item_distributor d ON s.distributor=d.id 
-					LEFT JOIN item_importer ii ON s.importer=ii.id	
+				FROM ".TB_PREF."stock_master s 
+					INNER JOIN ".TB_PREF."purch_data pd on pd.stock_id = s.stock_id AND pd.supplier_id = " . db_escape($supplier_id) . "
+					LEFT JOIN ".TB_PREF."stock_category c ON s.category_id = c.category_id 
+					LEFT JOIN ".TB_PREF."item_brand b ON s.brand = b.id 
+					LEFT JOIN ".TB_PREF."item_manufacturer m ON s.manufacturer = m.id 
+					LEFT JOIN ".TB_PREF."item_distributor d ON s.distributor = d.id 
+					LEFT JOIN ".TB_PREF."item_importer ii ON s.importer = ii.id	
 					
-				WHERE !i.inactive AND !s.inactive
-					AND (i.item_code LIKE " . db_escape("%" . $description . "%") . " OR
-						i.description LIKE " . db_escape("%" . get_post("description") . "%") . " OR
-						b.name LIKE " . db_escape("%" . get_post("description") . "%") . "  OR
-						m.name LIKE " . db_escape("%" . get_post("description") . "%") . ")" . $stmt_category;
+		WHERE !s.inactive
+			AND (s.stock_id LIKE " . db_escape("%" . $description . "%") . " OR
+				s.description LIKE " . db_escape("%" . get_post("description") . "%") . " OR
+				b.name LIKE " . db_escape("%" . get_post("description") . "%") . "  OR
+				m.name LIKE " . db_escape("%" . get_post("description") . "%") . "
+			)";
 	}
+
+	$sql .= $stmt_category;
 
 	switch ($type) {
 		case "sales":
@@ -335,37 +334,36 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 			$sql .= " AND mb_flag = 'M'";
 			break;
 		case "purchasable":
-			$sql .= " AND NOT no_purchase AND mb_flag <> 'F' AND i.item_code = i.stock_id";
+			$sql .= " AND NOT no_purchase AND mb_flag <> 'F' ";
 			break;
 		case "costable":
-			$sql .= " AND mb_flag <> 'D' AND mb_flag <> 'F' AND  i.item_code = i.stock_id";
+			$sql .= " AND mb_flag <> 'D' AND mb_flag <> 'F' ";
 			break;
 		case "component":
 			$parent = $_GET['parent'];
-			$sql .= " AND  i.item_code = i.stock_id AND i.stock_id <> '$parent' AND mb_flag <> 'F' ";
+			$sql .= " AND i.stock_id <> '$parent' AND mb_flag <> 'F' ";
 			break;
 		case "kits":
-			$sql .= " AND !i.is_foreign AND i.item_code != i.stock_id AND mb_flag <> 'F'";
+			$sql .= " AND !i.is_foreign AND mb_flag <> 'F'";
 			break;
 		case "all":
-			$sql .= " AND mb_flag <> 'F' AND i.item_code = i.stock_id";
+			$sql .= " AND mb_flag <> 'F' ";
 			break;
 	}
 	
-	//Modified by spyrax10 11-01-2022
 	/*
 	if (isset($SysPrefs->max_rows_in_search))
 		$limit = $SysPrefs->max_rows_in_search;
-	else
+	}
+	else {
 		$limit = 10;
 	*/
 
 	//$sql .= " GROUP BY i.item_code ORDER BY i.description LIMIT 0," . (int)($limit);
-	$sql .= " GROUP BY i.item_code ORDER BY i.description";
+	$sql .= " GROUP BY s.stock_id ORDER BY s.description ";
 	//$result = db_query($sql, "Failed in retreiving item list.");
 	//set_global_connection();
 	return $sql;
-	//
 }
 
 /* Added by Ronelle 7/17/2021 Check Item if Allow Zero Cost */
@@ -401,7 +399,7 @@ function check_item_serialized($stock_id)
 //Added by spyrax10 4 May 2022
 function get_item_description($stock_id = "") {
 
-	set_global_connection();
+	set_global_connection(0);
 
 	$sql = "SELECT description 
 		FROM ".TB_PREF."stock_master 
