@@ -87,9 +87,8 @@ function get_importer_id($stock_id) {
 		FROM ".TB_PREF."stock_master 
 		WHERE stock_id=".db_escape($stock_id);
 
-		
 	$result = db_query($sql, "Item Importer could not retrive!");
 	$row = db_fetch_row($result);
 
-	return $row[0];
+	return $row[0] != null? $row[0]: 0;
 }
