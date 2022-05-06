@@ -53,7 +53,7 @@ if (isset($_GET['AddedID']) && isset($_GET['PONumber'])) {
 
     display_note(print_document_link($order_no, _("&Email This Order"), true, $trans_type, false, "printlink", "", 1));
 
-    hyperlink_params("$path_to_root/purchasing/inquiry/po_search_completed.php", _("Back to Purchase Order List"), "", true);
+    hyperlink_params("$path_to_root/purchasing/po_branch.php", _("Back to Purchase Order List"), "", true);
 
     // hyperlink_params($path_to_root . "/purchasing/po_receive_items.php", _("&Receive Items on this Purchase Order"), "PONumber=$order_no");
 
@@ -206,7 +206,7 @@ function update_status_header(&$po)
     }
 
     if ($_POST['Location'] != "HO") {
-        label_row(_("Deliver Into Location"), get_location_name($_POST['Location']));
+        label_row(_("Deliver Into Location"), get_location_name($_POST['Location'], $_GET['branch_coy']));
         hidden('Location');
     } else {
         locations_list_row(_("Deliver Into Location"), "Location", $_POST['Location']);

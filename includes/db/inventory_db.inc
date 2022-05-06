@@ -835,8 +835,9 @@ function void_stock_move($type, $type_no)
 
 //--------------------------------------------------------------------------------------------------
 
-function get_location_name($loc_code)
-{
+function get_location_name($loc_code, $company_id = -1) {
+	set_global_connection($company_id);
+
 	$sql = "SELECT location_name FROM " . TB_PREF . "locations
 		WHERE loc_code=" . db_escape($loc_code);
 

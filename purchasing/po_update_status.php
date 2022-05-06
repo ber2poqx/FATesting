@@ -144,7 +144,7 @@ function update_status_header(&$po)
     if (isset($_GET['branch_coy'])) {
         set_global_connection($_GET['branch_coy']);
     }
-    label_row(_("Deliver Into Location"), get_location_name($po->Location));
+    label_row(_("Deliver Into Location"), get_location_name($po->Location, $_GET['branch_coy']));
     if (!isset($_POST['DefaultReceivedDate']))
         $_POST['DefaultReceivedDate'] = new_doc_date();
 

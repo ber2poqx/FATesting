@@ -436,7 +436,7 @@ function display_po_summary(&$po, $is_self = false, $editable = false)
 	} else {
 		label_cells(
 			_("Deliver Into Location"),
-			get_location_name($po->Location),
+			get_location_name($po->Location, $_GET['branch_coy']),
 			"class='tableheader2'"
 		);
 	}

@@ -189,6 +189,9 @@ class references
 		$ref_fld = $db_info[3];
 		$type = db_escape($type);
 
+		//Added by spyrax10 6 May 2022
+		set_global_connection($_SESSION["wa_current_user"]->company);
+
 		// retrieve last ref number in the refline from original transaction table
 		$sql = "SELECT MAX(CAST(SUBSTR($ref_fld, ".(strlen($prefix)+1).",LENGTH($ref_fld)-".(strlen($postfix)+strlen($prefix)).") AS UNSIGNED))"
 				." FROM `$trans_table` tbl
