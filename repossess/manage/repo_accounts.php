@@ -449,6 +449,19 @@ if(isset($_GET['submit']))
         $dsplymsg = _('remarks must not be empty.');
     }
 
+    if($_POST['repo_type'] == 'mt') {
+        if (empty($_POST['cBranch'])) {
+            $InputError = 1;
+            $dsplymsg = _('Branch must not be empty.');
+        }
+
+        if (empty($_POST['mt_ref'])) {
+            $InputError = 1;
+            $dsplymsg = _('MT reference no must not be empty.');
+        }
+
+    }
+
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
     
@@ -503,20 +516,6 @@ if(isset($_GET['submit']))
                 $debtor_no = $_POST['customername'];
             }
 
-            /*if($_POST['autocreatecust'] == "on"){
-                $ncustomerst = get_new_added_customer($_POST['customercode'], $_POST['custname']);
-                if($ncustomerst['debtor_no'] == 0){
-
-                    auto_create_customer($_POST['customercode'], $_POST['cBranch']);
-
-                    //retrieve new added customer
-                    $ncustomerst = get_new_added_customer($_POST['customercode'], $_POST['custname']);
-                }
-                $debtor_no = $ncustomerst['debtor_no'];
-            }else{
-                $debtor_no = $_POST['customername'];
-            }*/
-
             //copy info from originating branch
             $result = get_mt_repo_account($_POST['base_transno'], $_POST['cBranch']);
             $repoacct_row = db_fetch($result);
@@ -544,10 +543,11 @@ if(isset($_GET['submit']))
 
             // Branch Current -credit
             if(isset($PerBranchGL)){
-
                 $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $PerBranchGL, 0, 0, -$_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['cBranch'], $Branch_name, 0, $_POST['mt_ref']);
-
             }
+
+            //update mt from branch/ho
+            set_mt_repo_status($_POST['mt_ref'], $item_row['stock_id']);
 
         }else{
 

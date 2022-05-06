@@ -194,5 +194,5 @@ function get_replace_item($trans_no)
 				AND A.debtor_trans_details_id != B.id
 			ORDER BY B.id DESC";
 
-	return db_query($sql, "could not get a/r ledger entries because ");
+	return db_query($sql, "could not get replace items because ");
 }

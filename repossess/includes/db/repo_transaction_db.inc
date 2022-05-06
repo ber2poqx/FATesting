@@ -533,10 +533,10 @@ function check_existing_customer($custname, $bdate)
 	return db_fetch($result);
 }
 
-function get_mt_details($from_branch, $id, $stock_id)
+function get_mt_details($id, $stock_id)
 {
-	$db_coy = Get_db_coy($from_branch);
-    set_global_connection($db_coy);
+	global $def_coy;
+    set_global_connection($def_coy);
 
 	$sql = "SELECT A.* 
 			FROM ".TB_PREF."mt_details A 
@@ -550,10 +550,10 @@ function get_mt_details($from_branch, $id, $stock_id)
 	return db_fetch($result);
 }
 
-function update_mt_details($from_branch, $id)
+function repo_update_mt_details($id)
 {
-	$db_coy = Get_db_coy($from_branch);
-    set_global_connection($db_coy);
+	global $def_coy;
+    set_global_connection($def_coy);
 
 	$sql = "UPDATE ".TB_PREF."mt_details 
 			SET mt_details_status = 2 
@@ -563,14 +563,14 @@ function update_mt_details($from_branch, $id)
 	set_global_connection();
 }
 
-function update_mt_header($from_branch, $id)
+function repo_update_mt_header($id)
 {
-	$db_coy = Get_db_coy($from_branch);
-    set_global_connection($db_coy);
+	global $def_coy;
+    set_global_connection($def_coy);
 
-	$sql = "UPDATE ".TB_PREF."mt_details 
+	$sql = "UPDATE ".TB_PREF."mt_header 
 			SET mt_header_status = 2 
-		WHERE mt_header_id = ".db_escape($id);
+			WHERE mt_header_id = ".db_escape($id);
 	
 	db_query($sql, "could not update  mt header because ");
 	set_global_connection();

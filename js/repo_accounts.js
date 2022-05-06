@@ -502,49 +502,49 @@ Ext.onReady(function(){
 			name: 'sysid',
 			fieldLabel: 'sysid',
 			//allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'textfield',
 			id: 'transtype',
 			name: 'transtype',
 			fieldLabel: 'transtype',
 			allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'textfield',
 			id: 'base_transno',
 			name: 'base_transno',
 			fieldLabel: 'base_transno',
 			allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'textfield',
 			id: 'base_transtype',
 			name: 'base_transtype',
 			fieldLabel: 'base_transtype',
 			allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'textfield',
 			id: 'custname',
 			name: 'custname',
 			fieldLabel: 'custname',
 			allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'textfield',
 			id: 'mtrep_fkid',
 			name: 'mtrep_fkid',
 			fieldLabel: 'mtrep_fkid',
 			//allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'textfield',
 			id: 'loadcust',
 			name: 'loadcust',
 			fieldLabel: 'loadcust',
 			//allowBlank: false,
-			hidden: true
+	//		hidden: true
 		},{
 			xtype: 'panel',
 			id: 'mainpanel',
@@ -560,7 +560,7 @@ Ext.onReady(function(){
 						id: 'cBranch',
 						name: 'cBranch',
 						fieldLabel: 'Branch ',
-						allowBlank: false,
+						//allowBlank: false,
 						store : Branchstore,
 						displayField: 'name',
 						valueField: 'id',
@@ -583,7 +583,7 @@ Ext.onReady(function(){
 						id: 'mt_ref',
 						name: 'mt_ref',
 						fieldLabel: 'MT Reference ',
-						allowBlank: false,
+						//allowBlank: false,
 						store : mtstore,
 						displayField: 'desc',
 						valueField: 'id',
