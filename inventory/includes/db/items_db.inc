@@ -183,17 +183,30 @@ function delete_item($stock_id)
 	delete_item_kit($stock_id);
 }
 
-function get_item($stock_id)
-{
+//Modified by spyrax10 6 May 2022
+function get_item($stock_id) {
+	
+	set_global_connection(0);
 	/* $sql = "SELECT item.*, taxtype.name AS tax_type_name
 		FROM ".TB_PREF."stock_master item,"
 			.TB_PREF."item_tax_types taxtype
 		WHERE taxtype.id=item.tax_type_id
 		AND stock_id=".db_escape($stock_id); */
 	//Change by Herald -12/19/2020		
-	$sql = "SELECT item.*, icode.description as item_description, icode.product_status as itemstatus, taxtype.name AS tax_type_name,brand.name as brand_name,manufacturer.name as manufacturer_name, distributor.name as distributor_name	FROM " . TB_PREF . "stock_master item INNER JOIN " . TB_PREF . "item_tax_types taxtype ON taxtype.id=item.tax_type_id LEFT JOIN " . TB_PREF . "item_brand brand ON item.brand=brand.id LEFT JOIN  " . TB_PREF . "item_manufacturer manufacturer ON item.manufacturer=manufacturer.id LEFT JOIN " . TB_PREF . "item_distributor distributor ON item.distributor=distributor.id 
-	INNER JOIN " . TB_PREF . "item_codes icode ON item.stock_id=icode.stock_id 
-	WHERE icode.item_code=" . db_escape($stock_id);
+	$sql = 
+		"SELECT item.*, icode.description AS item_description, 
+			icode.product_status AS itemstatus, taxtype.name AS tax_type_name, 
+			brand.name AS brand_name, manufacturer.name AS manufacturer_name, 
+			distributor.name AS distributor_name 
+
+		FROM " . TB_PREF . "stock_master item 
+			INNER JOIN " . TB_PREF . "item_tax_types taxtype ON taxtype.id = item.tax_type_id 
+			LEFT JOIN " . TB_PREF . "item_brand brand ON item.brand = brand.id 
+			LEFT JOIN  " . TB_PREF . "item_manufacturer manufacturer ON item.manufacturer = manufacturer.id 
+			LEFT JOIN " . TB_PREF . "item_distributor distributor ON item.distributor = distributor.id 
+			INNER JOIN " . TB_PREF . "item_codes icode ON item.stock_id = icode.stock_id 
+
+		WHERE icode.item_code=" . db_escape($stock_id);
 
 	$result = db_query($sql, "an item could not be retreived");
 
