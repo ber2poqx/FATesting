@@ -427,6 +427,10 @@ function display_po_summary(&$po, $is_self = false, $editable = false)
 	label_cells(_("Purchase Type"), $po->purch_type_id == 1 ? "HO" : "LOCAL", "class='tableheader2'");
 	if (isset($_GET['branch_coy'])) {
 		set_global_connection($_GET['branch_coy']);
+		$branch_ = $_GET['branch_coy'];
+	}
+	else {
+		$branch_ = $_SESSION["wa_current_user"]->company;
 	}
 	if ($editable) {
 		if (!isset($_POST['Location']))
@@ -436,7 +440,7 @@ function display_po_summary(&$po, $is_self = false, $editable = false)
 	} else {
 		label_cells(
 			_("Deliver Into Location"),
-			get_location_name($po->Location, $_GET['branch_coy']),
+			get_location_name($po->Location, $branch_),
 			"class='tableheader2'"
 		);
 	}
