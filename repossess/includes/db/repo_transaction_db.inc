@@ -532,3 +532,46 @@ function check_existing_customer($custname, $bdate)
 	$result = db_query($sql, "could not get customer accounts because");
 	return db_fetch($result);
 }
+
+function get_mt_details($from_branch, $id, $stock_id)
+{
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
+
+	$sql = "SELECT A.* 
+			FROM ".TB_PREF."mt_details A 
+			WHERE  A.mt_details_stock_id = ".db_escape($stock_id)."
+				AND A.mt_details_header_id = ".db_escape($id);
+
+	$result = db_query($sql, "could not get mt details info because");
+
+	set_global_connection();
+
+	return db_fetch($result);
+}
+
+function update_mt_details($from_branch, $id)
+{
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
+
+	$sql = "UPDATE ".TB_PREF."mt_details 
+			SET mt_details_status = 2 
+		WHERE mt_details_id = ".db_escape($id);
+	
+	db_query($sql, "could not update  mt details because ");
+	set_global_connection();
+}
+
+function update_mt_header($from_branch, $id)
+{
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
+
+	$sql = "UPDATE ".TB_PREF."mt_details 
+			SET mt_header_status = 2 
+		WHERE mt_header_id = ".db_escape($id);
+	
+	db_query($sql, "could not update  mt header because ");
+	set_global_connection();
+}

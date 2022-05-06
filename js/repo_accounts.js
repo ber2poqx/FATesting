@@ -309,11 +309,6 @@ Ext.onReady(function(){
 					var records = RepoDetailsStore.getAt(rowIndex);
 
 					if(records.get('repo_type') == 'mt'){
-						/*var mydata = [
-							[debtor_no: records.get('debtor_no'), 
-							records.get('name')]
-						];
-						CustomerStore.loadData(mydata, false); */
 						CustomerStore.add({
 							debtor_no: records.get('debtor_no'),
 							debtor_ref:  records.get('debtor_no'),
@@ -323,10 +318,7 @@ Ext.onReady(function(){
 						CustomerStore.proxy.extraParams = {debtor_ref: records.get('debtor_ref')};
 						CustomerStore.load();
 					}
-
-					SIitemStore.proxy.extraParams = {repo_id: records.get('id')};
-					SIitemStore.load();
-
+					
 					Ext.getCmp('InvoiceNo').setVisible(false);
 					Ext.getCmp('vw_InvoiceNo').setVisible(true);
 					//Ext.getCmp('btncancel').setVisible(false);
@@ -366,6 +358,10 @@ Ext.onReady(function(){
 					Ext.getCmp('gpm').setValue(records.get('gpm'));
 					Ext.getCmp('total_unrecovrd').setValue(records.get('total_unrecovered'));
 					Ext.getCmp('remarks').setValue(records.get('comments'));
+					Ext.getCmp('customername').setWidth(390);
+
+					SIitemStore.proxy.extraParams = {repo_id: records.get('id')};
+					SIitemStore.load();
 
 					submit_window.setTitle('Receiving Report Repo Details - Reference No. :'+ records.get('reference_no'));
 					submit_window.show();
@@ -536,6 +532,20 @@ Ext.onReady(function(){
 			allowBlank: false,
 			hidden: true
 		},{
+			xtype: 'textfield',
+			id: 'mtrep_fkid',
+			name: 'mtrep_fkid',
+			fieldLabel: 'mtrep_fkid',
+			//allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'loadcust',
+			name: 'loadcust',
+			fieldLabel: 'loadcust',
+			//allowBlank: false,
+			hidden: true
+		},{
 			xtype: 'panel',
 			id: 'mainpanel',
 			items: [{
@@ -585,12 +595,15 @@ Ext.onReady(function(){
 						fieldStyle: 'font-weight: bold; color: #210a04;',
 						listeners: {
 							select: function(combo, record, index) {
+								Ext.getCmp('mtrep_fkid').setValue(record.get('fk_id'));
+
 								CustomerStore.proxy.extraParams = {repo_id: record.get('fk_id'), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
 								CustomerStore.load({
 									callback: function(records) {                 
 										Ext.getCmp('customercode').setValue(records[i].get('debtor_ref'));
 										Ext.getCmp('customername').setValue(records[i].get('debtor_no'));
 										Ext.getCmp('custname').setValue(records[i].get('name'));
+										Ext.getCmp('loadcust').setValue(1);
 									}
 								});
 
@@ -721,8 +734,22 @@ Ext.onReady(function(){
 							Ext.getCmp('customername').setValue();
 							Ext.getCmp('custname').setValue();
 							//Ext.getCmp('autocreatecust').disable();
-							CustomerStore.proxy.extraParams = {rtype: 'all'};
-							CustomerStore.load();
+							if(Ext.getCmp('loadcust').getValue() == 1){
+								CustomerStore.proxy.extraParams = {rtype: 'all'};
+								CustomerStore.load();
+
+								Ext.getCmp('loadcust').setValue(0);
+							}else{
+								CustomerStore.proxy.extraParams = {repo_id: Ext.getCmp('mtrep_fkid').getValue(), from_branch: Ext.getCmp('cBranch').getValue(), rtype: Ext.getCmp('repo_type').getValue()};
+								CustomerStore.load({
+									callback: function(records) {                 
+										Ext.getCmp('customercode').setValue(records[i].get('debtor_ref'));
+										Ext.getCmp('customername').setValue(records[i].get('debtor_no'));
+										Ext.getCmp('custname').setValue(records[i].get('name'));
+										Ext.getCmp('loadcust').setValue(1);
+									}
+								});
+							}
 						}
 					},{
 						xtype: 'combobox',
