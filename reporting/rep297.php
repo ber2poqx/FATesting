@@ -23,7 +23,7 @@ include_once($path_to_root . "/inventory/includes/db/items_codes_db.inc");
 
 print_transaction();
 
-function getTransactions($stock_id = "", $category) {
+function getTransactions($stock_id = "", $category, $brand) {
 
 	$sql = "SELECT IC.*, SC.description AS cat_name, IC.description AS color_desc
         FROM ".TB_PREF."stock_master SM
@@ -34,6 +34,10 @@ function getTransactions($stock_id = "", $category) {
     
     if ($category != 0) {
         $sql .= " AND SM.category_id = ".db_escape($category);
+    }
+
+    if ($brand != 0) {
+        $sql .= " AND SM.brand = ".db_escape($brand);
     }
 
     if ($stock_id != "") {
@@ -56,15 +60,18 @@ function print_transaction() {
     global $path_to_root, $SysPrefs;
 
     $category = $_POST['PARAM_0'];
-	$stock_id = $_POST['PARAM_1'];
-    $yes_no = $_POST['PARAM_2'];
-    $comments = $_POST['PARAM_3'];
-	$destination = $_POST['PARAM_4'];
+    $brand = $_POST['PARAM_1'];
+	$stock_id = $_POST['PARAM_2'];
+    $yes_no = $_POST['PARAM_3'];
+    $comments = $_POST['PARAM_4'];
+	$destination = $_POST['PARAM_5'];
 
-    if ($destination)
-		include_once($path_to_root . "/reporting/includes/excel_report.inc");
-	else
-		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+    if ($destination) {
+        include_once($path_to_root . "/reporting/includes/excel_report.inc");
+    }
+	else {
+        include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+    }
 		
     $dec = user_price_dec();
     $cat_name = "";
@@ -88,22 +95,33 @@ function print_transaction() {
         $stock_name = get_stock_name($stock_id);
     }
 
-    $cols = array(0, 120, 300, 415, 550, 600);
+    if ($brand == ALL_NUMERIC) {
+        $brand = 0;
+    }
+	if ($brand == 0) {
+        $brand_name = _('ALL BRANDS');
+    }
+	else {
+        $brand_name = get_brand_descr($brand);
+    }
+
+    $cols = array(0, 120, 300, 380, 450, 580, 0);
+    $aligns = array('left', 'left', 'left', 'left', 'right');
 
     $headers = array (
         _("Stock ID"),
-        _("Item Color Code"),
-        _("Color"),
-        $yes_no == 1 ? _("Item Description") : _("Color Description")
+        _("FA Item Code"),
+        _("Color Code"),
+        $yes_no == 1 ? _("Item Description") : _("Color Description"),
+        _("Old System Code")
     );
-
-    $aligns = array('left', 'left', 'left', 'left');
 
     $params = array( 
 		0 => $comments,
         1 => array('text' => _('Category'), 'from' => $cat_name, 'to' => ''),
-    	2 => array('text' => _('Product Name'), 'from' => $stock_name, 'to' => ''),
-        3 => array('text' => _('Has Color Code'), 'from' => $yes_no == 1 ? "NO" : "YES", 'to' => ''),
+        2 => array('text' => _('Brand'), 'from' => $brand_name, 'to' => ''),
+    	3 => array('text' => _('Product Name'), 'from' => $stock_name, 'to' => ''),
+        4 => array('text' => _('Has Color Code'), 'from' => $yes_no == 1 ? "NO" : "YES", 'to' => ''),
 	);
 
     $rep = new FrontReport(_('Color Code List Report'), "Color_List_Report", 'LETTER', 9, $orientation);
@@ -117,7 +135,7 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = getTransactions($stock_id, $category);
+    $res = getTransactions($stock_id, $category, $brand);
     $cat = '';
 
     while ($trans = db_fetch($res)) {
@@ -140,6 +158,7 @@ function print_transaction() {
                 $rep->TextCol(1, 2, '');
                 $rep->TextCol(2, 3, $trans['color']);
                 $rep->TextCol(3, 4, $trans['color_desc']);
+                $rep->TextCol(4, 5, '');
                 $rep->fontSize += 1;
                 $rep->NewLine();
             }
@@ -151,6 +170,7 @@ function print_transaction() {
                 $rep->TextCol(1, 2, $trans['item_code']);
                 $rep->TextCol(2, 3, $trans['color']);
                 $rep->TextCol(3, 4, $trans['color_desc']);
+                $rep->TextCol(4, 5, $trans['old_code']);
                 $rep->fontSize += 1;
                 $rep->NewLine();
             }

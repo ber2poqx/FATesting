@@ -76,3 +76,19 @@ function get_all_importer($all=false) {
 	$sql .= " ORDER BY name";
     return  db_query($sql, "could not get distributor");
 }
+
+//Added by spyrax10 5 May 2022
+
+function get_importer_id($stock_id) {
+
+	set_global_connection(0);
+
+	$sql = "SELECT importer 
+		FROM ".TB_PREF."stock_master 
+		WHERE stock_id=".db_escape($stock_id);
+
+	$result = db_query($sql, "Item Importer could not retrive!");
+	$row = db_fetch_row($result);
+
+	return $row[0] != null? $row[0]: 0;
+}

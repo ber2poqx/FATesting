@@ -131,27 +131,25 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Color Description is empty!"); 
 		}
-		else if ($brand_name == "") {
-			$line_cnt++;
-			$err_arr[$line_cnt] = _("Brand is empty!"); 
-		}
 		else if (!check_stock_id_exist(trim($stock_id))) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Stock ID does not exist!");
+			$err_arr[$line_cnt] = _("Stock ID does not exist! " . "(" . $stock_id . ")");
 		}
 		else if (check_color_exist(trim($stock_id), trim($stock_id) . "-" . $color, true, true)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . trim($stock_id) . "-" . $color . ")");
+			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . $stock_id . "-" . $color . ")");
 		}
-		else if (!brand_exists($brand_name)) {
+		//For parent Item Code
+		else if (!check_color_exist(trim($stock_id), trim($stock_id), true, true)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Brand does not exist!");
+			$err_arr[$line_cnt] = _("Parent Item Code Already Existed for this Item! ". "(" . $stock_id .")");
 		}
 		else {
 			
 			$item_code = trim($stock_id) . "-" . $color;
 			$manu_id = !manufacturer_exists($manufacturer) || $manufacturer == "" ? 0 : manufacturer_exists($manufacturer, true);
 			$brand_id = !brand_exists($brand_name) || $brand_name == "" ? 0 : brand_exists($brand_name, true);
+			$importer_id = get_importer_id(trim($stock_id));
 
 			if ($status == "") {
 				$status_id = 0;
@@ -164,7 +162,6 @@ if (isset($_POST['import_btn']) && can_import()) {
 					$status_id = 0;
 				}
 			}
-			$status = $status != "" ? $status : "0";
 
 			if (item_code_has_parent(trim($stock_id))) {
 				add_item_code(
@@ -173,7 +170,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					1, 1,
 					$brand_id,
 					$manu_id, 
-					0, 0, $status_id,
+					0, $importer_id, $status_id,
 					$old_code
 				);
 			}
@@ -185,7 +182,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					1, 0,
 					$brand_id,
 					$manu_id, 
-					0, 0, $status_id, null
+					0, $importer_id, $status_id, null
 				);
 
 				add_item_code(
@@ -194,7 +191,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					1, 1,
 					$brand_id,
 					$manu_id, 
-					0, 0, $status_id,
+					0, $importer_id, $status_id,
 					$old_code
 				);
 			}
@@ -213,8 +210,12 @@ if (isset($_POST['import_btn']) && can_import()) {
 	}
 
 	if ($CI > 0) {
-		display_notification(_("$CI Item Color Code(s) Imported Successfully!"));
-		//meta_forward($_SERVER['PHP_SELF'], "Rows_Uploaded=" . $CI);
+		if (count($err_arr) == 0) {
+			display_notification(_("$CI Item Color Code(s) Imported Successfully!"));
+		}
+		else {
+			display_error(_("$CI Item Color Code(s) Imported Successfully!"));
+		}
 	}
 	else {
 		display_error(_("No Item has been imported!"));
