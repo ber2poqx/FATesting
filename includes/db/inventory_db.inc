@@ -574,7 +574,7 @@ function handle_negative_inventory($stock_id, $quantity, $standard_cost, $date_)
 // $std_cost - in HOME currency
 // $price - in transaction currency
 
-function add_stock_move($type, $stock_id, $trans_no, $location, $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = '', $chasis_no = '', $category = 0, $color_code = '', $type_out = 0, $transno_out = 0, $item_type = "new", $remarks = null)
+function add_stock_move($type, $stock_id, $trans_no, $location, $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = '', $chasis_no = '', $category = 0, $color_code = '', $type_out = 0, $transno_out = 0, $item_type = "new", $remarks = '')
 
 {
 	$date = date2sql($date_);
