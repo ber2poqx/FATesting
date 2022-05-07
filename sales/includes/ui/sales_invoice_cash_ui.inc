@@ -759,10 +759,10 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		} else {
 			/*modified by Albert 04/23/2022*/
 			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
-			$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
-			$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'],$last_date_updated);
-
+			
 				if (date2sql(get_post('OrderDate')) < $date_epic){
+					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'],$last_date_updated);
 
 				    $price = $previous_price;
 
@@ -776,7 +776,7 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$discount1 = Get_Sales_Discount1($_POST['stock_id']);
 		$discount2 = Get_Sales_Discount2($_POST['stock_id']);		
 		$_POST['lcp_price'] = price_format($lcp_price); //Added by spyrax10
-		$_POST['price'] = price_format($price);
+		$_POST['price'] = price_format($price)==null ? 0: price_format($price);//modified by Albert 05/07/2022
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		$_POST['discount1'] = price_format($discount1);

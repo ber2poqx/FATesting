@@ -1690,15 +1690,16 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		} else {
 			/*modified by Albert 04/23/2022*/
 			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
-			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
-
+		
 			if ( date2sql(get_post('OrderDate')) < $date_epic){
+				$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+
 				$price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'], $last_date_updated);
 			}else{
 				$price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
 			}
 		}/*end Albert*/
-		$_POST['price'] = price_format($price);
+		$_POST['price'] = price_format($price)==null ? 0: price_format($price);//modified by Albert 05/07/2022
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		$smi = Get_Item_Incentive_Price($_POST['category_id'], $_POST['stock_id'], "SMI");
