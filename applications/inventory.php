@@ -81,9 +81,11 @@ class inventory_app extends application
 		// $this->add_lapp_function(2, _("Import Item Master (New)"),
 		// 	"inventory/manage/item_upload.php", 'SA_ITEM_UPLOAD', MENU_MAINTENANCE
 		// );
-		$this->add_rapp_function(2, _("Import Item Color Code"),
-			"inventory/manage/color_upload.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
-		);
+		if ($_SESSION["wa_current_user"]->company == 0) {
+			$this->add_rapp_function(2, _("Import Item Color Code"),
+				"inventory/manage/color_upload.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
+			);
+		}
 		//
 
 		$this->add_module(_("Pricing and Costs"));
