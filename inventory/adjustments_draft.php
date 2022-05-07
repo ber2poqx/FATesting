@@ -430,7 +430,8 @@ function can_post() {
             $stock_id = $row['stock_id'];
             $qoh = get_qoh_on_date_new($row['trans_type_out'], $row['trans_no_out'], $stock_id, $row['loc_code'], $trans_date, $row['lot_no']);
     
-            if (default_adjGL_total($_GET['trans_no'], $line_id) != child_adjGL_total($_GET['trans_no'], $line_id)) {
+            if (default_adjGL_total($_GET['trans_no'], $line_id) != child_adjGL_total($_GET['trans_no'], $line_id) 
+                && $row['standard_cost'] > 0) {
                 display_error(_("Can't Proceed! GL Account in some entries ARE NOT BALANCE!"));
                 return false;
             }
