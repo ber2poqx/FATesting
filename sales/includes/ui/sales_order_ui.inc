@@ -17,7 +17,7 @@ function add_to_order(
 	&$order,
 	$new_item,
 	$new_item_qty,
-	$price,
+	$price=0,
 	$discount,
 	$description = '',
 	$lot_no = '',
@@ -1699,7 +1699,7 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 				$price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
 			}
 		}/*end Albert*/
-		$_POST['price'] = price_format($price)==null ? 0: price_format($price);//modified by Albert 05/07/2022
+		$_POST['price'] = price_format($price);
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		$smi = Get_Item_Incentive_Price($_POST['category_id'], $_POST['stock_id'], "SMI");

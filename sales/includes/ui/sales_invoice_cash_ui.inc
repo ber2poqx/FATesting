@@ -17,7 +17,7 @@ function add_to_order(
 	&$order,
 	$new_item,
 	$new_item_qty,
-	$price,
+	$price = 0,
 	$discount,
 	$description = '',
 	$lot_no = '',
@@ -776,7 +776,7 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$discount1 = Get_Sales_Discount1($_POST['stock_id']);
 		$discount2 = Get_Sales_Discount2($_POST['stock_id']);		
 		$_POST['lcp_price'] = price_format($lcp_price); //Added by spyrax10
-		$_POST['price'] = price_format($price)==null ? 0: price_format($price);//modified by Albert 05/07/2022
+		$_POST['price'] = price_format($price);
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		$_POST['discount1'] = price_format($discount1);
