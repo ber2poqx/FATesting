@@ -375,7 +375,11 @@ function pr_branch_edit_prtpo_summary(&$pr, $branch_selected)
 	start_outer_table(TABLESTYLE2, "width='80%'");
 
 	table_section(1);
-	label_row(_("For Purchase Request"), get_trans_view_str(ST_PURCHREQUEST, $pr->reference));
+	
+	//Modify by spyrax10
+	$reference_link = viewer_link($pr->reference, "purchasing/view/view_pr.php?trans_no=$pr->reference&branch_coy=$branch_selected");
+	label_row(_("For Purchase Request"), $reference_link);
+	//
 
 	if (!isset($_POST['po_reference']))
 		$_POST['po_reference'] = $Refs->get_next(ST_PURCHORDER, null, array('supplier' => $pr->supplier_id, 'date' => Today(), 'branchcode' => $branchcode));
