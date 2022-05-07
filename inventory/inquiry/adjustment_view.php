@@ -173,7 +173,7 @@ function update_link($row)
 
 function gl_view($row)
 {
-	return $row['status'] == "Closed" && $row['standard_cost'] > 0 
+	return $row['status'] == "Closed" && $row['Total'] > 0 
 		? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) : null;
 }
 
