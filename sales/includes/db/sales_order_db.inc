@@ -412,6 +412,8 @@ function get_sales_order_details($order_no, $trans_type)
 
 function read_sales_order($order_no, &$order, $trans_type, $copy_so = false)
 {
+	//modified by albert 05/10/2022
+	set_global_connection();
 
 	$myrow = get_sales_order_header($order_no, $trans_type);
 
