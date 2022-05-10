@@ -13,34 +13,52 @@
 //
 //	FIXME - this should be revised for transaction update case.
 //
-function write_supp_trans($type, $trans_no, $supplier_id, $date_, $due_date, $reference, $supp_reference,
-	$amount, $amount_tax, $discount, $err_msg="", $rate=0, $included=0)
-{
-	$new = $trans_no==0;
-	$date = date2sql($date_);
-	if ($due_date == "")
-		$due_date = "0000-00-00";
-	else
-		$due_date = date2sql($due_date);
 
-	if ($new)
+//Modify by spyrax10 10 May 2022
+function write_supp_trans($type, $trans_no, $supplier_id, $date_, $due_date, $reference, $supp_reference,
+	$amount, $amount_tax, $discount, $err_msg = "", $rate = 0, $included = 0) {
+
+	set_global_connection();
+	
+	$new = $trans_no == 0;
+	$date = date2sql($date_);
+	if ($due_date == "") {
+		$due_date = "0000-00-00";
+	}
+	else {
+		$due_date = date2sql($due_date);
+	}
+
+	if ($new) {
 		$trans_no = get_next_trans_no($type);
+	}
 
 	$curr = get_supplier_currency($supplier_id);
 	
-	if ($rate == 0)
+	if ($rate == 0) {
 		$rate = get_exchange_rate_from_home_currency($curr, $date_);
-
+	}
 
 	$sql = "INSERT INTO ".TB_PREF."supp_trans (trans_no, type, supplier_id, tran_date, due_date,
 		reference, supp_reference, ov_amount, ov_gst, rate, ov_discount, tax_included) ";
-	$sql .= "VALUES (".db_escape($trans_no).", ".db_escape($type)
-	.", ".db_escape($supplier_id).", '$date', '$due_date',
-		".db_escape($reference).", ".db_escape($supp_reference).", ".db_escape($amount)
-		.", ".db_escape($amount_tax).", ".db_escape($rate).", ".db_escape($discount).", ".db_escape($included).")";
+	$sql .= 
+	"VALUES (
+		".db_escape($trans_no).", 
+		".db_escape($type).", 
+		".db_escape($supplier_id).", 
+		'$date', '$due_date',
+		".db_escape($reference).", 
+		".db_escape($supp_reference).", 
+		".db_escape($amount).", 
+		".db_escape($amount_tax).", 
+		".db_escape($rate).", 
+		".db_escape($discount).", 
+		".db_escape($included)."
+	)";
 
-	if ($err_msg == "")
+	if ($err_msg == "") {
 		$err_msg = "Cannot insert a supplier transaction record";
+	}
 
 	db_query($sql, $err_msg);
 	add_audit_trail($type, $trans_no, $date_);
