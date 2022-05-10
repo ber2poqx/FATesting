@@ -996,7 +996,9 @@ function get_available_item_for_inty(
 				a.lot_no LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
 				a.chassis_no LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
 				a.stock_id LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
-				b.description LIKE " . db_escape('%' . trim($search_value) . '%') . ")";
+				b.description LIKE " . db_escape('%' . trim($search_value) . '%') . "OR 
+				e.name LIKE " . db_escape('%' . trim($search_value) . '%') . "OR 
+				a.reference LIKE " . db_escape('%' . trim($search_value) . '%') . ")";
 		}
 
 		if ($serialized == 1) {

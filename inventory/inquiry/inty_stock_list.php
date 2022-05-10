@@ -121,7 +121,7 @@ start_table(TABLESTYLE_NOBORDER);
 
 start_row();
 
-text_cells(_("#: "), "searchval");
+ref_cells(_("#: &nbsp;"), 'searchval', '', null, '', true);
 
 if ($_GET['type'] == 1 && $_GET['supplier'] == '') {
 	supplier_list_cells(_("Supplier: "), 'supplier_id', null, false, true, false, false, true, $_GET['category']);
