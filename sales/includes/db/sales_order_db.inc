@@ -1014,9 +1014,13 @@ function update_so_approval_account_specialist(&$so_obj)
 
 
 /* Added by Ronelle 3/25/2021 */
-function check_status_so($order_no)
-{
-	$sql = "SELECT status FROM " . TB_PREF . "sales_orders WHERE order_no=" . db_escape($order_no);
+function check_status_so($order_no) {
+
+	//Modify spyrax10 10 May 2022
+	set_global_connection();
+
+	$sql = "SELECT status FROM " . TB_PREF . "sales_orders 
+		WHERE order_no = " . db_escape($order_no);
 
 	$result = db_query($sql, "The status for sales order " . $order_no . " could not be retrieved");
 	if (db_num_rows($result) == 1) {
