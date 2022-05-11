@@ -1541,6 +1541,8 @@ function get_smo_trans_type($stock_id, $serial = '')
 
 function sup_code_exist($supp_code) {
 
+	set_global_connection(0);
+
 	$sql = "SELECT supp_ref 
 		FROM ".TB_PREF."suppliers
 	WHERE supp_ref =".db_escape($supp_code);
@@ -1557,6 +1559,8 @@ function sup_code_exist($supp_code) {
 
 function get_supplier_id_code($supp_code) {
 
+	set_global_connection(0);
+
 	$sql = "SELECT supplier_id 
 		FROM ".TB_PREF."suppliers
 	WHERE supp_ref =".db_escape($supp_code);
@@ -1566,8 +1570,10 @@ function get_supplier_id_code($supp_code) {
 	return $row[0];
 }
 
-function check_stock_id_exist($stock_id)
-{
+function check_stock_id_exist($stock_id) {
+
+	set_global_connection(0);
+
 	$sql = "SELECT stock_id 
 		FROM ".TB_PREF."stock_master
 		WHERE stock_id =".db_escape(trim($stock_id));
@@ -1584,7 +1590,7 @@ function check_stock_id_exist($stock_id)
 
 function item_has_color($stock_id) {
 
-	set_global_connection();
+	set_global_connection(0);
 
 	$sql = "SELECT COUNT(*) 
 		FROM ".TB_PREF."item_codes";
@@ -1605,7 +1611,7 @@ function item_has_color($stock_id) {
 
 function get_color_code($stock_id, $color) {
 
-	set_global_connection();
+	set_global_connection(0);
 
 	$sql = "SELECT item_code 
 		FROM ".TB_PREF."item_codes";
@@ -1622,7 +1628,7 @@ function get_color_code($stock_id, $color) {
 
 function check_color_exist($stock_id, $color_code, $check_only = false, $chk_code = false)
 {
-	set_global_connection();
+	set_global_connection(0);
 
 	$sql = "SELECT color, item_code 
 		FROM ".TB_PREF."item_codes ";
