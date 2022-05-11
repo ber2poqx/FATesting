@@ -716,6 +716,9 @@ function get_oldest_payment_date_repo($invoice_no)
 //Modified by spyrax10 23-Oct-2021
 function get_sales_invoice_header_repo($invoice_no)
 {
+	//modified by albert 05/10/2022
+	set_global_connection();
+	
 	$sql = "SELECT
 				c.name,
 				c.debtor_no,

@@ -412,6 +412,9 @@ function write_restructured(&$invoice, $opening_balances=0)
 /*  get sales invoice change term */
 function get_sales_invoice_restructured_header($invoice_no)
 {
+    //modified by albert 05/10/2022
+	set_global_connection();
+    
     $sql = "SELECT
 				c.name,
 				c.debtor_no,

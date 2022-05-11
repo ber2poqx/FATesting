@@ -422,6 +422,9 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
 /*  get sales invoice change term */
 function get_sales_invoice_ct_header($invoice_no)
 {
+    //modified by albert 05/10/2022
+	set_global_connection();
+    
     $sql = "SELECT
 				c.name,
 				c.debtor_no,

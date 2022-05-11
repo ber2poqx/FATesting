@@ -879,6 +879,9 @@ function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balanc
 //Modified by spyrax10 2021-12-23
 function get_sales_return_replacement($trans_no = 0, $repo = "new")
 {
+	//modified by albert 05/10/2022
+	set_global_connection();
+	
 	$sql = "SELECT
 				a.trans_no,
 				/*CASE 

@@ -326,6 +326,10 @@ function update_sales_order($order)
 
 function get_sales_order_header($order_no, $trans_type)
 {
+
+	//modified by albert 05/10/2022
+	set_global_connection();
+	
 	$sql = "SELECT sorder.*,
 	  cust.name,
 	  cust.curr_code,
