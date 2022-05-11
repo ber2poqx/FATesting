@@ -284,23 +284,24 @@ function display_order_summary($title, &$order, $editable_items = false)
 				amount_cell($stock_item->incentives);
 			}
 
-			if ($editable_items && $order->trans_type != ST_SITERMMOD || $order->trans_type != ST_RESTRUCTURED) {
-				if (empty($_GET['NewInvoice'])) {
-					edit_button_cell(
-						"Edit$line_no",
-						_("Edit"),
-						_('Edit document line')
-					);
-					delete_button_cell(
-						"Delete$line_no",
-						_("Delete"),
-						_('Remove line from document')
-					);
-				} else {
-					label_cell("");
-					label_cell("");
-				}
+			//Modified by spyrax10 11 May 2022
+			if ($title != _("Sales Invoice Items")) {
+				edit_button_cell(
+					"Edit$line_no",
+					_("Edit"),
+					_('Edit document line')
+				);
+				delete_button_cell(
+					"Delete$line_no",
+					_("Delete"),
+					_('Remove line from document')
+				);
 			}
+			else {
+				label_cell("");
+				label_cell("");
+			}
+
 			end_row();
 		} else {
 			sales_order_item_controls($order, $k, $line_no);

@@ -655,6 +655,9 @@ function get_sales_child_documents($trans_type, $trans_no)
 {
 	// FIXME -  credit notes retrieved here should be those linked to invoices containing 
 	// at least one line from related invoice
+	
+	//Added by spyrax10 11 May 2022
+	set_global_connection();
 
 	if (!count_array($trans_no))
 		return false;
