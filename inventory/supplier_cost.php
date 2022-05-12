@@ -273,7 +273,7 @@ amount_row(_("Conversion Factor (to our UOM):"), 'conversion_factor', null, null
 text_row(_("Supplier's Code or Description:"), 'supplier_description', null, 50, 51);
 /*Added by albert 04/18/2022*/
 date_row(
-	"Date Epic:",
+	"Date of Effectivity:",
 	'date_epic',
 	_('Date of Effectivity'),
 	'',

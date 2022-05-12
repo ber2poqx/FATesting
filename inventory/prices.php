@@ -241,7 +241,7 @@ small_amount_row(_("Price:"), 'price', null, '', _('per') .' '.$kit["units"]);
 
 /*Added by albert 04/18/2022*/
 date_row(
-	"Date Epic:",
+	"Date of Effectivity:",
 	'date_epic',
 	_('Date of Effectivity'),
 	'',

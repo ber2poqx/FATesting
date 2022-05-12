@@ -239,7 +239,7 @@ $kit = get_item_code_dflts($_POST['stock_id']);
 small_amount_row(_("Standard Cost:"), 'stdcost', null, '', _('per') .' '.$kit["units"]);
 /*Added by albert 04/18/2022*/
 date_row(
-	"Date Epic:",
+	"Date of Effectivity:",
 	'date_epic',
 	_('Date of Effectivity'),
 	'',
