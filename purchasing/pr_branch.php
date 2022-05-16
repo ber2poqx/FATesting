@@ -136,6 +136,13 @@ function can_process()
 		display_error(_("PO Date should not less than PR Date!"));
 		return false;
 	}
+	//Added by Albert 05/16/2022
+	foreach ($_SESSION['PR']->line_items as $request_line) {
+		if ($request_line->price == 0) {
+			display_error(_("Can't Proceed Price Zero!"));
+			return false;
+		}
+	}
 
 	if (!check_reference($_POST['po_reference'], ST_PURCHORDER)) {
 		set_focus('po_reference');
@@ -478,7 +485,6 @@ if (isset($_POST['Update']) || isset($_POST['ProcessPO'])) {
 				$_SESSION['PR']->line_items[$line->line_no]->price =  Get_Policy_SRP(get_post('Location'), $_SESSION['PR']->category_id, $line->stock_id, get_post('supplier_id'));
 
 			}	
-			display_error($_SESSION['PR']->line_items[$line->line_no]->price);
 			/*End by Albert*/
 		}
 	}

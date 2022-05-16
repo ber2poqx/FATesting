@@ -265,6 +265,13 @@ function can_process()
         display_error(_("RR Date should not less than PO Date!"));
         return false;
     }
+    //Added by Albert 05/16/2022
+	foreach ($_SESSION['PO']->line_items as $order_line) {
+		if ($order_line->price == 0) {
+			display_error(_("Can't Proceed Price Zero!"));
+			return false;
+		}
+	}
 
     $something_received = 0;
     foreach ($_SESSION['PO']->line_items as $order_line) {

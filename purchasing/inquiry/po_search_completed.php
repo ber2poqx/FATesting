@@ -195,8 +195,8 @@ $cols = array(
 	_("Currency") => array('align' => 'center'),
 	_("Order Total") => 'amount',
 	array('insert' => true, 'fun' => 'edit_link'),
-	array('insert' => true, 'fun' => 'prt_link'),
-	array('insert' => true, 'fun' => 'post_po')
+	array('insert' => true, 'fun' => 'prt_link')
+	// array('insert' => true, 'fun' => 'post_po')	//comment by Albert Address mantis #872
 
 );
 
