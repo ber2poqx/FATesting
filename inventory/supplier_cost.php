@@ -202,7 +202,7 @@ else
 			alt_table_row_color($k);
 
 			label_cell($myrow["supp_name"]);
-			label_cell($myrow["cost_type"]);
+			label_cell(view_price_history($myrow["cost_type"], $myrow["stock_id"]));//modified by albert 05/17/2022
             amount_decimal_cell($myrow["price"]);
             label_cell($myrow["curr_code"]);
             label_cell($myrow["suppliers_uom"]);

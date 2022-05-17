@@ -193,7 +193,7 @@ while ($myrow = db_fetch($srp_list))
 
 	label_cell($myrow["supp_name"]);
 	label_cell($myrow["curr_abrev"]);
-    label_cell($myrow["srp_type"]);
+	label_cell(view_price_history($myrow["srp_type"], $myrow["stock_id"]));//modified by albert 05/17/2022
     amount_cell($myrow["standard_cost"]);
  	edit_button_cell("Edit".$myrow['id'], _("Edit"));
  	delete_button_cell("Delete".$myrow['id'], _("Delete"));

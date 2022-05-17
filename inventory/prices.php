@@ -194,7 +194,7 @@ while ($myrow = db_fetch($prices_list))
 	alt_table_row_color($k);
 
 	label_cell($myrow["curr_abrev"]);
-    label_cell($myrow["sales_type"]);
+	label_cell(view_price_history($myrow["sales_type"], $myrow["stock_id"] ));//modified by albert 05/17/2022
     amount_cell($myrow["price"]);
  	edit_button_cell("Edit".$myrow['id'], _("Edit"));
  	delete_button_cell("Delete".$myrow['id'], _("Delete"));

@@ -1843,4 +1843,20 @@ function trans_editor_link2_repo($type, $trans_no, $payment)
 		(is_closed_trans($type, $trans_no) ? set_icon(ICON_CLOSED, _('Closed')) :
 			pager_link(_("Edit"), sprintf($editor_url[$type], $trans_no, $type), ICON_EDIT));
 }
+//Added by Albert 05/17/2022
+function view_price_history($price_code = null, $stock_id, $echo=true)
+{
+	global $path_to_root;
+
+		$preview_str = "<a target='_blank' href='$path_to_root/inventory/inquiry/price_history.php?price_code=$price_code&stock_id=$stock_id&popup=1' onclick=\"javascript:openWindow(this.href,this.target); return false;\" >$price_code</a>";
+
+	return $preview_str;
+}
+
+function view_price_history_cell($price_code = null, $stock_id)
+{
+	echo "<td>";
+	view_price_history($price_code = null, $stock_id);
+	echo "</td>";
+}
 
