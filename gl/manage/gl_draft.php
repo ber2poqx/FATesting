@@ -413,6 +413,7 @@ function check_trans($trans_no, $trans_type)
 {
 	global $Refs, $systypes_array;
 
+	$resDetails = get_gl_items($trans_no, $trans_type, false, false);
 	$input_error = 0;
 
 	if ($trans_type == -1) {
@@ -506,6 +507,14 @@ function check_trans($trans_no, $trans_type)
 		if (!get_post('bank_account')) {
 			display_error(_("Please Select Bank Account!"));
 			$input_error = 1;
+		}
+	}
+	else {
+		while ($row = db_fetch($resDetails)) {
+			if ($row['sug_mcode'] == null) {
+				display_error(_("Can't Procees! Some Entries don't have GL Account!"));
+				$input_error = 1;
+			}
 		}
 	}
 

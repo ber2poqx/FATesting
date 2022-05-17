@@ -744,13 +744,14 @@ function display_gl_details($trans_no, $trans_type, $post = 0) {
             $debit += abs($amount);
         }
 
+		$account_name = $row['sug_mcode'] != null ? get_gl_account_name($row['sug_mcode']) : '';
         $total += $amount;
 		//$suggested_entry = $row['sug_mcode'] == 1050 ? 'HOC' : 'BC';
 
         alt_table_row_color($k);
 		label_cell($row['id']);
 
-		label_cell($row['sug_mcode'] . " " . get_gl_account_name($row['sug_mcode']), '', 'sug_mcode');
+		label_cell($row['sug_mcode'] . " " . $account_name, '', 'sug_mcode');
 		// gl_all_accounts_list_cells(null, 'account_id', '', false, false, _("Default Account"), true);
 
         label_cell($row['mcode']);
