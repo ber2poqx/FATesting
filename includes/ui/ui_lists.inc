@@ -12,6 +12,7 @@
 include_once($path_to_root . "/includes/banking.inc");
 include_once($path_to_root . "/includes/types.inc");
 include_once($path_to_root . "/includes/current_user.inc");
+include_once($path_to_root . "/purchasing/includes/db/pr_db.inc");//Added by Albert 05/17/2022
 
 define('SEARCH_BUTTON', "<input %s type='submit' class='combo_submit' style='border:0;background:url($path_to_root/themes/"
 	."%s/images/locate.png) no-repeat;%s' aspect='fallback' name='%s' value=' ' title='"._("Set filter")."'> ");
@@ -1020,7 +1021,49 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 
 	for ($i = 0; $i < count($db_connections); $i++) {
 		if ($i != $coy) {
-			$db_list[$i] = $db_connections[$i]['name'];
+			$db_list[$i] = $db_connections[$i]['name'];		
+		}
+	}
+
+	$all_arr = $include_cur_comp ? array(ALL_TEXT=> _("All Branches")) + array($coy => $db_connections[$coy]['name']) + $db_list : 
+		array(ALL_TEXT=> _("All Branches")) + $db_list;
+	$sel_arr = $include_cur_comp ? array($coy => $db_connections[$coy]['name']) + $db_list : $db_list;
+
+	echo array_selector($name, null, 
+		$all_text ? $all_arr : $sel_arr,
+		array( 
+			'select_submit'=> $submit_on_change, 
+			'async' => false
+		) 
+	);
+
+	if ($row) { 
+		echo "</tr>";
+	}
+}
+//Added by Albert  05/17/2022
+function branch_pr_company_list_row($label = null, $name, $submit_on_change = false, $all_text = false, 
+	$include_cur_comp = true, $bold = false, $row = false) {
+	
+	global $db_connections;
+
+	$coy =  user_company();
+	$db_list = $all_arr = $sel_arr = array();
+	$bold = $bold ? 'label' : '';
+
+	if ($row) { 
+		echo "<tr>";
+	}
+
+	if ($label != null) {
+		echo "<td class=$bold>$label</td>\n";
+	}
+	echo "<td>";
+
+	for ($i = 0; $i < count($db_connections); $i++) {
+		if (get_pr_data($i)<> null) {
+
+				$db_list[$i] = $db_connections[$i]['name'];
 		}
 	}
 
