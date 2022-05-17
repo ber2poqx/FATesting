@@ -512,7 +512,7 @@ function check_trans($trans_no, $trans_type)
 	else {
 		while ($row = db_fetch($resDetails)) {
 			if ($row['sug_mcode'] == null) {
-				display_error(_("Can't Procees! Some Entries don't have GL Account!"));
+				display_error(_("Can't Proceed! Some Entries don't have GL Account!"));
 				$input_error = 1;
 			}
 		}
