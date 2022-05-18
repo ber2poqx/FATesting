@@ -348,11 +348,20 @@ function getCompDet($colName, $company_id = -1) {
 	return $row[0];
 }
 
-function check_db_exists($db_id = "") {
+function check_db_exists($company = -1) {
 	
 	global $db, $db_connections;
 
-	$selectedDB = mysqli_select_db($db, $db_connections[$db_id]['dbname']);
+	if ($company == -1) {
+		$company = $_SESSION["wa_current_user"]->company;
+	}
+
+    $_SESSION["wa_current_user"]->cur_con = $company;
+
+    $connection = $db_connections[$company];
+    $db = mysqli_connect($connection["host"], $connection["dbuser"], $connection["dbpassword"]);
+
+	$selectedDB = mysqli_select_db($db, $db_connections[$company]['dbname']);
 
 	return $selectedDB ? true : false;
 }
