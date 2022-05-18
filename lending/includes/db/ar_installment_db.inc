@@ -196,3 +196,15 @@ function get_replace_item($trans_no)
 
 	return db_query($sql, "could not get replace items because ");
 }
+
+function get_itemcategory($id)
+{
+	if ($id != 00) {
+		$sWhere = " AND A.category_id = ".$id. " ";
+	}
+	$sql = "SELECT A.category_id, A.description 
+			FROM ".TB_PREF."stock_category A 
+			WHERE !A.inactive AND A.dflt_mb_flag = 'B' ".$sWhere."
+			ORDER BY A.category_id ASC ";
+	return db_query($sql, "could not get stock category");	
+}
