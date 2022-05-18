@@ -1020,8 +1020,11 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 	echo "<td>";
 
 	for ($i = 0; $i < count($db_connections); $i++) {
-		if ($i != $coy) {
-			$db_list[$i] = $db_connections[$i]['name'];		
+		
+		if (check_db_exists($i)) {
+			if ($i != $coy) {
+				$db_list[$i] = $db_connections[$i]['name'];		
+			}
 		}
 	}
 
