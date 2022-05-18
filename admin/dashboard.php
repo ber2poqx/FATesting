@@ -62,20 +62,6 @@ if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
     
         end_table();
     }
-    else {
-
-        start_outer_table(TABLESTYLE2, "width = '40%'", 10);
-        
-        table_section(1);
-        
-        value_type_list(_("Application Type: "), 'trans_type', 
-            array(
-                'AP' => 'Purchases&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-            ), '', null, true, '', true
-        );
-
-        end_outer_table(1);
-    }
 }
 else {
 

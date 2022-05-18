@@ -25,7 +25,7 @@
 	}
 	else {
 		//Added by spyrax10 25 Apr 2022
-		if ($_SESSION["wa_current_user"]->can_access_page('SA_SETUPDISPLAY')) {
+		if ($_SESSION["wa_current_user"]->can_access_page('SA_SETUPDISPLAY') && user_company() != 0) {
 			header("Location: ".$path_to_root."/admin/dashboard.php?sel_app=ALL");
 		}
 	}
