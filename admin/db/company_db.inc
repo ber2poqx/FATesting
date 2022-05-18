@@ -350,14 +350,9 @@ function getCompDet($colName, $company_id = -1) {
 
 function check_db_exists($db_id = "") {
 	
-	$db_name = get_company_value($db_id, 'dbname');
+	global $db, $db_connections;
 
-	$sql = 'SELECT COUNT(*) AS `exists` 
-		FROM INFORMATION_SCHEMA.SCHEMATA 
-		WHERE SCHEMATA.SCHEMA_NAME = ' .db_escape($db_name);
+	$selectedDB = mysqli_select_db($db, $db_connections[$db_id]['dbname']);
 
-	$result = db_query($sql, "Can't check DB status!");
-	$row = db_fetch_row($result);
-
-	return $row[0] > 0 ? true : false;
+	return $selectedDB ? true : false;
 }
