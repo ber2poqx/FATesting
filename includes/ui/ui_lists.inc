@@ -1064,9 +1064,14 @@ function branch_pr_company_list_row($label = null, $name, $submit_on_change = fa
 	echo "<td>";
 
 	for ($i = 0; $i < count($db_connections); $i++) {
-		if (get_pr_data($i)<> null) {
+		if (check_db_exists($i)) {
+			if ($i != $coy) {
+	
+				if (get_pr_data($i)<> null) {
 
-				$db_list[$i] = $db_connections[$i]['name'];
+						$db_list[$i] = $db_connections[$i]['name'];
+				}
+			}
 		}
 	}
 

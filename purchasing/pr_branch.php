@@ -496,7 +496,7 @@ start_form();
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 // ahref(_("New Purchase Request"), "pr_entry_items.php?NewRequest=Yes");
-company_list_row(_('Branch: '), 'selected_pr_branch', true, false, false);//modified by albert
+branch_pr_company_list_row(_('Branch: '), 'selected_pr_branch', true, false, false);//modified by albert
 
 ref_cells(_("PR#:"), 'pr_number', '', null, '', true);
 end_row();
