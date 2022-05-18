@@ -467,15 +467,15 @@ function Get_Previous_Policy_SRP_last_date_updated($branchCode, $categoryID, $st
 	return $date_defined;
 }
 
-function get_pr_data($coy) {
+function get_pr_data($db_id = "") {
 
-	set_global_connection($coy);
+	global $db, $db_connections;
 
-	$sql = "SELECT a.* FROM ".TB_PREF." purch_request a where a.status <> 'C'";
+	$sql = "SELECT a.* FROM ".TB_PREF." purch_request a where a.status <> 'C' limit 1";
 
 	$result = db_query($sql, "The Purchased Request could not be retrieved");
 
-		$row = db_fetch_row($result);
-		return $row[0];
+	$row = db_fetch_row($result);
+	return $row[0];
 }
 /*END by Albert*/
