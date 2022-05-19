@@ -153,7 +153,7 @@ function display_adjustment_items($title, &$order, $adj_id = 0, $trans_no, $item
 			if (get_post("category") == 14)
 				label_cell(get_color_description($stock_item->color, $stock_item->stock_id));
 
-    		qty_cell($stock_item->quantity, false, get_qty_dec($stock_item->stock_id));
+    		qty_cell($stock_item->quantity, false, 0);
 			label_cell($stock_item->units);
 
 			
