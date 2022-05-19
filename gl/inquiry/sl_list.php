@@ -35,9 +35,14 @@ if(get_post("search")) {
 }
 
 //Added by spyrax10
+if (get_post('_slval_changed')) {
+	$Ajax->activate("sl_tbl");
+}
+
 if (get_post("_send")) {
 	$Ajax->activate("sl_tbl");
 }
+//
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
@@ -55,8 +60,9 @@ if ($_GET['send_type'] == '') {
 		), null, true, _('No Filter')
 	);
 }
-
-text_cells(_("Mcode / Masterfile :"), "slval");
+//Modified by spyrax10 19 May 2022
+ref_cells(_("Mcode / Masterfile : &nbsp;"), 'slval', '', null, '', true);
+//
 submit_cells("search", _("Search"), "", _("Search SL"), "default");
 
 end_row();

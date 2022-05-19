@@ -24,10 +24,15 @@ $js = get_js_select_combo_item();
 
 page(_($help_context = "GL Accounts"), true, false, "", $js);
 
-if(get_post("search")) {
+//Modified by spyrax10 19 May 2022
+if (get_post("search")) {
   	$Ajax->activate("account_tbl");
 }
 
+if (get_post('_description_changed')) {
+	$Ajax->activate("account_tbl");
+}
+//
 // Filter form. Use query string so the client_id will not disappear
 // after ajax form post.
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -36,7 +41,9 @@ start_table(TABLESTYLE_NOBORDER);
 
 start_row();
 
-text_cells(_("Description"), "description");
+//Modified by spyrax10 19 May 2022
+ref_cells(_("Description: &nbsp;"), 'description', '', null, '', true);
+//
 submit_cells("search", _("Search"), "", _("Search GL accounts"), "default");
 
 end_row();

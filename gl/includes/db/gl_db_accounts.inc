@@ -399,30 +399,36 @@ function is_bank_account($account_code)
 		return false;
 }
 
-function get_chart_accounts_search($like, $skip=false)
-{
+//Modified by spyrax10 19 May 2022
+function get_chart_accounts_search($like, $skip = false) {
 	global $SysPrefs;
 
-	if (isset($SysPrefs->max_rows_in_search))
+	if (isset($SysPrefs->max_rows_in_search)) {
 		$limit = $SysPrefs->max_rows_in_search;
-	else
+	} 
+	else {
 		$limit = 10;
+	}
 
-	if ($skip)
+	if ($skip) {
 		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM (".TB_PREF."chart_master chart,".TB_PREF."chart_types AS type) "
-			."LEFT JOIN ".TB_PREF."bank_accounts acc "
-			."ON chart.account_code=acc.account_code
-				WHERE acc.account_code  IS NULL
-			AND chart.account_type=type.id ";
-	else		
+			FROM ".TB_PREF."chart_master chart 
+				INNER JOIN ".TB_PREF."chart_types type ON chart.account_type = type.id ". " 
+				LEFT JOIN ".TB_PREF."bank_accounts acc ON chart.account_code = acc.account_code
+			WHERE acc.account_code IS NULL";
+	}
+	else {
 		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM ".TB_PREF."chart_master chart,".TB_PREF."chart_types AS type WHERE chart.account_type=type.id ";
-	$sql .= "AND (
-          	chart.account_name LIKE " . db_escape("%" . $like. "%") . " OR
-          	chart.account_code LIKE " . db_escape("%" . $like. "%") . "
-        	) 
-    		ORDER BY chart.account_code LIMIT 0,".(int)($limit); // We only display 10 items.
+			FROM ".TB_PREF."chart_master chart 
+				INNER JOIN ".TB_PREF."chart_types type ON chart.account_type = type.id
+			WHERE chart.inactive = 0";
+	}	
+	
+	$sql .= " AND (
+		chart.account_name LIKE " . db_escape("%" . $like. "%") . " OR
+		chart.account_code LIKE " . db_escape("%" . $like. "%") . "
+  	) 
+  	ORDER BY chart.account_code LIMIT 0,".(int)($limit); // We only display 10 items.
 	return db_query($sql, "Failed in retreiving GL account list.");
 }
 //Added by Herald 05/12/2021 for Complimentary Items
