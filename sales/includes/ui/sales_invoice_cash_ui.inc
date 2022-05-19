@@ -635,16 +635,15 @@ function display_order_header(&$order, $editable, $date_text)
 			$line = &$order->line_items[$line_no];
 			
 			/*Modified by Albert 04/27/2022*/
-			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 			
-
 			if ( date2sql(get_post('OrderDate')) < $date_epic){
+				$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 
-				$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+				$line->price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id, $last_date_updated);
 			}else{
 		
-				$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+				$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 			}
 			/*End by Albert*/			}
 		$Ajax->activate('items_table');
@@ -666,16 +665,15 @@ function display_order_header(&$order, $editable, $date_text)
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
 			
 			/*Modified by Albert 04/27/2022*/
-			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			
+			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);			
 
 			if ( date2sql(get_post('OrderDate')) < $date_epic){
+				$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 
-				$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+				$line->price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id, $last_date_updated);
 			}else{
 		
-				$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+				$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 			}
 			/*End by Albert*/			}
 		$Ajax->activate('items_table');
