@@ -154,6 +154,8 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
     //Added by Albert
     $hoc_code = get_company_value(0, 'branch_code');
     $hoc_masterfile = get_company_value(0, 'name');
+    $mcode = null;
+    $masterfile = null;
     //
 
     $ar_account = $branch_data["receivables_account"];
@@ -252,10 +254,6 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         $sales_account = $sales_account = $company_data['default_sales_act'];
         $mcode = $hoc_code;
         $masterfile = $hoc_masterfile;
-    }else{
-        $mcode = null;
-        $masterfile = null;
-
     }
     $total += add_gl_trans_customer(
         ST_SITERMMOD,
@@ -328,8 +326,6 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
             $masterfile = $hoc_masterfile;
         }else{
             $company_data_account = $company_data["isd_account"];
-            $mcode = null;
-            $masterfile = null;
         }
         $total += add_gl_trans_customer(
             ST_SITERMMOD,
