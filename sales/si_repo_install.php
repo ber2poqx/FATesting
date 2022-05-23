@@ -1344,7 +1344,7 @@ if($_SESSION['Items']->trans_type == ST_SITERMMOD){
 }else{
 	$customer_error =$_SESSION['Items']->trans_type == ST_RESTRUCTURED
 		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate)
-		: display_order_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate);	
+		: display_order_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, $_SESSION['page_title']);	
 }
 if ($customer_error == "") {
 	start_table(TABLESTYLE, "width='95%'", 10);

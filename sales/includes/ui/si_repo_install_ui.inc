@@ -344,7 +344,7 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 // ------------------------------------------------------------------------------
 
-function display_order_header(&$order, $editable, $date_text)
+function display_order_header(&$order, $editable, $date_text, $title = '')
 {
 	global $Ajax, $SysPrefs;
 	div_start('order_header');
@@ -592,7 +592,15 @@ function display_order_header(&$order, $editable, $date_text)
 		);
 	}
 	else {
-		hidden('co_maker', 0);
+		if ($title == 'Modifying Sales Order # ' . $order->order_no) {
+			sql_type_list(_("Co-maker:"), 'co_maker', 
+				get_comaker($order->customer_id, '', true), 'comaker_id', 'comaker', 
+				'label', '', true, 'Select Co-maker'
+			);
+		}
+		else {
+			hidden('co_maker', 0);
+		}
 	}	
 	$previous_owner = get_stock_reference($order->line_items[0]->lot_no) != '' ? get_previous_owner(get_stock_reference($order->line_items[0]->lot_no)) : '';
 	label_row(_("Previous Owner:"), $previous_owner);
@@ -749,7 +757,7 @@ function display_order_header(&$order, $editable, $date_text)
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
-			$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+			$line->price = Get_Repo_Installment_Price($line->stock_id, $line->lot_no);
 		}
 		$Ajax->activate('items_table');
 	}
@@ -783,7 +791,7 @@ function display_change_term_header(&$order, $editable, $date_text)
 
 		date_row(
 			$date_text,
-			'OrderDate',
+			'OrderDate',      
 			_('Date of order receive'),
 			$order->trans_no == 0,
 			0,
@@ -825,7 +833,7 @@ function display_change_term_header(&$order, $editable, $date_text)
 			if ($dim > 1)
 				dimensions_list_row(
 					_("Dimension") . " 2:",
-					'dimension2_id',
+					'dimension2_id',     
 					null,
 					true,
 					' ',
@@ -1086,7 +1094,7 @@ function display_change_term_header(&$order, $editable, $date_text)
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
-			$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+			$line->price = Get_Repo_Installment_Price($line->stock_id, $line->lot_no);
 		}
 		$Ajax->activate('items_table');
 	}
@@ -1514,7 +1522,7 @@ function display_restructured_header(&$order, $editable, $date_text)
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
-			$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+			$line->price = Get_Repo_Installment_Price($line->stock_id, $line->lot_no);
 		}
 		$Ajax->activate('items_table');
 	}

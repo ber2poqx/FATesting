@@ -1055,7 +1055,7 @@ function closed_sales_order_status($so_obj)
 
 /*Added by Albert 11/06/2021*/ 
 function get_comaker($customer_id, $co_maker = '', $all = false){
-	
+	set_global_connection();
 	//Modified by spyrax10
 	$sql = "SELECT CONCAT(A.lastname, ' ', A.firstname) AS comaker, A.comaker_id
 		FROM " . TB_PREF . "co_makers A 
