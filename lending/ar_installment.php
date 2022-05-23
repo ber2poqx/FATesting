@@ -42,7 +42,7 @@ if(isset($_GET['get_arinstallment'])){
     $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
-    $result = get_all_ARInstallment($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $result = get_ar_installment_lending($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('ar_id'=>$myrow["id"],
@@ -91,7 +91,7 @@ if(isset($_GET['get_aritem'])){
     $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
-    $result = get_all_ARInstallment($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $result = get_ar_installment_lending($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('id'=>$myrow["id"],

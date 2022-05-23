@@ -1188,11 +1188,11 @@ Ext.onReady(function() {
 			PaymentTypeStore.proxy.extraParams = {type: "amort"};
 			PaymentTypeStore.load();
 			
-			cashierStore.load({
+			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier').setValue(records[i].get('id'));
 				}
-			});
+			});*/
 
 			//CollectionTypeStore.proxy.extraParams = {type: "amort"};
 			//CollectionTypeStore.load();
@@ -1244,11 +1244,11 @@ Ext.onReady(function() {
 			PaymentTypeStore.load();
 			ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
 			ARInvoiceStore.load();
-			cashierStore.load({
+			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier_cash').setValue(records[i].get('id'));
 				}
-			});
+			});*/
 
 			Ext.getCmp('intobankacct_cash').setValue(3);
 			Ext.getCmp('debit_acct_cash').setValue("1050");
@@ -1276,11 +1276,11 @@ Ext.onReady(function() {
 			CustomerStore.load();
 			PaymentTypeStore.proxy.extraParams = {type: "interb"};
 			PaymentTypeStore.load();
-			cashierStore.load({
+			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier_inb').setValue(records[i].get('id'));
 				}
-			});
+			});*/
 			//CollectionTypeStore.proxy.extraParams = {type: "interb"};
 			//CollectionTypeStore.load();
 
@@ -1311,11 +1311,11 @@ Ext.onReady(function() {
 			CustomerStore.load();
 			PaymentTypeStore.proxy.extraParams = {type: "downp"};
 			PaymentTypeStore.load();
-			cashierStore.load({
+			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier_dp').setValue(records[i].get('id'));
 				}
-			});
+			});*/
 
 			Ext.getCmp('intobankacct_dp').setValue(3);
 			Ext.getCmp('debit_acct_dp').setValue("1050");

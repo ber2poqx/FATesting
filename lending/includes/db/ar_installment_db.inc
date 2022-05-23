@@ -96,6 +96,28 @@ function get_ar_installment_termmode($InvType='new', $start, $limit, $search, $s
 	return db_query($sql, "could not get all ar invoice");
 }
 
+function get_ar_installment_lending($InvType='new', $start, $limit, $search, $showall=false)
+{
+	if(isset($InvType) && $InvType != 'x'){
+		$sWhere .= " AND invoice_type = '".$InvType."' ";
+	}
+	if($search != ''){
+		$sWhere .= " AND (D.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%') ";
+	}
+	$sql = "SELECT A.*, B.*, C.memo_,  D.*, E.description
+				FROM ".TB_PREF."debtor_trans A 
+				INNER JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.trans_no
+				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
+				INNER JOIN ".TB_PREF."debtors_master D ON D.debtor_no = A.debtor_no
+				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
+				WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM.") 
+					AND A.payment_terms != 0 "
+				.$sWhere."
+				ORDER BY A.tran_date DESC limit $start, $limit";
+
+	return db_query($sql, "could not get all ar invoice");
+}
+
 function get_AmortSched($trans_no, $trans_type, $debtor_no)
 {
 	$sql = "SELECT A.*
