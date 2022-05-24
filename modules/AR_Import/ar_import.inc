@@ -281,6 +281,7 @@ function add_loan_schedule(
 // not allowed document already exist
 function check_transaction_already_exist($old_trans_no, $invoice_type)
 {
+	set_global_connection();
    $sql = " SELECT 
    				COUNT(*) 
    			FROM ".TB_PREF."debtor_loans
@@ -292,8 +293,9 @@ function check_transaction_already_exist($old_trans_no, $invoice_type)
    return $count[0];
 }
 // not allowed customer not exist
-function check_customer_code_already_exist($debtor_no)
+function check_customer_code_exist($debtor_no)
 {
+	set_global_connection();
    $sql = " SELECT 
    				COUNT(*) 
    			FROM ".TB_PREF."debtors_master
@@ -307,6 +309,7 @@ function check_customer_code_already_exist($debtor_no)
 
 function get_customer_code($debtor_no)
 {
+	set_global_connection();
    $sql = " SELECT 
    				debtor_no 
 			FROM ".TB_PREF."debtors_master
@@ -319,6 +322,7 @@ function get_customer_code($debtor_no)
 }
 function get_customer_receivables_account($debtor_no)
 {
+	set_global_connection();
 
    $sql = " SELECT 
    				receivables_account 
@@ -332,6 +336,7 @@ function get_customer_receivables_account($debtor_no)
 }
 function get_customer_sales_account()
 {
+	set_global_connection();
 
 	$sql = "SELECT 
 				account_code 
@@ -345,6 +350,7 @@ function get_customer_sales_account()
 }
 function get_category_id($stock_id)
 {
+	set_global_connection();
 	$sql = "SELECT 
 				category_id 
 			FROM ".TB_PREF."stock_master
@@ -357,6 +363,7 @@ function get_category_id($stock_id)
 }
 function get_account_code()
 {
+	set_global_connection();
 	$sql = "SELECT 
 				account_code 
 			FROM ".TB_PREF."chart_master
@@ -371,6 +378,7 @@ function get_account_code()
 
 function get_installment_policy($plcy_code)
 {
+	set_global_connection();
 	$sql = "SELECT 
 				id 
 			FROM ".TB_PREF."policy_details

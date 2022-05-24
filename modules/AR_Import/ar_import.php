@@ -235,7 +235,7 @@
 						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!");
 					} else {
 
-						if (check_customer_code_already_exist($debtor_no))
+						if (check_customer_code_exist(normalize_chars($debtor_no)))
 						{
 							global $Refs;
 							$ref_num = '';
