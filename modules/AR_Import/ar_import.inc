@@ -368,19 +368,6 @@ function get_account_code()
 	return $row[0];
 
 }
-function get_item_description($stock_id)
-{
-	$sql = "SELECT 
-				description 
-			FROM ".TB_PREF."stock_master
-			where stock_id =".db_escape($stock_id);
-
-	$result = db_query($sql, "check sales_account Code failed");
-	$row = db_fetch_row( $result);
- 
-	return $row[0];
-
-}
 
 function get_installment_policy($plcy_code)
 {
