@@ -244,7 +244,7 @@
 							$date_ = $tran_date;
 							$debtor_no = get_customer_code(normalize_chars($debtor_no));
 							$category_id = get_category_id($stock_id);
-							$description = get_item_description($stock_id);
+							$description = get_item_description_ar_import($stock_id);
 							$ref_num = $Refs->get_next(ST_SALESINVOICE, null, @$tran_date);
 							$installmentplcy_id = get_installment_policy($plcy_code);
 							$cust_branch = get_cust_branch_data($debtor_no);
@@ -523,7 +523,7 @@
 								
 							}			
 						}else{
-							display_error("Line $lines: Customer name  is not Exist!");
+							display_error("Line $lines: Customer name  is not Exist! Old Transaction No: $old_trans_no is not Added");
 								
 						}
 

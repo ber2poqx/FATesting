@@ -402,4 +402,19 @@ function get_cust_branch_data($debtor_no)
 	return db_fetch($result);
 
 }
+
+function get_item_description_ar_import($stock_id)
+{
+	set_global_connection();
+	$sql = "SELECT 
+				description 
+			FROM ".TB_PREF."stock_master
+			where stock_id =".db_escape($stock_id);
+
+	$result = db_query($sql, "check sales_account Code failed");
+	$row = db_fetch_row( $result);
+
+	return $row[0];
+
+}
 ?>
