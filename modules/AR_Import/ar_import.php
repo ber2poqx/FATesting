@@ -129,11 +129,11 @@
 					
 					}else if (!check_stock_id_exist($stock_id)){
 					
-						display_error("Line $lines: Stock Id: $stock_id is Not Exist");
+						display_error("Line $lines: Stock Id: $stock_id is Not Exist... Old Transaction No: $old_trans_no is not Added");
 
 					}else if(!check_color_exist($stock_id, $color_code, true) ){
 
-						display_error("Line $lines: Color : $color_code is Not Exist");
+						display_error("Line $lines: Color : $color_code is Not Exist... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ($old_trans_no == "") { // Old Transaction # can't be empty!
 						
@@ -141,98 +141,98 @@
 					
 					}else if ($debtor_no == "") { // Customer # can't be empty!
 						
-						display_error("Line $lines: Customer # is empty!");
+						display_error("Line $lines: Customer # is empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ($orig_branch_code == "") { // Customer # can't be empty!
 						
-						display_error("Line $lines: Customer # is empty!");
+						display_error("Line $lines: Customer # is empty!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if ($ref_no == "") { // Reference # can't be empty!
 						
-						display_error("Line $lines: Ref_no is empty!");
+						display_error("Line $lines: Ref_no is empty!.. Old Transaction No: $old_trans_no is not Added");
 
 					}else if ( $stock_id == "") { //Itemcode can't be empty!
 						
-						display_error("Line $lines: Itemcode is empty!");
+						display_error("Line $lines: Itemcode is empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ( $tran_date == "") { // Invoice Date can't be empty!
 						
-						display_error("Line $lines: Invoice Date is Empty empty!");
+						display_error("Line $lines: Invoice Date is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					}else if ( $date_cut_off == "") { // Invoice Date can't be empty!
 						
-						display_error("Line $lines: Cutoff Date is Empty empty!");
+						display_error("Line $lines: Cutoff Date is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if ( $first_due_date== "") { // First Duedate can't be empty!
 						
-						display_error("Line $lines: First Duedate is Empty empty!");
+						display_error("Line $lines: First Duedate is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if ( $maturity_date== "") { // Maturity Date can't be empty!
 						
-						display_error("Line $lines: Maturity Date is Empty empty!");
+						display_error("Line $lines: Maturity Date is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ( $months_term== "") { // Months Term can't be empty!
 						
-						display_error("Line $lines:  Months Term is Empty empty!");
+						display_error("Line $lines:  Months Term is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 
 					// }else if ( $d_amount== "") { // Down Payment can't be empty!
 					// 		display_error("Line $lines:  Down Payment is Empty empty!");
 							
 					}else if ( $ov_amount== "") { // Ar Amount can't be empty!
 						
-						display_error("Line $lines: Ar Amount is Empty empty!");
+						display_error("Line $lines: Ar Amount is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ( $quantity== "") { // Quantity can't be empty!
 						
-						display_error("Line $lines:  Quantity is Empty empty!");
+						display_error("Line $lines:  Quantity is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ( $lot_no== "") { // Serial No can't be empty!
 						
-						display_error("Line $lines: Serial No is Empty empty!");
+						display_error("Line $lines: Serial No is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ( $amortization_amount== "") { // Amortization can't be empty!
 						
-						display_error("Line $lines: Amortization is Empty empty!");
+						display_error("Line $lines: Amortization is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 
 					// }else if ( $total_amount_== "") { // Total Amount can't be empty!
 					// 	display_error("Line $lines: Total Amount is Empty empty!");
 					
 					}else if ($standard_cost== "") { // Category ID can't be empty!
 						
-						display_error("Line $lines: Invoice Date is Empty empty!");
+						display_error("Line $lines: Invoice Date is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					}else if ( $unit_price== "") { // Unit price/Lcp can't be empty!
 						
-						display_error("Line $lines: Unit price/Lcp is Empty empty!");
+						display_error("Line $lines: Unit price/Lcp is Empty empty!... Old Transaction No: $old_trans_no is not Added");
 					
 					// }else if($invoice_type ==''){
 
 					// 	display_error("Line $lines: Invoice_type is Empty empty!");
 
 					}else if($amort != $amortization_amount){
-						display_error("The amortation amount: $amortization_amount not match with the system calculation amount: $amort !!!");
+						display_error("The amortation amount: $amortization_amount not match with the system calculation amount: $amort .. Old Transaction No: $old_trans_no is not Added!!!");
 					
 					}else if($total_amount_cal != $ov_amount){
-						display_error("The Gross amount: $ov_amount not match with the system calculation Gross amount: $total_amount_cal !!!");
+						display_error("The Gross amount: $ov_amount not match with the system calculation Gross amount: $total_amount_cal .. Old Transaction No: $old_trans_no is not Added !!!");
 					
 					}else if(date("m/d/Y", strtotime($tran_date)) != $tran_date ){
 						
-						display_error("Line $lines: tran_date paid is not a valid date: $tran_date!");
+						display_error("Line $lines: tran_date paid is not a valid date: $tran_date!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if(date("m/d/Y", strtotime($first_due_date)) != $first_due_date ){
 						
-						display_error("Line $lines: first_due_date is not a valid date: $first_due_date!");
+						display_error("Line $lines: first_due_date is not a valid date: $first_due_date!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if(date("m/d/Y", strtotime($maturity_date)) != $maturity_date ){
 						
-						display_error("Line $lines: maturity_date is not a valid date: $maturity_date!");
+						display_error("Line $lines: maturity_date is not a valid date: $maturity_date!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if(date("m/d/Y", strtotime($last_payment_paid)) != $last_payment_paid ){
 						
-						display_error("Line $lines: lastpayment paid is not a valid date: $last_payment_paid!");
+						display_error("Line $lines: lastpayment paid is not a valid date: $last_payment_paid!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if(date("m/d/Y", strtotime($date_cut_off)) != $date_cut_off ){
 						
-						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!");
+						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!... Old Transaction No: $old_trans_no is not Added");
 					} else {
 
 						if (check_customer_code_exist(normalize_chars($debtor_no)))
@@ -248,6 +248,10 @@
 							$ref_num = $Refs->get_next(ST_SALESINVOICE, null, @$tran_date);
 							$installmentplcy_id = get_installment_policy($plcy_code);
 							$cust_branch = get_cust_branch_data($debtor_no);
+
+							global $def_coy;
+							set_global_connection($def_coy);
+							display_warning($def_coy);
 							if ($total_amount_paid > 0)
 							{
 								$loans_status = 'part-paid';

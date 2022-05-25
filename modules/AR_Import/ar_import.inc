@@ -23,6 +23,8 @@ function add_debtor_trans(
 	{
 		$status = 'Open';
 	}
+	set_global_connection();
+
    $sql = "INSERT INTO ".TB_PREF."debtor_trans (
 							trans_no, 
 							type, 
@@ -99,6 +101,7 @@ function add_debtor_trans_det(
 							$chassis_no=null, 
 							$color_code=null)
 {
+	set_global_connection();
 
   	$sql = "INSERT INTO ".TB_PREF."debtor_trans_details ( 
 		  					debtor_trans_no, 
@@ -163,6 +166,7 @@ function add_debtor_loan(
 						$status,
 						$invoice_type)
 {
+	set_global_connection();
 	// $first_due_date = date("Y-m-d", strtotime("+1 month", strtotime( $tran_date)));
 		$outstanding_ar_amount = $ov_amount-$d_amount;
 
@@ -241,6 +245,7 @@ function add_loan_schedule(
 						$d_amount=0,  
 						$ov_amount=0)
 {
+	set_global_connection();
 	$weekday=date('D', strtotime($tran_date));//get the weekday
 
    	$sql = "INSERT INTO ".TB_PREF."debtor_loan_schedule (
