@@ -33,7 +33,7 @@ start_form();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
-ahref(_("New Sales Invoice for Opening Balances"), "sales_invoice_opening_balances.php?NewInvoice=0");
+// ahref(_("New Sales Invoice for Opening Balances"), "sales_invoice_opening_balances.php?NewInvoice=0");  //comment by Albert request by maam helen 05/25/2022
 ref_cells(_("#:"), 'search_val', '', null, '', true);
 if (!$page_nested)
 	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
