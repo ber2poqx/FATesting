@@ -249,9 +249,6 @@
 							$installmentplcy_id = get_installment_policy($plcy_code);
 							$cust_branch = get_cust_branch_data($debtor_no);
 
-							global $def_coy;
-							set_global_connection($def_coy);
-							display_warning($def_coy);
 							if ($total_amount_paid > 0)
 							{
 								$loans_status = 'part-paid';
