@@ -305,8 +305,8 @@
 							if ( empty($invoice_type )){ 
 								$invoice_type='new';
 							}
-
-							if((date("Y-m-t", strtotime($date_cut_off)) > date("Y-m-d", strtotime($last_payment_paid)))&& ($invoice_type =='new' || $invoice_type =='repo') ){
+							
+							if((date("Y-m-t", strtotime($date_cut_off)) >= date("Y-m-d", strtotime($last_payment_paid)))&& ($invoice_type =='new' || $invoice_type =='repo') ){
 								
 								add_loan_schedule(
 								$trans_no,
@@ -520,7 +520,9 @@
 									$CI++;	
 										display_notification("Line  $lines: The Old Transaction No: $old_trans_no is successfully Added Ar Installment Opening Balances.  Customer No : $debtor_no");
 							}else{
-									display_error("Line $lines: Import data Should before of cut off : $date_cut_off / Invoice Type is Invalid: $invoice_type Old Transaction No: $old_trans_no is not Added ");
+									
+								$CI++;
+								display_error("Line $lines: Import data Should before of cut off : $date_cut_off / Invoice Type is Invalid: $invoice_type Old Transaction No: $old_trans_no is not Added ");
 								
 							}			
 						}else{
