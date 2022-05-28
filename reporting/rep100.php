@@ -20,131 +20,6 @@ include_once($path_to_root . "/includes/aging.inc");
 print_transaction();
 //----------------------------------------------------------------------------------------------------
 
-function get_transactions($endDate, $cust_id = '', $group = 0, $filter = '') {
-    
-    $date = date2sql($endDate);
-    $sales_invoice = ST_SALESINVOICE;
-    $sales_invoice_repo = ST_SALESINVOICEREPO;
-    $change_term = ST_SITERMMOD;
-    $restruct = ST_RESTRUCTURED;
-
-    $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DT.stock_id,
-            CASE 
-	            WHEN GL.gl_code = 1200 THEN 'A/R - Regular Current'
-	            WHEN GL.gl_code = 1201 THEN 'A/R - Installment Current'
-	            WHEN GL.gl_code = 1202 THEN 'A/R - Regular Past Due'
-	            WHEN GL.gl_code = 1204 THEN 'A/R - Installment Past Due'
-                ELSE GL.gl_name END AS gl_name, 
-
-            CN.user_id, CN.real_name AS col_name, DM.debtor_ref, DM.name AS cust_name, 
-            DL.delivery_ref_no, '0' AS adj, '0' AS restruct, DL.downpayment_amount AS down_pay,
-
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
-            ELSE DL.debtor_no END AS debtor_no,
-
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.term_mod_date
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.term_mod_date
-            ELSE DL.invoice_date END AS buy_date,
-
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
-            ELSE DL.ar_amount END AS gross,
-            
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.months_term
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.months_term
-            ELSE DL.months_term END AS Term,
-
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
-            ELSE DL.trans_no END AS trans_no,
-
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
-            ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type
-
-            FROM " . TB_PREF . "debtor_loans DL
-            LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
-            LEFT JOIN " . TB_PREF . "areas A ON DM.area = A.area_code
-            LEFT JOIN " . TB_PREF . "users CN ON A.collectors_id = CN.user_id
-            LEFT JOIN " . TB_PREF . "debtor_trans_details DT ON DL.trans_no = DT.debtor_trans_no AND DT.debtor_trans_type = 10
-            LEFT JOIN (
-	            SELECT debtor_no, Y.account_code AS gl_code, Y.account_name AS gl_name 
-                FROM " . TB_PREF . " cust_branch X
-		            INNER JOIN " . TB_PREF . "chart_master Y ON X.receivables_account = Y.account_code
-            ) GL ON DM.debtor_no = GL.debtor_no
-            
-            LEFT JOIN ".TB_PREF."debtor_term_modification CT ON DL.invoice_ref_no = CT.invoice_ref_no 
-                AND DL.debtor_no = CT.debtor_no AND CT.type = $change_term
-            
-            LEFT JOIN ".TB_PREF."debtor_term_modification RT ON DL.invoice_ref_no = RT.invoice_ref_no 
-                AND DL.debtor_no = RT.debtor_no AND RT.type = $restruct
-
-            LEFT JOIN (
-                SELECT DLL.trans_no, DLL.debtor_no, DLL.trans_type_to, 
-                    SUM(DLL.payment_applied) AS sum_pay 
-                FROM ".TB_PREF."debtor_loan_ledger DLL 
-                WHERE DATE_FORMAT(DLL.date_paid, '%Y-%m') < DATE_FORMAT('$date', '%Y-%m')
-                GROUP BY DLL.trans_no, DLL.debtor_no
-            ) CPAY ON DL.trans_no = CPAY.trans_no AND DL.debtor_no = CPAY.debtor_no AND 
-                (CASE 
-	                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
-                ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END) = CPAY.trans_type_to
-
-            LEFT JOIN (
-                SELECT A.ar_trans_no, A.debtor_no, A.repo_date
-                FROM ".TB_PREF."repo_accounts A
-            ) REPO ON DL.trans_no = REPO.ar_trans_no AND DL.debtor_no = REPO.debtor_no
-           
-            WHERE DL.months_term <> 0 AND DL.invoice_date <= '$date' 
-                AND (CASE 
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
-                ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 ";
-      
-    $sql .= 
-    " AND (CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
-            WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
-        ELSE 'repo' END
-    ) = 'new' ";
-
-    if ($cust_id != '') {
-        $sql .= 
-        " AND (CASE 
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-            ELSE DL.debtor_no END
-        ) = ".db_escape($cust_id);
-    }
-
-    if ($group == 1 && $filter != '') {
-        $sql .= " AND GL.gl_code = ".db_escape($filter);
-    }
-    else if ($group == 2 && $filter != '') {
-        $sql .= " AND CN.user_id = ".db_escape($filter);
-    }
-    else if ($group == 3 && $filter != '') {
-        $sql .= " AND DM.area = ".db_escape($filter);
-    }
-
-    if ($group == 1) {
-        $sql .= " ORDER BY GL.gl_code ASC, DM.name ASC";
-    }
-    else if ($group == 2) {
-        $sql .= " ORDER BY CN.user_id ASC, DM.name ASC";
-    }
-    else if ($group == 3) {
-        $sql .= " ORDER BY DM.area, A.description, DM.name ASC";
-    }     
-
-    return db_query($sql,"No transactions were returned");
-}
-
 function print_transaction() {
     global $path_to_root, $SysPrefs;
 
@@ -237,7 +112,7 @@ function print_transaction() {
     $rep->NewPage();
 
 
-    $res = get_Transactions($date, $customer, $group, $filter);
+    $res = get_AR_transactions($date, $customer, $group, $filter);
     $col_name = $gl_name =  $area_name = '';
   
     //Parent
