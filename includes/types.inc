@@ -57,6 +57,7 @@ define('ST_MERCHANDISETRANSFER', 52);	// Added by Herald - 01/27/2021
 define('ST_MERCHANDISETRANSFERREPO', 59);	// Added by Herald - 12/12/2021 for Merchandise Transfer Repo
 define('ST_RRBRANCH', 53);	// Added by Herald - 02/26/2021
 define('ST_COMPLIMENTARYITEM', 54);	// Added by Herald - 04/12/2021
+define('ST_COMPLIMENTARYITEMREPO', 60);	// Added by Robert - 05/24/2022
 define('ST_SALESRETURN', 55);	// Added by Ronelle - 5/21/2021
 define('ST_SITERMMOD', 56);	// Added by Ronelle - 8/7/2021
 define('ST_SALESINVOICEREPO', 57);	// Added by Ronelle - 8/7/2021

@@ -298,6 +298,7 @@ $security_areas =array(
     'SA_RRBRANCH' => array(SS_ITEMS|7, _("Receiving Report - Branch")),
     //Added by Herald - 04/12/2021 for Complimentary Items
     'SA_COMPLIMENTARYITEM' => array(SS_ITEMS|8, _("Complimentary Items")),
+    'SA_COMPLIMENTARYITEM_REPO' => array(SS_ITEMS|11, _("Complimentary Items - Repo")),
 
 	//Added by spyrax10 24 Feb 2022
 	'SA_INVTY_UPDATE' => array(SS_ITEMS|13, _("Update for Inventory Adjustment Transactions")),

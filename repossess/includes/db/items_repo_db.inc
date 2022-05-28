@@ -218,3 +218,95 @@ function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcod
 
     return $result;
 }
+
+/*Added by robert 05/27/2022*/
+function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode='',$all=false){
+
+    $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
+    loc.location_name as loc_name, comments.memo_ as remarks 
+    FROM ".TB_PREF."stock_moves smoves 
+    INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
+    INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
+    LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id 
+    WHERE smoves.type='".ST_COMPLIMENTARYITEMREPO."' AND smoves.loc_code='$branchcode'
+    GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all complimentary item repo");
+    }else{
+        $result = db_query($sqllimit, "could not get all complimentary item repo");
+    }
+    //echo $sql;
+
+    return $result;
+}
+
+//Added by Herald - 05/28/2022
+function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $reference, $memo_,$catcode=0, $person_type=99, $person_id_header='', $masterfile='')
+{
+    global $SysPrefs, $path_to_root, $Refs, $db_connections;
+    
+    begin_transaction();
+    $args = func_get_args();
+    $args = (object)array_combine(array('Items', 'location_from','date_', 'reference', 'memo_','catcode','person_type','person_id_header','masterfile'), $args);
+    $args->trans_no = 0;
+    hook_db_prewrite($args,ST_COMPLIMENTARYITEMREPO);
+    
+    $transfer_id = get_next_trans_no(ST_COMPLIMENTARYITEMREPO);
+    
+    if ($SysPrefs->loc_notification() == 1)
+    {
+        include_once($path_to_root . "/inventory/includes/inventory_db.inc");
+        $st_ids = array();
+        $st_names = array();
+        $st_num = array();
+        $st_reorder = array();
+    }
+    $total = 0;
+    
+    $complintary_header_id = add_complimentary_header_repo($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, 
+        $masterfile);
+    
+    foreach ($Items as $line_item)
+    {
+        $refline = add_stock_complimentary_item_repo($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, 
+        $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, 
+        $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
+    }
+
+    add_comments(ST_COMPLIMENTARYITEMREPO, $transfer_id, $date_, $memo_);
+    
+    $Refs->save(ST_COMPLIMENTARYITEMREPO, $transfer_id, $reference);
+    add_audit_trail(ST_COMPLIMENTARYITEMREPO, $transfer_id, $date_,'');
+    
+    $args->trans_no = $transfer_id;
+    hook_db_postwrite($args, ST_COMPLIMENTARYITEMREPO);
+    
+    commit_transaction();                    
+    return $transfer_id;
+}
+
+//Added by Herald - 05/28/2022
+function add_complimentary_header_repo($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile=''){
+    set_global_connection();
+    
+    $trans_date = date2sql($transdate);
+    
+    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, item_type) VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", ".db_escape($masterfile).", 'repo')";
+    
+    db_query($sql, "The complimentary Header record cannot be inserted");
+    
+    $dbid = db_insert_id();
+    
+    set_global_connection();
+    return $dbid;
+}
+
+//Added by Herald - 05/28/2022
+function add_stock_complimentary_item_repo($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out, $transno_out)
+{
+    return add_stock_move(ST_COMPLIMENTARYITEMREPO, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out, 'repo'); 
+}

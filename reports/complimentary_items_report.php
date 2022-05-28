@@ -224,9 +224,6 @@ function getreceipt($reference)
     return db_query($sql,"No transactions were returned");
 }
 
-
-
-
     $reference = $_GET['reference'];
     $sm_result = get_stock_moves_typetrans($reference);
     $myrow_sm=db_fetch($sm_result);
@@ -246,8 +243,13 @@ function getreceipt($reference)
 		$trans_category = $myrow["category_id"];
 
 		//$delivery_address = get_db_location_address($myrow["mt_header_tolocation"]);
-	}
-	
+
+		if ($myrow["item_type"] == 'repo') {
+			$headertype_new_repo = 'Repo';
+		} else {
+			$headertype_new_repo = '';
+		}
+	}	
 ?>
 
 <?php
@@ -279,7 +281,7 @@ function getreceipt($reference)
 				</div>
 
 				<div class="Merchandise">
-					<label>Complimentary Items Form</label>
+					<label>Complimentary Items Form <?php echo $headertype_new_repo?></label>
 				</div>
 			</h4>
 		</div>
@@ -290,14 +292,14 @@ function getreceipt($reference)
 				<td align=left>Inventory Location:</td>
 				<th style="width: 40%;" align=left><?php echo $mt_header_tolocation;?></th>
 				<td>Reference no.:</td>
-				<th><input type="text" value="<?php echo $reference;?>" class="underline_input" readonly></th>
+				<th style="width: 20%;" align="left"><input style="width: 95%;" type="text" value="<?php echo $reference;?>" class="underline_input" readonly></th>
 			</tr>
 			
 			<tr>
 				<td align=left>Particulars:</td>
 				<th style="width: 50%;" align=left><?php echo $mt_header_comments;?></th>
 				<td>Issue Date:</td>
-				<th><input type="text" value="<?php echo $mt_header_date;?>" class="underline_input" readonly></th>
+				<th style="width: 20%;" align="left"><input style="width: 95%;" type="text" value="<?php echo $mt_header_date;?>" class="underline_input" readonly></th>
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 		</table>

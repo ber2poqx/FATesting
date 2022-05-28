@@ -31,6 +31,9 @@ class inventory_app extends application
 			"inventory/inquiry/adjustment_repo_view.php?", 'SA_INVENTORYADJUSTMENT', MENU_TRANSACTION); //Added by spyrax10
 		$this->add_rapp_function(0, _("&Complimentary Items"),
 		    "inventory/complimentary_items.php", 'SA_COMPLIMENTARYITEM', MENU_TRANSACTION);
+
+		$this->add_rapp_function(0, _("&Complimentary Items - Repo"),
+		    "inventory/complimentary_items_repo.php", 'SA_COMPLIMENTARYITEM_REPO', MENU_TRANSACTION);
 		
 		$this->add_module(_("Inquiries and Reports"));
 		$this->add_lapp_function(1, _("Inventory Item &Movements"),

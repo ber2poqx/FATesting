@@ -45,6 +45,7 @@ $refline_options = array(
     ST_MERCHANDISETRANSFERREPO => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 12/12/2021
     ST_RRBRANCH => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 02/22/2021
     ST_COMPLIMENTARYITEM => array('date', 'location', 'user', 'branchcode'), //Added by Herald - 04/12/2021
+    ST_COMPLIMENTARYITEMREPO => array('date', 'location', 'user', 'branchcode'), //Added by Robert - 05/24/2022
     ST_INVADJUST => array('date', 'location', 'user', 'branchcode'),
 
     ST_PURCHREQUEST => array('date', 'location', 'supplier', 'user', 'branchcode'),
