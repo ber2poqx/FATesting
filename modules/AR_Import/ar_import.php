@@ -208,6 +208,39 @@
 
 					// 	display_error("Line $lines: Invoice_type is Empty empty!");
 
+					}else if(get_installment_policy($plcy_code) == null ){
+							
+						display_error("Line $lines: Installment Policy is invalid: $plcy_code Old Transaction No: $old_trans_no is not Added");
+
+					}else if(is_numeric($standard_cost) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $standard_cost Old Transaction No: $old_trans_no is not Added");
+
+					}else if(is_numeric($d_amount) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $d_amount Old Transaction No: $old_trans_no is not Added");
+
+					}else if(is_numeric($ov_amount) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $ov_amount Old Transaction No: $old_trans_no is not Added");
+		
+					}else if(is_numeric($total_amount_paid) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $total_amount_paid Old Transaction No: $old_trans_no is not Added");
+
+					}else if(is_numeric($unit_price) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $unit_price Old Transaction No: $old_trans_no is not Added");
+
+					}else if(is_numeric($deferred_gross_profit) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $deferred_gross_profit Old Transaction No: $old_trans_no is not Added");
+
+					}else if(is_numeric($amortization_amount) == null ){
+						
+						display_error("Line $lines: Standard cost is not numeric: $amortization_amount Old Transaction No: $old_trans_no is not Added");
+
+
 					}else if($amort != $amortization_amount){
 						display_error("The amortation amount: $amortization_amount not match with the system calculation amount: $amort .. Old Transaction No: $old_trans_no is not Added!!!");
 					
