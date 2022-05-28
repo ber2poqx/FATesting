@@ -277,18 +277,24 @@ if(!is_null($action) || !empty($action)){
                     $totalline=count($objDataGrid);
                     foreach($_SESSION['transfer_items']->gl_items as $gl)
                     {
-                        //foreach ($_SESSION['transfer_items']->line_items as $line_item)
-                        //{
-                            //set_global_connection();
-                            //$stock_gl_mt_code = get_stock_repo_gl_code($line_item->category_id);
+                        foreach ($_SESSION['transfer_items']->line_items as $line_item)
+                        {
+                            set_global_connection();
+                            $stock_gl_mt_code = get_stock_repo_gl_code($line_item->category_id);
+
+                            if($gl->line_item == '') {
+                                $code_name_gl = $gl->code_id;
+                            }else{
+                                $code_name_gl = $stock_gl_mt_code["dflt_repo_invty_act"];
+                            }
 
                             if (!isset($gl->date))
                                 $gl->date = $_SESSION['transfer_items']->tran_date;
                                 
                             $total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, 
-                                $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, 
+                                $code_name_gl,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, 
                                 $gl->person_id,'',0,$rowresult['id'],$masterfile);
-                        //}                            
+                        }                            
                     }             
                     new_doc_date($AdjDate);
                     $_SESSION['transfer_items']->clear_items();
@@ -299,84 +305,6 @@ if(!is_null($action) || !empty($action)){
                 "errmsg":"'.$errmsg.'"})';   
             exit;
             break;
-        case 'receive_header';
-            $brcode = $db_connections[user_company()]["branch_code"];
-            $from_loc = $_POST['from_loc'];
-            $MTReference = $_POST['MTreference'];
-            handle_new_order(ST_RRBRANCH);
-            $AdjDate = sql2date($_POST['AdjDate']);
-            $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$_POST['AdjDate'], 'location'=> $brcode));
-            
-            echo '({"AdjDate":"'.$_POST['AdjDate'].'","branchcode":"'.$brcode.'","from_loc":"'.$from_loc.'","RRBRReference":"'.$_POST['ref'].'","MTreference":"'.$MTReference.'"})';
-            exit;
-            break;
-        case 'receive';
-            set_global_connection();
-            
-            $trans_id = $_POST['trans_id'];
-            $line_item = $_POST['line_item'];
-            $reference = $_POST['reference'];
-            //$category_id = $_POST['category_id'];
-            //$qty = $_POST['qty'];
-            $brcode = $db_connections[user_company()]["branch_code"];
-            $_POST['ref'] = $_POST['RRBRReference'];
-            $model = $_POST['model'];
-            $item_code = $_POST['item_code'];
-            $serialise_id = $_POST['engine_no'];
-            
-            //add_to_rrbranch_order($_SESSION['transfer_items'], $model, $line_item);
-            
-            //set_global_connection();
-            $kit = get_item_serial_mt($line_item);
-            
-            foreach($kit as $item) {
-                //if ($_SESSION['transfer_items']->find_cart_item_new($item_code,$item['mt_details_serial_no'])){
-                    //display_error(_("For Part :") . $item['item_code'] . " " . "This item is already on this document. You can change the quantity on the existing line if necessary.");
-                //}else{
-                    $standard_cost = $item['mt_details_st_cost'];
-                    
-                    $_SESSION['transfer_items']->add_to_cart(count($_SESSION['transfer_items']->line_items), $model, $item['mt_details_total_qty'],$standard_cost,$item['sdescription'],'0000-00-00','0000-00-00',$item['mt_details_serial_no'],$item['mt_details_chasis_no'],$item['idescription'],$item['item_code'],$line_item);
-                //}
-            }
-            
-            
-            display_transfer_items_serial($_SESSION['transfer_items'],$_POST['FromStockLocation'],$AdjDate);
-            
-            //echo '({"trans_date":"'.sql2date($trans_date).'","reference":"'.$reference.'","trans_id":"'.$trans_id.'","line_item":"'.$line_item.'","RRReference":"'.$_POST['ref'].'"})';
-            exit;
-            break;
-        case 'save_rrbr';
-            $brcode = $db_connections[user_company()]["branch_code"];
-            //display_transfer_items_serial($_SESSION['transfer_items'],$brcode);
-            
-            
-            //$serialise_id = $_REQUEST['serialise_id'];
-            set_global_connection();
-            $AdjDate = sql2date($_POST['trans_date']);
-            $_POST['ref']=$_POST['RRBRReference'];
-            $MTreference=$_POST['MTreference'];
-            //$model = $_REQUEST['model'];
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            //echo "ID:".$serialise_id;
-            //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
-            
-            $catcode = $_POST['catcode'];
-            
-            //display_transfer_items_serial($_SESSION['transfer_items'],$_POST['FromStockLocation'],$AdjDate);
-            //$_SESSION['transfer_items']->clear_items();
-            //unset($_SESSION['transfer_items']);
-            //exit;
-            //break;
-            $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$AdjDate, 'location'=> $brcode));
-            $trans_no = add_stock_rrBranch($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], '',$catcode,$MTreference);
-            //new_doc_date($AdjDate);
-            $_SESSION['transfer_items']->clear_items();
-            unset($_SESSION['transfer_items']);
-            echo '({"total":"'.$AdjDate.'","reference":"'.$_POST['ref'].'"})';
-            exit;
-            break;
-            
-            
         case 'RemoveItem';
             $id = $_REQUEST['id'];
             $line_item = $_REQUEST['line_item'];
@@ -400,7 +328,6 @@ if(!is_null($action) || !empty($action)){
             echo '({"branchcode":"'.$brcode.'","branch_name":"'.$brname.'"})';
             exit;
             break;
-        
         case 'serial_items':
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
@@ -456,9 +383,7 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'MTserialitems':
-            //global $def_coy;
-            //set_global_connection($def_coy);
-            
+                        
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
@@ -466,14 +391,9 @@ if(!is_null($action) || !empty($action)){
             $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             $trans_id = (integer) (isset($_POST['trans_no']) ? $_POST['trans_no'] : $_GET['trans_no']);
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            
+                       
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
-            
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            //$result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,false,$reference);
-            //$total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,$reference);
-            
+                                 
             $sql = "SELECT move.trans_no, move.stock_id, move.reference, move.lot_no, move.chassis_no, move.qty, 
             move.category_id, code.description, items.id
             FROM ".TB_PREF."stock_moves move 
@@ -488,105 +408,34 @@ if(!is_null($action) || !empty($action)){
                 $sql.=" AND move.reference = '".$reference."'";
                 
             }
-            /*if($brcode!=''){
-                $sql.=" AND mh.mt_header_fromlocation='".$brcode."'";
-                
-            }*/
-            /*if($querystr!=''){
-                $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
-            }*/
-            //$sql.=" group by serial.stock_id, serial.color_code, serial.lot_no, serial.chassis_no";
+
             if($all){
                 
             }else{
                 //$sql.=" LIMIT $start,$end";
             }
-            //echo $sql;
-            //die();
+    
             $result=db_query($sql, "could not get all Serial Items");
             
             $total = db_num_rows($result);
             
-            
             while ($myrow = db_fetch($result))
             {
-                //if($myrow["serialise_qty"]>0){
-                    //$serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
-                    //$tandard_cost = Get_StandardCost_Plcy($branchcode,$catcode,$myrow["model"]);
-                    
-                    $group_array[] = array('trans_no' => $myrow["trans_no"],
-                        'model' => $myrow["stock_id"],
-                        'color' => $myrow["description"],
-                        'item_description' => $myrow["description"],
-                        'qty' => price_format(abs($myrow["qty"])),
-                        'category_id'=>$catcode,
-                        'lot_no' => $myrow["lot_no"],
-                        'chasis_no' => $myrow["chassis_no"]
-                    );
-                //}
-                
-                
-            }
-            
-            $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
-            exit;
-            break;
-        case 'BRMTserialitems':
-            global $def_coy;
-            set_global_connection($def_coy);
-            
-            $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
-            $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
-            $trans_id = (integer) (isset($_POST['trans_id']) ? $_POST['trans_id'] : $_GET['trans_id']);
-            $reference = (integer) (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
-            $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
-            $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
-            
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
-            
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            $sql = "SELECT *, sc.description as category, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
-            
-            
-            $result = db_query($sql, "could not get all Serial Items");
-            //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
-            //$total = db_num_rows($total_result);
-            while ($myrow = db_fetch($result))
-            {
-                if($myrow["mt_details_status"]==0){
-                    $status_msg='In-transit';
-                }elseif($myrow["mt_details_status"]==1){
-                    $status_msg='Partial';
-                }elseif($myrow["mt_details_status"]==2){
-                    $status_msg='Received';
-                }
-                $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
-                    'line_item' => $myrow["mt_details_id"],
-                    'reference' => $myrow["mt_header_reference"],
-                    'rrbrreference' => $myrow["mt_header_rrbranch_reference"],
-                    'model' => $myrow["mt_details_stock_id"],
-                    'item_code' => $myrow["mt_details_item_code"],
-                    'trans_date' => sql2date($myrow["mt_header_date"]),
-                    'category' => $myrow["category"],
-                    'qty' => number_format($myrow["totalqty"],2),
+                $group_array[] = array('trans_no' => $myrow["trans_no"],
+                    'model' => $myrow["stock_id"],
+                    'color' => $myrow["description"],
+                    'item_description' => $myrow["description"],
+                    'qty' => price_format(abs($myrow["qty"])),
                     'category_id'=>$catcode,
-                    'lot_no' => $myrow["mt_details_serial_no"],
-                    'chasis_no' => $myrow["mt_details_chasis_no"],
-                    'stock_description' => $myrow["stock_description"],
-                    'item_description' => $myrow["item_description"],
-                    'status_msg'=>$status_msg,
-                    'status'=>$myrow["mt_details_status"]
-                );
-                
+                    'lot_no' => $myrow["lot_no"],
+                    'chasis_no' => $myrow["chassis_no"]
+                );    
             }
             
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;
             break;
-            
         case 'view':
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
@@ -617,63 +466,6 @@ if(!is_null($action) || !empty($action)){
             echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
-        case 'viewin':
-            global $def_coy;
-            set_global_connection($def_coy);
-            
-            $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
-            $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
-            //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
-            $fromlocation = (isset($_POST['fromlocation']) ? $_POST['fromlocation'] : $_GET['fromlocation']);
-            $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
-            $branchcode = $db_connections[user_company()]["branch_code"];
-            
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
-            
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            if($fromlocation!=null || isset($fromlocation)){
-                $str_fromlocation=" AND  mh.mt_header_fromlocation='".$fromlocation."'";
-            }else{
-                $str_fromlocation="";
-            }
-            $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_qty FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id where mh.mt_header_tolocation='$branchcode' $str_fromlocation GROUP BY mh.mt_header_reference";
-            
-            
-            $result = db_query($sql, "could not get all Serial Items");
-            //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
-            //$total = db_num_rows($total_result);
-            while ($myrow = db_fetch($result))
-            {
-                if($myrow["balance_qty"]==0){
-                   $status_msg='Received'; 
-                }else{
-                    $status_msg='In-transit';
-                }
-                $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
-                    'reference' => $myrow["mt_header_reference"],
-                    'rrbrreference' => $myrow["mt_header_rrbranch_reference"],
-                    'trans_date' => sql2date($myrow["mt_header_date"]),
-                    'fromlocation' => $myrow["mt_header_fromlocation"],
-                    'tolocation' => $myrow["mt_header_tolocation"],
-                    'category' => $myrow["category"],
-                    'qty' => number_format($myrow["totalqty"],2),
-                    'category_id'=>$myrow["mt_header_category_id"],
-                    'lot_no' => $myrow["serialise_lot_no"],
-                    'chasis_no' => $myrow["serialise_chasis_no"],
-                    'serialise_loc_code'=>$myrow["serialise_loc_code"],
-                    'remarks' => $myrow["mt_header_comments"],
-                    'status_msg'=>$status_msg,
-                    'status'=>$myrow["mt_header_status"]
-                );
-                
-            }
-            
-            $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
-            exit;
-            break;
-            
         case 'category':
             $result = get_item_categories(true, false);
             $total = db_num_rows($result);
@@ -777,26 +569,6 @@ if(!is_null($action) || !empty($action)){
             
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
-            exit;
-            break;
-        case 'branch_location':
-            $coy = user_company();
-            
-            for ($i = 0; $i < count($db_connections); $i++)
-            {
-                if($i!=$coy){
-                    $group_array[] = array('loc_code'=>$db_connections[$i]["branch_code"],
-                        'location_name' => $db_connections[$i]["name"],
-                        'branch_id' => $i
-                    );
-                }
-                
-                
-            }
-            
-            $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
-            
             exit;
             break;
     }
@@ -1040,8 +812,15 @@ function display_gl_complimentaryitems_repo(&$order)
             }elseif($item->master_file_type==6){
                 $mastertype='Employee';
             }
-            $group_array[] = array('code_id'=>$stock_gl_mt_code["dflt_repo_invty_act"],
-                'description'=>$account_description_gl,
+            if($item->amount == 0) {
+                $code_name_gl = $item->code_id;
+                $description_name_gl = $item->description;
+            }else{
+                $code_name_gl = $stock_gl_mt_code["dflt_repo_invty_act"];
+                $description_name_gl = $account_description_gl;
+            }
+            $group_array[] = array('code_id'=>$code_name_gl,
+                'description'=>$description_name_gl,
                 'line'=>$line,
                 'class_id'=>'',
                 'branch_id'=>is_null($item->branch_id)?'':$item->branch_id,
