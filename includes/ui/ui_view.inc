@@ -178,6 +178,8 @@ function get_inventory_trans_view_str($type, $trans_no, $label="",
 		$viewer .= "view_rr_branch.php";
 	elseif ($type == ST_COMPLIMENTARYITEM)
 		$viewer .= "view_complimentary_items.php";
+	elseif ($type == ST_COMPLIMENTARYITEMREPO)
+		$viewer .= "view_complimentary_items_repo.php";
 	elseif ($type == ST_SUPPRECEIVE)
 		$viewer .= "rr_supplier.php";
 	else
@@ -328,6 +330,50 @@ function get_trans_view_str($type, $trans_no, $label = "", $icon=false,
 				return $view_str;
 			}
 		}
+
+		//--Robert Added - 05/28/2022--//
+		if ($type == ST_COMPLIMENTARYITEMREPO) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+
+		if ($type == ST_COMPLIMENTARYITEM) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+
+		if ($type == ST_MERCHANDISETRANSFER) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+
+		if ($type == ST_MERCHANDISETRANSFERREPO) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+
+		if ($type == ST_RRBRANCH) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+		
+		if ($type == ST_LOCTRANSFER) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+		//--End Here--//
 		//
 	
 		$view_str = get_manufacturing_trans_view_str($type, $trans_no, $label, $icon, $class, $id);

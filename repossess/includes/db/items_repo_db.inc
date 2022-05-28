@@ -244,7 +244,7 @@ function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode=
     return $result;
 }
 
-//Added by Herald - 05/28/2022
+//Added by Robert - 05/28/2022
 function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $reference, $memo_,$catcode=0, $person_type=99, $person_id_header='', $masterfile='')
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
@@ -289,7 +289,7 @@ function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $ref
     return $transfer_id;
 }
 
-//Added by Herald - 05/28/2022
+//Added by Robert - 05/28/2022
 function add_complimentary_header_repo($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile=''){
     set_global_connection();
     
@@ -305,7 +305,7 @@ function add_complimentary_header_repo($transdate, $reference, $fromlocation, $c
     return $dbid;
 }
 
-//Added by Herald - 05/28/2022
+//Added by Robert - 05/28/2022
 function add_stock_complimentary_item_repo($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out, $transno_out)
 {
     return add_stock_move(ST_COMPLIMENTARYITEMREPO, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out, 'repo'); 

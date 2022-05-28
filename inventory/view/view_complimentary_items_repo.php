@@ -28,15 +28,14 @@ if (isset($_GET["trans_no"]))
 display_heading($systypes_array[ST_COMPLIMENTARYITEMREPO] . " #$trans_no");
 
 br(1);
-$adjustment_items = get_stock_complimentary_items($trans_no);
+$adjustment_items = get_stock_complimentary_items_repo($trans_no);
 $k = 0;
 $header_shown = false;
 while ($adjustment = db_fetch($adjustment_items))
 {
-
 	if (!$header_shown)
 	{
-	    $cheader_result=get_complimentary_header($adjustment['reference']);
+	    $cheader_result=get_stock_complimentary_items_repo($adjustment['reference']);
 	    $cheader_row = db_fetch($cheader_result);
 		start_table(TABLESTYLE2, "width='90%'");
 		start_row();
@@ -87,7 +86,7 @@ end_page(true, false, false, ST_COMPLIMENTARYITEMREPO, $trans_no);
 
 //-------------------------------------------------------------------------------------------------------------
 
-function get_stock_complimentary_items($trans_no)
+function get_stock_complimentary_items_repo($trans_no)
 {
     $result = get_stock_moves(ST_COMPLIMENTARYITEMREPO, $trans_no);
     
@@ -99,7 +98,7 @@ function get_stock_complimentary_items($trans_no)
     return $result;
 }
 
-function get_complimentary_header($reference){
+function get_complimentary_header_repo($reference){
     set_global_connection();
     $sql = "SELECT * FROM " . TB_PREF . "complimentary_items citem
 	WHERE citem.reference=" . db_escape($reference);
