@@ -966,7 +966,6 @@ function display_change_term_header(&$order, $editable, $date_text,
 			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
 			$old_profit_margin = $loans_data['profit_margin'];
 
-			display_warning(get_post('due_amort'));
 			/* */
 		}
 		else {

@@ -112,11 +112,23 @@ function sales_return_approval($row)
 
 function change_term_link($row)
 {
-	return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" ? '' : pager_link(
-		_("Change Term"),
-		"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
-		ICON_RECEIVE
-	);
+
+	if ($row['invoice_type'] == 'new'){
+		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
+		|| $row['payment_type'] == "CASH"  ? '' : pager_link(
+			_("Change Term"),
+			"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
+			ICON_RECEIVE
+		);
+	}else{
+		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
+		|| $row['payment_type'] == "CASH"  ? '' : pager_link(
+			_("Change Term"),
+			"/sales/si_repo_install.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
+			ICON_RECEIVE
+		);
+
+	}
 }
 //Added by Albert
 function sales_restructured_approval($row)
@@ -130,12 +142,20 @@ function sales_restructured_approval($row)
 }
 function restructured_link($row)
 {
+	if ($row['invoice_type'] == 'new'){
+		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+			_("Restructured"),
+			"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"]. "&opening_balance=1",
+			ICON_RECEIVE
+		);
+	}else{
+		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+			_("Restructured"),
+			"/sales/si_repo_install.php?NewRestructured=" . $row["trans_no"] . "&opening_balance=1",
+			ICON_RECEIVE
+		);
 
-	return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
-		_("Restructured"),
-		"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"]. "&opening_balance=1",
-		ICON_RECEIVE
-	);
+	}
 }
 
 //figure out the sql required from the inputs available

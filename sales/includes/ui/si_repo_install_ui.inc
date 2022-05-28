@@ -765,7 +765,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	return $customer_error;
 }
 
-function display_change_term_header(&$order, $editable, $date_text)
+function display_change_term_header(&$order, $editable, $date_text, $opening_balance = 0)
 {
 	global $Ajax, $SysPrefs;
 
@@ -912,12 +912,25 @@ function display_change_term_header(&$order, $editable, $date_text)
 	hidden('discount_dp2_amount');
 	if ($order->trans_type == ST_SALESINVOICEREPO || $order->trans_type == ST_SITERMMOD) {
 
-		$total_unit_cost = get_repo_cost_average(
-			$order->line_items[0]->stock_id,
-			$order->Location,
-			$order->line_items[0]->lot_no,
-			$order->line_items[0]->chasis_no
-		);
+
+		if ($opening_balance == 1) {
+			$total_unit_cost = $order->line_items[0]->standard_cost;
+			/*Added by Albert */
+			$loans_data = get_ar_amount($_POST['document_ref']);
+			$all_ar_amount = $loans_data['ar_amount'];
+			$amort = $loans_data['amortization_amount'];
+			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
+			$old_profit_margin = $loans_data['profit_margin'];
+			
+			/* */
+		}else{
+			$total_unit_cost = get_repo_cost_average(
+				$order->line_items[0]->stock_id,
+				$order->Location,
+				$order->line_items[0]->lot_no,
+				$order->line_items[0]->chasis_no
+			);
+		}
 		$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
 		$half = 0.5 / pow(10, 2); //Added by Albert
 		$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
@@ -1102,7 +1115,7 @@ function display_change_term_header(&$order, $editable, $date_text)
 }
 
 /*Added by Albert*/
-function display_restructured_header(&$order, $editable, $date_text)
+function display_restructured_header(&$order, $editable, $date_text, $opening_balance = 0)
 {
 	global $Ajax, $SysPrefs;
 
@@ -1252,7 +1265,17 @@ function display_restructured_header(&$order, $editable, $date_text)
 	hidden('discount_dp2_amount');
 
 	if ($order->trans_type == ST_SALESINVOICEREPO || $order->trans_type == ST_RESTRUCTURED) {
-		
+		if ($opening_balance == 1) {
+			$total_unit_cost = $order->line_items[0]->standard_cost;
+			/*Added by Albert */
+			$loans_data = get_ar_amount($_POST['document_ref']);
+			$all_ar_amount = $loans_data['ar_amount'];
+			$amort = $loans_data['amortization_amount'];
+			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
+			$old_profit_margin = $loans_data['profit_margin'];
+
+			/* */
+		}else{
 			$total_unit_cost = get_repo_cost_average(
 				$order->line_items[0]->stock_id,
 				$order->Location,
@@ -1265,6 +1288,7 @@ function display_restructured_header(&$order, $editable, $date_text)
 			$half = 0.5 / pow(10, 2); //Added by Albert
 			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
 			$old_profit_margin = round(number_format($old_deferred_gross_profit / $all_ar_amount, 5) - $half,2,PHP_ROUND_HALF_DOWN);
+		}
 			/* */
 		$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
 		$half = 0.5 / pow(10, 2); //Added by Albert

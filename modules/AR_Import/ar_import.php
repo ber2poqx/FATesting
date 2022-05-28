@@ -273,12 +273,19 @@
 							global $Refs;
 							$ref_num = '';
 							$account_no = '';
+
+							if($invoice_type == 'new'){
+								$type = ST_SALESINVOICE;
+							}else{
+								$type = ST_SALESINVOICEREPO;
+
+							}
 							
 							$date_ = $tran_date;
 							$debtor_no = get_customer_code(normalize_chars($debtor_no));
 							$category_id = get_category_id($stock_id);
 							$description = get_item_description_ar_import($stock_id);
-							$ref_num = $Refs->get_next(ST_SALESINVOICE, null, @$tran_date);
+							$ref_num = $Refs->get_next($type, null, @$tran_date);
 							$installmentplcy_id = get_installment_policy($plcy_code);
 							$cust_branch = get_cust_branch_data($debtor_no);
 
@@ -342,6 +349,7 @@
 							if((date("Y-m-t", strtotime($date_cut_off)) >= date("Y-m-d", strtotime($last_payment_paid)))&& ($invoice_type =='new' || $invoice_type =='repo') ){
 								
 								add_loan_schedule(
+								$type,
 								$trans_no,
 								$debtor_no, 
 								$tran_date,   
@@ -357,6 +365,7 @@
 									$principal_run_bal = $principal_run_bal -  $amortization_amount;
 									
 									add_loan_schedule(
+										$type,
 										$trans_no,
 										$debtor_no,
 										$sched_due_date,  
@@ -371,6 +380,7 @@
 								}
 
 									add_debtor_trans(
+									$type,
 									$trans_no,
 									$debtor_no, 
 									$tran_date, 
@@ -409,6 +419,7 @@
 									
 									$item_color_code = check_color_exist($stock_id, $color_code);
 									add_debtor_trans_det(
+									$type,
 									$trans_no,	
 									$debtor_no,
 									$stock_id, 
@@ -427,7 +438,7 @@
 									$hoc_masterfile = get_company_value(0, 'name');
 
 									add_gl_trans_customer(
-										ST_SALESINVOICE,
+										$type,
 										$trans_no,
 										$date_,
 										$account_no =get_customer_receivables_account($debtor_no),
@@ -439,7 +450,7 @@
 									);
 
 									add_gl_trans_customer(
-										ST_SALESINVOICE,
+										$type,
 										$trans_no,
 										$date_,
 										$account_no =get_customer_receivables_account($debtor_no),
@@ -451,7 +462,7 @@
 									);	
 									
 									add_gl_trans_customer(
-										ST_SALESINVOICE,
+										$type,
 										$trans_no,
 										$date_,
 										$account_no =get_customer_sales_account(),
@@ -465,7 +476,7 @@
 										$hoc_masterfile
 									);
 									add_gl_trans_customer(
-										ST_SALESINVOICE,
+										$type,
 										$trans_no,
 										$date_,
 										$account_no =get_account_code(),
@@ -477,7 +488,7 @@
 									);
 							
 									add_gl_trans_customer(
-										ST_SALESINVOICE,
+										$type,
 										$trans_no,
 										$date_,
 										$account_no =get_customer_sales_account(),
@@ -493,7 +504,7 @@
 									);
 
 									/*alloc*/
-									$amortization_schedule = get_deptor_loan_schedule_ob($trans_no, $debtor_no, ST_SALESINVOICE);
+									$amortization_schedule = get_deptor_loan_schedule_ob($trans_no, $debtor_no, $type);
 									$total_exist_payment = floatval($total_amount_paid);
 									while ($amort_sched = db_fetch($amortization_schedule)) {
 										if ($total_exist_payment == 0)
@@ -511,8 +522,8 @@
 											$trans_no,
 											$debtor_no,
 											$amort_sched["id"],
-											ST_SALESINVOICE,
-											ST_SALESINVOICE,
+											$type,
+											$type,
 											$amount,
 											0,
 											0,
@@ -535,14 +546,14 @@
 
 									add_cust_allocation(floatval(
 										$total_amount_paid), 
-										ST_SALESINVOICE, 
+										$type, 
 										$trans_no, 
-										ST_SALESINVOICE, 
+										$type, 
 										$trans_no, 
 										$debtor_no,  
 										$date_);
 									update_debtor_trans_allocation( 
-										ST_SALESINVOICE, 
+										$type, 
 										$trans_no, 
 										$debtor_no);
 

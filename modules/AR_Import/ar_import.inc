@@ -6,6 +6,7 @@
 
 
 function add_debtor_trans(
+						$type,
 						$trans_no, 
 						$debtor_no, 
 						$tran_date=0000-00-00,
@@ -57,9 +58,9 @@ function add_debtor_trans(
 							repo_date)
 					VALUES (
 							'$trans_no', 
-							'10', 
+							'$type', 
 							'0', 
-							'$debtor_no', 
+							'$debtor_no',
 							'$cust_branch', 
 							'$tran_date', 
 							'$tran_date', 
@@ -89,6 +90,7 @@ function add_debtor_trans(
   			db_query($sql,"The Ar Installment Opening Balances could not be added");
 }
 function add_debtor_trans_det(
+							$type,
 							$trans_no, 
 							$debtor_no,
 							$stock_id, 
@@ -122,7 +124,7 @@ function add_debtor_trans_det(
 							discount2) 
 						VALUES(
 							'$trans_no', 
-							'10', 
+							'$type', 
 							'$stock_id', 
 							'$description',
 							'$quantity',
@@ -238,6 +240,7 @@ function add_debtor_loan(
 
 }
 function add_loan_schedule( 
+						$type,
 						$trans_no, 
 						$debtor_no, 
 						$tran_date=0000-00-00,  
@@ -265,7 +268,7 @@ function add_loan_schedule(
 				VALUES (
 						'$debtor_no', 
 						'$trans_no', 
-						' 10', 
+						'$type', 
 						'$months_term',
 						'$tran_date', 
 						'$weekday',

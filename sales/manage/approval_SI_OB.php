@@ -40,7 +40,7 @@ function get_SIOB_header($trans_no) {
         LEFT JOIN " . TB_PREF . "debtor_trans_details C ON A.trans_no = C.debtor_trans_no
         LEFT JOIN " . TB_PREF . "co_makers D ON A.debtor_no = D.debtor_no
         LEFT JOIN " . TB_PREF . "debtor_loans E ON A.trans_no = E.trans_no
-        WHERE A.type = 10 AND A.opening_balances = 1 
+        WHERE (A.type = 10 OR A.type = 57 ) AND A.opening_balances = 1 
         AND A.trans_no = ".db_escape($trans_no);
     
     $sql .= " GROUP BY A.trans_no";
@@ -55,7 +55,7 @@ function get_SIOB_items($trans_no) {
     $sql = "SELECT A.*, B.units 
         FROM " . TB_PREF . "debtor_trans_details A
         LEFT JOIN " . TB_PREF . "stock_master B ON A.stock_id = B.stock_id
-        WHERE A.debtor_trans_type = 10 AND A.debtor_trans_no = " .db_escape($trans_no);
+        WHERE (A.debtor_trans_type = 10 OR A.debtor_trans_type = 57) AND A.debtor_trans_no = " .db_escape($trans_no);
 
     $result = db_query($sql, "No Items return for SI Opening Balances! (spyrax10)");
 	set_global_connection();
@@ -66,7 +66,7 @@ function get_SIOB_reference($trans_no) {
 
     $sql = "SELECT A.reference 
         FROM " . TB_PREF . "debtor_trans A 
-        WHERE A.type = 10 AND A.opening_balances = 1 
+        WHERE (A.type = 10 OR A.type = 57 ) AND A.opening_balances = 1 
         AND A.trans_no = ".db_escape($trans_no);
 
     $result = db_query($sql, "Cant get SI Opening Balances reference! (spyrax10)");

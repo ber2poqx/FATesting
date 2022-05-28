@@ -73,6 +73,23 @@ if ($SysPrefs->use_popup_windows) {
 if (user_use_date_picker()) {
 	$js .= get_js_date_picker();
 }
+
+function get_OB_status() {
+
+	$ob = 0;
+	
+	if ($_SESSION['page_title'] == "Sales Invoice - OB Term Modification") {
+		$ob = 1;
+	}
+	else if ($_SESSION['page_title'] == "Sales Invoice - OB Restructured") {
+		$ob = 1;
+	}
+	else {
+		$ob = 0;
+	}
+	return $ob;
+}
+
 add_js_ufile($path_to_root . "/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
 add_js_ufile($path_to_root . '/js/serial_items_sales_entry.js');
 add_js_ufile($path_to_root . '/js/spyrax10.js'); //Added by spyrax10
@@ -94,14 +111,20 @@ if (isset($_GET['NewDelivery']) && is_numeric($_GET['NewDelivery'])) {
 
 	create_cart(ST_SALESINVOICEREPO, $_GET['CancelInvoice']);
 	$_SESSION['page_title'] = _($help_context = "Cancel Sales Invoice Repo Installment");
-} elseif (isset($_GET['NewChangeTerm']) && is_numeric($_GET['NewChangeTerm'])) {
+}elseif (isset($_GET['NewChangeTerm']) && is_numeric($_GET['NewChangeTerm'])) {
+
+	$_SESSION['page_title'] = $_GET['opening_balance'] == 1 ? _($help_context = "Sales Invoice - OB Term Modification") : 
+		_($help_context = "Sales Invoice Term Modification");
 
 	create_cart(ST_SITERMMOD, $_GET['NewChangeTerm']);
-	$_SESSION['page_title'] = _($help_context = "Sales Invoice Term Modification");
-} elseif (isset($_GET['NewRestructured']) && is_numeric($_GET['NewRestructured'])) {
+
+
+}elseif (isset($_GET['NewRestructured']) && is_numeric($_GET['NewRestructured'])) {
 
 	create_cart(ST_RESTRUCTURED, $_GET['NewRestructured']);
-	$_SESSION['page_title'] = _($help_context = "Sales Invoice Restructured");
+	$_SESSION['page_title'] = $_GET['opening_balance'] == 1 && $_GET['NewRestructured'] ? _($help_context = "Sales Invoice - OB Restructured")
+	: _($help_context = "Sales Invoice Restructured");
+
 } elseif (isset($_GET['ModifyOrderNumber']) && is_numeric($_GET['ModifyOrderNumber'])) {
 
 	$help_context = 'Modifying Sales Order';
@@ -1340,10 +1363,10 @@ start_form();
 hidden('cart_id');
 //modified by albert
 if($_SESSION['Items']->trans_type == ST_SITERMMOD){
-	$customer_error = display_change_term_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate);
+	$customer_error = display_change_term_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate,get_OB_status());
 }else{
 	$customer_error =$_SESSION['Items']->trans_type == ST_RESTRUCTURED
-		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate)
+		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, get_OB_status())
 		: display_order_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, $_SESSION['page_title']);	
 }
 if ($customer_error == "") {
