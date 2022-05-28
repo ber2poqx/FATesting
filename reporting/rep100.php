@@ -81,10 +81,10 @@ function get_transactions($endDate, $cust_id = '', $group = 0, $filter = '') {
             ) GL ON DM.debtor_no = GL.debtor_no
             
             LEFT JOIN ".TB_PREF."debtor_term_modification CT ON DL.invoice_ref_no = CT.invoice_ref_no 
-                AND DL.debtor_no = CT.debtor_no
+                AND DL.debtor_no = CT.debtor_no AND CT.type = $change_term
             
             LEFT JOIN ".TB_PREF."debtor_term_modification RT ON DL.invoice_ref_no = RT.invoice_ref_no 
-                AND DL.debtor_no = RT.debtor_no
+                AND DL.debtor_no = RT.debtor_no AND RT.type = $restruct
 
             LEFT JOIN (
                 SELECT DLL.trans_no, DLL.debtor_no, DLL.trans_type_to, 
