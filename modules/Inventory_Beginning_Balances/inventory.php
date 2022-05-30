@@ -239,7 +239,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 		else if (get_stock_catID($stock_id) == 14 && !check_color_exist($stock_id, $color, true, false)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Item Color Code does not exist!");
+			$err_arr[$line_cnt] = _("Item Color Code does not exist! (" . $stock_id . " || Color: " . $color . ")");
 		}
 		else if ($mcode == "") {
 			$line_cnt++;
