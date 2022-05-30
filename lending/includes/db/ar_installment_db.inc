@@ -114,7 +114,7 @@ function get_ar_installment_lending($InvType='new', $start, $limit, $search, $sh
 					AND A.payment_terms != 0 "
 				.$sWhere."
 				ORDER BY A.tran_date DESC limit $start, $limit";
-
+	echo $sql;
 	return db_query($sql, "could not get all ar invoice");
 }
 

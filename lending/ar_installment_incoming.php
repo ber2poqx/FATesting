@@ -20,7 +20,7 @@ include_once($path_to_root . "/lending/includes/db/ar_installment_db.inc");
 //----------------------------------------------------------------------------------------------------
 
 add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
-add_js_ufile($path_to_root ."/js/ar_installment.js");
+add_js_ufile($path_to_root ."/js/ar_installment_incoming.js");
 
 //----------------------------------------------: for store js :---------------------------------------
 if(isset($_GET['getcategory'])){
@@ -108,7 +108,7 @@ if(isset($_GET['get_aritem'])){
 }
 //------------------------------------------------------------------------------------------------------
 //simple_page_mode(true);
-page(_($help_context = "A/R Installment"), false, false, "", null);
+page(_($help_context = "A/R Incoming Inquiry"), false, false, "", null);
 
 start_table(TABLESTYLE, "width='100%'");
    echo "<div id='ARINQRY'></div>";

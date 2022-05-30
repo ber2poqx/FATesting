@@ -16,8 +16,8 @@ class lending_app extends application
 		parent::__construct("lending", _($this->help_context = "&Lending"));
 
 		$this->add_module(_("Transactions"));
-		$this->add_lapp_function(0, _("A/R Installment ~"),
-			"lending/ar_installment.php?", 'SA_ARINVCINSTL', MENU_TRANSACTION);
+		$this->add_lapp_function(0, _("A/R Incoming"),
+			"lending/ar_installment_incoming.php?", 'SA_ARINVCINSTL', MENU_TRANSACTION);
 		//$this->add_lapp_function(0, _("A/R Cash"),
 		//	"lending/customer_amort_receipt.php?", 'SA_SALINSTLINVC', MENU_TRANSACTION);
 
