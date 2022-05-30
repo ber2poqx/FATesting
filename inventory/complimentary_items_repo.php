@@ -812,7 +812,7 @@ function display_gl_complimentaryitems_repo(&$order)
             }elseif($item->master_file_type==6){
                 $mastertype='Employee';
             }
-            if($item->amount == 0) {
+            if($item->line_item == '') {
                 $code_name_gl = $item->code_id;
                 $description_name_gl = $item->description;
             }else{
