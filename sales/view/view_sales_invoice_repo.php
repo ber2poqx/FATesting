@@ -75,7 +75,7 @@ label_row("Invoice Date: ", sql2date($header["invoice_date"]), "class='tablehead
 label_row(null, ''); label_row(null, '');
 label_row(_("Sales Person: "), $header['sales_type'], "class='tableheader2'");
 label_row(_("Sale Type: "), $header['salesman_name'], "class='tableheader2'");
-label_row(_("Co-maker: "), $header['co_maker'], "class='tableheader2'");
+label_row(_("Co-maker: "), $header['co_maker_name'], "class='tableheader2'");
 
 label_row(_("Previous Owner: "), $sales_order['previous_owner'], "class='tableheader2'");
 table_section(2);

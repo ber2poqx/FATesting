@@ -46,7 +46,12 @@ end_table();
 
 function trans_view($trans)
 {
-	return get_trans_view_str(ST_SALESINVOICE, $trans["trans_no"]);
+	if ($trans['invoice_type'] == 'new'){
+		$type = ST_SALESINVOICE;
+	}else{
+		$type = ST_SALESINVOICEREPO;
+	}
+	return get_trans_view_str($type, $trans["trans_no"]);
 }
 
 function dr_trans_view($trans)
@@ -61,7 +66,12 @@ function so_trans_view($trans)
 
 function gl_view($row)
 {
-	return get_gl_view_str(ST_SALESINVOICE, $row["trans_no"]);
+	if ($row['invoice_type'] == 'new'){
+		$type = ST_SALESINVOICE;
+	}else{
+		$type = ST_SALESINVOICEREPO;
+	}
+	return get_gl_view_str($type, $row["trans_no"]);
 }
 
 function fmt_amount($row)

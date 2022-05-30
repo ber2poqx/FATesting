@@ -752,19 +752,22 @@ function get_sales_invoice_header_repo($invoice_no)
 				b.profit_margin,
 				b.ref_no,
 				b.discount_downpayment2,
+				b.category_id,
 				ST.name AS 'sales_type',
 				SMAN.salesman_name,
-				SO.co_maker,
-				SO.category_id,
-				BR.br_name, BR.branch_ref 
+				CONCAT(CM.lastname, ' ', CM.firstname) AS co_maker_name,
+				BR.br_name, BR.branch_ref,
+				a.alloc
 
-			FROM debtor_trans a
-			INNER JOIN debtor_loans b ON b.trans_no = a.trans_no and a.reference = b.reference
-			INNER JOIN debtors_master c ON c.debtor_no = a.debtor_no 
-			LEFT JOIN sales_orders SO ON a.order_ = SO.order_no
-			LEFT JOIN sales_type ST ON c.sales_type = ST.id
-			LEFT JOIN salesman SMAN ON SO.salesman_id = SMAN.salesman_code
-			LEFT JOIN cust_branch BR ON c.debtor_no = BR.debtor_no
+
+				FROM debtor_trans a
+				INNER JOIN debtor_loans b ON b.trans_no = a.trans_no and a.reference = b.reference
+				INNER JOIN debtors_master c ON c.debtor_no = a.debtor_no 
+				LEFT JOIN sales_orders SO ON a.order_ = SO.order_no
+				LEFT JOIN co_makers CM ON b.co_maker = CM.comaker_id
+				LEFT JOIN sales_type ST ON c.sales_type = ST.id
+				LEFT JOIN salesman SMAN ON SO.salesman_id = SMAN.salesman_code
+				LEFT JOIN cust_branch BR ON c.debtor_no = BR.debtor_no
 
 			LEFT JOIN (
 					SELECT A.order_no, SUM(B.discount1 + B.discount2) AS discount
