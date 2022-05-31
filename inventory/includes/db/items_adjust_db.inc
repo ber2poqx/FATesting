@@ -655,10 +655,10 @@ function add_gl_masterfile($type, $type_no, $account, $amount, $person_id, $mast
 
 function serial_exist($lot_no = '', $chasis_no = '') {
 	$sql = "SELECT COUNT(*) FROM item_serialise A 
-	WHERE A.serialise_lot_no=" . db_escape($lot_no);
+	WHERE A.serialise_lot_no=" . db_escape(trim($lot_no));
 		
 	if ($chasis_no != '') {
-		$sql .= " OR A.serialise_chasis_no=" . db_escape($chasis_no);
+		$sql .= " OR A.serialise_chasis_no=" . db_escape(trim($chasis_no));
 	} 
 	$result = db_query($sql, "Can't get serail count in items_adjust! (spyrax10)");
 	$count =  db_fetch($result);
@@ -668,8 +668,8 @@ function serial_exist($lot_no = '', $chasis_no = '') {
 
 function serial_exist_adj($lot_no = '', $chasis_no = '') {
 	$sql = "SELECT COUNT(*) FROM stock_adjustment A 
-	WHERE A.status = 'Draft' AND (A.lot_no = " . db_escape($lot_no) . 
-		" OR A.chassis_no= " . db_escape($chasis_no) . ")";
+	WHERE A.status = 'Draft' AND (A.lot_no = " . db_escape(trim($lot_no)) . 
+		" OR A.chassis_no= " . db_escape(trim($chasis_no)) . ")";
 
 	$result = db_query($sql, "Can't get serial count in stock adjustment! (spyrax10)");
 	$count =  db_fetch($result);
@@ -679,7 +679,7 @@ function serial_exist_adj($lot_no = '', $chasis_no = '') {
 
 function is_Serialized($stock_id) {
 	$sql = "SELECT A.serialised FROM stock_master A 
-		WHERE A.stock_id = " . db_escape($stock_id);
+		WHERE A.stock_id = " . db_escape(trim($stock_id));
 
 	$result = db_query($sql, "Cant check if stock_id is serialized or not! (spyrax10)");
 	$row = db_fetch_row($result);

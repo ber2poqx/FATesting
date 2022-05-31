@@ -187,7 +187,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 		else if (!is_date($ob_date)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Transaction Date is invalid!"); 
+			$err_arr[$line_cnt] = _("Invalid Transaction Date! ($ob_date)"); 
 		}
 		else if ($stock_id == "") {
 			$line_cnt++;
@@ -203,41 +203,45 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 		else if ($qty == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Empty Quantity!");
+			$err_arr[$line_cnt] = _("Invalid Quantity! (Empty Value)");
 		}
 		else if (!is_numeric($qty)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Invalid Quantity!");
+			$err_arr[$line_cnt] = _("Invalid Quantity! (Invalid Format)");
 		}
 		else if ($std_cost == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Invalid Standard Cost!");
+			$err_arr[$line_cnt] = _("Invalid Standard Cost! (Empty Value)");
+		}
+		else if (contains_comma($std_cost)) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Invalid Standard Cost! (Contains Comma)");
 		}
 		else if ($std_cost == 0 && get_stock_catID($stock_id) != 17) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Only PROMO ITEMS are allowed to have zero cost!");
+			$err_arr[$line_cnt] = _("Only PROMO ITEMS are allowed to have zero cost! ($stock_id)");
 		}
 		else if (is_Serialized($stock_id) == 1 && $lot_no == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Serial No cannot be empty for this item!");
+			$err_arr[$line_cnt] = _("Serial No cannot be empty for this item! ($stock_id)");
 		}
 		else if (get_stock_catID($stock_id) == 14 && $chassis_no == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Chassis No cannot be empty for this item!");
+			$err_arr[$line_cnt] = _("Chassis No cannot be empty for this item! ($stock_id)");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist($lot_no, $chassis_no)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Serial / Chassis # Already Exists!");
+			$err_arr[$line_cnt] = _("Serial / Chassis # Already Exists! " . "(Serial: " . $lot_no . " || Chassis: " . $chassis_no . ")");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist_adj($lot_no, $chassis_no)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Serial / Chassis # Already Pending in Inventory Adjustment!");
+			$err_arr[$line_cnt] = _("Serial / Chassis # Already Pending in Inventory Adjustment!" . "(Serial: " . $lot_no . " || Chassis: " . $chassis_no . ")");
 		}
 		else if (get_stock_catID($stock_id) == 14 && $color == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Color Description cannot be empty for this item!");
+			$err_arr[$line_cnt] = _("Color Description cannot be empty for this item! ($stock_id)");
 		}
-		else if (get_stock_catID($stock_id) == 14 && !check_color_exist($stock_id, $color, true, false)) {
+		else if (get_stock_catID($stock_id) == 14 && !check_color_exist(trim($stock_id), trim($color), true, false)) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Item Color Code does not exist! (" . $stock_id . " || Color: " . $color . ")");
 		}
@@ -245,14 +249,14 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Invalid Master Code!");
 		}
-		else if (get_masterfile($mcode) == "") {
+		else if (get_masterfile(trim($mcode)) == "") {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Unknown Masterfile!");
 		}
 		else {
 
-			$masterfile = get_masterfile($mcode);
-			$color_code = get_color_code($stock_id, $color);
+			$masterfile = get_masterfile(trim($mcode));
+			$color_code = get_color_code(trim($stock_id), trim($color));
 
             add_to_order(
                 $_SESSION['adj_items'], 
@@ -261,11 +265,11 @@ if (isset($_POST['import_btn']) && can_import()) {
 		        $std_cost, 
 		        "0000-00-00", //Manufacture Date, 
 		        "0000-00-00", //Expire Date, 
-		        $lot_no,
-		        $chassis_no,  
-		        is_Serialized($stock_id) == 1 ? $color_code : $stock_id,
+		        trim($lot_no),
+		        trim($chassis_no),  
+		        is_Serialized($stock_id) == 1 ? trim($color_code) : trim($stock_id),
 				'', 
-				$mcode, $masterfile, $ob_date
+				trim($mcode), $masterfile, $ob_date
             );
 
 			$CI++; $line_cnt++;

@@ -372,6 +372,10 @@ if (!function_exists('money_format'))
 		return price_format($number);
 	} 
 }	
+//Added by spyrax10 31 May 2022
+function contains_comma($value = '') {
+	return strpos($value, ',') !== false;
+}
 
 // 2008-06-15. Added extra parameter $stock_id and reference for $dec
 //--------------------------------------------------------------------
