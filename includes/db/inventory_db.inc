@@ -867,12 +867,17 @@ function get_mb_flag($stock_id)
 
 /* Added by Ronelle 10/15/2020 */
 
-function get_color_description($item_code, $stock_id)
+function get_color_description($item_code, $stock_id, $only_child = false)
 {
 	global $def_coy;
 	set_global_connection($def_coy);
 	$sql = "SELECT description as ColorDesc FROM " . TB_PREF . "item_codes 
 		WHERE item_code = " . db_escape($item_code) . " AND stock_id = " . db_escape($stock_id) . " ";
+	
+	//Added by spyrax10 1 Jun 2022
+	if ($only_child) {
+		$sql .= " AND is_foreign = 1";
+	}
 
 	$result = db_query($sql, "could not retreive the color description for $item_code");
 	set_global_connection();

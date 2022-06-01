@@ -691,6 +691,16 @@ function get_stock_catID($stock_id) {
 	return $row[0];
 }
 
+function get_smo_max_year() {
+    
+    $sql = "SELECT MAX(YEAR(A.tran_date)) AS maxYear
+        FROM ".TB_PREF."stock_moves A ";
+
+    $res = db_query($sql, 'Cant get max year!');
+    $row = db_fetch_row($res);
+	return $row[0];
+}
+
 function clean_spaces($table_name = '', $column = '', $company_id = -1) {
 	
 	set_global_connection($company_id);
@@ -701,4 +711,85 @@ function clean_spaces($table_name = '', $column = '', $company_id = -1) {
 
 	db_query($sql, "Cannot clean spaces!");
 	
+}
+
+//------------------------------------------------------------------------//
+# Inventory Report Query:
+//------------------------------------------------------------------------//
+
+function get_inventory_movement($category = 0, $supplier = "ALL", $location = "ALL", $date, 
+	$repo = false, $summarized = false) {
+	
+	$date = date2sql($date);
+
+	$maxYear = (int)get_smo_max_year();
+	$maxYear_1 = (int)get_smo_max_year() - 1;
+	$maxYear_2 = (int)get_smo_max_year() - 2;
+	$maxYear_3 = (int)get_smo_max_year() - 3;
+
+	$sql = "
+		SELECT DATEDIFF(DATE('$date'), SMO.tran_date) AS Age, ID.name AS Sub_Cat,	
+			CASE 
+				WHEN YEAR(SMO.tran_date) = '$maxYear' THEN SMO.standard_cost ELSE 0
+			END AS 'maxYear',
+			CASE 
+				WHEN YEAR(SMO.tran_date) = '$maxYear_1' THEN SMO.standard_cost ELSE 0
+			END AS 'maxYear_1',
+			CASE 
+				WHEN YEAR(SMO.tran_date) = '$maxYear_2' THEN SMO.standard_cost ELSE 0
+			END AS 'maxYear_2',
+			CASE 
+				WHEN YEAR(SMO.tran_date) <= '$maxYear_3' THEN SMO.standard_cost ELSE 0
+			END AS 'maxYear_3',
+
+			SUM(SMO.qty) as QoH, 
+			SMO.standard_cost AS UnitCost,
+			SMO.category_id, SC.description AS cat_description,
+			SMO.tran_date, SM.units,
+			SMO.trans_id, SMO.trans_no, SMO.reference, SMO.type, 
+			SM.stock_id AS 'Code', IB.name AS Brand, SMO.color_code,
+			SMO.tran_date AS 'Date',  
+			SMO.lot_no AS 'Serial#', 
+			SMO.chassis_no AS 'Chassis#', 
+			SMO.loc_code,
+			SM.description AS prod_desc
+	
+		FROM ".TB_PREF."stock_moves SMO
+			INNER JOIN ".TB_PREF."stock_master SM ON SMO.stock_id = SM.stock_id
+			INNER JOIN ".TB_PREF."stock_category SC ON SM.category_id = SC.category_id
+			LEFT JOIN ".TB_PREF."item_brand IB ON SM.brand = IB.id
+			LEFT JOIN ".TB_PREF."suppliers SUP ON IB.name = SUP.supp_ref 
+			LEFT JOIN ".TB_PREF."item_distributor ID ON SM.distributor = ID.id
+
+		WHERE SMO.tran_date <= '$date' AND SM.mb_flag <> 'D' AND SM.mb_flag <> 'F'";
+
+	if ($repo) {
+		$sql .= " AND SMO.item_type = 'repo'";
+	}
+	else {
+		$sql .= " AND SMO.item_type = 'new'";
+	}
+
+	if ($category != 0) {
+		$sql .= " AND SMO.category_id = ".db_escape($category);
+	}
+		
+	if ($supplier != 'ALL') {
+		$sql .= " AND SUP.supp_name =".db_escape($supplier);
+	}
+
+	if ($location != 'ALL') {
+		$sql .= " AND SMO.loc_code = ".db_escape($location);
+	}
+
+	if ($summarized) {
+		$sql .= " GROUP BY SMO.stock_id, SMO.loc_code";
+		$sql .= " ORDER BY SMO.category_id, SMO.stock_id, SMO.tran_date";
+	}
+	else {
+		$sql .= " GROUP BY SMO.transno_out, SMO.type_out, SMO.stock_id, SMO.loc_code, SMO.lot_no, SMO.chassis_no";
+		$sql .= " ORDER BY SMO.category_id, SMO.stock_id, SMO.tran_date, SMO.lot_no";
+	}
+
+	return db_query($sql, "No transactions were returned! ");
 }
