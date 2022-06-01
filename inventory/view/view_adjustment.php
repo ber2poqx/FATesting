@@ -9,6 +9,12 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
+
+/**
+ * Modified by:        spyrax10
+ * Last Date Modified: 1 Jun 2022
+ */
+
 $page_security = 'SA_ITEMSTRANSVIEW';
 $path_to_root = "../..";
 
@@ -20,12 +26,10 @@ include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
-if (isset($_GET["trans_no"]))
-{
+if (isset($_GET["trans_no"])) {
 	$trans_no = $_GET["trans_no"];
 }
 
-//Modified by spyrax10
 $title = smo_exists($trans_no, ST_INVADJUST) ? "" : "Pending ";
 $sub_title = is_invty_open_bal($trans_no, '') ? "Inventory Opening" :
 	$systypes_array[ST_INVADJUST];
@@ -53,8 +57,8 @@ while ($adjustment = db_fetch($adjustment_items)) {
 
 		start_table(TABLESTYLE2, "width='95%'");
 		start_row();
-		label_cells(_("Location: "), $adjustment['location_name'], "class='tableheader2'");
-    	label_cells(_("Reference: "), $adjustment['reference'], "class='tableheader2'", "colspan=6");
+		label_cells(_("Location: &nbsp;"), $adjustment['location_name'], "class='tableheader2'");
+    	label_cells(_("Reference: &nbsp;"), $adjustment['reference'], "class='tableheader2'", "colspan=6");
 
 		
 		if (is_invty_open_bal('', $adjustment['reference'])) {
@@ -68,10 +72,9 @@ while ($adjustment = db_fetch($adjustment_items)) {
 
 		label_cells(_("Transaction Date: "), $trans_date, "class='tableheader2'");
 
-		label_cells(_("Item Type: "), strtoupper($adjustment['item_type']), "class='tableheader2'"); //Added by spyrax10
+		label_cells(_("Item Type: "), strtoupper($adjustment['item_type']), "class='tableheader2'");
 		end_row();
 
-		//Added by spyrax10
 		if (!smo_exists($trans_no, ST_INVADJUST)) {
 			if ($adjustment['status'] == 'Disapproved') {
 				start_row();
@@ -92,8 +95,8 @@ while ($adjustment = db_fetch($adjustment_items)) {
 			_(""),
 			is_invty_open_bal('', $adjustment['reference']) ? _("Date") : '',
 			_("Item Code"), 
-			_("Description"), 
-			_("Color"), 
+			_("Item Description"), 
+			_("Color Description"), 
 			_("Qty"),
     		_("Units"), 
 			_("Serial #"), _("Chassis #"), _("Unit Cost"), _("Sub Total")
@@ -118,7 +121,7 @@ while ($adjustment = db_fetch($adjustment_items)) {
 
     label_cell($adjustment['stock_id']);
     label_cell($adjustment['description']);
-	label_cell($adjustment['color_desc']);
+	label_cell(get_color_description($adjustment['color_code'], $adjustment['stock_id']));
     label_cell($adjustment['qty'], "align='center'");
     label_cell($adjustment['units']);
 	label_cell($adjustment['lot_no']);

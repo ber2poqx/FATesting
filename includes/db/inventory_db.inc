@@ -720,8 +720,7 @@ function update_stock_move($type, $trans_no, $stock_id, $cost)
 
 //--------------------------------------------------------------------------------------------------
 
-function get_stock_moves($type, $type_no)
-{
+function get_stock_moves($type, $type_no) {
 	/* $sql = "SELECT move.*, CONCAT_WS(' **',item.description,item) as description, item.mb_flag, item.units, stock.location_name
 		FROM ".TB_PREF."stock_moves move,"
 			.TB_PREF."locations stock,"
@@ -732,21 +731,22 @@ function get_stock_moves($type, $type_no)
 		." AND trans_no=".db_escape($type_no)
 		." ORDER BY trans_id"; */
 	//LEFT JOIN " . TB_PREF . "item_codes icode ON move.stock_id=icode.stock_id AND move.color_code=icode.item_code
-
+	
+	//Modified by spyrax10 1 Jun 2022
 	set_global_connection();
-	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, stock.location_name,brand.name as brand_name, man.name as manufacturer_name,d.name as distributor_name, importer.name as importer_name, item.category_id, 
-	(SELECT description FROM " . TB_PREF . "item_codes icode WHERE icode.item_code=move.color_code) as color_desc,
-	audit.gl_date AS ob_date 
+	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, 
+		stock.location_name, brand.name as brand_name, man.name as manufacturer_name, 
+		d.name as distributor_name, importer.name as importer_name, item.category_id,
+		audit.gl_date AS ob_date 
 	
 	FROM " . TB_PREF . "stock_moves move 
-	INNER JOIN stock_master item ON move.stock_id = item.stock_id
-	INNER JOIN locations stock ON stock.loc_code=move.loc_code
-	LEFT JOIN item_brand brand ON item.brand=brand.id
-	LEFT JOIN item_manufacturer man ON item.manufacturer=man.id
-	LEFT JOIN item_distributor d ON item.distributor=d.id
-	LEFT JOIN item_importer importer ON item.importer=importer.id
-
-	LEFT JOIN ".TB_PREF."audit_trail audit ON (move.type = audit.type AND move.trans_no = audit.trans_no AND NOT ISNULL(audit.gl_seq))
+		INNER JOIN " . TB_PREF . "stock_master item ON move.stock_id = item.stock_id
+		INNER JOIN " . TB_PREF . "locations stock ON stock.loc_code = move.loc_code
+		LEFT JOIN " . TB_PREF . "item_brand brand ON item.brand = brand.id
+		LEFT JOIN " . TB_PREF . "item_manufacturer man ON item.manufacturer = man.id
+		LEFT JOIN " . TB_PREF . "item_distributor d ON item.distributor = d.id
+		LEFT JOIN " . TB_PREF . "item_importer importer ON item.importer = importer.id
+		LEFT JOIN ".TB_PREF."audit_trail audit ON (move.type = audit.type AND move.trans_no = audit.trans_no AND NOT ISNULL(audit.gl_seq))
 
 	WHERE move.type = " . db_escape($type) . " AND move.trans_no = " . db_escape($type_no) . " ORDER BY move.trans_id";
 
@@ -754,20 +754,21 @@ function get_stock_moves($type, $type_no)
 }
 
 //Added by spyrax10
-function get_stock_adjust($type, $type_no)
-{
+function get_stock_adjust($type, $type_no) {
+	
 	set_global_connection();
-	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, stock.location_name,brand.name as brand_name, man.name as manufacturer_name,d.name as distributor_name, importer.name as importer_name, item.category_id, 
-			(SELECT description FROM item_codes icode WHERE icode.item_code=move.color_code) as color_desc 
-		FROM stock_adjustment move 
-
-	INNER JOIN stock_master item ON move.stock_id = item.stock_id
-	INNER JOIN locations stock ON stock.loc_code=move.loc_code
-	LEFT JOIN item_brand brand ON item.brand=brand.id
-	LEFT JOIN item_manufacturer man ON item.manufacturer=man.id
-	LEFT JOIN item_distributor d ON item.distributor=d.id
-	LEFT JOIN item_importer importer ON item.importer=importer.id
-	WHERE type=" . db_escape($type) . " AND trans_no=" . db_escape($type_no) . " ORDER BY trans_id";
+	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, 
+		stock.location_name, brand.name as brand_name, man.name as manufacturer_name, 
+		d.name as distributor_name, importer.name as importer_name, item.category_id
+	
+	FROM " . TB_PREF . "stock_adjustment move 
+		INNER JOIN " . TB_PREF . "stock_master item ON move.stock_id = item.stock_id
+		INNER JOIN " . TB_PREF . "locations stock ON stock.loc_code = move.loc_code
+		LEFT JOIN " . TB_PREF . "item_brand brand ON item.brand = brand.id
+		LEFT JOIN " . TB_PREF . "item_manufacturer man ON item.manufacturer = man.id
+		LEFT JOIN " . TB_PREF . "item_distributor d ON item.distributor = d.id
+		LEFT JOIN " . TB_PREF . "item_importer importer ON item.importer = importer.id
+	WHERE type = " . db_escape($type) . " AND trans_no = " . db_escape($type_no) . " ORDER BY trans_id";
 
 	return db_query($sql, "Could not get stock adjustments! (spyrax10)");
 }

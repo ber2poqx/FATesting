@@ -94,8 +94,7 @@ function void_stock_adjustment($type_no)
 //-------------------------------------------------------------------------------------------------------------
 
 //Modified by spyrax10
-function get_stock_adjustment_items($trans_no)
-{
+function get_stock_adjustment_items($trans_no) {
 	$result = db_num_rows(get_stock_moves(ST_INVADJUST, $trans_no)) == 0 ? null : get_stock_moves(ST_INVADJUST, $trans_no);
 	$res = db_num_rows(get_stock_adjust(ST_INVADJUST, $trans_no)) == 0 ? null : get_stock_adjust(ST_INVADJUST, $trans_no);
 
