@@ -16,21 +16,21 @@ class lending_app extends application
 		parent::__construct("lending", _($this->help_context = "&Lending"));
 
 		$this->add_module(_("Transactions"));
-		$this->add_lapp_function(0, _("A/R Incoming"),
-			"lending/ar_installment_incoming.php?", 'SA_ARINVCINSTL', MENU_TRANSACTION);
-		//$this->add_lapp_function(0, _("A/R Cash"),
-		//	"lending/customer_amort_receipt.php?", 'SA_SALINSTLINVC', MENU_TRANSACTION);
+		//$this->add_lapp_function(0, _("A/R Incoming"),
+		//	"lending/ar_installment_incoming.php?", 'SA_ARINVCINSTL', MENU_TRANSACTION);
+		$this->add_lapp_function(0, _("A/R Installment Incoming"),
+			"lending/inquiry/ar_invoice_inquiry.php?", 'SA_INVCINQ', MENU_INQUIRY);
 
 		$this->add_rapp_function(0, _("Office &Collection Receipt"),
 			"lending/customer_amort_receipt.php?", 'SA_LCUSTAMORT', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("Interbranch &Collection Receipt"),
 			"lending/interbranch_receipt.php?", 'SA_LINTERBRANCH', MENU_TRANSACTION);
-		$this->add_lapp_function(1, _("Payment Allocation"),
-			"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_INQUIRY);
 
 		$this->add_module(_("Inquiries and Reports"));
+		$this->add_lapp_function(1, _("Payment Allocation"),
+			"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_INQUIRY);
 		$this->add_lapp_function(1, _("Incoming Invoice Inquiry"),
-			"lending/inquiry/invoice_inquiry.php?", 'SA_INVCINQ', MENU_INQUIRY);
+			"lending/inquiry/ar_invoice_inquiry.php?", 'SA_INVCINQ', MENU_INQUIRY);
 		$this->add_lapp_function(1, _("Incoming Inter-branch Payments Inquiry"),
 			"lending/inquiry/interbranch_payments_inquiry.php?", 'SA_INTRBPAYINQ', MENU_INQUIRY);
 

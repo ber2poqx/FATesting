@@ -20,7 +20,7 @@ add_access_extensions();
 //----------------------------------------------------------------------------------------------------
 
 add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
-add_js_ufile($path_to_root ."/js/invoice_inquiry.js");
+add_js_ufile($path_to_root ."/js/ar_invoice_inquiry.js");
 
 //----------------------------------------------: for grid js :---------------------------------------
 if(isset($_GET['get_invcincome'])){
@@ -132,7 +132,7 @@ if(isset($_GET['getCustomerAutoSetup']))
 
             add_customer($customerrow["name"], $cust_ref, $customerrow['address'], $customerrow['barangay'], $customerrow['municipality'], 
                         $customerrow['province'], $customerrow['zip_code'], $customerrow['tax_id'], $customerrow['age'], $customerrow['gender'], 
-                        $customerrow['status'], $customerrow['name_father'], $customerrow['name_mother'], check_isempty($customerrow['collectors_name']), 
+                        $customerrow['status'], $customerrow['spouse'], $customerrow['name_father'], $customerrow['name_mother'], check_isempty($customerrow['collectors_name']), 
                         $customerrow['curr_code'], check_isempty($customerrow['area']), $customerrow['dimension_id'], $customerrow['dimension2_id'],
                         $customerrow['credit_status'], $customerrow['payment_terms'], $customerrow['discount'], $customerrow['pymt_discount'], 
                         $customerrow['credit_limit'], $customerrow['sales_type'], 'AutoCreatedCustomer-'.$customerrow['notes'], $customerrow['debtor_ref']);
