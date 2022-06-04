@@ -67,7 +67,9 @@ class lending_app extends application
 
 		$this->add_rapp_function(2, _("Add Inter-Branch Customers"),
 			"lending/manage/auto_add_interb_customers.php?", 'SA_ADDCUSTINTERB', MENU_MAINTENANCE);
-
+		$this->add_rapp_function(2, _("Inventory &Locations"),
+			"inventory/manage/locations.php?", 'SA_INVENTORYLOCATION', MENU_MAINTENANCE);
+			
 		$this->add_extensions();
 	}
 }

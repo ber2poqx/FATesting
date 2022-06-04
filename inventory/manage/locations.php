@@ -38,12 +38,13 @@ if ($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM')
 	ie the page has called itself with some user input */
 
 	//first off validate inputs sensible
+	//modify loc_code lenght from 5 to 8 by progjr on 06-03-2022 7 > 10
 	$_POST['loc_code'] = strtoupper($_POST['loc_code']);
 
-	if ((strlen(db_escape($_POST['loc_code'])) > 7) || empty($_POST['loc_code'])) //check length after conversion
+	if ((strlen(db_escape($_POST['loc_code'])) > 10) || empty($_POST['loc_code'])) //check length after conversion
 	{
 		$input_error = 1;
-		display_error( _("The location code must be five characters or less long (including converted special chars)."));
+		display_error( _("The location code must be 8 characters or less long (including converted special chars)."));
 		set_focus('loc_code');
 	} 
 	elseif (strlen($_POST['location_name']) == 0) 
@@ -203,7 +204,8 @@ if ($selected_id != -1)
 } 
 else 
 { //end of if $selected_id only do the else when a new record is being entered
-	text_row(_("Location Code:"), 'loc_code', null, 5, 5);
+	//modify loc_code lenght from 5 to 8 by progjr on 06-03-2022
+	text_row(_("Location Code:"), 'loc_code', null, 8, 8);
 }
 
 text_row_ex(_("Location Name:"), 'location_name', 50, 50);
