@@ -707,9 +707,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 	$show_inactive=false, $editkey = false, $send_type = null)
 {
 	global $SysPrefs;
-
-	if (!empty($SysPrefs->prefs['shortname_name_in_list']))
-	{
+	set_global_connection();
+	
+	if (!empty($SysPrefs->prefs['shortname_name_in_list'])) {
 		if ($send_type != null) {
 			if ($send_type == 1) {
 				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
@@ -717,11 +717,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			else if ($send_type == 2) {
 				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master";
 			}
-			// else if ($send_type == 3) {
-			// 	$sql = "SELECT user_id as ref, CONCAT(user_id, ' - ',real_name) as ref_label FROM ".TB_PREF."users WHERE role_id NOT IN(2,10)";
-			// }
 			else if ($send_type == 3) {
-				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master WHERE account_type = 13";
+				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
+					WHERE account_type = 13";
 			}
 		}
 		else {
@@ -729,13 +727,11 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				UNION
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
-				/*SELECT user_id as ref, CONCAT(user_id, ' - ',real_name) as ref_label FROM ".TB_PREF."users WHERE role_id NOT IN(2,10)
-				UNION*/
-				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master WHERE account_type = 13";
+				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
+					WHERE account_type = 13";
 		}		
 	} 
-	else 
-	{
+	else {
 		if ($send_type != null) {
 			if ($send_type == 1) {
 				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
@@ -743,11 +739,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			else if ($send_type == 2) {
 				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master";
 			}
-			// else if ($send_type == 3) {
-			// 	$sql = "SELECT user_id as ref, CONCAT(user_id, ' - ',real_name) as ref_label FROM ".TB_PREF."users WHERE role_id NOT IN(2,10)";
-			// }
 			else if ($send_type == 3) {
-				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master WHERE account_type = 13";
+				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
+				WHERE account_type = 13";
 			}
 		}
 		else {
@@ -755,9 +749,8 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				UNION
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
-				/*SELECT user_id as ref, CONCAT(user_id, ' - ',real_name) as ref_label FROM ".TB_PREF."users WHERE role_id NOT IN(2,10)
-				UNION*/
-				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master WHERE account_type = 13";
+				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
+					WHERE account_type = 13";
 		}	
 	}	
 	$mode = get_company_pref('no_sl_list');

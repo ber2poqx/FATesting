@@ -931,10 +931,12 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 	global $SysPrefs;
 	$sql = "";
 
-	if (isset($SysPrefs->max_rows_in_search))
+	if (isset($SysPrefs->max_rows_in_search)) {
 		$limit = $SysPrefs->max_rows_in_search;
-	else
+	}
+	else {
 		$limit = 10;
+	}
 
 	if ($send_type != null) {
 		
@@ -952,13 +954,6 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 					SELECT debtor_ref as ref, name, 'Customer' as class FROM " . TB_PREF . "debtors_master
 				) x1 ";	
 		}
-		// else if ($send_type == 3) {
-		// 	$sql = "SELECT
-		// 		x1.*
-		// 		FROM (
-		// 			SELECT user_id as ref, real_name as name, 'Employee' as class FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
-		// 		) x1 ";	
-		// }
 		else if ($send_type == 3) {
 			$sql = "SELECT
 				x1.*
@@ -985,13 +980,6 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 						SELECT debtor_ref as ref, name, 'Customer' as class FROM " . TB_PREF . "debtors_master
 					) x1 ";	
 			}
-			// else if ($type == 3) {
-			// 	$sql = "SELECT
-			// 		x1.*
-			// 		FROM (
-			// 			SELECT user_id as ref, real_name as name, 'Employee' as class FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
-			// 		) x1 ";	
-			// }
 			else if ($type == 3) {
 				$sql = "SELECT
 					x1.*
@@ -1009,9 +997,8 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				UNION
 				SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
 				UNION
-				/*SELECT user_id as ref, real_name as name, 'Employee' as class FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
-				UNION*/
-				SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master WHERE account_type = 13
+				SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
+					WHERE account_type = 13
 			) x1 ";		
 		}
 	
