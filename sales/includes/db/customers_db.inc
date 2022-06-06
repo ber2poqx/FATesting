@@ -138,6 +138,8 @@ function get_customer_details($customer_id, $to=null, $all=true)
 //Modified by spyrax10 22 Apr 2022
 function get_customer($customer_id = '', $customer_ref = '') {
 
+	set_global_connection();
+
 	$sql = "SELECT * FROM ".TB_PREF."debtors_master WHERE inactive = 0";
 	
 	if ($customer_id != '') {
@@ -395,8 +397,10 @@ function get_debtor_per_customer($debtor_ref, $branch_code)
 
 //Added by spyrax10 5 Feb 2022
 
-function get_customer_branch_details($customer_id = '')
-{
+function get_customer_branch_details($customer_id = '') {
+
+	set_global_connection();
+	
 	$sql = "SELECT * 
 		FROM ".TB_PREF."cust_branch 
 		WHERE debtor_no = ".db_escape($customer_id);
