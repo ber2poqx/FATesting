@@ -120,12 +120,14 @@ function check_db_has_tax_groups($msg)
 
 function db_customer_has_branches($customer_id)
 {
+	set_global_connection();
 	return check_empty_result("SELECT COUNT(*) FROM ".TB_PREF."cust_branch "
 		."WHERE debtor_no=".db_escape($customer_id));
 }
 
 function db_has_customer_branches()
 {
+	set_global_connection();
 	return check_empty_result("SELECT COUNT(*) FROM "
 		.TB_PREF."cust_branch WHERE !inactive");
 }
