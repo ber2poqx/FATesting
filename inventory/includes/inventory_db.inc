@@ -95,11 +95,12 @@ function get_cr_trans($cr_ref, $trans_type)
 {
 		set_global_connection();
 		
-		$sql = "SELECT dt.`reference`, dt.`trans_no`, dt.`tran_date`, dt.`ov_amount`, dm.`name`, dm.`tax_id`, dm.`address`, com.`memo_`, bt.`bank_branch`, bt.`check_no`, bt.`check_date`, bt.`cashier_user_id`, bt.`pay_type`
+		$sql = "SELECT dt.`reference`, dt.`trans_no`, dt.`tran_date`, dt.`ov_amount`, dm.`name`, dm.`tax_id`, dm.`address`, com.`memo_`, bt.`bank_branch`, bt.`check_no`, bt.`check_date`, bt.`cashier_user_id`, bt.`pay_type`, user.`real_name`
 				FROM `debtor_trans` dt
 					LEFT JOIN " . TB_PREF . "debtors_master dm ON dt.debtor_no = dm.debtor_no
 				    LEFT JOIN " . TB_PREF . "comments com ON dt.type = com.type AND dt.trans_no = com.id
 				    LEFT JOIN " . TB_PREF . "bank_trans bt ON dt.type = bt.type AND dt.trans_no = bt.trans_no
+				    LEFT JOIN " . TB_PREF . "users user ON bt.cashier_user_id = user.id
 				WHERE dt.`type` = '" . $trans_type . "' AND dt.`reference` = '" . $cr_ref . "'";	
 		
 		return db_query($sql, "No transactions were returned");

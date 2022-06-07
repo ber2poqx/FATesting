@@ -206,7 +206,7 @@ function convert_number($number)
 	$bankname = "BDO";
 	$check_num = $myrow["check_no"];
 	$check_date = $myrow["check_date"];
-	$cashier = strtoupper($myrow["cashier_user_id"]);
+	$cashier = strtoupper($myrow["real_name"]);
 	$pay_type = $myrow["pay_type"];
 
 
