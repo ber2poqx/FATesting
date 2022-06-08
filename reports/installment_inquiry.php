@@ -473,21 +473,21 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>		
 						<tr class="text-left">
-							<td style= "border: 1px solid; width: 15%;">Sales Invoice</td><td style= "border: 1px solid; width: 20%; color: #0c5eec;"><?php echo $reference?></td>
+							<td style= "border: 1px solid; width: 15%;">Sales Invoice</td><td style= "border: 1px solid; width: 20%; color: black;"><?php echo $reference?></td>
 							<td style= "border: 1px solid; width: 15%;">Status</td><td style= "border: 1px solid; width: 20%; 
-							color: #0c5eec;"><?php echo $status?></td>
+							color: black;"><?php echo $status?></td>
 							<td style= "border: 1px solid; width: 15%;">Invoice Date</td><td style= "border: 1px solid; width: 20%; 
-							color: #0c5eec;"><?php echo $invoice_date?></td>
+							color: black;"><?php echo $invoice_date?></td>
 						</tr>
 						<tr class="text-left">
-							<td style= "border: 1px solid;">Customer Name</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $name?></td>
-							<td style= "border: 1px solid;">Payment Type</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $Payment_type?></td>
-							<td style= "border: 1px solid;">First Due Date</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $firstdue_date?></td>
+							<td style= "border: 1px solid;">Customer Name</td><td style= "border: 1px solid; color: black;"><?php echo $name?></td>
+							<td style= "border: 1px solid;">Payment Type</td><td style= "border: 1px solid; color: black;"><?php echo $Payment_type?></td>
+							<td style= "border: 1px solid;">First Due Date</td><td style= "border: 1px solid; color: black;"><?php echo $firstdue_date?></td>
 						</tr>
 						<tr class="text-left">
-							<td style= "border: 1px solid;">WRC/EW Code</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $warranty_code?></td>
-							<td style= "border: 1px solid;">Invoice Type</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $invoice_type?></td>
-							<td style= "border: 1px solid;">Maturity Date</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $maturity_date?></td>
+							<td style= "border: 1px solid;">WRC/EW Code</td><td style= "border: 1px solid; color: black;"><?php echo $warranty_code?></td>
+							<td style= "border: 1px solid;">Invoice Type</td><td style= "border: 1px solid; color: black;"><?php echo $invoice_type?></td>
+							<td style= "border: 1px solid;">Maturity Date</td><td style= "border: 1px solid; color: black;"><?php echo $maturity_date?></td>
 						</tr>
 				    </tbody>					
 				</table>
@@ -498,21 +498,22 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 					<tbody>		
 						<tr class="text-left">
 							<td style= "border: 1px solid; width: 15%;">Rebate</td><td style= "border: 1px solid; width: 20%; 
-							color: #0c5eec;"><?php echo $rebate?></td>
-							<td style= "border: 1px solid;">Dp Amount</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $downpayment_amount?></td>
-							<td style= "border: 1px solid;">LCP</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $lcp_amount?></td>		
+							color: black;"><?php echo $rebate?></td>
+							<td style= "border: 1px solid;">Dp Amount</td><td style= "border: 1px solid; color: black;"><?php echo $downpayment_amount?></td>
+							<td style= "border: 1px solid;">LCP</td><td style= "border: 1px solid; color: black;"><?php echo $lcp_amount?></td>		
 						</tr>
 						<tr class="text-left">
 							<td style= "border: 1px solid; width: 15%;">Months Term</td><td style= "border: 1px solid; width: 20%; 
-							color: #0c5eec;"><?php echo $months_term . ' '. $month?></td>
-							<td style= "border: 1px solid;">Discount Dp Amount</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $discount_downpayment?></td>
-							<td style= "border: 1px solid; width: 15%;">Monthly Amortization</td><td style= "border: 1px solid; width: 20%; color: #0c5eec;"><?php echo $amortization_amount?></td>		
+							color: black;"><?php echo $months_term . ' '. $month?></td>
+							<td style= "border: 1px solid;">Discount Dp Amount</td><td style= "border: 1px solid; color: black;"><?php echo $discount_downpayment?></td>
+							<td style= "border: 1px solid; width: 15%;">Monthly Amortization</td><td style= "border: 1px solid; width: 20%; color: black;"><?php echo $amortization_amount?></td>		
 							
 						</tr>
 						<tr class="text-left">
-							<td style= "border: 1px solid;">Sales Person</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $salesman_name?></td>
-							<td style= "border: 1px solid;">Gross</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $ar_amount?></td>	
-							<td style= "border: 1px solid;">Balance</td><td style= "border: 1px solid; color: #0c5eec;"><?php echo $balance_amount?></td>
+							<td style= "border: 1px solid;">Sales Person</td><td style= "border: 1px solid; color: black;"><?php echo $salesman_name?></td>
+							<td style= "border: 1px solid;">Gross</td><td style= "border: 1px solid; color: black;"><?php echo $ar_amount?></td>	
+							<td style= "border: 1px solid;">Balance</td><td style= "border: 1px solid; color: black;"><?php echo $balance_amount?></td>
+							<!--#0c5eec-->
 
 						</tr>
 				    </tbody>					
@@ -547,17 +548,18 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 								while ($myrow=db_fetch($result2))
 								{															
 									echo '<tr class="datatable">';
-									echo '<td style= "border: 1px solid; color: #0c5eec;">'.($myrow["stock_id"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.($myrow["ITEMDES"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.($myrow["COLOR"]).'</td>';	
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.($myrow["lot_no"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.($myrow["chassis_no"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.price_format($myrow["quantity"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.price_format($myrow["unit_price"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.price_format($myrow["Discount"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.price_format($myrow["OtherDiscount"]).'</td>';
-							        echo '<td style= "border: 1px solid; color: #0c5eec;">'.price_format($myrow["linetotal"]).'</td>';
+									echo '<td style= "border: 1px solid; color: black;">'.($myrow["stock_id"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.($myrow["ITEMDES"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.($myrow["COLOR"]).'</td>';	
+							        echo '<td style= "border: 1px solid; color: black;">'.($myrow["lot_no"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.($myrow["chassis_no"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.price_format($myrow["quantity"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.price_format($myrow["unit_price"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.price_format($myrow["Discount"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.price_format($myrow["OtherDiscount"]).'</td>';
+							        echo '<td style= "border: 1px solid; color: black;">'.price_format($myrow["linetotal"]).'</td>';
 									echo '</tr>';
+									//#0c5eec
 								}								
 							}
 							else
@@ -650,8 +652,9 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 							        echo '<td align=center style= "border: 1px solid;">'.$paymentsss.'</td>';
 							        echo '<td align=center style= "border: 1px solid;">'.$rebates.'</td>';
 							        echo '<td align=center style= "border: 1px solid;">'.$penalty_due_date.'</td>';	 
-							        echo '<td align=center style= "border: 1px solid; color: #e22d06;">'.$penaltys.'</td>';
+							        echo '<td align=center style= "border: 1px solid; color: black;">'.$penaltys.'</td>';
 							        echo '</tr>';
+							        //#e22d06
 
 							        $totalpayment += $myrow["payment_applied"];
 									$totalrebate += $myrow["rebate"];					
