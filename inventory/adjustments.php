@@ -110,6 +110,35 @@ function handle_new_order()
 
 //-----------------------------------------------------------------------------------------------
 
+if (get_post('adj_type') == 2 && list_updated('stock_id')) {
+
+	$selected_items = array();
+	$selected_items = explode(',', $_POST["stock_id"]);
+	
+	foreach ($selected_items as $key => $val) {
+		if ($val != '') {
+			$res = get_smo($val); 
+			while ($row = db_fetch($res)) {
+				add_to_order($_SESSION['adj_items'], 
+					$row['stock_id'], 
+					is_Serialized($row['stock_id']) == 0 ? 0 : $row['qty'], 
+					$row['standard_cost'], 
+					'', 
+					'', 
+					$row['lot_no'] != '' ? $row['lot_no'] : '',
+					$row['chassis_no'] != '' ? $row['chassis_no'] : '', 
+					$row['color_code'] != '' ? $row['color_code'] : '', 
+					$row['reference']
+				); 
+			}
+		}
+	}
+
+	$_POST['stock_id'] = '';
+	$_POST['qty'] = 0;
+	$Ajax->activate('items_table2');
+}
+
 function can_process()
 {
 	global $SysPrefs;
@@ -120,6 +149,13 @@ function can_process()
 		display_error(_("You must enter at least one non empty item line."));
 		set_focus('stock_id');
 		return false;
+	}
+
+	foreach ($_SESSION['adj_items']->line_items as $items) {
+		if ($items->quantity == 0) {
+			display_error(_("Can't Proceed! Some Lines have 0 qty!"));
+			return false;
+		}
 	}
 
 	if (!check_reference($_POST['ref'], ST_INVADJUST)) {

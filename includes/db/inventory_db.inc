@@ -960,6 +960,7 @@ function get_available_item_for_inty(
 	if ($adj_type == 2) {
 
 		$sql = "SELECT 
+			a.trans_id,
 			a.reference,
 			e.name as brand,
 			a.stock_id, 
@@ -1376,6 +1377,16 @@ function get_gl_code_from_category($category_id)
 /* */
 
 // Added by spyrax10
+
+function get_smo($trans_id) {
+	set_global_connection();
+
+	$sql = "SELECT *
+		FROM " . TB_PREF . "stock_moves 
+		WHERE trans_id = " .db_escape($trans_id);
+		
+	return db_query($sql, _("Cant get location list!"));
+}
 
 function get_location_list() {
 	

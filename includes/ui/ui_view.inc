@@ -1144,7 +1144,39 @@ function get_js_set_combo_item() {
 	return $js;
 }
 
-//Added by spyrax10
+//Added by spyrax10 9 Jun 2022
+function get_js_item() {
+
+	$js = "function setValue(doc, client_id){
+
+		var array = []
+		var checkboxes = document.querySelectorAll('input[type=checkbox]:checked')
+
+		for (var i = 0; i < checkboxes.length; i++) {
+			var id = checkboxes[i].name.replace(/[^0-9]/g,'');
+			if (id != '') {
+				array.push(id);	
+			}
+		}
+
+		var element = doc.getElementById(client_id);
+
+  		if(typeof(element) != 'undefined' && element != null && array.length > 0) {
+	 		var options = element.options;
+	 		options.length = 0;
+	 		var option = doc.createElement('option');
+			option.value = array;
+			option.text = array;
+	   		element.add(option, 0);
+			element.selectedIndex = 0;
+	        element.onchange();
+			
+			window.close();
+	    }
+	}";
+	return $js;
+}
+
 function inty_get_js_set_combo_item() {
 	$js = "function setComboItem(doc, client_id, value, text, lot_no, chasis_no, color, price, stock_ref){
 		
@@ -1184,6 +1216,7 @@ function inty_get_js_set_combo_item() {
 	}";
 	return $js;
 }
+//
 
 
 // Added by Ronelle

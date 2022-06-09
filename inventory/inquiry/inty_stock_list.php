@@ -13,14 +13,16 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
-$mode = get_company_pref('no_item_list');
+//$mode = get_company_pref('no_item_list');
 
-if ($mode != 0) {
-	$js = inty_get_js_set_combo_item();
-}
-else {
-	$js = get_js_select_combo_item();
-}
+// if ($mode != 0) {
+// 	$js = inty_get_js_set_combo_item();
+// }
+// else {
+// 	$js = get_js_select_combo_item();
+// }
+
+$js = get_js_item();
 
 if ($SysPrefs->use_popup_windows) {
 	$js .= get_js_open_window(900, 500);
@@ -54,6 +56,10 @@ function qoh_cell($row) {
 	$qoh = get_qoh_on_date($row['stock_id'], $loc_code, null, $item_type);
 
 	return $qoh - $demand_qty;
+}
+
+function multiple_selection($row) {
+	return check_cells(null, 'smo[' . $row['trans_id'] . ']', null, false);
 }
 
 function select_cell($row) {
@@ -113,6 +119,10 @@ function reference_row($row) {
 	return get_trans_view_str($row['type'], $row["trans_no"], $row['reference']);
 }
 
+function trans_id($row) {
+	return $row['trans_id'];
+}
+
 #----------------------------------------------#
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -142,9 +152,12 @@ $Ajax->activate('item_tbl');
 end_row();
 end_table(); 
 
+//display_heading("Category: " . get_category_name($_GET['category']));
 
-display_heading("Category: " . get_category_name($_GET['category']));
-echo "<br>";
+ahref_cell(_("Continue with Selected Item/s"), 
+	'javascript:void(0)', '', 'setValue(window.opener.document, "' . $_GET["client_id"] . '")'
+);
+br(2);
 
 $sql = 
 get_available_item_for_inty(
@@ -166,6 +179,7 @@ if ($_POST['serialized'] == 1 && $_GET['type'] == 1) {
 }
 else if ($_POST['serialized'] == 1 && $_GET['type'] == 2) {
 	$cols = array (
+		_("ID") => array('fun' => 'trans_id'),
 		_("Reference") => array('fun' => 'reference_row'),
 		_("Brand") => array('name' => 'brand'),
 		_("Item Code") => array('name' => 'stock_id'),
@@ -174,18 +188,19 @@ else if ($_POST['serialized'] == 1 && $_GET['type'] == 2) {
 		_("Serial/Engine No") => array('name' => 'serialeng_no'),
 		_("Chassis No") => array('name' => 'chassis_no'),
 		_("Unit Price") => array('align' => 'center', 'fun' => 'price_total'),
-		array('insert' => true, 'fun' => 'select_cell', 'align' => 'center')
+		array('insert' => true, 'fun' => 'multiple_selection', 'align' => 'center')
 	);
 }
 else if ($_POST['serialized'] == 0 && $_GET['type'] == 2) {
 	$cols = array (
+		_("ID") => array('fun' => 'trans_id'),
 		_("Reference") => array('fun' => 'reference_row'),
 		_("Brand") => array('name' => 'brand'),
 		_("Item Code") => array('name' => 'stock_id'),
 		_("Description") => array('name' => 'description'),
 		_("Color") => array('name' => 'color_code'),
 		_("Unit Price") => array('align' => 'center', 'fun' => 'price_total'),
-		array('insert' => true, 'fun' => 'select_cell', 'align' => 'center')
+		array('insert' => true, 'fun' => 'multiple_selection', 'align' => 'center')
 	);
 }
 else {
@@ -199,7 +214,7 @@ else {
 	);
 }
 
-$table = &new_db_pager('item_tbl', $sql, $cols, null, null, 25);
+$table = &new_db_pager('item_tbl', $sql, $cols, null, null, 100);
 
 $table->width = "98%";
 
