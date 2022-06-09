@@ -383,8 +383,8 @@ if (isset($_POST['Process'])) {
 
 	$cart->reference = $_POST['ref'];
 	$cart->tran_date = $_POST['date_'];
-	$cart->doc_date = $_POST['doc_date'];
-	$cart->event_date = $_POST['event_date'];
+	$cart->doc_date = Today();
+	$cart->event_date = Today();
 	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref2'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
@@ -524,7 +524,12 @@ function check_item_data()
 		return false;
 	}
 
-	if (!get_post('sug_mcode') && $_POST['comp_id'] != $coy && $_POST['hocbc_id'] != 1) {
+	if ($_POST['comp_id'] != $coy && $_POST['hocbc_id'] == '') {
+		display_error(_("Please Select HOC/BC!"));
+		return false;
+	}
+
+	if ($_POST['hocbc_id'] == 1 && $_POST['comp_id'] != $coy && !get_post('sug_mcode') ) {
 		display_error(_("Please Select Suggested Entry!"));
 		return false;
 	}
@@ -584,8 +589,10 @@ function handle_update_item()
 	$code_id = $_POST['comp_id'] == $coy ? $_POST['code_id'] : get_company_value($_POST['comp_id'], 'gl_account');
 	//
 
-    if ($_POST['UpdateItem'] != "" && check_item_data())
-    {
+	$line_item = $_SESSION['journal_items']->gl_items[$_POST['Index']];
+
+    if ($_POST['UpdateItem'] != "" && check_item_data()) {
+
     	if (input_num('AmountDebit') > 0) {
 			$amount = input_num('AmountDebit');
 		}
@@ -595,20 +602,20 @@ function handle_update_item()
     		
     	$_SESSION['journal_items']->update_gl_item(
     	    $_POST['Index'], 
-			$code_id, 
-    	    $_POST['dimension_id'], 
-    	    $_POST['dimension2_id'], 
+			$line_item->code_id, 
+    	    0, 
+    	    0, 
     	    $amount, 
     	    '',//$_POST['LineMemo'], 
     	    '', 
     	    null,
-			$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $_POST['mcode'],
-			$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : get_slname_by_ref($_POST['mcode']),
-    	    $_POST['comp_id'] != $coy ? $_POST['hocbc_id'] : 0, 
+			$line_item->mcode,
+			get_slname_by_ref($line_item->mcode),
+    	    $line_item->comp_id != $coy ? $_POST['hocbc_id'] : 0, 
 			'', 
 			//Added by spyrax10
-			$_POST['comp_id'],
-			$_POST['sug_mcode']
+			$line_item->comp_id,
+			$line_item->sug_mcode
 			// 	
     	);
 

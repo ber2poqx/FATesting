@@ -16,7 +16,7 @@ include_once($path_to_root . "/includes/ui/items_cart.inc");
 
 function display_order_header(&$Order)
 {
-	global $Ajax;
+	global $Ajax, $Refs;
 
 	$qes = has_quick_entries(QE_JOURNAL);
 	$new = $Order->order_id==0;
@@ -63,8 +63,7 @@ function display_order_header(&$Order)
 			
 			label_row("Invoice Type: ", $inv_row['inv_type']);
 			label_row("Category: ", $inv_row['stock_name']);
-			label_row("Model: ", $inv_row['model']);
-			label_row("Model Description: ", $inv_row['model_desc']);
+			label_row("Model / Description: ", $inv_row['model'] . " / " . $inv_row['model_desc']);
 			label_row("Color Description: ", $inv_row['color_code']);
 
 			label_row("Current Invoice Balance: ", 
@@ -97,8 +96,11 @@ function display_order_header(&$Order)
 
 	table_section(2);
 
-    date_row(_("Document Date: &nbsp;"), 'doc_date', '', $new);
-    date_row(_("Event Date:"), 'event_date', '', $new);
+    //date_row(_("Document Date: &nbsp;"), 'doc_date', '', $new);
+    //date_row(_("Event Date:"), 'event_date', '', $new);
+	label_row('Reference: ', $Refs->get_next(ST_JOURNAL, null, null));
+	//ref_row(_("Reference:"), 'ref', null, get_post('ref'), false, ST_JOURNAL, get_post('date_'));
+	hidden('ref_original');
 
 	if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
 		label_row(_("Source Reference: &nbsp;"), get_post('ar_inv'));
@@ -110,9 +112,6 @@ function display_order_header(&$Order)
  	if ($new) {
 		table_section(3);
 	}
-
-	ref_row(_("Reference:"), 'ref', null, get_post('ref'), false, ST_JOURNAL, get_post('date_'));
-	hidden('ref_original');
 
 	if ($qes !== false) {
 
@@ -292,7 +291,7 @@ function display_gl_items($title, &$order)
 	}
 	    
 	if ($order->count_gl_items()) {
-		$colspan = ($dim == 2 ? "4" : ($dim == 1 ? "3" : "5")) + ($sub_type || $has_subaccounts ? 1 : 0);
+		$colspan = 6; //($dim == 2 ? "4" : ($dim == 1 ? "3" : "5")) + ($sub_type || $has_subaccounts ? 1 : 0);
 		
 		start_row();
 		label_cell(_("Total"), "align=right colspan=" . $colspan);
@@ -347,6 +346,8 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 		}
 		
 		hidden('Index', $id);
+
+		label_cell(get_company_value($item->comp_id, 'name'));
 		$skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
 		echo gl_all_accounts_list('code_id', null, $skip_bank, true, _('[Select account]'), true, false, false);
 
@@ -406,7 +407,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 	if ($dim < 2) {
 		hidden('dimension2_id', 0);
 	}
-		
+
 	sl_list_gl_cells(null, 'mcode', null, _("Select MCode"), false);
 
 	if (!isset($_POST['comp_id'])) {
@@ -418,7 +419,8 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 	
 	if ($comp_id != $coy) {
 		sql_type_list(null, 'hocbc_id', 
-			hocbc_type_list(), 'id', 'hocbc'
+			hocbc_type_list(), 'id', 'hocbc',
+			'', null, true, _("Select HOC/BC")
 		);
 	}
 	else {
