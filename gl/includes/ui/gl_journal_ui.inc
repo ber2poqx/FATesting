@@ -241,7 +241,7 @@ function display_gl_items($title, &$order)
 
 			//Modified by spyrax10
 			if ($item->comp_id != $coy) {
-				label_cell(get_hocbc_type($item->hocbc)["hocbc"]);
+				label_cell(get_hocbc_type($item->hocbc)["hocbc"], "align='center'");
 			}
 			else {
 				label_cell('N/A', "align='center'");
@@ -327,7 +327,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 			$_POST['dimension_id'] = $item->dimension_id;
 			$_POST['dimension2_id'] = $item->dimension2_id;
 			$_POST['person_id'] = $item->person_id;
-			$_POST['mcode'] = $item->mcode;
+			$_POST['mcode'] = gl_comp_name($item->mcode, true, true) != '' ? gl_comp_name($item->mcode, true, true) : $item->mcode;
 			$_POST['hocbc_id'] = $item->hocbc;
 			$_POST['sug_mcode'] = $item->sug_mcode; //Added by spyrax10
 
@@ -351,10 +351,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 		label_cell($item->code_id);
     	label_cell($item->description);
 		hidden('code_id', $item->code_id); 
-		label_cell($item->mcode);
-   		label_cell($item->master_file);
-		hidden('mcode', $item->mcode);
-	
+		
 		// $skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
 		// echo gl_all_accounts_list('code_id', null, $skip_bank, true, _('[Select account]'), true, false, false);
 
@@ -415,9 +412,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 		hidden('dimension2_id', 0);
 	}
 
-	if ($id == -1) {
-		sl_list_gl_cells(null, 'mcode', null, _("Select MCode"), false);
-	}
+	sl_list_gl_cells(null, 'mcode', null, _("Select MCode"), false);
 
 	if (!isset($_POST['comp_id'])) {
 		$comp_id = $coy;

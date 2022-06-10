@@ -366,7 +366,7 @@ function check_db_exists($company = -1) {
 	return $selectedDB ? true : false;
 }
 
-function gl_comp_name($mcode, $is_mcode = false) {
+function gl_comp_name($mcode, $is_mcode = false, $reverse = false) {
 	
 	global $db_connections;
 	$branch_code = $branch_name = '';
@@ -381,6 +381,12 @@ function gl_comp_name($mcode, $is_mcode = false) {
 			}
 			else {
 				$branch_name = $db_connections[$i]['name'];
+				break;
+			}
+		}
+		else if ($reverse) {
+			if ($db_connections[$i]['branch_code'] == $mcode) {
+				$branch_code = $db_connections[$i]['gl_account'];
 				break;
 			}
 		}        

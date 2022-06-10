@@ -584,7 +584,11 @@ function check_item_data()
 
 function handle_update_item() {
 
+	$coy = user_company();
+
 	$line_item = $_SESSION['journal_items']->gl_items[$_POST['Index']];
+
+	$branch_code = $branch_name = '';
 
     if ($_POST['UpdateItem'] != "" && check_item_data()) {
 
@@ -593,6 +597,20 @@ function handle_update_item() {
 		}
     	else {
 			$amount = -input_num('AmountCredit');
+		}
+
+		if (gl_comp_name($_POST['mcode'], true) != '') {
+			$branch_code = gl_comp_name($_POST['mcode'], true);
+		}
+		else {
+			$branch_code = $_POST['mcode'];
+		}
+	
+		if (gl_comp_name($_POST['mcode']) != '') {
+			$branch_name = gl_comp_name($_POST['mcode']);
+		}
+		else {
+			$branch_name =  get_slname_by_ref($_POST['mcode']);
 		}
     		
     	$_SESSION['journal_items']->update_gl_item(
@@ -604,12 +622,12 @@ function handle_update_item() {
     	    '',//$_POST['LineMemo'], 
     	    '', 
     	    null,
-			$line_item->mcode,
-			$line_item->master_file,
-    	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : '', 
+			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $branch_code,
+			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'name') : $branch_name,
+    	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : 0, 
 			//Added by spyrax10
 			$line_item->comp_id,
-			$_POST['sug_mcode']
+			isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '', 
 			// 	
     	);
 
