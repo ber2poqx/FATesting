@@ -627,7 +627,7 @@ function handle_update_item() {
     	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : 0, 
 			//Added by spyrax10
 			$line_item->comp_id,
-			isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '', 
+			isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '' 
 			// 	
     	);
 
