@@ -635,6 +635,8 @@ function handle_new_item()
 		return;
 	}
 
+	$branch_code = $branch_name = '';
+
 	//Added by spyrax10
 	$coy = user_company();
 	$code_id = $_POST['comp_id'] == $coy ? $_POST['code_id'] : get_company_value($_POST['comp_id'], 'gl_account');
@@ -646,6 +648,20 @@ function handle_new_item()
 	else {
 		$amount = -input_num('AmountCredit');
 	}
+
+	if (gl_comp_name($_POST['mcode'], true) != '') {
+		$branch_code = gl_comp_name($_POST['mcode'], true);
+	}
+	else {
+		$branch_code = $_POST['mcode'];
+	}
+
+	if (gl_comp_name($_POST['mcode']) != '') {
+		$branch_name = gl_comp_name($_POST['mcode']);
+	}
+	else {
+		$branch_name =  get_slname_by_ref($_POST['mcode']);
+	}
 		
 	$_SESSION['journal_items']->add_gl_item(
 		$code_id, 
@@ -656,32 +672,32 @@ function handle_new_item()
 	    null, 
 	    null,
 	    null,
-		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $_POST['mcode'],
-		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : get_slname_by_ref($_POST['mcode']),
+		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $branch_code,
+		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : $branch_name,
 		$_POST['comp_id'] != $coy ? $_POST['hocbc_id'] : 0, 
 		//Added by spyrax10
 		$_POST['comp_id'], 
 		isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : ''
 		// 	
 	);
-
-	// if ($_POST['debtor_ref'] != '' && $_SESSION['journal_items']->find_SI_gl('si_gl')) {
-	// 	$_SESSION['journal_items']->add_gl_item(
-	// 		$_POST['si_gl'], 
-	// 		0,
-	// 		0, 
-	// 		-$_SESSION['journal_items']->gl_items_total_debit(), 
-	// 		'',
-	// 		null, 
-	// 		null,
-	// 		null,
-	// 		$_POST['debtor_ref'],
-	// 		get_slname_by_ref($_POST['debtor_ref']),
-	// 		2, 
-	// 		user_company(), 
-	// 		''
-	// 	);
-	// }
+	
+	if (isset($_POST['debtor_ref']) && !$_SESSION['journal_items']->find_SI_gl($_POST['si_gl'])) {
+		$_SESSION['journal_items']->add_gl_item(
+			$_POST['si_gl'], 
+			0,
+			0, 
+			-$_SESSION['journal_items']->gl_items_total_debit(), 
+			'',
+			null, 
+			null,
+			null,
+			$_POST['debtor_ref'],
+			get_slname_by_ref($_POST['debtor_ref']),
+			0, 
+			user_company(), 
+			''
+		);
+	}
 
   	unset($_SESSION['journal_items']->tax_info);
 	line_start_focus();

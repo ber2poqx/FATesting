@@ -365,3 +365,31 @@ function check_db_exists($company = -1) {
 
 	return $selectedDB ? true : false;
 }
+
+function gl_comp_name($mcode, $is_mcode = false) {
+	
+	global $db_connections;
+	$branch_code = $branch_name = '';
+
+	for ($i = 0; $i < count($db_connections); $i++) {
+
+		if ($db_connections[$i]['gl_account'] == $mcode) {
+			
+			if ($is_mcode) {
+				$branch_code = $db_connections[$i]['branch_code'];
+				break;
+			}
+			else {
+				$branch_name = $db_connections[$i]['name'];
+				break;
+			}
+		}        
+	}
+
+	if ($is_mcode) {
+		return $branch_code;
+	}
+	else {
+		return $branch_name;
+	}
+}

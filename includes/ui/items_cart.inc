@@ -92,10 +92,10 @@ class items_cart
 	function find_SI_gl($si_gl) {
 		foreach ($this->gl_items as $line_no => $line) {
 			if ($line->code_id == $si_gl) {
-				return $this->line_items[$line_no];
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
 	function find_cart_serial($lot_no) {
