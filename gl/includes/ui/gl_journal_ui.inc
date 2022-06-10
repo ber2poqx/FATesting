@@ -75,6 +75,7 @@ function display_order_header(&$Order)
 			hidden('ar_trans_type', $inv_row['type']);
 			hidden('current_bal', $current_bal);
 			hidden('profit_margin', $inv_row['profit_margin']);
+			hidden('si_gl', default_SI_gl($inv_row['trans_no'], $inv_row['type']));
 		}
 	}
 

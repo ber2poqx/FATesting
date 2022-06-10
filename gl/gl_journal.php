@@ -546,9 +546,11 @@ function check_item_data()
 		return false;
 	}
 
-	if ($mcode_row['account_type'] == 13 && $comp_gl != $_POST['mcode']) {
-		display_error(_("Masterfile Account is not match to the selected branch! Please select the appropriate Masterfile Account."));
-		return false;
+	if ($_POST['comp_id'] != $coy) {
+		if ($mcode_row['account_type'] == 13 && $comp_gl != $_POST['mcode']) {
+			display_error(_("Masterfile Account is not match to the selected branch! Please select the appropriate Masterfile Account."));
+			return false;
+		}
 	}
 
 	if ($coy == $_POST['comp_id'] && $row['account_type'] == 13) {
@@ -662,6 +664,24 @@ function handle_new_item()
 		isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : ''
 		// 	
 	);
+
+	// if ($_POST['debtor_ref'] != '' && $_SESSION['journal_items']->find_SI_gl('si_gl')) {
+	// 	$_SESSION['journal_items']->add_gl_item(
+	// 		$_POST['si_gl'], 
+	// 		0,
+	// 		0, 
+	// 		-$_SESSION['journal_items']->gl_items_total_debit(), 
+	// 		'',
+	// 		null, 
+	// 		null,
+	// 		null,
+	// 		$_POST['debtor_ref'],
+	// 		get_slname_by_ref($_POST['debtor_ref']),
+	// 		2, 
+	// 		user_company(), 
+	// 		''
+	// 	);
+	// }
 
   	unset($_SESSION['journal_items']->tax_info);
 	line_start_focus();

@@ -89,9 +89,18 @@ class items_cart
 	}
 
 	//Added by spyrax10
-	function find_cart_serial($lot_no)
-	{
-		foreach($this->line_items as $line_no=>$line) {
+	function find_SI_gl($si_gl) {
+		foreach ($this->gl_items as $line_no => $line) {
+			if ($line->code_id == $si_gl) {
+				return $this->line_items[$line_no];
+			}
+		}
+		return null;
+	}
+
+	function find_cart_serial($lot_no) {
+
+		foreach($this->line_items as $line_no => $line) {
 			if ($line->lot_no == $lot_no) {
 				return $this->line_items[$line_no];
 			}			
@@ -99,9 +108,9 @@ class items_cart
 		return null;
 	}
 
-	function find_cart_stock($stock_id)
-	{
-		foreach($this->line_items as $line_no=>$line) {
+	function find_cart_stock($stock_id) {
+
+		foreach($this->line_items as $line_no => $line) {
 			if ($line->stock_id == $stock_id) {
 				return $this->line_items[$line_no];
 			}			
@@ -109,9 +118,9 @@ class items_cart
 		return null;
 	}
 
-	function find_cart_chassis($chasis_no)
-	{
-		foreach($this->line_items as $line_no=>$line) {
+	function find_cart_chassis($chasis_no) {
+
+		foreach($this->line_items as $line_no => $line) {
 			if ($line->chasis_no == $chasis_no) {
 				return $this->line_items[$line_no];
 			}			

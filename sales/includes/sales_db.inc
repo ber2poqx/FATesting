@@ -1216,5 +1216,19 @@ function get_AR_adjusted_amount($debtor_no, $si_ref = '', $get_total = false) {
 	}
 }
 
+function default_SI_gl($trans_no, $type) {
+
+	set_global_connection();
+
+	$sql = "SELECT X.account, MAX(X.amount)
+	FROM gl_trans X
+	WHERE X.type_no = " .db_escape($trans_no) . 
+	" AND X.type = " .db_escape($type);
+
+	$res =  db_query($sql, _("default_SI_gl"));
+	
+	$row = db_fetch_row($res);
+	return $row[0] != null ? $row[0] : '';
+}
 
 //
