@@ -95,9 +95,9 @@ function display_order_header(&$Order)
     //date_row(_("Event Date:"), 'event_date', '', $new);
 	hidden('doc_date', Today());
 	hidden('event_date', Today());
-	label_row('Reference: ', $Refs->get_next(ST_JOURNAL, null, null));
-	hidden('ref', $Refs->get_next(ST_JOURNAL, null, null));
-	//ref_row(_("Reference:"), 'ref', null, get_post('ref'), false, ST_JOURNAL, get_post('date_'));
+	//label_row('Reference: ', $Refs->get_next(ST_JOURNAL, null, null));
+	//hidden('ref', $Refs->get_next(ST_JOURNAL, null, null));
+	ref_row(_("Reference:"), 'ref', null, get_post('ref'), false, ST_JOURNAL, get_post('date_'));
 	hidden('ref_original');
 
 	if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {

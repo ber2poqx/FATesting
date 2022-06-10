@@ -1220,8 +1220,7 @@ function default_SI_gl($trans_no, $type) {
 
 	set_global_connection();
 
-	$sql = "SELECT X.account, MAX(X.amount)
-	FROM gl_trans X
+	$sql = "SELECT X.account, MAX(X.amount) FROM " . TB_PREF . "gl_trans X
 	WHERE X.type_no = " .db_escape($trans_no) . 
 	" AND X.type = " .db_escape($type);
 
