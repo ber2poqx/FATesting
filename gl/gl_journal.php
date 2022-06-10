@@ -279,39 +279,35 @@ if (isset($_POST['Process']))
 		set_focus('code_id');
 		$input_error = 1;
 	}
-	if (abs($_SESSION['journal_items']->gl_items_total()) > 0.001)
-	{
-		display_error(_("The journal must balance (debits equal to credits) before it can be processed."));
+	if (abs($_SESSION['journal_items']->gl_items_total()) > 0.001) {
+		display_error(_("The journal must balance before it can be processed."));
 		set_focus('code_id');
 		$input_error = 1;
 	}
 
-	if (!is_date($_POST['date_'])) 
-	{
+	if (!is_date($_POST['date_'])) {
 		display_error(_("The entered date is invalid."));
 		set_focus('date_');
 		$input_error = 1;
 	} 
-	elseif (!is_date_in_fiscalyear($_POST['date_'])) 
-	{
+	elseif (!is_date_in_fiscalyear($_POST['date_'])) {
 		display_error(_("The entered date is out of fiscal year or is closed for further data entry."));
 		set_focus('date_');
 		$input_error = 1;
 	} 
-	if (!is_date($_POST['event_date'])) 
-	{
-		display_error(_("The entered date is invalid."));
-		set_focus('event_date');
-		$input_error = 1;
-	}
-	if (!is_date($_POST['doc_date'])) 
-	{
-		display_error(_("The entered date is invalid."));
-		set_focus('doc_date');
-		$input_error = 1;
-	}
-	if (!check_reference($_POST['ref'], ST_JOURNAL, $_SESSION['journal_items']->order_id))
-	{
+	// if (!is_date($_POST['event_date'])) 
+	// {
+	// 	display_error(_("The entered date is invalid."));
+	// 	set_focus('event_date');
+	// 	$input_error = 1;
+	// }
+	// if (!is_date($_POST['doc_date'])) 
+	// {
+	// 	display_error(_("The entered date is invalid."));
+	// 	set_focus('doc_date');
+	// 	$input_error = 1;
+	// }
+	if (!check_reference($_POST['ref'], ST_JOURNAL, $_SESSION['journal_items']->order_id)) {
    		set_focus('ref');
    		$input_error = 1;
 	}

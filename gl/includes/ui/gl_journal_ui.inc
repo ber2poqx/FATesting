@@ -70,17 +70,11 @@ function display_order_header(&$Order)
 				price_format($current_bal)
 			);
 
-			$_POST['debtor_ref'] = $inv_row['debtor_ref'];
-			$_POST['ar_trans_no'] = $inv_row['trans_no'];
-			$_POST['ar_trans_type'] = $inv_row['type'];
-			$_POST['current_bal'] = $current_bal;
-			$_POST['profit_margin'] = $inv_row['profit_margin'];
-			
-			hidden('debtor_ref');
-			hidden('ar_trans_no');
-			hidden('ar_trans_type');
-			hidden('current_bal');
-			hidden('profit_margin');
+			hidden('debtor_ref', $inv_row['debtor_ref']);
+			hidden('ar_trans_no', $inv_row['trans_no']);
+			hidden('ar_trans_type', $inv_row['type']);
+			hidden('current_bal', $current_bal);
+			hidden('profit_margin', $inv_row['profit_margin']);
 		}
 	}
 

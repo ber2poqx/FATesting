@@ -525,8 +525,8 @@ class items_cart
 					$this->order_id, 
 					$gl->comp_id != $coy ? 1 : 0
 				);
-
-			if ($this->ar_alloc == 1) {
+													//REBATE
+			if ($this->ar_alloc == 1 && $gl->code_id != 5660) {
 
 				$account_id = $gl->amount > 0 ? getCompDet('dgp_account') : getCompDet('rgp_account');
 
