@@ -3210,6 +3210,7 @@ function gl_all_accounts_list($name, $selected_id=null, $skip_bank_accounts=fals
 	$all_text = '')
 {
 	//Added by spyrax10 15 Feb 2022
+	set_global_connection();
 	$text = $all_text != '' ? $all_text : _("Use Item Sales Accounts");
 	//
 

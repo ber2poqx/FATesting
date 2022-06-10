@@ -287,7 +287,7 @@ function display_gl_items($title, &$order)
 	}
 
 	if ($id == -1) {
-		gl_edit_item_controls($order, $dim, 0, $line);
+		gl_edit_item_controls($order, $dim, 0, -1);
 	}
 	    
 	if ($order->count_gl_items()) {
@@ -320,6 +320,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 	
 	if ($Index != -1 && $Index == $id) {
 	    // Modifying an existing row
+
 		$item = $order->gl_items[$Index];
 
 		if (!isset($continue)) {
@@ -348,16 +349,24 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 		hidden('Index', $id);
 
 		label_cell(get_company_value($item->comp_id, 'name'));
-		$skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
-		echo gl_all_accounts_list('code_id', null, $skip_bank, true, _('[Select account]'), true, false, false);
+		hidden('comp_id', $item->comp_id); 
+		label_cell($item->code_id);
+    	label_cell($item->description);
+		hidden('code_id', $item->code_id); 
+		label_cell($item->mcode);
+   		label_cell($item->master_file);
+		hidden('mcode', $item->mcode);
+	
+		// $skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
+		// echo gl_all_accounts_list('code_id', null, $skip_bank, true, _('[Select account]'), true, false, false);
 
-		if ($dim >= 1) {
-			dimensions_list_cells(null, 'dimension_id', null, true, " ", false, 1);
-		}
+		// if ($dim >= 1) {
+		// 	dimensions_list_cells(null, 'dimension_id', null, true, " ", false, 1);
+		// }
 			
-		if ($dim > 1) {
-			dimensions_list_cells(null, 'dimension2_id', null, true, " ", false, 2);
-		}
+		// if ($dim > 1) {
+		// 	dimensions_list_cells(null, 'dimension2_id', null, true, " ", false, 2);
+		// }
 				
 	    $Ajax->activate('items_table');
 	}
@@ -408,7 +417,9 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 		hidden('dimension2_id', 0);
 	}
 
-	sl_list_gl_cells(null, 'mcode', null, _("Select MCode"), false);
+	if ($id == -1) {
+		sl_list_gl_cells(null, 'mcode', null, _("Select MCode"), false);
+	}
 
 	if (!isset($_POST['comp_id'])) {
 		$comp_id = $coy;
@@ -453,8 +464,12 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 	//text_cells_ex(null, 'LineMemo', 35, 255);
 
 	//Added by spyrax10
-	gl_all_accounts_list_cells(null, 'sug_mcode', $_POST['sug_mcode'], false, false, _("Select Entry"), false);
-	//
+	if ($_POST['comp_id'] != $coy) {
+		gl_all_accounts_list_cells(null, 'sug_mcode', null, false, false, _("Select Entry"), false);
+	}
+	else {
+		label_cell('N/A', "align='center'");
+	}
 
 	if ($id != -1) {
 		button_cell('UpdateItem', _("Update"),

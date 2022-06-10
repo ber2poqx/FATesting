@@ -429,6 +429,7 @@ function get_chart_accounts_search($like, $skip = false) {
 		chart.account_code LIKE " . db_escape("%" . $like. "%") . "
   	) 
   	ORDER BY chart.account_code LIMIT 0,".(int)($limit); // We only display 10 items.
+	set_global_connection();
 	return db_query($sql, "Failed in retreiving GL account list.");
 }
 //Added by Herald 05/12/2021 for Complimentary Items

@@ -582,12 +582,7 @@ function check_item_data()
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_update_item()
-{
-	//Added by spyrax10
-	$coy = user_company();
-	$code_id = $_POST['comp_id'] == $coy ? $_POST['code_id'] : get_company_value($_POST['comp_id'], 'gl_account');
-	//
+function handle_update_item() {
 
 	$line_item = $_SESSION['journal_items']->gl_items[$_POST['Index']];
 
@@ -610,12 +605,11 @@ function handle_update_item()
     	    '', 
     	    null,
 			$line_item->mcode,
-			get_slname_by_ref($line_item->mcode),
-    	    $line_item->comp_id != $coy ? $_POST['hocbc_id'] : 0, 
-			'', 
+			$line_item->master_file,
+    	    $_POST['hocbc_id'] != null ? $_POST['hocbc_id'] : null, 
 			//Added by spyrax10
 			$line_item->comp_id,
-			$line_item->sug_mcode
+			$_POST['sug_mcode']
 			// 	
     	);
 
