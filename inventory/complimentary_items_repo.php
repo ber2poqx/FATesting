@@ -794,51 +794,51 @@ function display_gl_complimentaryitems_repo(&$order)
             set_global_connection();
             $stock_gl_mt_code = get_stock_repo_gl_code($line_item->category_id);
             $account_description_gl = get_gl_account_name($stock_gl_mt_code["dflt_repo_invty_act"]);
+        }
 
-            $debit=0;
-            $credit=0;
-            if ($item->amount > 0)
-            {
-                $debit=abs($item->amount);
-            }
-            else
-            {
-                $credit=abs($item->amount);
-            }
-            if($item->master_file_type==2){
-               $mastertype='Customer'; 
-            }elseif($item->master_file_type==3){
-                $mastertype='Supplier';
-            }elseif($item->master_file_type==6){
-                $mastertype='Employee';
-            }
-            if($item->line_item == '') {
-                $code_name_gl = $item->code_id;
-                $description_name_gl = $item->description;
-            }else{
-                $code_name_gl = $stock_gl_mt_code["dflt_repo_invty_act"];
-                $description_name_gl = $account_description_gl;
-            }
-            $group_array[] = array('code_id'=>$code_name_gl,
-                'description'=>$description_name_gl,
-                'line'=>$line,
-                'class_id'=>'',
-                'branch_id'=>is_null($item->branch_id)?'':$item->branch_id,
-                'person_name'=>is_null($item->master_file)?'':$item->master_file,
-                'person_id'=>is_null($item->mcode)?'':$item->mcode,
-                'person_type_id'=>is_null($item->person_type_id)?'':$item->person_type_id,
-                'actualprice'=>$item->amount,
-                'debit' => $debit,
-                'credit' => $credit,
-                'mcode'=>is_null($item->mcode)?'':$item->mcode,
-                'master_file'=>is_null($item->master_file)?'':$item->master_file,
-                'memo'=> $item->reference,
-                'mastertype' => is_null($mastertype)?'':$mastertype,
-                'master_file_type'=>$item->master_file_type,
-                'line_item' => $item->line_item,
-                'trans_date' => $item->date
-            ); 
-        }   
+        $debit=0;
+        $credit=0;
+        if ($item->amount > 0)
+        {
+            $debit=abs($item->amount);
+        }
+        else
+        {
+            $credit=abs($item->amount);
+        }
+        if($item->master_file_type==2){
+           $mastertype='Customer'; 
+        }elseif($item->master_file_type==3){
+            $mastertype='Supplier';
+        }elseif($item->master_file_type==6){
+            $mastertype='Employee';
+        }
+        if($item->line_item == '') {
+            $code_name_gl = $item->code_id;
+            $description_name_gl = $item->description;
+        }else{
+            $code_name_gl = $stock_gl_mt_code["dflt_repo_invty_act"];
+            $description_name_gl = $account_description_gl;
+        }
+        $group_array[] = array('code_id'=>$code_name_gl,
+            'description'=>$description_name_gl,
+            'line'=>$line,
+            'class_id'=>'',
+            'branch_id'=>is_null($item->branch_id)?'':$item->branch_id,
+            'person_name'=>is_null($item->master_file)?'':$item->master_file,
+            'person_id'=>is_null($item->mcode)?'':$item->mcode,
+            'person_type_id'=>is_null($item->person_type_id)?'':$item->person_type_id,
+            'actualprice'=>$item->amount,
+            'debit' => $debit,
+            'credit' => $credit,
+            'mcode'=>is_null($item->mcode)?'':$item->mcode,
+            'master_file'=>is_null($item->master_file)?'':$item->master_file,
+            'memo'=> $item->reference,
+            'mastertype' => is_null($mastertype)?'':$mastertype,
+            'master_file_type'=>$item->master_file_type,
+            'line_item' => $item->line_item,
+            'trans_date' => $item->date
+        );    
     }
     
     $jsonresult = json_encode($group_array);
