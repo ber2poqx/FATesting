@@ -490,19 +490,20 @@ class items_cart
 		$coy = user_company();
 
 		$delta = $this->gl_items_total();
-		if ($check_balance && floatcmp($delta, 0) !=0)
-		{
-			$this->add_gl_item(get_company_pref($delta>0 ? 'rounding_db_act' : 'rounding_cr_act'),
-				0, 0, -$delta, '');
+		if ($check_balance && floatcmp($delta, 0) != 0) {
+			$this->add_gl_item(get_company_pref($delta > 0 ? 'rounding_db_act' : 'rounding_cr_act'),
+				0, 0, -$delta, ''
+			);
 			error_log(sprintf( _("Rounding error %s encountered for trans_type:%s,trans_no:%s"), $delta, $this->trans_type, $this->order_id));
 		}
 
 		$bank_trans = $supp_trans = $cust_trans = array();
 		$total_gl = 0;
-		foreach($this->gl_items as $gl)
-		{
-			if (!isset($gl->date))
+
+		foreach($this->gl_items as $gl) {
+			if (!isset($gl->date)) {
 				$gl->date = $this->tran_date;
+			}
 
 			$total_gl += 
 				add_gl_trans(
@@ -552,21 +553,27 @@ class items_cart
 
 			// post to first found bank account using given gl acount code.
 			$is_bank_to = is_bank_account($gl->code_id);
-	    	if ($is_bank_to && (get_bank_account_currency($is_bank_to) == $this->currency)) // do not register exchange variations in bank trans
-    		{
-    			if (!isset($bank_trans[$is_bank_to]))
-    				$bank_trans[$is_bank_to] = 0;
-
+	    	if ($is_bank_to && (get_bank_account_currency($is_bank_to) == $this->currency)) { // do not register exchange variations in bank trans
+    			if (!isset($bank_trans[$is_bank_to])) {
+					$bank_trans[$is_bank_to] = 0;
+				}
 	    		$bank_trans[$is_bank_to] += $gl->amount;
-    		} elseif ($gl->person_id)
-    		{
+
+    		} 
+			elseif ($gl->person_id) {
     			$home_currency = get_company_currency();
 				// collect per counterparty amounts (in case more than one posting was done to the account),
 				// do not post exchange variations to AR/AP (journal in not customer/supplier currency)
-	    		if ($gl->person_type_id==PT_SUPPLIER && (get_supplier_currency($gl->person_id) == $this->currency || $this->currency != $home_currency))
-	   				$supp_trans[$gl->person_id] = @$supp_trans[$gl->person_id] + $gl->amount;
-    			elseif ($gl->person_type_id==PT_CUSTOMER && (get_customer_currency(null, $gl->branch_id) == $this->currency || $this->currency != $home_currency))
-	   				$cust_trans[$gl->branch_id] = @$cust_trans[$gl->branch_id] + $gl->amount;
+	    		if ($gl->person_type_id == PT_SUPPLIER 
+					&& (get_supplier_currency($gl->person_id) == $this->currency || $this->currency != $home_currency)) {
+					
+					$supp_trans[$gl->person_id] = @$supp_trans[$gl->person_id] + $gl->amount;
+				}
+    			elseif ($gl->person_type_id == PT_CUSTOMER 
+					&& (get_customer_currency(null, $gl->branch_id) == $this->currency || $this->currency != $home_currency)) {
+
+					$cust_trans[$gl->branch_id] = @$cust_trans[$gl->branch_id] + $gl->amount;
+				}
     		}
 
 			if ($gl->comp_id != $coy) {
@@ -617,7 +624,7 @@ class items_cart
 
 		}
 		// post currency roundings if any
-		if ($check_balance && floatcmp($total_gl, 0))
+		if ($check_balance && floatcmp($total_gl, 0)) {
 			add_gl_trans(
 				$this->trans_type, 
 				$this->order_id, 
@@ -626,6 +633,7 @@ class items_cart
 				_('Exchange rate roundings'), 
 				-$total_gl
 			);
+		}
 
 		// update bank ledger if used
 		foreach($bank_trans as $bank_id => $amount)
@@ -655,46 +663,50 @@ class items_cart
 			);
 
 		// add AP/AR for journal transaction
-		if ($this->trans_type == ST_JOURNAL)
-		{
+		if ($this->trans_type == ST_JOURNAL) {
 			// update AR
-			foreach($cust_trans as $branch_id => $amount)
-				if (floatcmp($amount, 0))
+			foreach($cust_trans as $branch_id => $amount) {
+				if (floatcmp($amount, 0)) {
 					write_cust_journal($this->trans_type, $this->order_id, $branch_id, $this->tran_date,
-						$this->reference, $amount, $this->rate);
+						$this->reference, $amount, $this->rate
+					);
+				}
+			}
 			// update AP
-			foreach($supp_trans as $supp_id => $amount)
-				if (floatcmp($amount, 0))
+			foreach($supp_trans as $supp_id => $amount) {
+				if (floatcmp($amount, 0)) {
 					write_supp_journal($this->trans_type, $this->order_id, $supp_id, $this->tran_date,
-						$this->reference, -$amount, $this->rate, $this->source_ref);
+						$this->reference, -$amount, $this->rate, $this->source_ref
+					);
+				}
+			}
 		}
 
 		// generate tax records for journal transaction
-		if ($this->trans_type == ST_JOURNAL && is_array($this->tax_info))
-		{
-			foreach($this->tax_info['net_amount'] as $tax_id => $net)
-			{
-				if (!$net)
+		if ($this->trans_type == ST_JOURNAL && is_array($this->tax_info)) {
+
+			foreach($this->tax_info['net_amount'] as $tax_id => $net) {
+				if (!$net) {
 					continue;
+				}
 
 				// in EU VAT system intra-community goods aquisition is posted to both purchasing and sales tax accounts,
 				// but included only in purchase register. To avoid double registering ELSE is used below!
-				if (isset($this->tax_info['tax_in'][$tax_id]))
-				{
+				if (isset($this->tax_info['tax_in'][$tax_id])) {
 					$tax = $this->tax_info['tax_in'][$tax_id];
 					$reg = TR_INPUT;
 				}
-				elseif (isset($this->tax_info['tax_out'][$tax_id]))
-				{
+				elseif (isset($this->tax_info['tax_out'][$tax_id])) {
 					$tax = $this->tax_info['tax_out'][$tax_id];
 					$reg = TR_OUTPUT;
 				}
-				elseif (isset($this->tax_info['tax_reg'])) // e.g. export
-				{
+				elseif (isset($this->tax_info['tax_reg'])) { // e.g. export
 					$tax = 0;
 					$reg = $this->tax_info['tax_reg'];
-				} else
+				} 
+				else {
 					continue;
+				}
 
 				$tax_nominal = $this->tax_info['rate'][$tax_id]/100*$net;
 				add_trans_tax_details($this->trans_type, $this->order_id,

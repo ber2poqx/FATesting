@@ -383,8 +383,8 @@ if (isset($_POST['Process'])) {
 
 	$cart->reference = $_POST['ref'];
 	$cart->tran_date = $_POST['date_'];
-	$cart->doc_date = Today();
-	$cart->event_date = Today();
+	$cart->doc_date = $_POST['doc_date'];
+	$cart->event_date = $_POST['event_date'];
 	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref2'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
