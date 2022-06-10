@@ -529,9 +529,11 @@ function check_item_data()
 		return false;
 	}
 
-	if ($_POST['hocbc_id'] == 1 && $_POST['comp_id'] != $coy && !get_post('sug_mcode') ) {
-		display_error(_("Please Select Suggested Entry!"));
-		return false;
+	if (isset($_POST['hocbc_id'])) {
+		if ($_POST['hocbc_id'] == 1 && $_POST['comp_id'] != $coy && !get_post('sug_mcode') ) {
+			display_error(_("Please Select Suggested Entry!"));
+			return false;
+		}
 	}
 
 	$row = get_gl_account($_POST['code_id']);
@@ -606,7 +608,7 @@ function handle_update_item() {
     	    null,
 			$line_item->mcode,
 			$line_item->master_file,
-    	    $_POST['hocbc_id'] != null ? $_POST['hocbc_id'] : null, 
+    	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : '', 
 			//Added by spyrax10
 			$line_item->comp_id,
 			$_POST['sug_mcode']
@@ -661,7 +663,7 @@ function handle_new_item()
 		$_POST['comp_id'] != $coy ? $_POST['hocbc_id'] : 0, 
 		//Added by spyrax10
 		$_POST['comp_id'], 
-		$_POST['sug_mcode']
+		isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : ''
 		// 	
 	);
 
