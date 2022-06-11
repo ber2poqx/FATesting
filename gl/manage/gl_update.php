@@ -51,7 +51,7 @@ function get_JE_transactions($trans_no, $header = false) {
             AND GL.type = " .db_escape(ST_JOURNAL);
     }
 
-    $sql .= "WHERE JE.trans_no = " .db_escape($trans_no);
+    $sql .= " WHERE JE.trans_no = " .db_escape($trans_no);
 
     $result = db_query($sql, "get_JE_header()");
 
@@ -63,13 +63,40 @@ function get_JE_transactions($trans_no, $header = false) {
     }
 }
 
+function new_cart($trans_no) {
+
+    $head_row = get_JE_transactions($trans_no, true);
+    $details = get_JE_transactions($trans_no);
+
+    $cart = new items_cart(ST_JOURNAL);
+    $_SESSION['journal_items'] = &$cart;
+
+    $cart = &$_SESSION['journal_items'];
+	$cart->reference = $_POST['ref'];
+	$cart->tran_date = $_POST['journal_date'];
+	$cart->doc_date = $_POST['doc_date'];
+	$cart->event_date = $_POST['event_date'];
+	$cart->source_ref = $row['ref_no'];
+	$cart->trans_db = user_company();
+	$cart->memo_ = $_POST['memo_'];
+	$cart->currency = 'PHP';
+
+}
+
 function display_JE_header($trans_no) {
 
-    $resHead = get_JE_transactions($trans_no, true);
+    $row = get_JE_transactions($trans_no, true);
 
     div_start('item_head');
-	start_outer_table(TABLESTYLE2, "width='70%'");
+	start_outer_table(TABLESTYLE2, "width='50%'");
     
+    table_section(1);
+    label_row('Journal Date: &nbsp;', phil_short_date($row['tran_date']));
+    date_row(_("Set New Journal Date: &nbsp;"), 'new_je_date', '', true);
+
+    table_section(2);
+    label_row('JE Reference: &nbsp;', $row['reference']);
+    text_row('Source Reference: &nbsp;', 'source_ref', $row['source_ref'], 30, 30);
 
     end_outer_table(1);
 	div_end();
