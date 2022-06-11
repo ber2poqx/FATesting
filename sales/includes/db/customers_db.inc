@@ -226,6 +226,13 @@ function check_customer_already_exist($CustName)
 
 	return $count[0];
 }
+
+function get_employee_detail($employee_id)
+{
+    $sql = "SELECT user_id, real_name, email FROM users
+        WHERE user_id = ".db_escape($employee_id);
+   return db_query($sql, "could not query users");
+}
 //----------------//
 
 //----------------------------------------------------------------------------------

@@ -40,7 +40,6 @@ if (isset($_GET['debtor_no']))
 
 $selected_id = get_post('customer_id','');
 //--------------------------------------------------------------------------------------------
-
 function can_process()
 {
 
@@ -422,11 +421,21 @@ function customer_settings($selected_id)
 	table_section_title(_("Name and Address"));
 
 	//----Added by Robert----//
+
+	$cus_employee = get_employee_detail($_POST['employee_id']);
+    $myrobert = db_fetch($cus_employee);
+
+    $employee_userid = $myrobert["user_id"];
+    $employee_name = $myrobert["real_name"];
+    $employee_email = $myrobert["email"];
+
+
 	if ($selected_id){
 		employee_unemployee_list_row( _("Customer Type:"), 'employee', $_POST['employee'], false, false, false);
 		if ($myrow["employee_id"] == '') {
 			unemployee_v2_list_cells( _("Employee Name:"), 'employee_id', null);
 		} else {
+			label_row(_("Employee Code:"), $employee_userid);
 			unemployee_list_cells( _("Employee Name:"), 'employee_id', null);
 		}			
 	} else {
@@ -435,9 +444,17 @@ function customer_settings($selected_id)
 			case CT_UNEMPLOYEE:
 				break;
 			case CT_EMPLOYEE:
-				employee_customer_list_row( _("Employee Name:"), 'employee_id', null, true);
+				label_row(_("Employee Code:"), $employee_userid);
+				employee_customer_list_row( _("Employee Name:"), 'employee_id', null, true, true);
 				break;
 		}
+	}
+	if ($_POST['employee_id'] == '') {
+		$_POST['email'] = $_POST['email'];
+		$_POST['CustName'] = $_POST['CustName'];
+	}else{
+		$_POST['CustName'] = $employee_name;
+		$_POST['email'] = $employee_email;
 	}
 	//-----------------------//
 	//MOdified by Robert Dusal
