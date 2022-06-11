@@ -12,7 +12,7 @@
  ***********************************************************************/
 function display_bank_header(&$order)
 {
-	global $Ajax;
+	global $Ajax, $Refs;
 	//$payment = $order->trans_type == ST_BANKPAYMENT;
 	$payment = ST_BANKPAYMENT;
 
@@ -126,16 +126,19 @@ function display_bank_header(&$order)
 		} //end of switch
 	}
 
-	ref_row(_("Transaction #: &nbsp;"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
+	//ref_row(_("Transaction #: &nbsp;"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
+	$_POST['ref'] = $Refs->get_next($_SESSION['pay_items']->trans_type, null, null);
+	label_row(_("Transaction #: &nbsp;"), get_post('ref'));
+	hidden('ref');
 
 	table_section(2, "33%");
 
 	date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);
 	//--------------ADDED BY ROBERT-------------//
-	$_POST['receipt_no'] = "";
+	//$_POST['receipt_no'] = "";
 
 	if ($order->trans_type == ST_BANKDEPOSIT) {
-		text_row(_("Receipts #: &nbsp;"), 'receipt_no', $_POST['receipt_no'], 28, 28);
+		text_row(_("Receipts #: &nbsp;"), 'receipt_no', null, 28, 28);
 	}
 	else {
 		label_row(_("Disbursement #: &nbsp;"), auto_disburse_no());

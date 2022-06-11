@@ -255,7 +255,7 @@ function create_cart($type, $trans_no)
 
 function check_trans()
 {
-	global $Refs, $systypes_array;
+	global $Refs, $systypes_array, $Ajax;
 
 	$input_error = 0;
 
@@ -294,6 +294,11 @@ function check_trans()
 		}
 	}
 	if (!check_reference($_POST['ref'], $_SESSION['pay_items']->trans_type, $_SESSION['pay_items']->order_id)) {
+		
+		display_error("New Transaction Reference Assigned! Please try again...");
+		$_POST['ref'] = $Refs->get_next($_SESSION['pay_items']->trans_type, null, null);
+		hidden('ref');
+		$Ajax->activate('pmt_header');
 		set_focus('ref');
 		$input_error = 1;
 	}
