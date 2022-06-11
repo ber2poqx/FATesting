@@ -798,7 +798,7 @@ function collection_type_list() {
 
 	$sql = "SELECT collect_id, collection, inactive 
 		FROM ".TB_PREF."collection_types 
-		ORDER BY collection";
+		ORDER BY collect_id";
 
 	return db_query($sql, _("Cant get list of collection types!"));
 }
