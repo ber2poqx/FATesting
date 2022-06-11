@@ -384,7 +384,10 @@ $security_areas =array(
 	'SA_DEPOSIT' => array(SS_GL|5, _("Bank deposits")),
 	'SA_BANKTRANSFER' => array(SS_GL|6, _("Bank account transfers")),
 	'SA_RECONCILE' => array(SS_GL|7, _("Bank reconciliation")),
-	'SA_JOURNALENTRY' => array(SS_GL|8, _("Manual journal entries")),
+	'SA_JOURNALENTRY' => array(SS_GL|8, _("Manual Journal Entries")),
+	//Added by spyrax10 11 Jun 2022
+	'SA_JE_UPDATE' => array(SS_GL|16, _("Journal Entries Update")),
+	//
 	'SA_BUDGETENTRY' => array(SS_GL|9, _("Budget edition")),
 	'SA_STANDARDCOST' => array(SS_GL|10, _("Item standard cost")),
 	'SA_BANKJOURNAL' => array(SS_GL|11, _("Journal entries to bank related accounts")),

@@ -171,7 +171,33 @@ function void_journal_trans($type, $type_no, $use_transaction=true)
 
 	void_bank_trans($type, $type_no, true);
 
-	if ($use_transaction)
+	if ($use_transaction) 
 		commit_transaction();
+}
+
+//Added by spyrax10 11 Jun 2022
+
+function JE_exists($trans_no, $reference = '') {
+
+	set_global_connection();
+
+	$sql = "SELECT JE.* FROM " . TB_PREF . "journal JE
+		INNER JOIN " . TB_PREF . "gl_trans GL ON JE.trans_no = GL.type_no 
+			AND GL.type = " .db_escape(ST_JOURNAL);
+	
+	$sql .= " WHERE JE.trans_no = " .db_escape($trans_no);
+
+	if ($reference != '') {
+		$sql .= " OR JE.reference = " .db_escape($reference);
+	}
+
+	$result = db_query($sql, "JE_exists()");
+
+	if (db_num_rows($result) > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
