@@ -763,28 +763,30 @@ elseif (tab_opened('tabs', 'tax')) {
 
 
 $id = find_submit('Delete');
-if ($id != -1)
+if ($id != -1) {
 	handle_delete_item($id);
+}
 
-if (isset($_POST['AddItem'])) 
+if (isset($_POST['AddItem'])) {
 	handle_new_item();
+}
 
-if (isset($_POST['UpdateItem'])) 
+if (isset($_POST['UpdateItem'])) {
 	handle_update_item();
+}
 	
-if (isset($_POST['CancelItemChanges']))
-	line_start_focus();
-
-if (isset($_POST['go']))
-{
-	display_quick_entries($_SESSION['journal_items'], $_POST['quick'], input_num('totamount'), QE_JOURNAL, get_post('aux_info'));
-	$_POST['totamount'] = price_format(0); 
-	$Ajax->activate('totamount');
+if (isset($_POST['CancelItemChanges'])) {
 	line_start_focus();
 }
 
-if (list_updated('tax_category'))
-{
+// if (isset($_POST['go'])) {
+// 	display_quick_entries($_SESSION['journal_items'], $_POST['quick'], input_num('totamount'), QE_JOURNAL, get_post('aux_info'));
+// 	$_POST['totamount'] = price_format(0); 
+// 	$Ajax->activate('totamount');
+// 	line_start_focus();
+// }
+
+if (list_updated('tax_category')) {
 	$Ajax->activate('tabs');
 }
 
@@ -812,14 +814,8 @@ tabbed_content_start('tabs',
 switch (get_post('_tabs_sel')) {
 	default:
 	case 'gl':
-		start_table(TABLESTYLE2, "width='100%'", 10);
-		start_row();
-		echo "<td>";
 		display_gl_items(_("Rows"), $_SESSION['journal_items']);
 		gl_options_controls();
-		echo "</td>";
-		end_row();
-		end_table(1);
 		break;
 
 	case 'tax':

@@ -327,9 +327,9 @@ function get_company_value($company_id, $array_val = '') {
     global $db_connections;
     $value = '';
     
-    for ($i = 0; $i < count($db_connections); $i++)
-    {
-        if($i == $company_id){
+    for ($i = 0; $i < count($db_connections); $i++) {
+
+        if($i == $company_id) {
 			$value = $db_connections[$i][$array_val];  
         }        
     }
@@ -346,6 +346,20 @@ function getCompDet($colName, $company_id = -1) {
 	$result = db_query($sql, "Can't get value in sys_pref! (spyrax10)");
 	$row = db_fetch_row($result);
 	return $row[0];
+}
+
+function get_comp_id($branch_code) {
+
+	global $db_connections;
+	$company_id = '';
+
+	for ($i = 0; $i < count($db_connections); $i++) {
+		if ($db_connections[$i]['branch_code'] == $branch_code) {
+			$company_id = $i;
+			break;
+		}
+	}
+	return $company_id;
 }
 
 function check_db_exists($company = -1) {

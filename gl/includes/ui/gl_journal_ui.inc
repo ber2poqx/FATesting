@@ -158,7 +158,7 @@ function display_order_header(&$Order)
 
 //---------------------------------------------------------------------------------
 
-function display_gl_items($title, &$order)
+function display_gl_items($title, &$order, $enable_add_item = true)
 {
 	global $path_to_root;
 
@@ -273,9 +273,12 @@ function display_gl_items($title, &$order)
 			edit_button_cell("Edit$line", _("Edit"),
 				_('Edit journal line')
 			);
-			delete_button_cell("Delete$line", _("Delete"),
-				_('Remove line from journal')
-			);
+			
+			if ($enable_add_item) {
+				delete_button_cell("Delete$line", _("Delete"),
+					_('Remove line from journal')
+				);
+			}
 
     		end_row();
 		} 
@@ -285,7 +288,9 @@ function display_gl_items($title, &$order)
 	}
 
 	if ($id == -1) {
-		gl_edit_item_controls($order, $dim, 0, -1);
+		if ($enable_add_item) {
+			gl_edit_item_controls($order, $dim, 0, -1);
+		}
 	}
 	    
 	if ($order->count_gl_items()) {

@@ -42,7 +42,8 @@ function get_JE_transactions($trans_no, $header = false) {
     
     set_global_connection();
 
-    $sql = $header ? "SELECT JE.*" : "SELECT JE.*, GL.*";
+    $sql = $header ? "SELECT JE.*" : 
+        "SELECT JE.*, GL.*, GL.amount AS line_amount";
     
     $sql .= " FROM " . TB_PREF . "journal JE";
 
@@ -65,21 +66,45 @@ function get_JE_transactions($trans_no, $header = false) {
 
 function new_cart($trans_no) {
 
+    $mcode = $masterfile = '';
+    $id = -1;
+
     $head_row = get_JE_transactions($trans_no, true);
     $details = get_JE_transactions($trans_no);
+
+    if (isset($_SESSION['journal_items'])) {
+        unset ($_SESSION['journal_items']);
+    }
 
     $cart = new items_cart(ST_JOURNAL);
     $_SESSION['journal_items'] = &$cart;
 
-    $cart = &$_SESSION['journal_items'];
-	$cart->reference = $_POST['ref'];
-	$cart->tran_date = $_POST['journal_date'];
-	$cart->doc_date = $_POST['doc_date'];
-	$cart->event_date = $_POST['event_date'];
-	$cart->source_ref = $row['ref_no'];
-	$cart->trans_db = user_company();
-	$cart->memo_ = $_POST['memo_'];
-	$cart->currency = 'PHP';
+    while ($row = db_fetch($details)) {
+        $id++;
+        hidden('Index', $id);
+        $comp_id = $row['interbranch'] == 0 ? user_company() : get_comp_id($row['mcode']);
+        $mcode = $row['mcode'];
+
+        if ($row['interbranch'] == 1) {
+            $masterfile = get_company_value($comp_id, 'name');
+        }
+        else {
+            $masterfile = get_slname_by_ref($row['mcode']);
+        }
+
+        $_SESSION['journal_items']->add_gl_item(
+            $row['account'], 0, 0, 
+	        $row['line_amount'], 
+	        $row['memo_'], 
+	        null, 
+	        null,
+	        null,
+		    $mcode,
+		    $masterfile,
+		    $row['hocbc_id'], 
+		    $comp_id, ''
+        );
+    }
 
 }
 
@@ -102,16 +127,29 @@ function display_JE_header($trans_no) {
 	div_end();
 }
 
-function display_JE_details($trans_no) {
+//---------------------------------------------------------------------------------------------
 
+if (isset($_POST['CancelItemChanges'])) {
+	global $Ajax;
+    unset($_POST['Index']);
+    $Ajax->activate('items_table');
+}
+
+if (isset($_POST['Process'])) {
+    display_error(_("Under Construction! Please Wait..."));
 }
 
 //---------------------------------------------------------------------------------------------
-
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
 if (isset($_GET['trans_no']) && JE_exists($_GET['trans_no'])) {
     display_JE_header($_GET['trans_no']);
+    new_cart($_GET['trans_no']);
+    display_gl_items(_("Journal Entry Rows:"), $_SESSION['journal_items'], false);
+
+    br(2);
+    submit_center('Process', _("Update Journal Entry"), true , null, 'default');
+    br();
 }
 else {
     display_error(_("Cannot find this Journal Entry Transaction!"));
