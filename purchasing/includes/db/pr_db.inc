@@ -164,7 +164,7 @@ function get_sql_for_pr_search($request_number = '')
 			
 			LEFT JOIN " . TB_PREF . "stock_category SC ON a.item_group_id = SC.category_id
 			
-			WHERE a.pr_no < 1000";
+			WHERE  a.draft_status <> 2 AND a.pr_no < 1000";
 	if ($request_number != "") {
 		$sql .= " AND a.pr_no LIKE " . db_escape('%' . $request_number . '%') . " OR a.reference LIKE " . db_escape('%' . $request_number . '%') . " ";
 	}
