@@ -1024,7 +1024,7 @@ function get_payment_location_by_category($category_id)
 /* */
 
 //Added by spyrax10 6 Apr 2022
-function get_customer_invoices($customer_id = '') {
+function get_customer_invoices($customer_id = '', $si_ref = '') {
 
 	set_global_connection();
 
@@ -1048,6 +1048,10 @@ function get_customer_invoices($customer_id = '') {
 		$sql .= " AND DT.debtor_no = " .db_escape($customer_id);
 	}
 
+	if ($si_ref != '') {
+		$sql .= " AND DT.reference = " .db_escape($si_ref);
+	}
+
 	return db_query($sql, _("Cant get Customer's Invoice/s!"));
 }
 
@@ -1067,7 +1071,7 @@ function insert_customer_alloc($date_paid, $je_no, $trans_no, $trans_type, $debt
 		$date_paid,
 		$je_reference,
 		$total > 0 ? abs($total) : 0,
-		0, 0, 0, 0, 0, 0, 0, "", 
+		0, 0, 0, 0, 0, 0, 0, $date_paid, 
 		$total < 0 ? abs($total) : 0
 	);
 

@@ -201,3 +201,29 @@ function JE_exists($trans_no, $reference = '') {
 	}
 }
 
+function get_JE_transactions($trans_no, $header = false) {
+    
+    set_global_connection();
+
+    $sql = $header ? "SELECT JE.*" : 
+        "SELECT JE.*, GL.*, GL.amount AS line_amount";
+    
+    $sql .= " FROM " . TB_PREF . "journal JE";
+
+    if (!$header) {
+        $sql .= " INNER JOIN " . TB_PREF . "gl_trans GL ON JE.trans_no = GL.type_no 
+            AND GL.type = " .db_escape(ST_JOURNAL);
+    }
+
+    $sql .= " WHERE JE.trans_no = " .db_escape($trans_no);
+
+    $result = db_query($sql, "get_JE_header()");
+
+    if ($header) {
+        return db_fetch($result);
+    }
+    else {
+        return $result;
+    }
+}
+

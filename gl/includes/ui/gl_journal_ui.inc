@@ -14,8 +14,8 @@ include_once($path_to_root . "/includes/ui/items_cart.inc");
 
 //--------------------------------------------------------------------------------
 
-function display_order_header(&$Order)
-{
+function display_order_header(&$Order) {
+
 	global $Ajax, $Refs;
 
 	$qes = has_quick_entries(QE_JOURNAL);
@@ -53,7 +53,7 @@ function display_order_header(&$Order)
 	
 		if (get_post('ar_inv')) {
 
-			$inv_row = db_fetch_assoc(get_customer_invoices(get_post('person_id')));
+			$inv_row = db_fetch_assoc(get_customer_invoices(get_post('person_id'), get_post('ar_inv')));
 			$current_bal = current_balance_display(
 				$inv_row['trans_no'],
 				$inv_row['type'],
@@ -66,7 +66,7 @@ function display_order_header(&$Order)
 			label_row("Model / Description: ", $inv_row['model'] . " / " . $inv_row['model_desc']);
 			label_row("Color Description: ", $inv_row['color_code']);
 
-			label_row("Current Invoice Balance: ", 
+			label_row("Current Invoice Balance: &nbsp;", 
 				price_format($current_bal)
 			);
 
@@ -269,10 +269,18 @@ function display_gl_items($title, &$order, $enable_add_item = true)
 			}
 
 			//label_cell($item->reference);
-
-			edit_button_cell("Edit$line", _("Edit"),
-				_('Edit journal line')
-			);
+			if ($enable_add_item) {
+				edit_button_cell("Edit$line", _("Edit"),
+					_('Edit journal line')
+				);
+			}
+			else {
+				if ($item->code_id != getCompDet('dgp_account') & $item->code_id != getCompDet('rgp_account')) {
+					edit_button_cell("Edit$line", _("Edit"),
+						_('Edit journal line')
+					);
+				}
+			}
 			
 			if ($enable_add_item) {
 				delete_button_cell("Delete$line", _("Delete"),
@@ -310,8 +318,7 @@ function display_gl_items($title, &$order, $enable_add_item = true)
 
 //---------------------------------------------------------------------------------
 
-function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
-{
+function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null) {
 	global $Ajax;
 	start_row();
 	$coy = user_company();
@@ -496,12 +503,11 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index=null)
 
 //---------------------------------------------------------------------------------
 
-function gl_options_controls()
-{
+function gl_options_controls() {
 	div_start('footer');
 	echo "<br><table align='center'>";
 
-	textarea_row(_("Memo"), 'memo_', null, 50, 3);
+	textarea_row(_("Memo: &nbsp;"), 'memo_', null, 50, 3);
 
 	echo "</table>";
 	div_end();

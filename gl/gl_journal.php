@@ -53,9 +53,9 @@ page($_SESSION['page_title'], false, false,'', $js);
 //--------------------------------------------------------------------------------------------------
 
 function line_start_focus() {
-  global $Ajax;
+  	global $Ajax;
 
-  	unset($_POST['Index']);
+	unset($_POST['Index']);
   	$Ajax->activate('tabs');
 
   	// Added by spyrax10
@@ -592,7 +592,7 @@ function handle_update_item() {
 
 	$line_item = $_SESSION['journal_items']->gl_items[$_POST['Index']];
 
-	$branch_code = $branch_name = '';
+	$mcode = $masterfile = '';
 
     if ($_POST['UpdateItem'] != "" && check_item_data()) {
 
@@ -604,17 +604,17 @@ function handle_update_item() {
 		}
 
 		if (gl_comp_name($_POST['mcode'], true) != '') {
-			$branch_code = gl_comp_name($_POST['mcode'], true);
+			$mcode = gl_comp_name($_POST['mcode'], true);
 		}
 		else {
-			$branch_code = $_POST['mcode'];
+			$mcode = $_POST['mcode'];
 		}
 	
 		if (gl_comp_name($_POST['mcode']) != '') {
-			$branch_name = gl_comp_name($_POST['mcode']);
+			$masterfile = gl_comp_name($_POST['mcode']);
 		}
 		else {
-			$branch_name =  get_slname_by_ref($_POST['mcode']);
+			$masterfile =  get_slname_by_ref($_POST['mcode']);
 		}
     		
     	$_SESSION['journal_items']->update_gl_item(
@@ -626,8 +626,8 @@ function handle_update_item() {
     	    '',//$_POST['LineMemo'], 
     	    '', 
     	    null,
-			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $branch_code,
-			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'name') : $branch_name,
+			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $mcode,
+			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'name') : $masterfile,
     	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : 0, 
 			//Added by spyrax10
 			$line_item->comp_id,
@@ -657,7 +657,7 @@ function handle_new_item()
 		return;
 	}
 
-	$branch_code = $branch_name = '';
+	$mcode = $masterfile = '';
 
 	//Added by spyrax10
 	$coy = user_company();
@@ -672,17 +672,17 @@ function handle_new_item()
 	}
 
 	if (gl_comp_name($_POST['mcode'], true) != '') {
-		$branch_code = gl_comp_name($_POST['mcode'], true);
+		$mcode = gl_comp_name($_POST['mcode'], true);
 	}
 	else {
-		$branch_code = $_POST['mcode'];
+		$mcode = $_POST['mcode'];
 	}
 
 	if (gl_comp_name($_POST['mcode']) != '') {
-		$branch_name = gl_comp_name($_POST['mcode']);
+		$masterfile = gl_comp_name($_POST['mcode']);
 	}
 	else {
-		$branch_name =  get_slname_by_ref($_POST['mcode']);
+		$masterfile =  get_slname_by_ref($_POST['mcode']);
 	}
 		
 	$_SESSION['journal_items']->add_gl_item(
@@ -694,8 +694,8 @@ function handle_new_item()
 	    null, 
 	    null,
 	    null,
-		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $branch_code,
-		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : $branch_name,
+		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $mcode,
+		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : $masterfile,
 		$_POST['comp_id'] != $coy ? $_POST['hocbc_id'] : 0, 
 		//Added by spyrax10
 		$_POST['comp_id'], 

@@ -245,7 +245,8 @@ class items_cart
 		{
 		    $this->gl_items[] = new gl_item($code_id, $dimension_id, $dimension2_id, $amount, $memo, $act_descr, $person_id, $date, $mcode, $master_file, $hocbc, 
 				$comp_id, $sug_mcode, 
-				$master_file_type, $line_item);
+				$master_file_type, $line_item
+			);
 			return true;
 		}
 		else
@@ -347,6 +348,19 @@ class items_cart
 		{
 			if ($gl_item->amount < 0)
 				$total += $gl_item->amount;
+		}
+		return $total;
+	}
+
+	//Added by spyrax10 13 Jun 2022
+	function gl_si_total() {
+		$total = 0;
+		foreach ($this->gl_items as $gl_item) {
+			if ($gl_item->amount > 0) {
+				if ($gl_item->code_id != getCompDet('dgp_account')) {
+					$total += $gl_item->amount;
+				}
+			}
 		}
 		return $total;
 	}
@@ -531,7 +545,7 @@ class items_cart
 					get_person_id(PT_CUSTOMER, $gl->mcode), 
 					$gl->master_file, 
 					$gl->hocbc,
-					$this->order_id, 
+					$this->ar_alloc == 1 ? $this->order_id : 0, 
 					$gl->comp_id != $coy ? 1 : 0
 				);
 													//REBATE
