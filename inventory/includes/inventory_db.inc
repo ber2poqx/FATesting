@@ -702,6 +702,17 @@ function get_smo_max_year() {
 	return $row[0];
 }
 
+function get_stock_by_itemCode($itemCode = '') {
+	
+	set_global_connection(0);
+
+	$sql = "SELECT A.* FROM ".TB_PREF."item_codes A 
+	WHERE A.item_code = " . db_escape(trim($itemCode));
+	$sql .= " GROUP BY A.stock_id";
+	
+	return db_query($sql, 'get_stock_by_itemCode()');
+}
+
 function clean_spaces($table_name = '', $column = '', $company_id = -1) {
 	
 	set_global_connection($company_id);
