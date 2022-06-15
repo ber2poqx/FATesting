@@ -4705,7 +4705,7 @@ function si_list($name, $loc_code= null, $selected_id=null, $category, $all_opti
 			ON i.category_id=c.category_id
 			WHERE i.stock_id=s.stock_id
       AND mb_flag != 'F'";
-	$ret = combo_input($name, $selected_id, $sql, 'i.item_code', 'c.description',
+	$ret = combo_input($name, $selected_id, $sql, 's.stock_id', 'c.description',
 			array_merge(
 			array(
 				// 'format' => '_format_stock_items',
