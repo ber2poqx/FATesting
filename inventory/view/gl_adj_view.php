@@ -426,7 +426,7 @@ else if ($delete_id != -1) {
     $id = get_post('selected_id', find_submit('DeleteGL'));
     display_del_gl($id);
 }
-
+hidden('class_name');
 
 //----------------------------------------------------------------------------------------------------
 
