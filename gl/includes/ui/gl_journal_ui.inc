@@ -158,8 +158,8 @@ function display_order_header(&$Order) {
 
 //---------------------------------------------------------------------------------
 
-function display_gl_items($title, &$order, $enable_add_item = true)
-{
+function display_gl_items($title, &$order, $enable_add_item) {
+
 	global $path_to_root;
 
 	$coy = user_company(); //Added by spyrax10
@@ -476,6 +476,8 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null) {
 		label_cell('N/A', "align='center'");
 	}
 
+	hidden('class_name');
+	
 	if ($id != -1) {
 		button_cell('UpdateItem', _("Update"),
 			_('Confirm changes'), ICON_UPDATE
@@ -502,6 +504,60 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null) {
 }
 
 //---------------------------------------------------------------------------------
+
+function update_JE_header($trans_no) {
+
+    $row = get_JE_transactions($trans_no, true);
+    $debtor_row = get_SI_by_reference($row['source_ref']);
+    $inv_row = db_fetch_assoc(get_customer_invoices($debtor_row['debtor_no'], $row['source_ref']));
+    $cust_row = get_customer($inv_row['cust_id']);
+
+    $current_bal = current_balance_display(
+        $inv_row['trans_no'],
+        $inv_row['type'],
+        $inv_row['cust_id'],
+        date2sql(Today())
+    );
+
+    div_start('item_head');
+	start_outer_table(TABLESTYLE2, "width='70%'");
+    
+    table_section(1);
+    label_row('Journal Date: &nbsp;', phil_short_date($row['tran_date']));
+	hidden('date_', sql2date($row['tran_date']));
+    date_row(_("Set New Journal Date: &nbsp;"), 'new_je_date', '', true);
+
+    table_section(2);
+    label_row('JE Reference: &nbsp;', $row['reference']);
+    if ($debtor_row["trans_no"] != null) {
+        label_row(_('Source Reference: &nbsp;'), get_trans_view_str(ST_SALESINVOICE, $debtor_row["trans_no"], $row['source_ref']));
+        hidden('source_ref', $row['source_ref']);
+        
+        table_section(3);
+        label_row("Customer: ", $cust_row['debtor_ref'] . " - " . $cust_row['name']);
+        label_row("Invoice Type: ", $inv_row['inv_type']);
+		label_row("Category: ", $inv_row['stock_name']);
+		label_row("Model / Description: ", $inv_row['model'] . " / " . $inv_row['model_desc']);
+		label_row("Color Description: ", $inv_row['color_code']);
+
+		label_row("Current Invoice Balance: &nbsp;", 
+			price_format($current_bal)
+		);
+
+        hidden('profit_margin', $inv_row['profit_margin']);
+        hidden('source_ref2', $row['source_ref']);
+    }
+    else {
+        text_row('Source Reference: &nbsp;', 'source_ref', $row['source_ref'], 30, 30);
+    }
+
+	hidden('ref', $row['reference']);
+	hidden('old_doc_date', sql2date($row['doc_date']));
+	hidden('old_event_date', sql2date($row['event_date']));
+
+    end_outer_table(1);
+	div_end();
+}
 
 function gl_options_controls() {
 	div_start('footer');

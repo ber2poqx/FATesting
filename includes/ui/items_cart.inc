@@ -539,14 +539,15 @@ class items_cart
 					$this->memo_, 
 					$gl->amount, 
 					$this->currency, 
-					$gl->person_type_id, 
+					$gl->master_file_type, 
 					$gl->person_id, "", 
 					$this->rate, 
 					get_person_id(PT_CUSTOMER, $gl->mcode), 
 					$gl->master_file, 
 					$gl->hocbc,
 					$this->ar_alloc == 1 ? $this->order_id : 0, 
-					$gl->comp_id != $coy ? 1 : 0
+					$gl->comp_id != $coy ? 1 : 0,
+					false
 				);
 													//REBATE
 			if ($this->ar_alloc == 1 && $gl->code_id != 5660) {
@@ -563,14 +564,15 @@ class items_cart
 					$this->memo_, 
 					$gl->amount > 0 ? $this->gross_profit : -$this->gross_profit, 
 					$this->currency, 
-					$gl->person_type_id, 
+					$gl->master_file_type, 
 					$gl->person_id, "", 
 					$this->rate, 
 					get_person_id(PT_CUSTOMER, $gl->mcode), 
 					$gl->master_file, 
 					$gl->hocbc,
 					$this->order_id, 
-					$gl->comp_id != $coy ? 1 : 0
+					$gl->comp_id != $coy ? 1 : 0,
+					false
 				);
 			}
 

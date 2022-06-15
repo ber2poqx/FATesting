@@ -19,37 +19,49 @@
 //Modified by spyrax10 24 Feb 2022 (added interbranch column)
 function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension2, $memo_, $amount, $currency = null, $person_type_id = null,
 	$person_id = null, $err_msg = "", $rate = 0, $mcode = null, $master_file = null, $hocbc = 0, 
-	$loan_trans_no = 0, $interbranch = 0)
+	$loan_trans_no = 0,
+	//Added by spyrax10 15 Jun 2022 
+	$interbranch = 0, $check_AR = true)
 {
 	global $SysPrefs;
 	set_global_connection();
 	
 	$date = date2sql($date_);
-	if ($currency != null)
-	{
-		if ($rate == 0)
+	if ($currency != null) {
+		if ($rate == 0) {
 			$amount_in_home_currency = to_home_currency($amount, $currency, $date_);
-		else
+		}
+		else {
 			$amount_in_home_currency = round2($amount * $rate,  user_price_dec());
+		}
 	}		
-	else
+	else {
 		$amount_in_home_currency = round2($amount, user_price_dec());
-	if ($dimension == null || $dimension < 0)
+	}
+
+	if ($dimension == null || $dimension < 0) {
 		$dimension = 0;
-	if ($dimension2 == null || $dimension2 < 0)
-		$dimension2 = 0;
-	if (isset($SysPrefs->use_audit_trail) && $SysPrefs->use_audit_trail)
-	{
-		if ($memo_ == "" || $memo_ == null)
+	}
+	if ($dimension2 == null || $dimension2 < 0) {
+		$dimension2 = 0;	
+	}
+
+	if (isset($SysPrefs->use_audit_trail) && $SysPrefs->use_audit_trail) {
+		if ($memo_ == "" || $memo_ == null) {
 			$memo_ = $_SESSION["wa_current_user"]->username;
-		else
+		}
+		else {
 			$memo_ = $_SESSION["wa_current_user"]->username . " - " . $memo_;
+		}
 	}
 	
 	//modified by jr for A/R accounts
-	if(!check_customer_account($account)){
-		if (!is_subledger_account($account) || $account==get_company_pref('grn_clearing_act'))
-			$person_id = $person_type_id = null;
+	if ($check_AR) {
+		if(!check_customer_account($account)){
+			if (!is_subledger_account($account) || $account==get_company_pref('grn_clearing_act')) {
+				$person_id = $person_type_id = null;
+			}
+		}
 	}
 
 	/* Modified by Ronelle 2/22/2021 added columns mcode,master_file,hocbc_id */
@@ -59,8 +71,9 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 		account, dimension_id, dimension2_id, memo_, amount, mcode, master_file, hocbc_id, loan_trans_no, 
 		interbranch";
 
-	if ($person_type_id != null)
+	if ($person_type_id != null) {
 		$sql .= ", person_type_id, person_id";
+	}
 
 	$sql .= ") ";
 
@@ -71,13 +84,15 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 		.db_escape($master_file).", ".db_escape($hocbc) .", "
 		.db_escape($loan_trans_no) . "," . db_escape($interbranch);
 	/* */
-	if ($person_type_id != null)
+	if ($person_type_id != null) {
 		$sql .= ", ".db_escape($person_type_id).", ". db_escape($person_id);
+	}
 
 	$sql .= ") ";
 
-	if ($err_msg == "")
+	if ($err_msg == "") {
 		$err_msg = "The GL transaction could not be inserted";
+	}
 
 	db_query($sql, $err_msg);
 	return $amount_in_home_currency;

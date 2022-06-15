@@ -40,7 +40,7 @@ if (user_use_date_picker()) {
 }
 
 if (isset($_GET['ModifyGL'])) {
-	$_SESSION['page_title'] = sprintf(_("Modifying Journal Transaction # %d."), 
+	$_SESSION['page_title'] = sprintf(_("Modifying Journal Transaction # %d"), 
 		$_GET['trans_no']);
 	$help_context = "Modifying Journal Entry";
 } 
@@ -136,15 +136,13 @@ elseif (isset($_GET['UpdatedID'])) {
 }
 //--------------------------------------------------------------------------------------------------
 
-if (isset($_GET['NewJournal']))
-{
-	create_cart(0,0);
+if (isset($_GET['NewJournal'])) {
+	create_cart(0, 0);
 }
-elseif (isset($_GET['ModifyGL']))
-{
+elseif (isset($_GET['ModifyGL'])) {
 	check_is_editable($_GET['trans_type'], $_GET['trans_no']);
 
-	if (!isset($_GET['trans_type']) || $_GET['trans_type']!= 0) {
+	if (!isset($_GET['trans_type']) || $_GET['trans_type'] != 0) {
 		display_error(_("You can edit directly only journal entries created via Journal Entry page."));
 		hyperlink_params("$path_to_root/gl/gl_journal.php", _("Entry &New Journal Entry"), "NewJournal=Yes");
 		display_footer_exit();
@@ -152,12 +150,10 @@ elseif (isset($_GET['ModifyGL']))
 	create_cart($_GET['trans_type'], $_GET['trans_no']);
 }
 
-function create_cart($type=0, $trans_no=0)
-{
+function create_cart($type = 0, $trans_no = 0) {
 	global $Refs;
 
 	if (isset($_SESSION['journal_items'])) {
-
 		unset ($_SESSION['journal_items']);
 	}
 
@@ -183,8 +179,10 @@ function create_cart($type=0, $trans_no=0)
 				$curr_amount = $cart->rate ? round($row['amount']/$cart->rate, $_SESSION["wa_current_user"]->prefs->price_dec()) : $row['amount'];
 				if ($curr_amount)  {
 					$cart->add_gl_item($row['account'], $row['dimension_id'], $row['dimension2_id'], 
-					    $curr_amount, $row['memo_'], '', $row['person_id'], null, $row['mcode'], $row['master_file'], $row['hocbc_id'], 
-						$row['interbranch'] == 1 ? $row['mcode'] : user_company()
+					    $curr_amount, $row['memo_'], '', 
+						$row['person_id'], null, 
+						$row['mcode'], $row['master_file'], $row['hocbc_id'], 
+						$row['interbranch'] == 0 ? user_company() : get_comp_id($row['mcode'])
 					);
 				}	
 			}
@@ -250,8 +248,7 @@ function create_cart($type=0, $trans_no=0)
 	$_SESSION['journal_items'] = &$cart;
 }
 
-function update_tax_info()
-{
+function update_tax_info() {
 
 	if (!isset($_SESSION['journal_items']->tax_info) || list_updated('tax_category')) {
 		$_SESSION['journal_items']->tax_info = $_SESSION['journal_items']->collect_tax_info();
@@ -273,8 +270,7 @@ function update_tax_info()
 }
 
 //-----------------------------------------------------------------------------------------------
-if (isset($_POST['Process']))
-{
+if (isset($_POST['Process'])) {
 	$input_error = 0;
 	$docu_total = $_SESSION['journal_items']->gl_items_total_debit();
 
@@ -316,23 +312,19 @@ if (isset($_POST['Process']))
    		$input_error = 1;
 	}
 	if (get_post('currency') != get_company_pref('curr_default'))
-		if (isset($_POST['_ex_rate']) && !check_num('_ex_rate', 0.000001))
-		{
+		if (isset($_POST['_ex_rate']) && !check_num('_ex_rate', 0.000001)) {
 			display_error(_("The exchange rate must be numeric and greater than zero."));
 			set_focus('_ex_rate');
     		$input_error = 1;
 		}
 
-	if (get_post('_tabs_sel') == 'tax')
-	{
-		if (!is_date($_POST['tax_date']))
-		{
+	if (get_post('_tabs_sel') == 'tax') {
+		if (!is_date($_POST['tax_date'])) {
 			display_error(_("The entered date is invalid."));
 			set_focus('tax_date');
 			$input_error = 1;
 		} 
-		elseif (!is_date_in_fiscalyear($_POST['tax_date']))
-		{
+		elseif (!is_date_in_fiscalyear($_POST['tax_date'])) {
 			display_error(_("The entered date is out of fiscal year or is closed for further data entry."));
 			set_focus('tax_date');
 			$input_error = 1;
@@ -350,14 +342,12 @@ if (isset($_POST['Process']))
 		else {
 			$taxes = get_all_tax_types();
 			$net_amount = 0;
-			while ($tax = db_fetch($taxes))
-			{
+			while ($tax = db_fetch($taxes)) {
 				$tax_id = $tax['id'];
 				$net_amount += input_num('net_amount_'.$tax_id);
 			}
 			// in case no tax account used we have to guss tax register on customer/supplier used.
-			if ($net_amount && !$_SESSION['journal_items']->has_taxes() && !$_SESSION['journal_items']->has_sub_accounts())
-			{
+			if ($net_amount && !$_SESSION['journal_items']->has_taxes() && !$_SESSION['journal_items']->has_sub_accounts()) {
 				display_error(_("Cannot determine tax register to be used. You have to make at least one posting either to tax or customer/supplier account to use tax register."));
 				$_POST['tabs_gl'] = true; // force gl tab select
    				$input_error = 1;
@@ -411,8 +401,7 @@ if (isset($_POST['Process'])) {
 		$cart->tax_info['tax_date'] = $_POST['tax_date'];
 		//$cart->tax_info['tax_group'] = $_POST['tax_group'];
 		$taxes = get_all_tax_types();
-		while ($tax = db_fetch($taxes))
-		{
+		while ($tax = db_fetch($taxes)) {
 			$tax_id = $tax['id'];
 			$cart->tax_info['net_amount'][$tax_id] = input_num('net_amount_'.$tax_id);
 			$cart->tax_info['rate'][$tax_id] = $tax['rate'];
@@ -447,8 +436,7 @@ if (isset($_POST['Process'])) {
 
 //-----------------------------------------------------------------------------------------------
 
-function check_item_data()
-{
+function check_item_data() {
 	global $Ajax;
 
 	$coy = user_company();
@@ -466,34 +454,30 @@ function check_item_data()
 	//    		return false;
 	//    	}
 	// }
-	if (isset($_POST['dimension_id']) && $_POST['dimension_id'] != 0 && dimension_is_closed($_POST['dimension_id'])) 
-	{
+	if (isset($_POST['dimension_id']) && $_POST['dimension_id'] != 0 && dimension_is_closed($_POST['dimension_id'])) {
 		display_error(_("Dimension is closed."));
 		set_focus('dimension_id');
 		return false;
 	}
 
-	if (isset($_POST['dimension2_id']) && $_POST['dimension2_id'] != 0 && dimension_is_closed($_POST['dimension2_id'])) 
-	{
+	if (isset($_POST['dimension2_id']) && $_POST['dimension2_id'] != 0 && dimension_is_closed($_POST['dimension2_id'])) {
 		display_error(_("Dimension is closed."));
 		set_focus('dimension2_id');
 		return false;
 	}
 
-	if (!(input_num('AmountDebit')!=0 ^ input_num('AmountCredit')!=0) )
-	{
+	if (!(input_num('AmountDebit') != 0 ^ input_num('AmountCredit') != 0) ) {
 		display_error(_("You must enter either a debit amount or a credit amount."));
 		set_focus('AmountDebit');
     	return false;
   	}
 
-	if (strlen($_POST['AmountDebit']) && !check_num('AmountDebit', 0)) 
-	{
+	if (strlen($_POST['AmountDebit']) && !check_num('AmountDebit', 0)) {
     	display_error(_("The debit amount entered is not a valid number or is less than zero."));
 		set_focus('AmountDebit');
     	return false;
-  	} elseif (strlen($_POST['AmountCredit']) && !check_num('AmountCredit', 0))
-	{
+  	} 
+	elseif (strlen($_POST['AmountCredit']) && !check_num('AmountCredit', 0)) {
     	display_error(_("The credit amount entered is not a valid number or is less than zero."));
 		set_focus('AmountCredit');
     	return false;
@@ -505,8 +489,7 @@ function check_item_data()
    		return false;
 	}
 
-	if (!$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL') && is_bank_account($_POST['code_id'])) 
-	{
+	if (!$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL') && is_bank_account($_POST['code_id'])) {
 		display_error(_("You cannot make a journal entry for a bank account. Please use one of the banking functions for bank transactions."));
 		set_focus('code_id');
 		return false;
@@ -642,8 +625,7 @@ function handle_update_item() {
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_delete_item($id)
-{
+function handle_delete_item($id) {
 	$_SESSION['journal_items']->remove_gl_item($id);
    	unset($_SESSION['journal_items']->tax_info);
 	line_start_focus();
@@ -651,13 +633,12 @@ function handle_delete_item($id)
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_new_item()
-{
+function handle_new_item() {
 	if (!check_item_data()) {
 		return;
 	}
 
-	$mcode = $masterfile = '';
+	$mcode = $masterfile = $person_type = '';
 
 	//Added by spyrax10
 	$coy = user_company();
@@ -684,22 +665,33 @@ function handle_new_item()
 	else {
 		$masterfile =  get_slname_by_ref($_POST['mcode']);
 	}
+
+	if ($_POST['class_name'] == 'Customer') {
+		$person_type = PT_CUSTOMER;
+	}
+	else if ($_POST['class_name'] == 'Supplier') {
+
+	}
+	else if ($_POST['class_name'] == 'Branch Current') {
+		$person_type = PT_BRANCH;
+	}
 		
 	$_SESSION['journal_items']->add_gl_item(
 		$code_id, 
 	    $_POST['dimension_id'],
 		$_POST['dimension2_id'], 
 	    $amount, 
-	    '',//$_POST['LineMemo'], 
-	    null, 
-	    null,
-	    null,
+	    '',		// Line Memo 
+	    null, 	// Account Description
+	    null,	// Person ID
+	    null,	// Date
 		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $mcode,
 		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : $masterfile,
 		$_POST['comp_id'] != $coy ? $_POST['hocbc_id'] : 0, 
 		//Added by spyrax10
 		$_POST['comp_id'], 
-		isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : ''
+		isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '',
+		$_POST['comp_id'] != $coy ? PT_BRANCH : $person_type
 		// 	
 	);
 	
@@ -802,7 +794,12 @@ if (list_updated('tax_category')) {
 
 start_form();
 
-display_order_header($_SESSION['journal_items']);
+if (isset($_GET['ModifyGL'])) {
+	update_JE_header($_GET['trans_no']);
+}
+else {
+	display_order_header($_SESSION['journal_items']);
+}
 
 tabbed_content_start('tabs', 
 	array(
@@ -814,7 +811,7 @@ tabbed_content_start('tabs',
 switch (get_post('_tabs_sel')) {
 	default:
 	case 'gl':
-		display_gl_items(_("Rows"), $_SESSION['journal_items']);
+		display_gl_items(_("Rows"), $_SESSION['journal_items'], $_SESSION['journal_items']->order_id > 0 ? false : true);
 		gl_options_controls();
 		break;
 
@@ -843,10 +840,17 @@ switch (get_post('_tabs_sel')) {
 		end_table(1);
 		break;
 };
+
+br();
 	
-submit_center('Process', _("Process Journal Entry"), true , 
-	_('Process journal entry only if debits equal to credits'), 'default'
-);
+if ($_SESSION['journal_items']->order_id > 0) {
+	submit_center('UpdateJE', _("Update Journal Entry"), true , null, 'default');
+}
+else {
+	submit_center('Process', _("Process Journal Entry"), true , 
+		_('Process journal entry only if debits equal to credits'), 'default'
+	);
+}
 
 br();
 tabbed_content_end();

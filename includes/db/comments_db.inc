@@ -11,8 +11,11 @@
 ***********************************************************************/
 //--------------------------------------------------------------------------------------------------
 
-function get_comments($type, $type_no)
-{
+function get_comments($type, $type_no) {
+
+	//Added by spyrax10
+	set_global_connection();
+	//
     $sql = "SELECT * FROM ".TB_PREF."comments WHERE type="
 		.db_escape($type)." AND id=".db_escape($type_no);
 

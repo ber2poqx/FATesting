@@ -72,9 +72,7 @@ function gl_view($row) {
 }
 
 function gl_update($row) {
-    return pager_link( _("Update JE"),
-	    "/gl/manage/gl_update.php?trans_no=" . $row["trans_no"], ICON_EDIT
-    );
+    return trans_editor_link(ST_JOURNAL, $row["trans_no"]);
 }
 
 #Added by Prog6 (03/31/2022)

@@ -741,7 +741,7 @@ if ($edit_id != -1) {
 }
 
 start_table();
-textarea_row(_("Remarks: "), 'memo_', null, 50, 3);
+textarea_row(_("Remarks: &nbsp;"), 'memo_', null, 50, 3);
 end_table();
 
 echo "<br> <br>";

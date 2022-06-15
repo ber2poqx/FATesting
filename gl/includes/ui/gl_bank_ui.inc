@@ -509,6 +509,7 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 	// text_cells_ex(null, 'LineMemo', 35, 255);
 
 	gl_all_accounts_list_cells(null, 'sug_mcode', $_POST['sug_mcode'], false, false, _("Select Entry"), false);
+	hidden('class_name');
 
 	if ($id != -1) {
 		button_cell(

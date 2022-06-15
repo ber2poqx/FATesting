@@ -1094,7 +1094,12 @@ function get_js_lookup_window() {
 }
 
 function get_js_select_combo_item() {
-	$js = "function selectComboItem(doc, client_id, value){
+
+	$js = "function selectComboItem(doc, client_id, value, class_name){
+
+		var class_element = doc.getElementsByName('class_name');
+		class_element[0].value = class_name;
+
     	var element = doc.getElementById(client_id);
 		if (typeof(element) != 'undefined' && element != null && element.tagName === 'SELECT' ){
 			var options = element.options;

@@ -77,8 +77,12 @@ function is_account_balancesheet($code)
 	return $row[0] > 0 && $row[0] < CL_INCOME;
 }
 
-function get_gl_account_name($code)
-{
+function get_gl_account_name($code) {
+
+	//Modified by spyrax10 15 Jun 2022
+	set_global_connection(0);
+	//
+	
 	$sql = "SELECT account_name from ".TB_PREF."chart_master WHERE account_code=".db_escape($code);
 
 	$result = db_query($sql,"could not retreive the account name for $code");
