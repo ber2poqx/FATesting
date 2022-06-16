@@ -826,8 +826,8 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
     $sql = "";
     $involve_db = array();
     $default_table_count = count_columns(0, 'item_serialise');
-    $company_check = $branch_id != null && check_db_exists($branch_id) 
-        && $default_table_count == count_columns($branch_id, 'item_serialise');
+    $company_check = $branch_id != null 
+		&& $default_table_count == count_columns($branch_id, 'item_serialise');
 
     if ($company_check) {
         $branch_code = $db_connections[$branch_id]['branch_code'];
@@ -855,37 +855,34 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
     }
     else {
         for ($i = 0; $i < count($db_connections); $i++) {
-            if (check_db_exists($i)) {
-                
-                if ($default_table_count == count_columns($i, 'item_serialise')) {
+            if ($default_table_count == count_columns($i, 'item_serialise')) {
     
-                    $branch_code = $db_connections[$i]['branch_code'];
-                    $db_name = $db_connections[$i]['dbname'];
-    
-                    $involve_db[$i] = $i;
-    
-                    $sql .= "SELECT '$branch_code' AS branch, IS$branch_code.* 
-                    FROM $db_name.item_serialise AS IS$branch_code";
+				$branch_code = $db_connections[$i]['branch_code'];
+				$db_name = $db_connections[$i]['dbname'];
 
-                    $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
-        
-                    if ($search != '') {
-                        $sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-                        serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-                        serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
-                    }
+				$involve_db[$i] = $i;
 
-					if ($cleared_stat != 'ALL') {
-						$sql .= " AND cleared = " . db_escape($cleared_stat);
-					}
+				$sql .= "SELECT '$branch_code' AS branch, IS$branch_code.* 
+				FROM $db_name.item_serialise AS IS$branch_code";
 
-                    if ($trans_no != null) {
-                        $sql .= " AND serialise_id = " .db_escape($trans_no);
-                    }
-                }
-    
-                $sql .= " UNION ALL "; 
-            }
+				$sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+	
+				if ($search != '') {
+					$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+					serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+					serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+				}
+
+				if ($cleared_stat != 'ALL') {
+					$sql .= " AND cleared = " . db_escape($cleared_stat);
+				}
+
+				if ($trans_no != null) {
+					$sql .= " AND serialise_id = " .db_escape($trans_no);
+				}
+			}
+
+			$sql .= " UNION ALL "; 
         }
 
         $sql = rtrim($sql, " UNION ALL");

@@ -25,7 +25,7 @@ page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 
 if (get_post('comp_id')) {
     $default_table_count = count_columns(0, 'item_serialise');
-    $company_check = get_post('comp_id') != null && check_db_exists(get_post('comp_id')) 
+    $company_check = get_post('comp_id') != null 
         && $default_table_count == count_columns(get_post('comp_id'), 'item_serialise');
     
     if(!$company_check) {
