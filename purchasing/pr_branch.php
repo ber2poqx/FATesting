@@ -595,7 +595,7 @@ if (get_post("ClosePR")) {
 //---------------------------------------------------------------------------------------------
 //figure out the sql required from the inputs available
 set_global_connection(get_post('selected_pr_branch'));
-$sql = get_sql_for_pr_search($_POST['pr_number']);
+$sql = get_sql_for_pr_search($_POST['pr_number'], 1);// Modifed by Albert one means Ho database 06/16/2022
 
 //$result = db_query($sql,"No Request were returned");
 

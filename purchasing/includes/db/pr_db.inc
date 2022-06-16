@@ -114,8 +114,8 @@ function cancel_pr($pr_obj)
 	hook_db_postwrite($pr_obj, ST_PURCHREQUEST);
 	commit_transaction();
 }
-
-function get_sql_for_pr_search($request_number = '')
+//modified by Albert  06/16/2022
+function get_sql_for_pr_search($request_number = '', $ho_data = '')
 {
 	$sql = "SELECT
 				a.pr_no,
@@ -164,9 +164,13 @@ function get_sql_for_pr_search($request_number = '')
 			
 			LEFT JOIN " . TB_PREF . "stock_category SC ON a.item_group_id = SC.category_id
 			
-			WHERE  a.draft_status <> 2 AND a.pr_no < 1000";
+			WHERE a.pr_no < 1000";
 	if ($request_number != "") {
 		$sql .= " AND a.pr_no LIKE " . db_escape('%' . $request_number . '%') . " OR a.reference LIKE " . db_escape('%' . $request_number . '%') . " ";
+	}
+	//Added by Albert in PR Branch not display dissapproved 06/16/2022
+	if ($ho_data != "") {
+		$sql .= " AND  a.draft_status <> 2";
 	}
 
 	$sql .= " GROUP BY a.pr_no ORDER BY a.pr_date DESC, a.pr_no DESC"; // modified by spyrax10
