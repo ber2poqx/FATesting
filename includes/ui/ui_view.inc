@@ -565,6 +565,26 @@ function view_stock_status_cell($stock_id, $description=null)
 
 //Added by spyrax10
 //--------------------------------------------------------------------------------------
+function serial_update_cell($company_id, $trans_no, $editable = 1) {
+
+	echo "<td align=center>";
+	serial_update_dest($company_id, $trans_no, $editable);
+	echo "</td>";
+}
+
+function serial_update_dest($company_id, $trans_no, $editable = 1, $echo = true) {
+	global $path_to_root;
+
+	$preview_str = "<a target='_blank' 
+	href='$path_to_root/inventory/view/serial_update.php?coy=$company_id&trans_no=$trans_no&editable=$editable&popup=1' 
+	onclick=\"javascript:openWindow(this.href,this.target); return false;\" >Update</a>";
+
+	if($echo) {
+		echo $preview_str;
+	}
+
+	return $preview_str;
+}
 
 function view_JE_adj_cell($trans_no, $line_no, $editable = 1) {
 
@@ -574,15 +594,16 @@ function view_JE_adj_cell($trans_no, $line_no, $editable = 1) {
 
 }
 
-function view_JE_adj_status($trans_no, $line_no, $editable =1, $echo = true) {
+function view_JE_adj_status($trans_no, $line_no, $editable = 1, $echo = true) {
 	global $path_to_root;
 
 	$preview_str = "<a target='_blank' 
 	href='$path_to_root/inventory/view/gl_adj_view.php?trans_no=$trans_no&line_no=$line_no&editable=$editable&popup=1' 
 	onclick=\"javascript:openWindow(this.href,this.target); return false;\" >GL Entry</a>";
 
-	if($echo)
+	if($echo) {
 		echo $preview_str;
+	}
 
 	return $preview_str;
 }

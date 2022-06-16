@@ -732,3 +732,30 @@ function check_db_has_cost_area_types($msg)
     }	
 }
 
+//Added by spyrax10 16 Jun 2022
+function count_columns($company_id = -1, $table = '') {
+	
+	global $db_connections;
+	$count = 0;
+	if ($company_id == -1) {
+		$company_id = $_SESSION["wa_current_user"]->company;
+	}
+
+	if ($table != '') {
+		$db_name = $db_connections[$company_id]["dbname"];
+
+		$sql = "SELECT COUNT(*)
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE table_schema = '$db_name' AND table_name = " . db_escape($table);
+
+		$result = db_query($sql, "Error getting column count");
+		$row = db_fetch_row($result);
+		$count = $row[0];
+	}
+	else {
+		$count = 0;
+	}
+
+	return $count;
+}
+
