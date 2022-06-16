@@ -820,7 +820,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 	return db_query($sql, "No transactions were returned! ");
 }
 
-function get_all_serial($search = '', $branch_id = null, $trans_no = null) {
+function get_all_serial($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL') {
 
     global $db_connections;
     $sql = "";
@@ -844,6 +844,10 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null) {
             serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
             serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
         }
+
+		if ($cleared_stat != 'ALL') {
+			$sql .= " AND cleared = " . db_escape($cleared_stat);
+		}
 
         if ($trans_no != null) {
             $sql .= " AND serialise_id = " .db_escape($trans_no);
@@ -870,6 +874,10 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null) {
                         serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
                         serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
                     }
+
+					if ($cleared_stat != 'ALL') {
+						$sql .= " AND cleared = " . db_escape($cleared_stat);
+					}
 
                     if ($trans_no != null) {
                         $sql .= " AND serialise_id = " .db_escape($trans_no);

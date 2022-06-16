@@ -41,6 +41,13 @@ start_row();
 
 ref_cells(_("Search Here: &nbsp;"), 'searchval', '', null, '', true);
 company_list_row(_('&nbsp; Origin Branch: '), 'comp_id', true, true, false);
+value_type_list(_("&nbsp; Clearance Status: "), 'cleared_id', 
+    array(
+        'ALL' => 'All Clearance Status',
+        1 => 'Cleared',
+        0 => 'Not Cleared'
+    ), '', null, true, '', true
+);
 
 end_row();
 end_table();
@@ -56,7 +63,8 @@ end_table();
 
 $res_details = get_all_serial(
     get_post('searchval'), 
-    get_post('comp_id')
+    get_post('comp_id'), null,
+    get_post('cleared_id')
 );
 
 div_start('item_tbl');

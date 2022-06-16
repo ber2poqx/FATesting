@@ -925,7 +925,7 @@ function sql_type_list($label, $name, $query, $ret_id = '', $ret_val = '', $clas
 }
 
 function value_type_list($label, $name, $val_array, $class = '', $selected = null, $submit_on_change = false, 
-	$all_text = '', $with_key = false, $row = false) {
+	$all_text = '', $with_key = false, $row = false, $report = false) {
 
 	if ($row) { 
 		echo "<tr>";
@@ -942,10 +942,18 @@ function value_type_list($label, $name, $val_array, $class = '', $selected = nul
 		$allocs[$with_key ? $key : $val] = $val;
 	}
 
-	echo array_selector($name, $selected, 
-		$all_text != '' ? array(ALL_TEXT => _($all_text)) + $allocs : $allocs,
-		array('select_submit'=> $submit_on_change)
-	);
+	if ($report) {
+		return array_selector($name, $selected, 
+			$all_text != '' ? array(ALL_TEXT => _($all_text)) + $allocs : $allocs,
+			array('select_submit'=> $submit_on_change)
+		);
+	}
+	else {
+		echo array_selector($name, $selected, 
+			$all_text != '' ? array(ALL_TEXT => _($all_text)) + $allocs : $allocs,
+			array('select_submit'=> $submit_on_change)
+		);
+	}
 
 	echo "</td>\n";
 
@@ -995,7 +1003,7 @@ function numeric_type_list($label, $name, $val_array, $selected = null, $submit_
 }
 
 function company_list_row($label = null, $name, $submit_on_change = false, $all_text = false, 
-	$include_cur_comp = true, $bold = false, $row = false) {
+	$include_cur_comp = true, $bold = false, $row = false, $report = false) {
 	
 	global $db_connections;
 
@@ -1025,13 +1033,24 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 		array(ALL_TEXT=> _("All Branches")) + $db_list;
 	$sel_arr = $include_cur_comp ? array($coy => $db_connections[$coy]['name']) + $db_list : $db_list;
 
-	echo array_selector($name, null, 
-		$all_text ? $all_arr : $sel_arr,
-		array( 
-			'select_submit'=> $submit_on_change, 
+	if ($report) {
+		return array_selector($name, null, 
+			$all_text ? $all_arr : $sel_arr,
+			array( 
+				'select_submit'=> $submit_on_change, 
 			'async' => false
-		) 
-	);
+			) 	
+		);
+	}
+	else {
+		echo array_selector($name, null, 
+			$all_text ? $all_arr : $sel_arr,
+			array( 
+				'select_submit'=> $submit_on_change, 
+			'async' => false
+			) 	
+		);
+	}
 
 	if ($row) { 
 		echo "</tr>";

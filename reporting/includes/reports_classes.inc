@@ -229,6 +229,18 @@ class BoxReports
 				case 'YES_NO':
 					return yesno_list($name);
 				//Added by spyrax10
+				case 'BRANCH':
+					return company_list_row(null, $name, true, true, false, false, false, true);
+					
+				case 'PNP_STAT':
+					return value_type_list(null, $name, 
+						array(
+							'ALL' => 'All Clearance Status',
+							1 => 'Cleared',
+							0 => 'Not Cleared'
+						), '', null, true, '', true, false, true
+					);
+
 				case 'COA_COL':
 					return numeric_type_list(null, $name, 
 						array(
