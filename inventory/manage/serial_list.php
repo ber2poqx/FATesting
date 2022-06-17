@@ -15,19 +15,20 @@ include_once($path_to_root . "/includes/data_checks.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
+global $Ajax, $def_coy;
+
+$_SESSION["wa_current_user"]->company = $def_coy;
+
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
     $js .= get_js_open_window(1200, 500);
 }
 
+
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 //--------------------------------------------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
-
-global $Ajax, $def_coy;
-
-$_SESSION["wa_current_user"]->company = $def_coy;
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

@@ -41,6 +41,8 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
     $sql .= " WHERE serialise_id = " .db_escape($trans_no);
 
     db_query($sql, "serial_pnp_update()");
+    
+    set_global_connection();
 
     $Ajax->activate('_page_body');
     display_notification(_("Transaction ID #" . $trans_no . " sucessfully updated!"));

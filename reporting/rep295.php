@@ -18,8 +18,30 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 //----------------------------------------------------------------------------------------------------
 print_transaction();
 
-global $def_coy;
-$_SESSION["wa_current_user"]->company = $def_coy;
+//----------------------------------------------------------------------------------------------------
+
+function get_transactions($company_id, $cleared_stat = "ALL") {
+
+    set_global_connection($company_id);
+    $branch_code = get_company_value($company_id, 'branch_code');
+
+    $sql = "SELECT '$branch_code' AS branch, $branch_code.* 
+    FROM ".TB_PREF."item_serialise AS $branch_code";
+
+    $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+
+    if ($cleared_stat != 'ALL') {
+		$sql .= " AND cleared = " . db_escape($cleared_stat);
+	}
+
+    $result = db_query($sql, _("get_all_serial()"));
+
+    set_global_connection();
+
+    display_error($sql);
+	return $result;
+}
+
 //----------------------------------------------------------------------------------------------------
 
 function print_transaction() {
@@ -30,8 +52,6 @@ function print_transaction() {
     $cleared_stat = $_POST['PARAM_1'];
     $comments = $_POST['PARAM_2'];
 	$destination = $_POST['PARAM_3'];
-
-    $_SESSION["wa_current_user"]->company = $branch_id;
 
     if ($destination) {
         include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -90,14 +110,8 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = get_all_serial(
-        '', 
-        $branch_id,
-        null,
-        $cleared_stat
-    );
-    $branch = '';
-
+    $res = get_transactions($branch_id, $cleared_stat);
+   
     while ($trans = db_fetch_assoc($res)) {
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($trans['serialise_item_code']));
