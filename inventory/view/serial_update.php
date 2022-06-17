@@ -25,6 +25,31 @@ if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
 page(_($help_context = "Serial Update"), true, false, "", $js);
 
 //----------------------------------------------------------------------------------------------------
+
+function get_transactions($company_id, $trans_no) {
+
+    set_global_connection($company_id);
+    $branch_code = get_company_value($company_id, 'branch_code');
+
+    $sql = "SELECT '$branch_code' AS branch, $branch_code.* 
+    FROM ".TB_PREF."item_serialise AS $branch_code";
+
+    $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+
+    if ($trans_no != null) {
+        $sql .= " AND serialise_id = " .db_escape($trans_no);
+    }
+
+    $result = db_query($sql, _("get_all_serial()"));
+
+    set_global_connection();
+
+    display_error($sql);
+	return $result;
+}
+
+//----------------------------------------------------------------------------------------------------
+
 function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '') {
 
     global $Ajax, $def_coy;
@@ -50,10 +75,7 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
 
 function display_details($company_id, $trans_no) {
     
-    global $def_coy;
-    set_global_connection($company_id);
-
-    $result = get_all_serial('', $company_id, $trans_no);
+    $result = get_transactions($company_id, $trans_no);
 
     display_heading("Transaction Details:");
     br();
@@ -104,8 +126,6 @@ function display_details($company_id, $trans_no) {
 
     end_table();
     div_end();
-
-    set_global_connection($def_coy);
 }
 
 function display_edit_form($company_id, $status) {

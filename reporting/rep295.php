@@ -38,7 +38,6 @@ function get_transactions($company_id, $cleared_stat = "ALL") {
 
     set_global_connection();
 
-    display_error($sql);
 	return $result;
 }
 
