@@ -704,13 +704,16 @@ function get_smo_max_year() {
 
 function get_stock_by_itemCode($itemCode = '') {
 	
-	set_global_connection(0);
+	global $def_coy;
+    set_global_connection($def_coy);
 
 	$sql = "SELECT A.* FROM ".TB_PREF."item_codes A 
 	WHERE A.item_code = " . db_escape(trim($itemCode));
 	$sql .= " GROUP BY A.stock_id";
-	
-	return db_query($sql, 'get_stock_by_itemCode()');
+	$result = db_query($sql, 'get_stock_by_itemCode()');
+
+	set_global_connection();
+	return $result;
 }
 
 function get_serial_details($company_id = -1, $trans_no) {
@@ -832,7 +835,7 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
     if ($company_check) {
 
 		set_global_connection($branch_id);
-        $branch_code = $db_connections[$branch_id]['branch_code'];
+        $branch_code = get_company_value($branch_id, 'branch_code');
 
         $involve_db[$branch_id] = $branch_id;
 
@@ -855,7 +858,8 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
             $sql .= " AND serialise_id = " .db_escape($trans_no);
         }
 
-		return db_query($sql, _("get_all_serial()"));
+		$result = db_query($sql, _("get_all_serial()"));
+		return $result;
     }
     // else {
     //     for ($i = 0; $i < count($db_connections); $i++) {

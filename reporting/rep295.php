@@ -17,6 +17,9 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 //----------------------------------------------------------------------------------------------------
 print_transaction();
+
+global $def_coy;
+$_SESSION["wa_current_user"]->company = $def_coy;
 //----------------------------------------------------------------------------------------------------
 
 function print_transaction() {
@@ -64,11 +67,10 @@ function print_transaction() {
         _("Note")
     );
 
-    $cols = array(0, 70, 150, 220, 430, 540, 600, 0);
+    $cols = array(0, 70, 150, 220, 430, 540, 600, 650, 0);
 
     $aligns = array('left', 'center', 'left', 'left', 
-        'left', 'left',
-        'center', 'right'
+        'left', 'left', 'center', 'left'
     );
 
     $params = array( 

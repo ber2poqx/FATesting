@@ -26,11 +26,8 @@ page(_($help_context = "Serial Update"), true, false, "", $js);
 
 //----------------------------------------------------------------------------------------------------
 function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '') {
-    global $Ajax;
 
-    if ($company_id == -1) {
-		$company_id = $_SESSION["wa_current_user"]->company;
-	}
+    global $Ajax, $def_coy;
 
     set_global_connection($company_id);
 
