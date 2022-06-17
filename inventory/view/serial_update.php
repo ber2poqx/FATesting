@@ -76,6 +76,7 @@ function display_details($company_id, $trans_no) {
 
     $k = 0;
 
+    set_global_connection($company_id);
     while ($row = db_fetch_assoc($result)) {
         alt_table_row_color($k);
 
@@ -101,8 +102,6 @@ function display_details($company_id, $trans_no) {
             "class='tableheader2'", "colspan='7'"
         );
         end_row();
-
-        
     }
 
     end_table();

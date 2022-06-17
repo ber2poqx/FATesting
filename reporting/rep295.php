@@ -94,7 +94,8 @@ function print_transaction() {
     );
     $branch = '';
 
-    while ($trans = db_fetch($res)) {
+    set_global_connection($branch_id);
+    while ($trans = db_fetch_assoc($res)) {
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($trans['serialise_item_code']));
         $is_cleared = $trans['cleared'] == 1 ? _("Yes") : _("No");
