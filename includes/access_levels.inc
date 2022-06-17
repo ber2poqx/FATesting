@@ -211,6 +211,13 @@ $security_areas =array(
 	'SA_COLLECTION_PERCENTAGE' => array(SS_SALES|21, _("Collection Percentage Target")), // Added by Robert
 	'SA_COLLECTION_AMOUNT' => array(SS_SALES|22, _("Collection Amount Target")), // Added by Robert
 
+	//Added by spyrax10 17 Jun 2022
+	'SA_SI_TEMPLATE' => array(SS_SALES|23, _("Sales Invoices Template")),
+	'SA_SI_REC' => array(SS_SALES|24, _("Recurrent Invoices")),
+	'SA_SI_SD' => array(SS_SALES|25, _("Invoice Against Sales Delivery")),
+	'SA_SI_PREPAID' => array(SS_SALES|26, _("Invoice Prepaid Orders")),
+	//
+
 	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales analytical reports")),
 	'SA_SALESBULKREP' => array(SS_SALES_A|2, _("Sales document bulk reports")),
 	'SA_PRICEREP' => array(SS_SALES_A|3, _("Sales prices listing")),

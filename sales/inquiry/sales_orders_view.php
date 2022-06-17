@@ -18,15 +18,20 @@ include_once($path_to_root . "/reporting/includes/reporting.inc");
 
 $page_security = 'SA_SALESTRANSVIEW';
 
+//Modified by spyrax10 17 Jun 2022
 set_page_security( @$_POST['order_view_mode'],
-	array(	'OutstandingOnly' => 'SA_SALESDELIVERY',
-			'InvoiceTemplates' => 'SA_SALESINVOICE',
-			'DeliveryTemplates' => 'SA_SALESDELIVERY',
-			'PrepaidOrders' => 'SA_SALESINVOICE'),
-	array(	'OutstandingOnly' => 'SA_SALESDELIVERY',
-			'InvoiceTemplates' => 'SA_SALESINVOICE',
-			'DeliveryTemplates' => 'SA_SALESDELIVERY',
-			'PrepaidOrders' => 'SA_SALESINVOICE')
+	array(
+		'OutstandingOnly' => 'SA_SALESDELIVERY',
+		'InvoiceTemplates' => 'SA_SI_TEMPLATE',
+		'DeliveryTemplates' => 'SA_SALESDELIVERY',
+		'PrepaidOrders' => 'SA_SI_PREPAID'
+	),
+	array(	
+		'OutstandingOnly' => 'SA_SALESDELIVERY',
+		'InvoiceTemplates' => 'SA_SI_TEMPLATE',
+		'DeliveryTemplates' => 'SA_SALESDELIVERY',
+		'PrepaidOrders' => 'SA_SI_PREPAID'
+	)
 );
 
 if (get_post('type'))
