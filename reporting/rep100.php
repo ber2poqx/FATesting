@@ -23,18 +23,25 @@ print_transaction();
 function print_transaction() {
     global $path_to_root, $SysPrefs;
 
-    
     $date = $_POST['PARAM_0'];
     $customer = $_POST['PARAM_1'];
     $group = $_POST['PARAM_2'];
     $filter = $_POST['PARAM_3'];
-    $comments = $_POST['PARAM_4'];
-	$destination = $_POST['PARAM_5'];
+    $show_add = $_POST['PARAM_4'];
+    $comments = $_POST['PARAM_5'];
+	$destination = $_POST['PARAM_6'];
 
-    if ($destination)
-		include_once($path_to_root . "/reporting/includes/excel_report.inc");
-	else
-		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+    if ($show_add == 1) {
+        include_once($path_to_root . "/reporting/includes/excel_report.inc");
+    }
+    else {
+        if ($destination) {
+            include_once($path_to_root . "/reporting/includes/excel_report.inc");
+        }
+        else {
+            include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+        }
+    }
 	
     if ($customer == ALL_TEXT) {
         $cust = _('ALL');
@@ -57,13 +64,24 @@ function print_transaction() {
 
     $cols = array(0, 12, 70, 115, 145, 165, 
         205, 255, 285, 325, 365, 400, 440, 495,
-        530, 575, 615, 655, 700, 0 
+        530, 575, 615, 655, 700
     );
+
+    if ($show_add == 1) {
+        array_push($cols, 750, 800, 0);
+    }
+    else {
+        array_push($cols, 0);
+    }
 
     $aligns = array('left', 'left', 'left', 'center', 'center', 'center',
         'center', 'center', 'center', 'center', 'center', 'center', 'center',
         'center', 'center', 'center', 'center', 'center', 'center', 'center', 'right'
     );
+
+    if ($show_add == 1) {
+        array_push($aligns, 'center', 'left');
+    }
 
     $headers = array(
         _(""),
@@ -86,6 +104,10 @@ function print_transaction() {
         _('Past Due'),
         _('Collectibles')
     );
+
+    if ($show_add == 1) {
+        array_push($headers, "Penalty", "Address");
+    }
     
     $params = array(0 => $comments,
         1 => array('text' => _('As of Date'), 'from' => $date, 'to' => ''),
@@ -94,10 +116,14 @@ function print_transaction() {
         //4 => array('text' => _('Sales Areas'), 'from' => $sarea, 'to' => ''),
     );
     
-    $rep = new FrontReport(_('Aging Summary Report'), "AgingSumReport", 'LEGAL', 9, $orientation);
+    $rep = new FrontReport(_('Aging Summary Report'), 
+        "Aging_Summary_Detailed_" . "($date)", 
+        'LEGAL', 9, $orientation
+    );
     
-    if ($orientation == 'L')
-    	recalculate_cols($cols);
+    if ($orientation == 'L') {
+        recalculate_cols($cols);
+    }
 
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
@@ -108,9 +134,8 @@ function print_transaction() {
     else {
         $rep->SetHeaderType('PO_Header');     
     }
-	
+   
     $rep->NewPage();
-
 
     $res = get_AR_transactions($date, $customer, $group, $filter);
     $col_name = $gl_name =  $area_name = '';
@@ -309,6 +334,14 @@ function print_transaction() {
         $rep->SetTextColor(0, 0, 0);
         $rep->AmountCol(17, 18, $past_due, $dec);
         $rep->AmountCol(18, 19, $total_collectibles, $dec);
+
+        if ($show_add == 1) {
+            $rep->SetTextColor(255, 0, 0);
+            $rep->AmountCol(19, 20, 0, $dec);
+            $rep->SetTextColor(0, 0, 0);
+            $rep->TextCol(20, 21, $trans['address']);
+        }
+
         $rep->fontSize += .5;
         $rep->NewLine(.5);
 

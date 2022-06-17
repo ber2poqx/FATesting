@@ -1019,7 +1019,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     $change_term = ST_SITERMMOD;
     $restruct = ST_RESTRUCTURED;
 
-     $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DT.stock_id,
+     $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DT.stock_id, DM.address, 
             CASE 
 	            WHEN GL.gl_code = 1200 THEN 'A/R - Regular Current'
 	            WHEN GL.gl_code = 1201 THEN 'A/R - Installment Current'

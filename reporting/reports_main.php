@@ -44,6 +44,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
 			_('Customer') => 'CUSTOMERS_NO_FILTER',
 			_('Group By') => 'COA_COL',
 			_('Select Filter') => 'AGING_FILTER',
+			_('Show Customer Address?') => 'YES_NO',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'DESTINATION'
 		)	
