@@ -24,7 +24,6 @@ if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
     $js .= get_js_open_window(1200, 500);
 }
 
-
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 //--------------------------------------------------------------------------------------------------
 

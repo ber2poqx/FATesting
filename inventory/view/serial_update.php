@@ -41,8 +41,6 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
     $sql .= " WHERE serialise_id = " .db_escape($trans_no);
 
     db_query($sql, "serial_pnp_update()");
-    
-    set_global_connection();
 
     $Ajax->activate('_page_body');
     display_notification(_("Transaction ID #" . $trans_no . " sucessfully updated!"));
@@ -51,6 +49,9 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
 //----------------------------------------------------------------------------------------------------
 
 function display_details($company_id, $trans_no) {
+    
+    global $def_coy;
+    set_global_connection($company_id);
 
     $result = get_all_serial('', $company_id, $trans_no);
 
@@ -103,9 +104,13 @@ function display_details($company_id, $trans_no) {
 
     end_table();
     div_end();
+
+    set_global_connection($def_coy);
 }
 
 function display_edit_form($company_id, $status) {
+    global $def_coy;
+    set_global_connection($company_id);
 
     $serial_row = db_fetch_assoc(get_serial_details($company_id, $status));
 
@@ -117,18 +122,25 @@ function display_edit_form($company_id, $status) {
 
     end_table(1);
     div_end();
+    set_global_connection($def_coy);
+
     submit_add_or_update_center(false, '', 'both', false, false);
 }
 
 //----------------------------------------------------------------------------------------------------
 
 if (isset($_POST['UPDATE_ITEM'])) {
+    global $def_coy;
+    set_global_connection($_GET['coy']);
+
     serial_pnp_update(
         $_GET['coy'], 
         $_GET['trans_no'], 
         $_POST['cleared'] != null ? $_POST['cleared'] : 0, 
         $_POST['memo_']
     );
+
+    set_global_connection($def_coy);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -136,7 +148,7 @@ start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
 global $def_coy;
 
-$_SESSION["wa_current_user"]->company = $_GET['coy'];
+//$_SESSION["wa_current_user"]->company = $_GET['coy'];
 
 display_details($_GET['coy'], $_GET['trans_no']);
 br();
