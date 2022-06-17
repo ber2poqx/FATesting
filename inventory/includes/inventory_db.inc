@@ -834,8 +834,8 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
         $db_name = $db_connections[$branch_id]['dbname'];
         $involve_db[$branch_id] = $branch_id;
 
-        $sql .= "SELECT '$branch_code' AS branch, IS$branch_code.* 
-        FROM $db_name.item_serialise AS IS$branch_code";
+        $sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
+        FROM $db_name.item_serialise AS $branch_code";
 
         $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
 
@@ -883,6 +883,7 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
 					if ($trans_no != null) {
 						$sql .= " AND serialise_id = " .db_escape($trans_no);
 					}
+
 					$sql .= " UNION ALL "; 
 				}
 			}
@@ -891,12 +892,11 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
         $sql = rtrim($sql, " UNION ALL");
     }
     
-
     foreach($involve_db as $db_index) {
         display_error($db_index);
     }
 
-	display_error($sql);
+	display_error("SQL: " . $sql);
 
     if ($sql != '') {
         return db_query($sql, _("get_all_serial()"));
