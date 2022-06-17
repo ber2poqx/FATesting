@@ -54,6 +54,8 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
 
 function display_details($company_id, $trans_no) {
 
+    set_global_connection($company_id);
+    
     $result = get_all_serial('', $company_id, $trans_no);
 
     display_heading("Transaction Details:");
@@ -76,7 +78,6 @@ function display_details($company_id, $trans_no) {
 
     $k = 0;
 
-    set_global_connection($company_id);
     while ($row = db_fetch_assoc($result)) {
         alt_table_row_color($k);
 

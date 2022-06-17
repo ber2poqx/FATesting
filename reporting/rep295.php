@@ -86,6 +86,8 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
+    set_global_connection($branch_id);
+
     $res = get_all_serial(
         '', 
         $branch_id,
@@ -94,7 +96,6 @@ function print_transaction() {
     );
     $branch = '';
 
-    set_global_connection($branch_id);
     while ($trans = db_fetch_assoc($res)) {
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($trans['serialise_item_code']));
@@ -113,7 +114,6 @@ function print_transaction() {
         $rep->TextCol(5, 6, $trans['serialise_chasis_no']);
         $rep->TextCol(6, 7, $is_cleared);
         $rep->TextCol(7, 8, $trans['pnp_note']);
-
 
         $rep->fontSize += 1;
         $rep->NewLine();
