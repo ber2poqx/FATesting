@@ -858,7 +858,6 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
 		display_error($sql);
 
 		return db_query($sql, _("get_all_serial()"));
-		set_global_connection();
     }
     // else {
     //     for ($i = 0; $i < count($db_connections); $i++) {
