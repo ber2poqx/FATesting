@@ -823,7 +823,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 	return db_query($sql, "No transactions were returned! ");
 }
 
-function get_all_serial($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL') {
+function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL') {
 
     global $db_connections, $def_coy;
     $sql = "";

@@ -53,7 +53,7 @@ $Ajax->activate('item_tbl');
 end_row();
 end_table(); 
 
-$res_details = get_all_serial(
+$res_details = get_serial_list(
     get_post('searchval'), 
     get_post('comp_id'), null,
     get_post('cleared_id')
