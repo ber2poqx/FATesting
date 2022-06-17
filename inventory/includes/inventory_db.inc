@@ -855,34 +855,37 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
     }
     else {
         for ($i = 0; $i < count($db_connections); $i++) {
-            if ($default_table_count == count_columns($i, 'item_serialise')) {
+
+			if (check_db_exists($i)) {
+
+				if ($default_table_count == count_columns($i, 'item_serialise')) {
     
-				$branch_code = $db_connections[$i]['branch_code'];
-				$db_name = $db_connections[$i]['dbname'];
-
-				$involve_db[$i] = $i;
-
-				$sql .= "SELECT '$branch_code' AS branch, IS$branch_code.* 
-				FROM $db_name.item_serialise AS IS$branch_code";
-
-				$sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+					$branch_code = $db_connections[$i]['branch_code'];
+					$db_name = $db_connections[$i]['dbname'];
 	
-				if ($search != '') {
-					$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-					serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-					serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
-				}
-
-				if ($cleared_stat != 'ALL') {
-					$sql .= " AND cleared = " . db_escape($cleared_stat);
-				}
-
-				if ($trans_no != null) {
-					$sql .= " AND serialise_id = " .db_escape($trans_no);
+					$involve_db[$i] = $i;
+	
+					$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
+					FROM $db_name.item_serialise AS $branch_code";
+	
+					$sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+		
+					if ($search != '') {
+						$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+						serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+						serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+					}
+	
+					if ($cleared_stat != 'ALL') {
+						$sql .= " AND cleared = " . db_escape($cleared_stat);
+					}
+	
+					if ($trans_no != null) {
+						$sql .= " AND serialise_id = " .db_escape($trans_no);
+					}
+					$sql .= " UNION ALL "; 
 				}
 			}
-
-			$sql .= " UNION ALL "; 
         }
 
         $sql = rtrim($sql, " UNION ALL");
@@ -890,8 +893,10 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
     
 
     foreach($involve_db as $db_index) {
-        //display_error($db_index);
+        display_error($db_index);
     }
+
+	display_error($sql);
 
     if ($sql != '') {
         return db_query($sql, _("get_all_serial()"));
