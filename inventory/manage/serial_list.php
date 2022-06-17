@@ -21,7 +21,7 @@ $_SESSION["wa_current_user"]->company = $def_coy;
 
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
-    $js .= get_js_open_window(1200, 500);
+    $js .= get_js_open_window(1200, 300);
 }
 
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);

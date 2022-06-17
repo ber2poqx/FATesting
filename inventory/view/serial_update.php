@@ -44,7 +44,6 @@ function get_transactions($company_id, $trans_no) {
 
     set_global_connection();
 
-    display_error($sql);
 	return $result;
 }
 
@@ -77,8 +76,6 @@ function display_details($company_id, $trans_no) {
     
     $result = get_transactions($company_id, $trans_no);
 
-    display_heading("Transaction Details:");
-    br();
     div_start('serial_head');
     start_table(TABLESTYLE, "width='99%'");
 
@@ -118,7 +115,7 @@ function display_details($company_id, $trans_no) {
         end_row();
 
         start_row();
-        label_cells(_('Note: &nbsp;&nbsp;'), $row['pnp_note'], 
+        label_cells(_('Trasaction Note: &nbsp;&nbsp;'), $row['pnp_note'], 
             "class='tableheader2'", "colspan='7'"
         );
         end_row();
@@ -181,4 +178,4 @@ if ($edit_id != -1) {
 br();
 //----------------------------------------------------------------------------------------------------
 end_form();
-end_page();
+end_page(true);
