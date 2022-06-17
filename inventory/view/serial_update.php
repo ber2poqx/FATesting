@@ -76,7 +76,7 @@ function display_details($company_id, $trans_no) {
 
     $k = 0;
 
-    while ($row = db_fetch($result)) {
+    while ($row = db_fetch_assoc($result)) {
         alt_table_row_color($k);
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($row['serialise_item_code']));

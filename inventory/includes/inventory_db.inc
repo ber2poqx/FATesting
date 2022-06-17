@@ -830,7 +830,7 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
 		&& $default_table_count == count_columns($branch_id, 'item_serialise');
 
     if ($company_check) {
-		
+
 		set_global_connection($branch_id);
         $branch_code = $db_connections[$branch_id]['branch_code'];
         $db_name = $db_connections[$branch_id]['dbname'];
@@ -854,6 +854,8 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
         if ($trans_no != null) {
             $sql .= " AND serialise_id = " .db_escape($trans_no);
         }
+
+		display_error($sql);
 
 		return db_query($sql, _("get_all_serial()"));
 		set_global_connection();
