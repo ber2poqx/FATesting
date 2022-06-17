@@ -822,7 +822,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 
 function get_all_serial($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL') {
 
-    global $db_connections;
+    global $db_connections, $def_coy;
     $sql = "";
     $involve_db = array();
     $default_table_count = count_columns(0, 'item_serialise');
@@ -833,7 +833,7 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
 
 		set_global_connection($branch_id);
         $branch_code = $db_connections[$branch_id]['branch_code'];
-        $db_name = $db_connections[$branch_id]['dbname'];
+
         $involve_db[$branch_id] = $branch_id;
 
         $sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
@@ -854,8 +854,6 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
         if ($trans_no != null) {
             $sql .= " AND serialise_id = " .db_escape($trans_no);
         }
-
-		display_error($sql);
 
 		return db_query($sql, _("get_all_serial()"));
     }

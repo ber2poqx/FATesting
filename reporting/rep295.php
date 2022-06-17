@@ -21,12 +21,14 @@ print_transaction();
 
 function print_transaction() {
 
-    global $path_to_root, $SysPrefs;
+    global $path_to_root, $SysPrefs, $def_coy;
 
     $branch_id = $_POST['PARAM_0'];
     $cleared_stat = $_POST['PARAM_1'];
     $comments = $_POST['PARAM_2'];
 	$destination = $_POST['PARAM_3'];
+
+    $_SESSION["wa_current_user"]->company = $branch_id;
 
     if ($destination) {
         include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -86,8 +88,6 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    set_global_connection($branch_id);
-
     $res = get_all_serial(
         '', 
         $branch_id,
@@ -120,5 +120,4 @@ function print_transaction() {
     }
 
     $rep->End();
-
 }

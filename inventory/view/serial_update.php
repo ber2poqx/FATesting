@@ -49,13 +49,10 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
     display_notification(_("Transaction ID #" . $trans_no . " sucessfully updated!"));
 }
 
-
 //----------------------------------------------------------------------------------------------------
 
 function display_details($company_id, $trans_no) {
 
-    set_global_connection($company_id);
-    
     $result = get_all_serial('', $company_id, $trans_no);
 
     display_heading("Transaction Details:");
@@ -135,10 +132,12 @@ if (isset($_POST['UPDATE_ITEM'])) {
     );
 }
 
-
 //----------------------------------------------------------------------------------------------------
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
+global $def_coy;
+
+$_SESSION["wa_current_user"]->company = $_GET['coy'];
 
 display_details($_GET['coy'], $_GET['trans_no']);
 br();
@@ -148,7 +147,7 @@ if ($edit_id != -1) {
     $id = get_post('selected_id', find_submit('Edit'));
     display_edit_form($_GET['coy'], $id);
 }
-
+br();
 //----------------------------------------------------------------------------------------------------
 end_form();
-end_page(true);
+end_page();

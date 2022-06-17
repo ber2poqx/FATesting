@@ -23,18 +23,11 @@ if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 //--------------------------------------------------------------------------------------------------
 
-// if (get_post('comp_id')) {
-//     $default_table_count = count_columns(0, 'item_serialise');
-//     $company_check = get_post('comp_id') != null 
-//         && $default_table_count == count_columns(get_post('comp_id'), 'item_serialise');
-    
-//     if(!$company_check) {
-//         display_error(_("No rows return in Selected Branch! Displaying all data..."));
-//     }
-// }
-//--------------------------------------------------------------------------------------------------
-
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
+
+global $Ajax, $def_coy;
+
+$_SESSION["wa_current_user"]->company = $def_coy;
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
@@ -55,7 +48,6 @@ end_table();
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-global $Ajax;
 $Ajax->activate('item_tbl');
 
 end_row();
@@ -108,9 +100,10 @@ while ($row = db_fetch_assoc($res_details)) {
     label_cell(serial_update_cell(get_comp_id($row['branch']), $row['serialise_id']), "nowrap");
 }
 
-
 end_table();
 div_end();
+
+br();
 
 end_form();
 //--------------------------------------------------------------------------------------------------
