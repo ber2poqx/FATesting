@@ -23,15 +23,15 @@ if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 //--------------------------------------------------------------------------------------------------
 
-if (get_post('comp_id')) {
-    $default_table_count = count_columns(0, 'item_serialise');
-    $company_check = get_post('comp_id') != null 
-        && $default_table_count == count_columns(get_post('comp_id'), 'item_serialise');
+// if (get_post('comp_id')) {
+//     $default_table_count = count_columns(0, 'item_serialise');
+//     $company_check = get_post('comp_id') != null 
+//         && $default_table_count == count_columns(get_post('comp_id'), 'item_serialise');
     
-    if(!$company_check) {
-        display_error(_("No rows return in Selected Branch! Displaying all data..."));
-    }
-}
+//     if(!$company_check) {
+//         display_error(_("No rows return in Selected Branch! Displaying all data..."));
+//     }
+// }
 //--------------------------------------------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
