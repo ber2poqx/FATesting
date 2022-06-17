@@ -17,7 +17,7 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
-    $js .= get_js_open_window(900, 500);
+    $js .= get_js_open_window(1200, 500);
 }
 
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
@@ -40,7 +40,7 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 ref_cells(_("Search Here: &nbsp;"), 'searchval', '', null, '', true);
-company_list_row(_('&nbsp; Origin Branch: '), 'comp_id', true, true, false);
+company_list_row(_('&nbsp; Origin Branch: '), 'comp_id', true, false, false);
 value_type_list(_("&nbsp; Clearance Status: "), 'cleared_id', 
     array(
         'ALL' => 'All Clearance Status',

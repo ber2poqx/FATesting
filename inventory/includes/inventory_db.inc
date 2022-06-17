@@ -830,6 +830,7 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
 		&& $default_table_count == count_columns($branch_id, 'item_serialise');
 
     if ($company_check) {
+		set_global_connection($branch_id);
         $branch_code = $db_connections[$branch_id]['branch_code'];
         $db_name = $db_connections[$branch_id]['dbname'];
         $involve_db[$branch_id] = $branch_id;
@@ -852,53 +853,50 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
         if ($trans_no != null) {
             $sql .= " AND serialise_id = " .db_escape($trans_no);
         }
+
+		return db_query($sql, _("get_all_serial()"));
+		set_global_connection();
     }
-    else {
-        for ($i = 0; $i < count($db_connections); $i++) {
+    // else {
+    //     for ($i = 0; $i < count($db_connections); $i++) {
 
-			if (check_db_exists($i)) {
+	// 		if (check_db_exists($i)) {
 
-				if ($default_table_count == count_columns($i, 'item_serialise')) {
+	// 			if ($default_table_count == count_columns($i, 'item_serialise')) {
     
-					$branch_code = $db_connections[$i]['branch_code'];
-					$db_name = $db_connections[$i]['dbname'];
+	// 				$branch_code = $db_connections[$i]['branch_code'];
+	// 				$db_name = $db_connections[$i]['dbname'];
 	
-					$involve_db[$i] = $i;
+	// 				$involve_db[$i] = $i;
 	
-					$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
-					FROM $db_name.item_serialise AS $branch_code";
+	// 				$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
+	// 				FROM $db_name.item_serialise AS $branch_code";
 	
-					$sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+	// 				$sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
 		
-					if ($search != '') {
-						$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-						serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-						serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
-					}
+	// 				if ($search != '') {
+	// 					$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+	// 					serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+	// 					serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+	// 				}
 	
-					if ($cleared_stat != 'ALL') {
-						$sql .= " AND cleared = " . db_escape($cleared_stat);
-					}
+	// 				if ($cleared_stat != 'ALL') {
+	// 					$sql .= " AND cleared = " . db_escape($cleared_stat);
+	// 				}
 	
-					if ($trans_no != null) {
-						$sql .= " AND serialise_id = " .db_escape($trans_no);
-					}
+	// 				if ($trans_no != null) {
+	// 					$sql .= " AND serialise_id = " .db_escape($trans_no);
+	// 				}
 
-					$sql .= " UNION ALL "; 
-				}
-			}
-        }
+	// 				$sql .= " UNION ALL "; 
+	// 			}
+	// 		}
+    //     }
 
-        $sql = rtrim($sql, " UNION ALL");
-    }
+    //     $sql = rtrim($sql, " UNION ALL");
+    // }
     
-    foreach($involve_db as $db_index) {
-        display_error($db_index);
-    }
-
-	display_error("SQL: " . $sql);
-
-    if ($sql != '') {
-        return db_query($sql, _("get_all_serial()"));
-    }
+    // foreach($involve_db as $db_index) {
+    //     display_error($db_index);
+    // }
 }

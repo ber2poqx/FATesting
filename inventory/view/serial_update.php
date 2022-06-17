@@ -56,8 +56,10 @@ function display_details($company_id, $trans_no) {
 
     $result = get_all_serial('', $company_id, $trans_no);
 
+    display_heading("Transaction Details:");
+    br();
     div_start('serial_head');
-    start_table(TABLESTYLE, "width='95%'");
+    start_table(TABLESTYLE, "width='99%'");
 
     $th = array(
         _("ID"),
@@ -92,10 +94,15 @@ function display_details($company_id, $trans_no) {
         label_cell($row['serialise_chasis_no'], "nowrap");
         label_cell($is_cleared, "align='center'");
         edit_button_cell("Edit".$row['serialise_id'], _("Edit"), _('Update line'));
+        end_row();
 
         start_row();
-        label_cells(_('Note: &nbsp;&nbsp;'), $row['pnp_note'], "class='tableheader2'", "colspan='7'");
+        label_cells(_('Note: &nbsp;&nbsp;'), $row['pnp_note'], 
+            "class='tableheader2'", "colspan='7'"
+        );
         end_row();
+
+        
     }
 
     end_table();
