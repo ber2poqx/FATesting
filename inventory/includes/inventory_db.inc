@@ -830,13 +830,14 @@ function get_all_serial($search = '', $branch_id = null, $trans_no = null, $clea
 		&& $default_table_count == count_columns($branch_id, 'item_serialise');
 
     if ($company_check) {
+		
 		set_global_connection($branch_id);
         $branch_code = $db_connections[$branch_id]['branch_code'];
         $db_name = $db_connections[$branch_id]['dbname'];
         $involve_db[$branch_id] = $branch_id;
 
         $sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
-        FROM $db_name.item_serialise AS $branch_code";
+        FROM ".TB_PREF."item_serialise AS $branch_code";
 
         $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
 

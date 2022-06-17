@@ -72,7 +72,7 @@ function print_transaction() {
     $params = array( 
 		0 => $comments,
         1 => array('text' => _('Origin Branch'), 'from' => $branch_name, 'to' => ''),
-        2 => array('text' => _('Clearance Status'), 'from' => $branch_name, 'to' => ''),
+        2 => array('text' => _('Clearance Status'), 'from' => $stat, 'to' => ''),
 	);
 
     $rep = new FrontReport(_('PNP Clearance Monitoring Report'), "PNP_CLEARANCE_REPORT", 'LEGAL', 9, $orientation);
