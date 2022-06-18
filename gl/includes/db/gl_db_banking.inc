@@ -1015,6 +1015,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 function get_slname_by_ref($ref)
 {
 	//Modified by spyrax10 12-11-2021
+	set_global_connection();
 	$sql = "SELECT
 			x1.sl_name
 			FROM (

@@ -709,7 +709,8 @@ function handle_new_item() {
 			get_slname_by_ref($_POST['debtor_ref']),
 			0, 
 			user_company(), 
-			''
+			'',
+			PT_CUSTOMER
 		);
 	}
 

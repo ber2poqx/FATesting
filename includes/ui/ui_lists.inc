@@ -638,10 +638,17 @@ function customer_list($name, $selected_id=null, $spec_option=false, $submit_on_
 	$show_inactive=false, $editkey = false)
 {
 	global $SysPrefs;
-	if (!empty($SysPrefs->prefs['shortname_name_in_list']))
+	
+	//Modified by spyrax10 18 Jun 2022
+	set_global_connection();
+
+	if (!empty($SysPrefs->prefs['shortname_name_in_list'])) {
 		$sql = "SELECT debtor_no, debtor_ref, name, curr_code, inactive FROM ".TB_PREF."debtors_master ";
-	else	
+	}
+	else {
 		$sql = "SELECT debtor_no, debtor_ref, curr_code, inactive FROM ".TB_PREF."debtors_master ";
+	}
+	//	
 
 	$mode = get_company_pref('no_customer_list');
 
