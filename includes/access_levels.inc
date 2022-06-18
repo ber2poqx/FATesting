@@ -242,11 +242,11 @@ $security_areas =array(
     //Added by herald for Popupview security - 11/28/2020
     'SA_SUPPPOPUPLIST' => array(SS_PURCH_C|4, _("Supplier's Masterlist Popup view")),
     
-	'SA_SUPPTRANSVIEW' => array(SS_PURCH|1, _("Supplier transactions view")),
+	'SA_SUPPTRANSVIEW' => array(SS_PURCH|1, _("Supplier Transactions View")),
 	'SA_SUPPLIER' => array(SS_PURCH|2, _("Suppliers changes")),
 	'SA_PURCHASEORDER' => array(SS_PURCH|3, _("Purchase order entry")),
-	'SA_GRN' => array(SS_PURCH|4, _("Purchase receive")),
-    'SA_SUPPLIERINVOICE' => array(SS_PURCH|5, _("Supplier invoices")),
+	'SA_GRN' => array(SS_PURCH|4, _("Purchase Receive")),
+    'SA_SUPPLIERINVOICE' => array(SS_PURCH|5, _("Supplier Invoices")),
 	'SA_GRNDELETE' => array(SS_PURCH|9, _("Deleting GRN items during invoice entry")),
 	'SA_SUPPLIERCREDIT' => array(SS_PURCH|6, _("Supplier credit notes")),
 	'SA_SUPPLIERPAYMNT' => array(SS_PURCH|7, _("Supplier payments")),
@@ -258,13 +258,19 @@ $security_areas =array(
 	'SA_PURCHASEREQUEST' => array(SS_PURCH|12, _("Purchase Request")),
 	'SA_PRTPO' => array(SS_PURCH|13, _("Purchase Request to Order")),
 	'SA_RECEIVECONSIGN' => array(SS_PURCH|14, _("Receive Consignment")),
-	'SA_DRAFTPOUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PO Status")),
-	'SA_DRAFTPRUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PR Status")),
 	'SA_RCONPO' => array(SS_PURCH|16, _("Receive Consignment to PO")),
 	'SA_COPYFROM_RCON_TO_PO' => array(SS_PURCH|17, _("Copy RR Consignment to Purchase Order")),
 	'SA_PR_BRANCH' => array(SS_PURCH|18, _("List of Branch Purchase Request")),
 	'SA_PO_BRANCH' => array(SS_PURCH|19, _("List of Branch Purchase Order")),
-
+	
+	//Modified by spyrax10 18 Jun 2022
+	'SA_DRAFTPOUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PO Status")),
+	'SA_DRAFTPRUPDATESTATUS' => array(SS_PURCH|20, _("Approval for Draft PR Status")),
+	//
+	
+	//Added by spyrax10 18 Jun 2022
+	'SA_PURCH_REPORT' => array(SS_PURCH_A|4, _("Purchases Report")),
+	//
 	'SA_SUPPLIERANALYTIC' => array(SS_PURCH_A|1, _("Supplier analytical reports")),
 	'SA_SUPPBULKREP' => array(SS_PURCH_A|2, _("Supplier document bulk reports")),
 	'SA_SUPPPAYMREP' => array(SS_PURCH_A|3, _("Supplier payments report")),

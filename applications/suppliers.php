@@ -26,8 +26,13 @@ class suppliers_app extends application
 			"purchasing/purchase_request.php?", 'SA_PURCHASEREQUEST', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Purchase &Order Entry"),
 			"purchasing/po_entry_items.php?NewOrder=Yes", 'SA_PURCHASEORDER', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(0, _("&Outstanding Purchase Orders Maintenance"),
-			"purchasing/inquiry/po_search.php?", 'SA_GRN', MENU_TRANSACTION);
+			"purchasing/inquiry/po_search.php?", 'SA_SUPPTRANSVIEW', MENU_TRANSACTION
+		);
+		//
+		
 		$this->add_lapp_function(0, _("Receiving &Report Entry"),
 			"purchasing/po_entry_items.php?NewGRN=Yes", 'SA_GRN', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Direct Supplier &Invoice"),
@@ -54,8 +59,10 @@ class suppliers_app extends application
 		$this->add_lapp_function(1, _("Supplier Allocation &Inquiry"),
 			"purchasing/inquiry/supplier_allocation_inquiry.php?", 'SA_SUPPLIERALLOC', MENU_INQUIRY);
 
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_rapp_function(1, _("Supplier and Purchasing &Reports"),
-			"reporting/reports_main.php?Class=1", 'SA_SUPPTRANSVIEW', MENU_REPORT);
+			"reporting/reports_main.php?Class=1", 'SA_PURCH_REPORT', MENU_REPORT
+		);
 
 		$this->add_module(_("Maintenance"));
 		$this->add_lapp_function(2, _("&Supplier Set-Up"),
