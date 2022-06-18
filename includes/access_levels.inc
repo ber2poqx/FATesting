@@ -184,7 +184,7 @@ $security_areas =array(
 	'SA_ITMAPSUPPORT' => array(SS_SALES_C|19, _("Item AP Support Price")), //progjr 10/26/2021
 	'SA_SALES_TARGET' => array(SS_SALES_C|20, _("Sales Target changes")), // Added by Prog6	(11/09/2021)
 
-	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales transactions view")),
+	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales Transactions View")),
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales customer and branches changes")),
 	'SA_SALESQUOTE' => array(SS_SALES|10, _("Sales quotations")),
 	'SA_SALESORDER' => array(SS_SALES|3, _("Sales orders edition")),
@@ -204,18 +204,22 @@ $security_areas =array(
 	'SA_SALES_RETURN_REPLACEMENT' => array(SS_SALES|16, _("Sales Return Replacement")),	// Added by Ronelle
 	'SA_SITERMMOD' => array(SS_SALES|17, _("Sales Invoice Term Modification")),	// Added by Ronelle
 	'SA_SALESINVOICEREPO' => array(SS_SALES|18, _("Sales Invoice Repossessed")),	// Added by Ronelle
-	'SA_RESTRUCTURED' => array(SS_SALES|17, _("Sales Invoice Restructured")),	// Added by Albert
-
+	
 	'SA_CUSTOMERSIMPORTS' => array(SS_SALES|19, _("Customer Import CSV")), // Added by Robert
 	'SA_PROOF_CASH' => array(SS_SALES|20, _("Proof of Cash Report")),      // Added by Robert
 	'SA_COLLECTION_PERCENTAGE' => array(SS_SALES|21, _("Collection Percentage Target")), // Added by Robert
 	'SA_COLLECTION_AMOUNT' => array(SS_SALES|22, _("Collection Amount Target")), // Added by Robert
 
-	//Added by spyrax10 17 Jun 2022
+	//Modified by spyrax10 17 Jun 2022
 	'SA_SI_TEMPLATE' => array(SS_SALES|23, _("Sales Invoices Template")),
 	'SA_SI_REC' => array(SS_SALES|24, _("Recurrent Invoices")),
 	'SA_SI_SD' => array(SS_SALES|25, _("Invoice Against Sales Delivery")),
 	'SA_SI_PREPAID' => array(SS_SALES|26, _("Invoice Prepaid Orders")),
+	'SA_SALES_ORDER_APPROVAL'=> array(SS_SALES|27, _("Account Specialist Approval Sales Order")), //Added by Albert
+	'SA_SR_APPROVAL' => array(SS_SALES|28, _("Sales Return Approval")),
+	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|29, _("Sales Restructured Approval")),
+	'SA_SI_UPDATE' => array(SS_SALES|30, _("Update Sales Invoice Transactions")),
+	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
 	//
 
 	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales analytical reports")),
@@ -227,13 +231,6 @@ $security_areas =array(
 	'SA_CUSTPAYMREP' => array(SS_SALES_A|7, _("Customer payments report")),
 
 	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
-	'SA_SALES_ORDER_APPROVAL'=> array(SS_SALES|14, _("Account Specialist Approval Sales Order")), //Added by Albert
-	'SA_SALES_RETURN_UPDATE_STATUS' => array(SS_SALES|16, _("Sales Return Approval")),
-	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|16, _("Sales Restructured Approval")),
-
-	//Added by spyrax10
-	'SA_SI_UPDATE' => array(SS_SALES|17, _("Update Sales Invoice Transactions")),
-	//
 
 //
 // Purchase related functions

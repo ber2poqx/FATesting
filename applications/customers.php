@@ -48,15 +48,23 @@ class customers_app extends application
 		$this->add_lapp_function(0, "","");
 		$this->add_lapp_function(0, _("&Delivery Against Sales Orders"),
 			"sales/inquiry/sales_orders_view.php?OutstandingOnly=1", 'SA_SALESDELIVERY', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(0, _("&Invoice Against Sales Delivery"),
-			"sales/inquiry/sales_deliveries_view.php?OutstandingOnly=1", 'SA_SALESINVOICE', MENU_TRANSACTION);
+			"sales/inquiry/sales_deliveries_view.php?OutstandingOnly=1", 'SA_SI_SD', MENU_TRANSACTION
+		);
 
 		$this->add_rapp_function(0, _("&Template Delivery"),
 			"sales/inquiry/sales_orders_view.php?DeliveryTemplates=Yes", 'SA_SALESDELIVERY', MENU_TRANSACTION);
+
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_rapp_function(0, _("&Template Invoice"),
-			"sales/inquiry/sales_orders_view.php?InvoiceTemplates=Yes", 'SA_SALESINVOICE', MENU_TRANSACTION);
+			"sales/inquiry/sales_orders_view.php?InvoiceTemplates=Yes", 'SA_SI_TEMPLATE', MENU_TRANSACTION
+		);
 		$this->add_rapp_function(0, _("&Create and Print Recurrent Invoices"),
-			"sales/create_recurrent_invoices.php?", 'SA_SALESINVOICE', MENU_TRANSACTION);
+			"sales/create_recurrent_invoices.php?", 'SA_SI_REC', MENU_TRANSACTION
+		);
+		//
 
 		$this->add_rapp_function(0, "","");
 
@@ -71,8 +79,12 @@ class customers_app extends application
 
 		$this->add_rapp_function(0, _("Customer &Payments"),
 			"sales/customer_payments.php?", 'SA_SALESPAYMNT', MENU_TRANSACTION);
+
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(0, _("Invoice &Prepaid Orders"),
-			"sales/inquiry/sales_orders_view.php?PrepaidOrders=Yes", 'SA_SALESINVOICE', MENU_TRANSACTION);
+			"sales/inquiry/sales_orders_view.php?PrepaidOrders=Yes", 'SA_SI_PREPAID', MENU_TRANSACTION
+		);
+		//
 		$this->add_rapp_function(0, _("Customer &Credit Notes"),
 			"sales/credit_note_entry.php?NewCredit=Yes", 'SA_SALESCREDIT', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("&Allocate Customer Payments or Credit Notes"),

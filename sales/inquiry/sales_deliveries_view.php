@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-$page_security = 'SA_SALESINVOICE';
+$page_security = 'SA_SI_SD'; //Modified by spyrax10 18 Jun 2022
 $path_to_root = "../..";
 include($path_to_root . "/includes/db_pager.inc");
 include($path_to_root . "/includes/session.inc");
