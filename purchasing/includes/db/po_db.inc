@@ -814,7 +814,7 @@ function get_po_data($db_id = "") {
 
 	global $db, $db_connections;
 
-	$sql = "SELECT a.* FROM " . TB_PREF . "purch_orders a LEFT JOIN (
+	$sql = "SELECT a.* FROM " . TB_PREF . "purch_orders a INNER JOIN (
 		SELECT A.order_no,
 			CASE WHEN A.draft_status = 0 AND A.posted = 'N' THEN 'Draft'
 				WHEN A.draft_status = 1 AND A.posted = 'N' THEN 'Approved'
@@ -836,7 +836,7 @@ function get_po_data($db_id = "") {
 
 		FROM " . TB_PREF . "purch_orders A
 		) X ON a.order_no = X.order_no
-		where x.Status <> 'Closed' limit 1";
+		where X.Status  <> 'Closed' limit 1";
 
 	$result = db_query($sql, "The Purchased Request could not be retrieved");
 
