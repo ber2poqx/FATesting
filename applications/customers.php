@@ -20,8 +20,10 @@ class customers_app extends application
 			"sales/sales_order_entry.php?NewQuotation=Yes", 'SA_SALESQUOTE', MENU_TRANSACTION);
 		// $this->add_lapp_function(0, _("Sales &Order Entry"),
 		// 	"sales/sales_order_entry.php?NewOrder=Yes", 'SA_SALESORDER', MENU_TRANSACTION);
+		
 		$this->add_lapp_function(0, _("Sales Order"),
-			"sales/inquiry/sales_orders_view.php?type=30", 'SA_SALESTRANSVIEW', MENU_TRANSACTION);
+			"sales/inquiry/sales_orders_view.php?type=30", 'SA_SALESTRANSVIEW', MENU_TRANSACTION
+		);
 		$this->add_lapp_function(0, _("Sales Delivery"),
 			"sales/sales_order_entry.php?NewDelivery=0", 'SA_SALESDELIVERY', MENU_TRANSACTION);
 		// $this->add_lapp_function(0, _("Sales &Invoice Installment"),
@@ -38,8 +40,13 @@ class customers_app extends application
 			"sales/sales_invoice_term_modification.php?", 'SA_SITERMMOD', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Sales Invoice Restructured"),//Added by Albert 12/08/2021
 			"sales/sales_invoice_restructured.php?", 'SA_RESTRUCTURED', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(0, _("Sales Order Repossessed"),	//Added by Albert
-			"sales/inquiry/sales_orders_repo_view.php?", 'SA_SALESTRANSVIEW', MENU_TRANSACTION);
+			"sales/inquiry/sales_orders_repo_view.php?", 'SA_SO_REPO_VIEW', MENU_TRANSACTION
+		);
+		//
+
 		$this->add_lapp_function(0, _("Sales Invoice Repossessed"),
 			"sales/si_repo.php?", 'SA_SALESINVOICEREPO', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Sales Return Replacement Repossessed"),
@@ -103,15 +110,23 @@ class customers_app extends application
 		$this->add_lapp_function(1, "","");
 		$this->add_lapp_function(1, _("A/R Installment Inquiry"),
 			"lending/inquiry/ar_installment_inquiry.php?", 'SA_ARINVCINQ', MENU_INQUIRY);
+
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(1, _("Sales Quotation I&nquiry"),
-			"sales/inquiry/sales_orders_view.php?type=32", 'SA_SALESTRANSVIEW', MENU_INQUIRY);
+			"sales/inquiry/sales_orders_view.php?type=32", 'SA_SO_QUOTE_VIEW', MENU_INQUIRY
+		);
+		//
+
 		$this->add_lapp_function(1, _("Customer Transaction &Inquiry"),
 			"sales/inquiry/customer_inquiry.php?", 'SA_SALESTRANSVIEW', MENU_INQUIRY);
 		$this->add_lapp_function(1, _("Customer Allocation &Inquiry"),
 			"sales/inquiry/customer_allocation_inquiry.php?", 'SA_SALESALLOC', MENU_INQUIRY);
 
+		//Modified by spyrax10 18 Jun 2022
 		$this->add_rapp_function(1, _("Customer and Sales &Reports"),
-			"reporting/reports_main.php?Class=0", 'SA_SALESTRANSVIEW', MENU_REPORT);
+			"reporting/reports_main.php?Class=0", 'SA_SALES_REPORT', MENU_REPORT
+		);
+		//
 
 		$this->add_rapp_function(1, _("Proof Of Cash And &Reports"),
 			"sales/manage/proof_of_cash.php?Class=0", 'SA_PROOF_CASH', MENU_REPORT); //Robert Added

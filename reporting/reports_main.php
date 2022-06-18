@@ -151,22 +151,24 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICEREP')) {
 		)
 	);
 
-	$reports->addReport(RC_CUSTOMER, 129, _('Item System Cost List Report'),
-		array(	
-			_('Inventory Category') => 'CATEGORIES',
-			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
-			_('Sales Price Code') => 'SYSTEMTYPES',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);
-
 	$reports->addReport(RC_CUSTOMER, 130, _('Item SRP List Report'),
 		array(	
 			_('Inventory Category') => 'CATEGORIES',
 			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
 			_('Sales Price Code') => 'SRPTYPES',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);
+}
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SYSCOST_REP')) {
+	$reports->addReport(RC_CUSTOMER, 129, _('Item System Cost List Report'),
+		array(	
+			_('Inventory Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
+			_('Sales Price Code') => 'SYSTEMTYPES',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'
@@ -352,7 +354,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_BANKREP')) {
 
 //
 
-
 //Modified by spyrax10 31 Mar 2022
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
 	
@@ -392,6 +393,9 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 		)
 	);
 
+}
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_CHECK_REG')) {
 	$reports->addReport(RC_CUSTOMER,  127, _('Check Register & Other Cash Item'),
 		array(	
 			_('Start Date') => 'DATEBEGINM',
@@ -400,7 +404,9 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
+}
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_TARGET_CR')) {
 	$reports->addReport(RC_CUSTOMER,  131, _('Collection &Report - Actual vs Target'),
 		array(	
 			_('Start Date') => 'DATEBEGIN',
@@ -412,7 +418,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_TARGET')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_TARGET_SR')) {
 	
 	//Created by Prog6 (11-10-2021) =====================================
 	$reports->addReport(RC_CUSTOMER, 123, _('Sales Report - Actual vs. Target'),
@@ -727,6 +733,12 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSANALYTIC')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
+}
+//
+
+//Modified by spyrax10 31 Mar 2022
+if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSVALREP')) {
+
 
 	$reports->addReport(RC_INVENTORY,  302, _('Inventory &Planning Report'),
 		array(	
@@ -737,11 +749,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSANALYTIC')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
-}
-//
-
-//Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSVALREP')) {
 	
 	$reports->addReport(RC_INVENTORY,  301, _('Inventory &Valuation Report'),
 		array(	
@@ -796,6 +803,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSVALREP')) {
 		)
 	);
 	
+}
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PROD_REP')) {
+
 	$reports->addReport(RC_INVENTORY, 313, _('Product &Inquiry Report'),
 		array(	
 			_('As Of Date') => 'DATEENDM',
@@ -823,6 +834,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSVALREP')) {
 		)
 	);
 }
+
 //
 
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
@@ -868,7 +880,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_MISC_REP')) {
 
 	$reports->addReport(RC_INVENTORY, 305, _('&GRN Valuation Report'),
 		array(	
@@ -905,8 +917,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESTRANSVIEW') || 
-	$_SESSION["wa_current_user"]->can_access_page('SA_SALESBULKREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_DELV')) {
 	
 	$reports->addReport(RC_INVENTORY, 110, _('Print &Delivery Notes'),
 		array(	

@@ -66,39 +66,39 @@ define('SS_REPO',	92<<8);	// transactions
 define('SS_REPO_A',	93<<8); // analytic functions/reports/inquires
 
 $security_sections = array(
- 	SS_SADMIN => _("System administration"),
- 	SS_SETUP => _("Company setup"),
- 	SS_SPEC => _("Special maintenance"),
- 	SS_SALES_C => _("Sales configuration"),
- 	SS_SALES => _("Sales transactions"),
- 	SS_SALES_A => _("Sales related reports"),
- 	SS_PURCH_C => _("Purchase configuration"),
- 	SS_PURCH => _("Purchase transactions"),
- 	SS_PURCH_A => _("Purchase analytics"),
- 	SS_ITEMS_C => _("Inventory configuration"),
- 	SS_ITEMS => _("Inventory operations"),
- 	SS_ITEMS_A => _("Inventory analytics"),
-	SS_ASSETS_C => _("Fixed Assets configuration"),
-	SS_ASSETS => _("Fixed Assets operations"),
-	SS_ASSETS_A => _("Fixed Assets analytics"),
- 	SS_MANUF_C => _("Manufacturing configuration"),
- 	SS_MANUF => _("Manufacturing transactions"),
- 	SS_MANUF_A => _("Manufacturing analytics"),
+ 	SS_SADMIN => _("System Administration"),
+ 	SS_SETUP => _("Company Setup"),
+ 	SS_SPEC => _("Special Maintenance"),
+ 	SS_SALES_C => _("Sales Configuration"),
+ 	SS_SALES => _("Sales Transactions"),
+ 	SS_SALES_A => _("Sales Related Reports"),
+ 	SS_PURCH_C => _("Purchase Configuration"),
+ 	SS_PURCH => _("Purchase Transactions"),
+ 	SS_PURCH_A => _("Purchase Analytics"),
+ 	SS_ITEMS_C => _("Inventory Configuration"),
+ 	SS_ITEMS => _("Inventory Operations"),
+ 	SS_ITEMS_A => _("Inventory Analytics"),
+	SS_ASSETS_C => _("Fixed Assets Configuration"),
+	SS_ASSETS => _("Fixed Assets Operations"),
+	SS_ASSETS_A => _("Fixed Assets Analytics"),
+ 	SS_MANUF_C => _("Manufacturing Configuration"),
+ 	SS_MANUF => _("Manufacturing Transactions"),
+ 	SS_MANUF_A => _("Manufacturing Analytics"),
 
- 	SS_DIM_C => _("Dimensions configuration"),
+ 	SS_DIM_C => _("Dimensions Configuration"),
  	SS_DIM => _("Dimensions"),
- 	SS_GL_C => _("Banking & GL configuration"),
- 	SS_GL => _("Banking & GL transactions"),
- 	SS_GL_A => _("Banking & GL analytics"),
+ 	SS_GL_C => _("Banking & GL Configuration"),
+ 	SS_GL => _("Banking & GL Transactions"),
+ 	SS_GL_A => _("Banking & GL Analytics"),
 	SS_GL_B => _("Remittance Transactions"), //Added by spyrax10 25 Mar 2022
 
- 	SS_LEND_C => _("Lending configuration"),
- 	SS_LEND => _("Lending transactions"),
- 	SS_LEND_A => _("Lending analytics"),
+ 	SS_LEND_C => _("Lending Configuration"),
+ 	SS_LEND => _("Lending Transactions"),
+ 	SS_LEND_A => _("Lending Analytics"),
 
- 	SS_REPO_C => _("Repo configuration"),
- 	SS_REPO => _("Repo transactions"),
- 	SS_REPO_A => _("Repo analytics")
+ 	SS_REPO_C => _("Repo Configuration"),
+ 	SS_REPO => _("Repo Transactions"),
+ 	SS_REPO_A => _("Repo Analytics")
 );
 
 /*
@@ -220,15 +220,21 @@ $security_areas =array(
 	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|29, _("Sales Restructured Approval")),
 	'SA_SI_UPDATE' => array(SS_SALES|30, _("Update Sales Invoice Transactions")),
 	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
+	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
+	'SA_SO_REPO_VIEW' => array(SS_SALES|32, _("Sales Order Repossessed View")),
+	'SA_SO_QUOTE_VIEW' => array(SS_SALES|33, _("Sales Quotation Inquiry")),
 	//
 
+	'SA_SALES_REPORT' => array(SS_SALES_A|8, _("Customer and Sales Report")),
 	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales analytical reports")),
 	'SA_SALESBULKREP' => array(SS_SALES_A|2, _("Sales document bulk reports")),
-	'SA_PRICEREP' => array(SS_SALES_A|3, _("Sales prices listing")),
-	'SA_SALESMANREP' => array(SS_SALES_A|4, _("Sales staff listing")),
+	'SA_PRICEREP' => array(SS_SALES_A|3, _("Sales Prices Listing")),
+	'SA_SALESMANREP' => array(SS_SALES_A|4, _("Sales Staff Listing")),
 	'SA_CUSTBULKREP' => array(SS_SALES_A|5, _("Customer bulk listing")),
 	'SA_CUSTSTATREP' => array(SS_SALES_A|6, _("Customer status report")),
 	'SA_CUSTPAYMREP' => array(SS_SALES_A|7, _("Customer payments report")),
+	'SA_SYSCOST_REP' => array(SS_SALES_A|9, _("Item System Cost List Report")),
+	'SA_PRINT_DELV' => array(SS_SALES_A|10, _("Print Delivery Notes")),
 
 	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
 
@@ -271,9 +277,15 @@ $security_areas =array(
 	//Added by spyrax10 18 Jun 2022
 	'SA_PURCH_REPORT' => array(SS_PURCH_A|4, _("Purchases Report")),
 	//
-	'SA_SUPPLIERANALYTIC' => array(SS_PURCH_A|1, _("Supplier analytical reports")),
+	'SA_SUPPLIERANALYTIC' => array(SS_PURCH_A|1, _("Supplier Analytical Reports")),
 	'SA_SUPPBULKREP' => array(SS_PURCH_A|2, _("Supplier document bulk reports")),
 	'SA_SUPPPAYMREP' => array(SS_PURCH_A|3, _("Supplier payments report")),
+	//Added by spyrax10 18 Jun 2022
+	'SA_TARGET_CR' => array(SS_PURCH_A|5, _("Collection Report - Actual vs Target")),
+	'SA_TARGET_SR' => array(SS_PURCH_A|6, _("Sales Report - Actual vs Target")),
+	'SA_CHECK_REG' => array(SS_PURCH_A|7, _("Check Register & Other Cash Item")),
+	'SA_SUPP_MISC_REP' => array(SS_PURCH_A|8, _("Supplier Miscellaneous Reports")),
+	//
 
 	//added by JR for supplier costing types on 10-13-2020
 	'SA_SUPPLIERCOSTYP' => array(SS_PURCH|11, _("Supplier Cost Types")),
@@ -322,10 +334,11 @@ $security_areas =array(
 	'SA_INVENTORY_TYPE' => array(SS_ITEMS|10, _("Inventory Adjustment Setup")),
 
 	'SA_REORDER' => array(SS_ITEMS_A|1, _("Reorder levels")),
-	'SA_ITEMSANALYTIC' => array(SS_ITEMS_A|2, _("Items analytical reports and inquiries")),
-	'SA_ITEMSVALREP' => array(SS_ITEMS_A|3, _("Inventory valuation report")),
+	'SA_ITEMSANALYTIC' => array(SS_ITEMS_A|2, _("Items Analytical Reports and Inquiries")),
+	'SA_ITEMSVALREP' => array(SS_ITEMS_A|3, _("Inventory Valuation Report")),
 	//Added by spyrax10 31 Mar 202
 	'SA_INVTY_REP' => array(SS_ITEMS_A|4, _("Inventory Reports and Inquiries")),
+	'SA_PROD_REP' => array(SS_ITEMS_A|5, _("Product and Repo Report")),
 	//
 
 //
@@ -413,7 +426,7 @@ $security_areas =array(
 	//
 
 	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL analytical reports and inquiries")),
-	'SA_TAXREP' => array(SS_GL_A|2, _("Tax reports and inquiries")),
+	'SA_TAXREP' => array(SS_GL_A|2, _("Tax Reports and Inquiries")),
 	'SA_BANKREP' => array(SS_GL_A|3, _("Bank reports and inquiries")),
 	'SA_GLREP' => array(SS_GL_A|4, _("GL reports and inquiries")),
 
