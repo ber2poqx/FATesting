@@ -220,7 +220,6 @@ $security_areas =array(
 	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|29, _("Sales Restructured Approval")),
 	'SA_SI_UPDATE' => array(SS_SALES|30, _("Update Sales Invoice Transactions")),
 	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
-	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
 	'SA_SO_REPO_VIEW' => array(SS_SALES|32, _("Sales Order Repossessed View")),
 	'SA_SO_QUOTE_VIEW' => array(SS_SALES|33, _("Sales Quotation Inquiry")),
 	//
