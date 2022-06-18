@@ -792,7 +792,7 @@ function is_Serialized_cat($category_id) {
 
 function add_stock_serialitems($type, $stock_id, $trans_no, $location,
     $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = "", 
-	$adj_item_id, $chasis_no = "", $remarks = ""
+	$adj_item_id, $chasis_no = "", $remarks = "", $pnp_note = ""
 ){
 	//$date = date2sql($date_);
 	//$man_date = date2sql($manufacture_date);
@@ -802,18 +802,19 @@ function add_stock_serialitems($type, $stock_id, $trans_no, $location,
     (
         serialise_item_code, serialise_reference, serialise_chasis_no, serialise_lot_no, 
 		serialise_qty, serialise_grn_items_id, serialise_grn_id, serialise_trans_type,
-		serialise_loc_code, remarks
+		serialise_loc_code, remarks, pnp_note
     ) VALUES (
-        ".db_escape($stock_id).",
-		".db_escape($reference).", 
-		".db_escape($chasis_no).", 
-		".db_escape($lot_no).", 
-		".db_escape($quantity).", 
-		".db_escape($adj_item_id).", 
-		".db_escape($trans_no).", 
-		".db_escape($type).", 
-		".db_escape($location).", 
-		".db_escape($remarks)."
+        " . db_escape($stock_id) . ",
+		" . db_escape($reference) . ", 
+		" . db_escape($chasis_no) . ", 
+		" . db_escape($lot_no) . ", 
+		" . db_escape($quantity) . ", 
+		" . db_escape($adj_item_id) . ", 
+		" . db_escape($trans_no) . ", 
+		" . db_escape($type) . ", 
+		" . db_escape($location) . ", 
+		" . db_escape($remarks) . " , 
+		" . db_escape($pnp_note) . "
     )";
 	
 	//added by spyrax10
