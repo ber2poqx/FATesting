@@ -1064,7 +1064,7 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 	}
 }
 //Added by Albert  05/17/2022
-function branch_pr_company_list_row($label = null, $name, $submit_on_change = false, $all_text = false, 
+function branch_company_list_row($label = null, $name, $submit_on_change = false, $all_text = false, 
 	$include_cur_comp = true, $bold = false, $row = false) {
 	
 	global $db_connections;
@@ -1085,10 +1085,19 @@ function branch_pr_company_list_row($label = null, $name, $submit_on_change = fa
 	for ($i = 0; $i < count($db_connections); $i++) {
 		if (check_db_exists($i)) {
 			if ($i != $coy) {
-	
-				if (get_pr_data($i)) {
+				//for po_branch list open transaction
+				if ($name == 'selected_po_branch' ){
+					if (get_po_data($i)) {
 
 						$db_list[$i] = $db_connections[$i]['name'];
+					}
+
+				}else{
+				//for pr_branch list open transaction
+					if (get_pr_data($i) && $name == 'selected_pr_branch') {
+
+						$db_list[$i] = $db_connections[$i]['name'];
+					}
 				}
 			}
 		}
