@@ -136,7 +136,7 @@ start_form();
 start_table(TABLESTYLE_NOBORDER);
 
 start_row();
-company_list_row(_('Branch: '), 'selected_po_branch', true, false, false);
+branch_company_list_row(_('Branch: '), 'selected_po_branch', true, false, false);
 ref_cells(_("PO #: "), 'order_number', '', null, '', true);
 ref_cells(_("PR #: "), 'pr_no', '', null, '', true);
 

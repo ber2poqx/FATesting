@@ -809,4 +809,38 @@ function Get_Policy_Cost_last_date_updated($branchCode, $categoryID, $stockID, $
 	set_global_connection();
 	return $price;
 }
+
+function get_po_data($db_id = "") {
+
+	global $db, $db_connections;
+
+	$sql = "SELECT a.* FROM " . TB_PREF . "purch_orders a LEFT JOIN (
+		SELECT A.order_no,
+			CASE WHEN A.draft_status = 0 AND A.posted = 'N' THEN 'Draft'
+				WHEN A.draft_status = 1 AND A.posted = 'N' THEN 'Approved'
+				WHEN A.draft_status = 2 AND A.posted = 'N' THEN 'Disapproved'
+				WHEN A.draft_status = 1 AND A.posted = 'Y' 
+			THEN
+				CASE WHEN (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) = 0
+				THEN 'Open'
+				
+				WHEN (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) > 0
+					AND (SELECT SUM(t1.quantity_ordered) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+					<> (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+				THEN 'Partially Received'
+					
+				WHEN (SELECT SUM(t1.quantity_ordered) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+					= (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+				THEN 'Closed' END
+			END as Status 
+
+		FROM " . TB_PREF . "purch_orders A
+		) X ON a.order_no = X.order_no
+		where x.Status <> 'Closed' limit 1";
+
+	$result = db_query($sql, "The Purchased Request could not be retrieved");
+
+	$row = db_fetch_row($result);
+	return $row[0];
+}
 /*END by Albert*/
