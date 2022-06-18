@@ -696,14 +696,16 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_REP')) {
 //Modified by spyrax10 31 Mar 2022
 if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEMSANALYTIC')) {
 	
-	$reports->addReport(RC_INVENTORY, 295, _('PNP Clearance Monitoring Report'),
-		array(	
-			_("Origin Branch: ") => 'BRANCH',
-			_("Clearance Status: ") => 'PNP_STAT',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'DESTINATION'
-		)
-	);
+	if ($_SESSION["wa_current_user"]->company == 0) {
+		$reports->addReport(RC_INVENTORY, 295, _('PNP Clearance Monitoring Report'),
+			array(	
+				_("Origin Branch: ") => 'BRANCH',
+				_("Clearance Status: ") => 'PNP_STAT',
+				_('Comments') => 'TEXTBOX',
+				_('Destination') => 'DESTINATION'
+			)
+		);
+	}
 
 	$reports->addReport(RC_INVENTORY, 296, _('Item List Detailed Report'),
 		array(	
