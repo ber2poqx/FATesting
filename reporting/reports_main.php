@@ -1065,8 +1065,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 	);
 }
 
-if ($dim == 2)
-{
+if ($dim == 2) {
 
 	//Modified by spyrax10 31 Mar 2022
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
@@ -1130,10 +1129,9 @@ if ($dim == 2)
 	}
 	
 }
-elseif ($dim == 1)
-{
+elseif ($dim == 1) {
 	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLREP')) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_REP')) {
 		$reports->addReport(RC_GL, 704, _('GL Account &Transactions'),
 			array(	
 				_('Start Date') => 'DATEBEGINM',
@@ -1207,10 +1205,9 @@ elseif ($dim == 1)
 	}
 	
 }
-else
-{
+else {
 	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLREP')) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_REP')) {
 		
 		$reports->addReport(RC_GL, 704, _('GL Account &Transactions'),
 			array(	
