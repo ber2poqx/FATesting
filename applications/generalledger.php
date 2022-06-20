@@ -19,10 +19,10 @@ class general_ledger_app extends application
 		
 		//Modified by spyrax10 21 Mar 2022
 		$this->add_lapp_function(0, _("&Disbursement Entry"),
-			"gl/inquiry/disbursement_list.php?", 'SA_PAYMENT', MENU_TRANSACTION
+			"gl/inquiry/disbursement_list.php?", 'SA_DISBURSE_LIST', MENU_TRANSACTION
 		);
 		$this->add_lapp_function(0, _("&Receipts Entry"),
-			"gl/inquiry/receipt_list.php?", 'SA_DEPOSIT', MENU_TRANSACTION
+			"gl/inquiry/receipt_list.php?", 'SA_RECEIPT_LIST', MENU_TRANSACTION
 		);
 
 		$this->add_lapp_function(0, _("Re&mittance Entry"),
@@ -50,14 +50,21 @@ class general_ledger_app extends application
 		$this->add_module(_("Inquiries and Reports"));
 		//Added by spyrax10
 		$this->add_lapp_function(1, _("&Banking Interbranch Inquiry"),
-			"gl/inquiry/interbranch_list.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+			"gl/inquiry/interbranch_list.php?", 'SA_GLANALYTIC', MENU_INQUIRY
+		);
 		//
 		$this->add_lapp_function(1, _("&Journal Inquiry"),
 			"gl/inquiry/journal_inquiry.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+		
+		//Modified by spyrax10 20 Jun 2022
 		$this->add_lapp_function(1, _("GL &Inquiry"),
-			"gl/inquiry/gl_account_inquiry.php?", 'SA_GLTRANSVIEW', MENU_INQUIRY);
+			"gl/inquiry/gl_account_inquiry.php?", 'SA_GL_LIST', MENU_INQUIRY
+		);
 		$this->add_lapp_function(1, _("Bank Account &Inquiry"),
-			"gl/inquiry/bank_inquiry.php?", 'SA_BANKTRANSVIEW', MENU_INQUIRY);
+			"gl/inquiry/bank_inquiry.php?", 'SA_BANK_LIST', MENU_INQUIRY
+		);
+		//
+
 		$this->add_lapp_function(1, _("Ta&x Inquiry"),
 			"gl/inquiry/tax_inquiry.php?", 'SA_TAXREP', MENU_INQUIRY);
 
@@ -67,8 +74,11 @@ class general_ledger_app extends application
 			"gl/inquiry/balance_sheet.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
 		$this->add_rapp_function(1, _("&Profit and Loss Drilldown"),
 			"gl/inquiry/profit_loss.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+		
 		$this->add_rapp_function(1, _("Banking &Reports"),
-			"reporting/reports_main.php?Class=5", 'SA_BANKREP', MENU_REPORT);
+			"reporting/reports_main.php?Class=5", 'SA_BANKREP', MENU_REPORT
+		);
+
 		$this->add_rapp_function(1, _("General Ledger &Reports"),
 			"reporting/reports_main.php?Class=6", 'SA_GLREP', MENU_REPORT);
 

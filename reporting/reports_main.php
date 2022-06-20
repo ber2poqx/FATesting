@@ -338,7 +338,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_TAXREP')) {
 //----Added by Robert------//
 
 //Modified by spyrax10
-if ($_SESSION["wa_current_user"]->can_access_page('SA_BANKREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_DCPR')) {
 	
 	$reports->addReport(RC_CUSTOMER, 116, _('&Daily Cash Position Report'),
 		array(	
@@ -355,7 +355,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_BANKREP')) {
 //
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
 	
 	$reports->addReport(RC_CUSTOMER, 118, _('&Daily Summary Of Collection V2'),
 		array(	
@@ -1021,9 +1021,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_BANKREP')) {
 $reports->addReportClass(_('General Ledger'), RC_GL);
 # GL SECTION
 
-//Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_GLREP')) {
-	
+if ($_SESSION["wa_current_user"]->can_access_page('SA_COA_REP')) {
 	$reports->addReport(RC_GL, 701, _('Chart of &Accounts'),
 		array(	
 			_('Show Balances') => 'YES_NO',
@@ -1032,7 +1030,9 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLREP')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
+}
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_REP')) {
 	if ($dim == 2) {
 		$reports->addReport(RC_GL, 704, _('GL Account &Transactions'),
 			array(	
@@ -1321,6 +1321,30 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 	//=================================================================
 
 
+	//Created by Prog6 (10-14-2021) =====================================
+	$reports->addReport(RC_GL, 726, _('SL RGP Report - Realized Gross Profit (per transaction)'),
+		array(	
+			_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',			
+			_('Name') => 'CUSTOMERS_LIST',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'
+		)
+	);
+	//=================================================================
+
+	//Created by Prog6 (10-14-2021) =====================================
+	$reports->addReport(RC_GL, 727, _('RGP Report - Realized Gross Profit (summarized per year)'),
+		array(	
+			_('Select Month (mm/dd/yyyy)') => 'DATEBEGIN',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'
+		)
+	);
+	//=================================================================
+}
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 	//Modified by Prog6 (8-06-2021) =====================================
 	$reports->addReport(RC_GL, 723, _('SL Summary (Particulars)'),
 		array(	
@@ -1352,28 +1376,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 			_('Start Date') => 'DATE',
 			_('End Date') => 'DATE',
 			_('Masterfile Name') => 'CUSTOMER_SL',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'PDFDESTINATION'
-		)
-	);
-	//=================================================================
-
-	//Created by Prog6 (10-14-2021) =====================================
-	$reports->addReport(RC_GL, 726, _('SL RGP Report - Realized Gross Profit (per transaction)'),
-		array(	
-			_('Start Date') => 'DATEBEGINM',
-			_('End Date') => 'DATEENDM',			
-			_('Name') => 'CUSTOMERS_LIST',
-			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'PDFDESTINATION'
-		)
-	);
-	//=================================================================
-
-	//Created by Prog6 (10-14-2021) =====================================
-	$reports->addReport(RC_GL, 727, _('RGP Report - Realized Gross Profit (summarized per year)'),
-		array(	
-			_('Select Month (mm/dd/yyyy)') => 'DATEBEGIN',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'PDFDESTINATION'
 		)

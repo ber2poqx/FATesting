@@ -227,15 +227,16 @@ $security_areas =array(
 	//
 
 	'SA_SALES_REPORT' => array(SS_SALES_A|8, _("Customer and Sales Report")),
-	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales analytical reports")),
-	'SA_SALESBULKREP' => array(SS_SALES_A|2, _("Sales document bulk reports")),
+	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales Analytical Reports")),
+	'SA_SALESBULKREP' => array(SS_SALES_A|2, _("Sales Document Bulk Reports")),
 	'SA_PRICEREP' => array(SS_SALES_A|3, _("Sales Prices Listing")),
 	'SA_SALESMANREP' => array(SS_SALES_A|4, _("Sales Staff Listing")),
-	'SA_CUSTBULKREP' => array(SS_SALES_A|5, _("Customer bulk listing")),
-	'SA_CUSTSTATREP' => array(SS_SALES_A|6, _("Customer status report")),
-	'SA_CUSTPAYMREP' => array(SS_SALES_A|7, _("Customer payments report")),
+	'SA_CUSTBULKREP' => array(SS_SALES_A|5, _("Customer Bulk Listing")),
+	'SA_CUSTSTATREP' => array(SS_SALES_A|6, _("Customer Status Report")),
+	'SA_CUSTPAYMREP' => array(SS_SALES_A|7, _("Customer Payments Report")),
 	'SA_SYSCOST_REP' => array(SS_SALES_A|9, _("Item System Cost List Report")),
 	'SA_PRINT_DELV' => array(SS_SALES_A|10, _("Print Delivery Notes")),
+	'SA_COLLECT_REP' => array(SS_SALES_A|11, _("Daily Summary of Collection V2")),
 
 	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
 
@@ -426,17 +427,26 @@ $security_areas =array(
 	'SA_INTER_BANK_POST' => array(SS_GL|15, _("Post Bank Interbranch Transactions")),
 	//
 
-	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL analytical reports and inquiries")),
+	//Modified by spyrax10 20 Jun 2022
+	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL Analytical Reports and Inquiries")),
 	'SA_TAXREP' => array(SS_GL_A|2, _("Tax Reports and Inquiries")),
-	'SA_BANKREP' => array(SS_GL_A|3, _("Bank reports and inquiries")),
-	'SA_GLREP' => array(SS_GL_A|4, _("GL reports and inquiries")),
+	'SA_BANKREP' => array(SS_GL_A|3, _("Banking Reports")),
+	'SA_GLREP' => array(SS_GL_A|4, _("General Ledger Reports")),
+	'SA_DISBURSE_LIST' => array(SS_GL_A|5, _("Disbursement Entry Inquiry List")),
+	'SA_RECEIPT_LIST' => array(SS_GL_A|6, _("Receipt Entry Inquiry List")),
+	'SA_GL_LIST' => array(SS_GL_A|7, _("General Ledger Inquiry List")),
+	'SA_BANK_LIST' => array(SS_GL_A|8, _("Bank Account Inquiry List")),
+	'SA_DCPR' => array(SS_GL_A|9, _("Daily Cash Position Report")),
+	'SA_SL_REP' => array(SS_GL_A|10, _("SL Summary Report")),
+	'SA_COA_REP' => array(SS_GL_A|11, _("Chart of Accounts Report")),
+	'SA_GL_REP' => array(SS_GL_A|12, _("GL Transactions Report")),
+	//
 
 	//Added by spyrax10 25 Mar 2022
 	'SA_REMIT' => array(SS_GL_B|1, _("Remittance Entry")),
 	'SA_REMIT_DRAFT' => array(SS_GL_B|2, _("Remittance Entry Approval")),
-	//'SA_REMIT_POST' => array(SS_GL_B|3, _("Remittance Entry Posting")),
-	'SA_REMIT_INQ' => array(SS_GL_B|4, _("Remittance Entry Inquiry List")),
-	'SA_REMIT_VIEW' => array(SS_GL_B|5, _("Remittance Entry Viewer")),
+	'SA_REMIT_INQ' => array(SS_GL_B|3, _("Remittance Entry Inquiry List")),
+	'SA_REMIT_VIEW' => array(SS_GL_B|4, _("Remittance Entry Viewer")),
 	//
 
 //
