@@ -103,8 +103,7 @@ function trans_num($row) {
 	return get_trans_view_str(ST_INVADJUST, $row["trans_no"]);
 }
 
-function status_link($row)
-{
+function status_link($row) {
 	global $page_nested;
 
 	return $row["status"] == "Draft" ? pager_link(
@@ -164,22 +163,22 @@ function document_total($row) {
 	return $total;
 }
 
-function update_link($row)
-{
+function update_link($row) {
 	global $page_nested;
 
 	return $row["status"] == "Draft" ? trans_editor_link(ST_INVADJUST, $row["trans_no"]) : null;
 }
 
-function gl_view($row)
-{
+function gl_view($row) {
 	return $row['status'] == "Closed" && $row['Total'] > 0 
-		? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) : null;
+		? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) 
+	: null;
 }
 
 function post_smo($row) {
 	return $row['status'] == "Approved" ? pager_link( _("Post"),
-	"/inventory/adjustments_draft.php?trans_no=" . $row["trans_no"] ."&status=1", ICON_DOC) : null;
+		"/inventory/adjustments_draft.php?trans_no=" . $row["trans_no"] ."&status=1", ICON_DOC) 
+	: null;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -229,11 +228,13 @@ submit_cells('SearchOrders', _("Search"),'',_('Select documents'), 'default');
 end_row();
 end_table();
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("New Inventory Adjustment"), "../adjustments.php?NewAdjustment=1");
-end_row();
-end_table();
+if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_ADJ_ENTRY')) {
+	start_table(TABLESTYLE_NOBORDER);
+	start_row();
+	ahref_cell(_("New Inventory Adjustment"), "../adjustments.php?NewAdjustment=1");
+	end_row();
+	end_table();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

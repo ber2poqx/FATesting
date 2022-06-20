@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-$page_security = 'SA_INVENTORYADJUSTMENT';
+$page_security = 'SA_INVTY_ADJ_ENTRY';
 $path_to_root = "..";
 
 include_once($path_to_root . "/includes/ui/items_cart.inc");

@@ -310,11 +310,11 @@ $security_areas =array(
 	'SA_SISTOCKLIST' => array(SS_ITEMS_C|9, _("Available Item for SI")),
 	'SA_SRSTOCKLIST' => array(SS_ITEMS_C|10, _("Available Item for SR")),
     
-	'SA_ITEMSSTATVIEW' => array(SS_ITEMS|1, _("Stock status view")),
-	'SA_ITEMSTRANSVIEW' => array(SS_ITEMS|2, _("Stock transactions view")),
-	'SA_FORITEMCODE' => array(SS_ITEMS|3, _("Item color codes entry")),
-	'SA_LOCATIONTRANSFER' => array(SS_ITEMS|4, _("Inventory location transfers")),
-	'SA_INVENTORYADJUSTMENT' => array(SS_ITEMS|5, _("Inventory adjustments")),
+	'SA_ITEMSSTATVIEW' => array(SS_ITEMS|1, _("Stock Status View")),
+	'SA_ITEMSTRANSVIEW' => array(SS_ITEMS|2, _("Stock Transactions View")),
+	'SA_FORITEMCODE' => array(SS_ITEMS|3, _("Item Color Codes Entry")),
+	'SA_LOCATIONTRANSFER' => array(SS_ITEMS|4, _("Inventory Location Transfers")),
+	'SA_INVTY_ADJ_ENTRY' => array(SS_ITEMS|5, _("Inventory Adjustments Entry")),
     'SA_MERCHANDISETRANSFER' => array(SS_ITEMS|6, _("Merchandise Transfers")),
     'SA_MERCHANDISETRANSFERREPO' => array(SS_ITEMS|12, _("Merchandise Transfers - Repo")),
     //Added by Herald for RR Branch 02/22/2021
