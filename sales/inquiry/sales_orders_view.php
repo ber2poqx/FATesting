@@ -34,109 +34,132 @@ set_page_security( @$_POST['order_view_mode'],
 	)
 );
 
-if (get_post('type'))
+if (get_post('type')) {
 	$trans_type = $_POST['type'];
-elseif (isset($_GET['type']) && $_GET['type'] == ST_SALESQUOTE)
+}
+elseif (isset($_GET['type']) && $_GET['type'] == ST_SALESQUOTE) {
 	$trans_type = ST_SALESQUOTE;
-else
+}
+else {
 	$trans_type = ST_SALESORDER;
+}
 
-if ($trans_type == ST_SALESORDER)
-{
-	if (isset($_GET['OutstandingOnly']) && ($_GET['OutstandingOnly'] == true))
-	{
+if ($trans_type == ST_SALESORDER) {
+
+	if (isset($_GET['OutstandingOnly']) && ($_GET['OutstandingOnly'] == true)) {
 		$_POST['order_view_mode'] = 'OutstandingOnly';
 		$_SESSION['page_title'] = _($help_context = "Search Outstanding Sales Orders");
 	}
-	elseif (isset($_GET['InvoiceTemplates']) && ($_GET['InvoiceTemplates'] == true))
-	{
+	elseif (isset($_GET['InvoiceTemplates']) && ($_GET['InvoiceTemplates'] == true)) {
 		$_POST['order_view_mode'] = 'InvoiceTemplates';
 		$_SESSION['page_title'] = _($help_context = "Search Template for Invoicing");
 	}
-	elseif (isset($_GET['DeliveryTemplates']) && ($_GET['DeliveryTemplates'] == true))
-	{
+	elseif (isset($_GET['DeliveryTemplates']) && ($_GET['DeliveryTemplates'] == true)) {
 		$_POST['order_view_mode'] = 'DeliveryTemplates';
 		$_SESSION['page_title'] = _($help_context = "Select Template for Delivery");
 	}
-	elseif (isset($_GET['PrepaidOrders']) && ($_GET['PrepaidOrders'] == true))
-	{
+	elseif (isset($_GET['PrepaidOrders']) && ($_GET['PrepaidOrders'] == true)) {
 		$_POST['order_view_mode'] = 'PrepaidOrders';
 		$_SESSION['page_title'] = _($help_context = "Invoicing Prepayment Orders");
 	}
-	elseif (!isset($_POST['order_view_mode']))
-	{
+	elseif (!isset($_POST['order_view_mode'])) {
 		$_POST['order_view_mode'] = false;
 		$_SESSION['page_title'] = _($help_context = "Search All Sales Orders");
 	}
 }
-else
-{
+else {
 	$_POST['order_view_mode'] = "Quotations";
 	$_SESSION['page_title'] = _($help_context = "Search All Sales Quotations");
 }
 
 $js = "";
-if ($SysPrefs->use_popup_windows)
+if ($SysPrefs->use_popup_windows) {
 	$js .= get_js_open_window(900, 600);
-if (user_use_date_picker())
+}
+if (user_use_date_picker()) {
 	$js .= get_js_date_picker();
+}
+
 page($_SESSION['page_title'], false, false, "", $js);
 //---------------------------------------------------------------------------------------------
 //	Query format functions
 //
-function check_overdue($row)
-{
+function check_overdue($row) {
+
 	global $trans_type;
-	if ($trans_type == ST_SALESQUOTE)
+	if ($trans_type == ST_SALESQUOTE) {
 		return (date1_greater_date2(Today(), sql2date($row['delivery_date'])));
-	else
+	}
+	else {
 		return ($row['type'] == 0
 			&& date1_greater_date2(Today(), sql2date($row['delivery_date']))
-			&& ($row['TotDelivered'] < $row['TotQuantity']));
+			&& ($row['TotDelivered'] < $row['TotQuantity'])
+		);
+	}
 }
 
-function view_link($dummy, $order_no)
-{
+function view_link($dummy, $order_no) {
+
 	global $trans_type;
 	return  get_customer_trans_view_str($trans_type, $order_no);
 }
 
-function prt_link($row)
-{
+function prt_link($row) {
+
 	global $trans_type;
-	return print_document_link($row['order_no'], _("Print"), true, $trans_type, ICON_PRINT);
+	//Modified by spyrax10 20 Jun 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_SO')) {
+		$print_link = print_document_link($row['order_no'], _("Print"), true, $trans_type, ICON_PRINT);
+	}
+	else {
+		$print_link = '';
+	}
+
+	return $print_link;
 }
 
-function edit_link($row) 
-{
+function edit_link($row) {
+
 	global $page_nested;
 
-	if (is_prepaid_order_open($row['order_no']))
+	if (is_prepaid_order_open($row['order_no'])) {
 		return '';
-
+	}
 	return $page_nested ? '' : trans_editor_link($row['trans_type'], $row['order_no']);
 }
 
-function edit_link2($row) 
-{
+function edit_link2($row)  {
 	global $page_nested;
 
-	if (is_prepaid_order_open($row['order_no']))
-		return '';
-														//Added by spyrax10
-	return $page_nested || $row['status'] == "Closed" || $row['status'] == "Cancelled" ? '' : 
-		trans_editor_link2($row['trans_type'], $row['order_no'], $row['payment_type']);
+	//Modified by spyrax10 20 Jun 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESORDER')) {
+		if (is_prepaid_order_open($row['order_no'])) {
+			$edit_link = '';
+		}
+		else {
+			$edit_link = 
+				$page_nested 
+				|| $row['status'] == "Closed" 
+				|| $row['status'] == "Cancelled" ? '' 
+				: trans_editor_link2($row['trans_type'], $row['order_no'], $row['payment_type']);
+		}
+	}
+	else {
+		$edit_link = '';
+	}
+
+	return $edit_link;
 }
 
-function dispatch_link($row)
-{
+function dispatch_link($row) {
+
 	global $trans_type, $page_nested;
 
-	if ($row['ord_payments'] + $row['inv_payments'] < $row['prep_amount'])
- 		return '';
+	if ($row['ord_payments'] + $row['inv_payments'] < $row['prep_amount']) {
+		return '';
+	}
 
-	if ($trans_type == ST_SALESORDER)
-	{
+	if ($trans_type == ST_SALESORDER) {
 		if ($row['TotDelivered'] < $row['TotQuantity'] && !$page_nested)
 			if ($row["status"] == "Closed") {
 				return pager_link( _("Dispatch"),
@@ -144,132 +167,172 @@ function dispatch_link($row)
 			} else {
 				return '';
 			}
-		else
+		else {
 			return '';
+		}
 	}		
-	else
-  		return pager_link( _("Sales Order"),
-			"/sales/sales_order_entry.php?OrderNumber=" .$row['order_no'], ICON_DOC);
+	else {
+		return pager_link( _("Sales Order"),
+			"/sales/sales_order_entry.php?OrderNumber=" .$row['order_no'], ICON_DOC
+		);
+	}
 }
 
-function invoice_link($row)
-{
+function invoice_link($row) {
+
 	global $trans_type;
 	$path =  $row["payment_type"] == "CASH" ? 'sales_invoice_cash' : 'sales_order_entry';
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESINVOICE')) {
 		//modified by albert invoive repo 10/26/2021
-	if ($trans_type == ST_SALESORDER &&  $row["invoice_type"] == "new")
-  		return $row["status"] == "Approved" ? pager_link( _("Invoice"),
-		  $row["payment_type"] == "CASH" ? "/sales/sales_invoice_cash.php?NewInvoice=" .$row["order_no"] 
-		  : "/sales/sales_order_entry.php?NewInvoice=" .$row["order_no"], ICON_DOC) : '';
-	else if ($trans_type == ST_SALESORDER &&  $row["invoice_type"]== "repo")
-		// albert invoive repo
-		return $row["status"] == "Approved" && $row["invoice_type"]== "repo"? pager_link( _("Invoice Repo"),
-		$row["payment_type"] == "CASH" ? "/sales/si_repo_cash.php?NewInvoiceRepo=" .$row["order_no"] 
-		: "/sales/si_repo_install.php?NewInvoiceRepo=" .$row["order_no"], ICON_DOC) : '';
-	
-	else
-		return '';
+		if ($trans_type == ST_SALESORDER &&  $row["invoice_type"] == "new") {
+			$invoice_link = $row["status"] == "Approved" ? pager_link( _("Invoice"),
+		  		$row["payment_type"] == "CASH" ? "/sales/sales_invoice_cash.php?NewInvoice=" .$row["order_no"] 
+		  		: "/sales/sales_order_entry.php?NewInvoice=" .$row["order_no"], ICON_DOC) : 
+			'';
+		}
+		else if ($trans_type == ST_SALESORDER &&  $row["invoice_type"]== "repo") {
+			// albert invoive repo
+			$invoice_link = $row["status"] == "Approved" && $row["invoice_type"]== "repo"? pager_link( _("Invoice Repo"),
+				$row["payment_type"] == "CASH" ? "/sales/si_repo_cash.php?NewInvoiceRepo=" .$row["order_no"] 
+				: "/sales/si_repo_install.php?NewInvoiceRepo=" .$row["order_no"], ICON_DOC) : 
+			'';
+		}
+		else {
+			$invoice_link = '';
+		}
+	}
+	else {
+		$invoice_link = '';
+	}
+
+	return $invoice_link;
 }
 
-function delivery_link($row)
-{
-  return pager_link( _("Delivery"),
-	"/sales/sales_order_entry.php?NewDelivery=" .$row['order_no'], ICON_DOC);
+function delivery_link($row) {
+
+	return pager_link( _("Delivery"),
+		"/sales/sales_order_entry.php?NewDelivery=" .$row['order_no'], ICON_DOC
+	);
 }
 
-function order_link($row)
-{
-  return pager_link( _("Sales Order"),
-	"/sales/sales_order_entry.php?NewQuoteToSalesOrder=" .$row['order_no'], ICON_DOC);
+function order_link($row) {
+
+	return pager_link( _("Sales Order"),
+		"/sales/sales_order_entry.php?NewQuoteToSalesOrder=" .$row['order_no'], ICON_DOC
+	);
 }
 
-function tmpl_checkbox($row)
-{
+function tmpl_checkbox($row) {
+
 	global $trans_type, $page_nested;
 
-	if ($trans_type == ST_SALESQUOTE || !check_sales_order_type($row['order_no']))
+	if ($trans_type == ST_SALESQUOTE || !check_sales_order_type($row['order_no'])) {
 		return '';
+	}
 
-	if ($page_nested)
+	if ($page_nested) {
 		return '';
+	}
+
 	$name = "chgtpl" .$row['order_no'];
 	$value = $row['type'] ? 1:0;
 
-// save also in hidden field for testing during 'Update'
+	// save also in hidden field for testing during 'Update'
 
- return checkbox(null, $name, $value, true,
- 	_('Set this order as a template for direct deliveries/invoices'))
-	. hidden('last['.$row['order_no'].']', $value, false);
+ 	return checkbox(null, $name, $value, true,
+ 		_('Set this order as a template for direct deliveries/invoices'))
+		. hidden('last['.$row['order_no'].']', $value, false
+	);
 }
 
-function invoice_prep_link($row)
-{
+function invoice_prep_link($row) {
 	// invoicing should be available only for partially allocated orders
-	return 
-		$row['inv_payments'] < $row['total'] ?
+	return $row['inv_payments'] < $row['total'] ?
 		pager_link($row['ord_payments']  ? _("Prepayment Invoice") : _("Final Invoice"),
-		"/sales/customer_invoice.php?InvoicePrepayments=" .$row['order_no'], ICON_DOC) : '';
+		"/sales/customer_invoice.php?InvoicePrepayments=" .$row['order_no'], ICON_DOC) 
+	: '';
 }
 
-function update_status_link($row)
-{
+function update_status_link($row) {
 	global $page_nested;
 
-	return $row["status"] == "Draft" ? pager_link(
-		$row['status'],
-		"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"],
-		false
-	) : $row["status"];
+	//Modified by spyrax10 20 Jun 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_ORDER_UPDATE_STATUS')) {
+		$status_link = 
+		$row["status"] == "Draft" ? pager_link(
+			$row['status'],
+			"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"],
+			false
+		) : $row["status"];
+	}
+	else {
+		$status_link = $row["status"];
+	}
+
+	return $status_link;
 }
 
 //Added by spyrax10
 function cancel_link($row) {
 	global $page_nested;
 
-	return ($row["status"] == "Approved" || $row["status"] == "Draft")? pager_link(
-		'Cancel This Transaction',
-		"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"] . "&cancel=1",
-		ICON_CANCEL
-	) :'';
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_ORDER_UPDATE_STATUS')) {
+		$cancel_link = ($row["status"] == "Approved" || $row["status"] == "Draft")? pager_link(
+			'Cancel This Transaction',
+			"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"] . "&cancel=1",
+			ICON_CANCEL
+		) : '';
+	}
+	else {
+		$cancel_link = '';
+	}
+	
+	return $cancel_link;
 }
 //
 
 //Added by Albert 10/25/2021
-function account_specialist_approval_link($row)
-{
+function account_specialist_approval_link($row) {
 	global $page_nested;
 
-	return ($row["status"] == "Draft" || $row["status"] == "Approved") &&  $row["payment_type"] <> "CASH" ? pager_link(
-		'Approval',
-		"/sales/sales_order_approval_account_specialist.php?SONumber=" . $row["order_no"],
-		ICON_DOC
-	) :'';
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_ORDER_APPROVAL')) {
+		$approval_link = ($row["status"] == "Draft" || $row["status"] == "Approved") &&  $row["payment_type"] <> "CASH" ? pager_link(
+			'Approval',
+			"/sales/sales_order_approval_account_specialist.php?SONumber=" . $row["order_no"],
+			ICON_DOC
+		) : '';
+	}
+	else {
+		$approval_link = '';
+	}
+
+	return $approval_link;
 }
 
-function category_name($row)
-{
+function category_name($row) {
 	return get_category_name($row["category_id"]);
 }
 
 $id = find_submit('_chgtpl');
-if ($id != -1)
-{
+if ($id != -1) {
 	sales_order_set_template($id, check_value('chgtpl'.$id));
 	$Ajax->activate('orders_tbl');
 }
 
 if (isset($_POST['Update']) && isset($_POST['last'])) {
-	foreach($_POST['last'] as $id => $value)
-		if ($value != check_value('chgtpl'.$id))
+	foreach($_POST['last'] as $id => $value) {
+		if ($value != check_value('chgtpl'.$id)) {
 			sales_order_set_template($id, !check_value('chgtpl'.$id));
+		}
+	}
 }
 
 $show_dates = !in_array($_POST['order_view_mode'], array('OutstandingOnly', 'InvoiceTemplates', 'DeliveryTemplates'));
 //---------------------------------------------------------------------------------------------
 //	Order range form
 //
-if (get_post('_OrderNumber_changed') || get_post('_OrderReference_changed')) // enable/disable selection controls
-{
+if (get_post('_OrderNumber_changed') || get_post('_OrderReference_changed')) { // enable/disable selection controls
 	$disable = get_post('OrderNumber') !== '' || get_post('OrderReference') !== '';
 
   	if ($show_dates) {
@@ -286,8 +349,8 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 ref_cells(_("#:"), 'OrderNumber', '',null, '', true);
 ref_cells(_("Ref"), 'OrderReference', '',null, '', true);
-if ($show_dates)
-{
+
+if ($show_dates) {
   	date_cells(_("from:"), 'OrdersAfterDate', '', null, -user_transaction_days());
   	date_cells(_("to:"), 'OrdersToDate', '', null, 1);
 }
@@ -302,10 +365,12 @@ if($show_dates) {
 }
 stock_items_list_cells(_("Item:"), 'SelectStockFromList', null, true, true);
 
-if (!$page_nested)
+if (!$page_nested) {
 	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
-if ($trans_type == ST_SALESQUOTE)
+}
+if ($trans_type == ST_SALESQUOTE) {
 	check_cells(_("Show All:"), 'show_all');
+}
 
 submit_cells('SearchOrders', _("Search"),'',_('Select documents'), 'default');
 hidden('order_view_mode', $_POST['order_view_mode']);
@@ -315,20 +380,32 @@ end_row();
 
 end_table(1);
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("New Sales Order Installment"), "../sales_order_entry.php?NewOrder=0");
-ahref_cell(_("New Sales Order Cash"), "../sales_invoice_cash.php?NewOrder=0");
-end_row();
-end_table(1);
+//Modified by spyrax10 20 Jun 2022
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESORDER')) {
+	start_table(TABLESTYLE_NOBORDER);
+	start_row();
+	ahref_cell(_("New Sales Order Installment"), "../sales_order_entry.php?NewOrder=0");
+	ahref_cell(_("New Sales Order Cash"), "../sales_invoice_cash.php?NewOrder=0");
+	end_row();
+	end_table(1);
+}
+
 //---------------------------------------------------------------------------------------------
 //	Orders inquiry table
 //
-$sql = get_sql_for_sales_orders_view($trans_type, get_post('OrderNumber'), get_post('order_view_mode'),
-	get_post('SelectStockFromList'), get_post('OrdersAfterDate'), get_post('OrdersToDate'), get_post('OrderReference'), get_post('StockLocation'),
-	get_post('customer_id'));
+$sql = get_sql_for_sales_orders_view(
+	$trans_type, 
+	get_post('OrderNumber'), 
+	get_post('order_view_mode'),
+	get_post('SelectStockFromList'), 
+	get_post('OrdersAfterDate'), 
+	get_post('OrdersToDate'), 
+	get_post('OrderReference'), 
+	get_post('StockLocation'),
+	get_post('customer_id')
+);
 
-if ($trans_type == ST_SALESORDER)
+if ($trans_type == ST_SALESORDER) {
 	$cols = array(
 		_("Order #") => array('fun'=>'view_link', 'align'=>'right', 'ord' =>''),
 		_("Ref") => array('type' => 'sorder.reference', 'ord' => '') ,
@@ -348,7 +425,8 @@ if ($trans_type == ST_SALESORDER)
 		_("Currency") => array('align'=>'center'),
 		_("") => array('insert'=>true, 'fun'=>'edit_link2')
 	);
-else
+}
+else {
 	$cols = array(
 		_("Quote #") => array('fun'=>'view_link', 'align'=>'right', 'ord' => ''),
 		_("Ref"),
@@ -362,40 +440,48 @@ else
 		'Type' => 'skip',
 		_("Currency") => array('align'=>'center')
 	);
+}
+
 if ($_POST['order_view_mode'] == 'OutstandingOnly') {
 	array_append($cols, array(
 		array('insert'=>true, 'fun'=>'edit_link'),
 		array('insert'=>true, 'fun'=>'dispatch_link'),
-		array('insert'=>true, 'fun'=>'prt_link')));
-
-} elseif ($_POST['order_view_mode'] == 'InvoiceTemplates') {
+		array('insert'=>true, 'fun'=>'prt_link'))
+	);
+} 
+elseif ($_POST['order_view_mode'] == 'InvoiceTemplates') {
 	array_substitute($cols, 4, 1, _("Description"));
 	array_append($cols, array( array('insert'=>true, 'fun'=>'invoice_link')));
-
-} else if ($_POST['order_view_mode'] == 'DeliveryTemplates') {
+} 
+else if ($_POST['order_view_mode'] == 'DeliveryTemplates') {
 	array_substitute($cols, 4, 1, _("Description"));
 	array_append($cols, array(
-			array('insert'=>true, 'fun'=>'delivery_link'))
+		array('insert'=>true, 'fun'=>'delivery_link'))
 	);
-} else if ($_POST['order_view_mode'] == 'PrepaidOrders') {
+} 
+else if ($_POST['order_view_mode'] == 'PrepaidOrders') {
 	array_append($cols, array(
-			array('insert'=>true, 'fun'=>'invoice_prep_link'))
+		array('insert'=>true, 'fun'=>'invoice_prep_link'))
 	);
 
-} elseif ($trans_type == ST_SALESQUOTE) {
-	 array_append($cols,array(
-					array('insert'=>true, 'fun'=>'edit_link'),
-					array('insert'=>true, 'fun'=>'order_link'),
-					array('insert'=>true, 'fun'=>'prt_link')));
-} elseif ($trans_type == ST_SALESORDER) {
-	 array_append($cols,array(
+} 
+elseif ($trans_type == ST_SALESQUOTE) {
+	array_append($cols,array(
+		array('insert'=>true, 'fun'=>'edit_link'),
+		array('insert'=>true, 'fun'=>'order_link'),
+		array('insert'=>true, 'fun'=>'prt_link'))
+	);
+} 
+elseif ($trans_type == ST_SALESORDER) {
+	array_append($cols, 
+	 	array(
 			// _("Tmpl") => array('insert'=>true, 'fun'=>'tmpl_checkbox'),
-					array('insert'=>true, 'fun'=>'account_specialist_approval_link'),
-					array('insert'=>true, 'fun'=>'invoice_link'),
-					array('insert'=>true, 'fun'=>'dispatch_link'),
-					array('insert'=>true, 'fun'=>'cancel_link'), //Added by spyrax10
-					array('insert'=>true, 'fun'=>'prt_link')
-				)
+			array('insert'=>true, 'fun'=>'account_specialist_approval_link'),
+			array('insert'=>true, 'fun'=>'invoice_link'),
+			array('insert'=>true, 'fun'=>'dispatch_link'),
+			array('insert'=>true, 'fun'=>'cancel_link'), //Added by spyrax10
+			array('insert'=>true, 'fun'=>'prt_link')
+		)
 	);
 };
 

@@ -182,18 +182,18 @@ $security_areas =array(
 	'SA_ITEMDSCNT' => array(SS_SALES_C|17, _("Item Discount")), //progjr 10/19/2021
 	'SA_ITMAPSUPPORT' => array(SS_SALES_C|18, _("Item AP Support Type")), //progjr 10/26/2021
 	'SA_ITMAPSUPPORT' => array(SS_SALES_C|19, _("Item AP Support Price")), //progjr 10/26/2021
-	'SA_SALES_TARGET' => array(SS_SALES_C|20, _("Sales Target changes")), // Added by Prog6	(11/09/2021)
+	'SA_SALES_TARGET' => array(SS_SALES_C|20, _("Sales Target Changes")), // Added by Prog6	(11/09/2021)
 
 	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales Transactions View")),
-	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales customer and branches changes")),
-	'SA_SALESQUOTE' => array(SS_SALES|10, _("Sales quotations")),
-	'SA_SALESORDER' => array(SS_SALES|3, _("Sales orders edition")),
-	'SA_SALESDELIVERY' => array(SS_SALES|4, _("Sales deliveries edition")),
-	'SA_SALESINVOICE' => array(SS_SALES|5, _("Sales invoices edition")),
-	'SA_SALESCREDITINV' => array(SS_SALES|6, _("Sales credit notes against invoice")),
-	'SA_SALESCREDIT' => array(SS_SALES|7, _("Sales freehand credit notes")),
-	'SA_SALESPAYMNT' => array(SS_SALES|8, _("Customer payments entry")),
-	'SA_SALESALLOC' => array(SS_SALES|9, _("Customer payments allocation")),
+	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales Customer and Branches Changes")),
+	'SA_SALESQUOTE' => array(SS_SALES|10, _("Sales Quotations")),
+	'SA_SALESORDER' => array(SS_SALES|3, _("Sales Orders Edition")),
+	'SA_SALESDELIVERY' => array(SS_SALES|4, _("Sales Deliveries Edition")),
+	'SA_SALESINVOICE' => array(SS_SALES|5, _("Sales Invoices Edition")),
+	'SA_SALESCREDITINV' => array(SS_SALES|6, _("Sales Credit Notes Against Invoice")),
+	'SA_SALESCREDIT' => array(SS_SALES|7, _("Sales Freehand Credit Notes")),
+	'SA_SALESPAYMNT' => array(SS_SALES|8, _("Customer Payments Entry")),
+	'SA_SALESALLOC' => array(SS_SALES|9, _("Customer Payments Allocation")),
 
 	'SA_MUNIZICODE' => array(SS_SALES|11, _("Municipality and Zipcode")),
 	'SA_INSTLPOLICYLIST' => array(SS_SALES|12, _("List of Installment Policy")),	// Added by Ronelle
@@ -222,6 +222,8 @@ $security_areas =array(
 	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
 	'SA_SO_REPO_VIEW' => array(SS_SALES|32, _("Sales Order Repossessed View")),
 	'SA_SO_QUOTE_VIEW' => array(SS_SALES|33, _("Sales Quotation Inquiry")),
+	'SA_PRINT_SO' => array(SS_SALES|34, _("Print Sales Order")),
+	'SA_PRINT_SI' => array(SS_SALES|35, _("Print Sales Invoice")),
 	//
 
 	'SA_SALES_REPORT' => array(SS_SALES_A|8, _("Customer and Sales Report")),
