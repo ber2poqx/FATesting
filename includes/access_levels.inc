@@ -338,9 +338,10 @@ $security_areas =array(
 	'SA_REORDER' => array(SS_ITEMS_A|1, _("Reorder levels")),
 	'SA_ITEMSANALYTIC' => array(SS_ITEMS_A|2, _("Items Analytical Reports and Inquiries")),
 	'SA_ITEMSVALREP' => array(SS_ITEMS_A|3, _("Inventory Valuation Report")),
-	//Added by spyrax10 31 Mar 202
+	//Added by spyrax10 31 Mar 2022
 	'SA_INVTY_REP' => array(SS_ITEMS_A|4, _("Inventory Reports and Inquiries")),
 	'SA_PROD_REP' => array(SS_ITEMS_A|5, _("Product and Repo Report")),
+	'SA_INVTY_INQ' => array(SS_ITEMS_A|6, _("Inventory Adjustment Inquiry List")),
 	//
 
 //

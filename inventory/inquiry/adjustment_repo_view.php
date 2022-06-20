@@ -100,15 +100,20 @@ function trans_num($row) {
 	return get_trans_view_str(ST_INVADJUST, $row["trans_no"]);
 }
 
-function status_link($row)
-{
-	global $page_nested;
+function status_link($row) {
 
-	return $row["status"] == "Draft" ? pager_link(
-		$row['status'],
-		"/inventory/adjustments_draft.php?trans_no=" . $row["trans_no"] ."&status=0",
-		false
-	) : $row["status"];
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_DRAFT')) {
+		$status_link = $row["status"] == "Draft" ? pager_link(
+			$row['status'],
+			"/inventory/adjustments_draft.php?trans_no=" . $row["trans_no"] ."&status=0",
+			false
+		) : $row["status"];
+	}
+	else {
+		$status_link = $row['status'];
+	}
+	
+	return $status_link;
 }
 
 function approver_row($row) {
@@ -162,19 +167,42 @@ function document_total($row) {
 }
 
 function update_link($row) {
-	global $page_nested;
 
-	return $row["status"] == "Draft" ? trans_editor_link(ST_INVADJUST, $row["trans_no"]) : null;
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_UPDATE')) {
+		$edit_link = $row["status"] == "Draft" ? trans_editor_link(ST_INVADJUST, $row["trans_no"]) : null;
+	}
+	else {
+		$edit_link = '';
+	}
+
+	return $edit_link;
 }
 
 function gl_view($row) {
-	return $row['status'] == "Closed" && $row['Total'] > 0 
-		? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) : null;
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
+		$gl_link = $row['status'] == "Closed" && $row['Total'] > 0 
+			? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) 
+		: null;
+	}
+	else {
+		$gl_link = '';
+	}
+
+	return $gl_link;
 }
 
 function post_smo($row) {
-	return $row['status'] == "Approved" ? pager_link( _("Post"),
-	"/inventory/adjustments_draft.php?trans_no=" . $row["trans_no"] ."&status=1", ICON_DOC) : null;
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_POST')) {
+		$post_link = $row['status'] == "Approved" ? pager_link( _("Post"),
+			"/inventory/adjustments_draft.php?trans_no=" . $row["trans_no"] ."&status=1", ICON_DOC) 
+		: null;
+	}
+	else {
+		$post_link = '';
+	}
+
+	return $post_link;
 }
 
 //---------------------------------------------------------------------------------------------

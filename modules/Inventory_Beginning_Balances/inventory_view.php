@@ -46,9 +46,16 @@ if (get_post('stock_loc')) {
 
 //---------------------------------------------------------------------------------------------
 
-function gl_view($row)
-{
-	return $row['Total'] > 0 ? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) : null;
+function gl_view($row) {
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
+		$gl_link = $row['Total'] > 0 ? get_gl_view_str(ST_INVADJUST, $row["trans_no"]) : null;
+	}
+	else {
+		$gl_link = '';
+	}
+
+	return $gl_link;
 }
 
 function trans_num($row) {

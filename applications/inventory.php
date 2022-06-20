@@ -25,10 +25,15 @@ class inventory_app extends application
 		$this->add_lapp_function(0, _("Receiving Report - Branch"),
 		    "inventory/merchandise_transfers.php?transtype=in", 'SA_MERCHANDISETRANSFER', MENU_TRANSACTION);
 		
+		//Modified by spyrax10 20 Jun 2022
 		$this->add_rapp_function(0, _("Inventory &Adjustments"),
-			"inventory/inquiry/adjustment_view.php?", 'SA_INVENTORYADJUSTMENT', MENU_TRANSACTION); //Modified by spyrax10
+			"inventory/inquiry/adjustment_view.php?", 'SA_INVTY_INQ', MENU_TRANSACTION
+		); 
 		$this->add_rapp_function(0, _("Inventory &Adjustments - Repo"),
-			"inventory/inquiry/adjustment_repo_view.php?", 'SA_INVENTORYADJUSTMENT', MENU_TRANSACTION); //Added by spyrax10
+			"inventory/inquiry/adjustment_repo_view.php?", 'SA_INVTY_INQ', MENU_TRANSACTION
+		); 
+		//
+
 		$this->add_rapp_function(0, _("&Complimentary Items"),
 		    "inventory/complimentary_items.php", 'SA_COMPLIMENTARYITEM', MENU_TRANSACTION);
 
