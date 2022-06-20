@@ -376,46 +376,46 @@ $security_areas =array(
 
 // Dimensions
 //
-	'SA_DIMTAGS' => array(SS_DIM_C|1, _("Dimension tags")),
+	'SA_DIMTAGS' => array(SS_DIM_C|1, _("Dimension Tags")),
 
-	'SA_DIMTRANSVIEW' => array(SS_DIM|1, _("Dimension view")),
+	'SA_DIMTRANSVIEW' => array(SS_DIM|1, _("Dimension View")),
 
-	'SA_DIMENSION' => array(SS_DIM|2, _("Dimension entry")),
+	'SA_DIMENSION' => array(SS_DIM|2, _("Dimension Entry")),
 
-	'SA_DIMENSIONREP' => array(SS_DIM|3, _("Dimension reports")),
+	'SA_DIMENSIONREP' => array(SS_DIM|3, _("Dimension Reports")),
 //
 // Banking and General Ledger
 //
-	'SA_ITEMTAXTYPE' => array(SS_GL_C|1, _("Item tax type definitions")),
-	'SA_GLACCOUNT' => array(SS_GL_C|2, _("GL accounts edition")),
-	'SA_GLACCOUNTGROUP' => array(SS_GL_C|3, _("GL account groups")),
-	'SA_GLACCOUNTCLASS' => array(SS_GL_C|4, _("GL account classes")),
-	'SA_QUICKENTRY' => array(SS_GL_C|5, _("Quick GL entry definitions")),
+	'SA_ITEMTAXTYPE' => array(SS_GL_C|1, _("Item Tax Type Definitions")),
+	'SA_GLACCOUNT' => array(SS_GL_C|2, _("GL Accounts Edition")),
+	'SA_GLACCOUNTGROUP' => array(SS_GL_C|3, _("GL Account Groups")),
+	'SA_GLACCOUNTCLASS' => array(SS_GL_C|4, _("GL Account Classes")),
+	'SA_QUICKENTRY' => array(SS_GL_C|5, _("Quick GL Entry Definitions")),
 	'SA_CURRENCY' => array(SS_GL_C|6, _("Currencies")),
-	'SA_BANKACCOUNT' => array(SS_GL_C|7, _("Bank accounts")),
-	'SA_TAXRATES' => array(SS_GL_C|8, _("Tax rates")),
-	'SA_TAXGROUPS' => array(SS_GL_C|12, _("Tax groups")),
-	'SA_FISCALYEARS' => array(SS_GL_C|9, _("Fiscal years maintenance")),
-	'SA_GLSETUP' => array(SS_GL_C|10, _("Company GL setup")),
-	'SA_GLACCOUNTTAGS' => array(SS_GL_C|11, _("GL Account tags")),
-	'SA_GLCLOSE' => array(SS_GL_C|14, _("Closing GL transactions")),
-	'SA_GLREOPEN' => array(SS_GL_C|15, _("Reopening GL transactions")), // see below
-	'SA_MULTIFISCALYEARS' => array(SS_GL_C|13, _("Allow entry on non closed Fiscal years")),
+	'SA_BANKACCOUNT' => array(SS_GL_C|7, _("Bank Accounts")),
+	'SA_TAXRATES' => array(SS_GL_C|8, _("Tax Rates")),
+	'SA_TAXGROUPS' => array(SS_GL_C|12, _("Tax Groups")),
+	'SA_FISCALYEARS' => array(SS_GL_C|9, _("Fiscal Years Maintenance")),
+	'SA_GLSETUP' => array(SS_GL_C|10, _("Company GL Setup")),
+	'SA_GLACCOUNTTAGS' => array(SS_GL_C|11, _("GL Account Tags")),
+	'SA_GLCLOSE' => array(SS_GL_C|14, _("Closing GL Transactions")),
+	'SA_GLREOPEN' => array(SS_GL_C|15, _("Reopening GL Transactions")), // see below
+	'SA_MULTIFISCALYEARS' => array(SS_GL_C|13, _("Allow Entry on Non Closed Fiscal years")),
 
-	'SA_BANKTRANSVIEW' => array(SS_GL|1, _("Bank transactions view")),
-	'SA_GLTRANSVIEW' => array(SS_GL|2, _("GL postings view")),
-	'SA_EXCHANGERATE' => array(SS_GL|3, _("Exchange rate table changes")),
-	'SA_PAYMENT' => array(SS_GL|4, _("Bank payments")),
-	'SA_DEPOSIT' => array(SS_GL|5, _("Bank deposits")),
-	'SA_BANKTRANSFER' => array(SS_GL|6, _("Bank account transfers")),
-	'SA_RECONCILE' => array(SS_GL|7, _("Bank reconciliation")),
+	'SA_BANKTRANSVIEW' => array(SS_GL|1, _("Bank Transactions View")),
+	'SA_GLTRANSVIEW' => array(SS_GL|2, _("GL Postings View")),
+	'SA_EXCHANGERATE' => array(SS_GL|3, _("Exchange Rate Table Changes")),
+	'SA_PAYMENT' => array(SS_GL|4, _("Bank Payments")),
+	'SA_DEPOSIT' => array(SS_GL|5, _("Bank Deposits")),
+	'SA_BANKTRANSFER' => array(SS_GL|6, _("Bank Account Transfers")),
+	'SA_RECONCILE' => array(SS_GL|7, _("Bank Reconciliation")),
 	'SA_JOURNALENTRY' => array(SS_GL|8, _("Manual Journal Entries")),
 	//Added by spyrax10 11 Jun 2022
 	'SA_JE_UPDATE' => array(SS_GL|16, _("Journal Entries Update")),
 	//
-	'SA_BUDGETENTRY' => array(SS_GL|9, _("Budget edition")),
-	'SA_STANDARDCOST' => array(SS_GL|10, _("Item standard cost")),
-	'SA_BANKJOURNAL' => array(SS_GL|11, _("Journal entries to bank related accounts")),
+	'SA_BUDGETENTRY' => array(SS_GL|9, _("Budget Edition")),
+	'SA_STANDARDCOST' => array(SS_GL|10, _("Item Standard Cost")),
+	'SA_BANKJOURNAL' => array(SS_GL|11, _("Journal Entries to Bank Related Accounts")),
 	'SA_ACCRUALS' => array(SS_GL|12, _("Revenue / Cost Accruals")),
 
 	/* Added by Ronelle 2/20/2021 for MCode Listing */
