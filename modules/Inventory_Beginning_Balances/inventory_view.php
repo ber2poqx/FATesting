@@ -4,7 +4,7 @@
  * Name: Inventory_Opening_Balances_viewer
  */
 
-$page_security = 'SA_INVTYOPEN';
+$page_security = 'SA_INVTYOPEN_LIST';
 $path_to_root = "../..";
 
 include($path_to_root . "/includes/db_pager.inc");
@@ -146,12 +146,13 @@ submit_cells('SearchOrders', _("Search"),'',_('Select documents'), 'default');
 end_row();
 end_table();
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("New Inventory Opening"), "../../modules/Inventory_Beginning_Balances/inventory.php?");
-end_row();
-end_table();
-
+if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTYOPEN_ENTRY')) {
+	start_table(TABLESTYLE_NOBORDER);
+	start_row();
+	ahref_cell(_("New Inventory Opening"), "../../modules/Inventory_Beginning_Balances/inventory.php?");
+	end_row();
+	end_table();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

@@ -4,7 +4,7 @@
  * Name: Inventory_Opening_Balances
  */
 
-$page_security = 'SA_INVTYOPEN';
+$page_security = 'SA_INVTYOPEN_ENTRY';
 $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/ui/items_cart.inc");
