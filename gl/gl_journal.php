@@ -176,12 +176,21 @@ function create_cart($type = 0, $trans_no = 0) {
 
 			while ($row = db_fetch($result)) {
 
+				if ($row['person_type_id'] == PT_CUSTOMER) {
+					$cust_row = get_customer($row['mcode']);
+					$mcode = $cust_row['debtor_ref'];
+				}
+				else {
+					$mcode = $row['mcode'];
+				}
+
 				$curr_amount = $cart->rate ? round($row['amount']/$cart->rate, $_SESSION["wa_current_user"]->prefs->price_dec()) : $row['amount'];
+				
 				if ($curr_amount)  {
 					$cart->add_gl_item($row['account'], $row['dimension_id'], $row['dimension2_id'], 
 					    $curr_amount, $row['memo_'], '', 
 						$row['person_id'], null, 
-						$row['mcode'], 
+						$mcode, 
 						$row['master_file'], 
 						$row['hocbc_id'], 
 						$row['interbranch'] == 0 ? user_company() : get_comp_id($row['mcode'])
@@ -429,11 +438,19 @@ if (isset($_POST['Process'])) {
 
 	if($new && $trans_no) {
 		meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
+	}	
+	// else {
+	// 	meta_forward($_SERVER['PHP_SELF'], "UpdatedID=$trans_no");
+	// } 
+}
+
+if (isset($_POST['UpdateJE'])) {
+	display_error("Under Construction! Please Wait...");
+
+	foreach($_SESSION['journal_items']->gl_items as $line => $item) {
+		display_error('Line: ' . $line . ' || Code: ' . $item->code_id . ' || Mcode: ' . $item->mcode);
 	}
-		
-	else {
-		meta_forward($_SERVER['PHP_SELF'], "UpdatedID=$trans_no");
-	} 
+	
 }
 
 //-----------------------------------------------------------------------------------------------

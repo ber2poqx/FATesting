@@ -249,10 +249,10 @@ function display_gl_items($title, &$order, $enable_add_item) {
 			//
     		if ($item->amount > 0) {
     			amount_cell(abs($item->amount));
-    			label_cell("");
+    			amount_cell(0);
     		}
     		else {
-    			label_cell("");
+    			amount_cell(0);
     			amount_cell(abs($item->amount));
     		}	
 
@@ -291,13 +291,13 @@ function display_gl_items($title, &$order, $enable_add_item) {
     		end_row();
 		} 
 		else {
-			gl_edit_item_controls($order, $dim, 0, $line);
+			gl_edit_item_controls($order, $dim, 0, $line, $enable_add_item);
 		}
 	}
 
 	if ($id == -1) {
 		if ($enable_add_item) {
-			gl_edit_item_controls($order, $dim, 0, -1);
+			gl_edit_item_controls($order, $dim, 0, -1, $enable_add_item);
 		}
 	}
 	    
@@ -318,7 +318,7 @@ function display_gl_items($title, &$order, $enable_add_item) {
 
 //---------------------------------------------------------------------------------
 
-function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null) {
+function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $enable_add_item) {
 	global $Ajax;
 	start_row();
 	$coy = user_company();
@@ -345,10 +345,10 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null) {
 
 			if ($item->amount > 0) {
 				$_POST['AmountDebit'] = price_format($item->amount);
-				$_POST['AmountCredit'] = "";
+				$_POST['AmountCredit'] = 0;
 			}
 			else {
-				$_POST['AmountDebit'] = "";
+				$_POST['AmountDebit'] = 0;
 				$_POST['AmountCredit'] = price_format(abs($item->amount));
 			}
 
@@ -443,8 +443,16 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null) {
 		label_cell('N/A', "align='center'");
 	}
 	
-	small_amount_cells(null, 'AmountDebit');
-	small_amount_cells(null, 'AmountCredit');
+	if ($enable_add_item) {
+		small_amount_cells(null, 'AmountDebit');
+		small_amount_cells(null, 'AmountCredit');
+	}
+	else {
+		amount_cell($_POST['AmountDebit']);
+		amount_cell($_POST['AmountCredit']);
+		hidden('AmountDebit');
+		hidden('AmountCredit');
+	}
 
 	// if (get_post('debit_stat') == 0 || !get_post('debit_stat')) {
 	// 	small_amount_cells(null, 'AmountDebit');
@@ -525,7 +533,7 @@ function update_JE_header($trans_no) {
     table_section(1);
     label_row('Journal Date: &nbsp;', phil_short_date($row['tran_date']));
 	hidden('date_', sql2date($row['tran_date']));
-    date_row(_("Set New Journal Date: &nbsp;"), 'new_je_date', '', true);
+    //date_row(_("Set New Journal Date: &nbsp;"), 'new_je_date', '', true);
 
     table_section(2);
     label_row('JE Reference: &nbsp;', $row['reference']);
