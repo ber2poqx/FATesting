@@ -1,5 +1,5 @@
 <?php
-$page_security = 'SA_ITEMSANALYTIC';
+$page_security = 'SA_SERIAL_LIST';
 
 /**
  * Created by : spyrax10

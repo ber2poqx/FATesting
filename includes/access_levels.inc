@@ -330,6 +330,8 @@ $security_areas =array(
 	'SA_INVTY_DRAFT' => array(SS_ITEMS|14, _("Approval for Inventory Adjustment Transactions")),
 	'SA_INVTY_POST' => array(SS_ITEMS|15, _("Posting for Inventory Adjustment Transactions")),
 	'SA_ITEM_UPLOAD' => array(SS_ITEMS|16, _("Import Item Master (New)")),
+	'SA_SERIAL_LIST' => array(SS_ITEMS|17, _("PNP Clearance Inquiry List")),
+	'SA_SERIAL_UPDATE' => array(SS_ITEMS|18, _("PNP Clearance Status Update")),
 	//
 
     //----Robert Added----//

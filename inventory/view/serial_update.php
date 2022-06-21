@@ -5,7 +5,7 @@
  * Date Added: 16 Jun 2022
 */
 
-$page_security = 'SA_FORITEMCODE';
+$page_security = 'SA_SERIAL_UPDATE';
 $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/session.inc");
