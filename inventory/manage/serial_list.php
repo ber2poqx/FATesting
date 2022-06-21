@@ -108,13 +108,12 @@ foreach ($res_details as $value => $data) {
     alt_table_row_color($k);
 
     if (serial_exist($data['serialise_lot_no'], '', get_comp_id($data['branch']))) {
-        
+
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($data['serialise_item_code']));
         $is_cleared = $data['cleared'] == 1 ? _("Yes") : _("No");
    
         label_cell($data['serialise_id']);
-        label_cell($data['branch']);
-        //label_cell(get_company_value(get_comp_id($data['branch']), 'name'));
+        label_cell(get_company_value(get_comp_id($data['branch']), 'name'));
         label_cell(get_category_name($stock_row['category_id']));
         label_cell($stock_row['stock_id']);
         label_cell($stock_row['color'] != '' ? $stock_row['color'] . " | " . 
