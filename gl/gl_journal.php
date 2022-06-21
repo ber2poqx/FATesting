@@ -181,7 +181,9 @@ function create_cart($type = 0, $trans_no = 0) {
 					$cart->add_gl_item($row['account'], $row['dimension_id'], $row['dimension2_id'], 
 					    $curr_amount, $row['memo_'], '', 
 						$row['person_id'], null, 
-						$row['mcode'], $row['master_file'], $row['hocbc_id'], 
+						$row['mcode'], 
+						$row['master_file'], 
+						$row['hocbc_id'], 
 						$row['interbranch'] == 0 ? user_company() : get_comp_id($row['mcode'])
 					);
 				}	
@@ -614,7 +616,8 @@ function handle_update_item() {
     	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : 0, 
 			//Added by spyrax10
 			$line_item->comp_id,
-			isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '' 
+			isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '',
+			$line_item->master_file_type
 			// 	
     	);
 
@@ -670,10 +673,13 @@ function handle_new_item() {
 		$person_type = PT_CUSTOMER;
 	}
 	else if ($_POST['class_name'] == 'Supplier') {
-
+		$person_type = PT_SUPPLIER;
 	}
 	else if ($_POST['class_name'] == 'Branch Current') {
 		$person_type = PT_BRANCH;
+	}
+	else if ($_POST['ar_inv'] != '' && $_POST['comp_id'] == $coy) {
+		$person_type = PT_CUSTOMER;
 	}
 		
 	$_SESSION['journal_items']->add_gl_item(

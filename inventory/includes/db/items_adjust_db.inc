@@ -659,7 +659,7 @@ function serial_exist($lot_no = '', $chasis_no = '') {
 	if ($chasis_no != '') {
 		$sql .= " OR A.serialise_chasis_no=" . db_escape(trim($chasis_no));
 	} 
-	$result = db_query($sql, "Can't get serail count in items_adjust! (spyrax10)");
+	$result = db_query($sql, "Can't get serial count in items_adjust! (spyrax10)");
 	$count =  db_fetch($result);
 
    	return $count[0];
