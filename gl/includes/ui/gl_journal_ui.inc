@@ -556,7 +556,7 @@ function update_JE_header($trans_no) {
         hidden('source_ref2', $row['source_ref']);
     }
     else {
-        text_row('Source Reference: &nbsp;', 'source_ref', $row['source_ref'], 30, 30);
+        text_row('Source Reference: &nbsp;', 'source_ref2', $row['source_ref'], 30, 30);
     }
 
 	hidden('ref', $row['reference']);
@@ -571,7 +571,7 @@ function gl_options_controls() {
 	div_start('footer');
 	echo "<br><table align='center'>";
 
-	textarea_row(_("Memo: &nbsp;"), 'memo_', null, 50, 3);
+	textarea_row(_("Particulars: &nbsp;"), 'memo_', null, 50, 3);
 
 	echo "</table>";
 	div_end();

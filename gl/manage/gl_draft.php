@@ -162,7 +162,8 @@ function update_gl_status($trans_no, $trans_type, $approved = 0, $comments) {
     db_query($sql, "Cannot update gl_status! (spyrax10)");
 
 	add_audit_trail($trans_type, $trans_no, Today(), "Update Banking Interbranch Entry Status to " 
-        . $status);
+        . $status
+	);
 	
 }
 
@@ -741,7 +742,7 @@ if ($edit_id != -1) {
 }
 
 start_table();
-textarea_row(_("Remarks: &nbsp;"), 'memo_', null, 50, 3);
+textarea_row(_("Particulars: &nbsp;"), 'memo_', null, 50, 3);
 end_table();
 
 echo "<br> <br>";

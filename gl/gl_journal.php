@@ -188,12 +188,16 @@ function create_cart($type = 0, $trans_no = 0) {
 				
 				if ($curr_amount)  {
 					$cart->add_gl_item($row['account'], $row['dimension_id'], $row['dimension2_id'], 
-					    $curr_amount, $row['memo_'], '', 
+					    $curr_amount, 
+						$row['memo_'], 
+						'', 
 						$row['person_id'], null, 
 						$mcode, 
 						$row['master_file'], 
 						$row['hocbc_id'], 
-						$row['interbranch'] == 0 ? user_company() : get_comp_id($row['mcode'])
+						$row['interbranch'] == 0 ? user_company() : get_comp_id($row['mcode']),
+						'',
+						$row['person_type_id']
 					);
 				}	
 			}
@@ -445,12 +449,42 @@ if (isset($_POST['Process'])) {
 }
 
 if (isset($_POST['UpdateJE'])) {
-	display_error("Under Construction! Please Wait...");
+
+	global $Ajax;
+
+	set_global_connection();
+
+	$trans_no = $_SESSION['journal_items']->order_id;
+	$row = get_JE_transactions($trans_no, true);
+
+	$sql = "UPDATE " . TB_PREF . "journal SET source_ref = " .db_escape($_POST['source_ref2']);
+	$sql .= " WHERE type = 0 AND trans_no = " .db_escape($trans_no);
+	db_query($sql, "Cannot update JE! (spyrax10)");
 
 	foreach($_SESSION['journal_items']->gl_items as $line => $item) {
-		display_error('Line: ' . $line . ' || Code: ' . $item->code_id . ' || Mcode: ' . $item->mcode);
+
+		$sql2 = "UPDATE " . TB_PREF . "gl_trans SET 
+			person_type_id = " .db_escape($item->master_file_type) . ", 
+			mcode = " .db_escape(get_person_id(PT_CUSTOMER, $item->mcode)) . ", 
+			master_file = " .db_escape($item->master_file) . ", 
+			memo_ = " .db_escape($_POST['memo_']);
+
+		$sql2 .= " WHERE type = 0 AND type_no = " .db_escape($trans_no);
+		$sql2 .= " AND account = " .db_escape($item->code_id);
+		$sql2 .= " AND amount = " .db_escape($item->amount);
+		db_query($sql2, "Cannot update JE_line! (spyrax10)");
 	}
-	
+
+	add_audit_trail(ST_JOURNAL, $trans_no, Today(), "Journal Entry Update");
+	update_comments(ST_JOURNAL, $trans_no, null, $_POST['memo_']);
+
+	meta_forward($_SERVER['PHP_SELF'], "UpdatedID=$trans_no");
+
+	// foreach($_SESSION['journal_items']->gl_items as $line => $item) {
+	// 	display_error('Line: ' . $line . ' || Code: ' . $item->code_id . ' || Mcode: ' . $item->mcode
+	// 		. ' || person_type: ' . $item->master_file_type
+	// 	);
+	// }
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -598,6 +632,8 @@ function handle_update_item() {
 
     if ($_POST['UpdateItem'] != "" && check_item_data()) {
 
+		$cust_row = get_customer('', $_POST['mcode']);
+
     	if (input_num('AmountDebit') > 0) {
 			$amount = input_num('AmountDebit');
 		}
@@ -618,6 +654,27 @@ function handle_update_item() {
 		else {
 			$masterfile =  get_slname_by_ref($_POST['mcode']);
 		}
+
+		if ($_POST['class_name'] == 'Customer') {
+			$person_type = PT_CUSTOMER;
+		}
+		else if ($_POST['class_name'] == 'Supplier') {
+			$person_type = PT_SUPPLIER;
+		}
+		else if ($_POST['class_name'] == 'Branch Current') {
+			$person_type = PT_BRANCH;
+		}
+		else {
+			if ($cust_row['debtor_no'] != null) {
+				$person_type = PT_CUSTOMER;
+			}
+			else if (gl_comp_name($_POST['mcode'], true)) {
+				$person_type = PT_BRANCH;
+			}
+			else {
+				$person_type = PT_SUPPLIER;
+			}
+		}
     		
     	$_SESSION['journal_items']->update_gl_item(
     	    $_POST['Index'], 
@@ -634,10 +691,9 @@ function handle_update_item() {
 			//Added by spyrax10
 			$line_item->comp_id,
 			isset($_POST['sug_mcode']) ? $_POST['sug_mcode'] : '',
-			$line_item->master_file_type
+			$_POST['comp_id'] != $coy ? PT_BRANCH : $person_type
 			// 	
     	);
-
     	unset($_SESSION['journal_items']->tax_info);
 		line_start_focus();
     }
@@ -659,6 +715,8 @@ function handle_new_item() {
 	}
 
 	$mcode = $masterfile = $person_type = '';
+
+	$cust_row = get_customer('', $_POST['mcode']);
 
 	//Added by spyrax10
 	$coy = user_company();
@@ -695,8 +753,16 @@ function handle_new_item() {
 	else if ($_POST['class_name'] == 'Branch Current') {
 		$person_type = PT_BRANCH;
 	}
-	else if ($_POST['ar_inv'] != '' && $_POST['comp_id'] == $coy) {
-		$person_type = PT_CUSTOMER;
+	else {
+		if ($cust_row['debtor_no'] != null) {
+			$person_type = PT_CUSTOMER;
+		}
+		else if (gl_comp_name($_POST['mcode'], true)) {
+			$person_type = PT_BRANCH;
+		}
+		else {
+			$person_type = PT_SUPPLIER;
+		}
 	}
 		
 	$_SESSION['journal_items']->add_gl_item(

@@ -56,7 +56,8 @@ function doc_ref($row) {
     $debtor_row = get_SI_by_reference($row['source_ref']);
 
     return $debtor_row["trans_no"] != null ? 
-        get_trans_view_str(ST_SALESINVOICE, $debtor_row["trans_no"], $row['source_ref']) : $row['source_ref'];
+        get_trans_view_str(ST_SALESINVOICE, $debtor_row["trans_no"], $row['source_ref']) 
+    : $row['source_ref'];
 }
 
 function is_interbranch($row) {
@@ -72,12 +73,14 @@ function gl_view($row) {
 }
 
 function gl_update($row) {
-    return trans_editor_link(ST_JOURNAL, $row["trans_no"]);
+    
+    $debtor_row = get_SI_by_reference($row['source_ref']);
+
+    return $debtor_row["trans_no"] == null ? trans_editor_link(ST_JOURNAL, $row["trans_no"]) : "";
 }
 
 #Added by Prog6 (03/31/2022)
-function print_voucher($row)
-{
+function print_voucher($row) {
 	return pager_link(
 		_("Print: Journal Voucher"),
 		"/reports/journal_voucher.php?trans_num=" . $row["trans_no"],
