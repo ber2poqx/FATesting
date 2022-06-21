@@ -30,8 +30,7 @@ print_supplier_details_listing();
 
 function get_supplier_details_for_report()
 {
-	$sql = "SELECT supplier_id,	supp_name, address, supp_address, supp_ref,
-				contact, curr_code,	dimension_id, dimension2_id, notes, gst_no
+	$sql = "SELECT *
 			FROM ".TB_PREF."suppliers
 			WHERE inactive = 0
 	 		ORDER BY supp_name";
@@ -88,22 +87,23 @@ function print_supplier_details_listing()
 	$more = (double)$more;
 	$less = (double)$less;
 
-	$cols = array(0, 150, 300, 425, 550);
+	$cols = array(0, 150, 210, 250, 290, 350, 400, 450, 525, 565, 635, 695, 725);
 
-	$headers = array(_('Mailing Address:'), _('Turnover'),	_('Contact Information'),
-		_('Physical Address'));
+	$headers = array(_('Supplier Name:'), _('Supplier Short Name'),	_('Supplier Group'),
+		_('SAPcode'), _('TIN No:'), _('Website:'), _('Payment Terms:'), _('Price contain tax included:'),
+    _('Supplier Type:'), _('Accounts Payable Account'), _('Purchase Account:'), _('Mailing Address'));
 
-	$aligns = array('left',	'left',	'left',	'left');
+	$aligns = array('left',	'left',	'left',	'left', 'left',	'left',	'left',	'left', 'left',	'left',	'left',	'left');
 
     $params =   array( 	0 => $comments,
     				    1 => array('text' => _('Activity Since'), 	'from' => $from, 		'to' => ''),
     				    2 => array('text' => _('Activity'), 		'from' => $morestr, 	'to' => $lessstr . " " . get_company_pref("curr_default")));
 
-    $rep = new FrontReport(_('Supplier Details Listing'), "SupplierDetailsListing", user_pagesize(), 9, $orientation);
+    $rep = new FrontReport(_('Supplier Details Listing'), "SupplierDetailsListing", "legal", 9, $orientation);
     if ($orientation == 'L')
     	recalculate_cols($cols);
 
-    $rep->Font();
+    $rep->fontSize -= 2;
     $rep->Info($params, $cols, $headers, $aligns);
     $rep->NewPage();
 
@@ -127,71 +127,21 @@ function print_supplier_details_listing()
 			// Here starts the new report lines
 			$contacts = get_supplier_contacts($myrow['supplier_id']);
 			$rep->TextCol(0, 1,	$myrow['supp_name']);
-			$rep->TextCol(1, 2,	_('Tax_Id') . ": " . $myrow['gst_no']);
-			$rep->TextCol(2, 3,	$myrow['contact']);
-			$rep->NewLine();
-			$adr = Explode("\n", $myrow['address']);
-			$adr2 = Explode("\n", $myrow['supp_address']);
-			$count1 = count($adr);
-			$count2 = count($adr2);
-			$count1 = max($count1, $count2);
-			$count1 = max($count1, 4); 
-			if (isset($adr[0]))
-				$rep->TextCol(0, 1, $adr[0]);
-			$rep->TextCol(1, 2,	_('Currency') . ": " . $myrow['curr_code']);
-			if (isset($contacts[0]))
-				$rep->TextCol(2, 3, $contacts[0]['name']. " " .$contacts[0]['name2']);
-			if (isset($adr2[0]))	
-				$rep->TextCol(3, 4, $adr2[0]);
-			$rep->NewLine();
-			if (isset($adr[1]))
-				$rep->TextCol(0, 1, $adr[1]);
-			if ($myrow['dimension_id'] != 0)
-			{
-				$dim = get_dimension($myrow['dimension_id']);
-				$rep->TextCol(1, 2,	_('Dimension') . ": " . $dim['name']);
-			}		
-			if (isset($contacts[0]))
-				$rep->TextCol(2, 3, _('Ph') . ": " . $contacts[0]['phone']);
-			if (isset($adr2[1]))
-				$rep->TextCol(3, 4, $adr2[1]);
-			$rep->NewLine();
-			if (isset($adr[2]))
-				$rep->TextCol(0, 1, $adr[2]);
-			if ($myrow['dimension2_id'] != 0)
-			{
-				$dim = get_dimension($myrow['dimension2_id']);
-				$rep->TextCol(1, 2,	_('Dimension') . " 2: " . $dim['name']);
-			}
-			if ($myrow['notes'] != '')
-			{
-				$oldrow = $rep->row;
-				$rep->NewLine();
-				$rep->TextColLines(1, 2, _("General Notes:")." ".$myrow['notes'], -2);
-				$newrow = $rep->row;
-				$rep->row = $oldrow;
-			}	
-			if (isset($contacts[0]))
-				$rep->TextCol(2, 3, _('Fax') . ": " . $contacts[0]['fax']);
-			if (isset($adr2[2]))
-				$rep->TextCol(3, 4, $adr2[2]);
-			if ($more != 0.0 || $less != 0.0)
-				$rep->TextCol(1, 2,	_('Turnover') . ": " . number_format2($turnover, $dec));
-			for ($i = 3; $i < $count1; $i++)
-			{
-				$rep->NewLine();
-				if (isset($adr[$i]))
-					$rep->TextCol(0, 1, $adr[$i]);
-				if ($i == 3 && isset($contacts[0]) && isset($contacts[0]['email']))	
-					$rep->TextCol(2, 3, _('Email') . ": " . $contacts[0]['email']);
-				if (isset($adr2[$i]))
-					$rep->TextCol(3, 4, $adr2[$i]);
-			}	
-			if ($newrow != 0 && $newrow < $rep->row)
-				$rep->row = $newrow;
+			$rep->TextCol(1, 2,	$myrow['supp_ref']);
+			$rep->TextCol(2, 3,	$myrow['supplier_group']);
+            $rep->TextCol(3, 4,	$myrow['SAPcode']);
+			$rep->TextCol(4, 5,	$myrow['gst_no']);
+			$rep->TextCol(5, 6,	$myrow['website']);
+            $rep->TextCol(6, 7,	$myrow['payment_terms']);
+			$rep->TextCol(7, 8,	$myrow['tax_included']);
+			$rep->TextCol(8, 9,	$myrow['supplier_type']);
+            $rep->TextCol(9, 10,	$myrow['payable_account']);
+			$rep->TextCol(10, 11,	$myrow['purchase_account']);
+			$rep->TextCol(11, 12,	$myrow['address']);
+
 			$rep->NewLine();
 			$rep->Line($rep->row + 8);
-			$rep->NewLine(0, 3);
+			$rep->NewLine(0, 2);
 		}
 	}
     $rep->End();
