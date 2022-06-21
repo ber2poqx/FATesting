@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-$page_security = 'SA_TAXREP';
+$page_security = 'SA_TAX_REP'; //Modified by spyrax10 21 Jun 2022
 // ----------------------------------------------------------------
 // $ Revision:	7.0 $
 // Creator:	Prog6

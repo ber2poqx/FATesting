@@ -277,7 +277,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESMANREP')) {
 // 			_('Orientation') => 'ORIENTATION'));
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_TAXREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
 	
 	//Modified by Prog6================================================
 	$reports->addReport(RC_CUSTOMER, 114, _('Sales &Summary Report'),
@@ -1277,7 +1277,7 @@ else {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_TAXREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
 	
 	$reports->addReport(RC_GL, 709, _('Ta&x Report'),
 		array(	

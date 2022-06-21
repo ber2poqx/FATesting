@@ -302,14 +302,15 @@ $security_areas =array(
 	'SA_MANUFACTURER' => array(SS_ITEMS_C|6, _("Manufacturer")),
 	'SA_DISTRIBUTOR' => array(SS_ITEMS_C|7, _("Distributor")),
 	'SA_IMPORTER' => array(SS_ITEMS_C|8, _("Item Importer")),
-    'SA_ITEMPOPUPVIEW' => array(SS_ITEMS_C|7, _("Stock Item Popup View")),
+    'SA_ITEMPOPUPVIEW' => array(SS_ITEMS_C|9, _("Stock Item Popup View")),
 
+	//Modified by spyrax10 21 Jun 2022
 	//added by jr for standart cost area type on 10-19-2020
-	'SA_SRPAREATYPE' => array(SS_ITEMS_C|8, _("Standard Retail Price Types")),
-
+	'SA_SRPAREATYPE' => array(SS_ITEMS_C|10, _("Standard Retail Price Types")),
 	// Added by Ronelle
-	'SA_SISTOCKLIST' => array(SS_ITEMS_C|9, _("Available Item for SI")),
-	'SA_SRSTOCKLIST' => array(SS_ITEMS_C|10, _("Available Item for SR")),
+	'SA_SISTOCKLIST' => array(SS_ITEMS_C|11, _("Available Item for SI")),
+	'SA_SRSTOCKLIST' => array(SS_ITEMS_C|12, _("Available Item for SR")),
+	//
     
 	'SA_ITEMSSTATVIEW' => array(SS_ITEMS|1, _("Stock Status View")),
 	'SA_ITEMSTRANSVIEW' => array(SS_ITEMS|2, _("Stock Transactions View")),
@@ -430,7 +431,7 @@ $security_areas =array(
 
 	//Modified by spyrax10 20 Jun 2022
 	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL Analytical Reports and Inquiries")),
-	'SA_TAXREP' => array(SS_GL_A|2, _("Tax Reports and Inquiries")),
+	'SA_TAXREP' => array(SS_GL_A|2, _("Tax Inquiries")),
 	'SA_BANKREP' => array(SS_GL_A|3, _("Banking Reports")),
 	'SA_GLREP' => array(SS_GL_A|4, _("General Ledger Reports")),
 	'SA_DISBURSE_LIST' => array(SS_GL_A|5, _("Disbursement Entry Inquiry List")),
@@ -441,6 +442,7 @@ $security_areas =array(
 	'SA_SL_REP' => array(SS_GL_A|10, _("SL Summary Report")),
 	'SA_COA_REP' => array(SS_GL_A|11, _("Chart of Accounts Report")),
 	'SA_GL_REP' => array(SS_GL_A|12, _("GL Transactions Report")),
+	'SA_TAX_REP' => array(SS_GL_A|12, _("Tax Report")),
 	//
 
 	//Added by spyrax10 25 Mar 2022
