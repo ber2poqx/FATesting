@@ -940,11 +940,10 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 							);
 						}
 					}
-					$sql .= " UNION ALL "; 
 				}
 			}
+			$sql = "";
         } // End of forloop
-
     }
 
 	// foreach($involve_db as $db_index) {
