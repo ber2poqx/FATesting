@@ -716,6 +716,23 @@ function get_stock_by_itemCode($itemCode = '') {
 	return $result;
 }
 
+function serial_exist($lot_no = '', $chasis_no = '', $company_id = -1) {
+
+	set_global_connection($company_id);
+
+	$sql = "SELECT COUNT(*) FROM item_serialise A 
+	WHERE A.serialise_lot_no = " . db_escape(trim($lot_no));
+		
+	if ($chasis_no != '') {
+		$sql .= " OR A.serialise_chasis_no = " . db_escape(trim($chasis_no));
+	} 
+	$result = db_query($sql, "Can't get serial count in items_adjust! (spyrax10)");
+	$count =  db_fetch($result);
+
+	set_global_connection();
+   	return $count[0];
+}
+
 function get_serial_details($company_id = -1, $trans_no) {
 
 	if ($company_id == -1) {
@@ -827,7 +844,7 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
     global $db_connections, $def_coy;
     $sql = "";
-    $involve_db = array();
+    $involve_db = $return_arr = array();
     $default_table_count = count_columns(0, 'item_serialise');
     $company_check = $branch_id != null 
 		&& $default_table_count == count_columns($branch_id, 'item_serialise');
@@ -859,48 +876,80 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
         }
 
 		$result = db_query($sql, _("get_all_serial()"));
-		return $result;
+		set_global_connection();
+
+		while ($row = db_fetch_assoc($result)) {
+			$return_arr[] = array(
+				'serialise_id' => $row['serialise_id'],
+				'branch' => $row['branch'],
+				'serialise_item_code' => $row['serialise_item_code'],
+				'serialise_lot_no' => $row['serialise_lot_no'],
+				'serialise_chasis_no' => $row['serialise_chasis_no'],
+				'cleared' => $row['cleared'],
+				'pnp_note' => $row['pnp_note']
+			);
+		}
+		//return $result;
     }
-    // else {
-    //     for ($i = 0; $i < count($db_connections); $i++) {
-
-	// 		if (check_db_exists($i)) {
-
-	// 			if ($default_table_count == count_columns($i, 'item_serialise')) {
-    
-	// 				$branch_code = $db_connections[$i]['branch_code'];
-	// 				$db_name = $db_connections[$i]['dbname'];
-	
-	// 				$involve_db[$i] = $i;
-	
-	// 				$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
-	// 				FROM $db_name.item_serialise AS $branch_code";
-	
-	// 				$sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
+    else {
 		
-	// 				if ($search != '') {
-	// 					$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-	// 					serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-	// 					serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
-	// 				}
-	
-	// 				if ($cleared_stat != 'ALL') {
-	// 					$sql .= " AND cleared = " . db_escape($cleared_stat);
-	// 				}
-	
-	// 				if ($trans_no != null) {
-	// 					$sql .= " AND serialise_id = " .db_escape($trans_no);
-	// 				}
+        for ($i = 0; $i < count($db_connections); $i++) {
 
-	// 				$sql .= " UNION ALL "; 
-	// 			}
-	// 		}
-    //     }
+			if (check_db_exists($i)) {
 
-    //     $sql = rtrim($sql, " UNION ALL");
-    // }
+				if ($default_table_count == count_columns($i, 'item_serialise')) {
     
-    // foreach($involve_db as $db_index) {
-    //     display_error($db_index);
-    // }
+					set_global_connection($i);
+
+					$branch_code = $db_connections[$i]['branch_code'];
+					
+					$involve_db[$i] = $i;
+	
+					$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
+					FROM " . TB_PREF . "item_serialise AS $branch_code";
+	
+					$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
+		
+					if ($search != '') {
+						$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+						serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+						serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+					}
+	
+					if ($cleared_stat != 'ALL') {
+						$sql .= " AND cleared = " . db_escape($cleared_stat);
+					}
+	
+					if ($trans_no != null) {
+						$sql .= " AND serialise_id = " .db_escape($trans_no);
+					}
+
+					$result = db_query($sql, _("get_all_serial(2)"));
+					set_global_connection();
+
+					if (db_num_rows($result) > 0) {
+						while ($row = db_fetch_assoc($result)) {
+							$return_arr[] = array(
+								'serialise_id' => $row['serialise_id'],
+								'branch' => $row['branch'],
+								'serialise_item_code' => $row['serialise_item_code'],
+								'serialise_lot_no' => $row['serialise_lot_no'],
+								'serialise_chasis_no' => $row['serialise_chasis_no'],
+								'cleared' => $row['cleared'],
+								'pnp_note' => $row['pnp_note']
+							);
+						}
+					}
+					$sql .= " UNION ALL "; 
+				}
+			}
+        } // End of forloop
+
+    }
+
+	// foreach($involve_db as $db_index) {
+	// 	display_error($db_index);
+	// }    
+
+	return $return_arr;
 }

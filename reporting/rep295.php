@@ -111,7 +111,7 @@ function print_transaction() {
 
     $res = get_transactions($branch_id, $cleared_stat);
    
-    while ($trans = db_fetch_assoc($res)) {
+    foreach ($res as $value => $trans) {
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($trans['serialise_item_code']));
         $is_cleared = $trans['cleared'] == 1 ? _("Yes") : _("No");

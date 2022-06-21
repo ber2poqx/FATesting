@@ -29,11 +29,35 @@ page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
+$exmp_arr = array();
+
+$exmp_arr = array(
+    "id" => 1,
+    "branch_code" => "JACS",
+    "stock_id" => "JACS",
+    "serial_no" => "123456789",
+);
+
+$exmp_arr += array(
+    "id" => 2,
+    "branch_code" => "AGOR",
+    "stock_id" => "AGOR",
+    "serial_no" => "6066",
+);
+
+// display_error(count($exmp_arr));
+
+
+// foreach($exmp_arr as $key => $value) {
+
+//     display_error($key . ": " . $value);
+// }
+
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 ref_cells(_("Search Here: &nbsp;"), 'searchval', '', null, '', true);
-company_list_row(_('&nbsp; Origin Branch: '), 'comp_id', true, false, false);
+company_list_row(_('&nbsp; Origin Branch: '), 'comp_id', true, true, false);
 value_type_list(_("&nbsp; Clearance Status: "), 'cleared_id', 
     array(
         'ALL' => 'All Clearance Status',
@@ -79,25 +103,31 @@ table_header($th);
 
 $k = 0;
 
-while ($row = db_fetch_assoc($res_details)) {
+foreach ($res_details as $value => $data) {
+
     alt_table_row_color($k);
 
-    $stock_row = db_fetch_assoc(get_stock_by_itemCode($row['serialise_item_code']));
-    $is_cleared = $row['cleared'] == 1 ? _("Yes") : _("No");
+    if (serial_exist($data['serialise_lot_no'], '', get_comp_id($data['branch']))) {
+        
+        $stock_row = db_fetch_assoc(get_stock_by_itemCode($data['serialise_item_code']));
+        $is_cleared = $data['cleared'] == 1 ? _("Yes") : _("No");
+   
+        label_cell($data['serialise_id']);
+        label_cell($data['branch']);
+        //label_cell(get_company_value(get_comp_id($data['branch']), 'name'));
+        label_cell(get_category_name($stock_row['category_id']));
+        label_cell($stock_row['stock_id']);
+        label_cell($stock_row['color'] != '' ? $stock_row['color'] . " | " . 
+            get_color_description($data['serialise_item_code'], $stock_row['stock_id']) : 
+            get_color_description($data['serialise_item_code'], $stock_row['stock_id'])
+        );
 
-    label_cell($row['serialise_id']);
-    label_cell(get_company_value(get_comp_id($row['branch']), 'name'));
-    label_cell(get_category_name($stock_row['category_id']));
-    label_cell($stock_row['stock_id']);
-    label_cell($stock_row['color'] != '' ? $stock_row['color'] . " | " . 
-        get_color_description($row['serialise_item_code'], $stock_row['stock_id']) : 
-        get_color_description($row['serialise_item_code'], $stock_row['stock_id'])
-    );
-    label_cell($row['serialise_lot_no'], "nowrap");
-    label_cell($row['serialise_chasis_no'], "nowrap");
-    label_cell($is_cleared, "align='center'");
-    label_cell($row['pnp_note'], "nowrap");
-    label_cell(serial_update_cell(get_comp_id($row['branch']), $row['serialise_id']), "nowrap");
+        label_cell($data['serialise_lot_no'], "nowrap");
+        label_cell($data['serialise_chasis_no'], "nowrap");
+        label_cell($is_cleared, "align='center'");
+        label_cell($data['pnp_note'], "nowrap");
+        label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id']), "nowrap");
+    }
 }
 
 end_table();
