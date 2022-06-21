@@ -509,19 +509,8 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 		)
 	);
 
-	
+	//modified by Albert
 	$reports->addReport(RC_SUPPLIER, 205, _('Supplier &Detail Listing'),
-		array(	
-			_('Activity Since') => 'DATEBEGIN',
-			_('Activity Greater Than') => 'TEXT',
-			_('Activity Less Than') => 'TEXT',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);
-	//Added by Albert
-	$reports->addReport(RC_SUPPLIER, 2051, _('Supplier &Detail Listing Albert'),
 		array(	
 			_('Activity Since') => 'DATEBEGIN',
 			_('Activity Greater Than') => 'TEXT',
