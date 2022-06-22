@@ -896,6 +896,10 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
         for ($i = 0; $i < count($db_connections); $i++) {
 
+			$branch_code = $db_connections[$i]['branch_code'];
+
+			display_error($branch_code . ": " . $db_connections[$i]['dbuser']);
+
 			if (check_db_exists($i)) {
 
 				if ($default_table_count == count_columns($i, 'item_serialise')) {
