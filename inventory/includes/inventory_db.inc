@@ -876,7 +876,6 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
         }
 
 		$result = db_query($sql, _("get_all_serial()"));
-		set_global_connection();
 
 		while ($row = db_fetch_assoc($result)) {
 			$return_arr[] = array(
@@ -889,7 +888,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 				'pnp_note' => $row['pnp_note']
 			);
 		}
-		//return $result;
+		
+		set_global_connection();
     }
     else {
 		display_error("MAIN: " . $db_connections[0]['dbuser']);
