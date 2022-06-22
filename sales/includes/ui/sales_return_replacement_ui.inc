@@ -232,7 +232,7 @@ function display_replace_items($title, &$replace_items, $editable_items = false)
 	$serialized = 0;
 	if ($_SESSION["Items"]->line_items[0]->lot_no !== "")
 		$serialized = 1;
-
+		
 	//Modified by spyrax10
 	if ($_POST['error'] == 0) {
 		search_item(
@@ -241,7 +241,9 @@ function display_replace_items($title, &$replace_items, $editable_items = false)
 			$_SESSION['Items']->category_id,
 			$_POST['Location'],
 			$_SESSION['Items']->repo_type,
-			$serialized
+			$serialized,
+			get_post('ReturnedDate')
+
 		);
 	}
 	//
