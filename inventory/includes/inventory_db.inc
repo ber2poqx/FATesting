@@ -928,7 +928,6 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 					}
 
 					$result = db_query($sql, _("get_all_serial(2)"));
-					set_global_connection();
 
 					if (db_num_rows($result) > 0) {
 						while ($row = db_fetch_assoc($result)) {
@@ -943,6 +942,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 							);
 						}
 					}
+					
+					set_global_connection();
 				}
 			}
 			$sql = "";
