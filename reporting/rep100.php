@@ -76,7 +76,7 @@ function print_transaction() {
 
     $aligns = array('left', 'left', 'left', 'center', 'center', 'center',
         'center', 'center', 'center', 'center', 'center', 'center', 'center',
-        'center', 'center', 'center', 'center', 'center', 'center', 'center', 'right'
+        'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center'
     );
 
     if ($show_add == 1) {
@@ -161,6 +161,7 @@ function print_transaction() {
 
         $total_act++;
         //display_error($trans['trans_no'] . " || " . $trans['trans_type'] . " || " . $trans['debtor_no']);
+        //display_error(total_penalty($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']));
         //Parent
         $total_adjusment = total_adjusment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $total_payment_this_month = payment_this_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
@@ -173,6 +174,7 @@ function print_transaction() {
         $overdue_2months = overdue_2months($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $past_due = past_due($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $total_collectibles = total_collectibles($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
+        $total_penalty = total_penalty($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
 
 
         if ($group == 1) {
@@ -337,7 +339,7 @@ function print_transaction() {
 
         if ($show_add == 1) {
             $rep->SetTextColor(255, 0, 0);
-            $rep->AmountCol(19, 20, 0, $dec);
+            $rep->AmountCol(19, 20, $total_penalty, $dec);
             $rep->SetTextColor(0, 0, 0);
             $rep->TextCol(20, 21, $trans['address']);
         }

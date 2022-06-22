@@ -886,6 +886,36 @@ function past_due($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_dat
     return $total;
 }
 
+function total_penalty($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date) {
+
+    $total = 0;
+    $table_name = ar_table_name($trans_type);
+    $inv_date = ar_invoice_date($trans_type);
+
+    $resRow = get_DL_details($trans_no, $trans_type, $debtor_no);
+
+    $new_end_date = new DateTime(sql2date($end_date));
+    $new_maturity_date = new DateTime(sql2date($resRow['maturity_date']));
+
+    $overdue_1month = overdue_1month($trans_no, $trans_type, $debtor_no, $end_date);
+    $overdue_2month = overdue_2months($trans_no, $trans_type, $debtor_no, $end_date);
+    $past_due = past_due($trans_no, $trans_type, $debtor_no, $end_date);
+
+    $penalty_rate = getCompDet('penalty_rate', user_company());
+
+    if (get_month_year($end_date) == get_month_year($resRow['maturity_date'])) {
+        $total = 0;
+    }
+    else if ($new_maturity_date < $new_end_date) {
+        $total = $past_due * $penalty_rate;
+    }
+    else {
+        $total = ($overdue_1month * $penalty_rate) + ($overdue_2month * $penalty_rate);
+    }
+
+    return $total;
+}
+
 function total_collectibles($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date) {
 
     $total = 0;
