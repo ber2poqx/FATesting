@@ -17,7 +17,7 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 global $Ajax, $def_coy;
 
-$_SESSION["wa_current_user"]->company = $def_coy;
+//$_SESSION["wa_current_user"]->company = $def_coy;
 
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
@@ -28,30 +28,6 @@ page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 //--------------------------------------------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
-
-$exmp_arr = array();
-
-$exmp_arr = array(
-    "id" => 1,
-    "branch_code" => "JACS",
-    "stock_id" => "JACS",
-    "serial_no" => "123456789",
-);
-
-$exmp_arr += array(
-    "id" => 2,
-    "branch_code" => "AGOR",
-    "stock_id" => "AGOR",
-    "serial_no" => "6066",
-);
-
-// display_error(count($exmp_arr));
-
-
-// foreach($exmp_arr as $key => $value) {
-
-//     display_error($key . ": " . $value);
-// }
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
