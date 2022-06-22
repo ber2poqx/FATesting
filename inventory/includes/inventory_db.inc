@@ -892,7 +892,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 		//return $result;
     }
     else {
-		
+		display_error("MAIN: " . $db_connections[0]['dbuser']);
+
         for ($i = 0; $i < count($db_connections); $i++) {
 
 			if (check_db_exists($i)) {
@@ -902,6 +903,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 					set_global_connection($i);
 
 					$branch_code = $db_connections[$i]['branch_code'];
+
+					display_error($branch_code . ": " . $db_connections[$i]['dbuser']);
 					
 					$involve_db[$i] = $i;
 	
