@@ -85,6 +85,7 @@ $loc_code = $_GET['location'];
 $serial_input = "serialeng_no";
 $serialized = $_GET['serialized'];
 $repo = $_GET["repo"];
+$return_date = $_GET["return_date"];
 $result = [];
 $result = get_available_item_for_sr($category_id, $serialized, get_post('searchval'), $loc_code, $repo);
 while ($myrow = db_fetch_assoc($result)) {
@@ -92,10 +93,8 @@ while ($myrow = db_fetch_assoc($result)) {
 	$value = $myrow['stock_id'];
 
 	/*modified by Albert*/
-	$date = Today();
-	$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated($loc_code,$category_id, $myrow["stock_id"]);
-
-	if( date2sql($date) < Get_Policy_Installment_Effectivity_Date($loc_code, $category_id, $myrow["stock_id"])){
+	if( date2sql($return_date) < Get_Policy_Installment_Effectivity_Date($loc_code, $category_id, $myrow["stock_id"])){
+		$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated($loc_code,$category_id, $myrow["stock_id"]);
 
 		$price = $repo == "new" ? Get_Previous_Policy_Installment_Price($loc_code, $category_id, $myrow["stock_id"], $last_date_updated) : 
 			Get_Repo_Installment_Price($myrow["stock_id"], $myrow["serialeng_no"]);

@@ -6,11 +6,12 @@ function search_item(
 	$category,
 	$loc_code,
 	$repo = "new",
-	$serialized = 0
+	$serialized = 0,
+	$return_date
 ) {
 	$link = $path_to_root . "/inventory/inquiry/sr_stock_list.php?popup=1&type=all&client_id="
 		. $id . "&category=" . $category . "&location=" . $loc_code . "&serialized=" . $serialized
-		. "&repo=" . $repo;
+		. "&repo=" . $repo."&return_date=" .$return_date;
 
 	$img_title = _("Search items");
 
