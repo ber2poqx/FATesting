@@ -78,9 +78,11 @@ class inventory_app extends application
 		$this->add_lapp_function(2, _("Inventory Adjustment Setup"),
 			"inventory/manage/inventory_setup.php?", 'SA_INVENTORY_TYPE', MENU_MAINTENANCE);
 
-		$this->add_lapp_function(2, _("PNP Clearance Monitoring"),
-			"inventory/manage/serial_list.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
-		);
+		if ($_SESSION["wa_current_user"]->company == 0) {
+			$this->add_lapp_function(2, _("PNP Clearance Monitoring"),
+				"inventory/manage/serial_list.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
+			);
+		}
 
 		$this->add_rapp_function(2, _("&Made-in Setup"),
 			"inventory/manage/item_manufacturer.php?", 'SA_MANUFACTURER', MENU_MAINTENANCE);
