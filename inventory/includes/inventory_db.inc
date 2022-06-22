@@ -851,7 +851,6 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
     if ($company_check) {
 
-		set_global_connection($branch_id);
         $branch_code = get_company_value($branch_id, 'branch_code');
 
         $involve_db[$branch_id] = $branch_id;
@@ -875,6 +874,7 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
             $sql .= " AND serialise_id = " .db_escape($trans_no);
         }
 
+		set_global_connection($branch_id);
 		$result = db_query($sql, _("get_all_serial()"));
 
 		while ($row = db_fetch_assoc($result)) {
@@ -892,28 +892,17 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 		set_global_connection();
     }
     else {
-		display_error("def_con: " . $db_connections[0]['dbuser']);
-
+	
         for ($i = 0; $i < count($db_connections); $i++) {
 
 			$branch_code = $db_connections[$i]['branch_code'];
 
-			display_error($branch_code . ": " . $db_connections[$i]['dbuser'] 
-				. " || P: " . $db_connections[$i]['dbpassword'] 
-				. " || H: " . $db_connections[$i]['host'] 
-				. " || T: " . $db_connections[$i]['tbpref'] 
-			);
-
 			if (check_db_exists($i)) {
 
 				if ($default_table_count == count_columns($i, 'item_serialise')) {
-    
-					set_global_connection($i);
 
 					$branch_code = $db_connections[$i]['branch_code'];
 
-					//display_error($branch_code . ": " . $db_connections[$i]['dbuser']);
-					
 					$involve_db[$i] = $i;
 	
 					$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
@@ -934,6 +923,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 					if ($trans_no != null) {
 						$sql .= " AND serialise_id = " .db_escape($trans_no);
 					}
+
+					set_global_connection($i);
 
 					$result = db_query($sql, _("get_all_serial(2)"));
 
