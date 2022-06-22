@@ -888,11 +888,11 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 				'pnp_note' => $row['pnp_note']
 			);
 		}
-		
+
 		set_global_connection();
     }
     else {
-		display_error("MAIN: " . $db_connections[0]['dbuser']);
+		display_error("def_con: " . $db_connections[0]['dbuser']);
 
         for ($i = 0; $i < count($db_connections); $i++) {
 
