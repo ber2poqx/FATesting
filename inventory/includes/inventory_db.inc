@@ -898,60 +898,62 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
 			$branch_code = $db_connections[$i]['branch_code'];
 
-			display_error($branch_code . ": " . $db_connections[$i]['dbuser']);
+			display_error($branch_code . ": " . $db_connections[$i]['dbuser'] 
+				. " || P: " . $db_connections[$i]['dbpassword'] 
+				. " || H: " . $db_connections[$i]['host'] 
+				. " || T: " . $db_connections[$i]['tbpref'] 
+			);
 
-			set_global_connection($i);
+			if (check_db_exists($i)) {
 
-			$branch_code = $db_connections[$i]['branch_code'];
+				if ($default_table_count == count_columns($i, 'item_serialise')) {
+    
+					set_global_connection($i);
 
-			display_error($branch_code . ": " . $db_connections[$i]['dbpassword']);
-			
-			$involve_db[$i] = $i;
+					$branch_code = $db_connections[$i]['branch_code'];
 
-			$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
-			FROM " . TB_PREF . "item_serialise AS $branch_code";
+					//display_error($branch_code . ": " . $db_connections[$i]['dbuser']);
+					
+					$involve_db[$i] = $i;
+	
+					$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
+					FROM " . TB_PREF . "item_serialise AS $branch_code";
+	
+					$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
+		
+					if ($search != '') {
+						$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+						serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+						serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+					}
+	
+					if ($cleared_stat != 'ALL') {
+						$sql .= " AND cleared = " . db_escape($cleared_stat);
+					}
+	
+					if ($trans_no != null) {
+						$sql .= " AND serialise_id = " .db_escape($trans_no);
+					}
 
-			$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
+					$result = db_query($sql, _("get_all_serial(2)"));
 
-			if ($search != '') {
-				$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-				serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-				serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
-			}
-
-			if ($cleared_stat != 'ALL') {
-				$sql .= " AND cleared = " . db_escape($cleared_stat);
-			}
-
-			if ($trans_no != null) {
-				$sql .= " AND serialise_id = " .db_escape($trans_no);
-			}
-
-			$result = db_query($sql, _("get_all_serial(2)"));
-
-			if (db_num_rows($result) > 0) {
-				while ($row = db_fetch_assoc($result)) {
-					$return_arr[] = array(
-						'serialise_id' => $row['serialise_id'],
-						'branch' => $row['branch'],
-						'serialise_item_code' => $row['serialise_item_code'],
-						'serialise_lot_no' => $row['serialise_lot_no'],
-						'serialise_chasis_no' => $row['serialise_chasis_no'],
-						'cleared' => $row['cleared'],
-						'pnp_note' => $row['pnp_note']
-					);
+					if (db_num_rows($result) > 0) {
+						while ($row = db_fetch_assoc($result)) {
+							$return_arr[] = array(
+								'serialise_id' => $row['serialise_id'],
+								'branch' => $row['branch'],
+								'serialise_item_code' => $row['serialise_item_code'],
+								'serialise_lot_no' => $row['serialise_lot_no'],
+								'serialise_chasis_no' => $row['serialise_chasis_no'],
+								'cleared' => $row['cleared'],
+								'pnp_note' => $row['pnp_note']
+							);
+						}
+					}
+					
+					set_global_connection();
 				}
 			}
-			
-			set_global_connection();
-
-			// if (check_db_exists($i)) {
-
-			// 	if ($default_table_count == count_columns($i, 'item_serialise')) {
-    
-					
-			// 	}
-			// }
 			$sql = "";
         } // End of forloop
     }
