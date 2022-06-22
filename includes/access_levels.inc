@@ -142,19 +142,20 @@ $security_areas =array(
 //
 // Special and common functions
 //
-	'SA_VOIDTRANSACTION' => array(SS_SPEC|1, _("Voiding transactions")),
-	'SA_BACKUP' => array(SS_SPEC|2, _("Database backup/restore")),
-	'SA_VIEWPRINTTRANSACTION' => array(SS_SPEC|3, _("Common view/print transactions interface")),
-	'SA_ATTACHDOCUMENT' => array(SS_SPEC|4, _("Attaching documents")),
-	'SA_SETUPDISPLAY' => array(SS_SPEC|5, _("Display preferences")),
-	'SA_CHGPASSWD' => array(SS_SPEC|6, _("Password changes")),
-	'SA_EDITOTHERSTRANS' => array(SS_SPEC|7, _("Edit other users transactions")),
+	//Modified by spyrax10 21 Jun 2022
+	'SA_VOID_INQ' => array(SS_SPEC|12, _("Void Transacation Inquiry List")),
+	'SA_VOID_APPROVED' => array(SS_SPEC|13, _("Approved Void Transaction")),
+	'SA_VOIDTRANSACTION' => array(SS_SPEC|1, _("Voiding Transactions")),
+	'SA_BACKUP' => array(SS_SPEC|2, _("Database Backup/restore")),
+	'SA_VIEWPRINTTRANSACTION' => array(SS_SPEC|3, _("Common View/Print Transactions Interface")),
+	'SA_ATTACHDOCUMENT' => array(SS_SPEC|4, _("Attaching Documents")),
+	'SA_SETUPDISPLAY' => array(SS_SPEC|5, _("Display Preferences")),
+	'SA_CHGPASSWD' => array(SS_SPEC|6, _("Password Changes")),
+	'SA_EDITOTHERSTRANS' => array(SS_SPEC|7, _("Edit Other Users Transactions")),
 	'SA_BRANCHAREA' => array(SS_SPEC|8, _("Branch Area Setup")),
 	'SA_BRANCHPLCY' => array(SS_SPEC|9, _("Branch Policy Setup")),
 	'SA_COMPANYTYP' => array(SS_SPEC|10, _("Company Type Setup")),
-	//Added by spyrax10 8 Mar 2022
 	'SA_CSV' => array(SS_SPEC|11, _("Upload CSV Template File")),
-	//
 //
 // Sales related functionality
 //

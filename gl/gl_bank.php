@@ -113,7 +113,7 @@ if (isset($_GET['AddedID'])) {
 	$trans_no = $_GET['AddedID'];
 	$trans_type = ST_BANKPAYMENT;
 
-	display_notification_centered(sprintf(_("Payment %d has been entered"), $trans_no));
+	display_notification_centered(sprintf(_("Payment # %d has been entered"), $trans_no));
 
 	display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Payment"), false, '', '', 1));
 
@@ -132,7 +132,7 @@ if (isset($_GET['UpdatedID'])) {
 	$trans_no = $_GET['UpdatedID'];
 	$trans_type = ST_BANKPAYMENT;
 
-	display_notification_centered(sprintf(_("Payment %d has been modified"), $trans_no));
+	display_notification_centered(sprintf(_("Payment # %d has been modified"), $trans_no));
 
 	display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Payment"), false, '', '', 1));
 
@@ -149,7 +149,7 @@ if (isset($_GET['AddedDep'])) {
 	$trans_no = $_GET['AddedDep'];
 	$trans_type = ST_BANKDEPOSIT;
 
-	display_notification_centered(sprintf(_("Deposit %d has been entered"), $trans_no));
+	display_notification_centered(sprintf(_("Deposit # %d has been entered"), $trans_no));
 
 	display_note(get_gl_view_str($trans_type, $trans_no, _("View the GL Postings for this Deposit"), false, '', '', 1));
 
@@ -165,7 +165,7 @@ if (isset($_GET['UpdatedDep'])) {
 	$trans_no = $_GET['UpdatedDep'];
 	$trans_type = ST_BANKDEPOSIT;
 
-	display_notification_centered(sprintf(_("Deposit %d has been modified"), $trans_no));
+	display_notification_centered(sprintf(_("Deposit # %d has been modified"), $trans_no));
 
 	display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Deposit"), false, '', '', 1));
 

@@ -67,8 +67,12 @@ class setup_app extends application
 		$this->add_lapp_function(2, _("Company &Type Setup"),
 			"admin/company_type.php?", 'SA_COMPANYTYP', MENU_MAINTENANCE);
 
-		$this->add_lapp_function(2, _("&Void a Transaction"),
-			"admin/void_transaction.php?", 'SA_VOIDTRANSACTION', MENU_MAINTENANCE);
+		//Modified by spyrax10 22 Jun 2022
+		$this->add_lapp_function(2, _("&Void Transactions List"),
+			"admin/inquiry/void_inquiry_list.php?", 'SA_VOID_INQ', MENU_MAINTENANCE
+		);
+		//
+
 		$this->add_lapp_function(2, _("View or &Print Transactions"),
 			"admin/view_print_transaction.php?", 'SA_VIEWPRINTTRANSACTION', MENU_MAINTENANCE);
 		$this->add_lapp_function(2, _("&Attach Documents"),

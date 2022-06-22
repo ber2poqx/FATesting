@@ -70,6 +70,21 @@ function amount_total($row) {
 function gl_view($row) {
 	return get_gl_view_str(ST_BANKDEPOSIT, $row["trans_no"], '', false, '', '', 1);
 }
+
+
+function void_row($row) {
+    
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
+		$void_link = pager_link( _("Void This Transaction"),
+        "/admin/manage/create_void.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC);
+	}
+	else {
+		$void_link = '';
+	}
+
+	return $void_link;
+}
+
 //---------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -144,7 +159,8 @@ $cols = array(
     _('Prepared By') => array('align' => 'center', 'fun' => 'preparer_name'),
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
-    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center')
+    array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'void_row', 'align' => 'center')
 );
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
 

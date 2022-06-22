@@ -889,9 +889,6 @@ function past_due($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_dat
 function total_penalty($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date) {
 
     $total = 0;
-    $table_name = ar_table_name($trans_type);
-    $inv_date = ar_invoice_date($trans_type);
-
     $resRow = get_DL_details($trans_no, $trans_type, $debtor_no);
 
     $new_end_date = new DateTime(sql2date($end_date));
@@ -1198,6 +1195,5 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         }     
     }
     
-
     return db_query($sql,"No transactions were returned");
 }

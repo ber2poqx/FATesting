@@ -14,125 +14,157 @@ include_once($path_to_root . "/purchasing/includes/purchasing_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 include_once($path_to_root . "/manufacturing/includes/manufacturing_db.inc");
 
-function void_transaction($type, $type_no, $date_, $memo_)
-{
+//Modfied by spyrax10 22 Jun 2022
+function void_transaction($type, $type_no, $date_, $memo_) {
+
 	global $Refs;
 	$void_entry = get_voided_entry($type, $type_no);
 
-	if ($void_entry != null)
+	if ($void_entry != null) {
 		return _('This transaction was already voided before.');
+	}
 
 	switch ($type) {
 		case ST_JOURNAL : // it's a journal entry
-			if (!exists_gl_trans($type, $type_no))
+			if (!exists_gl_trans($type, $type_no)) {
 				return _('Selected transaction does not exists.');
-			if ($wo = check_wo_costing($type, $type_no))
+			}
+			if ($wo = check_wo_costing($type, $type_no)) {
 				return sprintf(_('This transaction cannot be voided because it is part of Work Order %s costs.'), $wo);
+			}
 			void_journal_trans($type, $type_no);
 			break;
 
 		case ST_BANKDEPOSIT : // it's a deposit
 		case ST_BANKTRANSFER : // it's a transfer
-			if (!check_void_bank_trans($type, $type_no))
+			if (!check_void_bank_trans($type, $type_no)) {
 				return _('This transaction cannot be voided because the operation would decrease account balance below allowed limit in some point of account history.');
+			}
 		case ST_BANKPAYMENT : // it's a payment
-			if (!exists_bank_trans($type, $type_no))
+			if (!exists_bank_trans($type, $type_no)) {
 				return _('Selected transaction does not exists.');
+			}
 			void_bank_trans($type, $type_no);
 			break;
 
 		case ST_CUSTPAYMENT : // it's a customer payment
-			if (!check_void_bank_trans($type, $type_no))
+			if (!check_void_bank_trans($type, $type_no)) {
 				return _('This transaction cannot be voided because the operation would decrease account balance below allowed limit in some point of account history.');
+			}
 		case ST_SALESINVOICE : // it's a customer invoice
- 			if (is_cust_invoice_credited($type_no))
+ 			if (is_cust_invoice_credited($type_no)) {
 				return _('This invoice cannot be voided because it was already credited.');
+			}
 		case ST_CUSTCREDIT : // it's a customer credit note
 		case ST_CUSTDELIVERY : // it's a customer dispatch
-			if (!exists_customer_trans($type, $type_no))
+			if (!exists_customer_trans($type, $type_no)) {
 				return _('Selected transaction does not exists.');
-			if ($type == ST_CUSTDELIVERY)	// added 04 Oct 2008 by Joe Hunt. If delivery note has a not voided invoice, then NO.
-			{
-				$childs = get_sales_child_lines($type, $type_no, false); // 2011-03-17 This had been changed. Joe
-				if ($childs && db_num_rows($childs))
-					return _('This delivery cannot be voided because it was already invoiced.');
 			}
+			if ($type == ST_CUSTDELIVERY) { // added 04 Oct 2008 by Joe Hunt. If delivery note has a not voided invoice, then NO.
+				$childs = get_sales_child_lines($type, $type_no, false); // 2011-03-17 This had been changed. Joe
+				if ($childs && db_num_rows($childs)) {
+					return _('This delivery cannot be voided because it was already invoiced.');
+				}
+			}
+
 			post_void_customer_trans($type, $type_no);
 			break;
 
 		case ST_LOCTRANSFER : // it's a stock transfer
-			if (get_stock_transfer_items($type_no) == null)
+			if (get_stock_transfer_items($type_no) == null) {
 				return _('Selected transaction does not exists.');
+			}
+
 			void_stock_transfer($type_no);
 			break;
 		case ST_MERCHANDISETRANSFER:
 		    $mt_rec = get_stock_merchandise_transfer($type_no);
-		    if ($mt_rec == null)
-		        return _('Selected transaction does not exists.');
-		    if (!is_null(check_mt_status($mt_rec["reference"])) || !empty(check_mt_status($mt_rec["reference"])))
-		        return _('This MT cannot be voided because it was already received.');
-		            
+		    if ($mt_rec == null) {
+				return _('Selected transaction does not exists.');
+			}
+		    if (!is_null(check_mt_status($mt_rec["reference"])) || !empty(check_mt_status($mt_rec["reference"]))) {
+				return _('This MT cannot be voided because it was already received.');
+			}
+
 		    void_stock_transfer($type_no);
 		    break;
 		case ST_MERCHANDISETRANSFERREPO:
 		    $mt_rec = get_stock_merchandise_transfer_repo($type_no);
-		    if ($mt_rec == null)
-		        return _('Selected transaction does not exists.');
-		    if (!is_null(check_mt_status($mt_rec["reference"])) || !empty(check_mt_status($mt_rec["reference"])))
-		        return _('This MT Repo cannot be voided because it was already received.');
+		    if ($mt_rec == null) {
+				return _('Selected transaction does not exists.');
+			}
+		    if (!is_null(check_mt_status($mt_rec["reference"])) || !empty(check_mt_status($mt_rec["reference"]))) {
+				return _('This MT Repo cannot be voided because it was already received.');
+			}
 		            
 		    void_stock_transfer_repo($type_no);
 		    break;
 		case ST_RRBRANCH:
-		    if (get_stock_rrbranch_transfer($type_no) == null)
-		        return _('Selected transaction does not exists.');
+		    if (get_stock_rrbranch_transfer($type_no) == null) {
+				return _('Selected transaction does not exists.');
+			}
+
 		    void_rrbranch_transfer($type_no);
 		    break;
 		case ST_INVADJUST : // it's a stock adjustment
-			if (get_stock_adjustment_items($type_no) == null)
+			if (get_stock_adjustment_items($type_no) == null) {
 				return _('Selected transaction does not exists.');
+			}
+
 			void_stock_adjustment($type_no);
 			break;
 
 		case ST_PURCHORDER : // it's a PO
-				return _('This transaction type cannot be voided.');
+			return _('This transaction type cannot be voided.');
 			break;
 
 		case ST_SUPPRECEIVE : // it's a GRN
-			if (exists_grn_on_invoices($type_no))
+			if (exists_grn_on_invoices($type_no)) {
 				return _('This GRN cannot be voided because it was already invoiced.');
-			if (!post_void_supp_trans($type, $type_no))
+			}
+			if (!post_void_supp_trans($type, $type_no)) {
 				return _('Error encountered when voiding transaction.');
+			}
 			break;
 
 		case ST_SUPPINVOICE : // it's a suppler invoice
 		case ST_SUPPCREDIT : // it's a supplier credit note
 		case ST_SUPPAYMENT : // it's a supplier payment
-			if (!exists_supp_trans($type, $type_no))
+			if (!exists_supp_trans($type, $type_no)) {
 				return _('Selected transaction does not exists.');
-			if (!post_void_supp_trans($type, $type_no))
+			}
+			if (!post_void_supp_trans($type, $type_no)) {
 				return _('Error encountered when voiding transaction.');
+			}
 			break;
 
 		case ST_WORKORDER : // it's a work order
-			if (!get_work_order($type_no, true))
+			if (!get_work_order($type_no, true)) {
 				return _('Selected transaction does not exists.');
+			}
+
 			void_work_order($type_no);
 			break;
 
 		case ST_MANUISSUE : // it's a work order issue
-			if (!exists_work_order_issue($type_no))
+			if (!exists_work_order_issue($type_no)) {
 				return _('Selected transaction does not exists.');
-			if ($wo = check_void_wo_issue($type_no))
+			}
+			if ($wo = check_void_wo_issue($type_no)) {
 				return sprintf(_('Selected document cannot be voided because related Work Order %s is already closed.'), $wo);
+			}
+
 			void_work_order_issue($type_no);
 			break;
 
 		case ST_MANURECEIVE : // it's a work order production
-			if (!exists_work_order_produce($type_no))
+			if (!exists_work_order_produce($type_no)) {
 				return _('Selected transaction does not exists.');
-			if ($wo = check_void_wo_production($type_no))
+			}
+			if ($wo = check_void_wo_production($type_no)) {
 				return sprintf(_('Selected document cannot be voided because related Work Order %s is already closed.'), $wo);
+			}
+
 			void_work_order_produce($type_no);
 			break;
 
@@ -153,16 +185,41 @@ function void_transaction($type, $type_no, $date_, $memo_)
 }
 
 //--------------------------------------------------------------------------------------------------
+//Modified by spyrax10 22 Jun 2022
+function get_voided_entry($type = null, $type_no = null, $list = false, $status = 'ALL', 
+	$from_date = null, $to_date = null) {
 
-function get_voided_entry($type, $type_no)
-{
 	set_global_connection();
-    $sql = "SELECT * FROM voided WHERE type=".db_escape($type)
-		." AND id=".db_escape($type_no);
 
-	$result = db_query($sql, "could not query voided transaction table");
+    $sql = "SELECT * FROM ".TB_PREF."voided WHERE IFNULL(id, '') <> ''";
 
-	return db_fetch($result);
+	if ($type != null && $type != -1) {
+		$sql .= " AND type = " .db_escape($type);
+	}
+
+	if ($type_no != null) {
+		$sql .= " AND id = " .db_escape($type_no);
+	}
+
+	if ($status != 'ALL') {
+		$sql .= " AND void_status = " .db_escape($status);
+	}
+
+	if ($from_date != null || $to_date != null) {
+		$sql .= " AND date_ >= '" . date2sql($from_date) . "' 
+			AND date_ <= '" . date2sql($to_date) . "'";
+	}
+
+	$sql .= " ORDER BY type, id DESC";
+
+	if ($list) {
+		return $sql;
+	}
+	else {
+		$result = db_query($sql, "could not query voided transaction table");
+		return db_fetch($result);
+	}
+
 }
 
 //--------------------------------------------------------------------------------------------------
