@@ -803,7 +803,8 @@ function get_sales_invoice_header($invoice_no)
 				SMAN.salesman_name,
 				CONCAT(CM.lastname, ' ', CM.firstname) AS co_maker_name,
 				BR.br_name, BR.branch_ref,
-				a.alloc
+				a.alloc,
+				b.payment_location
 
 			FROM debtor_trans a
 			INNER JOIN debtor_loans b ON b.trans_no = a.trans_no and a.reference = b.reference

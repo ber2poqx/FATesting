@@ -107,7 +107,7 @@ label_row(null, ''); label_row(null, '');
 label_row(_("Total Unit Cost: "), price_format($total_unit_cost), "class='tableheader2'");
 label_row(_("Deferred Gross Profit: "), price_format($header["deferred_gross_profit"]), "class='tableheader2'");
 label_row(_("Profit Margin: "), price_format($header["profit_margin"]), "class='tableheader2'");
-label_row(_("Payment Location: "), $payment_location_id ? "Lending" : "Branch", "class='tableheader2'");
+label_row(_("Payment Location: "), $header['payment_location'], "class='tableheader2'");
 
 table_section(3);
 label_row(_("Payment Term: "), get_policy_name($debt_loans['installmentplcy_id'], $header["category_id"]), "class='tableheader2'");
