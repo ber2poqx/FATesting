@@ -334,12 +334,24 @@ function get_bank_trans_branch()
 }
 
 //Added by spyrax10 17 Feb 2022
-function get_bank_lists() {
+function get_bank_lists($bank_id = null) {
 	
 	$sql = "SELECT id, bank_account_name, bank_curr_code, inactive
-		FROM ".TB_PREF."bank_accounts";
+		FROM ".TB_PREF."bank_accounts WHERE IFNULL(id, '') <> ''";
 
-	return db_query($sql, "Cant get Bank Account List!");
+	if ($bank_id != null) {
+		$sql .= " AND id = " .db_escape($bank_id);
+	}
+	
+	$result = db_query($sql, "Cant get Bank Account List!"); 
+	$row = db_fetch_row($result);
+
+	if ($bank_id != null) {
+		return $row[1];
+	}
+	else {
+		return $result;
+	}
 }
 
 function auto_disburse_no() {
@@ -590,7 +602,7 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date, $t
 }
 
 function get_banking_transactions($type = null, $reference = '', $doc_ref = '', $from_date = null, $to_date = null, $cashier_id = '', 
-$interbranch = '', $open_bal = '') {
+$interbranch = '', $open_bal = '', $trans_no = 0) {
 	
 	set_global_connection();
 
@@ -611,6 +623,10 @@ $interbranch = '', $open_bal = '') {
 
 	if ($doc_ref != '') {
 		$sql .= " AND BT.receipt_no = " .db_escape($doc_ref);
+	}
+
+	if ($trans_no != 0) {
+		$sql .= " AND BT.trans_no = " .db_escape($trans_no);
 	}
 
 	if ($cashier_id != '') {

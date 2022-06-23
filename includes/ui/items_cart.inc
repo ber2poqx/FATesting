@@ -45,6 +45,7 @@ class items_cart
 	var $ar_debtor_no;
 	var $gross_profit = 0;
 	var $profit_margin;
+	var $void_id;
 	//
 	var $vat_category;
     var $category_id; //Added by Herald 06/07/2021

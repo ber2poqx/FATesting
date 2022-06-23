@@ -186,8 +186,8 @@ function void_transaction($type, $type_no, $date_, $memo_) {
 
 //--------------------------------------------------------------------------------------------------
 //Modified by spyrax10 22 Jun 2022
-function get_voided_entry($type = null, $type_no = null, $list = false, $status = 'ALL', 
-	$from_date = null, $to_date = null) {
+function get_voided_entry($type = null, $type_no = null, $reference = null, $list = false, 
+	$status = 'ALL', $from_date = null, $to_date = null, $void_id = 0) {
 
 	set_global_connection();
 
@@ -199,6 +199,14 @@ function get_voided_entry($type = null, $type_no = null, $list = false, $status 
 
 	if ($type_no != null) {
 		$sql .= " AND id = " .db_escape($type_no);
+	}
+
+	if ($void_id != 0) {
+		$sql .= " AND void_id = " .db_escape($void_id);
+	}
+
+	if ($reference != null) {
+		$sql .= " AND reference = " .db_escape($reference);
 	}
 
 	if ($status != 'ALL') {
@@ -224,14 +232,47 @@ function get_voided_entry($type = null, $type_no = null, $list = false, $status 
 
 //--------------------------------------------------------------------------------------------------
 
-function add_voided_entry($type, $type_no, $date_, $memo_)
-{
+function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $status = 'Draft') {
+	
+	set_global_connection();
+	
 	$date = date2sql($date_);
-	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_)
-		VALUES (".db_escape($type).", ".db_escape($type_no).", "
-		.db_escape($date).", ".db_escape($memo_).")";
+	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference, void_status)
+		VALUES (
+			". db_escape($type) .", 
+			". db_escape($type_no) .", 
+			". db_escape($date) .", 
+			". db_escape($memo_) .", 
+			".db_escape($branch_id) .",
+			".db_escape($reference) .",
+			".db_escape($status) ."
+		)";
 
 	db_query($sql, "could not add voided transaction entry");
+
+	return $type_no;
+}
+
+function update_void_status($type, $trans_no, $date, $status = "Draft", $note = "", $user_id = 0) {
+	
+	set_global_connection();
+	$update_date = date2sql($date);
+
+	$sql = "UPDATE ".TB_PREF."voided SET void_status = " .db_escape($status) . 
+		", status_note = " .db_escape($note);
+
+	if ($status == "Approved" || $status == "Disapproved") {
+		$sql .= ", approved_by = " .db_escape($user_id) . ", date_approved = " .db_escape($update_date);
+	}
+	else if ($status == "Voided") {
+		$sql .= ", voided_by = " .db_escape($user_id) . ", date_voided = " .db_escape($update_date);
+	}
+
+	$sql .= " WHERE type = " .db_escape($type) . " AND id = " .db_escape($trans_no);
+
+	db_query($sql, "update_void_status()");
+
+	return $trans_no;
 }
 
 //--------------------------------------------------------------------------------------------------

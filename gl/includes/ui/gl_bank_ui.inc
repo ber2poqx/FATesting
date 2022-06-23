@@ -10,11 +10,34 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
-function display_bank_header(&$order)
-{
+function void_header($void_id) {
+
+	$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+	
+	display_heading(_("Transaction to be Voided: "));
+	start_outer_table(TABLESTYLE2, "width='80%'");
+
+	table_section(1);
+	label_row("Reference: &nbsp;", get_trans_view_str($void_row["type"], $void_row["id"], $void_row['reference']));
+	label_row("Date: &nbsp;", phil_short_date($void_row['date_']));
+	label_row("Void Remarks: &nbsp;", $void_row['memo_']);
+
+	table_section(2);
+	label_row("Approved By: &nbsp;", get_user_name($void_row['approved_by']));
+	label_row("Date Approved: &nbsp;", phil_short_date($void_row['date_approved']));
+	label_row("Approval Remarks: &nbsp;", $void_row['status_note']);
+
+	end_outer_table(1);
+}
+
+function display_bank_header(&$order) {
 	global $Ajax, $Refs;
 	//$payment = $order->trans_type == ST_BANKPAYMENT;
 	$payment = ST_BANKPAYMENT;
+	
+	if ($order->void_id > 0) {
+		void_header($order->void_id);
+	}
 
 	$customer_error = false;
 	div_start('pmt_header');

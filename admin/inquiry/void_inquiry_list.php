@@ -52,6 +52,10 @@ function void_status($row) {
 	return $status_link;
 }
 
+function reference_row($row) {
+    return get_trans_view_str($row["type"], $row["id"], $row['reference']);
+}
+
 function approved_by($row) {
     return get_user_name($row['approved_by']);
 }
@@ -83,9 +87,19 @@ function date_voided($row, $type) {
 function post_void($row) {
     
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
-		$post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
-            "/admin/manage/void_draft.php?trans_no=" . $row['id'] . "&type=" . $row['type'] ."&status=2", ICON_DOC) 
-		: null;
+
+        if ($row['type'] == ST_BANKPAYMENT || $row['type'] == ST_BANKDEPOSIT) {
+
+            $link = $row['type'] == ST_BANKDEPOSIT ? "NewDeposit=Yes" : "NewPayment=Yes";
+            
+            $post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
+                "/gl/gl_bank.php?$link&void_id=" . $row['void_id'], ICON_DOC) 
+		    : null;   
+        }
+        else if ($row['type'] == ST_JOURNAL)                                                                                                                 {
+            $post_link = ''; //Journal Entry Page
+        }
+
 	}
 	else {
 		$post_link = '';
@@ -114,6 +128,14 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 journal_types_list_cells(_("Transaction Type:"), "filterType", null, true);
+ref_cells(_("Reference #:"), 'reference', '', null, '', true);
+
+end_row();
+end_table();
+
+start_table(TABLESTYLE_NOBORDER);
+start_row();
+
 value_type_list(_("Status:"), 'void_stat', 
     array(
         'ALL' => 'All Void Status',
@@ -150,6 +172,7 @@ end_table();
 $sql = get_voided_entry(
     get_post('filterType'),
     null,
+    get_post('reference'),
     true,
     get_post('void_stat'),
     get_post('FromDate'),
@@ -158,7 +181,7 @@ $sql = get_voided_entry(
 
 $cols = array(
     _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
-    _('Transaction #') => array('align' => 'center', 'name' => 'id'),
+    _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Transaction Date') => array('align' => 'center', 'fun' => 'date_transact'),
     _('Status') => array('align' => 'center', 'fun' => 'void_status'),
     _('Date Approved') => array('align' => 'center', 'fun' => 'date_approved'),

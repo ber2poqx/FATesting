@@ -481,13 +481,13 @@ function exchange_rate_display($from_currency=null, $to_currency=null, $date_, $
 }
 
 //--------------------------------------------------------------------------------------
+//Modified by spyrax10 23 Jun 2022
+function is_voided_display($type, $id, $label) {
+	$void_entry = get_voided_entry($type, $id, null, false, "Voided");
 
-function is_voided_display($type, $id, $label)
-{
-	$void_entry = get_voided_entry($type, $id);
-
-	if ($void_entry == null)
+	if ($void_entry == null) {
 		return false;
+	}
 
 	start_table(TABLESTYLE, "width='50%'");
 	echo "<tr><td align=center><font color=red>$label</font><br>";

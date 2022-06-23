@@ -75,8 +75,30 @@ function gl_view($row) {
 function void_row($row) {
     
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
-		$void_link = pager_link( _("Void This Transaction"),
-        "/admin/manage/create_void.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC);
+
+        if (has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT)) {
+            $void_link = '';
+        }
+        else {
+            $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
+
+            if ($void_entry == null) {
+                $void_link = pager_link( _("Request to Void"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+                );
+            }
+            else {
+
+                if ($void_entry['void_status'] == 'Disapproved') {
+                    $void_link = pager_link( _("Request to Void"),
+                        "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+                    );
+                }
+                else {
+                    $void_link = '';
+                }
+            }
+        }
 	}
 	else {
 		$void_link = '';

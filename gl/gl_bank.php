@@ -26,17 +26,19 @@ include_once($path_to_root . "/gl/includes/gl_ui.inc");
 include_once($path_to_root . "/admin/db/attachments_db.inc");
 
 $js = '';
-if ($SysPrefs->use_popup_windows)
+if ($SysPrefs->use_popup_windows) {
 	$js .= get_js_open_window(800, 500);
-if (user_use_date_picker())
+}
+if (user_use_date_picker()) {
 	$js .= get_js_date_picker();
+}
 
 if (isset($_GET['NewPayment'])) {
 	$_SESSION['page_title'] = _($help_context = "Disbursement Entry");
-	create_cart(ST_BANKPAYMENT, 0);
+	create_cart(ST_BANKPAYMENT, 0, isset($_GET['void_id']));
 } else if (isset($_GET['NewDeposit'])) {
 	$_SESSION['page_title'] = _($help_context = "Receipts Entry");
-	create_cart(ST_BANKDEPOSIT, 0);
+	create_cart(ST_BANKDEPOSIT, 0, isset($_GET['void_id']));
 } else if (isset($_GET['ModifyPayment'])) {
 	$_SESSION['page_title'] = _($help_context = "Modify Bank Account Entry") . " #" . $_GET['trans_no'];
 	create_cart(ST_BANKPAYMENT, $_GET['trans_no']);
@@ -44,6 +46,7 @@ if (isset($_GET['NewPayment'])) {
 	$_SESSION['page_title'] = _($help_context = "Modify Bank Deposit Entry") . " #" . $_GET['trans_no'];
 	create_cart(ST_BANKDEPOSIT, $_GET['trans_no']);
 }
+
 page($_SESSION['page_title'], false, false, '', $js);
 
 //-----------------------------------------------------------------------------------------------
@@ -180,8 +183,7 @@ if (isset($_GET['UpdatedDep'])) {
 
 //--------------------------------------------------------------------------------------------------
 
-function create_cart($type, $trans_no)
-{
+function create_cart($type, $trans_no, $void_id = 0) {
 	global $Refs;
 
 	if (isset($_SESSION['pay_items'])) {
@@ -239,6 +241,7 @@ function create_cart($type, $trans_no)
 		foreach ($cart->gl_items as $line_no => $line)
 			$cart->gl_items[$line_no]->amount *= $ex_rate;
 	} else {
+		$cart->void_id = $void_id;
 		$cart->reference = $Refs->get_next($cart->trans_type, null, $cart->tran_date);
 		$cart->tran_date = new_doc_date();
 		if (!is_date_in_fiscalyear($cart->tran_date))
