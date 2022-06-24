@@ -35,10 +35,10 @@ if (user_use_date_picker()) {
 
 if (isset($_GET['NewPayment'])) {
 	$_SESSION['page_title'] = _($help_context = "Disbursement Entry");
-	create_cart(ST_BANKPAYMENT, 0, isset($_GET['void_id']));
+	create_cart(ST_BANKPAYMENT, 0, $_GET['void_id']);
 } else if (isset($_GET['NewDeposit'])) {
 	$_SESSION['page_title'] = _($help_context = "Receipts Entry");
-	create_cart(ST_BANKDEPOSIT, 0, isset($_GET['void_id']));
+	create_cart(ST_BANKDEPOSIT, 0, $_GET['void_id']);
 } else if (isset($_GET['ModifyPayment'])) {
 	$_SESSION['page_title'] = _($help_context = "Modify Bank Account Entry") . " #" . $_GET['trans_no'];
 	create_cart(ST_BANKPAYMENT, $_GET['trans_no']);
