@@ -206,6 +206,7 @@ $sql = get_voided_entry(
 );
 
 $cols = array(
+    _('ID') => array('align' => 'left', 'name' => 'void_id'),
     _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
     _('Voided Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Created Reference') => array('align' => 'center', 'fun' => 'reference_to'),
