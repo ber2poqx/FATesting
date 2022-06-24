@@ -238,6 +238,8 @@ $security_areas =array(
 	'SA_SYSCOST_REP' => array(SS_SALES_A|9, _("Item System Cost List Report")),
 	'SA_PRINT_DELV' => array(SS_SALES_A|10, _("Print Delivery Notes")),
 	'SA_COLLECT_REP' => array(SS_SALES_A|11, _("Daily Summary of Collection V2")),
+	'SA_AGING_REP' => array(SS_SALES_A|12, _("Aging Reports")),
+	'SA_SALES_MISC_REP' => array(SS_SALES_A|13, _("Sales Miscellaneous Reports")),
 
 	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
 
@@ -252,8 +254,9 @@ $security_areas =array(
     'SA_SUPPPOPUPLIST' => array(SS_PURCH_C|4, _("Supplier's Masterlist Popup view")),
     
 	'SA_SUPPTRANSVIEW' => array(SS_PURCH|1, _("Supplier Transactions View")),
-	'SA_SUPPLIER' => array(SS_PURCH|2, _("Suppliers changes")),
-	'SA_PURCHASEORDER' => array(SS_PURCH|3, _("Purchase order entry")),
+	'SA_RR_LIST' => array(SS_PURCH|11, _("Outstanding PO Maintenace")),
+	'SA_SUPPLIER' => array(SS_PURCH|2, _("Suppliers Changes")),
+	'SA_PURCHASEORDER' => array(SS_PURCH|3, _("Purchase Order Entry")),
 	'SA_GRN' => array(SS_PURCH|4, _("Purchase Receive")),
     'SA_SUPPLIERINVOICE' => array(SS_PURCH|5, _("Supplier Invoices")),
 	'SA_GRNDELETE' => array(SS_PURCH|9, _("Deleting GRN items during invoice entry")),
@@ -261,6 +264,7 @@ $security_areas =array(
 	'SA_SUPPLIERPAYMNT' => array(SS_PURCH|7, _("Supplier payments")),
 	'SA_SUPPLIERALLOC' => array(SS_PURCH|8, _("Supplier payments allocations")),
     'SA_DRAFTTOPO' => array(SS_PURCH|10, _("Draft To PO")),
+	
     
     
 	// Added by Ronelle PR MODULE
@@ -288,6 +292,9 @@ $security_areas =array(
 	'SA_TARGET_SR' => array(SS_PURCH_A|6, _("Sales Report - Actual vs Target")),
 	'SA_CHECK_REG' => array(SS_PURCH_A|7, _("Check Register & Other Cash Item")),
 	'SA_SUPP_MISC_REP' => array(SS_PURCH_A|8, _("Supplier Miscellaneous Reports")),
+	'SA_TERMOD_REP' => array(SS_PURCH_A|9, _("SI Term Modification Report")),
+	'SA_SUPP_REP' => array(SS_PURCH_A|10, _("Supplier Reports")),
+	'SA_SUPP_PRINT' => array(SS_PURCH_A|11, _("Print Supplier Reports")),
 	//
 
 	//added by JR for supplier costing types on 10-13-2020
@@ -341,6 +348,7 @@ $security_areas =array(
 
 	'SA_REORDER' => array(SS_ITEMS_A|1, _("Reorder levels")),
 	'SA_ITEMSANALYTIC' => array(SS_ITEMS_A|2, _("Items Analytical Reports and Inquiries")),
+	'SA_ITEM_MISC' => array(SS_ITEMS_A|7, _("Inventory Miscellaneous Report")),
 	'SA_ITEMSVALREP' => array(SS_ITEMS_A|3, _("Inventory Valuation Report")),
 	//Added by spyrax10 31 Mar 2022
 	'SA_INVTY_REP' => array(SS_ITEMS_A|4, _("Inventory Reports and Inquiries")),
@@ -415,6 +423,8 @@ $security_areas =array(
 	'SA_BANKTRANSFER' => array(SS_GL|6, _("Bank Account Transfers")),
 	'SA_RECONCILE' => array(SS_GL|7, _("Bank Reconciliation")),
 	'SA_JOURNALENTRY' => array(SS_GL|8, _("Manual Journal Entries")),
+	'SA_JE_LIST' => array(SS_GL|17, _("Journal Entry Inquiry List")),
+	'SA_INTERB_LIST' => array(SS_GL|18, _("Banking Interbranch Inquiry")),
 	//Added by spyrax10 11 Jun 2022
 	'SA_JE_UPDATE' => array(SS_GL|16, _("Journal Entries Update")),
 	//
@@ -433,9 +443,12 @@ $security_areas =array(
 	//
 
 	//Modified by spyrax10 20 Jun 2022
-	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL Analytical Reports and Inquiries")),
+	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL Analytical Reports")),
+	'SA_GLANALYTIC_LIST' => array(SS_GL_A|14, _("GL Analytical Inquiries")),
+	'SA_GL_MISC_REP' => array(SS_GL_A|16, _("GL Analytical Miscellaneous Report")),
 	'SA_TAXREP' => array(SS_GL_A|2, _("Tax Inquiries")),
 	'SA_BANKREP' => array(SS_GL_A|3, _("Banking Reports")),
+	'SA_BANK_STATE_REP' => array(SS_GL_A|15, _("Bank Statement Reports")),
 	'SA_GLREP' => array(SS_GL_A|4, _("General Ledger Reports")),
 	'SA_DISBURSE_LIST' => array(SS_GL_A|5, _("Disbursement Entry Inquiry List")),
 	'SA_RECEIPT_LIST' => array(SS_GL_A|6, _("Receipt Entry Inquiry List")),
@@ -445,7 +458,8 @@ $security_areas =array(
 	'SA_SL_REP' => array(SS_GL_A|10, _("SL Summary Report")),
 	'SA_COA_REP' => array(SS_GL_A|11, _("Chart of Accounts Report")),
 	'SA_GL_REP' => array(SS_GL_A|12, _("GL Transactions Report")),
-	'SA_TAX_REP' => array(SS_GL_A|12, _("Tax Report")),
+	'SA_TAX_REP' => array(SS_GL_A|13, _("Tax Report")),
+	'SA_TAX_MISC_REP' => array(SS_GL_A|17, _("Tax Miscellaneous Report")),
 	//
 
 	//Added by spyrax10 25 Mar 2022

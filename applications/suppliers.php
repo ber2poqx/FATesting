@@ -29,7 +29,7 @@ class suppliers_app extends application
 		
 		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(0, _("&Outstanding Purchase Orders Maintenance"),
-			"purchasing/inquiry/po_search.php?", 'SA_SUPPTRANSVIEW', MENU_TRANSACTION
+			"purchasing/inquiry/po_search.php?", 'SA_RR_LIST', MENU_TRANSACTION
 		);
 		//
 		

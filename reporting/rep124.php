@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-$page_security = 'SA_SITERMMOD';
+$page_security = 'SA_TERMOD_REP'; // Modified by spyrax10 24 Jun 2022
 // ----------------------------------------------------------------
 // $ Revision:	7.0 $
 // Creator:	Prog6

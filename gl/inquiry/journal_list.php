@@ -5,7 +5,7 @@
  * Date Created: 21 Mar 2022
  */
 
-$page_security = 'SA_GLTRANSVIEW';
+$page_security = 'SA_JE_LIST';
 $path_to_root = "../..";
 
 include($path_to_root . "/includes/db_pager.inc");

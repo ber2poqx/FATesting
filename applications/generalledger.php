@@ -36,7 +36,7 @@ class general_ledger_app extends application
 
 		//Modified by spyrax10 21 Mar 2022	
 		$this->add_rapp_function(0, _("&Journal Entry"),
-			"gl/inquiry/journal_list.php?", 'SA_JOURNALENTRY', MENU_TRANSACTION
+			"gl/inquiry/journal_list.php?", 'SA_JE_LIST', MENU_TRANSACTION
 		);
 		//
 		
@@ -50,11 +50,11 @@ class general_ledger_app extends application
 		$this->add_module(_("Inquiries and Reports"));
 		//Added by spyrax10
 		$this->add_lapp_function(1, _("&Banking Interbranch Inquiry"),
-			"gl/inquiry/interbranch_list.php?", 'SA_GLANALYTIC', MENU_INQUIRY
+			"gl/inquiry/interbranch_list.php?", 'SA_INTERB_LIST', MENU_INQUIRY
 		);
 		//
 		$this->add_lapp_function(1, _("&Journal Inquiry"),
-			"gl/inquiry/journal_inquiry.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+			"gl/inquiry/journal_inquiry.php?", 'SA_GLANALYTIC_LIST', MENU_INQUIRY);
 		
 		//Modified by spyrax10 20 Jun 2022
 		$this->add_lapp_function(1, _("GL &Inquiry"),
@@ -68,12 +68,19 @@ class general_ledger_app extends application
 		$this->add_lapp_function(1, _("Ta&x Inquiry"),
 			"gl/inquiry/tax_inquiry.php?", 'SA_TAXREP', MENU_INQUIRY);
 
+		//Modified by spyrax10 24 Jun 2022
 		$this->add_rapp_function(1, _("Trial &Balance"),
-			"gl/inquiry/gl_trial_balance.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+			"gl/inquiry/gl_trial_balance.php?", 'SA_GLANALYTIC_LIST', MENU_INQUIRY
+		);
+
 		$this->add_rapp_function(1, _("Balance &Sheet Drilldown"),
-			"gl/inquiry/balance_sheet.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+			"gl/inquiry/balance_sheet.php?", 'SA_GLANALYTIC_LIST', MENU_INQUIRY
+		);
+
 		$this->add_rapp_function(1, _("&Profit and Loss Drilldown"),
-			"gl/inquiry/profit_loss.php?", 'SA_GLANALYTIC', MENU_INQUIRY);
+			"gl/inquiry/profit_loss.php?", 'SA_GLANALYTIC_LIST', MENU_INQUIRY
+		);
+		//
 		
 		$this->add_rapp_function(1, _("Banking &Reports"),
 			"reporting/reports_main.php?Class=5", 'SA_BANKREP', MENU_REPORT

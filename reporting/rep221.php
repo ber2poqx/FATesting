@@ -1,5 +1,5 @@
 <?php
-$page_security = 'SA_SUPPLIERANALYTIC';
+$page_security = 'SA_SUPP_REP';
 
 // ----------------------------------------------------------------
 // $ Revision:	2.0 $

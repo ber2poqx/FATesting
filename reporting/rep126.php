@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-$page_security = 'SA_SALESANALYTIC';
+$page_security = 'SA_AGING_REP'; //Modified by spyrax10 24 Jun 2022
 // ----------------------------------------------------------------
 // $ Revision:  2.0 $
 // Creator: RobertGwapo

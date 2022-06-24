@@ -4,7 +4,7 @@
  * Added by spyrax10
  */
 
-$page_security = 'SA_GLANALYTIC';
+$page_security = 'SA_INTERB_LIST';
 $path_to_root="../..";
 
 include($path_to_root . "/includes/db_pager.inc");

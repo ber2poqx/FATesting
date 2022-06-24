@@ -36,7 +36,8 @@ $reports->addReportClass(_('Customer'), RC_CUSTOMER);
 # CUSTOMER SECTION
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_AGING_REP')) {
 
 	$reports->addReport(RC_CUSTOMER, 100, _('A&ging Summary Report'),
 		array(
@@ -58,6 +59,20 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
 			_('Destination') => 'DESTINATION'
 		)	
 	);
+
+	$reports->addReport(RC_CUSTOMER,  126, _('Aging Collectors Report'),
+		array(	
+			_('As Of Date') => 'DATEENDM',
+			_('Customer') => 'CUSTOMERS_NO_FILTER',
+			_('Group By') => 'COA_COL',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);
+
+}
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
 
 	$reports->addReport(RC_CUSTOMER, 101, _('Customer &Balances'),
 		array(	
@@ -191,6 +206,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESBULKREP')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
+
+}
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_MISC_REP')) {
 
 	$reports->addReport(RC_CUSTOMER, 107, _('Print &Invoices'),
 		array(	
@@ -433,7 +452,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_TARGET_SR')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_TERMOD_REP')) {
 	
 	//Created by Prog6 (03-03-2022) =====================================
 	$reports->addReport(RC_CUSTOMER, 124, _('Accts. with Term Modifications'),
@@ -447,26 +466,50 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
 	//===================================================================
 }
 
-//Added by robert==================================================
-//Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
-	
-	$reports->addReport(RC_CUSTOMER,  126, _('Aging Collectors Report'),
-		array(	
-			_('As Of Date') => 'DATEENDM',
-			_('Customer') => 'CUSTOMERS_NO_FILTER',
-			_('Group By') => 'COA_COL',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);
-}
-//
-
 //================================================================
 # SUPPLIER SECTION
 $reports->addReportClass(_('Supplier'), RC_SUPPLIER);
 # SUPPLIER SECTION
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_REP')) {
+	//modified by Albert
+	$reports->addReport(RC_SUPPLIER, 205, _('Supplier &Detail Listing'),
+		array(	
+			_('Activity Since') => 'DATEBEGIN',
+			_('Activity Greater Than') => 'TEXT',
+			_('Activity Less Than') => 'TEXT',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);
+
+	$reports->addReport(RC_SUPPLIER, 207, _('Recei&ving Report Form'),
+		array(	
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);	
+
+	// Added by spyrax10
+	$reports->addReport(RC_SUPPLIER, 221, _('Purchase Order &Summary Report v2'),
+		array(	
+			_('Start Date') => 'DATEBEGINM', //parameters
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORIES',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Sub-category') => 'SUBCATEGORY',
+			_('Model') => 'ITEMS_P',
+			_('Status') => 'STATUS',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);
+
+}
 
 //Modified by spyrax10 31 Mar 2022
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
@@ -509,17 +552,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 		)
 	);
 
-	//modified by Albert
-	$reports->addReport(RC_SUPPLIER, 205, _('Supplier &Detail Listing'),
-		array(	
-			_('Activity Since') => 'DATEBEGIN',
-			_('Activity Greater Than') => 'TEXT',
-			_('Activity Less Than') => 'TEXT',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);
 
 	$reports->addReport(RC_SUPPLIER, 206, _('Supplier &Trial Balances'),
 		array(  
@@ -532,16 +564,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'
 		)
-	);
-
-	$reports->addReport(RC_SUPPLIER, 207, _('Recei&ving Report Form'),
-		array(	
-			_('Supplier') => 'SUPPLIERS_NO_FILTER',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);		
+	);	
 
 }
 
@@ -562,8 +585,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPPAYMREP')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPTRANSVIEW') || 
-$_SESSION["wa_current_user"]->can_access_page('SA_SUPPBULKREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_PRINT')) {
 	
 	$reports->addReport(RC_SUPPLIER, 209, _('Print Purchase &Orders'),
 		array(	
@@ -606,21 +628,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 		)
 	);
 
-	// Added by spyrax10
-	$reports->addReport(RC_SUPPLIER, 221, _('Purchase Order &Summary Report v2'),
-		array(	
-			_('Start Date') => 'DATEBEGINM', //parameters
-			_('End Date') => 'DATEENDM',
-			_('Category') => 'CATEGORIES',
-			_('Supplier') => 'SUPPLIERS_NO_FILTER',
-			_('Sub-category') => 'SUBCATEGORY',
-			_('Model') => 'ITEMS_P',
-			_('Status') => 'STATUS',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);
 }
 
 # INVENTORY SECTION
@@ -689,8 +696,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_REP')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SERIAL_LIST') && 
-	$_SESSION["wa_current_user"]->company == 0) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SERIAL_LIST')) {
 
 	$reports->addReport(RC_INVENTORY, 295, _('PNP Clearance Monitoring Report'),
 		array(	
@@ -828,6 +834,8 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PROD_REP')) {
 
 //
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC'))
+
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
 	
 	$reports->addReport(RC_INVENTORY, 304, _('Inventory &Sales Report'),
@@ -844,6 +852,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
 		)
 	);
 
+}
+
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_ITEM_MISC')) {
 	$reports->addReport(RC_INVENTORY, 306, _('Inventory P&urchasing Report'),
 		array(	
 			_('Start Date') => 'DATEBEGINM',
@@ -983,7 +995,7 @@ $reports->addReportClass(_('Banking'), RC_BANKING);
 # BANKING SECTION
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_BANKREP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_BANK_STATE_REP')) {
 
 	$reports->addReport(RC_BANKING,  601, _('Bank &Statement'),
 		array(	
@@ -1058,9 +1070,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
 if ($dim == 2) {
 
-	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
-		
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_MISC_REP')) {
 		$reports->addReport(RC_GL, 705, _('Annual &Expense Breakdown'),
 			array(	
 				_('Year') => 'TRANS_YEARS',
@@ -1072,6 +1082,11 @@ if ($dim == 2) {
 				_('Destination') => 'DESTINATION'
 			)
 		);
+	}
+
+	//Modified by spyrax10 31 Mar 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
+		
 
 		$reports->addReport(RC_GL, 706, _('&Balance Sheet'),
 			array(	
@@ -1136,10 +1151,8 @@ elseif ($dim == 1) {
 			)
 		);
 	}
-	
-	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
-		
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_MISC_REP')) {
 		$reports->addReport(RC_GL, 705, _('Annual &Expense Breakdown'),
 			array(	
 				_('Year') => 'TRANS_YEARS',
@@ -1150,6 +1163,10 @@ elseif ($dim == 1) {
 				_('Destination') => 'DESTINATION'
 			)
 		);
+	}
+	
+	//Modified by spyrax10 31 Mar 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
 		$reports->addReport(RC_GL, 706, _('&Balance Sheet'),
 			array(	
@@ -1268,7 +1285,7 @@ else {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_MISC_REP')) {
 	
 	$reports->addReport(RC_GL, 709, _('Ta&x Report'),
 		array(	

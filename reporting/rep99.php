@@ -1,6 +1,6 @@
 <?php
 
-$page_security = 'SA_CUSTPAYMREP';
+$page_security = 'SA_AGING_REP';
 
 // ----------------------------------------------------------------
 // $ Revision:	1.0 $

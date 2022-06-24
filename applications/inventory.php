@@ -110,9 +110,14 @@ class inventory_app extends application
 		$this->add_lapp_function(3, _("System &Cost"),
 			//"inventory/purchasing_data.php?", 'SA_PURCHASEPRICING', MENU_MAINTENANCE);
 			"inventory/supplier_cost.php?", 'SA_PURCHASEPRICING', MENU_MAINTENANCE);
+		
+		//Modified by spyrax10 24 Jun 2022
 		$this->add_rapp_function(3, _("SRP Pricing"),
 			//"inventory/cost_update.php?", 'SA_STANDARDCOST', MENU_MAINTENANCE);
-			"inventory/standard_cost.php?", 'SA_STANDARDCOST', MENU_MAINTENANCE);
+			"inventory/standard_cost.php?", 'SA_STANDARDCOST', MENU_MAINTENANCE
+		);
+		//
+		
 		$this->add_rapp_function(3, _("Incentive Pricing"),
 			"inventory/incentive_price.php?", 'SA_SINCNTVPRICE', MENU_MAINTENANCE);
 		$this->add_rapp_function(3, _("Item AP Support Price"),
