@@ -238,7 +238,7 @@ function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $refe
 	set_global_connection();
 	
 	$date = date2sql($date_);
-	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference, void_status)
+	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference, reference_to, void_status)
 		VALUES (
 			". db_escape($type) .", 
 			". db_escape($type_no) .", 
@@ -246,6 +246,7 @@ function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $refe
 			". db_escape($memo_) .", 
 			".db_escape($branch_id) .",
 			".db_escape($reference) .",
+			".db_escape($ref_to) .",
 			".db_escape($status) ."
 		)";
 
