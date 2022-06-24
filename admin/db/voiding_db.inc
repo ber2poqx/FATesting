@@ -259,11 +259,11 @@ function update_void_status($type, $trans_no, $date, $status = "Draft", $note = 
 	set_global_connection();
 	$update_date = date2sql($date);
 
-	$sql = "UPDATE ".TB_PREF."voided SET void_status = " .db_escape($status) . 
-		", status_note = " .db_escape($note);
+	$sql = "UPDATE ".TB_PREF."voided SET void_status = " .db_escape($status);
 
 	if ($status == "Approved" || $status == "Disapproved") {
-		$sql .= ", approved_by = " .db_escape($user_id) . ", date_approved = " .db_escape($update_date);
+		$sql .= ", approved_by = " .db_escape($user_id) . ", date_approved = " .db_escape($update_date) 
+			. ", status_note = " .db_escape($note);
 	}
 	else if ($status == "Voided") {
 		$sql .= ", voided_by = " .db_escape($user_id) . ", date_voided = " .db_escape($update_date) 
