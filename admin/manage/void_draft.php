@@ -42,7 +42,7 @@ else {
         $header_text = _("Pending");
     } 
     else {
-        $header_text = _("Create");
+        $header_text = _("Create Request To");
     }
 }
 

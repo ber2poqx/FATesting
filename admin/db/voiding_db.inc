@@ -18,7 +18,7 @@ include_once($path_to_root . "/manufacturing/includes/manufacturing_db.inc");
 function void_transaction($type, $type_no, $date_, $memo_) {
 
 	global $Refs;
-	$void_entry = get_voided_entry($type, $type_no);
+	$void_entry = get_voided_entry($type, $type_no, null, false, 'Voided');
 
 	if ($void_entry != null) {
 		return _('This transaction was already voided before.');
@@ -180,7 +180,8 @@ function void_transaction($type, $type_no, $date_, $memo_) {
 	// only add an entry if it's actually been voided
 	add_audit_trail($type, $type_no, $date_, _("Voided.")."\n".$memo_);
 	$Refs->restore_last($type, $type_no);
-	add_voided_entry($type, $type_no, $date_, $memo_);
+	//add_voided_entry($type, $type_no, $date_, $memo_);
+	update_void_status($type, $type_no, $date_, "Voided", $memo_, $_SESSION["wa_current_user"]->user);
 	return false;
 }
 

@@ -443,6 +443,16 @@ if (isset($_POST['Process']) && !check_trans()) {
 
 	$trans_type = $trans[0];
 	$trans_no = $trans[1];
+
+	if ($_SESSION['pay_items']->void_id > 0) {
+		$void_id = void_transaction(
+			get_post('void_type'), 
+			get_post('void_no'), 
+			$_POST['date_'], 
+			get_post('void_memo')
+		);
+	}
+
 	new_doc_date($_POST['date_']);
 
 	$_SESSION['pay_items']->clear_items();
@@ -451,9 +461,11 @@ if (isset($_POST['Process']) && !check_trans()) {
 	commit_transaction();
 
 	if ($new) {
-		meta_forward($_SERVER['PHP_SELF'], $trans_type == ST_BANKPAYMENT ?
-			"AddedID=$trans_no" : "AddedDep=$trans_no"
-		);
+		if ($trans_no) {
+			meta_forward($_SERVER['PHP_SELF'], $trans_type == ST_BANKPAYMENT ?
+				"AddedID=$trans_no" : "AddedDep=$trans_no"
+			);
+		}
 	}
 	else {
 		meta_forward($_SERVER['PHP_SELF'], $trans_type == ST_BANKPAYMENT ?

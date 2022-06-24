@@ -12,7 +12,14 @@
  ***********************************************************************/
 function void_header($void_id) {
 
+	$document_total = 0;
 	$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+	$banking = $void_row["type"] == ST_BANKPAYMENT || $void_row["type"] == ST_BANKDEPOSIT;
+
+	if ($banking) {
+		$bank_row = db_fetch_assoc(db_query(get_banking_transactions($void_row["type"], '', '', null, null, '', '', '', $void_row["id"])));
+		$document_total = $bank_row['amount'];
+	}
 	
 	display_heading(_("Transaction to be Voided: "));
 	start_outer_table(TABLESTYLE2, "width='80%'");
@@ -20,12 +27,20 @@ function void_header($void_id) {
 	table_section(1);
 	label_row("Reference: &nbsp;", get_trans_view_str($void_row["type"], $void_row["id"], $void_row['reference']));
 	label_row("Date: &nbsp;", phil_short_date($void_row['date_']));
+	if ($banking) {
+		label_row(_("Pay To: "), payment_person_name($bank_row['person_type_id'], $bank_row['masterfile']));
+	}
 	label_row("Void Remarks: &nbsp;", $void_row['memo_']);
 
 	table_section(2);
 	label_row("Approved By: &nbsp;", get_user_name($void_row['approved_by']));
 	label_row("Date Approved: &nbsp;", phil_short_date($void_row['date_approved']));
 	label_row("Approval Remarks: &nbsp;", $void_row['status_note']);
+	label_row("Document Total: &nbsp;", price_format($document_total));
+
+	hidden('void_memo', $void_row['memo_']);
+	hidden('void_type', $void_row['type']);
+	hidden('void_no', $void_row['id']);
 
 	end_outer_table(1);
 }

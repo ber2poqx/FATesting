@@ -68,7 +68,23 @@ function amount_total($row) {
 }
 
 function gl_view($row) {
-	return get_gl_view_str(ST_BANKDEPOSIT, $row["trans_no"], '', false, '', '', 1);
+
+    $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
+
+        if ($void_entry['void_status'] != 'Voided') {
+            $gl_link = get_gl_view_str(ST_BANKDEPOSIT, $row["trans_no"], '', false, '', '', 1);
+        }
+        else {
+            $gl_link = '';
+        }
+    }
+    else {
+        $gl_link = '';
+    }
+
+    return $gl_link;
 }
 
 
@@ -105,6 +121,12 @@ function void_row($row) {
 	}
 
 	return $void_link;
+}
+
+function check_void($row) {
+    $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
+
+    return $void_entry['void_status'] == 'Voided' ? true : false;
 }
 
 //---------------------------------------------------------------
@@ -184,7 +206,9 @@ $cols = array(
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center')
 );
+
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
+$table->set_marker('check_void', _("Marked Rows are Voided"));
 
 $table->width = "80%";
 

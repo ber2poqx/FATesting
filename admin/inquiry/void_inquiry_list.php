@@ -111,7 +111,12 @@ function post_void($row) {
 function gl_view($row) {
 	
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
-		$gl_link = get_gl_view_str($row['type'], $row["id"]);
+        if ($row['void_status'] != 'Voided') {
+            $gl_link = get_gl_view_str($row['type'], $row["id"]);
+        }
+        else {
+            $gl_link = '';
+        }
 	}
 	else {
 		$gl_link = '';
