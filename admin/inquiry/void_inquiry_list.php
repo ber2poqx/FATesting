@@ -56,6 +56,27 @@ function reference_row($row) {
     return get_trans_view_str($row["type"], $row["id"], $row['reference']);
 }
 
+function reference_to($row) {
+
+    $banking = $row["type"] == ST_BANKPAYMENT || $row["type"] == ST_BANKDEPOSIT;
+
+    if ($row['reference_to'] != '') {
+        
+        if ($banking) {
+            $bank_row = db_fetch_assoc(db_query(get_banking_transactions($row["type"], $row['reference_to'], '', null, null, '', '', '')));
+            $trans_no = $bank_row['trans_no'];
+        }
+        else {
+            $trans_no = $row["id"];
+        }
+
+        return get_trans_view_str($row["type"], $trans_no, $row['reference_to']);
+    }
+    else {
+        return null;
+    }
+}
+
 function approved_by($row) {
     return get_user_name($row['approved_by']);
 }
@@ -186,7 +207,8 @@ $sql = get_voided_entry(
 
 $cols = array(
     _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
-    _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
+    _('Voided Reference') => array('align' => 'center', 'fun' => 'reference_row'),
+    _('Created Reference') => array('align' => 'center', 'fun' => 'reference_to'),
     _('Transaction Date') => array('align' => 'center', 'fun' => 'date_transact'),
     _('Status') => array('align' => 'center', 'fun' => 'void_status'),
     _('Date Approved') => array('align' => 'center', 'fun' => 'date_approved'),

@@ -73,12 +73,7 @@ function gl_view($row) {
 
     if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
 
-        if ($void_entry['void_status'] != 'Voided') {
-            $gl_link = get_gl_view_str(ST_BANKDEPOSIT, $row["trans_no"], '', false, '', '', 1);
-        }
-        else {
-            $gl_link = '';
-        }
+        $gl_link = get_gl_view_str(ST_BANKDEPOSIT, $row["trans_no"], '', false, '', '', 1);
     }
     else {
         $gl_link = '';

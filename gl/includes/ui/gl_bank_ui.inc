@@ -29,7 +29,10 @@ function void_header($void_id) {
 	label_row("Date: &nbsp;", phil_short_date($void_row['date_']));
 	if ($banking) {
 		label_row(_("Pay To: "), payment_person_name($bank_row['person_type_id'], $bank_row['masterfile']));
+		$receipt_no = $bank_row['receipt_no'];
 	}
+	
+	label_row("Receipt #: &nbsp;", $receipt_no);
 	label_row("Void Remarks: &nbsp;", $void_row['memo_']);
 
 	table_section(2);

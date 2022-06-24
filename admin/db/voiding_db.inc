@@ -233,7 +233,7 @@ function get_voided_entry($type = null, $type_no = null, $reference = null, $lis
 
 //--------------------------------------------------------------------------------------------------
 
-function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $status = 'Draft') {
+function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $ref_to = '', $status = 'Draft') {
 	
 	set_global_connection();
 	
@@ -254,7 +254,7 @@ function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $refe
 	return $type_no;
 }
 
-function update_void_status($type, $trans_no, $date, $status = "Draft", $note = "", $user_id = 0) {
+function update_void_status($type, $trans_no, $date, $status = "Draft", $note = "", $user_id = 0, $ref_to = '') {
 	
 	set_global_connection();
 	$update_date = date2sql($date);
@@ -266,7 +266,8 @@ function update_void_status($type, $trans_no, $date, $status = "Draft", $note = 
 		$sql .= ", approved_by = " .db_escape($user_id) . ", date_approved = " .db_escape($update_date);
 	}
 	else if ($status == "Voided") {
-		$sql .= ", voided_by = " .db_escape($user_id) . ", date_voided = " .db_escape($update_date);
+		$sql .= ", voided_by = " .db_escape($user_id) . ", date_voided = " .db_escape($update_date) 
+			. ", reference_to = " .db_escape($ref_to);
 	}
 
 	$sql .= " WHERE type = " .db_escape($type) . " AND id = " .db_escape($trans_no);

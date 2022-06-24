@@ -21,7 +21,7 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 	$person_id = null, $err_msg = "", $rate = 0, $mcode = null, $master_file = null, $hocbc = 0, 
 	$loan_trans_no = 0,
 	//Added by spyrax10 15 Jun 2022 
-	$interbranch = 0, $check_AR = true)
+	$interbranch = 0, $check_AR = true, $void_entry = 0)
 {
 	global $SysPrefs;
 	set_global_connection();
@@ -75,6 +75,10 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 		$sql .= ", person_type_id, person_id";
 	}
 
+	if ($void_entry > 0) {
+		$sql .= ", void_entry";
+	}
+
 	$sql .= ") ";
 
 	$sql .= "VALUES (".db_escape($type).", ".db_escape($trans_id).", '$date',
@@ -86,6 +90,10 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 	/* */
 	if ($person_type_id != null) {
 		$sql .= ", ".db_escape($person_type_id).", ". db_escape($person_id);
+	}
+
+	if ($void_entry > 0) {
+		$sql .= ", " .db_escape($void_entry);
 	}
 
 	$sql .= ") ";
@@ -217,7 +225,7 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
 //--------------------------------------------------------------------------------
 
 // Update Query Format (spyrax10) 3 May 2022 
-function get_gl_trans($type, $trans_id) {
+function get_gl_trans($type, $trans_id, $order = "ASC") {
 	set_global_connection();
 	
 	$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
@@ -251,7 +259,7 @@ function get_gl_trans($type, $trans_id) {
 		." WHERE gl.type = ".db_escape($type) 
 		." AND gl.type_no = ".db_escape($trans_id)
 		." AND gl.amount <> 0"
-		." ORDER BY tran_date, counter";
+		." ORDER BY tran_date, counter $order"; //Added by spyrax10 24 Jun 2022
 
 	return db_query($sql, "The gl transactions could not be retrieved");
 }
@@ -612,18 +620,22 @@ function exists_gl_trans($type, $trans_id)
 
 //--------------------------------------------------------------------------------------------------
 
-function void_gl_trans($type, $trans_id, $nested=false)
-{
-	if (!$nested)
+function void_gl_trans($type, $trans_id, $nested = false) {
+	
+	set_global_connection();
+	
+	if (!$nested) {
 		begin_transaction();
+	}
 
-	$sql = "UPDATE ".TB_PREF."gl_trans SET amount=0 WHERE type=".db_escape($type)
-	." AND type_no=".db_escape($trans_id);
+	$sql = "UPDATE ".TB_PREF."gl_trans SET amount = 0 WHERE type = " .db_escape($type)
+	." AND type_no = ".db_escape($trans_id);
 
 	db_query($sql, "could not void gl transactions for type=$type and trans_no=$trans_id");
 
-	if (!$nested)
+	if (!$nested) {
 		commit_transaction();
+	}
 }
 
 //----------------------------------------------------------------------------------------

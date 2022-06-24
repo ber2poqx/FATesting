@@ -219,7 +219,8 @@ if (isset($_POST['Process'])) {
         Today(), 
         get_post('memo_'), 
         user_company(),
-        get_post('reference')
+        get_post('reference'),
+        ''
     );
 
     if ($trans_no) {

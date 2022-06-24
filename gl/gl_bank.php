@@ -438,21 +438,13 @@ if (isset($_POST['Process']) && !check_trans()) {
 		get_bank_account_name($_POST['bank_account']),
 		get_post('bank_account') == BT_CHECK ? $_POST['check_date'] : null,
 		false,
-		get_post('open_bal') != null ? get_post('open_bal') : 0
+		get_post('open_bal') != null ? get_post('open_bal') : 0, 0,
+		$_SESSION['pay_items']->void_id
 	);
 
 	$trans_type = $trans[0];
 	$trans_no = $trans[1];
-
-	if ($_SESSION['pay_items']->void_id > 0) {
-		$void_id = void_transaction(
-			get_post('void_type'), 
-			get_post('void_no'), 
-			$_POST['date_'], 
-			get_post('void_memo')
-		);
-	}
-
+	
 	new_doc_date($_POST['date_']);
 
 	$_SESSION['pay_items']->clear_items();

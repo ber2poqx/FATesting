@@ -572,7 +572,8 @@ function write_bank_transaction(
 	$check_date = null,
 	$interbranch = false,
 	$open_bal = 0,
-	$inter_total = 0
+	$inter_total = 0,
+	$void_id = 0
 	// 
 ) {
 	global $Refs, $SysPrefs;
@@ -744,7 +745,8 @@ function write_bank_transaction(
 			$gl_item->master_file,
 			$gl_item->hocbc,
 			0,
-			$gl_item->comp_id != $coy ? 1 : 0
+			$gl_item->comp_id != $coy ? 1 : 0,
+			false
 		);
 
 		//Added by spyrax10 -- Interbranch Entry
@@ -886,26 +888,69 @@ function write_bank_transaction(
 		}
 	}
 
+	if ($void_id > 0) {
+		
+		$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+		$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
+
+		while ($row = db_fetch($gl_sql)) {
+			
+			add_gl_trans(
+				$row['type'],
+				$row['type_no'],
+				$date_,
+				$row['account'],
+				0, 0,
+				$void_row['memo_'],
+				-$row['amount'],
+				'PHP',
+				$row['person_type_id'],
+				$row['person_id'],
+				"",
+				0,
+				$row['mcode'],
+				$row['master_file'],
+				$row['hocbc_id'],
+				$row['loan_trans_no'],
+				$row['interbranch'],
+				false,
+				1
+			);
+		}
+
+		add_audit_trail($void_row['type'], $void_row['id'], $date_, _("Voided.")."\n". $void_row['memo_']);
+		//$Refs->restore_last($type, $type_no);
+		update_void_status(
+			$void_row['type'], 
+			$void_row['id'], 
+			$date_, "Voided", 
+			$void_row['memo_'], 
+			$_SESSION["wa_current_user"]->user,
+			$ref
+		);
+	}
+
 	add_comments($trans_type, $trans_no, $date_, $memo_);
 
 	$Refs->save($trans_type, $trans_no, $ref);
 	add_audit_trail($trans_type, $trans_no, $date_);
 
+
 	// old transaction can be voided only after new transaction is entered,
 	//  otherwise the operation could fail for cash accounts due to temporary negative balance
-	if ($old_trans) {
-		$msg = void_transaction($trans_type, $old_trans, Today(), _("Document reentered."));
-		if ($msg) {
-			display_error($msg);
-			return false;
-		}
-	}
-
+	// if ($old_trans) {
+	// 	$msg = void_transaction($trans_type, $old_trans, Today(), _("Document reentered."));
+	// 	if ($msg) {
+	// 		display_error($msg);
+	// 		return false;
+	// 	}
+	// }
 
 	$args->trans_no = $trans_no;
 	hook_db_postwrite($args, $trans_type);
-	if ($use_transaction)
+	if ($use_transaction) {
 		commit_transaction();
+	}
 
 	return array($trans_type, $trans_no);
 }

@@ -209,7 +209,14 @@ function _gl_details() {
 			$heading_shown = true;
 		}
 
-		alt_table_row_color($k);
+		//Modified by spyrax10 24 Jun 2022
+		if ($myrow['void_entry'] == 1) {
+			start_row("class='overduebg'");
+		}
+		else {
+			alt_table_row_color($k);
+		}
+		//
 
 		//Added by spyrax10
 		label_cell($myrow['counter']);
