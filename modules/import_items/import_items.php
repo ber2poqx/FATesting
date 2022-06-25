@@ -381,10 +381,9 @@ if (isset($_POST['import'])) {
 			    $result = db_query($sql, "item code could not be retreived");
 			    $row = db_fetch_row($result);
 				if (!$row) {
-				 	add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer, 
-				 		null);
+				 	add_item_code($code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 				} else {
-				 	update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer, null);
+				 	update_item_code($row[0], $code, $color, $id, $description, $pnpcolor, $cat, $qty,0, $brand, $manufacturer, $distributor, $importer);
 				}
 			}
 
