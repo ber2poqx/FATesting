@@ -18,8 +18,8 @@ function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp
 	$old_code = "")
 {
 	//Added by spyrax10 7 May 2022
-	//global $def_coy;
-	//set_global_connection($def_coy);
+	global $def_coy;
+	set_global_connection($def_coy);
 	//
 
 	$sql = "UPDATE ".TB_PREF."item_codes SET
@@ -53,8 +53,8 @@ function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_
 	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null)
 {
 	//Added by spyrax10 7 May 2022
-	//global $def_coy;
-	//set_global_connection($def_coy);
+	global $def_coy;
+	set_global_connection($def_coy);
 	//
 
 	$sql = "INSERT INTO ".TB_PREF."item_codes
