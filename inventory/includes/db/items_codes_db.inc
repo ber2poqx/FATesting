@@ -48,6 +48,67 @@ function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp
 	db_query($sql,"an item code could not be updated");
 }
 
+//--Added by Robert--06/25/2022//
+function update_item_code_for_import($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, 
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0,
+	$old_code = "")
+{
+	$sql = "UPDATE ".TB_PREF."item_codes SET
+	 	item_code = ".db_escape($item_code).",
+	 	stock_id = ".db_escape($stock_id).",
+	 	description = ".db_escape($description).",
+	 	category_id = ".db_escape($category).",
+	 	quantity = ".db_escape($qty).",
+	 	is_foreign = ".db_escape($foreign).",
+	 	brand = ".db_escape($brand).",
+	 	manufacturer = ".db_escape($manufacturer).",
+	 	distributor = ".db_escape($distributor).",
+	 	importer = ".db_escape($importer).",
+		product_status = ".db_escape($itemstatus).",
+		pnp_color = ".db_escape($pnp_color).",
+		color = ".db_escape($color).",
+		old_code = ".db_escape($old_code)."
+        	WHERE ";
+			
+	if ($id == -1) // update with unknown $id i.e. from items table editor
+	 	$sql .= "item_code = ".db_escape($item_code)
+		." AND stock_id = ".db_escape($stock_id);
+	else
+		$sql .= "id = ".db_escape($id);
+
+	db_query($sql,"an item code could not be updated");
+}
+
+//--Added by Robert--06/25/2022//
+function add_item_code_for_import($item_code, $color = null, $stock_id, $description, $pnp_color = null, $category, $qty, 
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null)
+{
+	$sql = "INSERT INTO ".TB_PREF."item_codes
+			(
+				item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer, 
+				product_status, pnp_color, color, old_code
+			) 
+			
+			VALUES ( 
+				".db_escape($item_code).", 
+				".db_escape($stock_id).",
+	  			".db_escape($description).",
+            	".db_escape($category).",  
+            	".db_escape($qty).", 
+            	".db_escape($foreign).", 
+            	".db_escape($brand).", 
+            	".db_escape($manufacturer).", 
+            	".db_escape($distributor).", 
+            	".db_escape($importer).", 
+            	".db_escape($itemstatus).", 
+            	".db_escape($pnp_color).",  
+            	".db_escape($color).",
+				".db_escape($old_code)." 
+            )";
+
+	db_query($sql,"an item code could not be added");
+}
+
 //Modify by spyrax10 4 May 2022
 function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_color = null, $category, $qty, 
 	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null)
