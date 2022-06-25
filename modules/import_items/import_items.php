@@ -288,8 +288,8 @@ if (isset($_POST['import'])) {
 			    $sql6 = "SELECT id from ".TB_PREF."item_codes WHERE item_code='$code' AND stock_id = '$id'";
 			    $result6 = db_query($sql6, "item code could not be retreived");
 			    $row6 = db_fetch_row($result6);
-			    if (!$row6) add_item_code($code, $color, $id, $colordesc, $pnpcolor, $cat, $qty1, $foreign, $brand, $manufacturer, $distributor, $importer);
-			    else update_item_code($row6[0], $code, $color, $id, $colordesc, $pnpcolor, $cat, $qty1, $foreign, $brand, $manufacturer, $distributor, $importer);
+			    if (!$row6) add_item_code_for_import($code, $color, $id, $colordesc, $pnpcolor, $cat, $qty1, $foreign, $brand, $manufacturer, $distributor, $importer);
+			    else update_item_code_for_import($row6[0], $code, $color, $id, $colordesc, $pnpcolor, $cat, $qty1, $foreign, $brand, $manufacturer, $distributor, $importer);
 			    $k++;
 			}
 
