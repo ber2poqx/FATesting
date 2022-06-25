@@ -392,7 +392,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
 }
 
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_SUM_REP')) {
 	
 	$reports->addReport(RC_CUSTOMER, 119, _('&Sales Summary By Amount'),
 		array(	

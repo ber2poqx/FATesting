@@ -240,6 +240,7 @@ $security_areas =array(
 	'SA_COLLECT_REP' => array(SS_SALES_A|11, _("Daily Summary of Collection V2")),
 	'SA_AGING_REP' => array(SS_SALES_A|12, _("Aging Reports")),
 	'SA_SALES_MISC_REP' => array(SS_SALES_A|13, _("Sales Miscellaneous Reports")),
+	'SA_SALES_SUM_REP' => array(SS_SALES_A|14, _("Sales Summary Reports")),
 
 	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
 
