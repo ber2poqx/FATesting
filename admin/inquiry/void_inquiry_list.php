@@ -53,7 +53,7 @@ function void_status($row) {
 }
 
 function reference_row($row) {
-    return get_trans_view_str($row["type"], $row["id"], $row['reference']);
+    return get_trans_view_str($row["type"], $row["id"], $row['reference_from']);
 }
 
 function reference_to($row) {
