@@ -473,7 +473,7 @@ if (isset($_POST['UpdateJE'])) {
 		}
 
 		$sql2 = "UPDATE " . TB_PREF . "gl_trans SET 
-			person_type_id = " .db_escape($item->master_file_type) . ", 
+			person_type_id = " .db_escape($person_type) . ", 
 			mcode = " .db_escape(get_person_id(PT_CUSTOMER, $item->mcode)) . ", 
 			master_file = " .db_escape($item->master_file) . ", 
 			memo_ = " .db_escape($_POST['memo_']);
