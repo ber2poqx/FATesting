@@ -68,17 +68,73 @@ function amount_total($row) {
 }
 
 function gl_view($row) {
-	return get_gl_view_str(ST_BANKPAYMENT, $row["trans_no"], '', false, '', '', 1);
+    
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
+        $gl_link = get_gl_view_str(ST_BANKPAYMENT, $row["trans_no"], '', false, '', '', 1);
+    }
+    else {
+        $gl_link = '';
+    }
+
+	return $gl_link;
 }
 
 //Added by Prog6(03/31/2022)
-function print_voucher($row)
-{
-	return pager_link(
-		_("Print: Disbursement Voucher"),
-		"/reports/disbursement_voucher.php?trans_num=" . $row["trans_no"],
-		ICON_PRINT
-	);
+function print_voucher($row) {
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_DE')) {
+        $print_link = pager_link(_("Print: Disbursement Voucher"),
+            "/reports/disbursement_voucher.php?trans_num=" . $row["trans_no"], ICON_PRINT
+        );
+    }
+    else {
+        $print_link = '';
+    }
+	return $print_link;
+}
+
+function void_row($row) {
+    
+    $void_link = '';
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
+
+        $void_entry = get_voided_entry(ST_BANKPAYMENT, $row['trans_no']);
+
+        if ($void_entry == null) {
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKPAYMENT ."&status=0", ICON_DOC
+            );
+        }
+        else if ($void_entry['void_status'] == 'Disapproved') {
+
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKPAYMENT ."&status=0", ICON_DOC
+            );
+        }
+        else if (has_interbranch_entry($row['trans_no'], ST_BANKPAYMENT)) {
+           
+            $comp_id = get_comp_id(has_interbranch_entry($row['trans_no'], ST_BANKPAYMENT));
+            $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_BANKPAYMENT);
+            
+            if ($interb_status == 'Draft' && $void_entry == null) {
+                $void_link = pager_link( _("Request to Void"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKPAYMENT ."&status=0", ICON_DOC
+                );
+            }
+        }
+	}
+	else {
+		$void_link = '';
+	}
+
+	return $void_link;
+}
+
+function check_void($row) {
+    $void_entry = get_voided_entry(ST_BANKPAYMENT, $row['trans_no']);
+
+    return $void_entry['void_status'] == 'Voided' ? true : false;
 }
 
 //---------------------------------------------------------------
@@ -153,10 +209,12 @@ $cols = array(
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
 	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
+$table->set_marker('check_void', _("Marked Rows are Voided"));
 
 $table->width = "80%";
 
