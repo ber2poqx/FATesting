@@ -30,10 +30,11 @@ print_supplier_details_listing();
 
 function get_supplier_details_for_report()
 {
-	$sql = "SELECT *
-			FROM ".TB_PREF."suppliers
-			WHERE inactive = 0
-	 		ORDER BY supp_name";
+	$sql = "SELECT a.*,b.name as supplier_group_name
+			FROM ".TB_PREF."suppliers a
+			INNER JOIN supplier_group b ON a.supplier_group = b.id
+			WHERE a.inactive = 0
+	 		ORDER BY a.supp_name asc";
 
     return db_query($sql,"No transactions were returned");
 }
@@ -89,7 +90,7 @@ function print_supplier_details_listing()
 
 	$cols = array(0, 150, 210, 250, 290, 350, 400, 450, 525, 565, 635, 695, 725);
 
-	$headers = array(_('Supplier Name:'), _('Supplier Short Name'),	_('Supplier Group'),
+	$headers = array(_('Supplier Name:'), _('Supplier Short Name'),	_('Supplier Group Name'),
 		_('SAPcode'), _('TIN No:'), _('Website:'), _('Payment Terms:'), _('Price contain tax included:'),
     _('Supplier Type:'), _('Accounts Payable Account'), _('Purchase Account:'), _('Mailing Address'));
 
@@ -128,7 +129,7 @@ function print_supplier_details_listing()
 			$contacts = get_supplier_contacts($myrow['supplier_id']);
 			$rep->TextCol(0, 1,	$myrow['supp_name']);
 			$rep->TextCol(1, 2,	$myrow['supp_ref']);
-			$rep->TextCol(2, 3,	$myrow['supplier_group']);
+			$rep->TextCol(2, 3,	$myrow['supplier_group_name']);
             $rep->TextCol(3, 4,	$myrow['SAPcode']);
 			$rep->TextCol(4, 5,	$myrow['gst_no']);
 			$rep->TextCol(5, 6,	$myrow['website']);
