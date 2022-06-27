@@ -85,29 +85,32 @@ function gl_view($row) {
 
 function void_row($row) {
     
+    $void_link = '';
+
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
 
-        if (has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT)) {
-            $void_link = '';
-        }
-        else {
-            $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
+        $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
 
-            if ($void_entry == null) {
+        if ($void_entry == null) {
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+            );
+        }
+        else if ($void_entry['void_status'] == 'Disapproved') {
+
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+            );
+        }
+        else if (has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT)) {
+           
+            $comp_id = get_comp_id(has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT));
+            $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_BANKDEPOSIT);
+            
+            if ($interb_status == 'Draft' && $void_entry == null) {
                 $void_link = pager_link( _("Request to Void"),
                     "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
                 );
-            }
-            else {
-
-                if ($void_entry['void_status'] == 'Disapproved') {
-                    $void_link = pager_link( _("Request to Void"),
-                        "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
-                    );
-                }
-                else {
-                    $void_link = '';
-                }
             }
         }
 	}

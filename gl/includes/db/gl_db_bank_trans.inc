@@ -502,7 +502,7 @@ function has_interbranch_entry($trans_no, $trans_type) {
 	
 	set_global_connection();
 
-	$sql = "SELECT * 
+	$sql = "SELECT mcode, interbranch 
 		FROM gl_trans 
 		WHERE type_no = " .db_escape($trans_no) . " 
 			AND type = " .db_escape($trans_type);
@@ -511,7 +511,7 @@ function has_interbranch_entry($trans_no, $trans_type) {
 
 	while ($row = db_fetch($result)) {
 		if ($row['interbranch'] == 1) {
-			return true;
+			return $row['mcode'];
 		}
 		else {
 			return false;
@@ -519,6 +519,42 @@ function has_interbranch_entry($trans_no, $trans_type) {
 
 		return false;
 	}
+}
+
+function bank_interB_stat($company_id, $reference = '', $type = '') {
+
+	set_global_connection($company_id);
+
+	$sql = "SELECT status FROM " . TB_PREF . " bank_interbranch_trans 
+		WHERE IFNULL(id, '') <> ''";
+
+	if ($reference != '') {
+		$sql .= " AND ref_no = " .db_escape($reference);
+	}
+
+	if ($type != '') {
+		$sql .= " AND trantype_from_branch = " .db_escape($type);
+	}
+
+	$result = db_query($sql, "bank_interB_stat()");
+	$row = db_fetch_row($result);
+	set_global_connection();
+
+	return $row[0];
+}
+
+function void_interB($company_id, $reference = '', $type = '', $void = 0) {
+	
+	set_global_connection($company_id);
+
+	$sql = "UPDATE ".TB_PREF."bank_interbranch_trans SET voided = " .db_escape($void);
+
+	$sql .= " WHERE trantype_from_branch = " .db_escape($type) . " AND ref_no = " .db_escape($reference);
+	
+	db_query($sql, "void_interB()");
+	set_global_connection();
+	
+	return $reference;
 }
 
 function max_interbranch_no($trans_type, $branch = '') {

@@ -108,38 +108,47 @@ if (get_post('filterType')) {
 }
 //-----------------------------------------------------------------------------------
 
-function status_link($row)
-{
-	global $page_nested;
+function status_link($row) {
 
     $status_text = $row["status"] == "Approved" ? "Reviewed" : $row["status"];
+    $stat_link = $status_text;
 
-	return $row["status"] == "Draft" ? pager_link(
-		$row['status'],
-		"/gl/manage/gl_draft.php?trans_no=" . $row['transno_from_branch'] . 
-            "&type=" . $row['trantype_from_branch'] .
-            "&status=0",
-		false
-	) : $status_text;
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_INTER_BANK_DRAFT')) {
+        if ($row['voided'] == 0) {
+            $stat_link = $row["status"] == "Draft" ? 
+                pager_link($row['status'],
+                    "/gl/manage/gl_draft.php?trans_no=" . $row['transno_from_branch'] . 
+                        "&type=" . $row['trantype_from_branch'] . "&status=0", false
+            ) : $status_text;
+        }
+    }
+    
+    return $stat_link;
 }
 
-function systype_name($row)
-{
+function systype_name($row) {
 	global $systypes_array;
 	
 	return $systypes_array[$row['trantype_from_branch']];
 }
 
-function gl_view($row)
-{
+function gl_view($row) {
 	return $row['status'] == "Closed" ? get_gl_view_str($row['trantype_to_branch'], $row["transno_to_branch"], '', false, '', '', 1) : null;
 }
 
 function post_gl($row) {
-	return $row['status'] == "Approved" ? pager_link( _("Post Transaction Ref: " . $row['ref_no']),
-	"/gl/manage/gl_draft.php?trans_no=" . $row["transno_from_branch"] . 
-        "&type=" . $row['trantype_from_branch'] .
-        "&status=1", ICON_DOC) : null;
+
+    $post_link = '';
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_INTER_BANK_POST')) {
+        if ($row['voided'] == 0) {
+            $post_link = $row['status'] == "Approved" ? pager_link( _("Post Transaction Ref: " . $row['ref_no']),
+                "/gl/manage/gl_draft.php?trans_no=" . $row["transno_from_branch"] . 
+                "&type=" . $row['trantype_from_branch'] . "&status=1", ICON_DOC
+            ) : null;
+        }
+    }
+	return $post_link;
 }
 
 function trans_num($row) {
@@ -173,6 +182,10 @@ function approver($row) {
 
 function post_date($row) {
     return phil_short_date($row['post_date']);
+}
+
+function check_void($row) {
+    return $row['voided'] == 1 ? true : false;
 }
 
 //-----------------------------------------------------------------------------------
@@ -245,6 +258,7 @@ $cols = array(
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
+$table->set_marker('check_void', _("Marked Rows are Voided"));
 
 $table->width = "98%";
 

@@ -918,8 +918,6 @@ function write_bank_transaction(
 			);
 		}
 
-		add_audit_trail($void_row['type'], $void_row['id'], $date_, _("Voided.")."\n". $void_row['memo_']);
-		//$Refs->restore_last($type, $type_no);
 		update_void_status(
 			$void_row['type'], 
 			$void_row['id'], 
@@ -928,6 +926,19 @@ function write_bank_transaction(
 			$_SESSION["wa_current_user"]->user,
 			$ref
 		);
+
+		if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
+
+			$comp_id = get_comp_id(has_interbranch_entry($void_row['id'], $void_row['type']));
+			$interb_status = bank_interB_stat($comp_id, $void_row['reference_from'], $void_row['type']);
+
+			if ($interb_status == "Draft") {
+				void_interB($comp_id, $void_row['reference_from'], $void_row['type'], 1);
+			}
+		}
+
+		add_audit_trail($void_row['type'], $void_row['id'], $date_, _("Voided.")."\n". $void_row['memo_']);
+		$Refs->restore_last($void_row['type'], $void_row['id']);
 	}
 
 	add_comments($trans_type, $trans_no, $date_, $memo_);
