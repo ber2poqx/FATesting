@@ -1229,9 +1229,8 @@ else {
 			)
 		);
 	}
-	
-	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_MISC_REP')) {
 		$reports->addReport(RC_GL, 705, _('Annual &Expense Breakdown'),
 			array(	
 				_('Year') => 'TRANS_YEARS',
@@ -1241,6 +1240,10 @@ else {
 				_('Destination') => 'DESTINATION'
 			)
 		);
+	}
+	
+	//Modified by spyrax10 31 Mar 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
 		$reports->addReport(RC_GL, 706, _('&Balance Sheet'),
 			array(	
