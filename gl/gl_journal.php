@@ -443,9 +443,6 @@ if (isset($_POST['Process'])) {
 	if($new && $trans_no) {
 		meta_forward($_SERVER['PHP_SELF'], "AddedID=$trans_no");
 	}	
-	// else {
-	// 	meta_forward($_SERVER['PHP_SELF'], "UpdatedID=$trans_no");
-	// } 
 }
 
 if (isset($_POST['UpdateJE'])) {
@@ -462,6 +459,18 @@ if (isset($_POST['UpdateJE'])) {
 	db_query($sql, "Cannot update JE! (spyrax10)");
 
 	foreach($_SESSION['journal_items']->gl_items as $line => $item) {
+
+		$cust_row = get_customer('', $item->mcode);
+
+		if ($cust_row['debtor_no'] != null) {
+			$person_type = PT_CUSTOMER;
+		}
+		else if (get_comp_id($item->mcode) == $item->mcode) {
+			$person_type = PT_BRANCH;
+		}
+		else {
+			$person_type = PT_SUPPLIER;
+		}
 
 		$sql2 = "UPDATE " . TB_PREF . "gl_trans SET 
 			person_type_id = " .db_escape($item->master_file_type) . ", 
@@ -480,11 +489,6 @@ if (isset($_POST['UpdateJE'])) {
 
 	meta_forward($_SERVER['PHP_SELF'], "UpdatedID=$trans_no");
 
-	// foreach($_SESSION['journal_items']->gl_items as $line => $item) {
-	// 	display_error('Line: ' . $line . ' || Code: ' . $item->code_id . ' || Mcode: ' . $item->mcode
-	// 		. ' || person_type: ' . $item->master_file_type
-	// 	);
-	// }
 }
 
 //-----------------------------------------------------------------------------------------------
