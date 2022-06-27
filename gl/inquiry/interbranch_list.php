@@ -133,7 +133,17 @@ function systype_name($row) {
 }
 
 function gl_view($row) {
-	return $row['status'] == "Closed" ? get_gl_view_str($row['trantype_to_branch'], $row["transno_to_branch"], '', false, '', '', 1) : null;
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
+        $gl_link = $row['status'] == "Closed" ? 
+            get_gl_view_str($row['trantype_to_branch'], $row["transno_to_branch"], '', false, '', '', 1) 
+        : null;
+    }
+    else {
+        $gl_link = '';
+    }
+    
+	return $gl_link;
 }
 
 function post_gl($row) {

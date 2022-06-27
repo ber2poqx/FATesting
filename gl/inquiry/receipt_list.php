@@ -69,8 +69,6 @@ function amount_total($row) {
 
 function gl_view($row) {
 
-    $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
-
     if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
 
         $gl_link = get_gl_view_str(ST_BANKDEPOSIT, $row["trans_no"], '', false, '', '', 1);
