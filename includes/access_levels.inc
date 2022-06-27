@@ -247,7 +247,8 @@ $security_areas =array(
 //
 // Purchase related functions
 //
-	'SA_PURCHASEPRICING' => array(SS_PURCH_C|1, _("Purchase price changes")),
+	//Modified by spyrax10 27 Jun 2022
+	'SA_PURCHASEPRICING' => array(SS_PURCH_C|1, _("Purchase Price Changes")),
 	'SA_SUPPLIER_GROUP' => array(SS_PURCH_C|2, _("Supplier's Group")),
     //Added by Herald for Suppliers Re order Level
     'SA_SUPPLIERREORDERLEVEL' => array(SS_PURCH_C|3, _("Supplier's Re-order Level")),
@@ -255,17 +256,17 @@ $security_areas =array(
     'SA_SUPPPOPUPLIST' => array(SS_PURCH_C|4, _("Supplier's Masterlist Popup view")),
     
 	'SA_SUPPTRANSVIEW' => array(SS_PURCH|1, _("Supplier Transactions View")),
-	'SA_RR_LIST' => array(SS_PURCH|11, _("Outstanding PO Maintenace")),
+	'SA_RR_LIST' => array(SS_PURCH|12, _("Outstanding PO Maintenace")),
 	'SA_SUPPLIER' => array(SS_PURCH|2, _("Suppliers Changes")),
 	'SA_PURCHASEORDER' => array(SS_PURCH|3, _("Purchase Order Entry")),
 	'SA_GRN' => array(SS_PURCH|4, _("Purchase Receive")),
     'SA_SUPPLIERINVOICE' => array(SS_PURCH|5, _("Supplier Invoices")),
-	'SA_GRNDELETE' => array(SS_PURCH|9, _("Deleting GRN items during invoice entry")),
-	'SA_SUPPLIERCREDIT' => array(SS_PURCH|6, _("Supplier credit notes")),
-	'SA_SUPPLIERPAYMNT' => array(SS_PURCH|7, _("Supplier payments")),
-	'SA_SUPPLIERALLOC' => array(SS_PURCH|8, _("Supplier payments allocations")),
+	'SA_GRNDELETE' => array(SS_PURCH|9, _("Deleting GRN Items during Invoice Entry")),
+	'SA_SUPPLIERCREDIT' => array(SS_PURCH|6, _("Supplier Credit Notes")),
+	'SA_SUPPLIERPAYMNT' => array(SS_PURCH|7, _("Supplier Payments")),
+	'SA_SUPPLIERALLOC' => array(SS_PURCH|8, _("Supplier Payments Allocations")),
     'SA_DRAFTTOPO' => array(SS_PURCH|10, _("Draft To PO")),
-	
+	//
     
     
 	// Added by Ronelle PR MODULE
@@ -296,6 +297,7 @@ $security_areas =array(
 	'SA_TERMOD_REP' => array(SS_PURCH_A|9, _("SI Term Modification Report")),
 	'SA_SUPP_REP' => array(SS_PURCH_A|10, _("Supplier Reports")),
 	'SA_SUPP_PRINT' => array(SS_PURCH_A|11, _("Print Supplier Reports")),
+	'SA_RR_REP' => array(SS_PURCH_A|12, _("Receiving Report Form")),
 	//
 
 	//added by JR for supplier costing types on 10-13-2020

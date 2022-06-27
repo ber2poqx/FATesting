@@ -37,8 +37,12 @@ class suppliers_app extends application
 			"purchasing/po_entry_items.php?NewGRN=Yes", 'SA_GRN', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Direct Supplier &Invoice"),
 			"purchasing/po_entry_items.php?NewInvoice=Yes", 'SA_SUPPLIERINVOICE', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 27 Jun 2022
 		$this->add_lapp_function(0, _("Receive Consignment Item"),
-			"purchasing/rcon_po.php?", 'SA_RECEIVECONSIGN', MENU_TRANSACTION);
+			"purchasing/rcon_po.php?", 'SA_RECEIVECONSIGN', MENU_TRANSACTION
+		);
+		//
 
 		$this->add_rapp_function(0, _("&Payments to Suppliers"),
 			"purchasing/supplier_payment.php?", 'SA_SUPPLIERPAYMNT', MENU_TRANSACTION);

@@ -484,15 +484,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_REP')) {
 		)
 	);
 
-	$reports->addReport(RC_SUPPLIER, 207, _('Recei&ving Report Form'),
-		array(	
-			_('Supplier') => 'SUPPLIERS_NO_FILTER',
-			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);	
-
 	// Added by spyrax10
 	$reports->addReport(RC_SUPPLIER, 221, _('Purchase Order &Summary Report v2'),
 		array(	
@@ -508,7 +499,17 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_REP')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
+}
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_RR_REP')) {
+	$reports->addReport(RC_SUPPLIER, 207, _('Recei&ving Report Form'),
+		array(	
+			_('Supplier') => 'SUPPLIERS_NO_FILTER',
+			_('Comments') => 'TEXTBOX',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);	
 }
 
 //Modified by spyrax10 31 Mar 2022
