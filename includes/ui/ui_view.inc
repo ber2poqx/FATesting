@@ -759,7 +759,16 @@ function display_allocations($alloc_result, $total, $title, $show_summary=true)
 
     while ($alloc_row = db_fetch($alloc_result))
     {
-    	alt_table_row_color($k);
+
+		//Modified by spyrax10 28 Jun 2022
+		$void_entry = get_voided_entry($alloc_row['type'], $alloc_row['trans_no']);
+		if ($void_entry['void_status'] == "Voided") {
+			start_row("class='overduebg'");
+		}
+		else {
+			alt_table_row_color($k);
+		}
+		//
 
     	label_cell($systypes_array[$alloc_row['type']]);
     	label_cell(get_trans_view_str($alloc_row['type'],$alloc_row['trans_no']));

@@ -17,6 +17,7 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 
 include_once($path_to_root . "/gl/includes/gl_db.inc");
+include_once($path_to_root . "/includes/aging.inc");
 
 $js = '';
 
@@ -110,6 +111,7 @@ function void_row($row) {
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
 
         $void_entry = get_voided_entry(ST_JOURNAL, $row['trans_no']);
+        $debtor_row = get_SI_by_reference($row['source_ref']);
 
         if ($void_entry == null) {
             $void_link = pager_link( _("Request to Void"),
@@ -128,6 +130,21 @@ function void_row($row) {
             $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_JOURNAL);
             
             if ($interb_status == 'Draft' && $void_entry == null) {
+                $void_link = pager_link( _("Request to Void"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+                );
+            }
+        }
+        else if ($debtor_row["trans_no"] != null && $void_entry['void_status'] != "Voided") {
+            $inv_row = db_fetch_assoc(get_customer_invoices('', $row['source_ref']));
+            $current_bal = current_balance_display(
+				$inv_row['trans_no'],
+				$inv_row['type'],
+				$inv_row['cust_id'],
+				date2sql(Today())
+			);
+
+            if ($current_bal != 0) {
                 $void_link = pager_link( _("Request to Void"),
                     "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
                 );

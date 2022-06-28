@@ -926,9 +926,32 @@ function get_SI_by_reference($reference) {
 		WHERE reference = " .db_escape($reference);
 
 	$result = db_query($sql, "No SI details return! (spyrax10)");
-	set_global_connection();
 	return db_fetch($result);
 }
+
+function void_payments_thru_JE($reference = '', $trans_no = '', $is_alloc = false) {
+
+	set_global_connection();
+
+	$field = $is_alloc ? "alloc" : "ov_amount";
+
+	$sql = "UPDATE debtor_trans SET $field = 0";
+	$sql .= " WHERE type = " . ST_JOURNAL ." AND reference = " .db_escape($reference);
+	db_query($sql, "void_SI_thru_JE(debtor_trans)");
+
+	if ($is_alloc) {
+		$sql2 = "UPDATE cust_allocations SET amt = 0";
+		$sql2 .= " WHERE trans_type_from = " . ST_JOURNAL ." AND trans_no_from = " .db_escape($trans_no); 
+		db_query($sql2, "void_SI_thru_JE(cust_allocations)");
+
+		$sql3 = "UPDATE debtor_loan_ledger SET payment_applied = 0";
+		$sql3 .= " WHERE trans_type_from = " . ST_JOURNAL ." AND payment_trans_no = " .db_escape($trans_no);
+		db_query($sql3, "void_SI_thru_JE(debtor_loan_ledger)");
+	}
+
+	return $reference;
+}
+
 /*Added by Albert*/
 function get_ar_amount($reference) {
 

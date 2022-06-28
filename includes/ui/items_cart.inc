@@ -749,6 +749,7 @@ class items_cart
 
 			$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
 			$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
+			$debtor_row = get_SI_by_reference($void_row['reference_from']);
 
 			while ($row = db_fetch($gl_sql)) {
 			
@@ -793,7 +794,16 @@ class items_cart
 					void_interB($comp_id, $void_row['reference_from'], $void_row['type'], 1);
 				}
 			}
-	
+
+			if ($debtor_row["trans_no"] != null)  {
+				if ($debtor_row['alloc'] > 0 && $debtor_row['ov_amount'] == 0) {
+					void_payments_thru_JE($void_row['reference_from'], $void_row['id'], true);
+				}
+				else if ($debtor_row['ov_amount'] > 0 && $debtor_row['alloc'] == 0) {
+					void_payments_thru_JE($void_row['reference_from'], $void_row['id']);
+				}
+			}
+
 			add_audit_trail($void_row['type'], $void_row['id'], $this->tran_date, _("Voided.")."\n". $void_row['memo_']);
 			$Refs->restore_last($void_row['type'], $void_row['id']);
 		}
