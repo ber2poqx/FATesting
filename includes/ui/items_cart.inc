@@ -648,7 +648,8 @@ class items_cart
 				);
 			}
 
-		}
+		} // End of foreach loop
+
 		// post currency roundings if any
 		if ($check_balance && floatcmp($total_gl, 0)) {
 			add_gl_trans(
@@ -741,6 +742,60 @@ class items_cart
 					$this->source_ref, $reg
 				);
 			}
+		} // End of Inserting Tax Records
+
+		if ($this->void_id > 0) {
+			global $Refs;
+
+			$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+			$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
+
+			while ($row = db_fetch($gl_sql)) {
+			
+				add_gl_trans(
+					$row['type'],
+					$row['type_no'],
+					$this->tran_date,
+					$row['account'],
+					0, 0,
+					$void_row['memo_'],
+					-$row['amount'],
+					'PHP',
+					$row['person_type_id'],
+					$row['person_id'],
+					"",
+					0,
+					$row['mcode'],
+					$row['master_file'],
+					$row['hocbc_id'],
+					$row['loan_trans_no'],
+					$row['interbranch'],
+					false,
+					1
+				);
+			}
+
+			update_void_status(
+				$void_row['type'], 
+				$void_row['id'], 
+				$this->tran_date, "Voided", 
+				$void_row['memo_'], 
+				$_SESSION["wa_current_user"]->user,
+				$this->reference
+			);
+	
+			if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
+	
+				$comp_id = get_comp_id(has_interbranch_entry($void_row['id'], $void_row['type']));
+				$interb_status = bank_interB_stat($comp_id, $void_row['reference_from'], $void_row['type']);
+	
+				if ($interb_status == "Draft") {
+					void_interB($comp_id, $void_row['reference_from'], $void_row['type'], 1);
+				}
+			}
+	
+			add_audit_trail($void_row['type'], $void_row['id'], $this->tran_date, _("Voided.")."\n". $void_row['memo_']);
+			$Refs->restore_last($void_row['type'], $void_row['id']);
 		}
 	}
 }

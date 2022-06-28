@@ -137,7 +137,7 @@ elseif (isset($_GET['UpdatedID'])) {
 //--------------------------------------------------------------------------------------------------
 
 if (isset($_GET['NewJournal'])) {
-	create_cart(0, 0);
+	create_cart(0, 0, $_GET['void_id']);
 }
 elseif (isset($_GET['ModifyGL'])) {
 	check_is_editable($_GET['trans_type'], $_GET['trans_no']);
@@ -150,7 +150,7 @@ elseif (isset($_GET['ModifyGL'])) {
 	create_cart($_GET['trans_type'], $_GET['trans_no']);
 }
 
-function create_cart($type = 0, $trans_no = 0) {
+function create_cart($type = 0, $trans_no = 0, $void_id = 0) {
 	global $Refs;
 
 	if (isset($_SESSION['journal_items'])) {
@@ -244,6 +244,7 @@ function create_cart($type = 0, $trans_no = 0) {
 			$cart->tran_date = end_fiscalyear();
 		}
 
+		$cart->void_id = $void_id;
 		$cart->reference = $Refs->get_next(ST_JOURNAL, null, $cart->tran_date);
 	}
 

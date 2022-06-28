@@ -187,14 +187,14 @@ function void_transaction($type, $type_no, $date_, $memo_) {
 
 //--------------------------------------------------------------------------------------------------
 //Modified by spyrax10 22 Jun 2022
-function get_voided_entry($type = null, $type_no = null, $reference = null, $list = false, 
+function get_voided_entry($type = '', $type_no = null, $reference = null, $list = false, 
 	$status = 'ALL', $from_date = null, $to_date = null, $void_id = 0) {
 
 	set_global_connection();
 
     $sql = "SELECT * FROM ".TB_PREF."voided WHERE IFNULL(id, '') <> ''";
 
-	if ($type != null && $type != -1) {
+	if ($type != -1) {
 		$sql .= " AND type = " .db_escape($type);
 	}
 
@@ -283,10 +283,18 @@ function void_header($void_id) {
 	$document_total = 0;
 	$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
 	$banking = $void_row["type"] == ST_BANKPAYMENT || $void_row["type"] == ST_BANKDEPOSIT;
+	$journal = $void_row["type"] == ST_JOURNAL;
 
 	if ($banking) {
-		$bank_row = db_fetch_assoc(db_query(get_banking_transactions($void_row["type"], '', '', null, null, '', '', '', $void_row["id"])));
-		$document_total = $bank_row['amount'];
+		$sql_row = db_fetch_assoc(db_query(get_banking_transactions($void_row["type"], '', '', null, null, '', '', '', $void_row["id"])));
+		$source_ref_text = $void_row["type"] == ST_BANKPAYMENT ? "Receipt No.: &nbsp;" : "Disbursement No.: &nbsp;";
+		$document_total = $sql_row['amount'];
+	}
+	else if ($journal) {
+		$sql_row = db_fetch_assoc(db_query(get_journal_transactions('', '', null, null, '', $void_row["id"])));
+		$receipt_no = $sql_row['source_ref'];
+		$source_ref_text= "Source Reference: &nbsp;";
+		$document_total = $sql_row['amount'];
 	}
 	
 	display_heading(_("Transaction to be Voided: "));
@@ -296,11 +304,11 @@ function void_header($void_id) {
 	label_row("Reference: &nbsp;", get_trans_view_str($void_row["type"], $void_row["id"], $void_row['reference_from']));
 	label_row("Date: &nbsp;", phil_short_date($void_row['date_']));
 	if ($banking) {
-		label_row(_("Pay To: "), payment_person_name($bank_row['person_type_id'], $bank_row['masterfile']));
-		$receipt_no = $bank_row['receipt_no'];
+		label_row(_("Pay To: "), payment_person_name($sql_row['person_type_id'], $sql_row['masterfile']));
+		$receipt_no = $sql_row['receipt_no'];
 	}
 	
-	label_row("Receipt #: &nbsp;", $receipt_no);
+	label_row($source_ref_text, $receipt_no);
 	label_row("Void Remarks: &nbsp;", $void_row['memo_']);
 
 	table_section(2);

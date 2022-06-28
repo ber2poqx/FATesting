@@ -73,19 +73,75 @@ function gl_view($row) {
 }
 
 function gl_update($row) {
-    
-    $debtor_row = get_SI_by_reference($row['source_ref']);
 
-    return $debtor_row["trans_no"] == null ? trans_editor_link(ST_JOURNAL, $row["trans_no"]) : "";
+    $update_link = '';
+    $void_entry = get_voided_entry(ST_JOURNAL, $row['trans_no']);
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_JOURNALENTRY')) {
+
+        if ($void_entry['void_status'] != 'Voided') {
+            $debtor_row = get_SI_by_reference($row['source_ref']);
+            $update_link = $debtor_row["trans_no"] == null ? trans_editor_link(ST_JOURNAL, $row["trans_no"]) : "";
+        }
+    }
+    return $update_link;
 }
 
 #Added by Prog6 (03/31/2022)
 function print_voucher($row) {
-	return pager_link(
-		_("Print: Journal Voucher"),
-		"/reports/journal_voucher.php?trans_num=" . $row["trans_no"],
-		ICON_PRINT
-	);
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_JE')) {
+        $print_link = pager_link(_("Print: Journal Voucher"),
+            "/reports/journal_voucher.php?trans_num=" . $row["trans_no"],
+            ICON_PRINT
+        );
+    }
+    else {
+        $print_link = '';
+    }
+
+	return $print_link;
+}
+
+function void_row($row) {
+    
+    $void_link = '';
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
+
+        $void_entry = get_voided_entry(ST_JOURNAL, $row['trans_no']);
+
+        if ($void_entry == null) {
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+            );
+        }
+        else if ($void_entry['void_status'] == 'Disapproved') {
+
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+            );
+        }
+        else if (has_interbranch_entry($row['trans_no'], ST_JOURNAL)) {
+           
+            $comp_id = get_comp_id(has_interbranch_entry($row['trans_no'], ST_JOURNAL));
+            $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_JOURNAL);
+            
+            if ($interb_status == 'Draft' && $void_entry == null) {
+                $void_link = pager_link( _("Request to Void"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+                );
+            }
+        }
+	}
+
+	return $void_link;
+}
+
+function check_void($row) {
+    $void_entry = get_voided_entry(ST_JOURNAL, $row['trans_no']);
+
+    return $void_entry['void_status'] == 'Voided' ? true : false;
 }
 
 //---------------------------------------------------------------
@@ -152,10 +208,12 @@ $cols = array(
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_update', 'align' => 'center'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
 	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
+$table->set_marker('check_void', _("Marked Rows are Voided"));
 
 $table->width = "80%";
 

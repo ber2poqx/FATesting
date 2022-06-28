@@ -431,6 +431,7 @@ $security_areas =array(
 	//Added by spyrax10 11 Jun 2022
 	'SA_JE_UPDATE' => array(SS_GL|16, _("Journal Entries Update")),
 	'SA_PRINT_DE' => array(SS_GL|19, _("Print Disbursement Voucher")),
+	'SA_PRINT_JE' => array(SS_GL|20, _("Print Journal Voucher")),
 	//
 	'SA_BUDGETENTRY' => array(SS_GL|9, _("Budget Edition")),
 	'SA_STANDARDCOST' => array(SS_GL|10, _("Item Standard Cost")),

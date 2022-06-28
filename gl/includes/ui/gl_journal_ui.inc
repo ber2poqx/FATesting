@@ -21,6 +21,10 @@ function display_order_header(&$Order) {
 	$qes = has_quick_entries(QE_JOURNAL);
 	$new = $Order->order_id==0;
 
+	if ($Order->void_id > 0) {
+		void_header($Order->void_id);
+	}
+
 	div_start('pmt_header');
 	start_outer_table(TABLESTYLE2, "width='90%'");
 	table_section(1);

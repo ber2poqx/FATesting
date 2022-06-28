@@ -75,7 +75,7 @@ function display_menu($trans_no, $type) {
         $display_sql = db_query(get_banking_transactions($type, '', '', null, null, '', '', '', $trans_no));
     }
     else if ($journal) {
-        $display_sql = "";
+        $display_sql = db_query(get_journal_transactions('', '', null, null, '', $trans_no));
     }
 
     div_start("menu_head");
@@ -100,7 +100,15 @@ function display_menu($trans_no, $type) {
                         $check_branch = $row['bank_branch'];
                     }
                 }
+                $source_ref_text = $type == ST_BANKPAYMENT ? "Receipt No.: &nbsp;" : "Disbursement No.: &nbsp;";
                 $total_amount = $row['amount'];
+            }
+            else if ($journal) {
+                $reference = $row['reference'];
+                $trans_date = $row['tran_date'];
+                $source_ref = $row['source_ref'];
+                $total_amount = $row['amount'];
+                $source_ref_text= "Source Reference: &nbsp;";
             }
 
             table_section(1);
@@ -115,8 +123,10 @@ function display_menu($trans_no, $type) {
             }
             
             table_section(2);
-            label_row("Receipt No: &nbsp;", $source_ref);
-            label_row("Cashier / Teller : &nbsp;", $cashier);
+            label_row($source_ref_text, $source_ref);
+            if ($banking) {
+                label_row("Cashier / Teller : &nbsp;", $cashier);
+            }
 
             table_section(3);
             if ($banking) {

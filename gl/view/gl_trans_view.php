@@ -289,7 +289,8 @@ function _gl_details() {
 		display_debit_or_credit_cells($myrow['amount']);
 		label_cell($myrow['memo_']);
 
-		if ($_GET['edit_line'] == 1) {
+		$void_entry = get_voided_entry($_GET['type_id'], $_GET['trans_no']);
+		if ($_GET['edit_line'] == 1 && $void_entry['void_status'] != 'Voided') {
 			edit_button_cell("EditGL".$myrow['counter'], _("Edit"), _('Edit Line Memo'));
 		}
 	

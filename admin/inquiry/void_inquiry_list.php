@@ -59,12 +59,17 @@ function reference_row($row) {
 function reference_to($row) {
 
     $banking = $row["type"] == ST_BANKPAYMENT || $row["type"] == ST_BANKDEPOSIT;
+    $journal = $row["type"] == ST_JOURNAL;
 
     if ($row['reference_to'] != '') {
         
         if ($banking) {
-            $bank_row = db_fetch_assoc(db_query(get_banking_transactions($row["type"], $row['reference_to'], '', null, null, '', '', '')));
-            $trans_no = $bank_row['trans_no'];
+            $sql_row = db_fetch_assoc(db_query(get_banking_transactions($row["type"], $row['reference_to'], '', null, null, '', '', '')));
+            $trans_no = $sql_row['trans_no'];
+        }
+        else if ($journal) {
+            $sql_row = db_fetch_assoc(db_query(get_journal_transactions($row['reference_to'], '', null, null, '')));
+            $trans_no = $sql_row['trans_no'];
         }
         else {
             $trans_no = $row["id"];
@@ -118,9 +123,10 @@ function post_void($row) {
 		    : null;   
         }
         else if ($row['type'] == ST_JOURNAL)                                                                                                                 {
-            $post_link = ''; //Journal Entry Page
+            $post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
+                "/gl/gl_journal.php?NewJournal=Yes&void_id=" . $row['void_id'], ICON_DOC) 
+		    : null;
         }
-
 	}
 	else {
 		$post_link = '';

@@ -597,7 +597,8 @@ function get_max_bank_trans($trans_type) {
 	return $row[0];
 }
 
-function get_journal_transactions($reference = '', $doc_ref = '', $from_date, $to_date, $interbranch = '') {
+function get_journal_transactions($reference = '', $doc_ref = '', $from_date = null, $to_date = null, 
+	$interbranch = '', $trans_no = '') {
 
 	set_global_connection();
 
@@ -624,8 +625,14 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date, $t
 		$sql .= " AND GL.interbranch = " .db_escape($interbranch);
 	}
 
-	$sql .= " AND JOR.tran_date >= '" . date2sql($from_date) . "' 
-		AND JOR.tran_date <= '" . date2sql($to_date) . "'";
+	if ($trans_no != '') {
+		$sql .= " AND JOR.trans_no = " .db_escape($trans_no);
+	}
+
+	if ($from_date != null || $to_date != null) {
+		$sql .= " AND JOR.tran_date >= '" . date2sql($from_date) . "' 
+			AND JOR.tran_date <= '" . date2sql($to_date) . "'";	
+	}
 
 	if ($interbranch != '') {
 		$sql .= " GROUP BY GL.type, GL.type_no";
