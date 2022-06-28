@@ -130,7 +130,7 @@ function display_bank_header(&$order) {
 	}
 
 	//ref_row(_("Transaction #: &nbsp;"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
-	$_POST['ref'] = $Refs->get_next($_SESSION['pay_items']->trans_type, null, null);
+	$_POST['ref'] = $_SESSION['pay_items']->reference;
 	label_row(_("Transaction #: &nbsp;"), get_post('ref'));
 	hidden('ref');
 
