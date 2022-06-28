@@ -1685,7 +1685,8 @@ function stock_brand_list_row($label, $name, $value=null, $enabled=true)
 
 function stock_manufacturer_list_row($label, $name, $value=null, $enabled=true)
 {
-	$result = get_all_manufacturer();
+	//$result = get_all_manufacturer();
+	$result = get_all_cboSupplier();
 	echo "<tr>";
 	if ($label != null)
 		echo "<td class='label'>$label</td>\n";
@@ -2473,7 +2474,7 @@ function credit_status_list_row($label, $name, $selected_id=null)
 
 //-----------------------------------------------------------------------------------------------
 
-function sales_types_list($name, $selected_id=null, $submit_on_change=false, $special_option=false)
+function sales_types_list($name, $selected_id=null, $submit_on_change=false, $special_option=false, $supplier_id=null)
 {
 	$stock_id = get_global_stock_item();
 	if(isset($stock_id)){
@@ -2483,15 +2484,16 @@ function sales_types_list($name, $selected_id=null, $submit_on_change=false, $sp
 	if($stock["category_id"] != 0){
 
 		$sql = "SELECT DISTINCT A.id, A.sales_type, A.inactive 
-				FROM sales_types A 
-					INNER JOIN policy_builder B ON B.cstprctype_id = A.id
+				FROM ".TB_PREF."sales_types A 
+					INNER JOIN ".TB_PREF."policy_builder B ON B.cstprctype_id = A.id
 				WHERE !A.inactive 
 					AND B.module_type = 'PRCPLCY' 
-					AND B.category_id = ".$stock["category_id"];
+					AND B.category_id = ".$stock["category_id"]."
+					AND B.supplier_id = ".$supplier_id;
 	}else{
 		$sql = "SELECT id, sales_type, inactive FROM ".TB_PREF."sales_types";
 	}
-
+	//echo $sql;
 	return combo_input($name, $selected_id, $sql, 'id', 'sales_type',
 	array(
 		'spec_option' => $special_option===true ? _("All Sales Types") : $special_option,
@@ -2500,19 +2502,19 @@ function sales_types_list($name, $selected_id=null, $submit_on_change=false, $sp
 	) );
 }
 
-function sales_types_list_cells($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false)
+function sales_types_list_cells($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false, $supplier_id=null)
 {
 	if ($label != null)
 		echo "<td>$label</td>\n";
 	echo "<td>";
-	echo sales_types_list($name, $selected_id, $submit_on_change, $special_option);
+	echo sales_types_list($name, $selected_id, $submit_on_change, $special_option, $supplier_id);
 	echo "</td>\n";
 }
 
-function sales_types_list_row($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false)
+function sales_types_list_row($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false, $supplier_id=null)
 {
 	echo "<tr><td class='label'>$label</td>";
-	sales_types_list_cells(null, $name, $selected_id, $submit_on_change, $special_option);
+	sales_types_list_cells(null, $name, $selected_id, $submit_on_change, $special_option, $supplier_id);
 	echo "</tr>\n";
 }
 
@@ -2606,7 +2608,7 @@ function srp_types_row($label, $name, $selected_id=null, $submit_on_change=false
 }
 
 //for cash price policy
-function scash_types_list($name, $selected_id=null, $submit_on_change=false, $special_option=false)
+function scash_types_list($name, $selected_id=null, $submit_on_change=false, $special_option=false, $supplier_id=null)
 {
 	$stock_id = get_global_stock_item();
 	if(isset($stock_id)){
@@ -2616,18 +2618,19 @@ function scash_types_list($name, $selected_id=null, $submit_on_change=false, $sp
 	if($stock["category_id"] != 0){
 
 		$sql = "SELECT DISTINCT A.id, A.scash_type, A.inactive 
-				FROM sales_cash_type A 
-					INNER JOIN policy_builder B ON B.cstprctype_id = A.id
+				FROM ".TB_PREF."sales_cash_type A 
+					INNER JOIN ".TB_PREF."policy_builder B ON B.cstprctype_id = A.id
 				WHERE !A.inactive 
 					AND B.module_type = 'CSHPRCPLCY' 
-					AND B.category_id = ".$stock["category_id"];
+					AND B.category_id = ".$stock["category_id"]."
+					AND B.supplier_id = ".$supplier_id;
 	}else{
 
 		$sql = "SELECT id, scash_type, inactive 
 				FROM ".TB_PREF."sales_cash_type WHERE !inactive";
 
 	}
-
+	
 	return combo_input($name, $selected_id, $sql, 'id', 'scash_type',
 	array(
 		'spec_option' => $special_option===true ? _("All cash price Types") : $special_option,
@@ -2636,19 +2639,19 @@ function scash_types_list($name, $selected_id=null, $submit_on_change=false, $sp
 	) );
 }
 
-function scash_types_list_cells($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false)
+function scash_types_list_cells($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false, $supplier_id=null)
 {
 	if ($label != null)
 		echo "<td>$label</td>\n";
 	echo "<td>";
-	echo scash_types_list($name, $selected_id, $submit_on_change, $special_option);
+	echo scash_types_list($name, $selected_id, $submit_on_change, $special_option, $supplier_id);
 	echo "</td>\n";
 }
 
-function scash_types_list_row($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false)
+function scash_types_list_row($label, $name, $selected_id=null, $submit_on_change=false, $special_option=false, $supplier_id=null)
 {
 	echo "<tr><td class='label'>$label</td>";
-	scash_types_list_cells(null, $name, $selected_id, $submit_on_change, $special_option);
+	scash_types_list_cells(null, $name, $selected_id, $submit_on_change, $special_option, $supplier_id);
 	echo "</tr>\n";
 }
 

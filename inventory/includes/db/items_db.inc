@@ -290,20 +290,21 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 	} else {
 		$stmt_category = "";
 	}
-	
+	//modify by jr. added supplier table for made in field not manufacturer. 
+	//LEFT JOIN ".TB_PREF."item_manufacturer m ON s.manufacturer = m.id
 	$sql = 
 	"SELECT 
 		COUNT(s.stock_id) AS kit, 
 		s.stock_id AS item_code, s.description, 
 		c.description AS category, 
 		b.name AS brand_name,
-		m.name AS manufacturer_name, s.units, s.stock_id, 
+		m.supp_name AS manufacturer_name, s.units, s.stock_id, 
 		d.name AS distributor_name, 
 		ii.name AS importer_name
 	FROM ".TB_PREF."stock_master s 
 		LEFT JOIN ".TB_PREF."stock_category c ON s.category_id = c.category_id	
 		LEFT JOIN ".TB_PREF."item_brand b ON s.brand = b.id 
-		LEFT JOIN ".TB_PREF."item_manufacturer m ON s.manufacturer = m.id
+		LEFT JOIN ".TB_PREF."suppliers m ON s.manufacturer = m.supplier_id
 		LEFT JOIN ".TB_PREF."item_distributor d ON s.distributor = d.id 
 		LEFT JOIN ".TB_PREF."item_importer ii ON s.importer = ii.id	
 			
@@ -376,6 +377,8 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 	$sql .= " GROUP BY s.stock_id ORDER BY s.description ";
 	//$result = db_query($sql, "Failed in retreiving item list.");
 	//set_global_connection();
+
+
 	return $sql;
 }
 

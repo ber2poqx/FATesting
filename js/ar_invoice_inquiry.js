@@ -365,6 +365,7 @@ Ext.onReady(function(){
 								async:false,
 								success: function (response) {
 									var result = Ext.JSON.decode(response.responseText);
+									Customerstore.load();
 									if (result.success == "true") {
 										Ext.Msg.show({
 											title: 'AutoCreatedCustomer: Success!',
@@ -372,7 +373,6 @@ Ext.onReady(function(){
 											buttons: Ext.Msg.OK,
 											icon: Ext.MessageBox.INFORMATION
 										});
-										Customerstore.load();
 									}
 									else {
 										Ext.Msg.show({

@@ -229,9 +229,11 @@ hidden('selected_id', $selected_id);
 div_start('price_details');
 start_table(TABLESTYLE2);
 
+$supplier_id = get_supplier_itemprice($_POST['stock_id']);
+
 currencies_list_row(_("Currency:"), 'curr_abrev', null, true);
 
-scash_types_list_row(_("Cash Price Code:"), 'scash_type_id', null, true);
+scash_types_list_row(_("Cash Price Code:"), 'scash_type_id', null, true, false, $supplier_id);
 
 if (!isset($_POST['price'])) {
 	$_POST['price'] = price_format(get_kit_price(get_post('stock_id'), 

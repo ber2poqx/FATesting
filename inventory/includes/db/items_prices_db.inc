@@ -64,3 +64,14 @@ function get_stock_price_type_currency($stock_id, $type, $currency)
 
 	return db_fetch($result);
 }
+
+function get_supplier_itemprice($stock_id)
+{
+	$sql = "SELECT A.manufacturer 
+			FROM ".TB_PREF."stock_master A
+			WHERE A.stock_id=".db_escape($stock_id);
+
+	$result = db_query($sql,"item manufacturer could not be retreived");
+	$row = db_fetch_row($result);
+	return $row[0];
+}

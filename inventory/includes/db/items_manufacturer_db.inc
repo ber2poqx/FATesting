@@ -87,3 +87,15 @@ function manufacturer_exists($manufacturer = '', $get_id = false) {
 		return $row[0] != null ? true : false;
 	}
 }
+
+//06-28-2022
+//added by jr. insted of manufacturer, supplier nalang
+//for manufacturer/made in field
+function get_all_cboSupplier($all=false)
+{
+	$sql = "SELECT A.supplier_id id, A.supp_name name, A.supp_ref
+			FROM ".TB_PREF."suppliers A 
+			ORDER BY A.supp_name ASC";
+
+	return db_query($sql, "could not get supplier ");	
+}
