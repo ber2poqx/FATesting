@@ -22,7 +22,7 @@ function display_order_header(&$Order) {
 	$new = $Order->order_id==0;
 
 	if ($Order->void_id > 0) {
-		void_header($Order->void_id);
+		void_header($Order->void_id, ST_JOURNAL);
 	}
 
 	div_start('pmt_header');

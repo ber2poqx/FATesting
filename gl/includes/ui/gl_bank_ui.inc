@@ -16,7 +16,7 @@ function display_bank_header(&$order) {
 	$payment = ST_BANKPAYMENT;
 	
 	if ($order->void_id > 0) {
-		void_header($order->void_id);
+		void_header($order->void_id, $order->trans_type);
 	}
 
 	$customer_error = false;
@@ -130,7 +130,7 @@ function display_bank_header(&$order) {
 	}
 
 	//ref_row(_("Transaction #: &nbsp;"), 'ref', '', $order->reference, false, $order->trans_type, get_post('date_'));
-	$_POST['ref'] = $_SESSION['pay_items']->reference;
+	$_POST['ref'] = $order->reference;
 	label_row(_("Transaction #: &nbsp;"), get_post('ref'));
 	hidden('ref');
 

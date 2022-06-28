@@ -135,7 +135,7 @@ function void_row($row) {
                 );
             }
         }
-        else if ($debtor_row["trans_no"] != null && $void_entry['void_status'] != "Voided") {
+        else if ($debtor_row["trans_no"] != null && $void_entry['void_status'] == "Disapproved") {
             $inv_row = db_fetch_assoc(get_customer_invoices('', $row['source_ref']));
             $current_bal = current_balance_display(
 				$inv_row['trans_no'],

@@ -278,16 +278,16 @@ function update_void_status($type, $trans_no, $date, $status = "Draft", $note = 
 	return $trans_no;
 }
 
-function void_header($void_id) {
+function void_header($void_id, $type) {
 
 	$document_total = 0;
-	$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+	$void_row = get_voided_entry($type, null, null, false, 'ALL', null, null, $void_id);
 	$banking = $void_row["type"] == ST_BANKPAYMENT || $void_row["type"] == ST_BANKDEPOSIT;
 	$journal = $void_row["type"] == ST_JOURNAL;
 
 	if ($banking) {
 		$sql_row = db_fetch_assoc(db_query(get_banking_transactions($void_row["type"], '', '', null, null, '', '', '', $void_row["id"])));
-		$source_ref_text = $void_row["type"] == ST_BANKPAYMENT ? "Receipt No.: &nbsp;" : "Disbursement No.: &nbsp;";
+		$source_ref_text = $void_row["type"] == ST_BANKDEPOSIT ? "Receipt No.: &nbsp;" : "Disbursement No.: &nbsp;";
 		$document_total = $sql_row['amount'];
 	}
 	else if ($journal) {
@@ -303,9 +303,11 @@ function void_header($void_id) {
 	table_section(1);
 	label_row("Reference: &nbsp;", get_trans_view_str($void_row["type"], $void_row["id"], $void_row['reference_from']));
 	label_row("Date: &nbsp;", phil_short_date($void_row['date_']));
+	
 	if ($banking) {
 		label_row(_("Pay To: "), payment_person_name($sql_row['person_type_id'], $sql_row['masterfile']));
 		$receipt_no = $sql_row['receipt_no'];
+		label_row(_("Cashier/Teller: &nbsp;"), get_user_name($sql_row['cashier_user_id']));
 	}
 	
 	label_row($source_ref_text, $receipt_no);

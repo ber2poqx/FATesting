@@ -747,7 +747,7 @@ class items_cart
 		if ($this->void_id > 0) {
 			global $Refs;
 
-			$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+			$void_row = get_voided_entry($this->trans_type, null, null, false, 'ALL', null, null, $void_id);
 			$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 			$debtor_row = get_SI_by_reference($void_row['reference_from']);
 

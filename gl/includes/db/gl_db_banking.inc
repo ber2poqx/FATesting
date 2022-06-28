@@ -890,7 +890,7 @@ function write_bank_transaction(
 
 	if ($void_id > 0) {
 		
-		$void_row = get_voided_entry(null, null, null, false, 'ALL', null, null, $void_id);
+		$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
 		$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 
 		while ($row = db_fetch($gl_sql)) {

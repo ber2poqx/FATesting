@@ -199,7 +199,14 @@ while ($row = db_fetch_assoc($sql)) {
     $total += $row['amt'];
     $color = $row['amt'] > 0 ? "" : "style='color: red'";
 
-    alt_table_row_color($k);
+    $void_entry = get_voided_entry($row['type'], $row['trans_no']); 
+
+    if ($void_entry['void_status'] == "Voided") {
+        start_row("class='overduebg'");
+    }
+    else {
+        alt_table_row_color($k);
+    }
 
     label_cell($count . ".)", "nowrap align='left'");
     label_cell(_systype_name($row['type']), "nowrap align='left'");
