@@ -125,7 +125,7 @@ $units = $result['units'];
 $dflt_desc = $result['description'];
 $dflt_cat = $result['category_id'];
 
-$result = get_all_item_codes($_POST['stock_id']);
+$result = get_all_item_codes($_POST['stock_id'], 1, user_company());
 div_start('code_table');
 start_table(TABLESTYLE, "width='90%'");
 

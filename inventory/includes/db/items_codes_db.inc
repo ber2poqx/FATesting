@@ -111,11 +111,11 @@ function add_item_code_for_import($item_code, $color = null, $stock_id, $descrip
 
 //Modify by spyrax10 4 May 2022
 function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_color = null, $category, $qty, 
-	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null)
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null, $company_id = 0)
 {
 	//Added by spyrax10 7 May 2022
 	global $def_coy;
-	set_global_connection($def_coy);
+	set_global_connection($company_id);
 	//
 
 	$sql = "INSERT INTO ".TB_PREF."item_codes
@@ -182,9 +182,9 @@ function get_item_code($id)
 }
 
 //Added by spyrax10 4 May 2022
-function item_code_has_parent($stock_id = '') {
+function item_code_has_parent($stock_id = '', $company_id = 0) {
 	
-	set_global_connection(0);
+	set_global_connection($company_id);
 
 	$sql = "SELECT is_foreign 
 		FROM ".TB_PREF."item_codes 
@@ -198,10 +198,10 @@ function item_code_has_parent($stock_id = '') {
 }
 
 //Modified by spyrax10 11 Mar 2022
-function get_all_item_codes($stock_id, $foreign=1) {
+function get_all_item_codes($stock_id, $foreign = 1, $company_id = 0) {
 	//Added by spyrax10 7 May 2022
 	global $def_coy;
-	set_global_connection($def_coy);
+	set_global_connection($company_id);
 	//
 	$sql = "SELECT IC.*, SC.description AS cat_name, IC.description AS color_desc
 	FROM ".TB_PREF."stock_master SM

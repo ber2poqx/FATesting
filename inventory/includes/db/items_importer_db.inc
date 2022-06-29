@@ -79,9 +79,9 @@ function get_all_importer($all=false) {
 
 //Added by spyrax10 5 May 2022
 
-function get_importer_id($stock_id) {
+function get_importer_id($stock_id, $company_id = 0) {
 
-	set_global_connection(0);
+	set_global_connection($company_id);
 
 	$sql = "SELECT importer 
 		FROM ".TB_PREF."stock_master 

@@ -679,9 +679,9 @@ function get_stock_name($stock_id = "") {
 	return $row[0];
 }
 
-function get_stock_catID($stock_id) {
+function get_stock_catID($stock_id, $company_id = 0) {
 	
-	set_global_connection();
+	set_global_connection($company_id);
 
 	$sql = "SELECT A.category_id 
 	FROM ".TB_PREF."stock_master A

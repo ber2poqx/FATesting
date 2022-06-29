@@ -413,9 +413,9 @@ function check_item_serialized($stock_id)
 /* */
 
 //Added by spyrax10 4 May 2022
-function get_item_description($stock_id = "") {
+function get_item_description($stock_id = "", $company_id = 0) {
 
-	set_global_connection(0);
+	set_global_connection($company_id);
 
 	$sql = "SELECT description 
 		FROM ".TB_PREF."stock_master 

@@ -1587,9 +1587,9 @@ function get_supplier_id_code($supp_code) {
 	return $row[0];
 }
 
-function check_stock_id_exist($stock_id) {
+function check_stock_id_exist($stock_id, $company_id = 0) {
 
-	set_global_connection(0);
+	set_global_connection($company_id);
 
 	$sql = "SELECT stock_id 
 		FROM ".TB_PREF."stock_master
@@ -1643,9 +1643,9 @@ function get_color_code($stock_id, $color) {
 	return $row[0];
 }
 
-function check_color_exist($stock_id, $color_code, $check_only = false, $chk_code = false)
+function check_color_exist($stock_id, $color_code, $check_only = false, $chk_code = false, $company_id = 0)
 {
-	set_global_connection(0);
+	set_global_connection($company_id);
 
 	$sql = "SELECT color, item_code 
 		FROM ".TB_PREF."item_codes ";

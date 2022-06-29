@@ -137,7 +137,7 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = getTransactions($stock_id, $category, $brand);
+    $res = getTransactions($stock_id, $category, $brand, user_company());
     $cat = '';
 
     while ($trans = db_fetch($res)) {
