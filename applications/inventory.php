@@ -78,7 +78,7 @@ class inventory_app extends application
 		$this->add_lapp_function(2, _("Inventory Adjustment Setup"),
 			"inventory/manage/inventory_setup.php?", 'SA_INVENTORY_TYPE', MENU_MAINTENANCE);
 
-			if (get_company_value(user_company(), 'branch_code') == "HO" || get_company_value(user_company(), 'branch_code') == "DESIHOFC") {
+		if (get_company_value(user_company(), 'branch_code') == "HO" || get_company_value(user_company(), 'branch_code') == "DESIHOFC") {
 			$this->add_lapp_function(2, _("PNP Clearance Monitoring"),
 				"inventory/manage/serial_list.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
 			);
