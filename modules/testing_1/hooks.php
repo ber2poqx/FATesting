@@ -1,5 +1,5 @@
 <?php
-define ('SS_IMPORTCSVITEMS', 105<<8);
+define ('SS_IMPORTCSVITEMS_SAMPLE', 105<<8);
 class hooks_import_items extends hooks {
 	var $module_name = 'Import CSV Items'; 
 
@@ -12,15 +12,15 @@ class hooks_import_items extends hooks {
 		switch($app->id) {
 			case 'stock':
 				$app->add_rapp_function(2, _('Import CSV Items'), 
-					$path_to_root.'/modules/import_items/import_items.php', 'SA_CSVIMPORT');
+					$path_to_root.'/modules/testing_1/import_items.php', 'SA_CSVIMPORT_SAMPLE');
 		}
 	}
 
 	function install_access()
 	{
-		$security_sections[SS_IMPORTCSVITEMS] =	_("Import CSV Items");
+		$security_sections[SS_IMPORTCSVITEMS_SAMPLE] =	_("Import CSV Items");
 
-		$security_areas['SA_CSVIMPORT'] = array(SS_IMPORTCSVITEMS|105, _("Import CSV Items"));
+		$security_areas['SA_CSVIMPORT_SAMPLE'] = array(SS_IMPORTCSVITEMS_SAMPLE|105, _("Import CSV Items"));
 
 		return array($security_areas, $security_sections);
 	}

@@ -5,7 +5,7 @@ Author: Tom Moulton - added Export of many types and import of the same
 Name: Import of CSV formatted items
 Free software under GNU GPL
 ***********************************************/
-$page_security = 'SA_CSVIMPORT';
+$page_security = 'SA_CSVIMPORT_SAMPLE';
 $path_to_root="../..";
 
 include($path_to_root . "/includes/session.inc");
