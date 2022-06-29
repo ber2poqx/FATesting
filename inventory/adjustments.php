@@ -103,8 +103,9 @@ function handle_new_order()
     $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
     $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
 	$_POST['AdjDate'] = new_doc_date();
-	if (!is_date_in_fiscalyear($_POST['AdjDate']))
+	if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
 		$_POST['AdjDate'] = end_fiscalyear();
+	}
 	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
 }
 
@@ -376,9 +377,9 @@ if (isset($_GET['NewAdjustment']) || !isset($_SESSION['adj_items'])) {
 	if (isset($_GET['FixedAsset'])) {
 		check_db_has_disposable_fixed_assets(_("There are no fixed assets defined in the system."));
 	}
-	else {
-		check_db_has_costable_items(_("There are no inventory items defined in the system which can be adjusted (Purchased or Manufactured)."));
-	}
+	// else {
+	// 	check_db_has_costable_items(_("There are no inventory items defined in the system which can be adjusted (Purchased or Manufactured)."));
+	// }
 
 	handle_new_order();
 }
