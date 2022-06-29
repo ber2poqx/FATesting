@@ -140,10 +140,10 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$err_arr[$line_cnt] = _("Item Color Code Already Exists for this Item! " . "(" . $stock_id . "-" . $color . ")");
 		}
 		//For parent Item Code
-		else if (!check_color_exist(trim($stock_id), trim($stock_id), true, true, user_company())) {
-			$line_cnt++;
-			$err_arr[$line_cnt] = _("Parent Item Code Already Existed for this Item! ". "(" . $stock_id .")");
-		}
+		// else if (!check_color_exist(trim($stock_id), trim($stock_id), true, true, user_company())) {
+		// 	$line_cnt++;
+		// 	$err_arr[$line_cnt] = _("Parent Item Code Already Existed for this Item! ". "(" . $stock_id .")");
+		// }
 		else {
 			
 			$item_code = trim($stock_id) . "-" . $color;
