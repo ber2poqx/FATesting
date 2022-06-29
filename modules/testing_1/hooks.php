@@ -1,6 +1,6 @@
 <?php
 define ('SS_IMPORTCSVITEMS_SAMPLE', 105<<8);
-class hooks_import_items extends hooks {
+class hooks_import_items_2 extends hooks {
 	var $module_name = 'Import CSV Items'; 
 
 	/*
