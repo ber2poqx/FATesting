@@ -755,4 +755,23 @@ function phil_short_date($date = null) {
 	}
 }
 
+function first_date() {
+	return date('Y-m-d', strtotime('first day of january this year'));
+}
+
+function last_date() {
+	return date('Y-m-d', strtotime('first day of december this year'));
+}
+
+function last_date_month($date_) {
+	$date = new DateTime($date_);
+	$date->modify('last day of this month');
+    return $date->format('Y-m-d');
+}
+
+function first_date_month($date_) {
+	$date = new DateTime($date_);
+	$date->modify('first day of this month');
+    return $date->format('Y-m-d');
+}
 //

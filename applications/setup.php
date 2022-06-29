@@ -40,7 +40,7 @@ class setup_app extends application
 			"admin/fiscalyears.php?", 'SA_FISCALYEARS', MENU_MAINTENANCE
 		);
 
-		$this->add_rapp_function(0, _("&Monthly Posting Period"),
+		$this->add_rapp_function(0, _("&Posting Period"),
 			"admin/fiscal_month.php?", 'SA_FISCAL_MONTH', MENU_MAINTENANCE
 		);
 		//
