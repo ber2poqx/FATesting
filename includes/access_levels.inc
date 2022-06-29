@@ -412,6 +412,9 @@ $security_areas =array(
 	'SA_TAXRATES' => array(SS_GL_C|8, _("Tax Rates")),
 	'SA_TAXGROUPS' => array(SS_GL_C|12, _("Tax Groups")),
 	'SA_FISCALYEARS' => array(SS_GL_C|9, _("Fiscal Years Maintenance")),
+	//Added by spyrax10 29 Jun 20222
+	'SA_FISCAL_MONTH' => array(SS_GL_C|16, _("Fiscal Months Maintenance")),
+	//
 	'SA_GLSETUP' => array(SS_GL_C|10, _("Company GL Setup")),
 	'SA_GLACCOUNTTAGS' => array(SS_GL_C|11, _("GL Account Tags")),
 	'SA_GLCLOSE' => array(SS_GL_C|14, _("Closing GL Transactions")),

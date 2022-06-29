@@ -34,8 +34,17 @@ class setup_app extends application
 			"taxes/item_tax_types.php?", 'SA_ITEMTAXTYPE', MENU_MAINTENANCE);
 		$this->add_rapp_function(0, _("System and &General GL Setup"),
 			"admin/gl_setup.php?", 'SA_GLSETUP', MENU_SETTINGS);
+		
+		//Modified by spyrax10 29 Jun 2022
 		$this->add_rapp_function(0, _("&Fiscal Years"),
-			"admin/fiscalyears.php?", 'SA_FISCALYEARS', MENU_MAINTENANCE);
+			"admin/fiscalyears.php?", 'SA_FISCALYEARS', MENU_MAINTENANCE
+		);
+
+		$this->add_rapp_function(0, _("&Monthly Posting Period"),
+			"admin/fiscal_month.php?", 'SA_FISCAL_MONTH', MENU_MAINTENANCE
+		);
+		//
+
 		$this->add_rapp_function(0, _("&Print Profiles"),
 			"admin/print_profiles.php?", 'SA_PRINTPROFILE', MENU_MAINTENANCE);
 		
