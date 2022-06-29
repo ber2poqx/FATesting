@@ -24,7 +24,7 @@ include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 
-check_db_has_purchasable_items(_("There are no inventory items defined in the system."));
+//check_db_has_purchasable_items(_("There are no inventory items defined in the system."));
 
 simple_page_mode(true);
 //--------------------------------------------------------------------------------------------------

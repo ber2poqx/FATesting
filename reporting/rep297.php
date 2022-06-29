@@ -23,7 +23,9 @@ include_once($path_to_root . "/inventory/includes/db/items_codes_db.inc");
 
 print_transaction();
 
-function getTransactions($stock_id = "", $category, $brand) {
+function getTransactions($stock_id = "", $category, $brand, $company_id = 0) {
+
+    set_global_connection($company_id);
 
 	$sql = "SELECT IC.*, SC.description AS cat_name, IC.description AS color_desc
         FROM ".TB_PREF."stock_master SM
