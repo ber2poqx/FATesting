@@ -11,7 +11,7 @@ class hooks_import_items extends hooks {
 		switch($app->id) {
 			case 'stock':
 				$app->add_rapp_function(2, _('Import CSV Items Master'), 
-					$path_to_root.'/modules/import_items/import_items.php', 'SA_CSVIMPORT');
+					$path_to_root.'/modules/import_items/import_items.php', 'SA_CSVIMPORT', MENU_MAINTENANCE);
 		}
 	}
 
