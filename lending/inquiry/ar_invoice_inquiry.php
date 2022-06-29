@@ -150,7 +150,7 @@ if(isset($_GET['getCustomerAutoSetup']))
                 $selected_branch = db_insert_id();
 
                 add_crm_person($cust_ref, $customerrow["name"], '', $customerrow['address'], $customerrow['phone'], $customerrow['phone2'], $customerrow['fax'],
-                            $customerrow['email'], '', 'AutoCreatedCustomer');
+                            $customerrow['email'], $customerrow['facebook'], '', 'AutoCreatedCustomer');
 
                 $pers_id = db_insert_id();
 

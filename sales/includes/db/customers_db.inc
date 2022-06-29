@@ -307,7 +307,7 @@ function Get_CustomerFromOtherDB($debtor_ref, $branch_code)
 	$db_coy = Get_db_coy($branch_code);
     set_global_connection($db_coy);
 	
-	$sql = "SELECT A.*, B.salesman, B.tax_group_id, B.default_ship_via, B.bank_account, C.phone, C.phone2, C.fax, C.email 
+	$sql = "SELECT A.*, B.salesman, B.tax_group_id, B.default_ship_via, B.bank_account, C.phone, C.phone2, C.fax, C.email, C.facebook 
 			FROM ".TB_PREF."debtors_master A 
 				LEFT JOIN ".TB_PREF."cust_branch B ON B.debtor_no = A.debtor_no 
 				LEFT JOIN ".TB_PREF."crm_persons C ON C.ref = A.debtor_ref 
