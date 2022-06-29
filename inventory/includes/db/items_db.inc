@@ -315,7 +315,7 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 		" AND (s.stock_id LIKE " . db_escape("%" . $description . "%") . " OR
 			s.description LIKE " . db_escape("%" . $description . "%") . " OR
 			b.name LIKE " . db_escape("%" . $description . "%") . "  OR
-			m.name LIKE " . db_escape("%" . $description . "%") . "
+			m.supp_name LIKE " . db_escape("%" . $description . "%") . "
 		)";
 	}
 
