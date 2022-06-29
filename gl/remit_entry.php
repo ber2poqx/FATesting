@@ -196,12 +196,12 @@ $k = $count = 0;
 while ($row = db_fetch_assoc($sql)) {
 
     $count++;
-    $total += $row['amt'];
     $color = $row['amt'] > 0 ? "" : "style='color: red'";
 
     $void_entry = get_voided_entry($row['type'], $row['trans_no']); 
 
     if ($void_entry['void_status'] == "Voided") {
+        $total += $row['amt'];
         start_row("class='overduebg'");
     }
     else {

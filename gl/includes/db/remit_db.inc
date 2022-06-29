@@ -128,24 +128,29 @@ function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_
 
     while ($row = db_fetch($result)) {
 
-        add_remit_entry(
-            $trans_no,
-            _('Draft'), 
-            $user_id, 
-            $remit_to, 
-            date2sql($date_), 
-            $reference,
-            $row['ref'],
-            $row['type'],
-            $row['trans_date'],
-            $row['amt'],
-            $memo_,
-            ''
-        );
+        $void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
-        remit_bank_trans(_('Draft'), $row['ref'], $user_id, $remit_to);
-
-        $inserted++;
+        if ($void_entry['void_status'] != "Voided") {
+            
+            add_remit_entry(
+                $trans_no,
+                _('Draft'), 
+                $user_id, 
+                $remit_to, 
+                date2sql($date_), 
+                $reference,
+                $row['ref'],
+                $row['type'],
+                $row['trans_date'],
+                $row['amt'],
+                $memo_,
+                ''
+            );
+    
+            remit_bank_trans(_('Draft'), $row['ref'], $user_id, $remit_to);
+    
+            $inserted++;
+        }
     }
 
     if ($inserted > 0) {

@@ -573,7 +573,7 @@ function gl_options_controls($order = null) {
 			user_price_dec()
 		);
 	}*/
-	textarea_row(_("Memo: "), 'memo_', null, 50, 3);
+	textarea_row(_("Particulars: &nbsp;"), 'memo_', null, 50, 3);
 
 	echo "</table>";
 	div_end();

@@ -78,9 +78,9 @@ start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-ref_cells(_("Reference #:"), 'reference', '', null, '', true);
+ref_cells(_("Reference #: "), 'reference', '', null, '', true);
 
-sql_type_list(_("Remittance From:"), 'cashier_', 
+sql_type_list(_("&nbsp; Remittance From:"), 'cashier_', 
 	allowed_dcpr_users(), 'id', 'real_name', 
 	'', null, true, 'Select Cashier'
 );
@@ -92,7 +92,7 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 date_cells(_("From:"), 'from_date', '', null, -user_transaction_days());
-date_cells(_("To:"), 'to_date');
+date_cells(_("&nbsp; To:"), 'to_date');
 
 submit_cells('btn_search', _("Search"),'',_('Search documents'), 'default');
 
