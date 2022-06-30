@@ -746,13 +746,16 @@ class items_cart
 
 		if ($this->void_id > 0) {
 			global $Refs;
+			$total = 0;
 
 			$void_row = get_voided_entry($this->trans_type, null, null, false, 'ALL', null, null, $void_id);
 			$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 			$debtor_row = get_SI_by_reference($void_row['reference_from']);
 
 			while ($row = db_fetch($gl_sql)) {
-			
+				
+				$total += $row['amount'];
+
 				add_gl_trans(
 					$row['type'],
 					$row['type_no'],
@@ -798,9 +801,11 @@ class items_cart
 			if ($debtor_row["trans_no"] != null)  {
 				if ($debtor_row['alloc'] > 0 && $debtor_row['ov_amount'] == 0) {
 					void_payments_thru_JE($void_row['reference_from'], $void_row['id'], true);
+					update_debtor_trans_allocation($debtor_row["type"], $debtor_row["trans_no"], $debtor_row["debtor_no"]);
 				}
 				else if ($debtor_row['ov_amount'] > 0 && $debtor_row['alloc'] == 0) {
 					void_payments_thru_JE($void_row['reference_from'], $void_row['id']);
+					update_AR_amount($debtor_row["trans_no"], $debtor_row["type"], $debtor_row["debtor_no"], -$total);
 				}
 			}
 
