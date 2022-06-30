@@ -241,6 +241,7 @@ $security_areas =array(
 	'SA_AGING_REP' => array(SS_SALES_A|12, _("Aging Reports")),
 	'SA_SALES_MISC_REP' => array(SS_SALES_A|13, _("Sales Miscellaneous Reports")),
 	'SA_SALES_SUM_REP' => array(SS_SALES_A|14, _("Sales Summary Reports")),
+	'SA_CUST_SALES' => array(SS_SALES_A|15, _("Customer Detailed Reports")),
 
 	//'SA_DAILYCASH' => array(SS_SALES_A|10, _("Daily Cash report")), // Added by Robert Gwapo	
 
@@ -287,8 +288,8 @@ $security_areas =array(
 	'SA_PURCH_REPORT' => array(SS_PURCH_A|4, _("Purchases Report")),
 	//
 	'SA_SUPPLIERANALYTIC' => array(SS_PURCH_A|1, _("Supplier Analytical Reports")),
-	'SA_SUPPBULKREP' => array(SS_PURCH_A|2, _("Supplier document bulk reports")),
-	'SA_SUPPPAYMREP' => array(SS_PURCH_A|3, _("Supplier payments report")),
+	'SA_SUPPBULKREP' => array(SS_PURCH_A|2, _("Supplier Document Bulk Reports")),
+	'SA_SUPPPAYMREP' => array(SS_PURCH_A|3, _("Supplier Payments Report")),
 	//Added by spyrax10 18 Jun 2022
 	'SA_TARGET_CR' => array(SS_PURCH_A|5, _("Collection Report - Actual vs Target")),
 	'SA_TARGET_SR' => array(SS_PURCH_A|6, _("Sales Report - Actual vs Target")),
@@ -298,6 +299,8 @@ $security_areas =array(
 	'SA_SUPP_REP' => array(SS_PURCH_A|10, _("Supplier Reports")),
 	'SA_SUPP_PRINT' => array(SS_PURCH_A|11, _("Print Supplier Reports")),
 	'SA_RR_REP' => array(SS_PURCH_A|12, _("Receiving Report Form")),
+	'SA_SUP_TRIAL' => array(SS_PURCH_A|13, _("Supplier Trial Balances Reports")),
+	'SA_PO_REP' => array(SS_PURCH_A|14, _("Purchase Order Summary Report v1")),
 	//
 
 	//added by JR for supplier costing types on 10-13-2020

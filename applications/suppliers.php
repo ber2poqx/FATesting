@@ -69,8 +69,10 @@ class suppliers_app extends application
 		);
 
 		$this->add_module(_("Maintenance"));
+		
 		$this->add_lapp_function(2, _("&Supplier Set-Up"),
-			"purchasing/manage/suppliers.php?", 'SA_SUPPLIER', MENU_ENTRY);
+			"purchasing/manage/suppliers.php?", 'SA_SUPPLIER', MENU_ENTRY
+		);
 		$this->add_rapp_function(2, _("System &Cost Setup"),
 			"purchasing/manage/supplier_costyps.php?", 'SA_SUPPLIERCOSTYP', MENU_MAINTENANCE);
 		$this->add_lapp_function(2, _("Suppliers &Group"),

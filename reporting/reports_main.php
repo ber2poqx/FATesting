@@ -103,34 +103,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_CUSTPAYMREP')) {
 		)
 	);
 
-	$reports->addReport(RC_CUSTOMER, 115, _('Customer Trial Balance'),
-    	array(  
-			_('Start Date') => 'DATEBEGIN',
-            _('End Date') => 'DATEENDM',
-            _('Customer') => 'CUSTOMERS_NO_FILTER',
-            _('Sales Areas') => 'AREAS',
-            _('Sales Folk') => 'SALESMEN',
-            _('Currency Filter') => 'CURRENCY',
-            _('Suppress Zeros') => 'YES_NO',
-            _('Comments') => 'TEXTBOX',
-            _('Orientation') => 'ORIENTATION',
-            _('Destination') => 'DESTINATION'
-		)
-	);
-
-	$reports->addReport(RC_CUSTOMER, 98, _('Customer &Detail Listing'),
-		array(	
-			//_('Activity Since') => 'DATEBEGIN',
-			_('Sales Areas') => 'AREAS',
-			//_('Sales Folk') => 'SALESMEN',
-			//_('Activity Greater Than') => 'TEXT',
-			//_('Activity Less Than') => 'TEXT',
-			_('Comments') => 'TEXTBOX',
-			//_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
-		)
-	);
-
 	$reports->addReport(RC_CUSTOMER, 108, _('Print &Statements'),
 		array(	
 			_('Customer') => 'CUSTOMERS_NO_FILTER',
@@ -191,6 +163,38 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SYSCOST_REP')) {
 	);
 }
 //
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_CUST_SALES')) {
+
+	$reports->addReport(RC_CUSTOMER, 115, _('Customer Trial Balance'),
+    	array(  
+			_('Start Date') => 'DATEBEGIN',
+            _('End Date') => 'DATEENDM',
+            _('Customer') => 'CUSTOMERS_NO_FILTER',
+            _('Sales Areas') => 'AREAS',
+            _('Sales Folk') => 'SALESMEN',
+            _('Currency Filter') => 'CURRENCY',
+            _('Suppress Zeros') => 'YES_NO',
+            _('Comments') => 'TEXTBOX',
+            _('Orientation') => 'ORIENTATION',
+            _('Destination') => 'DESTINATION'
+		)
+	);
+
+	$reports->addReport(RC_CUSTOMER, 98, _('Customer &Detail Listing'),
+		array(	
+			//_('Activity Since') => 'DATEBEGIN',
+			_('Sales Areas') => 'AREAS',
+			//_('Sales Folk') => 'SALESMEN',
+			//_('Activity Greater Than') => 'TEXT',
+			//_('Activity Less Than') => 'TEXT',
+			_('Comments') => 'TEXTBOX',
+			//_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);
+}
+
 
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESBULKREP')) {
 	
@@ -512,9 +516,8 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_RR_REP')) {
 	);	
 }
 
-//Modified by spyrax10 31 Mar 2022
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
-	
+
 	$reports->addReport(RC_SUPPLIER, 201, _('Supplier &Balances'),
 		array(	
 			_('Start Date') => 'DATEBEGIN',
@@ -553,6 +556,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
 		)
 	);
 
+}
+
+//Modified by spyrax10 31 Mar 2022
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SUP_TRIAL')) {
 
 	$reports->addReport(RC_SUPPLIER, 206, _('Supplier &Trial Balances'),
 		array(  
@@ -612,7 +619,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_PRINT')) {
 }
 	
 //Modified by spyrax10 31 Mar 2022
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPPLIERANALYTIC')) {
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PO_REP')) {
 	
 	$reports->addReport(RC_SUPPLIER, 220, _('Purchase Order &Summary Report'),
 		array(	
@@ -834,8 +841,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PROD_REP')) {
 }
 
 //
-
-if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC'))
 
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESANALYTIC')) {
 	
