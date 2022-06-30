@@ -309,8 +309,14 @@ function check_trans()
 		display_error(_("The entered date for the payment is invalid."));
 		set_focus('date_');
 		$input_error = 1;
-	} elseif (!is_date_in_fiscalyear($_POST['date_'])) {
+	} 
+	elseif (!is_date_in_fiscalyear($_POST['date_'])) {
 		display_error(_("The entered date is out of fiscal year or is closed for further data entry."));
+		set_focus('date_');
+		$input_error = 1;
+	}
+	elseif (!allowed_posting_date($_POST['date_'])) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
 		set_focus('date_');
 		$input_error = 1;
 	}

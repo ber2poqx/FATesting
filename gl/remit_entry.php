@@ -67,6 +67,12 @@ function can_process() {
 		return false;
 	}
 
+    if (!allowed_posting_date($_POST['date_'])) {
+		display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		set_focus('date_');
+		return false;
+	}
+
     if (get_post('cashier_') == '') {
         display_error(_("Please Select a Cashier!"));
         set_focus('cashier_');

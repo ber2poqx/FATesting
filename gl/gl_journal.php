@@ -310,6 +310,11 @@ if (isset($_POST['Process'])) {
 		display_error(_("The entered date is out of fiscal year or is closed for further data entry."));
 		set_focus('date_');
 		$input_error = 1;
+	}
+	elseif (!allowed_posting_date($_POST['date_'])) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('date_');
+		$input_error = 1;
 	} 
 	// if (!is_date($_POST['event_date'])) 
 	// {
@@ -342,6 +347,11 @@ if (isset($_POST['Process'])) {
 		} 
 		elseif (!is_date_in_fiscalyear($_POST['tax_date'])) {
 			display_error(_("The entered date is out of fiscal year or is closed for further data entry."));
+			set_focus('tax_date');
+			$input_error = 1;
+		}
+		elseif (!allowed_posting_date($_POST['tax_date'])) {
+			display_error(_("The Entered Date is currently LOCKED for further data entry!"));
 			set_focus('tax_date');
 			$input_error = 1;
 		}

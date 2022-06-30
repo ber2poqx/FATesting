@@ -399,6 +399,10 @@ function can_proceed($approve_stat = 0) {
         display_error(_("The Today's Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		return false;
     }
+	else if (!allowed_posting_date(Today())) {
+        display_error(_("The Today's Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		return false;
+    }
 
     if (get_post('memo_') == '' && $approve_stat == 2) {
         display_error(_("Comments cannot be empty."));
@@ -450,11 +454,17 @@ function check_trans($trans_no, $trans_type)
 			display_error(_("The entered date for the payment is invalid."));
 			set_focus('date_');
 			$input_error = 1;
-		} elseif (!is_date_in_fiscalyear($_POST['date_'])) {
+		} 
+		elseif (!is_date_in_fiscalyear($_POST['date_'])) {
 			display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 			set_focus('date_');
 			$input_error = 1;
 		}
+		elseif (!allowed_posting_date($_POST['date_'])) {
+			display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+			set_focus('date_');
+			$input_error = 1;
+		} 
 	
 		if (get_post('PayType') == PT_CUSTOMER && (!get_post('person_id') || !get_post('PersonDetailID'))) {
 			display_error(_("You have to select customer and customer branch."));
