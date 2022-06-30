@@ -175,6 +175,10 @@ function can_proceed($id = 0) {
         display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		return false;
     }
+	else if (!allowed_posting_date(Today())) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		return false;
+    }
 
 	if (get_post('Comments') == '' && $id == 2) {
 		display_error(_("Remarks is necessary for this transaction."));

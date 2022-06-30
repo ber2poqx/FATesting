@@ -294,6 +294,15 @@ function can_proceed() {
 		return false;
 	}
 
+	if (!is_date_in_fiscalyear(Today())) {
+        display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		return false;
+    }
+	else if (!allowed_posting_date(Today())) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		return false;
+    }
+
 	if (get_post('ref_no') == '' || get_post('co_maker') == '') {
 		display_error("Empty Fields!");
 		return false;

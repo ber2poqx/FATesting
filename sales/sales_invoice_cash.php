@@ -435,6 +435,15 @@ function can_process()
 		set_focus('OrderDate');
 		return false;
 	}
+
+	//Added by spyrax10 30 Jun 2022
+	if ($_SESSION['Items']->trans_type != ST_SALESORDER && $_SESSION['Items']->trans_type != ST_SALESQUOTE && !allowed_posting_date($_POST['OrderDate'])) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('OrderDate');
+		return false;
+	}
+	//
+	
 	if (count($_SESSION['Items']->line_items) == 0) {
 		display_error(_("You must enter at least one non empty item line."));
 		set_focus('AddItem');
