@@ -551,30 +551,35 @@ class items_cart
 					false
 				);
 													//REBATE
-			if ($this->ar_alloc == 1 && $gl->code_id != 5660) {
+			if ($this->ar_alloc == 1) {
 
-				$account_id = $gl->amount > 0 ? getCompDet('dgp_account') : getCompDet('rgp_account');
+				if (!gl_account_exists($this->trans_type, $this->order_id, getCompDet('dgp_account')) || 
+					!gl_account_exists($this->trans_type, $this->order_id, getCompDet('rgp_account'))) {
+					
+					$account_id = $gl->amount > 0 ? getCompDet('dgp_account') : getCompDet('rgp_account');
 
-				add_gl_trans(
-					$this->trans_type, 
-					$this->order_id, 
-					$gl->date, 
-					$account_id, 
-					$gl->dimension_id, 
-					$gl->dimension2_id, 
-					$this->memo_, 
-					$gl->amount > 0 ? $this->gross_profit : -$this->gross_profit, 
-					$this->currency, 
-					$gl->master_file_type, 
-					$gl->person_id, "", 
-					$this->rate, 
-					get_person_id(PT_CUSTOMER, $gl->mcode), 
-					$gl->master_file, 
-					$gl->hocbc,
-					$this->order_id, 
-					$gl->comp_id != $coy ? 1 : 0,
-					false
-				);
+					add_gl_trans(
+						$this->trans_type, 
+						$this->order_id, 
+						$gl->date, 
+						$account_id, 
+						$gl->dimension_id, 
+						$gl->dimension2_id, 
+						$this->memo_, 
+						$gl->amount > 0 ? $this->gross_profit : -$this->gross_profit, 
+						$this->currency, 
+						$gl->master_file_type, 
+						$gl->person_id, "", 
+						$this->rate, 
+						get_person_id(PT_CUSTOMER, $gl->mcode), 
+						$gl->master_file, 
+						$gl->hocbc,
+						$this->order_id, 
+						$gl->comp_id != $coy ? 1 : 0,
+						false
+					);
+				}
+
 			}
 
 			// post to first found bank account using given gl acount code.
@@ -746,15 +751,13 @@ class items_cart
 
 		if ($this->void_id > 0) {
 			global $Refs;
-			$total = 0;
 
 			$void_row = get_voided_entry($this->trans_type, null, null, false, 'ALL', null, null, $void_id);
 			$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 			$debtor_row = get_SI_by_reference($void_row['reference_from']);
+			$si_row = get_SI_by_reference($this->source_ref);
 
 			while ($row = db_fetch($gl_sql)) {
-				
-				$total += $row['amount'];
 
 				add_gl_trans(
 					$row['type'],
@@ -801,11 +804,11 @@ class items_cart
 			if ($debtor_row["trans_no"] != null)  {
 				if ($debtor_row['alloc'] > 0 && $debtor_row['ov_amount'] == 0) {
 					void_payments_thru_JE($void_row['reference_from'], $void_row['id'], true);
-					update_debtor_trans_allocation($debtor_row["type"], $debtor_row["trans_no"], $debtor_row["debtor_no"]);
+					update_debtor_trans_allocation($si_row["type"], $si_row["trans_no"], $si_row["debtor_no"]);
 				}
 				else if ($debtor_row['ov_amount'] > 0 && $debtor_row['alloc'] == 0) {
 					void_payments_thru_JE($void_row['reference_from'], $void_row['id']);
-					update_AR_amount($debtor_row["trans_no"], $debtor_row["type"], $debtor_row["debtor_no"], -$total);
+					update_AR_amount($si_row["trans_no"], $si_row["type"], $si_row["debtor_no"], -$debtor_row['ov_amount']);
 				}
 			}
 

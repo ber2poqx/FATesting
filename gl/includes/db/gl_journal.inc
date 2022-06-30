@@ -177,6 +177,24 @@ function void_journal_trans($type, $type_no, $use_transaction=true)
 
 //Added by spyrax10 11 Jun 2022
 
+function gl_account_exists($type, $trans_no, $account) {
+	
+	set_global_connection();
+
+	$sql = "SELECT account FROM " . TB_PREF . "gl_trans
+	WHERE type = " .db_escape($type) . " AND type_no = " .db_escape($trans_no) 
+		. " AND account = " .db_escape($account);
+
+	$result = db_query($sql, "gl_account_exists()");
+
+	if (db_num_rows($result) > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 function JE_exists($trans_no, $reference = '') {
 
 	set_global_connection();
