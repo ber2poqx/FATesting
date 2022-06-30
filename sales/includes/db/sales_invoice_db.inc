@@ -163,7 +163,9 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->profit_margin > 0 ? $invoice->profit_margin : 0,
 		$invoice->document_ref, //Added by spyrax10
 		$opening_balances == 1 ? $invoice->old_trans_no : 0,
-		$invoice->discount_dp_amount2 //Added by Albert
+		$invoice->discount_dp_amount2, //Added by Albert
+		$invoice->ar_amount //Added by Albert 06/30/2022
+
 	);
 
 	if ($invoice->payment_policy != 0 && ST_SALESINVOICE) {

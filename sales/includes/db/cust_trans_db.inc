@@ -580,7 +580,8 @@ function add_debtor_loans(
 	$profit_margin = 0,
 	$document_ref = "",//Added by spyrax10
 	$old_trans_no = 0,
-	$discount_dp_amount2 //Added by Albert
+	$discount_dp_amount2, //Added by Albert
+	$financing_gross	//Added by Albert
 ) {
 	// $outstanding_ar_amount = $ar_amount - $downpayment_amount; //comment by albert
 	if ($installmentplcy_id == 0) {
@@ -624,7 +625,8 @@ function add_debtor_loans(
 		profit_margin,
 		ref_no,
 		old_trans_no,
-		discount_downpayment2
+		discount_downpayment2,
+		financing_gross
 		) VALUES (
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
@@ -656,7 +658,8 @@ function add_debtor_loans(
 		$profit_margin, 
 		" . db_escape($document_ref) . ",
 		".db_escape($old_trans_no).",
-		$discount_dp_amount2)"; //Added by spyrax10 
+		$discount_dp_amount2,
+		$financing_gross)"; //modified by Albert 06/30/2022
 
 	db_query($sql, "The debtor loans record could not be inserted");
 }
