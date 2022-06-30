@@ -426,7 +426,7 @@ function can_post() {
         display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		return false;
     }
-    else if (!allowed_posting_date(Today())) {
+    else if (!allowed_posting_date($trans_date)) {
 		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
 		return false;
 	}
