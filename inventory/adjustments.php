@@ -174,7 +174,13 @@ function can_process()
 		set_focus('AdjDate');
 		return false;
 	}
-	elseif (!$SysPrefs->allow_negative_stock()) {
+	elseif (!allowed_posting_date($_POST['AdjDate'])) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('AdjDate');
+		return false;
+	}
+	
+	if (!$SysPrefs->allow_negative_stock()) {
 		$low_stock = $adj->check_qoh($_POST['StockLocation'], $_POST['AdjDate']);
 
 		if ($low_stock) {

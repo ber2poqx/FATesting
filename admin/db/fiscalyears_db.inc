@@ -430,6 +430,28 @@ function delete_this_fiscalyear($selected_id)
 
 //Added by spyrax10 30 Jun 2022
 
+function allowed_posting_date($date) {
+	
+	set_global_connection();
+
+	$date = date2sql($date);
+
+	$sql = "SELECT locked FROM " . TB_PREF . "fiscal_month 
+		WHERE '$date' >= begin_date AND '$date' <= end_date ";
+	
+	$result = db_query($sql, "allowed_posting_date()");
+
+	$row = db_fetch($result);
+
+	if ($row[0] == 1) {
+		return false;
+	}
+	else {
+		return true;
+	}
+
+}
+
 function get_posting_period($year = null) {
 	
 	set_global_connection();
@@ -440,7 +462,7 @@ function get_posting_period($year = null) {
 		$sql .= " AND YEAR(begin_date) = " .db_escape($year);
 	}
 
-	return db_query($sql, "get_posting_perio()");
+	return db_query($sql, "get_posting_period()");
 }
 
 function posting_period_exists($year = null) {

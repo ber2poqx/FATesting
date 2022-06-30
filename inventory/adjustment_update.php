@@ -236,10 +236,10 @@ function display_adjustment_header($trans_no)
         table_section(1);
         locations_list_row(_("Location: "), 'StockLocation', $row['loc_code'], false, true);
         date_row(_("Date: "), 'AdjDate', '', true);
-        label_row(_("Adjustment Type: "), $type, "", "", 0, 'adj_type');
+        label_row(_("Adjustment Type: &nbsp;"), $type, "", "", 0, 'adj_type');
        
         table_section(2);
-        label_row(_("Reference: "), $row['reference']);
+        label_row(_("Reference: &nbsp;"), $row['reference']);
         stock_categories_list_row(_("Category: "), "category", $row['category_id'], false, true);
         textarea_row(_("Memo:"), 'memo', $row['memo'], 25, 3);
         
@@ -459,6 +459,16 @@ function can_proceed() {
 	$demand_qty += get_demand_asm_qty($stock_id, get_post("StockLocation"));
 	$qoh = get_qoh_on_date($stock_id, get_post("StockLocation"), null, $row['item_type']);
 	$qty = $qoh - $demand_qty;
+    $date = !get_post('AdjDate') ? $row['tran_date'] : get_post('AdjDate');
+
+    if (!is_date_in_fiscalyear($date)) {
+        display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		return false;
+    }
+    else if (!allowed_posting_date($date)) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		return false;
+	}
 
     if (get_post('adj_type') == "OUT" && $qty < input_num('qty')) {
         if (is_Serialized($stock_id) == 0) {
