@@ -27,12 +27,87 @@ page(_($help_context = "Posting Period"), false, false, "", $js);
 simple_page_mode(true);
 
 //---------------------------------------------------------------------------------------------
+if (!posting_period_exists(get_year(Today()))) {
+    $new = generate_posting_period();
+}
+else {
+    $new = "";
+}
 
-display_error("First Date: " . first_date() . " || Last Date: " . last_date());
+if ($new) {
+    display_notification(_("New Posting Period Sucessfully Generated!"));
+}
 
-$next_month = strtotime("+1 day", strtotime(sql2date(first_date())));
+if (get_post('posting')) {
 
-display_error(first_date_month("2022-12-18"));
+    foreach(get_post('posting') as $key => $val) {
+        if ($val != "Select Action") {
+            $status = $val == "Locked" ? 1 : 0;
+            update_posting_period($key, $status);
+        }
+    }
+    display_notification(_("Posting Period Sucessfully Updated!"));
+    $Ajax->activate('posting_div');
+}
 
+
+
+//---------------------------------------------------------------------------------------------
+
+start_form();
+
+div_start("posting_div");
+start_table(TABLESTYLE, "width='50%'");
+
+$sql = get_posting_period(get_year(Today()));
+
+$th = array(
+    _("ID"),
+    _("Begin Date"),
+    _("End Date"),
+    _("Status"),
+    _("Last Update"),
+    _("Updated By"),
+    _("")
+);
+
+table_header($th);
+
+$k = 0;
+
+while ($row = db_fetch_assoc($sql)) {
+
+    if ($row['locked'] == 1) {
+        start_row("class='overduebg'");
+    }
+    else {
+        alt_table_row_color($k);
+    }
+
+    $status = $row['locked'] == 0 ? "Unlocked" : "Locked";
+
+    label_cell($row['id']);
+    label_cell(phil_short_date($row['begin_date']), "nowrap align='center'");
+    label_cell(phil_short_date($row['end_date']), "nowrap align='center'");
+    label_cell($status, "nowrap align='center'");
+    label_cell(phil_short_date($row['last_update']), "nowrap align='center'");
+    label_cell(get_user_name($row['updated_by']), "nowrap align='center'");
+    label_cell(
+        value_type_list(null, "posting[" . $row['id'] . "]", 
+            array(
+                "DEFAULT" => "Select Action",
+                1 => "Locked",
+                0 => "UnLocked"
+            ), '', null, true
+        )
+    );
+}
+
+end_table();
+div_end();
+
+br(2);
+
+end_form();
 //---------------------------------------------------------------------------------------------
 end_page();

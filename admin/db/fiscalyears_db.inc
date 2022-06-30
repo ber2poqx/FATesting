@@ -428,3 +428,83 @@ function delete_this_fiscalyear($selected_id)
 }
 
 
+//Added by spyrax10 30 Jun 2022
+
+function get_posting_period($year = null) {
+	
+	set_global_connection();
+
+	$sql = "SELECT * FROM " . TB_PREF . "fiscal_month WHERE IFNULL(id, '') <> ''";
+	
+	if ($year != null) {
+		$sql .= " AND YEAR(begin_date) = " .db_escape($year);
+	}
+
+	return db_query($sql, "get_posting_perio()");
+}
+
+function posting_period_exists($year = null) {
+	
+	set_global_connection();
+
+	$sql = "SELECT COUNT(*) FROM " . TB_PREF . "fiscal_month 
+		WHERE YEAR(begin_date) = " .db_escape($year);
+	
+	$result = db_query($sql, "posting_period_exists()");
+	$row = db_fetch($result);
+
+	if ($row[0] > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+function update_posting_period($id, $status = 0) {
+	
+	set_global_connection();
+
+	$sql = "UPDATE " . TB_PREF . "fiscal_month SET locked = $status, 
+		last_update = " .db_escape(date2sql(Today())) . ", 
+		updated_by = " .db_escape($_SESSION["wa_current_user"]->user);
+	
+	$sql .= " WHERE id = " .db_escape($id);
+
+	db_query($sql, "update_posting_period()");
+
+	return $id;
+}
+
+function insert_posting_period($begin_date = null, $end_date = null, $status = 0, $last_update = null, $user_id = 0) {
+
+	set_global_connection();
+
+	$sql = "INSERT INTO " . TB_PREF . "fiscal_month (begin_date, end_date, locked, last_update, updated_by)";
+	$sql .= " VALUES (
+		". db_escape($begin_date) .",
+		". db_escape($end_date) .",
+		". db_escape($status) .",
+		". db_escape($last_update) .",
+		". db_escape($user_id) ." 
+	)";
+	
+	db_query($sql, "insert_posting_period()");
+}
+
+function generate_posting_period($year = null) {
+
+	if ($year == null) {
+		$year = get_year(Today());
+	}
+
+	for($month = 1; $month < 13; $month++) {
+		$begin_date = date2sql(sql2date($year . "-" . $month . "-01"));
+		$end_date = last_date_month($begin_date);
+		
+		insert_posting_period($begin_date, $end_date, 0, date2sql(Today()), $_SESSION["wa_current_user"]->user);
+	}
+
+	return true;
+}
+
