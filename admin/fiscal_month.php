@@ -78,7 +78,9 @@ start_outer_table(TABLESTYLE2, "width='70%'");
 
 table_section(1, "24%");
 
-range_type_list(_("Select Year: "), "year_list", get_year(Today()), "2000", "DESC", "&nbsp;&nbsp;", '', null, true);
+$default_year = isset($_POST['year_list']) ? $_POST['year_list'] : get_year(Today());
+
+range_type_list(_("Select Year: "), "year_list", get_max_fiscalyear(), "2000", "DESC", "&nbsp;&nbsp;", '', $default_year, true);
 
 label_row(null, ''); label_row(null, '');
 

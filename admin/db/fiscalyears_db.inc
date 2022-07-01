@@ -430,6 +430,17 @@ function delete_this_fiscalyear($selected_id)
 
 //Added by spyrax10 30 Jun 2022
 
+function get_max_fiscalyear() {
+
+	set_global_connection();
+
+	$sql = "SELECT MAX(YEAR(begin)) FROM " . TB_PREF . "fiscal_year";
+	$result = db_query($sql, "get_max_fiscalyear()");
+	$row = db_fetch($result);
+
+	return $row[0] != null ? $row[0] : get_year(Today());
+}
+
 function allowed_posting_date($date) {
 	
 	set_global_connection();
