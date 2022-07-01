@@ -117,6 +117,7 @@ while ($row = db_fetch_assoc($sql)) {
 }
 
 end_table();
+display_note("Mark Rows are LOCKED for futher data entry...", 0, 0, "class='overduefg'");
 
 end_outer_table(1);
 
