@@ -931,6 +931,52 @@ function sql_type_list($label, $name, $query, $ret_id = '', $ret_val = '', $clas
 	}
 }
 
+function range_type_list($label, $name, $max_val = 0, $min_val = 0, $order = "ASC", $val_text = '', $class = '', $selected = null, 
+	$submit_on_change = false, $all_text = '', $with_key = false, $row = false, $report = false) {
+		
+	if ($row) { 
+		echo "<tr>";
+	}
+	
+	if ($label != null) {
+		echo "<td class=$class>$label</td>";
+	}
+	echo "<td>\n";
+	
+	$new_max = $max_val + 1;
+	$new_arr = array();
+	
+	for ($i = $min_val; $i < $new_max; $i++) {
+    	$new_arr[$i] = $i . $val_text;
+	}
+
+	if ($order == "DESC") {
+		krsort($new_arr);
+	}
+	else {
+		ksort($new_arr);
+	}
+	
+	if ($report) {
+		return array_selector($name, $selected, 
+			$all_text != '' ? array(ALL_TEXT => _($all_text)) + $new_arr : $new_arr,
+			array('select_submit' => $submit_on_change)
+		);
+	}
+	else {
+		echo array_selector($name, $selected, 
+			$all_text != '' ? array(ALL_TEXT => _($all_text)) + $new_arr : $new_arr,
+			array('select_submit' => $submit_on_change)
+		);
+	}
+	
+	echo "</td>\n";
+	
+	if ($row) { 
+		echo "</tr>";
+	}		
+}
+
 function value_type_list($label, $name, $val_array, $class = '', $selected = null, $submit_on_change = false, 
 	$all_text = '', $with_key = false, $row = false, $report = false) {
 

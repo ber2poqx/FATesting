@@ -29,37 +29,50 @@ simple_page_mode(true);
 //---------------------------------------------------------------------------------------------
 if (!posting_period_exists(get_year(Today()))) {
     $new = generate_posting_period();
-}
-else {
-    $new = "";
-}
-
-if ($new) {
     display_notification(_("New Posting Period Sucessfully Generated!"));
 }
 
 if (get_post('posting')) {
-
+    $count = 0;
     foreach(get_post('posting') as $key => $val) {
         if ($val != "Select Action") {
             $status = $val == "Locked" ? 1 : 0;
             update_posting_period($key, $status);
+            $count++;
         }
     }
-    display_notification(_("Posting Period Sucessfully Updated!"));
-    $Ajax->activate('posting_div');
+    if ($count > 0) {
+        display_notification(_("Posting Period Sucessfully Updated!"));
+        $Ajax->activate('posting_div');
+    }
 }
 
-
+if (get_post('year_list')) {
+    if (!posting_period_exists(get_post('year_list'))) {
+        $new = generate_posting_period(get_post('year_list'));
+        display_notification(_("New Posting Period Sucessfully Generated!"));
+    }
+    $Ajax->activate('posting_div');
+}
 
 //---------------------------------------------------------------------------------------------
 
 start_form();
 
 div_start("posting_div");
-start_table(TABLESTYLE, "width='50%'");
 
-$sql = get_posting_period(get_year(Today()));
+start_outer_table(TABLESTYLE2, "width='65%'");
+
+table_section(1, "10%");
+label_row("Select Year: &nbsp;", null);
+
+range_type_list(null, "year_list", get_year(Today()), "2000", "DESC", "&nbsp;&nbsp;", '', null, true);
+
+table_section(2, "90%");
+
+start_table(TABLESTYLE2, "width='100%'");
+
+$sql = get_posting_period(get_post('year_list'));
 
 $th = array(
     _("ID"),
@@ -104,6 +117,9 @@ while ($row = db_fetch_assoc($sql)) {
 }
 
 end_table();
+
+end_outer_table(1);
+
 div_end();
 
 br(2);
