@@ -64,8 +64,8 @@ div_start("posting_div");
 start_outer_table(TABLESTYLE2, "width='65%'");
 
 table_section(1, "10%");
-label_row("Select Year: &nbsp;", null);
 
+display_note("Select Year: &nbsp;", 0, 0, "");
 range_type_list(null, "year_list", get_year(Today()), "2000", "DESC", "&nbsp;&nbsp;", '', null, true);
 
 table_section(2, "90%");
