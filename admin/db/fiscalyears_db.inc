@@ -483,7 +483,7 @@ function posting_period_exists($year = null) {
 	}
 }
 
-function update_posting_period($id, $status = 0) {
+function update_posting_period($id, $status = 0, $whole_year = false) {
 	
 	set_global_connection();
 
@@ -491,7 +491,12 @@ function update_posting_period($id, $status = 0) {
 		last_update = " .db_escape(date2sql(Today())) . ", 
 		updated_by = " .db_escape($_SESSION["wa_current_user"]->user);
 	
-	$sql .= " WHERE id = " .db_escape($id);
+	if ($whole_year) {
+		$sql .= " WHERE YEAR(begin_date) = " .db_escape($id);
+	}
+	else {
+		$sql .= " WHERE id = " .db_escape($id);
+	}
 
 	db_query($sql, "update_posting_period()");
 

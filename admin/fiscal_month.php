@@ -55,20 +55,40 @@ if (get_post('year_list')) {
     $Ajax->activate('posting_div');
 }
 
+if (get_post('year_upd')) {
+   
+    if (get_post('year_upd') != 'Select Action') {
+        $status = get_post('year_upd') == "Locked" ? 1 : 0;
+        $id = update_posting_period(get_post('year_list'), $status, true);
+        if ($id) {
+            display_notification(_("Posting Period Sucessfully Updated! (YEAR: " . get_post('year_list') . ")"));
+            $Ajax->activate('posting_div');
+            unset($_POST['year_upd']);
+        }
+    }
+}
+
 //---------------------------------------------------------------------------------------------
 
 start_form();
 
 div_start("posting_div");
 
-start_outer_table(TABLESTYLE2, "width='65%'");
+start_outer_table(TABLESTYLE2, "width='70%'");
 
-table_section(1, "10%");
+table_section(1, "20%");
 
-display_note("Select Year: &nbsp;", 0, 0, "");
-range_type_list(null, "year_list", get_year(Today()), "2000", "DESC", "&nbsp;&nbsp;", '', null, true);
+range_type_list(_("Select Year: "), "year_list", get_year(Today()), "2000", "DESC", "&nbsp;&nbsp;", '', null, true);
 
-table_section(2, "90%");
+value_type_list(_("Update Whole Year: "), "year_upd", 
+    array(
+        "DEFAULT" => "Select Action",
+        1 => "Locked",
+        0 => "UnLocked"
+    ), '', null, true, '', false, true
+);
+
+table_section(2, "80%");
 
 start_table(TABLESTYLE2, "width='100%'");
 
