@@ -22,7 +22,7 @@ if (user_use_date_picker()) {
     $js .= get_js_date_picker();
 }
 
-page(_($help_context = "Posting Period"), false, false, "", $js);
+page(_($help_context = "Posting Period Maintenance"), false, false, "", $js);
 
 simple_page_mode(true);
 
@@ -76,11 +76,13 @@ div_start("posting_div");
 
 start_outer_table(TABLESTYLE2, "width='70%'");
 
-table_section(1, "20%");
+table_section(1, "24%");
 
 range_type_list(_("Select Year: "), "year_list", get_year(Today()), "2000", "DESC", "&nbsp;&nbsp;", '', null, true);
 
-value_type_list(_("Update Whole Year: "), "year_upd", 
+label_row(null, ''); label_row(null, '');
+
+value_type_list(_("Update Whole Year: &nbsp;"), "year_upd", 
     array(
         "DEFAULT" => "Select Action",
         1 => "Locked",
@@ -88,7 +90,7 @@ value_type_list(_("Update Whole Year: "), "year_upd",
     ), '', null, true, '', false, true
 );
 
-table_section(2, "80%");
+table_section(2, "76%");
 
 start_table(TABLESTYLE2, "width='100%'");
 
