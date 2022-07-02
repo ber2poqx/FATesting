@@ -81,8 +81,7 @@ function gl_update($row) {
     if ($_SESSION["wa_current_user"]->can_access_page('SA_JOURNALENTRY')) {
 
         if ($void_entry['void_status'] != 'Voided') {
-            $debtor_row = get_SI_by_reference($row['source_ref']);
-            $update_link = $debtor_row["trans_no"] == null ? trans_editor_link(ST_JOURNAL, $row["trans_no"]) : "";
+            $update_link = trans_editor_link(ST_JOURNAL, $row["trans_no"]);
         }
     }
     return $update_link;
