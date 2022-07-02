@@ -233,14 +233,14 @@ if (isset($_POST['import'])) {
 					
 			    } else $brand = $row1[0];
 				
-				$sql2 = "SELECT id, name FROM ".TB_PREF."item_manufacturer WHERE UPPER(name)=".db_escape(strtoupper($manufacturer));
+				$sql2 = "SELECT supplier_id, supp_name FROM ".TB_PREF."suppliers WHERE UPPER(supp_name)=".db_escape(strtoupper($manufacturer));
 				$result2 = db_query($sql2, "could not get item manufacturer");
 				$row2 = db_fetch_row($result2);
 			    if (!$row2) {
-					if($manufacturer!='--' && $manufacturer!=''){
+					/*if($manufacturer!='--' && $manufacturer!=''){
 						add_item_code_manufacturer($manufacturer);
 						$manufacturer = db_insert_id();
-					}else $manufacturer=0;
+					}else $manufacturer=0;*/
 					
 			    } else $manufacturer = $row2[0];
 				
