@@ -430,11 +430,13 @@ function delete_this_fiscalyear($selected_id)
 
 //Added by spyrax10 30 Jun 2022
 
-function get_max_fiscalyear() {
+function get_max_fiscalyear($minimum = false) {
 
 	set_global_connection();
 
-	$sql = "SELECT MAX(YEAR(begin)) FROM " . TB_PREF . "fiscal_year";
+	$value = $minimum ? "MIN" : "MAX";
+
+	$sql = "SELECT $value(YEAR(begin)) FROM " . TB_PREF . "fiscal_year";
 	$result = db_query($sql, "get_max_fiscalyear()");
 	$row = db_fetch($result);
 

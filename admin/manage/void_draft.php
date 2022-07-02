@@ -220,6 +220,26 @@ function void_remarks($status) {
 }
 
 //---------------------------------------------------------------------------------------------
+function can_proceed() {
+
+    if (!is_date_in_fiscalyear(Today())) {
+        display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		return false;
+    }
+    else if (!allowed_posting_date(Today())) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		return false;
+	}
+    
+    if (get_post('memo_') == null) {
+        display_error(_("Remarks is needed for this transaction..."));
+        return false;
+    }
+    
+    return true;
+}
+
+//---------------------------------------------------------------------------------------------
 
 if (isset($_POST['Process'])) {
 
@@ -239,43 +259,33 @@ if (isset($_POST['Process'])) {
 
 }
 
-if (isset($_POST['Approved'])) {
-    if (get_post('memo_') == null) {
-        display_error(_("Remarks is needed for this transaction..."));
-    }
-    else {
-        $trans_no = update_void_status(
-            $_GET['type'], 
-            $_GET['trans_no'], 
-            Today(),
-            "Approved",
-            get_post('memo_'),
-            $_SESSION["wa_current_user"]->user
-        );
+if (isset($_POST['Approved']) && can_proceed()) {
+    $trans_no = update_void_status(
+        $_GET['type'], 
+        $_GET['trans_no'], 
+        Today(),
+        "Approved",
+        get_post('memo_'),
+        $_SESSION["wa_current_user"]->user
+    );
 
-        if ($trans_no) {
-            meta_forward($_SERVER['PHP_SELF'], "ApprovedID=" . $trans_no);
-        }
+    if ($trans_no) {
+        meta_forward($_SERVER['PHP_SELF'], "ApprovedID=" . $trans_no);
     }
 }
 
-if (isset($_POST['Disapproved'])) {
-    if (get_post('memo_') == null) {
-        display_error(_("Remarks is needed for this transaction..."));
-    }
-    else {
-        $trans_no = update_void_status(
-            $_GET['type'], 
-            $_GET['trans_no'], 
-            Today(),
-            "Disapproved",
-            get_post('memo_'),
-            $_SESSION["wa_current_user"]->user
-        );
+if (isset($_POST['Disapproved']) && can_proceed()) {
+    $trans_no = update_void_status(
+        $_GET['type'], 
+        $_GET['trans_no'], 
+        Today(),
+        "Disapproved",
+        get_post('memo_'),
+        $_SESSION["wa_current_user"]->user
+    );
 
-        if ($trans_no) {
-            meta_forward($path_to_root . "/admin/inquiry/void_inquiry_list.php?");
-        }
+    if ($trans_no) {
+        meta_forward($path_to_root . "/admin/inquiry/void_inquiry_list.php?");
     }
 }
 
