@@ -252,6 +252,10 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Invoice number for this customer already exists.');
     }*/
+
+    //get loans info
+    $loanresult = get_debtor_per_transNo($_POST['invoice_no']);
+    $loansrow = db_fetch($loanresult);
     
     $result = get_Approve_deptor_trans($_POST['id'], ST_ARINVCINSTLITM);
     $count = db_fetch($result);
@@ -293,8 +297,10 @@ if(isset($_GET['submit']))
             add_ar_installment($trans_no, $_POST['customername'], $_POST['invoice_no'], $reference, $invoice_date, $_POST['branch_code'],
                             $_POST['invoice_type'], check_isempty($_POST['policy_id']), $_POST['months_term'], $_POST['rebate'],
                             $_POST['financing_rate'], $firstdue_date, $maturity_date, $_POST['outs_ar_amount'], $_POST['ar_amount'], $_POST['lcp_amount'],
-                            $_POST['dp_amount'], $_POST['amort_amount'], $_POST['total_amount'], check_isempty($_POST['category_id']), check_isempty($_POST['delivery_no']), 'unpaid');
-
+                            $_POST['dp_amount'], $_POST['amort_amount'], $_POST['total_amount'], check_isempty($_POST['category_id']), check_isempty($_POST['delivery_no']),
+                            'unpaid', $loansrow["warranty_code"], $loansrow["fsc_series"], $loansrow["co_maker"], $loansrow["discount_downpayment"], $loansrow["discount_downpayment2"],
+                            $loansrow["deferred_gross_profit"], $loansrow["profit_margin"], $loansrow["ref_no"], $loansrow["old_trans_no"]);
+                            
             add_comments(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $_POST['comments']);
 
             //for a/r items

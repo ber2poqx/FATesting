@@ -11,20 +11,24 @@
 ***********************************************************************/
 function add_ar_installment($trans_no, $debtor_no, $invoice_no, $reference, $invoice_date, $branch_code, $invoice_type, $installmentplcy_id,
 							$months_term, $rebate, $f_rate, $firstdue_date, $maturity_date, $o_ar_amount, $ar_amount, $lcp_amount, $dp_amount, 
-							$amort_amount, $total_amount, $category_id, $delivery_no, $payment_status, $payloc="Lending")
+							$amort_amount, $total_amount, $category_id, $delivery_no, $payment_status, $wrcode, $fsc, $co_maker, $discount_down,
+							$discount_down2, $dgp, $profit_margin, $ref_no, $old_transno, $payloc="Lending")
 {
 	$sql = "INSERT INTO ".TB_PREF."debtor_loans (
 					trans_no ,debtor_no ,invoice_ref_no, delivery_ref_no ,reference ,invoice_date ,orig_branch_code ,invoice_type
-					,installmentplcy_id ,months_term ,rebate ,financing_rate ,firstdue_date ,maturity_date
-					,outstanding_ar_amount ,ar_amount ,lcp_amount ,downpayment_amount ,amortization_amount
-					,total_amount ,category_id ,payment_status, payment_location
+					,installmentplcy_id ,months_term ,rebate ,financing_rate ,firstdue_date ,maturity_date ,outstanding_ar_amount
+					,ar_amount ,lcp_amount ,downpayment_amount ,amortization_amount, total_amount ,category_id ,payment_status
+					,payment_location ,warranty_code, fsc_series, co_maker, discount_downpayment, deferred_gross_profit, profit_margin
+					,ref_no, old_trans_no, discount_downpayment2
 			) VALUES (
 			        ".db_escape($trans_no)." ,".db_escape($debtor_no)." ,".db_escape($invoice_no)." ,".db_escape($delivery_no)." 
 				   	,".db_escape($reference)." ,".db_escape($invoice_date)." ,".db_escape($branch_code)." ,".db_escape($invoice_type)."
 					,".db_escape($installmentplcy_id)." ,".db_escape($months_term)." ,".db_escape($rebate)." ,".db_escape($f_rate)."
 					,".db_escape($firstdue_date)." ,".db_escape($maturity_date)." ,".db_escape($o_ar_amount)." ,".db_escape($ar_amount)."
 					,".db_escape($lcp_amount)." ,".db_escape($dp_amount)." ,".db_escape($amort_amount)." ,".db_escape($total_amount)."
-					,".db_escape($category_id)." ,".db_escape($payment_status).", ".db_escape($payloc)."
+					,".db_escape($category_id)." ,".db_escape($payment_status).", ".db_escape($payloc).", ".db_escape($wrcode)."
+					, ".db_escape($fsc).", ".db_escape($co_maker).", ".db_escape($discount_down).", ".db_escape($dgp)."
+					, ".db_escape($profit_margin).", ".db_escape($ref_no).", ".db_escape($old_transno).", ".db_escape($discount_down2)."
 			)";
 	
 	$ErrMsg = _('Could not insert the new a/r installment because ');
@@ -147,7 +151,7 @@ function get_debtor_per_transNo($Trans_no){
 				AND A.trans_no = ".$Trans_no;
 
 	$result = db_query($sql, "could not get all debtor invoice per trans_no");
-	
+	echo $sql;
 	set_global_connection();
 	return $result;
 }
