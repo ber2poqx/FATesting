@@ -127,6 +127,27 @@ function post_void($row) {
                 "/gl/gl_journal.php?NewJournal=Yes&void_id=" . $row['void_id'], ICON_DOC) 
 		    : null;
         }
+        else if ($row['type'] == ST_SALESINVOICE) {
+            $si_row = get_SI_by_reference($row['reference_from']);
+
+            if ($si_row['opening_balances'] == 1) {
+                $post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
+                    "/sales/sales_invoice_opening_balances.php?NewInvoice=0&void_id=" . $row['void_id'], ICON_DOC) 
+		        : null;
+            }
+            else {
+                if ($si_row['months_term'] > 0) {
+                    $post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
+                        "/sales/sales_order_entry.php?NewOrder=0&void_id=" . $row['void_id'], ICON_DOC) 
+		            : null;
+                }
+                else {
+                    $post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
+                        "/sales/sales_invoice_cash.php?NewOrder=0&void_id=" . $row['void_id'], ICON_DOC) 
+                    : null;
+                }
+            }
+        }
 	}
 	else {
 		$post_link = '';

@@ -924,8 +924,9 @@ function get_SI_by_reference($reference) {
 	
 	set_global_connection();
 
-	$sql = "SELECT * FROM debtor_trans 
-		WHERE reference = " .db_escape($reference);
+	$sql = "SELECT DT.*, DL.months_term FROM " . TB_PREF . "debtor_trans DT
+			INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.reference
+		WHERE DT.reference = " .db_escape($reference);
 
 	$result = db_query($sql, "No SI details return! (spyrax10)");
 	return db_fetch($result);
@@ -937,16 +938,16 @@ function void_payments_thru_JE($reference = '', $trans_no = '', $is_alloc = fals
 
 	$field = $is_alloc ? "alloc" : "ov_amount";
 
-	$sql = "UPDATE debtor_trans SET $field = 0";
+	$sql = "UPDATE " . TB_PREF . "debtor_trans SET $field = 0";
 	$sql .= " WHERE type = " . ST_JOURNAL ." AND reference = " .db_escape($reference);
 	db_query($sql, "void_SI_thru_JE(debtor_trans)");
 
 	if ($is_alloc) {
-		$sql2 = "UPDATE cust_allocations SET amt = 0";
+		$sql2 = "UPDATE " . TB_PREF . "cust_allocations SET amt = 0";
 		$sql2 .= " WHERE trans_type_from = " . ST_JOURNAL ." AND trans_no_from = " .db_escape($trans_no); 
 		db_query($sql2, "void_SI_thru_JE(cust_allocations)");
 
-		$sql3 = "UPDATE debtor_loan_ledger SET payment_applied = 0";
+		$sql3 = "UPDATE " . TB_PREF . "debtor_loan_ledger SET payment_applied = 0";
 		$sql3 .= " WHERE trans_type_from = " . ST_JOURNAL ." AND payment_trans_no = " .db_escape($trans_no);
 		db_query($sql3, "void_SI_thru_JE(debtor_loan_ledger)");
 	}
