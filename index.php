@@ -25,8 +25,12 @@
 	}
 	else {
 		//Added by spyrax10 25 Apr 2022
-		if ($_SESSION["wa_current_user"]->can_access_page('SA_SETUPDISPLAY') && user_company() != 0) {
-			header("Location: ".$path_to_root."/admin/dashboard.php?sel_app=ALL");
+		$branch_code = get_company_value(user_company(), 'branch_code');
+		if ($branch_code != 'HO' && $branch_code != 'DESIHOFC') {
+
+			if ($_SESSION["wa_current_user"]->can_access_page('SA_SETUPDISPLAY')) {
+				header("Location: ".$path_to_root."/admin/dashboard.php?sel_app=ALL");
+			}
 		}
 	}
 
