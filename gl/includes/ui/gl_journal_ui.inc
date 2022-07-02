@@ -279,7 +279,8 @@ function display_gl_items($title, &$order, $enable_add_item) {
 				);
 			}
 			else {
-				if ($item->code_id != getCompDet('dgp_account') & $item->code_id != getCompDet('rgp_account')) {
+				$debtor_row = get_SI_by_reference($order->source_ref);
+				if ($debtor_row["trans_no"] == null) {
 					edit_button_cell("Edit$line", _("Edit"),
 						_('Edit journal line')
 					);

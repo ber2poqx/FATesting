@@ -726,7 +726,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 			else if ($send_type == 3) {
 				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-					WHERE account_type = 13";
+				WHERE account_name LIKE '%Branch Current%'";
 			}
 		}
 		else {
@@ -735,7 +735,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
 				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-					WHERE account_type = 13";
+				WHERE account_name LIKE '%Branch Current%'";
 		}		
 	} 
 	else {
@@ -748,7 +748,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 			else if ($send_type == 3) {
 				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_type = 13";
+				WHERE account_name LIKE '%Branch Current%'";
 			}
 		}
 		else {
@@ -757,7 +757,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
 				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-					WHERE account_type = 13";
+				WHERE account_name LIKE '%Branch Current%'";
 		}	
 	}	
 	$mode = get_company_pref('no_sl_list');

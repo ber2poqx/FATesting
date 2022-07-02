@@ -1015,7 +1015,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				x1.*
 				FROM (
 					SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
-						WHERE account_type = 13
+						WHERE account_name LIKE '%Branch Current%'
 				) x1 ";	
 		}
 	}
@@ -1041,7 +1041,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 					x1.*
 					FROM (
 						SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
-							WHERE account_type = 13
+							WHERE account_name LIKE '%Branch Current%'
 					) x1 ";	
 			}
 		}
@@ -1054,7 +1054,7 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
 				UNION
 				SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
-					WHERE account_type = 13
+					WHERE account_name LIKE '%Branch Current%'
 			) x1 ";		
 		}
 	
@@ -1081,7 +1081,8 @@ function get_slname_by_ref($ref)
 				UNION
 				SELECT user_id as ref, real_name as sl_name FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
 				UNION
-				SELECT account_code as ref, account_name as sl_name FROM " . TB_PREF . "chart_master WHERE account_type = 13
+				SELECT account_code as ref, account_name as sl_name FROM " . TB_PREF . "chart_master 
+				WHERE account_name LIKE '%Branch Current%'
 			) x1
 			WHERE x1.ref = " . db_escape($ref) . " ";
 	$result = db_query($sql, 'cannot retrieve sl name');
