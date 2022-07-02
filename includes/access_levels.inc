@@ -282,6 +282,7 @@ $security_areas =array(
 	//Modified by spyrax10 18 Jun 2022
 	'SA_DRAFTPOUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PO Status")),
 	'SA_DRAFTPRUPDATESTATUS' => array(SS_PURCH|20, _("Approval for Draft PR Status")),
+	'SA_POCLOSESTATUS' => array(SS_PURCH|21, _("Cancel Purchased Order")),//Added by Albert 07/02/2022
 	//
 	
 	//Added by spyrax10 18 Jun 2022

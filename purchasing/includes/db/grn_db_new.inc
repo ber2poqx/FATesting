@@ -179,6 +179,10 @@ function add_grn_new(&$po, $is_consign = false)
 			null
 		);
 	}
+	// Added by Albert Closed PO Status if the Quantity ordered equal to Quantity Recieved
+	if (get_po_status($po->order_no) == 'Closed'){
+		update_po_status($po,1);
+	}
 	$Refs->save(ST_SUPPRECEIVE, $grn, $po->reference);
 
 	add_audit_trail(ST_SUPPRECEIVE, $grn, $date_);

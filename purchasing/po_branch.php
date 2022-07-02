@@ -76,6 +76,18 @@ function post_po($row)
         ICON_RECEIVE
     ) : '');
 }
+//Added by Albert 07/02/2022
+function close_po($row)
+{
+    global $page_nested;
+
+    return $page_nested ? '' : ($row['Status'] == "Open" || $row['Status'] == "Partially Received" ? pager_link(
+        _("Close PO"),
+        "/purchasing/po_close_status.php?PONumber=" . $row["reference"]
+            . "&branch_coy=" . $_POST['selected_po_branch'],
+        ICON_CANCEL
+    ) : '');
+}
 
 function update_status_link($row)
 {
@@ -215,7 +227,8 @@ $cols = array(
     _("Order Total") => 'amount',
     // array('insert' => true, 'fun' => 'edit_link'),
     array('insert' => true, 'fun' => 'prt_link'),
-    array('insert' => true, 'fun' => 'post_po')
+    array('insert' => true, 'fun' => 'post_po'),
+    array('insert' => true, 'fun' => 'close_po')
 
 );
 

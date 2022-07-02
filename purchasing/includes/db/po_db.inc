@@ -551,9 +551,10 @@ function get_sql_for_po_search_completed(
 
 			LEFT JOIN (
 			SELECT A.order_no,
-				CASE WHEN A.draft_status = 0 AND A.posted = 'N' THEN 'Draft'
-					WHEN A.draft_status = 1 AND A.posted = 'N' THEN 'Approved'
-					WHEN A.draft_status = 2 AND A.posted = 'N' THEN 'Disapproved'
+				CASE WHEN A.draft_status = 0 AND A.posted = 'N' AND A.po_status = 0 THEN 'Draft'
+					WHEN A.draft_status = 1 AND A.posted = 'N' AND A.po_status = 0 THEN 'Approved'
+					WHEN A.draft_status = 2 AND A.posted = 'N' AND A.po_status = 0 THEN 'Disapproved'		
+					WHEN A.po_status = 1 THEN 'Closed' 
 					WHEN A.draft_status = 1 AND A.posted = 'Y' 
 				THEN
 					CASE WHEN (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) = 0
@@ -567,7 +568,7 @@ function get_sql_for_po_search_completed(
 					WHEN (SELECT SUM(t1.quantity_ordered) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
 						= (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
 					THEN 'Closed' END
-				END as Status 
+				END as Status
 
 			FROM " . TB_PREF . "purch_orders A
 			) X ON porder.order_no = X.order_no,
@@ -656,7 +657,9 @@ function get_sql_for_po_search($from, $to, $supplier_id = ALL_TEXT, $location = 
 		AND porder.supplier_id = supplier.supplier_id
 		AND location.loc_code = porder.into_stock_location
 		AND SC.category_id = porder.category_id
-		AND (line.quantity_ordered > line.quantity_received) AND porder.posted='Y'";
+		AND (line.quantity_ordered > line.quantity_received) 
+		AND porder.posted='Y'
+		AND porder.po_status <> 1";
 
 	if ($order_number != "") {
 		$sql .= "AND porder.reference LIKE " . db_escape('%' . $order_number . '%');
@@ -729,14 +732,15 @@ function check_status_po($po_no)
 {
 	$sql = "SELECT 
 				CASE
-				WHEN porder.draft_status = 0 AND porder.posted = 'N'
+				WHEN porder.draft_status = 0 AND porder.posted = 'N' AND  porder.po_status = 0
 					THEN 'Draft'
-				WHEN porder.draft_status = 1 AND porder.posted = 'N'
+				WHEN porder.draft_status = 1 AND porder.posted = 'N' AND  porder.po_status = 0
 					THEN 'Approved'
-				WHEN porder.draft_status = 2 AND porder.posted = 'N'
+				WHEN porder.draft_status = 2 AND porder.posted = 'N' AND  porder.po_status = 0
 					THEN 'Disapproved'
-				WHEN porder.draft_status = 1 AND porder.posted = 'Y' AND chk.isopen
+				WHEN porder.draft_status = 1 AND porder.posted = 'Y' AND chk.isopen AND  porder.po_status = 0
 					THEN 'Open'
+				WHEN porder.po_status = 1 THEN 'Closed' 
 				ELSE 'Closed'
 			END as Status
 			FROM " . TB_PREF . "purch_orders porder LEFT JOIN (
@@ -816,10 +820,10 @@ function get_po_data($db_id = "") {
 
 	$sql = "SELECT a.* FROM " . TB_PREF . "purch_orders a INNER JOIN (
 		SELECT A.order_no,
-			CASE WHEN A.draft_status = 0 AND A.posted = 'N' THEN 'Draft'
-				WHEN A.draft_status = 1 AND A.posted = 'N' THEN 'Approved'
-				WHEN A.draft_status = 2 AND A.posted = 'N' THEN 'Disapproved'
-				WHEN A.draft_status = 1 AND A.posted = 'Y' 
+		CASE WHEN A.draft_status = 0 AND A.posted = 'N' THEN 'Draft'
+		WHEN A.draft_status = 1 AND A.posted = 'N' THEN 'Approved'
+		WHEN A.draft_status = 2 AND A.posted = 'N' THEN 'Disapproved'
+		WHEN A.draft_status = 1 AND A.posted = 'Y'
 			THEN
 				CASE WHEN (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) = 0
 				THEN 'Open'
@@ -842,5 +846,62 @@ function get_po_data($db_id = "") {
 
 	$row = db_fetch_row($result);
 	return $row[0];
+}
+//Added by Albert 07/02/2022
+function update_po_status(&$po_obj, $rr_close = 0)
+{
+	begin_transaction();
+	hook_db_prewrite($po_obj, ST_PURCHORDER);
+ 
+	if ($rr_close <> 0 ){
+		$status = 1;
+		$remarks = null;
+	}else{
+		$status = $po_obj->po_status;
+		$remarks = $po_obj->remarks;
+	}
+
+	/*Update the purchase order PO status */
+	$sql = "UPDATE " . TB_PREF . "purch_orders SET po_status=" . db_escape($status).", remarks = ".db_escape($remarks) ;
+	$sql .= " WHERE order_no = " . $po_obj->order_no;
+	db_query($sql, "The purchase order could not be updated");
+
+	add_audit_trail($po_obj->trans_type, $po_obj->order_no, Today(), _("Update Draft Status."));
+	hook_db_postwrite($po_obj, ST_PURCHORDER);
+	commit_transaction();
+
+	return $po_obj->reference;
+}
+function get_po_status($order_no)
+{
+	$sql = "SELECT X.Status
+			FROM " . TB_PREF . "purch_order_details a INNER JOIN (
+				SELECT A.order_no,
+					CASE WHEN A.draft_status = 0 AND A.posted = 'N' THEN 'Draft'
+						WHEN A.draft_status = 1 AND A.posted = 'N' THEN 'Approved'
+						WHEN A.draft_status = 2 AND A.posted = 'N' THEN 'Disapproved'
+						WHEN A.draft_status = 1 AND A.posted = 'Y' 
+					THEN
+						CASE WHEN (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) = 0
+						THEN 'Open'
+						
+						WHEN (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) > 0
+							AND (SELECT SUM(t1.quantity_ordered) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+							<> (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+						THEN 'Partially Received'
+							
+						WHEN (SELECT SUM(t1.quantity_ordered) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+							= (SELECT SUM(t1.quantity_received) FROM " . TB_PREF . "purch_order_details t1 WHERE t1.order_no = A.order_no GROUP BY t1.order_no) 
+						THEN 'Closed' END
+					END as Status 
+					FROM " . TB_PREF . "purch_orders A
+				) X ON a.order_no = X.order_no
+			WHERE a.order_no = " . db_escape($order_no);
+
+	$result = db_query($sql, "The Purchased Order could not be retrieved");
+	$row = db_fetch_row($result);
+	return $row[0];
+
+
 }
 /*END by Albert*/
