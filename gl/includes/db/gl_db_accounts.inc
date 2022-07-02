@@ -80,19 +80,19 @@ function is_account_balancesheet($code)
 function get_gl_account_name($code) {
 
 	//Modified by spyrax10 15 Jun 2022
-	set_global_connection(0);
+	global $def_coy;
+	set_global_connection($def_coy);
 	//
 	
-	$sql = "SELECT account_name from ".TB_PREF."chart_master WHERE account_code=".db_escape($code);
+	$sql = "SELECT account_name FROM ".TB_PREF."chart_master WHERE account_code=".db_escape($code);
 
 	$result = db_query($sql,"could not retreive the account name for $code");
 
-	if (db_num_rows($result) == 1)
-	{
+	if (db_num_rows($result) == 1) {
 		$row = db_fetch_row($result);
 		return $row[0];
 	}
-
+	
 	display_db_error("could not retreive the account name for $code", $sql, true);
 }
 

@@ -11,8 +11,13 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
 //Modified by spyrax10 12 Apr 2022
-function get_qoh_on_date($stock_id, $location = null,
-	$date_ = null, $item_type = 'new', $company_id = -1) {
+function get_qoh_on_date($stock_id = '', $location = null,
+	$date_ = null, $item_type = 'new', $company_id = -1, 
+	$serial = '', $chasis_no = '') {
+
+	if ($company_id == -1) {
+		$company_id = user_company();
+	}
 	
 	set_global_connection($company_id);
 
@@ -22,16 +27,27 @@ function get_qoh_on_date($stock_id, $location = null,
 
 	$date = date2sql($date_);
 	$sql = "SELECT SUM(qty)
-     	FROM " . TB_PREF . "stock_moves st
-   		LEFT JOIN " . TB_PREF . "voided v ON st.type=v.type AND st.trans_no=v.id
-          WHERE ISNULL(v.id)
-          AND stock_id=" . db_escape($stock_id) . "
-          AND item_type = '$item_type' 
-          AND tran_date <= '$date'";
+    FROM " . TB_PREF . "stock_moves st
+   		LEFT JOIN " . TB_PREF . "voided v ON st.type = v.type AND st.trans_no = v.id 
+		   AND v.void_status = 'Voided' 
+    WHERE ISNULL(v.void_id) AND item_type = '$item_type' AND tran_date <= '$date'";
 
-	if ($location != null)
+	if ($stock_id != '') {
+		$sql .= " AND stock_id =" . db_escape($stock_id);
+	}
+
+	if ($location != null) {
 		$sql .= " AND loc_code = " . db_escape($location);
+	}
 
+	if ($serial != '') {
+		$sql .= " AND lot_no = " .db_escape($serial);
+	}
+
+	if ($chasis_no != '') {
+		$sql .= " AND chassis_no = " .db_escape($chasis_no);
+	}
+	
 	$result = db_query($sql, "QOH calculation failed");
 
 	$myrow = db_fetch_row($result);

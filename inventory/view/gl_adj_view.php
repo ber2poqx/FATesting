@@ -3,7 +3,7 @@
  * Added by: spyrax10 
  */
 
-$page_security = 'SA_INVENTORYADJUSTMENT';
+$page_security = 'SA_INVTY_ADJ_ENTRY';
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");

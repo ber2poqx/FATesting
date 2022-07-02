@@ -605,15 +605,17 @@ function can_process_serial()
     $line = 0;
     foreach ($_SESSION['PO']->line_items as $ln_itm) {
         if ($ln_itm->serialised) {
-            $ctr = 0;
+            $ctr = $chassis_count = 0;
             while ($ctr < count($ln_itm->list_serial)) {
 
                 $serial_no = $ln_itm->list_serial[$ctr]->serial_no;
+                $serial_count = get_qoh_on_date('', null, null, 'new', user_company(), $serial_no);
 
                 if ($_SESSION['PO']->category_id == 14) {
                     $chassis_no = $ln_itm->list_serial[$ctr]->chassis_no;
+                    $chassis_count = get_qoh_on_date('', null, null, 'new', user_company(), '', $chassis_no);
                 }
-
+	            
                 //Modified by spyrax10 26 Mar 2022
                 if ($serial_no == "") {
                     display_error(_("Please input Serial No."));
@@ -631,11 +633,11 @@ function can_process_serial()
                     display_error("Chassis # already existed in the list!");
                     set_focus("chassis_no$line");
                     return false;
-                } else if (serial_exist($serial_no)) {
+                } else if ($serial_count > 0) {
                     display_error("Serial # Already Registered in the System!");
                     set_focus("serial_no$line");
                     return false;
-                } else if (serial_exist($serial_no, $chassis_no) && $_SESSION['PO']->category_id == 14) {
+                } else if ($chassis_count > 0) {
                     display_error("Chassis # Already Registered in the System!");
                     set_focus("chassis_no$line");
                     return false;

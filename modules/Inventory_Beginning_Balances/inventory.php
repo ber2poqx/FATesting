@@ -181,6 +181,10 @@ if (isset($_POST['import_btn']) && can_import()) {
 
 		list($ob_date, $stock_id, $color, $lot_no, $chassis_no, $qty, $std_cost, $mcode) = $data;
 
+		$serial_count = get_qoh_on_date('', $_POST['StockLocation'], null, 'new', user_company(), $lot_no);
+		$chassis_count = get_qoh_on_date('', $_POST['StockLocation'], null, 'new', user_company(), '', $chassis_no);
+
+
 		if ($ob_date == "") {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Transaction Date is empty!"); 
@@ -229,9 +233,13 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Chassis No cannot be empty for this item! ($stock_id)");
 		}
-		else if (is_Serialized($stock_id) == 1 && serial_exist($lot_no, $chassis_no)) {
+		else if (is_Serialized($stock_id) == 1 && $serial_count > 0) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Serial / Chassis # Already Exists! " . "(Serial: " . $lot_no . " || Chassis: " . $chassis_no . ")");
+			$err_arr[$line_cnt] = _("Serial # Already Registered in the System! " . "(Serial: " . $lot_no . ")");
+		}
+		else if (is_Serialized($stock_id) == 1 && $chassis_count > 0) {
+			$line_cnt++;
+			$err_arr[$line_cnt] = _("Chassis # Already Registered in the System! " . "(Chassis: " . $chassis_no . ")");
 		}
 		else if (is_Serialized($stock_id) == 1 && serial_exist_adj($lot_no, $chassis_no)) {
 			$line_cnt++;

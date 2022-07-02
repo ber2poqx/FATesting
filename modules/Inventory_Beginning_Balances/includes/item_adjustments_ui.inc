@@ -430,12 +430,11 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 
 //---------------------------------------------------------------------------------
 
-function adjustment_options_controls()
-{
+function adjustment_options_controls() {
 	echo "<br>";
 	start_table();
 
-	textarea_row(_("Memo"), 'memo_', null, 50, 3);
+	textarea_row(_("Memo : &nbsp;"), 'memo_', null, 50, 3);
 
 	end_table(1);
 }

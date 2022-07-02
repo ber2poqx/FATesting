@@ -243,6 +243,8 @@ function check_item_data()
 	$demand_qty += get_demand_asm_qty($_POST['stock_id'], get_post("StockLocation"));
 	$qoh = get_qoh_on_date($_POST['stock_id'], get_post("StockLocation"), null, get_item_type());
 	$qty = $qoh - $demand_qty;
+	$serial_count = get_qoh_on_date('', get_post("StockLocation"), null, get_item_type(), user_company(), $_POST['lot_no']);
+	$chassis_count = get_qoh_on_date('', get_post("StockLocation"), null, get_item_type(), user_company(), '', $_POST['chasis_no']);
 
 	if (input_num('qty') == 0) {
 		display_error(_("The quantity entered is invalid."));
@@ -270,9 +272,12 @@ function check_item_data()
 		}
 	}
 
-	if (is_Serialized($_POST['stock_id']) == 1 && serial_exist($_POST['lot_no'], $_POST['chasis_no'])
-		&& get_post('adj_type') == 1) {
-		display_error("Serial / Chassis # Already Exists!");
+	if (is_Serialized($_POST['stock_id']) == 1 && $serial_count > 0 && get_post('adj_type') == 1) {
+		display_error("Serial # Already Registered in the System!");
+		return false;
+	}
+	else if (is_Serialized($_POST['stock_id']) == 1 && $chassis_count > 0 && get_post('adj_type') == 1) {
+		display_error("Chassis # Already Registered in the System");
 		return false;
 	}
 

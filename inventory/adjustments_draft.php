@@ -223,12 +223,6 @@ function add_smo($trans_no, $remarks = '', $approve_stat = 1, $status = 0) {
                     $line_id, $item_type, $trans_no_out, $trans_type_out
                 );
 
-                if ($adj_type == 2) {
-                    if (serial_exist($lot_no, $chassis_no)) {
-                        del_item_serial($stock_id, $lot_no, $chassis_no);
-                    }
-                }
-
                 update_adjustment($trans_no, $remarks, $approve_stat, 1, $stock_id);
             }
             else {
@@ -283,25 +277,25 @@ function display_adjustment_header($trans_no)
         }
 
         table_section(1);
-        label_row(_("Location: "), _branch_name($row['loc_code']));
+        label_row(_("Location: &nbsp;"), _branch_name($row['loc_code']));
         
         if ($_GET['status'] == 1) {
-            label_row(_("Transaction Date: "), phil_short_date($row['tran_date']), "", "", 0, 'orig_date');
+            label_row(_("Transaction Date: &nbsp;"), phil_short_date($row['tran_date']), "", "", 0, 'orig_date');
             if (!isset($_POST['AdjDate'])) {
                 $_POST['AdjDate'] = sql2date($date);
             }
-            date_row(_("Posting Date: "), 'AdjDate', '', null, 0, 0, 0, null, true);
+            date_row(_("Posting Date: &nbsp;"), 'AdjDate', '', null, 0, 0, 0, null, true);
         }
         else {
-            label_row(_("Transaction Date: "), phil_short_date($row['tran_date']));
+            label_row(_("Transaction Date: &nbsp;"), phil_short_date($row['tran_date']));
         }
 
-        label_row(_("Adjustment Type: "), $row['adjustment_type']);
+        label_row(_("Adjustment Type: &nbsp;"), $row['adjustment_type']);
     
         table_section(2);
-        label_row(_("Reference: "), $reference);
-        label_row(_("Category: "), $row['description'], "", "", 0, 'category_id');
-        label_row(_("Memo: "), $row['memo']);
+        label_row(_("Reference: &nbsp;"), $reference);
+        label_row(_("Category: &nbsp;"), $row['description'], "", "", 0, 'category_id');
+        label_row(_("Memo: &nbsp;"), $row['memo']);
     }
     end_outer_table(1);
 }
@@ -514,6 +508,8 @@ else if (check_status_adj($trans_no) == "Approved") {
         submit_center_first('POST_SMO', _("Post This Transaction"), '', 'default');
     }
 }
+
+br(2);
 
 end_form();
 end_page();
