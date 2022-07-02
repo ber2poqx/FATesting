@@ -527,22 +527,22 @@ function check_item_data()
 	$mcode_row = get_gl_account($_POST['mcode']);
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
 
-	if ($row['account_type'] == 13 && $comp_gl != $_POST['code_id']) {
+	if (strpos($row['account_name'], 'Branch Current') !== false && $comp_gl != $_POST['code_id']) {
 		display_error(_("GL Account is not match to the selected branch! Please select the appropriate GL Account."));
 		return false;
 	}
 
-	if ($mcode_row['account_type'] == 13 && $comp_gl != $_POST['mcode']) {
+	if (strpos($mcode_row['account_name'], 'Branch Current') !== false && $comp_gl != $_POST['mcode']) {
 		display_error(_("Masterfile Account is not match to the selected branch! Please select the appropriate Masterfile Account."));
 		return false;
 	}
 
-	if ($coy == $_POST['comp_id'] && $row['account_type'] == 13) {
+	if ($coy == $_POST['comp_id'] && strpos($row['account_name'], 'Branch Current') !== false) {
 		display_error(_("Invalid GL Account for the selected branch!"));
 		return false;
 	}
 
-	if ($row['account_type'] == 14) {
+	if ($_POST['code_id'] == getCompDet('debtors_act') || $_POST['code_id'] == getCompDet('ar_reg_current_account')) {
 		display_error(_("Invalid GL Account! Sales Invoice Missing!"));
 		return false;
 	}
