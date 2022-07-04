@@ -61,9 +61,11 @@ start_table(TABLESTYLE, "width='99%'");
 $th = array(
     _("ID"),
     _("Origin Branch"),
+    _("Reference"),
     _("Category"),
-    _("Item Code"),
-    _("Color | Description"),
+    _("Date Registered"),
+    _("Item Code | Color | Color Description"),
+    //_("Color | Description"),
     _("Serial/Engine Number"),
     _("Chassis Number"),
     _("PNP Cleared"),
@@ -83,24 +85,26 @@ foreach ($res_details as $value => $data) {
     $is_cleared = $data['cleared'] == 1 ? _("Yes") : _("No");
    
     label_cell($data['serialise_id']);
-    label_cell(get_company_value(get_comp_id($data['branch']), 'name'));
-    label_cell(get_category_name($stock_row['category_id']));
-    label_cell($stock_row['stock_id']);
-    label_cell($stock_row['color'] != '' ? $stock_row['color'] . " | " . 
-        get_color_description($data['serialise_item_code'], $stock_row['stock_id']) : 
-        get_color_description($data['serialise_item_code'], $stock_row['stock_id'])
+    label_cell(get_company_value(get_comp_id($data['branch']), 'name'), "align='left'");
+    label_cell($data['reference'], "nowrap align='center'; style='color: blue'");
+    label_cell(get_category_name($data['category_id']), "nowrap align='center'");
+    label_cell(phil_short_date($data['trans_date']), "nowrap align='center'; style='color: blue'");
+    label_cell($stock_row['color'] != '' ? 
+        $data['stock_id'] . " | ".  $stock_row['color'] . " | " . get_color_description($data['serialise_item_code'], $data['stock_id']) 
+        : $data['stock_id']
+
     );
 
     label_cell($data['serialise_lot_no'], "nowrap");
     label_cell($data['serialise_chasis_no'], "nowrap");
     label_cell($is_cleared, "align='center'");
-    label_cell($data['pnp_note'], "nowrap");
+    label_cell($data['pnp_note']);
 
     if ($data['cleared'] != null) {
         label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id']), "nowrap");
     }
     else {
-        label_cell("Insuffient Columns");
+        label_cell("N/A", "nowrap align='center'");
     }
 }
 

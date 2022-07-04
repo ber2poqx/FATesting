@@ -736,7 +736,7 @@ function update_stock_move($type, $trans_no, $stock_id, $cost)
 
 //--------------------------------------------------------------------------------------------------
 
-function get_stock_moves($type, $type_no) {
+function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_no = '', $order = 'ASC') {
 	/* $sql = "SELECT move.*, CONCAT_WS(' **',item.description,item) as description, item.mb_flag, item.units, stock.location_name
 		FROM ".TB_PREF."stock_moves move,"
 			.TB_PREF."locations stock,"
@@ -764,7 +764,25 @@ function get_stock_moves($type, $type_no) {
 		LEFT JOIN " . TB_PREF . "item_importer importer ON item.importer = importer.id
 		LEFT JOIN ".TB_PREF."audit_trail audit ON (move.type = audit.type AND move.trans_no = audit.trans_no AND NOT ISNULL(audit.gl_seq))
 
-	WHERE move.type = " . db_escape($type) . " AND move.trans_no = " . db_escape($type_no) . " ORDER BY move.trans_id";
+	WHERE move.trans_id > 0";
+
+	if ($type != null) {
+		$sql .= " AND move.type = " .db_escape($type);
+	}
+
+	if ($type_no != null) {
+		$sql .= " AND move.trans_no = " .db_escape($type_no);
+	}
+
+	if ($lot_no != '') {
+		$sql .= " AND move.lot_no = " .db_escape($lot_no);
+	}
+
+	if ($chassis_no != '') {
+		$sql .= " AND move.chassis_no = " .db_escape($chassis_no);
+	}
+
+	$sql .= " ORDER BY move.trans_id $order";
 
 	return db_query($sql, "Could not get stock moves");
 }

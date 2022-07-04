@@ -846,8 +846,10 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 
 	$branch_code = get_company_value($company_id, 'branch_code');
 
-	$sql = "SELECT '$branch_code' AS branch, $branch_code.* 
+	$sql = "SELECT '$branch_code' AS branch, $branch_code.*, SMO.* 
 	FROM " . TB_PREF . "item_serialise AS $branch_code";
+
+	$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_items_id = SMO.trans_id";
 
 	$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
 
@@ -881,13 +883,15 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
     global $db_connections, $def_coy;
     $return_arr = array();
+	$default_table_count = count_columns(0, 'item_serialise');
 
     if ($branch_id) {
 
 		$not_include = $db_connections[$branch_id]['type'] == 'LENDING' 
 		|| $db_connections[$branch_id]['branch_code'] == 'HO' 
 		|| $db_connections[$branch_id]['branch_code'] == 'DESIHOFC'
-		|| strpos($db_connections[$branch_id]['branch_code'], 'LEND') !== false;
+		|| strpos($db_connections[$branch_id]['branch_code'], 'LEND') !== false
+		|| $default_table_count != count_columns($branch_id, 'item_serialise');
 
 		if (!$not_include) {
 			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat);
@@ -901,7 +905,12 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 						'serialise_lot_no' => $row['serialise_lot_no'],
 						'serialise_chasis_no' => $row['serialise_chasis_no'],
 						'cleared' => $row['cleared'],
-						'pnp_note' => $row['pnp_note']
+						'pnp_note' => $row['pnp_note'],
+						'stock_id' => $row['stock_id'],
+						'category_id' => $row['category_id'],
+						'reference' => $row['reference'],
+						'trans_date' => $row['tran_date'],
+						'loc_code' => $row['loc_code']
 					);
 				}
 			}
@@ -914,8 +923,10 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 			$not_include = $db_connections[$i]['type'] == 'LENDING' 
 			|| $db_connections[$i]['branch_code'] == 'HO' 
 			|| $db_connections[$i]['branch_code'] == 'DESIHOFC' 
-			|| strpos($db_connections[$i]['branch_code'], 'LEND') !== false;
+			|| strpos($db_connections[$i]['branch_code'], 'LEND') !== false 
+			|| $default_table_count != count_columns($i, 'item_serialise');
 
+			
 			if (!$not_include) {
 				$result = _item_serialise($i, $search, $trans_no, $cleared_stat);
 
@@ -928,7 +939,12 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 							'serialise_lot_no' => $row['serialise_lot_no'],
 							'serialise_chasis_no' => $row['serialise_chasis_no'],
 							'cleared' => $row['cleared'],
-							'pnp_note' => $row['pnp_note']
+							'pnp_note' => $row['pnp_note'],
+							'stock_id' => $row['stock_id'],
+							'category_id' => $row['category_id'],
+							'reference' => $row['reference'],
+							'trans_date' => $row['tran_date'],
+							'loc_code' => $row['loc_code']
 						);
 					}
 				}
