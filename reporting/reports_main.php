@@ -605,7 +605,9 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_PRINT')) {
 			_('Orientation') => 'ORIENTATION'
 		)
 	);
+}
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_REMIT')) {
 	$reports->addReport(RC_SUPPLIER, 210, _('Print Remi&ttances'),
 		array(	
 			_('From') => 'REMITTANCE',
@@ -1090,10 +1092,7 @@ if ($dim == 2) {
 		);
 	}
 
-	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
-		
-
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_MISC_REP2')) {
 		$reports->addReport(RC_GL, 706, _('&Balance Sheet'),
 			array(	
 				_('Start Date') => 'DATEBEGIN',
@@ -1124,7 +1123,11 @@ if ($dim == 2) {
 				_('Destination') => 'DESTINATION'
 			)
 		);
+	}
 
+	//Modified by spyrax10 31 Mar 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
+		
 		$reports->addReport(RC_GL, 708, _('Trial &Balance'),
 			array(	
 				_('Start Date') => 'DATEBEGINM',
@@ -1170,9 +1173,8 @@ elseif ($dim == 1) {
 			)
 		);
 	}
-	
-	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_MISC_REP2')) {
 
 		$reports->addReport(RC_GL, 706, _('&Balance Sheet'),
 			array(	
@@ -1202,6 +1204,10 @@ elseif ($dim == 1) {
 				_('Destination') => 'DESTINATION'
 			)
 		);
+	}
+	
+	//Modified by spyrax10 31 Mar 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
 		$reports->addReport(RC_GL, 708, _('Trial &Balance'),
 			array(	
@@ -1247,10 +1253,8 @@ else {
 			)
 		);
 	}
-	
-	//Modified by spyrax10 31 Mar 2022
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GL_MISC_REP2')) {
 		$reports->addReport(RC_GL, 706, _('&Balance Sheet'),
 			array(	
 				_('Start Date') => 'DATEBEGIN',
@@ -1277,6 +1281,10 @@ else {
 				_('Destination') => 'DESTINATION'
 			)
 		);
+	}
+	
+	//Modified by spyrax10 31 Mar 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
 		$reports->addReport(RC_GL, 708, _('Trial &Balance'),
 			array(	

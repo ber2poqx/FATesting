@@ -70,7 +70,7 @@ class general_ledger_app extends application
 
 		//Modified by spyrax10 24 Jun 2022
 		$this->add_rapp_function(1, _("Trial &Balance"),
-			"gl/inquiry/gl_trial_balance.php?", 'SA_GLANALYTIC_LIST', MENU_INQUIRY
+			"gl/inquiry/gl_trial_balance.php?", 'SA_TRIALB_LIST', MENU_INQUIRY
 		);
 
 		$this->add_rapp_function(1, _("Balance &Sheet Drilldown"),

@@ -302,6 +302,7 @@ $security_areas =array(
 	'SA_RR_REP' => array(SS_PURCH_A|12, _("Receiving Report Form")),
 	'SA_SUP_TRIAL' => array(SS_PURCH_A|13, _("Supplier Trial Balances Reports")),
 	'SA_PO_REP' => array(SS_PURCH_A|14, _("Purchase Order Summary Report v1")),
+	'SA_PRINT_REMIT' => array(SS_PURCH_A|15, _("Print Remittance")),
 	//
 
 	//added by JR for supplier costing types on 10-13-2020
@@ -472,6 +473,8 @@ $security_areas =array(
 	'SA_GL_REP' => array(SS_GL_A|12, _("GL Transactions Report")),
 	'SA_TAX_REP' => array(SS_GL_A|13, _("Tax Report")),
 	'SA_TAX_MISC_REP' => array(SS_GL_A|17, _("Tax Miscellaneous Report")),
+	'SA_TRIALB_LIST' => array(SS_GL_A|18, _("Trial Balance Inquiry List")),
+	'SA_GL_MISC_REP2' => array(SS_GL_A|19, _("GL Miscellaneous Report")),
 	//
 
 	//Added by spyrax10 25 Mar 2022
