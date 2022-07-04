@@ -882,16 +882,12 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
     global $db_connections, $def_coy;
     $return_arr = array();
 
-    // $default_table_count = count_columns(0, 'item_serialise');
-    // $company_check = $branch_id != null 
-	// 	&& $default_table_count == count_columns($branch_id, 'item_serialise');
-
     if ($branch_id) {
 
 		$not_include = $db_connections[$branch_id]['type'] == 'LENDING' 
 		|| $db_connections[$branch_id]['branch_code'] == 'HO' 
 		|| $db_connections[$branch_id]['branch_code'] == 'DESIHOFC'
-		|| strpos($db_connections[$i]['branch_code'], 'LEND') !== false;
+		|| strpos($db_connections[$branch_id]['branch_code'], 'LEND') !== false;
 
 		if (!$not_include) {
 			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat);
@@ -940,6 +936,6 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
         } // End of forloop
     }
-	
+
 	return $return_arr;
 }

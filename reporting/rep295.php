@@ -17,30 +17,6 @@ include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 //----------------------------------------------------------------------------------------------------
 print_transaction();
-
-//----------------------------------------------------------------------------------------------------
-
-function get_transactions($company_id, $cleared_stat = "ALL") {
-
-    set_global_connection($company_id);
-    $branch_code = get_company_value($company_id, 'branch_code');
-
-    $sql = "SELECT '$branch_code' AS branch, $branch_code.* 
-    FROM ".TB_PREF."item_serialise AS $branch_code";
-
-    $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
-
-    if ($cleared_stat != 'ALL') {
-		$sql .= " AND cleared = " . db_escape($cleared_stat);
-	}
-
-    $result = db_query($sql, _("get_all_serial()"));
-
-    set_global_connection();
-
-	return $result;
-}
-
 //----------------------------------------------------------------------------------------------------
 
 function print_transaction() {

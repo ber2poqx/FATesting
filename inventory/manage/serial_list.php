@@ -15,10 +15,6 @@ include_once($path_to_root . "/includes/data_checks.inc");
 
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
-global $Ajax, $def_coy;
-
-//$_SESSION["wa_current_user"]->company = $def_coy;
-
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
     $js .= get_js_open_window(1200, 300);
