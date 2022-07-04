@@ -230,7 +230,7 @@ class BoxReports
 					return yesno_list($name);
 				//Added by spyrax10
 				case 'BRANCH':
-					return company_list_row(null, $name, true, false, false, false, false, true);
+					return company_list_row(null, $name, true, true, false, false, false, true);
 					
 				case 'PNP_STAT':
 					return value_type_list(null, $name, 

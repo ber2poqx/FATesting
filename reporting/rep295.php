@@ -109,7 +109,7 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = get_transactions($branch_id, $cleared_stat);
+    $res = get_serial_list('', $branch_id, null, $cleared_stat);
    
     foreach ($res as $value => $trans) {
 
