@@ -76,17 +76,17 @@
 						$supplier = null;
 					}
 					if( empty( $types )){ 
-						display_error("Types empty!!!");
+						display_error("Line:$lines Stock ID: $stock_id Types empty!!!");
 					}
 					if( empty( $stock_id )){ 
-						display_error("Stock id empty!!!");
+						display_error("Line:$lines Stock ID: $stock_id Stock id empty !!!");
 					}
 					if( empty( $price )){ 
 						$price=0;
 					}
 					if (check_price_already_exist( $types, $stock_id, $supplier)){
 
-						display_error("Price Already Exist!!!");
+						display_error("Price Already Exist!!! Line:$lines Stock ID: $stock_id is not added ");
 					}
 
 					if (!check_stock_id_exist($stock_id)){
@@ -161,15 +161,15 @@
 						}else {
 							if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){
 
-								display_error("Supplier is Empty");
+								display_error("Line:$lines Stock ID: $stock_id Supplier is Empty");
 							
 							}else{
-								display_error("Import Price List is Failed");
+								display_error("Line:$lines Stock ID: $stock_id Import Price List is Failed");
 							}
 						}
 					}
                     $CI++;	
-                    display_notification("Line  $lines: successfully imported");
+                    display_notification("Line  $lines: Stock ID: $stock_id successfully imported");
 
                   
                     
