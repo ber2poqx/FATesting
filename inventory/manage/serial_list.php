@@ -99,7 +99,13 @@ foreach ($res_details as $value => $data) {
     label_cell($data['serialise_chasis_no'], "nowrap");
     label_cell($is_cleared, "align='center'");
     label_cell($data['pnp_note'], "nowrap");
-    label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id']), "nowrap");
+
+    if ($data['cleared'] != null) {
+        label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id']), "nowrap");
+    }
+    else {
+        label_cell("Insuffient Columns");
+    }
 }
 
 end_table();

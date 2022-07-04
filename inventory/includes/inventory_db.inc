@@ -840,118 +840,106 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 	return db_query($sql, "No transactions were returned! ");
 }
 
+function _item_serialise($company_id = -1, $search = '', $trans_no = null, $cleared_stat = 'ALL') {
+
+	set_global_connection($company_id);
+
+	$branch_code = get_company_value($company_id, 'branch_code');
+
+	$sql = "SELECT '$branch_code' AS branch, $branch_code.* 
+	FROM " . TB_PREF . "item_serialise AS $branch_code";
+
+	$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
+
+	if ($search != '') {
+		$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+		serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
+		serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+	}
+
+	if ($cleared_stat != 'ALL') {
+		$sql .= " AND cleared = " . db_escape($cleared_stat);
+	}
+
+	if ($trans_no != null) {
+		$sql .= " AND serialise_id = " .db_escape($trans_no);
+	}
+
+	$result = db_query($sql, _("_item_serialise()"));
+	set_global_connection();
+
+	if (db_num_rows($result) > 0) {
+		return $result;
+	}
+	else {
+		return null;
+	}
+
+}
+
 function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL') {
 
     global $db_connections, $def_coy;
-    $sql = "";
-    $involve_db = $return_arr = array();
-    $default_table_count = count_columns(0, 'item_serialise');
-    $company_check = $branch_id != null 
-		&& $default_table_count == count_columns($branch_id, 'item_serialise');
+    $return_arr = array();
 
-    if ($company_check) {
+    // $default_table_count = count_columns(0, 'item_serialise');
+    // $company_check = $branch_id != null 
+	// 	&& $default_table_count == count_columns($branch_id, 'item_serialise');
 
-        $branch_code = get_company_value($branch_id, 'branch_code');
+    if ($branch_id) {
 
-        $involve_db[$branch_id] = $branch_id;
+		$not_include = $db_connections[$branch_id]['type'] == 'LENDING' 
+		|| $db_connections[$branch_id]['branch_code'] == 'HO' 
+		|| $db_connections[$branch_id]['branch_code'] == 'DESIHOFC'
+		|| strpos($db_connections[$i]['branch_code'], 'LEND') !== false;
 
-        $sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
-        FROM ".TB_PREF."item_serialise AS $branch_code";
+		if (!$not_include) {
+			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat);
 
-        $sql .= " WHERE IFNULL(serialise_item_code, '') <> ''";
-
-        if ($search != '') {
-            $sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-            serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-            serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
-        }
-
-		if ($cleared_stat != 'ALL') {
-			$sql .= " AND cleared = " . db_escape($cleared_stat);
+			if ($result != null) {
+				while ($row = db_fetch_assoc($result)) {
+					$return_arr[] = array(
+						'serialise_id' => $row['serialise_id'],
+						'branch' => $row['branch'],
+						'serialise_item_code' => $row['serialise_item_code'],
+						'serialise_lot_no' => $row['serialise_lot_no'],
+						'serialise_chasis_no' => $row['serialise_chasis_no'],
+						'cleared' => $row['cleared'],
+						'pnp_note' => $row['pnp_note']
+					);
+				}
+			}
 		}
-
-        if ($trans_no != null) {
-            $sql .= " AND serialise_id = " .db_escape($trans_no);
-        }
-
-		set_global_connection($branch_id);
-		$result = db_query($sql, _("get_all_serial()"));
-
-		while ($row = db_fetch_assoc($result)) {
-			$return_arr[] = array(
-				'serialise_id' => $row['serialise_id'],
-				'branch' => $row['branch'],
-				'serialise_item_code' => $row['serialise_item_code'],
-				'serialise_lot_no' => $row['serialise_lot_no'],
-				'serialise_chasis_no' => $row['serialise_chasis_no'],
-				'cleared' => $row['cleared'],
-				'pnp_note' => $row['pnp_note']
-			);
-		}
-
-		set_global_connection();
     }
     else {
 	
         for ($i = 0; $i < count($db_connections); $i++) {
 
-			$branch_code = $db_connections[$i]['branch_code'];
+			$not_include = $db_connections[$i]['type'] == 'LENDING' 
+			|| $db_connections[$i]['branch_code'] == 'HO' 
+			|| $db_connections[$i]['branch_code'] == 'DESIHOFC' 
+			|| strpos($db_connections[$i]['branch_code'], 'LEND') !== false;
 
-			if (check_db_exists($i)) {
+			if (!$not_include) {
+				$result = _item_serialise($i, $search, $trans_no, $cleared_stat);
 
-				if ($default_table_count == count_columns($i, 'item_serialise')) {
-
-					$branch_code = $db_connections[$i]['branch_code'];
-
-					$involve_db[$i] = $i;
-	
-					$sql .= "SELECT '$branch_code' AS branch, $branch_code.* 
-					FROM " . TB_PREF . "item_serialise AS $branch_code";
-	
-					$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
-		
-					if ($search != '') {
-						$sql .= " AND serialise_item_code LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-						serialise_lot_no LIKE " . db_escape('%' . trim($search) . '%') . " OR 
-						serialise_chasis_no LIKE " . db_escape('%' . trim($search) . '%');
+				if ($result != null) {
+					while ($row = db_fetch_assoc($result)) {
+						$return_arr[] = array(
+							'serialise_id' => $row['serialise_id'],
+							'branch' => $row['branch'],
+							'serialise_item_code' => $row['serialise_item_code'],
+							'serialise_lot_no' => $row['serialise_lot_no'],
+							'serialise_chasis_no' => $row['serialise_chasis_no'],
+							'cleared' => $row['cleared'],
+							'pnp_note' => $row['pnp_note']
+						);
 					}
-	
-					if ($cleared_stat != 'ALL') {
-						$sql .= " AND cleared = " . db_escape($cleared_stat);
-					}
-	
-					if ($trans_no != null) {
-						$sql .= " AND serialise_id = " .db_escape($trans_no);
-					}
-
-					set_global_connection($i);
-
-					$result = db_query($sql, _("get_all_serial(2)"));
-
-					if (db_num_rows($result) > 0) {
-						while ($row = db_fetch_assoc($result)) {
-							$return_arr[] = array(
-								'serialise_id' => $row['serialise_id'],
-								'branch' => $row['branch'],
-								'serialise_item_code' => $row['serialise_item_code'],
-								'serialise_lot_no' => $row['serialise_lot_no'],
-								'serialise_chasis_no' => $row['serialise_chasis_no'],
-								'cleared' => $row['cleared'],
-								'pnp_note' => $row['pnp_note']
-							);
-						}
-					}
-					
-					set_global_connection();
 				}
 			}
-			$sql = "";
+
         } // End of forloop
     }
-
-	// foreach($involve_db as $db_index) {
-	// 	display_error($db_index);
-	// }    
-
+	
 	return $return_arr;
 }
