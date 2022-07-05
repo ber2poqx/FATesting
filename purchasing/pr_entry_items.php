@@ -298,6 +298,14 @@ function can_commit()
 		return false;
 	}
 
+	//Added by spyrax10 5 Jul 2022
+	if (!allowed_posting_date($_POST['PRDate'])) {
+		display_error(_("The Entered Order Date is currently LOCKED for further data entry."));
+		set_focus('PRDate');
+		return false;
+	}
+	//
+
 	if (!$_SESSION['PR']->pr_no) {
 		if (!check_reference(get_post('reference'), $_SESSION['PR']->trans_type)) {
 			set_focus('reference');

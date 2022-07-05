@@ -387,6 +387,16 @@ function can_commit()
 		return false;
 	}
 
+	//Added by spyrax10 5 Jul 2022
+	if (($_SESSION['PO']->trans_type == ST_SUPPRECEIVE || $_SESSION['PO']->trans_type == ST_SUPPINVOICE)
+		&& !allowed_posting_date($_POST['OrderDate'])
+	) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('OrderDate');
+		return false;
+	}
+	//
+
 	if (($_SESSION['PO']->trans_type == ST_SUPPINVOICE) && !is_date($_POST['due_date'])) {
 		display_error(_("The entered due date is invalid."));
 		set_focus('due_date');

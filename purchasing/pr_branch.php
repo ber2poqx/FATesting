@@ -131,11 +131,19 @@ function can_process()
 		return false;
 	}
 
-	//Added by spyrax10
+	//Added by spyrax10 5 Jul 2022
+	if (!allowed_posting_date($_POST['DefaultReceivedDate'])) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('DefaultReceivedDate');
+		return false;
+	}
+
 	if ($_POST['DefaultReceivedDate'] < $_SESSION['PR']->orig_order_date) {
 		display_error(_("PO Date should not less than PR Date!"));
 		return false;
 	}
+	//
+
 	//Added by Albert 05/16/2022
 	foreach ($_SESSION['PR']->line_items as $request_line) {
 		if ($request_line->price == 0) {
