@@ -842,7 +842,8 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 	return db_query($sql, "No transactions were returned! ");
 }
 
-function _item_serialise($company_id = -1, $search = '', $trans_no = null, $cleared_stat = 'ALL', $show_all = null) {
+function _item_serialise($company_id = -1, $search = '', $trans_no = null, $cleared_stat = 'ALL', $show_all = null, 
+	$serial_no = '') {
 
 	set_global_connection($company_id);
 
@@ -874,6 +875,10 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 		$sql .= " AND serialise_id = " .db_escape($trans_no);
 	}
 
+	if ($serial_no != '') {
+		$sql .= " AND serialise_lot_no = " .db_escape($serial_no);
+	}
+
 	$result = db_query($sql, _("_item_serialise()"));
 	set_global_connection();
 
@@ -886,7 +891,8 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 
 }
 
-function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL', $show_all = null) {
+function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL', $show_all = null, 
+	$serial_no = '') {
 
     global $db_connections, $def_coy;
     $return_arr = array();
@@ -901,13 +907,14 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 		|| $default_table_count != count_columns($branch_id, 'item_serialise');
 
 		if (!$not_include) {
-			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat, $show_all);
+			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat, $show_all, $serial_no);
 
 			if ($result != null) {
 				while ($row = db_fetch_assoc($result)) {
 
 					$return_arr[] = array(
-						'serialise_id' => $row['trans_id'],
+						'serialise_id' => $row['serialise_id'],
+						'trans_id' => $row['trans_id'],
 						'branch' => $row['branch'],
 						'serialise_item_code' => $row['color_code'],
 						'serialise_lot_no' => $row['serialise_lot_no'],
@@ -937,12 +944,13 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
 			
 			if (!$not_include) {
-				$result = _item_serialise($i, $search, $trans_no, $cleared_stat, $show_all);
+				$result = _item_serialise($i, $search, $trans_no, $cleared_stat, $show_all, $serial_no);
 
 				if ($result != null) {
 					while ($row = db_fetch_assoc($result)) {
 						$return_arr[] = array(
-							'serialise_id' => $row['trans_id'],
+							'serialise_id' => $row['serialise_id'],
+							'trans_id' => $row['trans_id'],
 							'branch' => $row['branch'],
 							'serialise_item_code' => $row['color_code'],
 							'serialise_lot_no' => $row['serialise_lot_no'],

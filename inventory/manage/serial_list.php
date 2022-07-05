@@ -104,7 +104,7 @@ foreach ($res_details as $value => $data) {
     $stock_row = db_fetch_assoc(get_stock_by_itemCode($data['serialise_item_code']));
     $is_cleared = $data['cleared'] == 1 ? _("Yes") : _("No");
    
-    label_cell($data['serialise_id']);
+    label_cell($data['trans_id']);
     label_cell(get_company_value(get_comp_id($data['branch']), 'name'), "align='left'");
     label_cell($data['reference'], "nowrap align='center'; style='color: blue'");
     label_cell(get_category_name($data['category_id']), "nowrap align='center'");

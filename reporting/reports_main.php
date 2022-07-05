@@ -712,6 +712,8 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SERIAL_LIST')) {
 		array(	
 			_("Origin Branch: ") => 'BRANCH',
 			_("Clearance Status: ") => 'PNP_STAT',
+			_('Show Complete Transaction?') => 'YES_NO',
+			_("Serial/Engine Number") => 'TEXT',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'DESTINATION'
 		)

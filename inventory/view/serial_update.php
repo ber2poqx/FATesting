@@ -74,7 +74,7 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
 
 function display_details($company_id, $trans_no) {
     
-    $result = get_transactions($company_id, $trans_no);
+    $result = _item_serialise($company_id, '', $trans_no, 'ALL');
 
     div_start('serial_head');
     start_table(TABLESTYLE, "width='99%'");
@@ -100,7 +100,7 @@ function display_details($company_id, $trans_no) {
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($row['serialise_item_code']));
         $is_cleared = $row['cleared'] == 1 ? _("Yes") : _("No");
     
-        label_cell($row['serialise_id']);
+        label_cell($row['trans_id']);
         label_cell(get_company_value(get_comp_id($row['branch']), 'name'));
         label_cell(get_category_name($stock_row['category_id']));
         label_cell($stock_row['stock_id']);
