@@ -400,7 +400,7 @@ function can_proceed($approve_stat = 0) {
 		return false;
     }
 	else if (!allowed_posting_date(Today())) {
-        display_error(_("The Today's Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+        display_error(_("The Today's Date is currently LOCKED for further data entry!"));
 		return false;
     }
 
