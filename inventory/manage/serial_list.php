@@ -72,7 +72,7 @@ $th = array(
     _("Origin Branch"),
     _("Reference"),
     _("Category"),
-    _("Date Registered"),
+    check_value('show_all') == 1 ? _("Transaction Date") : _("Date Registered"),
     _("Item Code | Color | Color Description"),
     _("Serial/Engine Number"),
     _("Chassis Number"),
