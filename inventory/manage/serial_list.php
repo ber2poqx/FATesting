@@ -94,11 +94,11 @@ $serial_no = '';
 
 foreach ($res_details as $value => $data) {
 
-    if ($data['qoh'] > 0) {
-        alt_table_row_color($k);
+    if ($data['qoh'] < 0 && check_value('show_all') == 1) {
+        start_row("class='overduebg'");
     }
     else {
-        start_row("class='overduebg'");
+        alt_table_row_color($k);
     }
 
     $stock_row = db_fetch_assoc(get_stock_by_itemCode($data['serialise_item_code']));
