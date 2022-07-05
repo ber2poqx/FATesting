@@ -296,14 +296,15 @@ function add_stock_adjustment_item($id, $type = 1,
 
 function is_invty_open_bal($trans_no = '', $reference = '') {
 	
-	$sql = "SELECT COUNT(*) FROM stock_adjustment A 
+	set_global_connection();
+	
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."stock_adjustment A 
 		WHERE A.trans_no = " .db_escape($trans_no) . 
 		" OR A.reference = " .db_escape($reference);
 
 	$sql .= " GROUP BY A.trans_no, A.reference";
 	
 	$result = db_query($sql, "Can't identified if the item is opening balance! (spyrax10)");
-	set_global_connection();
 	
 	if (db_num_rows($result) > 0) {
 		return false;
@@ -315,19 +316,23 @@ function is_invty_open_bal($trans_no = '', $reference = '') {
 
 function get_stock_adjust_details($item_type = 'new') {
 
-	$sql = "SELECT * FROM stock_adjustment A 
+	set_global_connection();
+
+	$sql = "SELECT * FROM ".TB_PREF."stock_adjustment A 
 		WHERE A.item_type = " .db_escape($item_type);
 
 	$sql .= "GROUP BY A.trans_no";
 
 	$result = db_query($sql, "No Items return for stock_adjustments!");
-	set_global_connection();
+	
 	return $result;
 }
 
 function get_smo_details($reference = '', $stock_id, $lot_no = '') {
 
-	$sql = "SELECT * FROM stock_moves A 
+	set_global_connection();
+
+	$sql = "SELECT * FROM ".TB_PREF."stock_moves A 
 		WHERE A.reference = " .db_escape($reference) . 
 		" AND A.stock_id = " .db_escape($stock_id);
 	
@@ -342,7 +347,7 @@ function get_smo_details($reference = '', $stock_id, $lot_no = '') {
 	}
 
 	$result = db_query($sql, "No Items return for stock_moves!");
-	set_global_connection();
+	
 	return db_fetch($result);
 }
 
@@ -360,7 +365,7 @@ function check_null_stock_adjustment($item_type = 'new') {
 
 function revert_stock_adjustment($trans_no) {
 
-	$sql = "UPDATE stock_adjustment 
+	$sql = "UPDATE ".TB_PREF."stock_adjustment 
         SET status = 'Draft', date_approved = '0000-00-00', 
             approver = '' 
 		WHERE trans_no = " .db_escape($trans_no);
@@ -381,7 +386,7 @@ function revert_stock_adjustment($trans_no) {
 
 function delete_stock_adjust_gl($trans_no) {
 
-	$sql = "DELETE FROM stock_adjustment_gl 
+	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl 
         WHERE sa_trans_no = " .db_escape($trans_no);
 
 	set_global_connection();
@@ -392,7 +397,7 @@ function delete_stock_adjust_gl_trans($trans_no) {
 
 	$type = ST_INVADJUST;
 
-	$sql = "DELETE FROM gl_trans 
+	$sql = "DELETE FROM ".TB_PREF."gl_trans 
         WHERE type = $type AND type_no = " .db_escape($trans_no);
 
 	set_global_connection();
@@ -403,7 +408,7 @@ function delete_stock_adjust_audit($trans_no) {
 
 	$type = ST_INVADJUST;
 
-	$sql = "DELETE FROM audit_trail 
+	$sql = "DELETE FROM ".TB_PREF."audit_trail 
         WHERE type = $type AND trans_no = " .db_escape($trans_no);
 
 	set_global_connection();
@@ -414,7 +419,7 @@ function delete_stock_adjust_refs($trans_no) {
 
 	$type = ST_INVADJUST;
 
-	$sql = "DELETE FROM refs 
+	$sql = "DELETE FROM ".TB_PREF."refs 
         WHERE type = $type AND id = " .db_escape($trans_no);
 
 	set_global_connection();
@@ -425,7 +430,7 @@ function delete_stock_adjust_comments($trans_no) {
 	
 	$type = ST_INVADJUST;
 
-	$sql = "DELETE FROM comments 
+	$sql = "DELETE FROM ".TB_PREF."comments 
         WHERE type = $type AND id = " .db_escape($trans_no);
 
 	set_global_connection();
@@ -434,11 +439,12 @@ function delete_stock_adjust_comments($trans_no) {
 
 function is_adj_repo($trans_no) {
    
-    $sql = "SELECT A.item_type FROM stock_adjustment A 
+	set_global_connection();
+
+    $sql = "SELECT A.item_type FROM ".TB_PREF."stock_adjustment A 
 		WHERE A.trans_no=" . db_escape($trans_no);
 
 	$result = db_query($sql, "Cant get adjustment item type! (spyrax10)");
-    set_global_connection();
 	$row = db_fetch_row($result);
 
     if ($row[0] == 'new') {
@@ -453,7 +459,7 @@ function get_default_adjGL_account($trans_no, $line_no) {
 	set_global_connection();
 
 	$sql = "SELECT A.account 
-		FROM stock_adjustment_gl A 
+		FROM ".TB_PREF."stock_adjustment_gl A 
 		WHERE A.gl_type = 'DEFAULT' AND 
 		A.sa_trans_no = " .db_escape($trans_no) . " AND A.sa_line_id = " .db_escape($line_no);
 
@@ -467,7 +473,7 @@ function get_default_adjGL_mcode($trans_no, $line_no) {
 	set_global_connection();
 
 	$sql = "SELECT A.mcode 
-		FROM stock_adjustment_gl A 
+		FROM ".TB_PREF."stock_adjustment_gl A 
 		WHERE A.sa_trans_no = " .db_escape($trans_no) . " AND A.sa_line_id = " .db_escape($line_no);
 
 	$result = db_query($sql, "Can't get default mcode! (spyrax10)");
@@ -480,7 +486,7 @@ function get_default_adjGL_masterfile($trans_no, $line_no) {
 	set_global_connection();
 
 	$sql = "SELECT A.master_file 
-		FROM stock_adjustment_gl A 
+		FROM ".TB_PREF."stock_adjustment_gl A 
 		WHERE A.sa_trans_no = " .db_escape($trans_no) . " AND A.sa_line_id = " .db_escape($line_no);
 
 	$result = db_query($sql, "Can't get default mcode! (spyrax10)");
@@ -493,7 +499,7 @@ function child_adjGL_total($trans_no, $line_no) {
 	set_global_connection();
 
     $sql = "SELECT SUM(abs(A.amount)) AS amount 
-        FROM stock_adjustment_gl A 
+        FROM ".TB_PREF."stock_adjustment_gl A 
         WHERE A.gl_type = 'CHILD' AND A.sa_trans_no = " .db_escape($trans_no) . " 
         AND A.sa_line_id = " .db_escape($line_no) . " GROUP BY A.sa_line_id";
     
@@ -513,7 +519,7 @@ function default_adjGL_total($trans_no, $line_no) {
 	set_global_connection();
 
     $sql = "SELECT SUM(abs(A.amount)) AS amount 
-        FROM stock_adjustment_gl A 
+        FROM ".TB_PREF."stock_adjustment_gl A 
         WHERE A.gl_type = 'DEFAULT' AND A.sa_trans_no = " .db_escape($trans_no) . " 
         AND A.sa_line_id = " .db_escape($line_no) . " GROUP BY A.sa_line_id";
     
@@ -527,7 +533,7 @@ function child_adjGL_details($trans_no, $line_no) {
 	set_global_connection();
 
 	$sql = "SELECT A.*
-        FROM stock_adjustment_gl A 
+        FROM ".TB_PREF."stock_adjustment_gl A 
         WHERE A.gl_type = 'CHILD' AND A.sa_trans_no = " .db_escape($trans_no). " 
 		AND A.sa_line_id = " .db_escape($line_no);
     
@@ -542,7 +548,7 @@ function update_adjGL_entry($trans_no, $line_no, $stock_id, $color, $lot_no, $ch
 	
 	set_global_connection();
 	
-	$sql = "UPDATE stock_adjustment_gl SET stock_id = '$stock_id', color_code = '$color', 
+	$sql = "UPDATE ".TB_PREF."stock_adjustment_gl SET stock_id = '$stock_id', color_code = '$color', 
 		lot_no = '$lot_no', chassis_no = '$chasis_no', amount = '$amount', mcode = '$mcode', master_file = '$masterfile' 
 		WHERE gl_type = 'DEFAULT' AND sa_trans_no = '$trans_no' AND sa_line_id = '$line_no'";
 
@@ -554,7 +560,7 @@ function get_adjGL($trans_no) {
 	set_global_connection();
 
 	$sql = "SELECT A.*
-        FROM stock_adjustment_gl A 
+        FROM ".TB_PREF."stock_adjustment_gl A 
         WHERE A.sa_trans_no = " .db_escape($trans_no);
 
     $sql .= " ORDER BY sa_line_id ASC, gl_type ASC";
@@ -564,7 +570,10 @@ function get_adjGL($trans_no) {
 }
 
 function get_adjGL_id($trans_no, $stock_id, $lot_no = '') {
-	$sql = "SELECT A.id FROM stock_adjustment_gl A 
+
+	set_global_connection();
+
+	$sql = "SELECT A.id FROM ".TB_PREF."stock_adjustment_gl A 
 		WHERE A.sa_trans_no =" . db_escape($trans_no) . 
 		" AND A.stock_id = " .db_escape($stock_id);
 	
@@ -582,7 +591,7 @@ function delete_adjGL($trans_no, $line_id = '') {
 
 	set_global_connection();
 
-	$sql = "DELETE FROM stock_adjustment_gl 
+	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl 
 		WHERE sa_trans_no = ".db_escape($trans_no);
 
 	if ($line_id != '') {
@@ -598,7 +607,7 @@ function adjGL_line_exists($trans_no, $line_id) {
 	set_global_connection();
 
 	$sql = "SELECT COUNT(*) 
-		FROM stock_adjustment_gl 
+		FROM ".TB_PREF."stock_adjustment_gl 
 		WHERE gl_type = 'DEFAULT' AND sa_trans_no = ".db_escape($trans_no) . " 
 			AND sa_line_id = ".db_escape($line_id);
 
@@ -609,8 +618,11 @@ function adjGL_line_exists($trans_no, $line_id) {
 }
 
 function get_adjGL_max_line($trans_no) {
+
+	set_global_connection();
+
 	$sql = "SELECT MAX(A.sa_line_id) 
-		FROM stock_adjustment_gl A 
+		FROM ".TB_PREF."stock_adjustment_gl A 
 		WHERE A.sa_trans_no = " .db_escape($trans_no);
 
 	$result = db_query($sql, "Can't get max SMO trans_no! (spyrax10)");
@@ -623,7 +635,7 @@ function delete_adjGL_trans($trans_id) {
 
 	set_global_connection();
 
-	$sql = "DELETE FROM stock_adjustment_gl 
+	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl 
 		WHERE id = ".db_escape($trans_id);
 
 	db_query($sql, "Can't delete adjustment GL! (spyrax10)");
@@ -631,29 +643,34 @@ function delete_adjGL_trans($trans_id) {
 
 function count_adjGL_items($trans_no) {
 
-    $sql = "SELECT COUNT(*) FROM stock_adjustment_gl A 
+	set_global_connection();
+
+    $sql = "SELECT COUNT(*) FROM ".TB_PREF."stock_adjustment_gl A 
     WHERE A.sa_trans_no=" . db_escape($trans_no);
 
     $result = db_query($sql, "Cant get stock_adjustment trans_no count! (spyrax10)");
-    set_global_connection();
+    
 	$row = db_fetch_row($result);
 	return $row[0];
 }
 
 function add_gl_masterfile($type, $type_no, $account, $amount, $person_id, $masterfile, $add_prefix = true) {
 	
+	set_global_connection();
+
 	$person_id = $add_prefix ? sprintf("%05s", $person_id) : $person_id;
 	
 	$sql = "UPDATE ".TB_PREF."gl_trans 
 		SET mcode = '$person_id', master_file = '$masterfile'
 		WHERE type = '$type' AND type_no = '$type_no' AND account = '$account' AND amount = '$amount' ";
 	
-	set_global_connection();
     db_query($sql, "Cannot update GL masterfile! (spyrax10)");
 }
 
 function serial_exist_adj($lot_no = '', $chasis_no = '') {
-	$sql = "SELECT COUNT(*) FROM stock_adjustment A 
+	set_global_connection();
+
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."stock_adjustment A 
 	WHERE A.status = 'Draft' AND (A.lot_no = " . db_escape(trim($lot_no)) . 
 		" OR A.chassis_no= " . db_escape(trim($chasis_no)) . ")";
 
@@ -664,7 +681,10 @@ function serial_exist_adj($lot_no = '', $chasis_no = '') {
 }
 
 function is_Serialized($stock_id) {
-	$sql = "SELECT A.serialised FROM stock_master A 
+	global $def_coy;
+	set_global_connection($def_coy);
+
+	$sql = "SELECT A.serialised FROM ".TB_PREF."stock_master A 
 		WHERE A.stock_id = " . db_escape(trim($stock_id));
 
 	$result = db_query($sql, "Cant check if stock_id is serialized or not! (spyrax10)");
@@ -680,10 +700,12 @@ function get_next_adjID() {
 
 function get_max_smo() {
 
+	set_global_connection();
+
 	$type = ST_INVADJUST;
 
 	$sql = "SELECT MAX(A.trans_no) 
-		FROM stock_moves A 
+		FROM ".TB_PREF."stock_moves A 
 		WHERE A.type = $type GROUP BY A.type";
 
 	$result = db_query($sql, "Can't get max SMO trans_no! (spyrax10)");
@@ -694,8 +716,10 @@ function get_max_smo() {
 
 function get_max_adjID() {
 
+	set_global_connection();
+
 	$sql = "SELECT MAX(A.trans_no) 
-		FROM stock_adjustment A ";
+		FROM ".TB_PREF."stock_adjustment A ";
 	
 	$result = db_query($sql, "Can't get max adjustment trans_no! (spyrax10)");
 	$row = db_fetch_row($result);
@@ -704,8 +728,10 @@ function get_max_adjID() {
 }
 
 function get_max_adjGLID() {
+	set_global_connection();
+
 	$sql = "SELECT MAX(A.sa_trans_no) 
-		FROM stock_adjustment_gl A ";
+		FROM ".TB_PREF."stock_adjustment_gl A ";
 	
 	$result = db_query($sql, "Can't get max SA_GL trans_no! (spyrax10)");
 	$row = db_fetch_row($result);
@@ -769,11 +795,17 @@ function get_orig_mcode($masterfile) {
 }
 
 function is_Serialized_cat($category_id) {
-	$sql = "SELECT A.serialised FROM stock_master A 
+
+	global $def_coy;
+	set_global_connection($def_coy);
+	
+	$sql = "SELECT A.serialised FROM ".TB_PREF."stock_master A 
 		WHERE A.category_id=" . db_escape($category_id);
 
 	$result = db_query($sql, "Can't get category_id's serialized status!");
 	$row = db_fetch_row($result);
+
+	set_global_connection();
 	return $row[0];
 }
 
@@ -784,6 +816,8 @@ function add_stock_serialitems($type, $stock_id, $trans_no, $location,
 	//$date = date2sql($date_);
 	//$man_date = date2sql($manufacture_date);
 	//$exp_date = date2sql($expire_date);
+
+	set_global_connection();
 
 	$sql = "INSERT INTO ".TB_PREF."item_serialise 
     (

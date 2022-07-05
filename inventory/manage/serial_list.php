@@ -44,6 +44,14 @@ end_table();
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
+check_cells(_('Show Complete Transaction:'), 'show_all', null, true);
+
+end_row();
+end_table();
+
+start_table(TABLESTYLE_NOBORDER);
+start_row();
+
 $Ajax->activate('item_tbl');
 
 end_row();

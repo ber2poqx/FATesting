@@ -840,7 +840,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 	return db_query($sql, "No transactions were returned! ");
 }
 
-function _item_serialise($company_id = -1, $search = '', $trans_no = null, $cleared_stat = 'ALL') {
+function _item_serialise($company_id = -1, $search = '', $trans_no = null, $cleared_stat = 'ALL', $show_all = null) {
 
 	set_global_connection($company_id);
 
@@ -879,7 +879,7 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 
 }
 
-function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL') {
+function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL', $show_all = null) {
 
     global $db_connections, $def_coy;
     $return_arr = array();
@@ -894,7 +894,7 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 		|| $default_table_count != count_columns($branch_id, 'item_serialise');
 
 		if (!$not_include) {
-			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat);
+			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat, $show_all);
 
 			if ($result != null) {
 				while ($row = db_fetch_assoc($result)) {
