@@ -851,7 +851,12 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 	$sql = "SELECT '$branch_code' AS branch, $branch_code.*, SMO.* 
 	FROM " . TB_PREF . "item_serialise AS $branch_code";
 
-	$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_items_id = SMO.trans_id";
+	if ($show_all) {
+		$sql .= " LEFT JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_lot_no = SMO.lot_no";
+	}
+	else {
+		$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_items_id = SMO.trans_id";
+	}
 
 	$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
 
@@ -900,10 +905,11 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
 			if ($result != null) {
 				while ($row = db_fetch_assoc($result)) {
+
 					$return_arr[] = array(
-						'serialise_id' => $row['serialise_id'],
+						'serialise_id' => $row['trans_id'],
 						'branch' => $row['branch'],
-						'serialise_item_code' => $row['serialise_item_code'],
+						'serialise_item_code' => $row['color_code'],
 						'serialise_lot_no' => $row['serialise_lot_no'],
 						'serialise_chasis_no' => $row['serialise_chasis_no'],
 						'cleared' => $row['cleared'],
@@ -912,7 +918,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 						'category_id' => $row['category_id'],
 						'reference' => $row['reference'],
 						'trans_date' => $row['tran_date'],
-						'loc_code' => $row['loc_code']
+						'loc_code' => $row['loc_code'],
+						'qoh' => $row['qty']
 					);
 				}
 			}
@@ -930,14 +937,14 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
 			
 			if (!$not_include) {
-				$result = _item_serialise($i, $search, $trans_no, $cleared_stat);
+				$result = _item_serialise($i, $search, $trans_no, $cleared_stat, $show_all);
 
 				if ($result != null) {
 					while ($row = db_fetch_assoc($result)) {
 						$return_arr[] = array(
-							'serialise_id' => $row['serialise_id'],
+							'serialise_id' => $row['trans_id'],
 							'branch' => $row['branch'],
-							'serialise_item_code' => $row['serialise_item_code'],
+							'serialise_item_code' => $row['color_code'],
 							'serialise_lot_no' => $row['serialise_lot_no'],
 							'serialise_chasis_no' => $row['serialise_chasis_no'],
 							'cleared' => $row['cleared'],
@@ -946,7 +953,8 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 							'category_id' => $row['category_id'],
 							'reference' => $row['reference'],
 							'trans_date' => $row['tran_date'],
-							'loc_code' => $row['loc_code']
+							'loc_code' => $row['loc_code'],
+							'qoh' => $row['qty']
 						);
 					}
 				}

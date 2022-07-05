@@ -60,7 +60,8 @@ end_table();
 $res_details = get_serial_list(
     get_post('searchval'), 
     get_post('comp_id'), null,
-    get_post('cleared_id')
+    get_post('cleared_id'),
+    get_post('show_all')
 );
 
 div_start('item_tbl');
@@ -73,7 +74,6 @@ $th = array(
     _("Category"),
     _("Date Registered"),
     _("Item Code | Color | Color Description"),
-    //_("Color | Description"),
     _("Serial/Engine Number"),
     _("Chassis Number"),
     _("PNP Cleared"),
@@ -81,13 +81,25 @@ $th = array(
     _("")
 );
 
+
+if (check_value('show_all') == 1) {
+    array_splice($th, 8, 0, 'QoH');
+}
+
 table_header($th);
 
 $k = 0;
 
+$serial_no = '';
+
 foreach ($res_details as $value => $data) {
 
-    alt_table_row_color($k);
+    if ($data['qoh'] > 0) {
+        alt_table_row_color($k);
+    }
+    else {
+        start_row("class='overduebg'");
+    }
 
     $stock_row = db_fetch_assoc(get_stock_by_itemCode($data['serialise_item_code']));
     $is_cleared = $data['cleared'] == 1 ? _("Yes") : _("No");
@@ -105,19 +117,34 @@ foreach ($res_details as $value => $data) {
 
     label_cell($data['serialise_lot_no'], "nowrap");
     label_cell($data['serialise_chasis_no'], "nowrap");
+    
+    if (check_value('show_all') == 1) {
+        label_cell($data['qoh'], "nowrap align='center'");
+    }
     label_cell($is_cleared, "align='center'");
     label_cell($data['pnp_note']);
 
-    if ($data['cleared'] != null) {
-        label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id']), "nowrap");
-    }
-    else {
-        label_cell("N/A", "nowrap align='center'");
+    if ($serial_no != $data['serialise_lot_no']) {
+        if ($data['cleared'] != null) {
+            label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id']), "nowrap");
+        }
+        else {
+            label_cell("N/A", "nowrap align='center'");
+        }
+        $serial_no = $data['serialise_lot_no'];
     }
 }
 
 end_table();
 div_end();
+
+start_table(TABLESTYLE_NOBORDER);
+start_row();
+
+display_note(_("Marked Rows are OUT Transactions"), 0, 0, "class='overduefg'");
+
+end_row();
+end_table();
 
 br();
 
