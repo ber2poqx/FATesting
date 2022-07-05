@@ -627,7 +627,7 @@ function smo_exists($trans_no, $trans_type) {
 
 	set_global_connection();
 
-    $sql = "SELECT COUNT(*) FROM stock_moves A 
+    $sql = "SELECT COUNT(*) FROM ".TB_PREF."stock_moves A 
 		WHERE A.trans_no=" . db_escape($trans_no) . 
             " AND A.type=" .db_escape($trans_type);
 
@@ -639,7 +639,7 @@ function smo_exists($trans_no, $trans_type) {
 function is_smo_repo($trans_no, $trans_type) {
 	set_global_connection();
 
-	$sql = "SELECT COUNT(*) FROM stock_moves A 
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."stock_moves A 
 	WHERE A.item_type = 'repo' AND A.trans_no=" . db_escape($trans_no) . 
 		" AND A.type=" .db_escape($trans_type);
 	
@@ -659,7 +659,7 @@ function _branch_name($branch_code) {
 	
 	set_global_connection();
 
-	$sql = "SELECT location_name FROM locations A 
+	$sql = "SELECT location_name FROM ".TB_PREF."locations A 
 	WHERE A.loc_code =" . db_escape($branch_code); 
 
 	$result = db_query($sql, "Cant get branch_name");
@@ -671,7 +671,7 @@ function get_stock_name($stock_id = "") {
 
 	set_global_connection();
 
-	$sql = "SELECT description FROM stock_master A 
+	$sql = "SELECT description FROM ".TB_PREF."stock_master A 
 	WHERE A.stock_id =" . db_escape($stock_id); 
 
 	$result = db_query($sql, "Cant get stock_name");
@@ -694,6 +694,8 @@ function get_stock_catID($stock_id, $company_id = 0) {
 
 function get_smo_max_year() {
     
+	set_global_connection();
+
     $sql = "SELECT MAX(YEAR(A.tran_date)) AS maxYear
         FROM ".TB_PREF."stock_moves A ";
 
@@ -720,7 +722,7 @@ function serial_exist($lot_no = '', $chasis_no = '', $company_id = -1) {
 
 	set_global_connection($company_id);
 
-	$sql = "SELECT COUNT(*) FROM item_serialise A 
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."item_serialise A 
 	WHERE A.serialise_lot_no = " . db_escape(trim($lot_no));
 		
 	if ($chasis_no != '') {
