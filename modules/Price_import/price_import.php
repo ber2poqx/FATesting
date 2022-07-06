@@ -104,7 +104,7 @@
 						$price,
 						$date_epic);
 
-						add_pricehistory($stock_id, $price, $Selected_id, 0, $types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"));
+						add_pricehistory($stock_id, $price, $Selected_id, 0, $types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 
 
 						}
