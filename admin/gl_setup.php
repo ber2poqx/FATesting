@@ -135,7 +135,7 @@ if (isset($_POST['submit']) && can_process())
 		'misc_expense_act', 'misc_income_act', 'ar_cash_sales_account', 'ar_reg_current_account', 
 		'isd_account', 'dgp_account', 'isa_employee', 'rgp_account', 'ar_customer_account', 'ap_customer_account', 
 		'payment_location, default_rebate_valid_days, addon_amount', 'ar_supp_discount_act', 
-		'cos_free_item', 'open_inty', 'default_si_repo_act' //Added by spyrax10
+		'cos_free_item', 'open_inty', 'default_si_repo_act', 'ap_account'
 )));
 
 	display_notification(_("The general GL setup has been updated."));
@@ -211,6 +211,7 @@ $_POST['discount_dp_act'] = $myrow['discount_dp_act'];
 $_POST['dp_discount2_act'] = $myrow['dp_discount2_act'];
 $_POST['rgp_account'] = $myrow['rgp_account'];
 $_POST['default_rebate_valid_days'] = $myrow['default_rebate_valid_days'];
+$_POST['ap_account'] = $myrow['ap_account'];
 
 /* 
 ---> for repo added by jr on 08-24-2021 :--------------- 
@@ -401,6 +402,7 @@ table_section_title(_("Lending Defaults"));
 gl_all_accounts_list_row(_("Loan Receivable:"), 'default_loan_rcvble', $_POST['default_loan_rcvble']);
 gl_all_accounts_list_row(_("Interest Income:"), 'default_int_income', $_POST['default_int_income']);
 gl_all_accounts_list_row(_("Penalty Account:"), 'penalty_act', $_POST['penalty_act']);
+gl_all_accounts_list_row(_("A/P Account:"), 'ap_account', $_POST['ap_account']);
 
 //----------------
 

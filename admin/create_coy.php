@@ -353,7 +353,6 @@ function handle_submit($selected_id)
 	$db_connections[$selected_id]['partner_code'] = $_POST['partner_code'];
 	$db_connections[$selected_id]['type'] = $_POST['type'];
 	$db_connections[$selected_id]['gl_account'] = $_POST['gl_account'];
-	$db_connections[$selected_id]['ap_account'] = $_POST['ap_account'];
 	if ($new) {
 		$db_connections[$selected_id]['host'] = $_POST['host'];
 		$db_connections[$selected_id]['port'] = $_POST['port'];
@@ -550,7 +549,6 @@ function display_companies()
 		label_cell($conn[$i]['partner_code']);
 		label_cell($conn[$i]['type']);
 		label_cell($conn[$i]['gl_account']);
-		label_cell($conn[$i]['ap_account']);
 		label_cell($conn[$i]['host']);
 		label_cell(isset($conn[$i]['port']) ? $conn[$i]['port'] : '');
 		label_cell($conn[$i]['dbuser']);
@@ -616,7 +614,6 @@ function display_company_edit($selected_id)
 		$_POST['partner_code'] = $conn['partner_code'];
 		$_POST['type'] = $conn['type'];
 		$_POST['gl_account'] = $conn['gl_account'];
-		$_POST['ap_account'] = $conn['ap_account'];
 		$_POST['host']  = $conn['host'];
 		$_POST['port'] = isset($conn['port']) ? $conn['port'] : '';
 		$_POST['dbuser']  = $conn['dbuser'];
@@ -642,7 +639,6 @@ function display_company_edit($selected_id)
 		$_POST['partner_code'] = $conn['partner_code'];
 		$_POST['type'] = $conn['type'];
 		$_POST['gl_account'] = $conn['gl_account'];
-		$_POST['ap_account'] = $conn['ap_account'];
 		$_POST['host']  = $conn['host'];
 		$_POST['port']  = isset($conn['port']) ? $conn['port'] : '';
 		$_POST['dbuser']  = $conn['dbuser'];
@@ -659,7 +655,6 @@ function display_company_edit($selected_id)
 	text_row_ex(_("Partner Code:"), 'partner_code', 20);
 	company_type_row(_("Type:"), 'type', $_POST['type']);
 	gl_all_accounts_list_row(_("A/R Account:"), 'gl_account', $_POST['gl_account']);
-	gl_all_accounts_list_row(_("A/P Account:"), 'ap_account', $_POST['ap_account']);
 
 	if ($selected_id == -1)
 	{
