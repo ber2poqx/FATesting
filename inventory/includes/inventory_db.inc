@@ -856,7 +856,8 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 		$sql .= " LEFT JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_lot_no = SMO.lot_no";
 	}
 	else {
-		$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_items_id = SMO.trans_id";
+		$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_items_id = SMO.trans_id 
+			AND $branch_code.serialise_lot_no = SMO.lot_no";
 	}
 
 	$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
