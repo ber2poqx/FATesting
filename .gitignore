@@ -72,3 +72,4 @@ sqltools_20220223085737_6424.log
 README.md
 .vscode/settings.json
 .tmp.driveupload
+/modules/api/vendor
