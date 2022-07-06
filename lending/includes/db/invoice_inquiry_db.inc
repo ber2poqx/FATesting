@@ -51,30 +51,30 @@ function Update_debtor_trans_status($type, $trans_no, $status, $branch_code = nu
 }
 
 function add_ar_item_details($debtor_trans_type, $debtor_trans_no, $stock_id, $description, $quantity, $unit_price, $unit_tax, $discount_percent, $std_cost,
-							$src_id, $serial, $chasis, $color_code, $item_type, $discount1, $discount2, $qty_replace, $stock_trans_no,$stock_trans_type)
+							$src_id, $serial, $chasis, $color_code, $item_type, $discount1, $discount2, $qty_replace, $smi, $incentives, $qty_done)
 {
 	$sql = "INSERT INTO ".TB_PREF."debtor_trans_details (
-					debtor_trans_no, debtor_trans_type, stock_id, description, quantity, unit_price, unit_tax,
-					discount_percent, standard_cost, src_id, lot_no, chassis_no, color_code, item_type, discount1, discount2, qty_replace, stock_trans_no, stock_trans_type
+					debtor_trans_no, debtor_trans_type, stock_id, description, quantity, unit_price, unit_tax, discount_percent, standard_cost, src_id, 
+					lot_no, chassis_no, color_code, item_type, discount1, discount2, qty_replace, smi, incentives, qty_done
 			) VALUES (".db_escape($debtor_trans_no).", ".db_escape($debtor_trans_type).", ".db_escape($stock_id).", ".db_escape($description).",
 				".db_escape($quantity).", ".db_escape($unit_price).", ".db_escape($unit_tax).", ".db_escape($discount_percent).", 
-				".db_escape($std_cost).", ".db_escape($src_id).", ".db_escape($serial).", ".db_escape($chasis).", ".db_escape($color_code).", "
-				.db_escape($item_type).", ".db_escape($discount1).", ".db_escape($discount2).", ".db_escape( $qty_replace).", ".db_escape( $stock_trans_no).", ".db_escape( $stock_trans_type)." )";
+				".db_escape($std_cost).", ".db_escape($src_id).", ".db_escape($serial).", ".db_escape($chasis).", ".db_escape($color_code).",
+				".db_escape($item_type).", ".db_escape($discount1).", ".db_escape($discount2).", ".db_escape($qty_replace).", ".db_escape($smi).",
+				".db_escape($incentives).", ".db_escape($qty_done)." )";
 	
 	$ErrMsg = _('The debtor transaction detail could not be written because ');
-	db_query($sql, $ErrMsg);		
+	db_query($sql, $ErrMsg);
 }
 
 function add_loan_schedule($trans_type, $trans_no, $debtor_no, $month_no, $date_due, $weekday, $principal_due, $principal_runbal, $total_principaldue,
-							$total_runbal, $interest_due, $interest_runbal, $status='unpaid', $remarks='')
+							$total_runbal, $interest_due, $interest_runbal, $status='unpaid')
 {
 	$sql = "INSERT INTO ".TB_PREF."debtor_loan_schedule (
 					debtor_no, trans_no, trans_type, month_no, date_due, weekday, principal_due, principal_runbal, total_principaldue,
 					total_runbal, interest_due, interest_runbal, status
 			) VALUES (".db_escape($debtor_no).", ".db_escape($trans_no).", ".db_escape($trans_type).", ".db_escape($month_no).", ".db_escape($date_due).", 
 				".db_escape($weekday).", ".db_escape($principal_due).", ".db_escape($principal_runbal).", ".db_escape($total_principaldue).", 
-				".db_escape($total_runbal).", ".db_escape($interest_due).", ".db_escape($interest_runbal).", ".db_escape($status).",
-				".db_escape($remarks).")";
+				".db_escape($total_runbal).", ".db_escape($interest_due).", ".db_escape($interest_runbal).", ".db_escape($status).")";
 	
 	$ErrMsg = _('The debtor loan schedule could not be written because ');
 	db_query($sql, $ErrMsg);
@@ -151,7 +151,7 @@ function get_debtor_per_transNo($Trans_no){
 				AND A.trans_no = ".$Trans_no;
 
 	$result = db_query($sql, "could not get all debtor invoice per trans_no");
-	echo $sql;
+	
 	set_global_connection();
 	return $result;
 }

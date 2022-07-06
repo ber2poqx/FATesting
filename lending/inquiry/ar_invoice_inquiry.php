@@ -254,7 +254,7 @@ if(isset($_GET['submit']))
     }*/
 
     //get loans info
-    $loanresult = get_debtor_per_transNo($_POST['invoice_no']);
+    $loanresult = get_debtor_per_transNo($_POST['id']);
     $loansrow = db_fetch($loanresult);
     
     $result = get_Approve_deptor_trans($_POST['id'], ST_ARINVCINSTLITM);
@@ -307,9 +307,9 @@ if(isset($_GET['submit']))
             $result = get_debtor_items($_POST['id']);
             $total = DB_num_rows($result);
             while ($myrow = db_fetch($result)) {
-                add_ar_item_details(ST_ARINVCINSTLITM, $trans_no, $myrow["stock_id"], $myrow["description"] , $myrow["quantity"],
-                                check_isempty($myrow["unit_price"]), check_isempty($myrow["unit_tax"]), 0, check_isempty($myrow["standard_cost"]),
-                                0, $myrow["lot_no"], $myrow["chassis_no"], $myrow["color_code"], $myrow["item_type"], $myrow["discount1"], $myrow["discount2"], $myrow["qty_replace"], $myrow["stock_trans_no"],$myrow["stock_trans_type"]);
+                add_ar_item_details(ST_ARINVCINSTLITM, $trans_no, $myrow["stock_id"], $myrow["description"] , $myrow["quantity"], check_isempty($myrow["unit_price"]), check_isempty($myrow["unit_tax"]),
+                                    0, check_isempty($myrow["standard_cost"]), 0, $myrow["lot_no"], $myrow["chassis_no"], $myrow["color_code"], $myrow["item_type"], $myrow["discount1"], $myrow["discount2"],
+                                    $myrow["qty_replace"], $myrow["smi"], $myrow["incentives"], $myrow["qty_done"]);
             }
 
             //now for amortization schedule
