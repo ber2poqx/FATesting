@@ -521,8 +521,8 @@ function display_companies()
 
 	start_table(TABLESTYLE);
 
-	$th = array(_("Branch Name"), _("Branch Area"),_("Branch Code"), _("Partner Code"), _("Type"), _("A/R Account"), _("A/P Account"), _("Database Host"), _("Database Port"), _("Database User"),
-		_("Database Name"), _("Table Pref"), _("Charset"), _("Default"), "", "", "Backup");
+	$th = array(_("Branch Name"), _("Branch Area"),_("Branch Code"), _("Partner Code"), _("Type"), _("A/R Account"), _("Database Host"), _("Database Port"), _("Database User"),
+		_("Database Name"), _("Table Pref"), _("Charset"), _("Default"), "E", "D", "Backup");
 	table_header($th);
 
 	//Added by Robert
