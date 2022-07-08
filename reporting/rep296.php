@@ -101,12 +101,13 @@ function print_transaction() {
         _('Brand'),
         _('Sub-Category'),
         _('Classification'),
-        _("Old Code")
+        _("Old Code"),
+        _("Status")
     );
 	
-    $cols = array(0, 100, 220, 260, 320, 410, 475, 0);
+    $cols = array(0, 95, 215, 255, 315, 405, 465, 540, 0);
 
-    $aligns = array('left', 'left', 'center', 'center', 'left', 'left', 'right');
+    $aligns = array('left', 'left', 'center', 'center', 'left', 'left', 'right', 'right');
 
     $params = array( 
 		0 => $comments,
@@ -143,7 +144,8 @@ function print_transaction() {
         }
 
         $old_code = $separate_code == 1 && $category == 14 ? $trans['ic_old_code'] : $trans['sm_old_code'];
-
+        $status = $trans['inactive'] == 1 ? 'PHASE-OUT' : 'CURRENT';
+        
         $rep->fontSize -= 1;
         $rep->TextCol(0, 1, $trans['stock_id']);
         $rep->TextCol(1, 2, $trans['prod_desc']);
@@ -152,6 +154,8 @@ function print_transaction() {
         $rep->TextCol(4, 5, $trans['sub_cat']);
         $rep->TextCol(5, 6, $trans['class']);
         $rep->TextCol(6, 7, $old_code);
+        $rep->TextCol(6, 7, $old_code);
+        $rep->TextCol(7, 8, $status);
         $rep->fontSize += 1;
         $rep->NewLine();
     }
