@@ -336,24 +336,24 @@ if(isset($_GET['submit']))
             //now for gl entries
             $unearned_amount = 0;
             if(isset($_POST['outs_ar_amount']) &&  $_POST['outs_ar_amount'] != 0){
-
+                //AR amount = outstanding ar amount "/" or // AR amount - down-payment amount
                 $unearned_amount = add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["default_loan_rcvble"], 0, 0,
                              $_POST['outs_ar_amount'], $_POST['customername'], "The outstanding a/r amount GL posting could not be inserted");
                 
             }
             if(isset($_POST['lcp_amount']) &&  $_POST['lcp_amount'] != 0){
-                
-                $ap_account = $db_connections[user_company()]["ap_account"];
-                $unearned_amount = ($unearned_amount - $_POST['lcp_amount']);
+                //AP - DES CAPITAL account = LCP amount - Down-payment amount
+                $ap_capital = ($_POST['lcp_amount'] - $_POST['dp_amount']);
 
-                add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $ap_account, 0, 0,
-                                -$_POST['lcp_amount'], $_POST['customername'], "The a/p amount GL posting could not be inserted");
+                add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["ap_account"], 0, 0,
+                                -$ap_capital, $_POST['customername'], "The a/p amount GL posting could not be inserted");
                 
             }
-            if(isset($unearned_amount) &&  $unearned_amount != 0){
-                
-                add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["default_int_income"], 0, 0,
-                                -$unearned_amount, $_POST['customername'], "The unearned interest amount GL posting could not be inserted");
+            if(isset($_POST['ar_amount']) &&  $_POST['ar_amount'] != 0){
+                //DGP = AR amount - LCP amount / or // total financing charge + rebate
+                $DGP_amount = ($_POST['ar_amount'] - $_POST['lcp_amount']);
+                add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["deferred_income_act"], 0, 0,
+                                -$DGP_amount, $_POST['customername'], "The unearned interest amount GL posting could not be inserted");
             }
 
             $Refs->save(ST_ARINVCINSTLITM, $trans_no, $reference, null);
