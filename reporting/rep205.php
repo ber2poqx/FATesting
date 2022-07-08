@@ -88,13 +88,35 @@ function print_supplier_details_listing()
 	$more = (double)$more;
 	$less = (double)$less;
 
-	$cols = array(0, 150, 210, 250, 290, 350, 400, 450, 525, 565, 635, 695, 725);
+	$cols = array(0, 150, 210, 250, 290, 350, 400, 450, 490, 535, 585, 640, 700, 730);
 
-	$headers = array(_('Supplier Name:'), _('Supplier Short Name'),	_('Supplier Group Name'),
-		_('SAPcode'), _('TIN No:'), _('Website:'), _('Payment Terms:'), _('Price contain tax included:'),
-    _('Supplier Type:'), _('Accounts Payable Account'), _('Purchase Account:'), _('Mailing Address'));
+	$headers = array(	_('Supplier Name:'), 
+					 	_('Supplier Code'),	
+						_('Supplier Group'),
+						_('SAPcode'), 
+						_('TIN No:'), 
+						_('Website:'), 
+						_('Payment Terms:'), 
+						_('tax included:'),
+    					_('Supplier Type:'), 
+						_('Payable Account'), 
+						_('Purchase Account:'), 
+						_('Discount Account'),
+						_('Mailing Address'));
 
-	$aligns = array('left',	'left',	'left',	'left', 'left',	'left',	'left',	'left', 'left',	'left',	'left',	'left');
+	$aligns = array(	'left',
+						'left',	
+						'left',	
+						'left',	
+						'left', 
+						'left',	
+						'center', 
+						'left', 
+						'center', 
+						'center', 
+						'center', 
+						'center', 
+						'left');
 
     $params =   array( 	0 => $comments,
     				    1 => array('text' => _('Activity Since'), 	'from' => $from, 		'to' => ''),
@@ -138,7 +160,8 @@ function print_supplier_details_listing()
 			$rep->TextCol(8, 9,	$myrow['supplier_type']);
             $rep->TextCol(9, 10,	$myrow['payable_account']);
 			$rep->TextCol(10, 11,	$myrow['purchase_account']);
-			$rep->TextCol(11, 12,	$myrow['address']);
+			$rep->TextCol(11, 12,	$myrow['payment_discount_account']);
+			$rep->TextCol(12, 13,	$myrow['address']);
 
 			$rep->NewLine();
 			$rep->Line($rep->row + 8);
