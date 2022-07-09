@@ -333,27 +333,6 @@ function get_bank_trans_branch()
 	return db_query($sql, "could not get bank trans info");
 }
 
-//Added by spyrax10 17 Feb 2022
-function get_bank_lists($bank_id = null) {
-	
-	$sql = "SELECT id, bank_account_name, bank_curr_code, inactive
-		FROM ".TB_PREF."bank_accounts WHERE IFNULL(id, '') <> ''";
-
-	if ($bank_id != null) {
-		$sql .= " AND id = " .db_escape($bank_id);
-	}
-	
-	$result = db_query($sql, "Cant get Bank Account List!"); 
-	$row = db_fetch_row($result);
-
-	if ($bank_id != null) {
-		return $row[1];
-	}
-	else {
-		return $result;
-	}
-}
-
 function auto_disburse_no() {
 
 	$trans_type = ST_BANKPAYMENT;

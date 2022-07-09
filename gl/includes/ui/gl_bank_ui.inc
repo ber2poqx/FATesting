@@ -189,7 +189,7 @@ function display_bank_header(&$order) {
 
 	//bank_accounts_list_row(_("Debit To: "), 'bank_account', null, true, true, _("Select Bank Account"));
 
-	sql_type_list(_("Debit To:"), 'bank_account', get_bank_lists(), 'id', 'bank_account_name', 
+	sql_type_list(_("Debit To:"), 'bank_account', get_bank_accounts(), 'id', 'bank_account_name', 
 		'label', null, true, _("Select Bank Account")
 	);
 

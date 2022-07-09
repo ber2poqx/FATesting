@@ -90,7 +90,7 @@ function display_menu($trans_no, $type) {
                 $reference = $row['ref'];
                 $source_ref = $row['receipt_no'];
                 $cashier = get_user_name($row['cashier_user_id']);
-                $bank_name = get_bank_lists($row['bank_act']);
+                $bank_name = get_bank_accounts(false, $row['bank_act']);
                 $pay_type = $row['pay_type'];
                 $pay_to = payment_person_name($row['person_type_id'], $row['masterfile']);
                 if ($type == ST_BANKPAYMENT) {

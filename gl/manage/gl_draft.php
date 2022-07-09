@@ -346,7 +346,7 @@ function display_gl_post($trans_no, $trans_type) {
 
 		if ($trans_type != 0) {
 			
-			sql_type_list(_("Debit To:"), 'bank_account', get_bank_lists(), 'id', 'bank_account_name', 
+			sql_type_list(_("Debit To:"), 'bank_account', get_bank_accounts(), 'id', 'bank_account_name', 
 				'label', null, true, _("Select Bank Account")
 			);
 

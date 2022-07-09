@@ -76,15 +76,32 @@ function get_bank_account($id)
 
 //---------------------------------------------------------------------------------------------
 
-function get_bank_accounts($show_inactive=false)
-{
+//Modified by spyrax10 9 Jul 2022
+function get_bank_accounts($show_inactive = false, $bank_id = null) {
+	
 	$sql = "SELECT account.*, gl_account.account_name
 		FROM ".TB_PREF."bank_accounts account, ".TB_PREF."chart_master gl_account
 		WHERE account.account_code = gl_account.account_code";
-	if (!$show_inactive) $sql .= " AND !account.inactive";
-	$sql .= " ORDER BY account_code, bank_curr_code";
+	
+	if (!$show_inactive) {
+		$sql .= " AND !account.inactive";
+	} 
+	
+	if ($bank_id != null) {
+		$sql .= " AND account.id = " .db_escape($bank_id);
+	}
 
-	return db_query($sql,"could not get bank accounts");
+	$sql .= " ORDER BY account_code, bank_curr_code";
+	$result = db_query($sql, "could not get bank accounts");
+
+	if ($bank_id != null) {
+		$row = db_fetch_row($result);
+		return $row[1];
+	}
+	else {
+		return $result;
+	}
+
 }
 
 //---------------------------------------------------------------------------------------------
