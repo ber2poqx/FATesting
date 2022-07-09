@@ -41,7 +41,7 @@ function can_import() {
         return false;
     }
 
-    if ($_FILES['impCSVS']['type'] != "application/vnd.ms-excel") {
+    if (!strpos($_FILES['impCSVS']['name'], ".csv") !== false) {
         display_error(_("Only CSV files can be imported."));
         unset($_POST['impCSVS']);
         return false;
