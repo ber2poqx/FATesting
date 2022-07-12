@@ -750,7 +750,7 @@ function get_mcode($mcode) {
 		UNION
 		SELECT id as id_no FROM ".TB_PREF."users WHERE role_id NOT IN(2,10) AND user_id = " .db_escape($mcode) . "
 		UNION
-		SELECT account_code as id_no FROM chart_master WHERE account_type = 13 AND account_code = " .db_escape($mcode);
+		SELECT account_code as id_no FROM chart_master WHERE account_name LIKE '%Branch Current%' AND account_code = " .db_escape($mcode);
 
     $result = db_query($sql, "Can't get mcode! (spyrax10)");
     $row = db_fetch_row($result);
@@ -768,7 +768,7 @@ function get_masterfile($mcode) {
 		UNION
 		SELECT real_name as id_no FROM ".TB_PREF."users WHERE role_id NOT IN(2,10) AND user_id = " .db_escape($mcode) ."
 		UNION
-		SELECT account_name as id_no FROM chart_master WHERE account_type = 13 AND account_code = " .db_escape($mcode);
+		SELECT account_name as id_no FROM chart_master WHERE account_name LIKE '%Branch Current%' AND account_code = " .db_escape($mcode);
 
     $result = db_query($sql, "Can't get masterfile! (spyrax10)");
     $row = db_fetch_row($result);
@@ -786,7 +786,7 @@ function get_orig_mcode($masterfile) {
 		UNION
 		SELECT user_id as ref FROM ".TB_PREF."users WHERE role_id NOT IN(2,10) AND real_name = " .db_escape($masterfile) . "
 		UNION
-		SELECT account_code as ref FROM chart_master WHERE account_type = 13 AND account_name = " .db_escape($masterfile);
+		SELECT account_code as ref FROM chart_master WHERE account_name LIKE '%Branch Current%' AND account_name = " .db_escape($masterfile);
 
     $result = db_query($sql, "Can't get original mcode! (spyrax10)");
     $row = db_fetch_row($result);
