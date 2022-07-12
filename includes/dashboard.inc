@@ -198,7 +198,19 @@ function display_all() {
 	$pg = new graph();
 	table_one();
 	$title = customer_top($today, 5, 85, $pg);
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_INVOICE_LIST')) {
+		start_table(TABLESTYLE_NOBORDER);
+		start_row();
+		ahref_cell(_("View Sales Invoice Inquiry List"), "../sales/sales_invoice_list.php?");
+		if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_INVOICE_OB')) {
+			ahref_cell(_("View Sales Invoice - Opening Balances Inquiry List"), "../sales/sales_invoice_ob_list.php?");
+		}
+		end_row();
+		end_table();
+	}
+
 	_source_graphic($today, $title, _("Customer"), $pg, _("Sales"));
+
 
 	$pg = new graph();
 	$title = gl_top($today, 66, $pg);
@@ -208,6 +220,16 @@ function display_all() {
 	//Item Brand
 	$pg = new graph();
 	$title = stock_top($today, 5, 66, 0, $pg);
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_REP')) {
+		start_table(TABLESTYLE_NOBORDER);
+		start_row();
+		ahref_cell(_("View Inventory Adjustment Inquiry List"), "../inventory/inquiry/adjustment_view.php?");
+		ahref_cell(_("View Inventory Adjustment - Opening Balances Inquiry List"), "../modules/Inventory_Beginning_Balances/inventory_view.php?");
+		end_row();
+		end_table();
+	}
+
 	_source_graphic($today, $title, _("Brand"), $pg, _("Sales"), _("Costs"));
 
 	//Item Descriptiom
