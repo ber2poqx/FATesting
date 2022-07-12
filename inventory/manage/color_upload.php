@@ -243,10 +243,14 @@ if ($action == 'import') {
 
 	start_form(true);
 
-    start_outer_table(TABLESTYLE, "width='95%'", 10);
-
 	submit_center('download', _("Download CSV Template File for Item Color Code"));
-	br();
+	start_table(TABLESTYLE_NOBORDER);
+	start_row();
+	ahref_cell(_("Back to Item Color Code List"), "../../inventory/manage/item_codes.php?");
+	end_row();
+	end_table();
+	
+    start_outer_table(TABLESTYLE, "width='95%'", 10);
 
     start_table(TABLESTYLE2, "width=45%");
 

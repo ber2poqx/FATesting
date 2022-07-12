@@ -354,8 +354,13 @@ if ($action == 'import') {
     start_form(true);
 
 	submit_center('download', _("Download CSV Template File for Inventory Opening"));
-	br();
 
+	start_table(TABLESTYLE_NOBORDER);
+	start_row();
+	ahref_cell(_("Back to Inventory Opening Balances Inquiry List"), "../../modules/Inventory_Beginning_Balances/inventory_view.php?");
+	end_row();
+	end_table();
+	
     start_outer_table(TABLESTYLE, "width = '95%'", 10);
 
 	start_table(TABLESTYLE2, "width = 30%");
