@@ -48,9 +48,9 @@ br();
 if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
 
     if (user_company() != 0) {
-        start_table(TABLESTYLE_NOBORDER, "width = 23%");
+        start_table(TABLESTYLE_NOBORDER, "width = auto");
 
-        value_type_list(_("Application Type: "), 'trans_type', 
+        value_type_list(null, 'trans_type', 
             array(
                 'ALL' => 'All Transaction Summary',
                 'orders' => 'Sales',
@@ -59,7 +59,7 @@ if ($_GET['sel_app'] == "ALL" || get_post('trans_type') == null) {
                 'GL' => 'Banking and General Ledger'
             ), '', null, true, '', true
         );
-    
+
         end_table();
     }
 }
@@ -109,9 +109,38 @@ else {
                3 => 'Collector'
             ), '', null, true, '', true
         );
+
+        
     }
 
     end_outer_table(1);
+
+    if ($_GET['sel_app'] == 'orders') {
+        if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_INVOICE_LIST')) {
+            start_table(TABLESTYLE_NOBORDER);
+            start_row();
+            ahref_cell(_("Sales Invoice Inquiry List"), "../sales/sales_invoice_list.php?");
+            if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESINVOICEREPO')) {
+                ahref_cell(_("Sales Invoice - Repossessed Inquiry List"), "../sales/si_repo.php?");
+            }
+            if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_INVOICE_OB')) {
+                ahref_cell(_("Sales Invoice - Opening Balances Inquiry List"), "../sales/sales_invoice_ob_list.php?");
+            }
+            end_row();
+            end_table();
+        }
+    }
+    else if ($_GET['sel_app'] == 'stock') {
+        if ($_SESSION["wa_current_user"]->can_access_page('SA_INVTY_REP')) {
+            start_table(TABLESTYLE_NOBORDER);
+            start_row();
+            ahref_cell(_("Inventory Adjustment Inquiry List"), "../inventory/inquiry/adjustment_view.php?");
+            ahref_cell(_("Inventory Adjustment - Repossessed Inquiry List"), "../inventory/inquiry/adjustment_repo_view.php?");
+            ahref_cell(_("Inventory Adjustment - Opening Balances Inquiry List"), "../modules/Inventory_Beginning_Balances/inventory_view.php?");
+            end_row();
+            end_table();
+        }
+    }
 }
 
 if (isset($_GET['sel_app'])) {
