@@ -29,7 +29,8 @@ function get_branch_info($branch_code)
             $branch_arr[] = array('id'=>$conn[$i]['branch_code'],
                                     'name'=>$conn[$i]['name'],
                                     'area'=>$conn[$i]['branch_area'],
-                                    'gl_account'=>$conn[$i]['gl_account']
+                                    'gl_account'=>$conn[$i]['gl_account'],
+                                    'b_type'=>$conn[$i]['type']
                                 );
         }
 

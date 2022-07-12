@@ -202,10 +202,12 @@ function get_ARinvoice_debtor_trans($Trans_no=null, $debtor_no=null)
 
 function get_invoice_per_customer($debtor_no, $tag)
 {
-	if($tag == "cash"){
-		$criteria = "AND A.payment_terms = 0";
-	}else{
-		$criteria = "AND A.payment_terms != 0";
+	if(get_company_value(user_company(), 'type') != "LENDING"){
+		if($tag == "cash"){
+			$criteria = "AND A.payment_terms = 0";
+		}else{
+			$criteria = "AND A.payment_terms != 0";
+		}
 	}
 
 	/*$sql = "SELECT A.trans_no, A.reference, A.type, A.status, B.stock_id, B.description itemdesc, D.description category, C.profit_margin
@@ -246,7 +248,6 @@ function get_invoice_per_customer($debtor_no, $tag)
 				AND IFNULL(A.module_type,'') != 'REPO'
 				AND A.debtor_no = ".db_escape($debtor_no)."
 				".$criteria;
-
 
 	return db_query($sql, "could not get all customer invoice");
 }
