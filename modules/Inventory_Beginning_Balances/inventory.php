@@ -194,7 +194,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 		else if (!is_date($ob_date)) {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Invalid Transaction Date! ($ob_date)"); 
+			$err_arr[$line_cnt] = _("Invalid Transaction Date Format! ($ob_date)"); 
 		}
 		else if ($stock_id == "") {
 			$line_cnt++;
@@ -347,6 +347,8 @@ if (get_post('category')) {
 //-----------------------------------------------------------------------------------------------
 if ($action == 'import') {
 
+	global $Refs;
+
 	if (isset($_POST['impCSVS'])) {
 		unset($_POST['impCSVS']);
 	}
@@ -372,11 +374,9 @@ if ($action == 'import') {
 		'label', null, true
 	);
 
-	ref_row(_("Reference: "), 'ref', '', 
-		$Refs->get_next(ST_INVADJUST, null, 
-		array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate'))),
-		false, ST_INVADJUST
-	);
+	$_POST['ref'] = $Refs->get_next(ST_INVADJUST, null, array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate')));
+	label_row(_("Reference #: &nbsp;"), get_post('ref'));
+	hidden('ref');
 
 	sql_type_list(_("Category: "), 'category', 
 		get_category_list(), 'category_id', 'description', 
@@ -400,9 +400,12 @@ if ($action == 'import') {
 
     adjustment_options_controls();
 
+	submit_center('import_btn', _("Process Inventory Opening"));
+
     end_outer_table(1, false);
 
-    submit_center('import_btn', _("Process Inventory Opening"));
+	br();
+
     end_form();
 	end_page();
 }
