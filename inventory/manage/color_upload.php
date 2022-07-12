@@ -73,6 +73,11 @@ function can_import() {
         display_error(_("Please select a file to import."));
         return false;
     }
+	else if (!strpos($_FILES['impCSVS']['name'], ".csv") !== false) {
+        display_error(_("Only CSV files can be used to upload."));
+        unset($_POST['impCSVS']);
+        return false;
+    }
 	
 	return true;
 }

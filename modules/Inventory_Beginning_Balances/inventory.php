@@ -62,8 +62,6 @@ if (isset($_POST['action'])) {
 
 page(_("Inventory Opening Balances"), false, false, "", $js);
 
-simple_page_mode(true);
-
 //-----------------------------------------------------------------------------------------------
 
 if (isset($_GET['AddedID'])) {
@@ -98,6 +96,11 @@ function can_import() {
 
     if (isset($_FILES['impCSVS']) && $_FILES['impCSVS']['name'] == '') {
         display_error(_("Please select a file to import."));
+        return false;
+    }
+	else if (!strpos($_FILES['impCSVS']['name'], ".csv") !== false) {
+        display_error(_("Only CSV files can be used to upload."));
+        unset($_POST['impCSVS']);
         return false;
     }
     else {
