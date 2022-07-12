@@ -172,9 +172,9 @@ return $row[0];
 
 }
 
-function get_supplier_desc($supplier){
+function get_supplier_desc($stock_id){
     $sql = "SELECT description FROM ".TB_PREF."stock_master
-            WHERE stock_id = ".db_escape($supplier);
+            WHERE stock_id = ".db_escape($stock_id);
     $result = db_query($sql, "check supplier description failed");
     $row =  db_fetch($result);
 
@@ -284,4 +284,40 @@ function get_price_id($types){
         return $row[0];
 }
 
+function get_existing_price_id($types){
+
+    if(get_cash_types($types)){
+        $sql = "SELECT
+                        a.id
+                    FROM ".TB_PREF."cash_prices a where a.scash_type_id =".db_escape($types);
+   
+    }else if(get_lcp_price_types($types)){
+
+            $sql = "SELECT
+                        a.id
+                    FROM ".TB_PREF."prices a where a.sales_type_id =".db_escape($types);
+    }else if(get_system_cost_types($types)){
+            $sql = "SELECT
+                        a.id
+                    FROM ".TB_PREF."purch_data a where a.cost_type_id =".db_escape($types); 
+    }else if(get_srp_types($types)){
+            $sql = "SELECT
+                        a.id
+                    FROM ".TB_PREF."item_srp a where a.srptype_id =".db_escape($types);
+    
+    }else{
+          if(get_incentive_types($types)){
+
+            $sql = "SELECT
+                        a.id
+                    FROM ".TB_PREF."incentive_prices a where a.incentive_type_id =".db_escape($types);
+
+          }
+
+    }
+        $result = db_query($sql, "check Price types failed");
+        $row =  db_fetch($result);
+        
+        return $row[0];
+}
 ?>

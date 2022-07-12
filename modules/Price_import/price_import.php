@@ -15,6 +15,7 @@
 	include_once($path_to_root . "/includes/cost_and_pricing.inc");
 
     include_once($path_to_root . "/modules/Price_import/price_import.inc");
+	include_once($path_to_root . "/sales/includes/db/sales_incentive_db.inc");
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
 	
 	if (isset($_POST['download'])) {
@@ -66,6 +67,12 @@
 					$types = normalize_chars($types);
 					$supplier = normalize_chars($supplier);
 
+					if (check_price_already_exist( $types, $stock_id, $supplier)){	
+                    	$add = 1;//updated
+					}else{
+						$add = 0;//Added
+					}
+
 					if( empty($date_epic)){ 
 						$date_epic = "0000-00-00";
 
@@ -73,108 +80,221 @@
 						$date_epic = date("Y-m-d", strtotime($date_epic));
 					}
 					if( empty($supplier )){ 
+						
 						$supplier = null;
-					}
-					if( empty( $types )){ 
-						display_error("Line:$lines Stock ID: $stock_id Types empty!!!");
-					}
-					if( empty( $stock_id )){ 
-						display_error("Line:$lines Stock ID: $stock_id Stock id empty !!!");
 					}
 					if( empty( $price )){ 
 						$price=0;
 					}
-					if (check_price_already_exist( $types, $stock_id, $supplier)){
+					
+					if( empty( $types )){ 
+						
+						display_error("Line:$lines Stock ID: $stock_id Types empty!!!");
+					
+					} else if( empty( $stock_id )){ 
+						
+						display_error("Line:$lines Stock ID: $stock_id Stock id empty !!!");
+	
+					// } elseif (check_price_already_exist( $types, $stock_id, $supplier)){
 
-						display_error("Price Already Exist!!! Line:$lines Stock ID: $stock_id is not added ");
-					}
-
-					if (!check_stock_id_exist($stock_id)){
+					// 	display_error("Price Already Exist!!! Line:$lines Stock ID: $stock_id is not added ");
+					
+					}else if (!check_stock_id_exist($stock_id)){
 
 						display_error("Line $lines: Stock Id: $stock_id is Not Exist");
 
 					}else{
 						$Selected_id = get_price_id($types) + 1;
+						$supplierdesc = get_supplier_desc($stock_id);
+						$supplier_id = pr_get_supplier_id($supplier);
 
-						if( get_cash_types($types)==$types){
+						// Add new price
+						if ($add == 0){
+							if( get_cash_types($types)==$types){
 
-						add_cash_price( 
-						$types = get_cash_price_types_id($types), 
-						$stock_id, 
-						$price,
-						$date_epic);
+								$cash_types = get_cash_price_types_id($types);
 
-						add_pricehistory($stock_id, $price, $Selected_id, 0, $types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
+								add_cash_price( 
+								$cash_types, 
+								$stock_id, 
+								$price,
+								$date_epic);
 
-
-						}
-						else if(get_lcp_price_types($types)==$types){
-						add_lcp_pricing(
-						$types = get_lcp_price_types_id($types),
-						$stock_id,
-						$price,
-						$date_epic);
-
-						add_pricehistory($stock_id, $price, $Selected_id, 0, 0, $types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
-						
-						}
-						elseif( get_system_cost_types($types)==$types && $supplier <> null){
-
-						$supplierdesc=get_supplier_desc($supplier);
-
-						add_System_cost_pricing(
-						$supplier = pr_get_supplier_id($supplier), 
-						$types = get_system_cost_types_id($types), 
-						$stock_id, 
-						$supplierdesc,
-						$price,
-						$date_epic);
-
-						add_pricehistory($stock_id, $price, $Selected_id, $supplier, 0, 0, $types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),$date_epic);
+								add_pricehistory($stock_id, $price, $Selected_id, 0, $cash_types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 
 
-						}
-						elseif( get_srp_types($types)==$types && $supplier <> null){
-
-						add_srp_pricing(
-						$supplier = pr_get_supplier_id($supplier), 
-						$types = get_srp_types_id($types), 
-						$stock_id, 
-						$price,
-						$date_epic);
-
-						add_pricehistory($stock_id, $price, $Selected_id, $supplier, 0, 0, 0, $types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
-
-
-												
-						}elseif( get_incentive_types($types)){
-							
-							add_incentives_pricing(
-							$types = get_incentive_types_id($types), 
-							$stock_id, 
-							$price);
-						
-						add_pricehistory($stock_id, $price, $Selected_id, 0, 0, 0, 0, 0, $types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
-
-
-
-						}else {
-							if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){
-
-								display_error("Line:$lines Stock ID: $stock_id Supplier is Empty");
-							
-							}else{
-								display_error("Line:$lines Stock ID: $stock_id Import Price List is Failed");
 							}
-						}
+							else if(get_lcp_price_types($types)==$types){
+
+								$lcp_types = get_lcp_price_types_id($types);
+
+								add_lcp_pricing(
+								$lcp_types,
+								$stock_id,
+								$price,
+								$date_epic);
+
+								add_pricehistory($stock_id, $price, $Selected_id, 0, 0, $lcp_types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
+								
+							}
+							elseif( get_system_cost_types($types)==$types && $supplier <> null){
+ 
+								$cost_types = get_system_cost_types_id($types);
+
+								add_System_cost_pricing(
+								$supplier_id, 
+								$cost_types, 
+								$stock_id, 
+								$supplierdesc,
+								$price,
+								$date_epic);
+
+								add_pricehistory($stock_id, $price, $Selected_id, $supplier_id, 0, 0, $cost_types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+
+							}
+							elseif( get_srp_types($types)==$types && $supplier <> null){
+
+
+								$srp_types = get_srp_types_id($types);
+
+								add_srp_pricing(
+								$supplier_id, 
+								$srp_types, 
+								$stock_id, 
+								$price,
+								$date_epic);
+
+								add_pricehistory($stock_id, $price, $Selected_id, $supplier_id, 0, 0, 0, $srp_types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+
+													
+							}elseif( get_incentive_types($types)){
+
+								$incentives_types = get_incentive_types_id($types);
+
+								add_incentives_pricing(
+								$incentives_types, 
+								$stock_id, 
+								$price);
+							
+								add_pricehistory($stock_id, $price, $Selected_id, 0, 0, 0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+
+
+							}else {
+								if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){
+
+									display_error("Line:$lines Stock ID: $stock_id Supplier is Empty");
+								
+								}else{
+									display_error("Line:$lines Stock ID: $stock_id Import Price List is Failed");
+								}
+							}
+
+
+
+						}else{
+							//Update Price
+							if ($add == 1){
+								$price_id = get_existing_price_id($types);
+								if( get_cash_types($types)==$types){
+
+									$cash_types = get_cash_price_types_id($types);
+
+									update_item_scashprice(
+									$price_id,
+									$cash_types, 
+									'PHP', 
+									$price,
+									$date_epic);
+
+									update_pricehistory($stock_id, 0, $cash_types, 0, 0, 0, 0, 'CSHPRCPLCY');
+									add_pricehistory($stock_id, $price, $Selected_id, 0, $cash_types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+								}else if(get_lcp_price_types($types)==$types){
+
+									$lcp_types = get_lcp_price_types_id($types);
+
+									update_item_price(
+									$price_id, 
+									$lcp_types, 
+									'PHP', 
+									$price, 
+									$date_epic);
+
+									update_pricehistory($stock_id, 0, 0, $lcp_types, 0, 0, 0, 'PRCPLCY');
+									add_pricehistory($stock_id, $price, $Selected_id, 0, 0, $lcp_types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
+									
+								}
+								elseif( get_system_cost_types($types)==$types && $supplier <> null){
+									
+									$cost_types = get_system_cost_types_id($types);
+
+									update_item_supplrcost(
+									$price_id,
+									$stock_id, 
+									$price,
+									'', 
+									1,
+									$supplierdesc,
+									$cost_types,
+									$date_epic);
+
+									update_pricehistory($stock_id, $supplier_id  , 0, 0, $cost_types, 0, 0,  'CSTPLCY');
+									add_pricehistory($stock_id, $price, $Selected_id, $supplier_id, 0, 0, $cost_types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+
+								}
+								elseif( get_srp_types($types)==$types && $supplier <> null){
+
+									$srp_types = get_srp_types_id($types);
+
+									update_item_stdcost(
+									$price_id, 
+									$srp_types, 
+									'PHP', 
+									$price, 
+									$supplier_id, 
+									$date_epic);
+
+									update_pricehistory($stock_id, $supplier_id, 0, 0, 0, $srp_types, 0, 'CSHPRCPLCY');
+									add_pricehistory($stock_id, $price, $Selected_id, $supplier_id, 0, 0, 0, $srp_types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
+													
+								}elseif( get_incentive_types($types)){
+
+									$incentives_types = get_incentive_types_id($types);
+
+									update_item_incentiveprice(
+									$price_id, 
+									$incentives_types, 
+									'PHP',
+									$price);
+
+								
+									update_pricehistory($stock_id, 0, 0, 0, 0, 0, $incentives_types, 'SMIPLCY');
+									add_pricehistory($stock_id, $price, $Selected_id, 0, 0, 0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
+		
+								}else {
+									if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){
+
+										display_error("Line:$lines Stock ID: $stock_id Supplier is Empty");
+									
+									}else{
+										display_error("Line:$lines Stock ID: $stock_id Update Price List is Failed");
+									}
+								}
+							}else {
+								display_error("Line:$lines Stock ID: $stock_id Update Price List is Failed");
+							}
+						}	
 					}
-                    $CI++;	
-                    display_notification("Line  $lines: Stock ID: $stock_id successfully imported");
-
-                  
-                    
-
-
+					
+                    $CI++;
+					if($add == 1)
+						display_notification("Line  $lines: Stock ID: $stock_id successfully updated");
+					else
+						display_notification("Line  $lines: Stock ID: $stock_id successfully imported");     
 
 				}			
 			@fclose($fp);
