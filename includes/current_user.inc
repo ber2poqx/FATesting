@@ -57,6 +57,12 @@ class current_user
 		$this->company = (int)$company;
 	}
 
+	//Added by spyrax10 12 Jul 2022
+	function user_postion() {
+		return get_user_role($this->user);
+	}
+	//
+
 	function login($company, $loginname, $password)
 	{
 		global $security_areas, $security_groups, $security_headings, $path_to_root, $dflt_lang, $SysPrefs;
