@@ -102,69 +102,94 @@ function check_pending($row)
 //Added by spyrax10
 function sales_return_replacement($row)
 {
-	return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Closed" || $row["status"] == "Close") || ($row["return_status"] == 0 || $row["return_status"] == 2)? '' : 
-	pager_link(
-			_("Sales Return"),
-			"/sales/sales_return_replacement_entry.php?NewSalesReturn=" . $row["trans_no"] . "&& Filter_type=" . $row["type"],
-			ICON_CREDIT
-	);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RETURN_REPLACEMENT')) {
+
+		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Closed" || $row["status"] == "Close") || ($row["return_status"] == 0 || $row["return_status"] == 2)? '' : 
+		pager_link(
+				_("Sales Return"),
+				"/sales/sales_return_replacement_entry.php?NewSalesReturn=" . $row["trans_no"] . "&& Filter_type=" . $row["type"],
+				ICON_CREDIT
+		);
+	}else{
+		return null;
+	}
 }
 function sales_return_approval($row)
 {
 	global $page_nested;
-	return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["return_status"] == 1 || $row["return_status"] == 2)  ? '' :  
-	pager_link(
-		'SR Approval',
-		"/sales/manage/approval_SI_OB.php?trans_no=" . $row["trans_no"],
-		ICON_DOC
-	);
+
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SR_APPROVAL')) {
+		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["return_status"] == 1 || $row["return_status"] == 2)  ? '' :  
+		pager_link(
+			'SR Approval',
+			"/sales/manage/approval_SI_OB.php?trans_no=" . $row["trans_no"],
+			ICON_DOC
+		);
+	}else{
+		return null;
+	}
 }
 
 function change_term_link($row)
 {
-
-	if ($row['invoice_type'] == 'new'){
-		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
-		|| $row['payment_type'] == "CASH"  ? '' : pager_link(
-			_("Change Term"),
-			"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
-			ICON_RECEIVE
-		);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
+		if ($row['invoice_type'] == 'new'){
+			return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
+			|| $row['payment_type'] == "CASH"  ? '' : pager_link(
+				_("Change Term"),
+				"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
+				ICON_RECEIVE
+			);
+		}else{
+			return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
+			|| $row['payment_type'] == "CASH"  ? '' : pager_link(
+				_("Change Term"),
+				"/sales/si_repo_install.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
+				ICON_RECEIVE
+			);
+		}
 	}else{
-		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
-		|| $row['payment_type'] == "CASH"  ? '' : pager_link(
-			_("Change Term"),
-			"/sales/si_repo_install.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
-			ICON_RECEIVE
-		);
-
+		return null;
 	}
 }
 //Added by Albert
 function sales_restructured_approval($row)
 {
 	global $page_nested;
-	return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
-		'Restructured Approval',
-		"/sales/manage/approval_restructured_ob.php?trans_no=" . $row["trans_no"],
-		ICON_DOC
-	);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RESTRUCTURED_APPROVAL')) {
+		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
+			'Restructured Approval',
+			"/sales/manage/approval_restructured_ob.php?trans_no=" . $row["trans_no"],
+			ICON_DOC
+		);
+	}else{
+		return null;
+	}
 }
 function restructured_link($row)
 {
-	if ($row['invoice_type'] == 'new'){
-		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
-			_("Restructured"),
-			"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"]. "&opening_balance=1",
-			ICON_RECEIVE
-		);
-	}else{
-		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
-			_("Restructured"),
-			"/sales/si_repo_install.php?NewRestructured=" . $row["trans_no"] . "&opening_balance=1",
-			ICON_RECEIVE
-		);
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_RESTRUCTURED')) {
 
+		if ($row['invoice_type'] == 'new'){
+			return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+				_("Restructured"),
+				"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"]. "&opening_balance=1",
+				ICON_RECEIVE
+			);
+		}else{
+			return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+				_("Restructured"),
+				"/sales/si_repo_install.php?NewRestructured=" . $row["trans_no"] . "&opening_balance=1",
+				ICON_RECEIVE
+			);
+
+		}
+	}else{
+		return null;
 	}
 }
 
