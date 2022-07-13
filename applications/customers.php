@@ -32,14 +32,23 @@ class customers_app extends application
 		// 	"sales/sales_invoice_cash.php?NewInvoice=0", 'SA_SALESINVOICE', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Sales Invoice Cash/Installment"),
 			"sales/sales_invoice_list.php?", 'SA_SALES_INVOICE_LIST', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 13 Jul 2022
 		$this->add_lapp_function(0, _("Sales Return Replacement"),
-			"sales/sales_return_replacement.php?type=new", 'SA_SALES_RETURN_REPLACEMENT', MENU_TRANSACTION);
+			"sales/sales_return_replacement.php?type=new", 'SA_SR_INQ', MENU_TRANSACTION
+		);
+		//
 		$this->add_lapp_function(0, _("Sales Invoice Opening Balances"),
 			"sales/sales_invoice_ob_list.php?", 'SA_SALES_INVOICE_OB', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 13 Jul 2022
 		$this->add_lapp_function(0, _("Sales Invoice Term Modification"),
-			"sales/sales_invoice_term_modification.php?", 'SA_SITERMMOD', MENU_TRANSACTION);
+			"sales/sales_invoice_term_modification.php?", 'SA_SITERM_INQ', MENU_TRANSACTION
+		);
 		$this->add_lapp_function(0, _("Sales Invoice Restructured"),//Added by Albert 12/08/2021
-			"sales/sales_invoice_restructured.php?", 'SA_RESTRUCTURED', MENU_TRANSACTION);
+			"sales/sales_invoice_restructured.php?", 'SA_SIRES_INQ', MENU_TRANSACTION
+		);
+		//
 		
 		//Modified by spyrax10 18 Jun 2022
 		$this->add_lapp_function(0, _("Sales Order Repossessed"),	//Added by Albert

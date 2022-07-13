@@ -11,7 +11,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
 $path_to_root = "..";
-$page_security = 'SA_SALES_RETURN_REPLACEMENT';
+$page_security = 'SA_SR_INQ'; //Modified by spyrax10 13 Jul 2022
 include($path_to_root . "/includes/db_pager.inc");
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");
@@ -103,7 +103,12 @@ function gl_view($row)
 // Added by Prog6 7/08/2021
 function print_DR_replacement($row)
 {
-    return pager_link(_("Print DR Replacement"), "/reports/Sales_replacement_delivery.php?trans_no=" . $row["trans_no"], ICON_PRINT);
+    $print_lnk = '';
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_SITERM')) {
+        $print_lnk = pager_link(_("Print DR Replacement"), "/reports/Sales_replacement_delivery.php?trans_no=" . $row["trans_no"], ICON_PRINT);
+    }
+
+    return $print_lnk;
 }
 
 function sales_return_replacement($row)

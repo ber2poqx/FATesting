@@ -200,9 +200,18 @@ $security_areas =array(
 	'SA_INSTLPOLICYLIST' => array(SS_SALES|12, _("List of Installment Policy")),	// Added by Ronelle
 	'SA_SALES_INVOICE_LIST' => array(SS_SALES|13, _("List of Sales Invoices")),	// Added by Ronelle
 	'SA_SALES_ORDER_UPDATE_STATUS' => array(SS_SALES|14, _("Approval Sales Order")),	// Added by Ronelle
+	//Added by spyrax10 13 Jul 2022
+	'SA_SO_CANCEL' => array(SS_SALES|36, _("Sales Order Cancellation")), 
+	//
 	'SA_SALES_INVOICE_OB' => array(SS_SALES|15, _("Sales Invoice for Opening Balances")),	// Added by Ronelle
 
+	//Added by spyrax10 13 Jul 2022
+	'SA_SR_INQ' => array(SS_SALES|37, _("Sales Return Replacement Inquiry List")), 
+	//
 	'SA_SALES_RETURN_REPLACEMENT' => array(SS_SALES|16, _("Sales Return Replacement")),	// Added by Ronelle
+	//Added by spyrax10 13 Jul 2022
+	'SA_SITERM_INQ' => array(SS_SALES|38, _("Sales Invoice Term Modification Inquiry List")), 
+	//
 	'SA_SITERMMOD' => array(SS_SALES|17, _("Sales Invoice Term Modification")),	// Added by Ronelle
 	'SA_SALESINVOICEREPO' => array(SS_SALES|18, _("Sales Invoice Repossessed")),	// Added by Ronelle
 	
@@ -220,11 +229,15 @@ $security_areas =array(
 	'SA_SR_APPROVAL' => array(SS_SALES|28, _("Sales Return Approval")),
 	'SA_SALES_RESTRUCTURED_APPROVAL' => array(SS_SALES|29, _("Sales Restructured Approval")),
 	'SA_SI_UPDATE' => array(SS_SALES|30, _("Update Sales Invoice Transactions")),
+	//Added by spyrax10 13 Jul 2022
+	'SA_SIRES_INQ' => array(SS_SALES|40, _("Sales Invoice Restructured Inquiry List")), 
+	//
 	'SA_RESTRUCTURED' => array(SS_SALES|31, _("Sales Invoice Restructured")),
 	'SA_SO_REPO_VIEW' => array(SS_SALES|32, _("Sales Order Repossessed View")),
 	'SA_SO_QUOTE_VIEW' => array(SS_SALES|33, _("Sales Quotation Inquiry")),
 	'SA_PRINT_SO' => array(SS_SALES|34, _("Print Sales Order")),
 	'SA_PRINT_SI' => array(SS_SALES|35, _("Print Sales Invoice")),
+	'SA_PRINT_DR' => array(SS_SALES|39, _("Print DR Replacement")),
 	//
 
 	'SA_SALES_REPORT' => array(SS_SALES_A|8, _("Customer and Sales Report")),

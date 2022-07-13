@@ -11,7 +11,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
 $path_to_root = "..";
-$page_security = 'SA_SITERMMOD';
+$page_security = 'SA_SITERM_INQ'; //Modified by spyrax10 13 Jul 2022
 include($path_to_root . "/includes/db_pager.inc");
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");
