@@ -4,7 +4,7 @@
  * Created by: spyrax10
  */
 
-$page_security = 'SA_INVTY_REP';
+$page_security = 'SA_INVTY_INQ';
 $path_to_root = "../..";
 
 include_once($path_to_root . "/includes/db_pager.inc");

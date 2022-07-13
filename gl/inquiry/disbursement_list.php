@@ -173,11 +173,13 @@ submit_cells('btn_search', _("Search"),'',_('Search documents'), 'default');
 end_row();
 end_table();
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("Enter New Disbursement Entry"), "../gl_bank.php?NewPayment=Yes", "SA_PAYMENT");
-end_row();
-end_table();
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PAYMENT')) {
+    start_table(TABLESTYLE_NOBORDER);
+    start_row();
+    ahref_cell(_("Enter New Disbursement Entry"), "../gl_bank.php?NewPayment=Yes", "SA_PAYMENT");
+    end_row();
+    end_table();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

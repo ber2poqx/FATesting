@@ -37,7 +37,12 @@ function trans_num($row) {
 }
 
 function remit_ref($row) {
-    return get_trans_view_str(ST_REMITTANCE, $row["remit_num"], $row['remit_ref'], false, '', '', false, $row['remit_ref']);
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_REMIT_VIEW')) {
+        return get_trans_view_str(ST_REMITTANCE, $row["remit_num"], $row['remit_ref'], false, '', '', false, $row['remit_ref']);
+    }
+    else {
+        return null;
+    }
 }
 
 function ref_date($row) {
@@ -53,12 +58,17 @@ function remit_to($row) {
 }
 
 function remit_stat($row) {
-    return $row['remit_stat'] == "Draft"
-        && $row['remit_to'] == $_SESSION["wa_current_user"]->user ? pager_link($row['remit_stat'],
-        "/gl/manage/remit_draft.php?trans_no=" . $row['remit_num'] . 
-        "&reference=" . $row['remit_ref'] .
-        "&status=0", false
-    ) : $row['remit_stat'];
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_REMIT')) {
+        return $row['remit_stat'] == "Draft"
+            && $row['remit_to'] == $_SESSION["wa_current_user"]->user ? pager_link($row['remit_stat'],
+            "/gl/manage/remit_draft.php?trans_no=" . $row['remit_num'] . 
+            "&reference=" . $row['remit_ref'] .
+            "&status=0", false
+        ) : $row['remit_stat'];
+    }
+    else {
+        return $row['remit_stat'];
+    }
 }
 
 function amount_total($row) {
@@ -66,8 +76,15 @@ function amount_total($row) {
 } 
 
 function gl_view($row) {
-	return $row['remit_stat'] == 'Approved' ? 
-        get_gl_view_str(ST_REMITTANCE, $row["remit_num"], '', false, '', '', 1) : null;
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_GLTRANSVIEW')) {
+        return $row['remit_stat'] == 'Approved' ? 
+            get_gl_view_str(ST_REMITTANCE, $row["remit_num"], '', false, '', '', 1) 
+        : null;
+    }
+    else {
+        return null;
+    }
+	
 }
 
 //---------------------------------------------------------------
@@ -99,11 +116,13 @@ submit_cells('btn_search', _("Search"),'',_('Search documents'), 'default');
 end_row();
 end_table();
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("Enter New Remittance Entry"), "../remit_entry.php", "SA_REMIT");
-end_row();
-end_table();
+if ($_SESSION["wa_current_user"]->can_access_page('SA_REMIT')) {
+    start_table(TABLESTYLE_NOBORDER);
+    start_row();
+    ahref_cell(_("Enter New Remittance Entry"), "../remit_entry.php", "SA_REMIT");
+    end_row();
+    end_table();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

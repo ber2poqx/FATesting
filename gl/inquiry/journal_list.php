@@ -190,11 +190,13 @@ submit_cells('btn_search', _("Search"),'',_('Search documents'), 'default');
 end_row();
 end_table();
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("Enter New Journal Entry"), "../gl_journal.php?NewJournal=Yes", "ST_JOURNAL");
-end_row();
-end_table();
+if ($_SESSION["wa_current_user"]->can_access_page('SA_JOURNALENTRY')) {
+    start_table(TABLESTYLE_NOBORDER);
+    start_row();
+    ahref_cell(_("Enter New Journal Entry"), "../gl_journal.php?NewJournal=Yes", "SA_JOURNALENTRY");
+    end_row();
+    end_table();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

@@ -164,11 +164,13 @@ submit_cells('btn_search', _("Search"),'',_('Search documents'), 'default');
 end_row();
 end_table();
 
-start_table(TABLESTYLE_NOBORDER);
-start_row();
-ahref_cell(_("Enter New Receipts Entry"), "../gl_bank.php?NewDeposit=Yes", "ST_BANKDEPOSIT");
-end_row();
-end_table();
+if ($_SESSION["wa_current_user"]->can_access_page('SA_DEPOSIT')) {
+    start_table(TABLESTYLE_NOBORDER);
+    start_row();
+    ahref_cell(_("Enter New Receipts Entry"), "../gl_bank.php?NewDeposit=Yes", "SA_DEPOSIT");
+    end_row();
+    end_table();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
