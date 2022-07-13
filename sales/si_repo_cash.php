@@ -18,7 +18,7 @@
 //	Entry Direct Invoice
 //
 $path_to_root = "..";
-$page_security = 'SA_SALESORDER';
+$page_security = 'SA_SALESINVOICEREPO'; //Modified by spyrax10 13 Jul 2022
 
 include_once($path_to_root . "/sales/includes/cart_class.inc");
 include_once($path_to_root . "/includes/session.inc");

@@ -213,6 +213,9 @@ $security_areas =array(
 	'SA_SITERM_INQ' => array(SS_SALES|38, _("Sales Invoice Term Modification Inquiry List")), 
 	//
 	'SA_SITERMMOD' => array(SS_SALES|17, _("Sales Invoice Term Modification")),	// Added by Ronelle
+	//Added by spyrax10 13 Jul 2022
+	'SA_SIREPO_INQ' => array(SS_SALES|41, _("Sales Invoice Repossessed Inquiry List")), 
+	//
 	'SA_SALESINVOICEREPO' => array(SS_SALES|18, _("Sales Invoice Repossessed")),	// Added by Ronelle
 	
 	'SA_CUSTOMERSIMPORTS' => array(SS_SALES|19, _("Customer Import CSV")), // Added by Robert
