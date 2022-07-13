@@ -124,21 +124,31 @@ function check_pending($row)
 
 function sales_return_replacement($row)
 {
-	/*modified by Albert 10/12/2021*/
-	return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Closed" || $row["status"] == "Close") || ($row["return_status"] == 0 || $row["return_status"] == 2)? '' : pager_link(
-			_("Sales Return"),
-			"/sales/sales_return_replacement_entry.php?NewSalesReturn=" . $row["trans_no"] . "&& Filter_type=" . $row["type"],
-			ICON_CREDIT
-		);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RETURN_REPLACEMENT')) {
+		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Closed" || $row["status"] == "Close") || ($row["return_status"] == 0 || $row["return_status"] == 2)? '' : pager_link(
+				_("Sales Return"),
+				"/sales/sales_return_replacement_entry.php?NewSalesReturn=" . $row["trans_no"] . "&& Filter_type=" . $row["type"],
+				ICON_CREDIT
+			);
+	}else{
+		return null;
+	}
 }
 function sales_return_approval($row)
 {
 	global $page_nested;
-	return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["return_status"] == 1 || $row["return_status"] == 2)  ? '' :  pager_link(
-		'SR Approval',
-		"/sales/sales_return_approval.php?SONumber=" . $row["order_"],
-		ICON_DOC
-	);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SR_APPROVAL')) {
+		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["return_status"] == 1 || $row["return_status"] == 2)  ? '' :  pager_link(
+			'SR Approval',
+			"/sales/sales_return_approval.php?SONumber=" . $row["order_"],
+			ICON_DOC
+		);
+	}else{
+		return null; 
+	}
+	
 }
 //Added by spyrax10
 function get_1stpay_stat($row)
@@ -197,31 +207,46 @@ function print_sales_invoice_receipt($row)
 
 function change_term_link($row)
 {
-
-	return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" ? '' : pager_link(
-		_("Change Term"),
-		"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"],
-		ICON_RECEIVE
-	);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
+		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" ? '' : pager_link(
+			_("Change Term"),
+			"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"],
+			ICON_RECEIVE
+		);
+	}else{
+		return NULL;
+	}
 }
 //Added by Albert
 function restructured_link($row)
 {
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_RESTRUCTURED')) {
 
-	return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
-		_("Restructured"),
-		"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"],
-		ICON_RECEIVE
-	);
+		return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+			_("Restructured"),
+			"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"],
+			ICON_RECEIVE
+		);
+	}else{
+		return NULL;
+	}
 }
 function sales_restructured_approval($row)
 {
 	global $page_nested;
-	return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
-		'Restructured Approval',
-		"/sales/sales_invoice_restructured_approval.php?SONumber=" . $row["order_"],
-		ICON_DOC
-	);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RESTRUCTURED_APPROVAL')) {
+
+		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
+			'Restructured Approval',
+			"/sales/sales_invoice_restructured_approval.php?SONumber=" . $row["order_"],
+			ICON_DOC
+		);
+	}else{
+		return NULL;
+	}
 }
 
 
@@ -239,8 +264,16 @@ function edit_link($row)
 {
 	global $page_nested;
 
-	return $page_nested || $row['status'] != "Pending" ? '' :
-		trans_editor_link(ST_SALESINVOICE, $row['trans_no']);
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SI_UPDATE')) {
+
+		return $page_nested || $row['status'] != "Pending" ? '' :
+			trans_editor_link(ST_SALESINVOICE, $row['trans_no']);
+
+	}else{
+
+	    return null;
+	}
 }
 //figure out the sql required from the inputs available
 $sql = get_sales_invoices($_POST['search_val'], $_POST['customer_id'],$_POST['category_id'],$_POST['payment_terms']); //Added by spyrax10
