@@ -11,7 +11,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
 $path_to_root = "..";
-$page_security = 'SA_PURCHASEREQUEST';
+$page_security = 'SA_PR_INQ'; //Modified by spyrax10 13 Jul 2022
 include_once($path_to_root . "/purchasing/includes/pr_class.inc");
 include($path_to_root . "/includes/db_pager.inc");
 include_once($path_to_root . "/includes/session.inc");
@@ -68,7 +68,11 @@ start_form();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
-ahref(_("New Purchase Request"), "pr_entry_items.php?NewRequest=Yes");
+
+if ($_SESSION["wa_current_user"]->can_access_page('SA_PURCHASEREQUEST')) {
+	ahref(_("New Purchase Request"), "pr_entry_items.php?NewRequest=Yes");
+}
+
 ref_cells(_("PR#:"), 'pr_number', '', null, '', true);
 submit_cells('SearchRequest', _("Search"), '', _('Select documents'), 'default');
 end_row();
@@ -95,7 +99,9 @@ function update_status_link($row)
 {
 	global $page_nested;
 
-	return $page_nested ||
+	//Modified by spyrax10 13 Jul 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_DRAFTPRUPDATESTATUS')) {
+		return $page_nested ||
 		$row['Status'] == "Open" ||
 		$row['Status'] == "Closed" ||
 		$row['Status'] == "Partially Ordered" ||
@@ -105,6 +111,12 @@ function update_status_link($row)
 			"/purchasing/pr_update_status.php?PRNumber=" . $row["reference"],
 			false
 		);
+	}
+	else {
+		return $row['Status'];
+	}
+	//
+	
 }
 
 function order_link($row)
@@ -122,11 +134,18 @@ function order_link($row)
 
 function close_link($row)
 {
-	return ($row['Status'] == "Open" || $row['Status'] == "Partially Ordered") ?  pager_link(
-		_("Close PR"),
-		"/purchasing/purchase_request.php?delete_pr=" . $row["pr_no"],
-		ICON_DELETE
-	) : '';
+	//Modified by spyrax10 13 Jul 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PR_CLOSE')) {
+		return ($row['Status'] == "Open" || $row['Status'] == "Partially Ordered") ?  pager_link(
+			_("Close PR"),
+			"/purchasing/purchase_request.php?delete_pr=" . $row["pr_no"],
+			ICON_DELETE
+		) : '';
+	}
+	else {
+		return null;
+	}
+	//
 }
 
 function check_overdue($row)

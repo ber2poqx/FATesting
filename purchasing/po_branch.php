@@ -61,39 +61,61 @@ function edit_link($row)
 
 function prt_link($row)
 {
-    return $row['Status'] == "Draft" || $row['Status'] == "Disapproved" || $row['Status'] == "Approved" ? '' :
-        print_document_link($row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT);
+    //Modified by spyrax10 13 Jul 2022
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_PO_PRINT')) {
+        return $row['Status'] == "Draft" || $row['Status'] == "Disapproved" || $row['Status'] == "Approved" ? '' :
+            print_document_link($row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT
+        );
+    }
+    else {
+        return null;
+    }
+    
 }
 
 function post_po($row)
 {
     global $page_nested;
 
-    return $page_nested ? '' : ($row['Status'] == "Approved" ? pager_link(
-        _("Draft to PO"),
-        "/purchasing/draft_to_po.php?PONumber=" . $row["reference"]
-            . "&branch_coy=" . $_POST['selected_po_branch'],
-        ICON_RECEIVE
-    ) : '');
+    //Modified by spyrax10 13 Jul 2022
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_PURCHASEORDER')) {
+        return $page_nested ? '' : ($row['Status'] == "Approved" ? pager_link(
+            _("Draft to PO"),
+            "/purchasing/draft_to_po.php?PONumber=" . $row["reference"]
+                . "&branch_coy=" . $_POST['selected_po_branch'],
+            ICON_RECEIVE
+        ) : '');
+    }
+    else {
+        return null;
+    }
+    //
 }
 //Added by Albert 07/02/2022
 function close_po($row)
 {
     global $page_nested;
 
-    return $page_nested ? '' : ($row['Status'] == "Open" || $row['Status'] == "Partially Received" ? pager_link(
-        _("Close PO"),
-        "/purchasing/po_close_status.php?PONumber=" . $row["reference"]
-            . "&branch_coy=" . $_POST['selected_po_branch'],
-        ICON_CANCEL
-    ) : '');
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_POCLOSESTATUS')) {
+        return $page_nested ? '' : ($row['Status'] == "Open" || $row['Status'] == "Partially Received" ? pager_link(
+            _("Close PO"),
+            "/purchasing/po_close_status.php?PONumber=" . $row["reference"]
+                . "&branch_coy=" . $_POST['selected_po_branch'],
+            ICON_CANCEL
+        ) : '');
+    }
+    else {
+        return null;
+    }
 }
 
 function update_status_link($row)
 {
     global $page_nested;
 
-    return $page_nested ||
+    //Modified by spyrax10 13 Jul 2022
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_DRAFTTOPO')) {
+        return $page_nested ||
         $row['Status'] == "Open" ||
         $row['Status'] == "Approved" ||
         $row['Status'] == "Partially Received" ||
@@ -105,6 +127,12 @@ function update_status_link($row)
                 . "&branch_coy=" . $_POST['selected_po_branch'],
             false
         );
+    }
+    else {
+        return $row['Status'];
+    }
+    //
+   
 }
 
 function change_status($row)

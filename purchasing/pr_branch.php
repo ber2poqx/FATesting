@@ -562,18 +562,27 @@ function order_link($row)
 
 function copy_to_po($row)
 {
-	$id = $row["pr_no"];
-	$value = $row["reference"];
-	return ($row['Status'] == "Expired" ||
-		$row['Status'] == "Closed" ||
-		$row['Status'] == "Canceled" ||
-		$row['Status'] == "Draft" ||
-		$row['Status'] == "Disapproved") ? '' : copy_pr_button_cell(
-		"CopyToPO$id",
-		$value,
-		"Copy to PO",
-		ICON_RECEIVE, '', get_post('selected_pr_branch')
-	);
+	//Modified by spyrax10 13 Jul 2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PURCHASEORDER')) {
+		$id = $row["pr_no"];
+		$value = $row["reference"];
+	
+		return ($row['Status'] == "Expired" ||
+			$row['Status'] == "Closed" ||
+			$row['Status'] == "Canceled" ||
+			$row['Status'] == "Draft" ||
+			$row['Status'] == "Disapproved") ? '' : copy_pr_button_cell(
+			"CopyToPO$id",
+			$value,
+			"Copy to PO",
+			ICON_RECEIVE, '', get_post('selected_pr_branch')
+		);
+	}
+	else {
+		return null;
+	}
+	//
+	
 }
 
 function close_link($row)

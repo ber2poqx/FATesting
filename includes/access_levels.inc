@@ -285,6 +285,9 @@ $security_areas =array(
     
 	// Added by Ronelle PR MODULE
 	'SA_PURCHASEREQUEST' => array(SS_PURCH|12, _("Purchase Request")),
+	//Added by spyrax10 13 Jul 2022
+	'SA_PR_INQ' => array(SS_PURCH|22, _("Purchase Request Inquiry List")),
+	//
 	'SA_PRTPO' => array(SS_PURCH|13, _("Purchase Request to Order")),
 	'SA_RECEIVECONSIGN' => array(SS_PURCH|14, _("Receive Consignment")),
 	'SA_RCONPO' => array(SS_PURCH|16, _("Receive Consignment to PO")),
@@ -296,6 +299,8 @@ $security_areas =array(
 	'SA_DRAFTPOUPDATESTATUS' => array(SS_PURCH|15, _("Approval for Draft PO Status")),
 	'SA_DRAFTPRUPDATESTATUS' => array(SS_PURCH|20, _("Approval for Draft PR Status")),
 	'SA_POCLOSESTATUS' => array(SS_PURCH|21, _("Cancel Purchased Order")),//Added by Albert 07/02/2022
+	'SA_PR_CLOSE' => array(SS_PURCH|23, _("Close Purchase Request")),
+	'SA_PO_PRINT' => array(SS_PURCH|24, _("Print Purchase Order")),
 	//
 	
 	//Added by spyrax10 18 Jun 2022
