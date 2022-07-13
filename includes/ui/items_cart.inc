@@ -550,7 +550,7 @@ class items_cart
 					$gl->comp_id != $coy ? 1 : 0,
 					false
 				);
-													//REBATE
+				
 			if ($this->ar_alloc == 1) {
 
 				if (!gl_account_exists($this->trans_type, $this->order_id, getCompDet('dgp_account')) || 
