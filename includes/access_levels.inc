@@ -241,6 +241,8 @@ $security_areas =array(
 	'SA_PRINT_SO' => array(SS_SALES|34, _("Print Sales Order")),
 	'SA_PRINT_SI' => array(SS_SALES|35, _("Print Sales Invoice")),
 	'SA_PRINT_DR' => array(SS_SALES|39, _("Print DR Replacement")),
+	//Added by spyrax10 13 Jul 2022
+	'SA_CUST_LIST' => array(SS_SALES|42, _("Customer List")), 
 	//
 
 	'SA_SALES_REPORT' => array(SS_SALES_A|8, _("Customer and Sales Report")),

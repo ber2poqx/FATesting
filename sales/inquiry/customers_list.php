@@ -14,7 +14,7 @@
   in pages that have the supplier dropdown lists.
   Author: bogeyman2007 from Discussion Forum. Modified by Joe Hunt
 ***********************************************************************/
-$page_security = "SA_SALESORDER";
+$page_security = "SA_CUST_LIST"; //Modified by spyrax10 13 Jul 2022
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/ui.inc");
