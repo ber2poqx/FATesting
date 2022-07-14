@@ -515,7 +515,10 @@
 										0,
 										($deferred_gross_profit) *1,
 										$debtor_no,
-										"The total debtor GL posting could not be inserted"
+										"The total debtor GL posting could not be inserted",
+										0,
+										$hoc_code,
+										$hoc_masterfile
 									);
 							
 									add_gl_trans_customer(
@@ -527,10 +530,7 @@
 										0,
 										(-$deferred_gross_profit) *1,
 										$debtor_no,
-										"The total debtor GL posting could not be inserted",
-										0,
-										$hoc_code,
-										$hoc_masterfile
+										"The total debtor GL posting could not be inserted"
 
 									);
 
