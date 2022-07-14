@@ -113,7 +113,7 @@ while ($adjustment = db_fetch($adjustment_items)) {
 
 	if (is_invty_open_bal('', $adjustment['reference'])) {
 		label_cell($count . ".)", "nowrap align='left'");
-		label_cell(phil_short_date($adjustment['tran_date']));
+		label_cell(phil_short_date($adjustment['tran_date']), "nowrap align='center'; style='color: blue'");
 	}
 	else {
 		label_cell($count . ".)", "nowrap align='left'");
