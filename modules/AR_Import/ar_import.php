@@ -73,8 +73,7 @@
 					if ($lines++ == 0) continue;
 				    list(
 						$old_trans_no, 
-						$debtor_no, 
-						$orig_branch_code, 
+						$debtor_no,
 						$tran_date,
 						$ref_no,
 						$first_due_date,
@@ -143,9 +142,9 @@
 						
 						display_error("Line $lines: Customer # is empty!... Old Transaction No: $old_trans_no is not Added");
 					
-					}else if ($orig_branch_code == "") { // Customer # can't be empty!
+					// }else if ($orig_branch_code == "") { // Customer # can't be empty!
 						
-						display_error("Line $lines: Customer # is empty!... Old Transaction No: $old_trans_no is not Added");
+					// 	display_error("Line $lines: Customer # is empty!... Old Transaction No: $old_trans_no is not Added");
 
 					}else if ($ref_no == "") { // Reference # can't be empty!
 						
@@ -218,27 +217,27 @@
 
 					}else if(is_numeric($d_amount) == null ){
 						
-						display_error("Line $lines: Standard cost is not numeric: $d_amount Old Transaction No: $old_trans_no is not Added");
+						display_error("Line $lines: Downpayment is not numeric: $d_amount Old Transaction No: $old_trans_no is not Added");
 
 					}else if(is_numeric($ov_amount) == null ){
 						
-						display_error("Line $lines: Standard cost is not numeric: $ov_amount Old Transaction No: $old_trans_no is not Added");
+						display_error("Line $lines: Gross Amount/ AR Amount is not numeric: $ov_amount Old Transaction No: $old_trans_no is not Added");
 		
 					}else if(is_numeric($total_amount_paid) == null ){
 						
-						display_error("Line $lines: Standard cost is not numeric: $total_amount_paid Old Transaction No: $old_trans_no is not Added");
+						display_error("Line $lines: Total Amount paid is not numeric: $total_amount_paid Old Transaction No: $old_trans_no is not Added");
 
 					}else if(is_numeric($unit_price) == null ){
 						
-						display_error("Line $lines: Standard cost is not numeric: $unit_price Old Transaction No: $old_trans_no is not Added");
+						display_error("Line $lines: Unit Price is not numeric: $unit_price Old Transaction No: $old_trans_no is not Added");
 
 					}else if(is_numeric($deferred_gross_profit) == null ){
 						
-						display_error("Line $lines: Standard cost is not numeric: $deferred_gross_profit Old Transaction No: $old_trans_no is not Added");
+						display_error("Line $lines: Deffered Gross is not numeric: $deferred_gross_profit Old Transaction No: $old_trans_no is not Added");
 
 					}else if(is_numeric($amortization_amount) == null ){
 						
-						display_error("Line $lines: Standard cost is not numeric: $amortization_amount Old Transaction No: $old_trans_no is not Added");
+						display_error("Line $lines: Amortization Amount is not numeric: $amortization_amount Old Transaction No: $old_trans_no is not Added");
 
 
 					}else if($amort != $amortization_amount){
@@ -399,7 +398,7 @@
 									$debtor_no, 
 									$ref_num, 
 									$tran_date, 
-									$orig_branch_code,
+									$cust_branch['default_location'],
 									$installmentplcy_id,
 									$months_term, 
 									$rebate, 
@@ -440,11 +439,40 @@
 									$hoc_code = get_company_value(0, 'branch_code');
 									$hoc_masterfile = get_company_value(0, 'name');
 
+									$company_data = get_company_prefs();
+									$branch_data = get_branch_accounts($debtor_no);
+									if ($months_term <= 3){
+										add_gl_trans_customer(
+											$type,
+											$trans_no,
+											$date_,
+											$company_data["ar_reg_current_account"],
+											0,
+											0,
+											$ov_amount,
+											$debtor_no,
+											"The sales price GL posting could not be inserted"
+										);
+	
+										add_gl_trans_customer(
+											$type,
+											$trans_no,
+											$date_,
+											$company_data["ar_reg_current_account"],
+											0,
+											0,
+											-1 * $total_amount_paid,
+											$debtor_no,
+											"The sales price GL posting could not be inserted"
+										);	
+
+
+									}else{
 									add_gl_trans_customer(
 										$type,
 										$trans_no,
 										$date_,
-										$account_no =get_customer_receivables_account($debtor_no),
+										$branch_data["receivables_account"],
 										0,
 										0,
 										$ov_amount,
@@ -456,19 +484,19 @@
 										$type,
 										$trans_no,
 										$date_,
-										$account_no =get_customer_receivables_account($debtor_no),
+										$branch_data["receivables_account"],
 										0,
 										0,
 										-1 * $total_amount_paid,
 										$debtor_no,
 										"The sales price GL posting could not be inserted"
 									);	
-									
+									}
 									add_gl_trans_customer(
 										$type,
 										$trans_no,
 										$date_,
-										$account_no =get_customer_sales_account(),
+										$company_data["default_sales_act"],
 										0,
 										0,
 										-1 * abs($oustanding_balance),
@@ -482,10 +510,10 @@
 										$type,
 										$trans_no,
 										$date_,
-										$account_no =get_account_code(),
+										$company_data["default_sales_act"],
 										0,
 										0,
-										(-$deferred_gross_profit) *1,
+										($deferred_gross_profit) *1,
 										$debtor_no,
 										"The total debtor GL posting could not be inserted"
 									);
@@ -494,10 +522,10 @@
 										$type,
 										$trans_no,
 										$date_,
-										$account_no =get_customer_sales_account(),
+										$company_data["dgp_account"],
 										0,
 										0,
-										($deferred_gross_profit) *1,
+										(-$deferred_gross_profit) *1,
 										$debtor_no,
 										"The total debtor GL posting could not be inserted",
 										0,

@@ -328,34 +328,7 @@ function get_customer_code($debtor_no)
    return $row[0];
 
 }
-function get_customer_receivables_account($debtor_no)
-{
-	set_global_connection();
 
-   $sql = " SELECT 
-   				receivables_account 
-			FROM ".TB_PREF."cust_branch
-		    WHERE debtor_no = ".db_escape($debtor_no);
-
-   $result = db_query($sql, "check receivables_account Code failed");
-   $row = db_fetch_row( $result);
-
-   return $row[0];
-}
-function get_customer_sales_account()
-{
-	set_global_connection();
-
-	$sql = "SELECT 
-				account_code 
-			FROM ".TB_PREF."chart_master
-			where account_code=2151";
-
-   $result = db_query($sql, "check sales_account Code failed");
-   $row = db_fetch_row( $result);
-
-   return $row[0];
-}
 function get_category_id($stock_id)
 {
 	set_global_connection();
@@ -368,20 +341,6 @@ function get_category_id($stock_id)
 	$row = db_fetch_row( $result);
 
 	return $row[0];
-}
-function get_account_code()
-{
-	set_global_connection();
-	$sql = "SELECT 
-				account_code 
-			FROM ".TB_PREF."chart_master
-			where account_code=2105";
-
-	$result = db_query($sql, "check sales_account Code failed");
-	$row = db_fetch_row( $result);
- 
-	return $row[0];
-
 }
 
 function get_installment_policy($plcy_code)
