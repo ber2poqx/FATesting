@@ -156,7 +156,8 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		$invoice->profit_margin,
 		$invoice->document_ref,//Added by spyrax10
 		0,
-		$invoice->discount_dp_amount2 //Added by Albert
+		$invoice->discount_dp_amount2,
+		$invoice->ar_amount //Added by Albert 06/30/2022
 	);
 
 	if ($invoice->payment_policy != 0 && ST_SALESINVOICEREPO) {

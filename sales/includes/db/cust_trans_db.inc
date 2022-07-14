@@ -581,7 +581,7 @@ function add_debtor_loans(
 	$document_ref = "",//Added by spyrax10
 	$old_trans_no = 0,
 	$discount_dp_amount2, //Added by Albert
-	$financing_gross	//Added by Albert
+	$financing_gross = 0	//Added by Albert
 ) {
 	// $outstanding_ar_amount = $ar_amount - $downpayment_amount; //comment by albert
 	if ($installmentplcy_id == 0) {
