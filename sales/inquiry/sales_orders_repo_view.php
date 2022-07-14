@@ -99,7 +99,11 @@ function view_link($dummy, $order_no)
 function prt_link($row)
 {
 	global $trans_type;
-	return print_document_link($row['order_no'], _("Print"), true, $trans_type, ICON_PRINT);
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_SO')) {
+		return print_document_link($row['order_no'], _("Print"), true, $trans_type, ICON_PRINT);
+	}else {
+		return null;
+	}
 }
 
 function edit_link($row) 
@@ -116,22 +120,37 @@ function edit_link2($row)
 {
 	global $page_nested;
 
-	if (is_prepaid_order_open($row['order_no']))
-		return '';
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESORDER')) {
+		if (is_prepaid_order_open($row['order_no'])) {
+			$edit_link = '';
+		}
+		else {
+			$edit_link = 
+				$page_nested 
+				|| $row['status'] == "Closed" 
+				|| $row['status'] == "Cancelled" ? '' 
+				: trans_editor_link2_repo($row['trans_type'], $row['order_no'], $row['payment_type']);
+		}
+	}else {
+		$edit_link = '';
+	}
 
-	return $page_nested || $row['status'] == "Closed" ? '' : 
-		trans_editor_link2_repo($row['trans_type'], $row['order_no'], $row['payment_type']);
+	return $edit_link;
 }
 //Added by Albert 10/25/2021
 function account_specialist_approval_link($row)
 {
 	global $page_nested;
-
-	return ($row["status"] == "Draft" || $row["status"] == "Approved") &&  $row["payment_type"] <> "CASH" ? pager_link(
-		'Approval',
-		"/sales/sales_order_approval_account_specialist.php?SONumber=" . $row["order_no"],
-		ICON_DOC
-	) :'';
+	//modified by Albert 07/13/2022
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_ORDER_APPROVAL')) {
+		return ($row["status"] == "Draft" || $row["status"] == "Approved") &&  $row["payment_type"] <> "CASH" ? pager_link(
+			'Approval',
+			"/sales/sales_order_approval_account_specialist.php?SONumber=" . $row["order_no"],
+			ICON_DOC
+		) :'';
+	}else{
+		return NULL;
+	}
 }
 
 function dispatch_link($row)
@@ -139,7 +158,7 @@ function dispatch_link($row)
 	global $trans_type, $page_nested;
 
 	if ($row['ord_payments'] + $row['inv_payments'] < $row['prep_amount'])
- 		return '';
+		return '';
 
 	if ($trans_type == ST_SALESORDER)
 	{
@@ -154,7 +173,7 @@ function dispatch_link($row)
 			return '';
 	}		
 	else
-  		return pager_link( _("Sales Order"),
+		return pager_link( _("Sales Order"),
 			"/sales/sales_order_entry.php?OrderNumber=" .$row['order_no'], ICON_DOC);
 }
 
@@ -162,18 +181,18 @@ function invoice_link($row)
 {
 	global $trans_type;
 	$path =  $row["payment_type"] == "CASH" ? 'sales_invoice_cash' : 'sales_order_entry';
-	if ($trans_type == ST_SALESORDER &&  $row["invoice_type"] == "new")
-  		return $row["status"] == "Approved" ? pager_link( _("Invoice"),
-		  $row["payment_type"] == "CASH" ? "/sales/sales_invoice_cash.php?NewInvoice=" .$row["order_no"] 
-		  : "/sales/sales_order_entry.php?NewInvoice=" .$row["order_no"], ICON_DOC) : '';
-	else if ($trans_type == ST_SALESORDER &&  $row["invoice_type"]== "repo")
-		// albert invoive repo
-		return $row["status"] == "Approved" && $row["invoice_type"]== "repo"? pager_link( _("Invoice Repo"),
-		$row["payment_type"] == "CASH" ? "/sales/si_repo_cash.php?NewInvoiceRepo=" .$row["order_no"] 
-		: "/sales/si_repo_install.php?NewInvoiceRepo=" .$row["order_no"], ICON_DOC) : '';
 	
-	else
-		return '';
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESINVOICEREPO')) {
+		if ($trans_type == ST_SALESORDER &&  $row["invoice_type"]== "repo")
+			// albert invoive repo
+			return $row["status"] == "Approved" && $row["invoice_type"]== "repo"? pager_link( _("Invoice Repo"),
+			$row["payment_type"] == "CASH" ? "/sales/si_repo_cash.php?NewInvoiceRepo=" .$row["order_no"] 
+			: "/sales/si_repo_install.php?NewInvoiceRepo=" .$row["order_no"], ICON_DOC) : '';
+	
+	}else{
+
+		return null;
+	}
 }
 
 function delivery_link($row)
@@ -219,22 +238,34 @@ function invoice_prep_link($row)
 function update_status_link($row)
 {
 	global $page_nested;
+	
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_ORDER_UPDATE_STATUS')) {
+		$status_link = 
+		$row["status"] == "Draft" ? pager_link(
+			$row['status'],
+			"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"],
+			false
+		) : $row["status"];
+	}
+	else {
+		$status_link = $row["status"];
+	}
 
-	return $row["status"] == "Draft" ? pager_link(
-		$row['status'],
-		"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"],
-		false
-	) : $row["status"];
+	return $status_link;
 }
 //Added by Albert
 function cancel_link($row) {
 	global $page_nested;
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_ORDER_UPDATE_STATUS')) {
 
-	return ($row["status"] == "Approved" || $row["status"] == "Draft")? pager_link(
-		'Cancel This Transaction',
-		"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"] . "&cancel=1",
-		ICON_CANCEL
-	) :'';
+		return ($row["status"] == "Approved" || $row["status"] == "Draft")? pager_link(
+			'Cancel This Transaction',
+			"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"] . "&cancel=1",
+			ICON_CANCEL
+		) :'';
+	}else{
+		return null;
+	}
 }
 
 function category_name($row)
@@ -306,12 +337,14 @@ end_row();
 
 end_table(1);
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESORDER')) {
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 ahref_cell(_("New Sales Order Repo Installment"), "../si_repo_install.php?NewOrder=0");
 ahref_cell(_("New Sales Order Repo Cash"), "../si_repo_cash.php?NewOrder=0");
 end_row();
 end_table(1);
+}
 //---------------------------------------------------------------------------------------------
 //	Orders inquiry table
 //
