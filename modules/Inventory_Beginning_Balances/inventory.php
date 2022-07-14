@@ -103,24 +103,15 @@ function can_import() {
         unset($_POST['impCSVS']);
         return false;
     }
-    else {
-        
-        if (!check_reference($_POST['ref'], ST_INVADJUST)) {
-            set_focus('ref');
-		    return false;
-    	}
-
-	    // if (!is_date($_POST['AdjDate'])) {
-		//     display_error(_("The entered date for the adjustment is invalid."));
-		//     set_focus('AdjDate');
-		//     return false;
-	    // } 
-	    // elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
-        //     display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
-		// 	set_focus('AdjDate');
-		//     return false;
-	    // }
-    }
+	else if (!allowed_posting_date(Today())) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('AdjDate');
+		return false;
+	}
+	else if (!check_reference($_POST['ref'], ST_INVADJUST)) {
+		set_focus('ref');
+		return false;
+	}
 
     return true;
 }

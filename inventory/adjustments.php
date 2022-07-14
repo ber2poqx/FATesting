@@ -70,13 +70,6 @@ function line_start_focus() {
   set_focus('_stock_id_edit');
 }
 
-//added by spyrax10
-// if(page_refresh()) {
-// 	$_SESSION['adj_items']->clear_items();
-// 	unset ($_SESSION['adj_items']);
-// }
-
-//modified by spyrax10
 $adj = &$_SESSION['adj_items'];
 if (get_post("category") && count($adj->line_items) <= 0) {
 	$Ajax->activate("items_table2");
@@ -92,10 +85,9 @@ if (get_post('StockLocation')) {
 
 //-----------------------------------------------------------------------------------------------
 
-function handle_new_order()
-{
-	if (isset($_SESSION['adj_items']))
-	{
+function handle_new_order() {
+
+	if (isset($_SESSION['adj_items'])) {
 		$_SESSION['adj_items']->clear_items();
 		unset ($_SESSION['adj_items']);
 	}
@@ -103,9 +95,11 @@ function handle_new_order()
     $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
     $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
 	$_POST['AdjDate'] = new_doc_date();
+
 	if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
 		$_POST['AdjDate'] = end_fiscalyear();
 	}
+
 	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
 }
 
@@ -140,8 +134,8 @@ if (get_post('adj_type') == 2 && list_updated('stock_id')) {
 	$Ajax->activate('items_table2');
 }
 
-function can_process()
-{
+function can_process() {
+
 	global $SysPrefs;
 
 	$adj = &$_SESSION['adj_items'];
@@ -169,12 +163,12 @@ function can_process()
 		set_focus('AdjDate');
 		return false;
 	} 
-	elseif (!is_date_in_fiscalyear($_POST['AdjDate'])) {
+	else if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
 		display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		set_focus('AdjDate');
 		return false;
 	}
-	elseif (!allowed_posting_date($_POST['AdjDate'])) {
+	else if (!allowed_posting_date($_POST['AdjDate'])) {
 		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
 		set_focus('AdjDate');
 		return false;
@@ -194,7 +188,7 @@ function can_process()
 
 //-------------------------------------------------------------------------------
 
-if (isset($_POST['Process']) && can_process()){
+if (isset($_POST['Process']) && can_process()) {
 
   	$fixed_asset = $_SESSION['adj_items']->fixed_asset; 
 
@@ -237,8 +231,8 @@ if (isset($_POST['Process']) && can_process()){
 
 //-----------------------------------------------------------------------------------------------
 
-function check_item_data()
-{
+function check_item_data() {
+
 	$demand_qty = get_demand_qty($_POST['stock_id'], get_post("StockLocation"));
 	$demand_qty += get_demand_asm_qty($_POST['stock_id'], get_post("StockLocation"));
 	$qoh = get_qoh_on_date($_POST['stock_id'], get_post("StockLocation"), null, get_item_type());
@@ -252,7 +246,6 @@ function check_item_data()
 		return false;
 	}
 
-	//Added by spyrax10
 	if (is_Serialized($_POST['stock_id']) == 1 && input_num('qty') != 1) {
 		display_error(_("Only ONE quantity per serialized item!"));
 		set_focus('qty');
@@ -292,8 +285,7 @@ function check_item_data()
 		set_focus('qty');
 		return false;
 	}
-	//
-
+	
 	if (input_num('std_cost') == 0 && get_post('category') != 17 && get_post('adj_type') == 1) {
 		display_error(_("Only PROMO ITEMS are allowed to have zero cost!"));
 		set_focus('std_cost');
