@@ -15,7 +15,7 @@ function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufa
 		$order->find_cart_chassis($chasis_no)) {
 		display_error(_("For Part: ") . $chasis_no . " || " . "Chassis # already existed!");
 	}
-	else if (is_Serialized($new_item) == 0 && $order->find_cart_stock($new_item)) {
+	else if (is_Serialized($new_item) == 0 && $order->find_cart_stock($new_item) && $ob_date == null) {
 		display_error(_("For Part: ") . $new_item . " || " . "Stock Already Exist!");
 	}
 	else {
