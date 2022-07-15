@@ -188,8 +188,7 @@ function get_template_name($type) {
 	$files = scandir(company_path()."/template"); 
 
 	foreach ($files as $file) {
-		$file_name = explode("/", $file, 2)[0];
-		if ($file_name == $type) {
+		if (get_val_string($file, 0, strlen($type)) == $type) {
 			$template_name = $file;
 		}
 	}

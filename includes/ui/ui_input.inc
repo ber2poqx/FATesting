@@ -1286,4 +1286,8 @@ function normalize_chars($field) {
 function get_val_string($string = '', $offset = null, $length = 0) {
 	return substr($string, $offset, $length);
 }
+
+function str_after_delimiter($string = '', $delimiter = '') {
+	return substr($string, strpos($string, $delimiter) + 1); 
+}
 //

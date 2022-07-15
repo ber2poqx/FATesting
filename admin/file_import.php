@@ -35,14 +35,19 @@ page(_($help_context = "Upload CSV Template File"), false, false, "", $js);
 //----------------------------------------------------------------------------------------
 function can_import() {
 
+    if (!get_post('trans_type')) {
+        display_error(_("Please Select Transaction Type."));
+        return false;
+    }
+
     if (isset($_FILES['impCSVS']) && $_FILES['impCSVS']['name'] == '') {
-        display_error(_("Please select a file to import."));
+        display_error(_("Please Select a file to import."));
         unset($_POST['impCSVS']);
         return false;
     }
 
-    if (!strpos($_FILES['impCSVS']['name'], ".csv") !== false) {
-        display_error(_("Only CSV files can be imported."));
+    if (!csv_file($_FILES['impCSVS']['name'])) {
+        display_error(_("Only CSV Files can be Imported."));
         unset($_POST['impCSVS']);
         return false;
     }
@@ -57,18 +62,13 @@ function can_import() {
 }
 
 function delete_attach() {
-    
-    if (import_file_exists($_POST['trans_type'])) {
 
-        $row = get_attachment_by_type($_POST['trans_type']);
-        $dir = company_path()."/attachments";
-	    
-        if (file_exists($dir."/".$row['unique_name'])) {
-            unlink($dir."/".$row['unique_name']);
-        }
-	    delete_attachment($row['id']);	
+    $dir = company_path()."/template"; 
+    if (get_template_name(get_post('trans_type')) != '') {
+        unlink(realpath($dir ."/". get_template_name(get_post('trans_type'))));
     }
 }
+
 //----------------------------------------------------------------------------------------
 
 if (isset($_POST['import_btn']) && can_import()) {
@@ -77,9 +77,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 
     $fp = @fopen($filename, "r"); 
 
-    $dir =  company_path()."/attachments";
-
-    delete_attach();
+    $dir =  company_path()."/template";
 
     if (!file_exists($dir)) {
         mkdir ($dir,0777);
@@ -89,20 +87,20 @@ if (isset($_POST['import_btn']) && can_import()) {
 		fclose($fp);
     }
 
+    delete_attach();
+
     $filename = basename($_FILES['impCSVS']['name']);
 	$filesize = $_FILES['impCSVS']['size'];
 	$filetype = $_FILES['impCSVS']['type'];
 
-    $unique_name = random_id();
+    $unique_name = get_post('trans_type') . "_" . $_FILES['impCSVS']['size'];
 
-    move_uploaded_file($tmpname, $dir."/".$unique_name);
-
-    add_attachment($_POST['trans_type'], max_attach_no() + 1, _("For Importing"),
-		$filename, $unique_name, $filesize, $filetype
-    );
+    move_uploaded_file($tmpname, $dir ."/". $unique_name);
 
     @fclose($fp);
     unset($_POST['impCSVS']);
+    unset($_POST['trans_type']);
+    unset($_POST['import_btn']);
     
     display_notification_centered(_("CSV File Successfully Uploaded!")); 
 }
@@ -127,7 +125,7 @@ if ($action == 'import') {
             31 => 'Customer List',
             32 => 'Item List',
             33 => 'Item Color Code'
-        ), 'label', null, true, '', true
+        ), 'label', null, true, 'Select Transaction', true
     );
 
     label_row("Select CSV File:", "<input type='file' id='impCSVS' name='impCSVS'>");

@@ -19,21 +19,20 @@ include_once($path_to_root . "/includes/data_checks.inc");
 add_access_extensions();
 
 if (isset($_POST['download'])) {
-	$row = get_attachment_by_type(33);
-	$dir = company_path()."/attachments";
 
-	if ($row['filename'] == "") {
-		display_error(_("No Template File Uploaded for Item Color Code!"));
-	}
-	else if (!file_exists($dir."/".$row['unique_name'])) {
+	$dir = company_path()."/template";
+	$file_type = "application/vnd.ms-excel";
+	$file_name = get_template_name(33);
+	$file_size = str_after_delimiter($file_name, "_");
+
+	if (!file_exists($dir ."/". $file_name)) {
 		display_error(_("Template File does not exists in current company's folder!"));
 	}
 	else {
-		$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
-		header("Content-type: ".$type);
-		header('Content-Length: '.$row['filesize']);
-		header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
-		echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+		header("Content-type: ". $file_type);
+		header('Content-Length: '. $file_size);
+		header('Content-Disposition: attachment; filename="Color_Code_Template.csv"');
+		echo file_get_contents(company_path()."/template/". $file_name);
 		@fclose();
 		exit();
 	}
@@ -73,7 +72,7 @@ function can_import() {
         display_error(_("Please select a file to import."));
         return false;
     }
-	else if (!strpos($_FILES['impCSVS']['name'], ".csv") !== false) {
+	else if (!csv_file($_FILES['impCSVS']['name'])) {
         display_error(_("Only CSV files can be used to upload."));
         unset($_POST['impCSVS']);
         return false;
