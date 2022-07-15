@@ -896,6 +896,19 @@ function closed_sales_invoice_status($invoice, $trans_no, $ref)
 
 //Added by spyrax10
 
+function debtor_stock_id($trans_no = 0, $trans_type = 0) {
+	
+	set_global_connection();
+
+	$sql = "SELECT stock_id FROM  ".TB_PREF."debtor_trans_details
+		WHERE debtor_trans_no = " .db_escape($trans_no) 
+		. " AND debtor_trans_type = " .db_escape($trans_type);
+
+	$result = db_query($sql, "debtor_stock_id()");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
 function get_policy_name($policy_id, $category_id) {
 
 	$sql = "SELECT A.plcydtl_code FROM ".TB_PREF."policy_details A

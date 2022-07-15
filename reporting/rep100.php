@@ -314,7 +314,7 @@ function print_transaction() {
 
         $rep->TextCol(0, 1, $total_act . ".) ");
         $rep->TextCol(1, 2, $trans['cust_name']);
-        $rep->TextCol(2, 3, $trans['stock_id']);
+        $rep->TextCol(2, 3, debtor_stock_id($trans['trans_no'], $trans['trans_type']));
         $rep->SetTextColor(255, 0, 0);
         $rep->TextCol(3, 4, $trans['buy_date']);
         $rep->SetTextColor(0, 0, 0);
