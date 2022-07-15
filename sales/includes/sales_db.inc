@@ -65,6 +65,7 @@ function add_gl_trans_customer(
 			|| $type == ST_SALESRETURN
 			|| $type == ST_SITERMMOD
 			|| $type == ST_RESTRUCTURED
+			|| $type == ST_ARINVCINSTLITM //for ar lending
 		) {
 			$loan_trans_no = $type_no;
 		}

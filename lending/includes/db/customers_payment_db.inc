@@ -202,13 +202,13 @@ function get_ARinvoice_debtor_trans($Trans_no=null, $debtor_no=null)
 
 function get_invoice_per_customer($debtor_no, $tag)
 {
-	if(get_company_value(user_company(), 'type') != "LENDING"){
+	//if(get_company_value(user_company(), 'type') != "LENDING"){
 		if($tag == "cash"){
 			$criteria = "AND A.payment_terms = 0";
 		}else{
 			$criteria = "AND A.payment_terms != 0";
 		}
-	}
+	//}
 
 	/*$sql = "SELECT A.trans_no, A.reference, A.type, A.status, B.stock_id, B.description itemdesc, D.description category, C.profit_margin
 			FROM ".TB_PREF."debtor_trans A
