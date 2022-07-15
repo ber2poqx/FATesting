@@ -179,7 +179,7 @@ function get_attachment_by_type($trans_type) {
 }
 
 function valid_file($file = '', $ext = '') {
-	return get_val_string($file, -strlen($ext), strlen($ext)) == $ext ? true : false;
+	return get_val_str($file, -strlen($ext), strlen($ext)) == $ext ? true : false;
 }
 
 function get_template_name($type) {
@@ -188,7 +188,7 @@ function get_template_name($type) {
 	$files = scandir(company_path()."/template"); 
 
 	foreach ($files as $file) {
-		if (get_val_string($file, 0, strlen($type)) == $type) {
+		if (get_val_str($file, 0, strlen($type)) == $type) {
 			$template_name = $file;
 		}
 	}

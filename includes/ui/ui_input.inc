@@ -1271,8 +1271,8 @@ function normalize_chars($field) {
         11 => "z ź ž ż",
     ];
     foreach ($letters as &$values){
-        $newValue = get_val_string($values, 0, 1);
-        $values = get_val_string($values, 2, strlen($values));
+        $newValue = get_val_str($values, 0, 1);
+        $values = get_val_str($values, 2, strlen($values));
         $values = explode(" ", $values);
         foreach ($values as &$oldValue){
             while (str_contains_val($field, $oldValue)){
@@ -1283,12 +1283,12 @@ function normalize_chars($field) {
     return $field;
 }
 
-function get_val_string($string = '', $offset = null, $length = null) {
+function get_val_str($string = '', $offset = null, $length = null) {
 	return substr($string, $offset, $length);
 }
 
 function str_after_delimiter($string = '', $delimiter = '') {
-	return get_val_string($string, strpos($string, $delimiter) + 1); 
+	return get_val_str($string, strpos($string, $delimiter) + 1); 
 }
 
 function str_contains_val($string = '', $value = '') {
