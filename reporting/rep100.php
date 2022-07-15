@@ -160,7 +160,7 @@ function print_transaction() {
     while ($trans = db_fetch($res)) {
 
         $total_act++;
-        display_error($trans['trans_no'] . " || " . $trans['trans_type'] . " || " . $trans['debtor_no']);
+        //display_error($trans['trans_no'] . " || " . $trans['trans_type'] . " || " . $trans['debtor_no']);
         //Parent
         $total_adjusment = total_adjusment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $total_payment_this_month = payment_this_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
