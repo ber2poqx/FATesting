@@ -526,18 +526,18 @@ function check_item_data()
 	$row = get_gl_account($_POST['code_id']);
 	$mcode_row = get_gl_account($_POST['mcode']);
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
-
-	if (strpos($row['account_name'], 'Branch Current') !== false && $comp_gl != $_POST['code_id']) {
+	
+	if (str_contains_val($row['account_name'], 'Branch Current') && $comp_gl != $_POST['code_id']) {
 		display_error(_("GL Account is not match to the selected branch! Please select the appropriate GL Account."));
 		return false;
 	}
 
-	if (strpos($mcode_row['account_name'], 'Branch Current') !== false && $comp_gl != $_POST['mcode']) {
+	if (str_contains_val($row['account_name'], 'Branch Current') && $comp_gl != $_POST['mcode']) {
 		display_error(_("Masterfile Account is not match to the selected branch! Please select the appropriate Masterfile Account."));
 		return false;
 	}
 
-	if ($coy == $_POST['comp_id'] && strpos($row['account_name'], 'Branch Current') !== false) {
+	if ($coy == $_POST['comp_id'] && str_contains_val($row['account_name'], 'Branch Current')) {
 		display_error(_("Invalid GL Account for the selected branch!"));
 		return false;
 	}

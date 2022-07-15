@@ -1290,4 +1290,8 @@ function get_val_string($string = '', $offset = null, $length = 0) {
 function str_after_delimiter($string = '', $delimiter = '') {
 	return substr($string, strpos($string, $delimiter) + 1); 
 }
+
+function str_contains_val($string = '', $value = '') {
+	return strpos($string, $value) !== false;
+}
 //

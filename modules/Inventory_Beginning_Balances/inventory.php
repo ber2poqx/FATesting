@@ -210,7 +210,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Invalid Standard Cost! (Empty Value)");
 		}
-		else if (contains_comma($std_cost)) {
+		else if (str_contains_val($std_cost, ",")) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Invalid Standard Cost! (Contains Comma)");
 		}
@@ -304,7 +304,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 	else {
 
 		if (count($err_arr) > 0) {
-			display_error(_(count($err_arr) . " item/s unsuccessfully uploaded!"));
+			display_error(_(count($err_arr) . " Item/s unsuccessfully uploaded!"));
 	
 			foreach ($err_arr as $key => $val) {
 				display_error("Line " . $key . ": " . $val);
@@ -312,7 +312,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 
 		if ($CI > 0) {
-			display_error("$CI item/s successfully uploaded!");
+			display_error("$CI Item/s successfully uploaded!");
 		}
 	} 	
 

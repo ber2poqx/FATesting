@@ -591,24 +591,24 @@ function check_item_data() {
 	$mcode_row = get_gl_account($_POST['mcode']);
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
 
-	if (strpos($row['account_name'], 'Branch Current') !== false && getCompDet('deployment_status', $_POST['comp_id']) == 1) {
+	if (str_contains_val($row['account_name'], 'Branch Current') && getCompDet('deployment_status', $_POST['comp_id']) == 1) {
 		display_error(_('Cannot Entry Branch Current Account! Company Selected is Already Deployed!'));
 		return false;
 	}
 
-	if (strpos($row['account_name'], 'Branch Current') !== false && $comp_gl != $_POST['code_id']) {
+	if (str_contains_val($row['account_name'], 'Branch Current') && $comp_gl != $_POST['code_id']) {
 		display_error(_("GL Account is not match to the selected branch! Please select the appropriate GL Account."));
 		return false;
 	}
 
 	if ($_POST['comp_id'] != $coy) {
-		if (strpos($mcode_row['account_name'], 'Branch Current') !== false && $comp_gl != $_POST['mcode']) {
+		if (str_contains_val($row['account_name'], 'Branch Current') && $comp_gl != $_POST['mcode']) {
 			display_error(_("Masterfile Account is not match to the selected branch! Please select the appropriate Masterfile Account."));
 			return false;
 		}
 	}
 
-	if ($coy == $_POST['comp_id'] && strpos($row['account_name'], 'Branch Current') !== false) {
+	if ($coy == $_POST['comp_id'] && str_contains_val($row['account_name'], 'Branch Current')) {
 		display_error(_("Invalid GL Account for the selected branch!"));
 		return false;
 	}
