@@ -128,13 +128,13 @@
 				$total_amount_cal = $amort * $months_term + $d_amount;
 				/**/
 
-					if (check_transaction_already_exist($old_trans_no, $invoice_type)) 
+					if (check_transaction_already_exist($old_trans_no, $invoice_type, $months_term )) 
 					{
-				        $sql = "SELECT old_trans_no FROM ".TB_PREF."debtor_loans WHERE  old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
+						$sql = "SELECT old_trans_no FROM ".TB_PREF."debtor_loans WHERE  old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
 				       
 						$result = db_query($sql, "Could not search old transaction no");
 				        $row = db_fetch_row($result);
-				        $CI++;	
+				        $CI++;					       	
 				        display_error("Line $lines: The old Document no: $old_trans_no And The Invoice Type:$invoice_type is Already Exist");
 					
 					}else if (!check_stock_id_exist($stock_id)){
@@ -589,9 +589,6 @@
 										$date_);
 									update_debtor_trans_allocation( 
 										$trans_type, 
-
-
-
 										$trans_no, 
 										$debtor_no);
 
@@ -612,7 +609,7 @@
 								
 						}
 
-
+						
 				    }	
 				}			
 			@fclose($fp);

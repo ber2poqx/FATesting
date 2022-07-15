@@ -287,14 +287,20 @@ function add_loan_schedule(
 
 
 // not allowed document already exist
-function check_transaction_already_exist($old_trans_no, $invoice_type)
+function check_transaction_already_exist($old_trans_no, $invoice_type, $term)
 {
 	set_global_connection();
-   $sql = " SELECT 
+	if($term == 3){
+		$sql = " SELECT 
    				COUNT(*) 
    			FROM ".TB_PREF."debtor_loans
-		    WHERE old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
-
+		    WHERE months_term = 3 and old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
+	}else{
+		$sql = " SELECT 
+					COUNT(*) 
+				FROM ".TB_PREF."debtor_loans
+				WHERE months_term <> 3 and old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
+	}
    $result = db_query($sql, "check old_trans_no Code failed");
    $count =  db_fetch($result);
 
