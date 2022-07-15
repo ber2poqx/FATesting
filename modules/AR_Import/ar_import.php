@@ -101,6 +101,17 @@
 						$invoice_type) = $data;
 				$invoice_type = strtolower($invoice_type);	
 				$debtor_no = utf8_encode($debtor_no);
+
+				if($invoice_type == 'repo'){
+					$trans_type = ST_SALESINVOICEREPO;
+				}else{
+					if($invoice_type == 'new'){
+						$trans_type = ST_SALESINVOICE;
+					}else{
+						$trans_type = '';
+					}
+				}
+
 				/*Auto calculation*/
 				$quotient_financing_rate = $f_rate / 100;
 				$diff_lcp_downpayment = $unit_price - $d_amount;
@@ -265,6 +276,10 @@
 					}else if(date("m/d/Y", strtotime($date_cut_off)) != $date_cut_off ){
 						
 						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!... Old Transaction No: $old_trans_no is not Added");
+					
+					}else if($trans_type ==''){
+
+						display_error("Line $lines: invoice_type is Empty empty or not Valid!  $invoice_type   Old Transaction No: $old_trans_no is not Added");
 					} else {
 
 						if (check_customer_code_exist(normalize_chars($debtor_no)))
@@ -272,19 +287,11 @@
 							global $Refs;
 							$ref_num = '';
 							$account_no = '';
-
-							if($invoice_type == 'new'){
-								$type = ST_SALESINVOICE;
-							}else{
-								$type = ST_SALESINVOICEREPO;
-
-							}
-							
 							$date_ = $tran_date;
 							$debtor_no = get_customer_code(normalize_chars($debtor_no));
 							$category_id = get_category_id($stock_id);
 							$description = get_item_description_ar_import($stock_id);
-							$ref_num = $Refs->get_next($type, null, @$tran_date);
+							$ref_num = $Refs->get_next($trans_type, null, @$tran_date);
 							$installmentplcy_id = get_installment_policy($plcy_code);
 							$cust_branch = get_cust_branch_data($debtor_no);
 
@@ -344,14 +351,11 @@
 							if ( empty($plcy_code )){ 
 								$plcy_code=0;
 							}
-							if ( empty($invoice_type )){ 
-								$invoice_type='new';
-							}
 							
 							if((date("Y-m-t", strtotime($date_cut_off)) >= date("Y-m-d", strtotime($last_payment_paid)))&& ($invoice_type =='new' || $invoice_type =='repo') ){
 								
 								add_loan_schedule(
-								$type,
+								$trans_type,
 								$trans_no,
 								$debtor_no, 
 								$tran_date,   
@@ -367,7 +371,7 @@
 									$principal_run_bal = $principal_run_bal -  $amortization_amount;
 									
 									add_loan_schedule(
-										$type,
+										$trans_type,
 										$trans_no,
 										$debtor_no,
 										$sched_due_date,  
@@ -382,7 +386,7 @@
 								}
 
 									add_debtor_trans(
-									$type,
+									$trans_type,
 									$trans_no,
 									$debtor_no, 
 									$tran_date, 
@@ -421,7 +425,7 @@
 									
 									$item_color_code = check_color_exist($stock_id, $color_code);
 									add_debtor_trans_det(
-									$type,
+									$trans_type,
 									$trans_no,	
 									$debtor_no,
 									$stock_id, 
@@ -443,7 +447,7 @@
 									$branch_data = get_branch_accounts($debtor_no);
 									if ($months_term <= 3){
 										add_gl_trans_customer(
-											$type,
+											$trans_type,
 											$trans_no,
 											$date_,
 											$company_data["ar_reg_current_account"],
@@ -455,7 +459,7 @@
 										);
 	
 										add_gl_trans_customer(
-											$type,
+											$trans_type,
 											$trans_no,
 											$date_,
 											$company_data["ar_reg_current_account"],
@@ -469,7 +473,7 @@
 
 									}else{
 									add_gl_trans_customer(
-										$type,
+										$trans_type,
 										$trans_no,
 										$date_,
 										$branch_data["receivables_account"],
@@ -481,7 +485,7 @@
 									);
 
 									add_gl_trans_customer(
-										$type,
+										$trans_type,
 										$trans_no,
 										$date_,
 										$branch_data["receivables_account"],
@@ -493,7 +497,7 @@
 									);	
 									}
 									add_gl_trans_customer(
-										$type,
+										$trans_type,
 										$trans_no,
 										$date_,
 										$company_data["default_sales_act"],
@@ -507,7 +511,7 @@
 										$hoc_masterfile
 									);
 									add_gl_trans_customer(
-										$type,
+										$trans_type,
 										$trans_no,
 										$date_,
 										$company_data["default_sales_act"],
@@ -522,7 +526,7 @@
 									);
 							
 									add_gl_trans_customer(
-										$type,
+										$trans_type,
 										$trans_no,
 										$date_,
 										$company_data["dgp_account"],
@@ -535,7 +539,7 @@
 									);
 
 									/*alloc*/
-									$amortization_schedule = get_deptor_loan_schedule_ob($trans_no, $debtor_no, $type);
+									$amortization_schedule = get_deptor_loan_schedule_ob($trans_no, $debtor_no, $trans_type);
 									$total_exist_payment = floatval($total_amount_paid);
 									while ($amort_sched = db_fetch($amortization_schedule)) {
 										if ($total_exist_payment == 0)
@@ -553,8 +557,8 @@
 											$trans_no,
 											$debtor_no,
 											$amort_sched["id"],
-											$type,
-											$type,
+											$trans_type,
+											$trans_type,
 											$amount,
 											0,
 											0,
@@ -577,14 +581,17 @@
 
 									add_cust_allocation(floatval(
 										$total_amount_paid), 
-										$type, 
+										$trans_type, 
 										$trans_no, 
-										$type, 
+										$trans_type, 
 										$trans_no, 
 										$debtor_no,  
 										$date_);
 									update_debtor_trans_allocation( 
-										$type, 
+										$trans_type, 
+
+
+
 										$trans_no, 
 										$debtor_no);
 
