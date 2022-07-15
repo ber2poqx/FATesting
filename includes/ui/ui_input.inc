@@ -1282,4 +1282,8 @@ function normalize_chars($field) {
     }
     return $field;
 }
+
+function get_val_string($string = '', $offset = null, $length = 0) {
+	return substr($string, $offset, $length);
+}
 //

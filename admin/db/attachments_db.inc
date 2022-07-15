@@ -177,5 +177,23 @@ function get_attachment_by_type($trans_type) {
 	$result = db_query($sql, "Could not retrieve attachments");
 	return db_fetch($result);
 }
+
+function csv_file($filename) {
+	return get_val_string($filename, -4, 4) == '.csv' ? true : false;
+}
+
+function get_template_name($type) {
+	
+	$template_name = '';
+	$files = scandir(company_path()."/template"); 
+
+	foreach ($files as $file) {
+		$file_name = explode("/", $file, 2)[0];
+		if ($file_name == $type) {
+			$template_name = $file;
+		}
+	}
+	return $template_name;
+}
 //
 
