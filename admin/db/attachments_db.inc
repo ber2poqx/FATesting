@@ -178,8 +178,8 @@ function get_attachment_by_type($trans_type) {
 	return db_fetch($result);
 }
 
-function csv_file($filename) {
-	return get_val_string($filename, -4, 4) == '.csv' ? true : false;
+function valid_file($file = '', $ext = '') {
+	return get_val_string($file, -strlen($ext), strlen($ext)) == $ext ? true : false;
 }
 
 function get_template_name($type) {

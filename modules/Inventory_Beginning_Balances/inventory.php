@@ -97,7 +97,7 @@ function can_import() {
         display_error(_("Please select a file to import."));
         return false;
     }
-	else if (!csv_file($_FILES['impCSVS']['name'])) {
+	else if (!valid_file($_FILES['impCSVS']['name'], '.csv')) {
         display_error(_("Only CSV files can be used to upload."));
         unset($_POST['impCSVS']);
         return false;

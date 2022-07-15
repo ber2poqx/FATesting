@@ -46,7 +46,7 @@ function can_import() {
         return false;
     }
 
-    if (!csv_file($_FILES['impCSVS']['name'])) {
+    if (!valid_file($_FILES['impCSVS']['name'], '.csv')) {
         display_error(_("Only CSV Files can be Imported."));
         unset($_POST['impCSVS']);
         return false;
