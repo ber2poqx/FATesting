@@ -1101,7 +1101,8 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
                 LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
                 LEFT JOIN " . TB_PREF . "areas A ON DM.area = A.area_code
                 LEFT JOIN " . TB_PREF . "users CN ON A.collectors_id = CN.user_id
-                LEFT JOIN " . TB_PREF . "debtor_trans_details DT ON DL.trans_no = DT.debtor_trans_no AND DT.debtor_trans_type = 10
+                LEFT JOIN " . TB_PREF . "debtor_trans_details DT ON DL.trans_no = DT.debtor_trans_no 
+                    AND DT.debtor_trans_type = IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo)
                 LEFT JOIN (
 	                SELECT debtor_no, Y.account_code AS gl_code, Y.account_name AS gl_name 
                     FROM " . TB_PREF . " cust_branch X
