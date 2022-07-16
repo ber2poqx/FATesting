@@ -522,7 +522,7 @@ function display_companies()
 	start_table(TABLESTYLE);
 
 	$th = array(_("Branch Name"), _("Branch Area"),_("Branch Code"), _("Partner Code"), _("Type"), _("A/R Account"), _("Database Host"), _("Database Port"), _("Database User"),
-		_("Database Name"), _("Table Pref"), _("Charset"), _("Default"), "E", "D", "Backup");
+		_("Database Name"), _("Table Pref"), _("Charset"), _("Default"), "E", "D"); //"Backup");
 	table_header($th);
 
 	//Added by Robert
@@ -567,7 +567,7 @@ function display_companies()
 	 		label_cell('');
 
 	 	//Added by Robert
-	 	if (get_post('restore_ho'.$i)) {
+	 	/*if (get_post('restore_ho'.$i)) {
 			if ($backup_name) {
 				if (db_import_ho($backup_path_ho, $conn, $conn[$i]['branch_code'], true, false, check_value('protected')))
 					display_notification(_("Restore backup completed - ")." ". $conn[$i]['name']);
@@ -586,6 +586,7 @@ function display_companies()
 				$conn[$i]['name']));
 	 	} else
 	 		label_cell(get_backup_file_combo_ho());
+	 	*/
 
 		end_row();
 	}
