@@ -30,21 +30,20 @@
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
 
 	if (isset($_POST['download'])) {
-		$row = get_attachment_by_type(ST_SALESINVOICE);
-		$dir = company_path()."/attachments";
+
+		$dir = company_path()."/template";
+		$file_type = "application/vnd.ms-excel";
+		$file_name = get_template_name(ST_SALESINVOICE);
+		$file_size = str_after_delimiter($file_name, "_");
 	
-		if ($row['filename'] == "") {
-			display_error(_("No Template File Uploaded for A/R Opening!"));
-		}
-		else if (!file_exists($dir."/".$row['unique_name'])) {
+		if (!file_exists($dir ."/". $file_name)) {
 			display_error(_("Template File does not exists in current company's folder!"));
 		}
 		else {
-			$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
-			header("Content-type: ".$type);
-			header('Content-Length: '.$row['filesize']);
-			header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
-			echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+			header("Content-type: ". $file_type);
+			header('Content-Length: '. $file_size);
+			header('Content-Disposition: attachment; filename="import_AR_openning.csv"');
+			echo file_get_contents(company_path()."/template/". $file_name);
 			@fclose();
 			exit();
 		}
@@ -99,7 +98,7 @@
 						$warranty_code,
 						$date_cut_off,
 						$invoice_type) = $data;
-				$invoice_type = strtolower($invoice_type);	
+				$invoice_type = strtolower(trim($invoice_type));	
 				$debtor_no = utf8_encode($debtor_no);
 
 				if($invoice_type == 'repo'){
@@ -157,9 +156,9 @@
 						
 					// 	display_error("Line $lines: Customer # is empty!... Old Transaction No: $old_trans_no is not Added");
 
-					}else if ($ref_no == "") { // Reference # can't be empty!
+					// }else if ($ref_no == "") { // Reference # can't be empty!
 						
-						display_error("Line $lines: Ref_no is empty!.. Old Transaction No: $old_trans_no is not Added");
+					// 	display_error("Line $lines: Ref_no is empty!.. Old Transaction No: $old_trans_no is not Added");
 
 					}else if ( $stock_id == "") { //Itemcode can't be empty!
 						

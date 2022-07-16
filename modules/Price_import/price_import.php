@@ -17,23 +17,22 @@
     include_once($path_to_root . "/modules/Price_import/price_import.inc");
 	include_once($path_to_root . "/sales/includes/db/sales_incentive_db.inc");
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc"); //Added by spyrax10
-	
+
 	if (isset($_POST['download'])) {
-		$row = get_attachment_by_type(30);
-		$dir = company_path()."/attachments";
+
+		$dir = company_path()."/template";
+		$file_type = "application/vnd.ms-excel";
+		$file_name = get_template_name(30);
+		$file_size = str_after_delimiter($file_name, "_");
 	
-		if ($row['filename'] == "") {
-			display_error(_("No Template File Uploaded for Import Price list!"));
-		}
-		else if (!file_exists($dir."/".$row['unique_name'])) {
+		if (!file_exists($dir ."/". $file_name)) {
 			display_error(_("Template File does not exists in current company's folder!"));
 		}
 		else {
-			$type = ($row['filetype']) ? $row['filetype'] : 'application/octet-stream';	
-			header("Content-type: ".$type);
-			header('Content-Length: '.$row['filesize']);
-			header('Content-Disposition: attachment; filename="'.$row['filename'].'"');
-			echo file_get_contents(company_path()."/attachments/".$row['unique_name']);
+			header("Content-type: ". $file_type);
+			header('Content-Length: '. $file_size);
+			header('Content-Disposition: attachment; filename="import_price.csv"');
+			echo file_get_contents(company_path()."/template/". $file_name);
 			@fclose();
 			exit();
 		}

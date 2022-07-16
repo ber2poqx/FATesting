@@ -164,7 +164,7 @@ function add_debtor_loan(
 						$deferred_gross_profit=0, 
 						$profit_margin=0,
 						$old_trans_no,
-						$ref_no, 
+						$ref_no = 0, 
 						$status,
 						$invoice_type)
 {
