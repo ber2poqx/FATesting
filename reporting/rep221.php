@@ -28,11 +28,8 @@ function getTransactions($category, $fromsupp, $item, $from, $to, $subcat, $stat
 	$from = date2sql($from);
 	$to = date2sql($to);
 	
-	$sql = "SELECT 
-	PO.order_no AS Order_Num,
-	SM.brand AS Supp_Id,
-	SS.supp_name AS Supplier,
-	CHK.StatID,
+	$sql = "SELECT PO.order_no AS Order_Num,
+	SM.brand AS Supp_Id, SS.supp_name AS Supplier, CHK.StatID,
 	CASE 
 		WHEN PO.draft_status = 0 AND PO.posted = 'N' THEN 'DRAFT'
     	WHEN PO.draft_status = 1 AND PO.posted = 'N' THEN 'APPROVED'
@@ -41,39 +38,35 @@ function getTransactions($category, $fromsupp, $item, $from, $to, $subcat, $stat
 			AND PO.draft_status != 2 AND PO.draft_status != 0 THEN 'CLOSED'
 	ELSE 'OPEN' END AS Status,
 
-	PO.ord_Date AS PO_Date,
-	PO.reference AS PO_Num,
-	SC.description AS Item_Group,
-	POD.item_code AS Model,
-	ID.name AS Category,
-	IB.name AS Brand,
-	II.name AS Sub_Category,
+	PO.ord_Date AS PO_Date, PO.reference AS PO_Num,
+	SC.description AS Item_Group, POD.item_code AS Model,
+	ID.name AS Category, IB.name AS Brand, II.name AS Sub_Category,
+	
 	POD.quantity_ordered AS Quantity,
 	POD.quantity_received AS Delivered,
 	POD.quantity_ordered - POD.quantity_received AS UnDelivered,
 	TRUNCATE(POD.unit_price * POD.quantity_ordered, 2) AS Total
 	
-	FROM 
-	".TB_PREF."purch_orders PO
-	INNER JOIN ".TB_PREF."purch_order_details POD ON PO.order_no = POD.order_no
-	LEFT JOIN ".TB_PREF."stock_master SM ON POD.item_code = SM.stock_id
-	LEFT JOIN ".TB_PREF."stock_category SC ON PO.category_id = SC.category_id
-	LEFT JOIN ".TB_PREF."item_distributor ID ON SM.distributor = ID.id
-	LEFT JOIN ".TB_PREF."item_importer II ON SM.importer = II.id
-	LEFT JOIN ".TB_PREF."item_brand IB ON SM.brand = IB.id
-	LEFT JOIN ".TB_PREF."suppliers SS ON PO.supplier_id = SS.supplier_id
-	LEFT JOIN (
-		SELECT A.order_no,
-			CASE 
-				WHEN A.draft_status = 0 AND A.posted = 'N' THEN 6
-				WHEN A.draft_status = 1 AND A.posted = 'N' THEN 5
-    			WHEN A.draft_status = 2 AND A.posted = 'N' THEN 4		
-    			WHEN B.quantity_ordered - B.quantity_received = 0 
-					AND A.draft_status != 2 AND A.draft_status != 0 THEN 2
-			ELSE 1 END AS StatID 
-		FROM ".TB_PREF."purch_orders A
-			INNER JOIN ".TB_PREF."purch_order_details B ON A.order_no = B.order_no
-	) CHK ON PO.order_no = CHK.order_no
+	FROM ".TB_PREF."purch_orders PO
+		INNER JOIN ".TB_PREF."purch_order_details POD ON PO.order_no = POD.order_no
+		LEFT JOIN ".TB_PREF."stock_master SM ON POD.item_code = SM.stock_id
+		LEFT JOIN ".TB_PREF."stock_category SC ON PO.category_id = SC.category_id
+		LEFT JOIN ".TB_PREF."item_distributor ID ON SM.distributor = ID.id
+		LEFT JOIN ".TB_PREF."item_importer II ON SM.importer = II.id
+		LEFT JOIN ".TB_PREF."item_brand IB ON SM.brand = IB.id
+		LEFT JOIN ".TB_PREF."suppliers SS ON PO.supplier_id = SS.supplier_id
+		LEFT JOIN (
+			SELECT A.order_no,
+				CASE 
+					WHEN A.draft_status = 0 AND A.posted = 'N' THEN 6
+					WHEN A.draft_status = 1 AND A.posted = 'N' THEN 5
+    				WHEN A.draft_status = 2 AND A.posted = 'N' THEN 4		
+    				WHEN B.quantity_ordered - B.quantity_received = 0 
+						AND A.draft_status != 2 AND A.draft_status != 0 THEN 2
+				ELSE 1 END AS StatID 
+			FROM ".TB_PREF."purch_orders A
+				INNER JOIN ".TB_PREF."purch_order_details B ON A.order_no = B.order_no
+		) CHK ON PO.order_no = CHK.order_no
 
 	WHERE
 		PO.supplier_id = SS.supplier_id 
@@ -81,18 +74,23 @@ function getTransactions($category, $fromsupp, $item, $from, $to, $subcat, $stat
 		AND PO.ord_date <= '$to' ";
 		
 
-	if ($fromsupp != ALL_TEXT)
+	if ($fromsupp != ALL_TEXT) {
 		$sql .= " AND PO.supplier_id =".db_escape($fromsupp);
-	if ($category != ALL_TEXT)
-	    $sql .= " AND PO.category_id =".db_escape($category);
-	if ($subcat != -1)  
-	    $sql .= " AND II.id =".db_escape($subcat);
-	if ($item != ALL_TEXT)  
-	    $sql .= " AND POD.item_code =".db_escape($item);
-	
-	if ($status == 3)
+	}
+	if ($category != ALL_TEXT) {
+		$sql .= " AND PO.category_id =".db_escape($category);
+	}
+	if ($subcat != -1) {
+		$sql .= " AND II.id =".db_escape($subcat);
+	} 
+	if ($item != ALL_TEXT) {
+		$sql .= " AND POD.item_code =".db_escape($item);
+	} 
+
+	if ($status == 3) {
 		$sql .= " AND CHK.StatID = 1 AND POD.quantity_ordered != POD.quantity_received 
 			AND (POD.quantity_ordered - POD.quantity_received) != POD.quantity_ordered";
+	}
 	else {
 		if ($status != 0)  
 	    $sql .= " AND CHK.StatID =".db_escape($status);
@@ -101,12 +99,11 @@ function getTransactions($category, $fromsupp, $item, $from, $to, $subcat, $stat
 	$sql .= " GROUP BY PO.order_no DESC, SC.description ";
 	$sql .= " ORDER BY SM.category_id";
 	
-
     return db_query($sql, "No transactions were returned");
 }
 
-function print_PO_Report()
-{
+function print_PO_Report() {
+
     global $path_to_root;
 	
     $from 		= $_POST['PARAM_0'];
@@ -117,54 +114,67 @@ function print_PO_Report()
 	$item 		= $_POST['PARAM_5'];
 	$status 	= $_POST['PARAM_6'];
 	$comments	= $_POST['PARAM_7'];
-	$orientation= $_POST['PARAM_8'];
-	$destination= $_POST['PARAM_9'];
+	$destination= $_POST['PARAM_8'];
 
-	if ($destination)
+	if ($destination) {
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
-	else
+	}
+	else {
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
-		
+	}
 		
 	$orientation = 'L'; // Lock print orientation
 	
     $dec = user_price_dec();
 
-	if ($status == 0)
+	if ($status == 0) {
 		$stat = _('ALL');
-	else if ($status == 2)
+	}
+	else if ($status == 2) {
 		$stat = _('CLOSED');
-	else if ($status == 1)
+	}
+	else if ($status == 1) {
 		$stat = _('OPEN');
-	else if ($status == 3)
+	}
+	else if ($status == 3) {
 		$stat = _('PARTIALLY DELIVERED');
+	}
 
-	if ($category == ALL_NUMERIC)
+	if ($category == ALL_NUMERIC) {
 		$category = 0;
-	if ($category == 0)
+	}
+	if ($category == 0) {
 		$cat = _('ALL');
-	else
+	}
+	else {
 		$cat = get_category_name($category);
+	}
 
-	if ($fromsupp == '')
+	if ($fromsupp == '') {
 		$froms = _('ALL');
-	else
+	}
+	else {
 		$froms = get_supplier_name($fromsupp);
+	}
 
-	if ($item == '')
+	if ($item == '') {
 		$itm = _('ALL');
-	else
+	}
+	else {
 		$itm = $item;
+	}
 
 	$params = array(0 => $comments,
 		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
 		2 => array('text' => _('Supplier'), 'from' => $froms, 'to' => ''),
 		3 => array('text' => _('Category'), 'from' => $cat, 'to' => ''),
 		4 => array('text' => _('Model'), 'from' => $itm, 'to' => ''),
-		5 => array('text' => _('Status'), 'from' => $stat, 'to' => ''));
+		5 => array('text' => _('Status'), 'from' => $stat, 'to' => '')
+	);
 
 	$cols = array(0, 38, 103, 145, 210, 290, 350, 
-	420, 440, 480, 513, 0);
+		420, 440, 480, 513, 0
+	);
 
 	$headers = array(
 		_('P.O Date'), 
@@ -177,17 +187,21 @@ function print_PO_Report()
 		_('Qty'),
 		_('Delivered'),
 		_('UnDelivered'),
-		_('Total'));
+		_('Total')
+	);
 
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'center', 'center', 'center', 'right');
+		'center', 'center', 'center', 'right'
+	);
 
-    $rep = new FrontReport(_('Purchase Order Summary Report v2'), "POSummary", user_pagesize(), 9, $orientation);
-    if ($orientation == 'L')
-    	recalculate_cols($cols);
+    $rep = new FrontReport(_('Purchase Order Summary Report v2'), "POSummaryRep", 'LETTER', 9, $orientation);
+    if ($orientation == 'L') {
+		recalculate_cols($cols);
+	}
 	
     $rep->Info($params, $cols, $headers, $aligns, 
-		null, null, null, true, true, true);
+		null, null, null, true, true, true
+	);
     $rep->SetHeaderType('PO_Header');
 	$rep->NewPage();
 
@@ -198,12 +212,11 @@ function print_PO_Report()
 	$res = getTransactions($category, $fromsupp, $item, $from, $to, $subcat, $status);
 	$catt = '';
 
-	while ($GRNs = db_fetch($res))
-	{
-		if ($catt != $GRNs['Item_Group'])
-		{		
-			if ($catt != '')
-			{
+	while ($row = db_fetch($res)) {
+
+		if ($catt != $row['Item_Group']) {		
+			
+			if ($catt != '') {
 				$rep->NewLine(2);
 				$rep->Font('bold');
 				$rep->Line($rep->row  - 4);
@@ -222,8 +235,8 @@ function print_PO_Report()
 			$rep->fontSize += 1;
 			$rep->Font('bold');		
 			$rep->SetTextColor(0, 0, 255);	
-			$rep->TextCol(0, 5, $GRNs['Item_Group']);
-			$catt = $GRNs['Item_Group'];		
+			$rep->TextCol(0, 5, $row['Item_Group']);
+			$catt = $row['Item_Group'];		
 			$rep->Font();
 			$rep->fontSize -= 1;
 			$rep->SetTextColor(0, 0, 0);
@@ -231,31 +244,30 @@ function print_PO_Report()
 		}
 		
 		$rep->fontSize -= 1;
-		$dec2 = get_qty_dec($GRNs['Model']);
+		$dec2 = get_qty_dec($row['Model']);
 		$rep->NewLine();
-		$rep->TextCol(0, 1, sql2date($GRNs['PO_Date']));
-		$rep->TextCol(1, 2, $GRNs['PO_Num']);
-		$rep->TextCol(2, 3, $GRNs['Status']);
-		$rep->TextCol(3, 4, substr($GRNs['Model'], 0, 16));
-		$rep->TextCol(4, 5, substr($GRNs['Category'], 0, 15));
-		$rep->TextCol(5, 6, $GRNs['Sub_Category']);
-		$rep->TextCol(6, 7, $GRNs['Brand']);
-		$rep->TextCol(7, 8, $GRNs['Quantity']);
-		$rep->TextCol(8, 9, $GRNs['Delivered']);
-		$rep->TextCol(9, 10, $GRNs['UnDelivered']);
-		$rep->AmountCol2(10, 11, $GRNs['Total']);
+		$rep->TextCol(0, 1, sql2date($row['PO_Date']));
+		$rep->TextCol(1, 2, $row['PO_Num']);
+		$rep->TextCol(2, 3, $row['Status']);
+		$rep->TextCol(3, 4, substr($row['Model'], 0, 16));
+		$rep->TextCol(4, 5, substr($row['Category'], 0, 15));
+		$rep->TextCol(5, 6, $row['Sub_Category']);
+		$rep->TextCol(6, 7, $row['Brand']);
+		$rep->TextCol(7, 8, $row['Quantity']);
+		$rep->TextCol(8, 9, $row['Delivered']);
+		$rep->TextCol(9, 10, $row['UnDelivered']);
+		$rep->AmountCol2(10, 11, $row['Total']);
 		$rep->fontSize += 1;
 		$rep->NewLine(.5);
 
-		$qtyTot += $GRNs['Quantity'];		$qty += $GRNs['Quantity'];
-		$delTot += $GRNs['Delivered'];		$del += $GRNs['Delivered'];
-		$undTot += $GRNs['UnDelivered'];	$und += $GRNs['UnDelivered'];
-		$Tot_Val += $GRNs['Total'];			$tot += $GRNs['Total'];
+		$qtyTot += $row['Quantity'];		$qty += $row['Quantity'];
+		$delTot += $row['Delivered'];		$del += $row['Delivered'];
+		$undTot += $row['UnDelivered'];	$und += $row['UnDelivered'];
+		$Tot_Val += $row['Total'];			$tot += $row['Total'];
 
 	}
 
-	if ($catt != '')
-	{
+	if ($catt != '') {
 		$rep->NewLine(2);
 		$rep->Font('bold');
 		$rep->Line($rep->row  - 4);

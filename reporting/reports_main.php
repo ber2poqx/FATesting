@@ -499,7 +499,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SUPP_REP')) {
 			_('Model') => 'ITEMS_P',
 			_('Status') => 'STATUS',
 			_('Comments') => 'TEXTBOX',
-			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'
 		)
 	);
