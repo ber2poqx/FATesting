@@ -751,7 +751,7 @@ function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_n
 	//Modified by spyrax10 1 Jun 2022
 	set_global_connection();
 	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, 
-		stock.location_name, brand.name as brand_name, man.name as manufacturer_name, 
+		stock.location_name, brand.name as brand_name, man.supp_name as manufacturer_name, 
 		d.name as distributor_name, importer.name as importer_name, item.category_id,
 		audit.gl_date AS ob_date 
 	
@@ -759,7 +759,7 @@ function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_n
 		INNER JOIN " . TB_PREF . "stock_master item ON move.stock_id = item.stock_id
 		INNER JOIN " . TB_PREF . "locations stock ON stock.loc_code = move.loc_code
 		LEFT JOIN " . TB_PREF . "item_brand brand ON item.brand = brand.id
-		LEFT JOIN " . TB_PREF . "item_manufacturer man ON item.manufacturer = man.id
+		LEFT JOIN " . TB_PREF . "suppliers man ON item.manufacturer = man.supplier_id
 		LEFT JOIN " . TB_PREF . "item_distributor d ON item.distributor = d.id
 		LEFT JOIN " . TB_PREF . "item_importer importer ON item.importer = importer.id
 		LEFT JOIN ".TB_PREF."audit_trail audit ON (move.type = audit.type AND move.trans_no = audit.trans_no AND NOT ISNULL(audit.gl_seq))
@@ -792,14 +792,14 @@ function get_stock_adjust($type, $type_no) {
 	
 	set_global_connection();
 	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, 
-		stock.location_name, brand.name as brand_name, man.name as manufacturer_name, 
+		stock.location_name, brand.name as brand_name, man.supp_name as manufacturer_name, 
 		d.name as distributor_name, importer.name as importer_name, item.category_id
 	
 	FROM " . TB_PREF . "stock_adjustment move 
 		INNER JOIN " . TB_PREF . "stock_master item ON move.stock_id = item.stock_id
 		INNER JOIN " . TB_PREF . "locations stock ON stock.loc_code = move.loc_code
 		LEFT JOIN " . TB_PREF . "item_brand brand ON item.brand = brand.id
-		LEFT JOIN " . TB_PREF . "item_manufacturer man ON item.manufacturer = man.id
+		LEFT JOIN " . TB_PREF . "suppliers man ON item.manufacturer = man.supplier_id
 		LEFT JOIN " . TB_PREF . "item_distributor d ON item.distributor = d.id
 		LEFT JOIN " . TB_PREF . "item_importer importer ON item.importer = importer.id
 	WHERE type = " . db_escape($type) . " AND trans_no = " . db_escape($type_no) . " ORDER BY trans_id";
