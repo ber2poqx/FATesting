@@ -124,8 +124,8 @@ while ($adjustment = db_fetch($adjustment_items)) {
 	label_cell(get_color_description($adjustment['color_code'], $adjustment['stock_id']));
     label_cell($adjustment['qty'], "align='center'");
     label_cell($adjustment['units']);
-	label_cell($adjustment['lot_no']);
-	label_cell($adjustment['chassis_no']);
+	label_cell($adjustment['lot_no'], "nowrap");
+	label_cell($adjustment['chassis_no'], "nowrap");
     amount_decimal_cell($adjustment['standard_cost']);
 	amount_decimal_cell($sub_total);
     end_row();
