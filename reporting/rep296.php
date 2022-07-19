@@ -23,7 +23,7 @@ function get_transactions($category, $brand, $separate_code = 0) {
     
     set_global_connection(0);
     $sql = "SELECT SM.*, SC.description AS cat_name, SM.description AS prod_desc,
-        IB.name AS item_brand, II.name AS class, ID.name AS sub_cat";
+        IB.name AS item_brand, II.name AS class, ID.name AS sub_cat, SUP.supp_name";
 
     $sql .= $separate_code == 1 ? ", IC.item_code AS ic_old_code" : ", SM.old_code AS sm_old_code";
 
@@ -36,6 +36,7 @@ function get_transactions($category, $brand, $separate_code = 0) {
             LEFT JOIN ".TB_PREF."item_brand IB ON SM.brand = IB.id 
             LEFT JOIN ".TB_PREF."item_importer II ON SM.importer = II.id
             LEFT JOIN ".TB_PREF."item_distributor ID ON SM.distributor = ID.id 
+            LEFT JOIN ".TB_PREF."suppliers SUP ON SM.manufacturer = SUP.supplier_id 
         WHERE mb_flag <> 'F'";
 
     if ($category != 0) {
@@ -99,23 +100,22 @@ function print_transaction() {
         _('Description'),
         _('Category'),
         _('Brand'),
+        _("Supplier"),
         _('Sub-Category'),
         _('Classification'),
-        _("Old Code"),
-        _("Status")
+        _("Status"),
+        _("Old Code")
     );
 	
-    $cols = array(0, 95, 215, 255, 315, 405, 465, 540, 0);
-
-    $aligns = array('left', 'left', 'center', 'center', 'left', 'left', 'right', 'right');
-
+    $cols = array(0, 95, 215, 260, 320, 460, 530, 580, 630, 0);
+    $aligns = array('left', 'left', 'center', 'center', 'left', 'left', 'left', 'center', 'right');
     $params = array( 
 		0 => $comments,
         1 => array('text' => _('Category'), 'from' => $cat_name, 'to' => ''),
         2 => array('text' => _('Brand'), 'from' => $brand_name, 'to' => '')
 	);
 
-    $rep = new FrontReport(_('Item List Detailed Report'), "Item_List_Report", 'LETTER', 9, $orientation);
+    $rep = new FrontReport(_('Item List Detailed Report'), "Item_List_Report", 'LEGAL', 9, $orientation);
 
     if ($orientation == 'L') {
         recalculate_cols($cols);
@@ -151,11 +151,14 @@ function print_transaction() {
         $rep->TextCol(1, 2, $trans['prod_desc']);
         $rep->TextCol(2, 3, $trans['cat_name']);
         $rep->TextCol(3, 4, $trans['item_brand']);
-        $rep->TextCol(4, 5, $trans['sub_cat']);
-        $rep->TextCol(5, 6, $trans['class']);
-        $rep->TextCol(6, 7, $old_code);
-        $rep->TextCol(6, 7, $old_code);
+        $rep->TextCol(4, 5, $trans['supp_name']);
+        $rep->TextCol(5, 6, $trans['sub_cat']);
+        $rep->TextCol(6, 7, $trans['class']);
+        $trans['inactive'] == 1 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 255);
         $rep->TextCol(7, 8, $status);
+        $rep->SetTextColor(0, 0, 0);
+        $rep->TextCol(8, 9, $old_code);
+       
         $rep->fontSize += 1;
         $rep->NewLine();
     }
