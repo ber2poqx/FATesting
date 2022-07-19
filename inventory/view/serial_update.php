@@ -53,6 +53,7 @@ function serial_pnp_update($serial_no, $cleared = 0, $pnp_note = '') {
 
     global $Ajax, $db_connections;
 
+    $added = 0;
     $default_table_count = count_columns(0, 'item_serialise');
 
     $sql = "UPDATE ".TB_PREF."item_serialise 
@@ -75,13 +76,19 @@ function serial_pnp_update($serial_no, $cleared = 0, $pnp_note = '') {
         if (!$not_include) {
             set_global_connection($i);
             db_query($sql, "serial_pnp_update()");
+            $added++;
         }
     }
 
     set_global_connection();
 
     $Ajax->activate('_page_body');
-    display_notification(_("Serial #: " . $serial_no . " sucessfully updated!"));
+    if ($added > 0) {
+        display_notification(_("Serial #: " . $serial_no . " sucessfully updated!"));
+    }
+    else {
+        display_error(_("Serial # " . $serial_no . " is not Properly Updated!"));
+    }
 }
 
 //----------------------------------------------------------------------------------------------------
