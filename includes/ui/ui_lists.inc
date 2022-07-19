@@ -1444,7 +1444,7 @@ function stock_items_list($name, $selected_id=null, $all_option=false,
 			'search_box' => true,
 			'search' => array("stock_id", "s.description","c.description","b.name","m.name"),
 			'search_submit' => get_company_pref('no_item_list')!=0 && (!isset($opts['fixed_asset']) || !$opts['fixed_asset']),
-			'size'=>10,
+			'size' => 30, //Modified by spyrax10 19 Jul 2022
 			'select_submit'=> $submit_on_change,
 			'category' => 2,
 			'order' => array('c.description','s.description','b.name','m.name','stock_id'),
