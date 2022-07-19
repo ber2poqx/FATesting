@@ -248,11 +248,11 @@ if (isset($_POST['import_btn']) && can_import()) {
 		}
 		else if ($mcode == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Invalid Master Code!");
+			$err_arr[$line_cnt] = _("Invalid Supplier ID! (Supplier ID Empty)");
 		}
 		else if (get_masterfile(trim($mcode)) == "") {
 			$line_cnt++;
-			$err_arr[$line_cnt] = _("Unknown Masterfile!");
+			$err_arr[$line_cnt] = _("Invalid Supplier ID! (Supplier ID does not exist)");
 		}
 		else {
 
