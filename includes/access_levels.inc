@@ -442,6 +442,7 @@ $security_areas =array(
 	'SA_FISCALYEARS' => array(SS_GL_C|9, _("Fiscal Years Maintenance")),
 	//Added by spyrax10 29 Jun 20222
 	'SA_FISCAL_MONTH' => array(SS_GL_C|16, _("Fiscal Months Maintenance")),
+	'SA_GL_VIEW' => array(SS_GL_C|17, _("GL Account Pop Up List")),
 	//
 	'SA_GLSETUP' => array(SS_GL_C|10, _("Company GL Setup")),
 	'SA_GLACCOUNTTAGS' => array(SS_GL_C|11, _("GL Account Tags")),

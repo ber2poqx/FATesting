@@ -14,7 +14,7 @@
   selection in pages that have GL account dropdown lists.
   Author: bogeyman2007 from Discussion Forum. Modified by Joe Hunt
 ***********************************************************************/
-$page_security = "SA_GLACCOUNT";
+$page_security = "SA_GL_VIEW"; //Modified by spyrax10 19 Jul 2022
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/ui.inc");
