@@ -239,6 +239,14 @@ function can_process()
         set_focus('DefaultReceivedDate');
         return false;
     }
+    
+    //Added by spyrax10 19 Jul 2022
+    if (!allowed_posting_date($_POST['DefaultReceivedDate'])) {
+        display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+        set_focus('DefaultReceivedDate');
+        return false;
+    }
+    //
 
     if (!check_reference($_POST['ref'], ST_SUPPRECEIVE)) {
         set_focus('ref');
