@@ -565,18 +565,18 @@ function view_stock_status_cell($stock_id, $description=null)
 
 //Added by spyrax10
 //--------------------------------------------------------------------------------------
-function serial_update_cell($company_id, $trans_no, $editable = 1) {
+function serial_update_cell($company_id = 0, $trans_no = 0, $serial_no = '', $editable = 1) {
 
 	echo "<td align=center>";
-	serial_update_dest($company_id, $trans_no, $editable);
+	serial_update_dest($company_id, $trans_no, $serial_no, $editable);
 	echo "</td>";
 }
 
-function serial_update_dest($company_id, $trans_no, $editable = 1, $echo = true) {
+function serial_update_dest($company_id = 0, $trans_no = 0, $serial_no = '', $editable = 1, $echo = true) {
 	global $path_to_root;
 
 	$preview_str = "<a target='_blank' 
-	href='$path_to_root/inventory/view/serial_update.php?coy=$company_id&trans_no=$trans_no&editable=$editable&popup=1' 
+	href='$path_to_root/inventory/view/serial_update.php?coy=$company_id&trans_no=$trans_no&serial=$serial_no&editable=$editable&popup=1' 
 	onclick=\"javascript:openWindow(this.href,this.target); return false;\" >Update</a>";
 
 	if($echo) {

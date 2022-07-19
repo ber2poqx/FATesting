@@ -49,11 +49,11 @@ function get_transactions($company_id, $trans_no) {
 
 //----------------------------------------------------------------------------------------------------
 
-function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '') {
+function serial_pnp_update($serial_no, $cleared = 0, $pnp_note = '') {
 
-    global $Ajax, $def_coy;
+    global $Ajax, $db_connections;
 
-    set_global_connection($company_id);
+    $default_table_count = count_columns(0, 'item_serialise');
 
     $sql = "UPDATE ".TB_PREF."item_serialise 
         SET cleared = $cleared";
@@ -62,12 +62,26 @@ function serial_pnp_update($company_id, $trans_no, $cleared = 0, $pnp_note = '')
         $sql .= ", pnp_note = '$pnp_note'";
     }
 
-    $sql .= " WHERE serialise_id = " .db_escape($trans_no);
+    $sql .= " WHERE serialise_lot_no = " .db_escape($serial_no);
 
-    db_query($sql, "serial_pnp_update()");
+    for ($i = 0; $i < count($db_connections); $i++) {
+
+        $not_include = $db_connections[$i]['type'] == 'LENDING' 
+        || $db_connections[$i]['branch_code'] == 'HO' 
+        || $db_connections[$i]['branch_code'] == 'DESIHOFC'
+        || str_contains_val($db_connections[$i]['branch_code'], 'LEND')
+        || $default_table_count != count_columns($i, 'item_serialise');
+    
+        if (!$not_include) {
+            set_global_connection($i);
+            db_query($sql, "serial_pnp_update()");
+        }
+    }
+
+    set_global_connection();
 
     $Ajax->activate('_page_body');
-    display_notification(_("Transaction ID #" . $trans_no . " sucessfully updated!"));
+    display_notification(_("Serial #: " . $serial_no . " sucessfully updated!"));
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -151,8 +165,7 @@ if (isset($_POST['UPDATE_ITEM'])) {
     set_global_connection($_GET['coy']);
 
     serial_pnp_update(
-        $_GET['coy'], 
-        $_GET['trans_no'], 
+        $_GET['serial'],
         $_POST['cleared'] != null ? $_POST['cleared'] : 0, 
         $_POST['memo_']
     );
