@@ -93,6 +93,8 @@ class setup_app extends application
 		$this->add_lapp_function(2, _("System &Diagnostics"),
 			"admin/system_diagnostics.php?", 'SA_SOFTWAREUPGRADE', MENU_SYSTEM);
 
+		$this->add_rapp_function(2, _("Data Synchronization"),
+			"admin/data_transfer.php?", 'SA_CDATATRANS', MENU_UPDATE);
 		$this->add_rapp_function(2, _("&Backup and Restore"),
 			"admin/backups.php?", 'SA_BACKUP', MENU_SYSTEM);
 		$this->add_rapp_function(2, _("Create/Update &Branches"),

@@ -120,6 +120,7 @@ $security_areas =array(
 	'SA_CREATELANGUAGE' => array(SS_SADMIN|2, _("Install/update languages")),
 	'SA_CREATEMODULES' => array(SS_SADMIN|3, _("Install/upgrade modules")),
 	'SA_SOFTWAREUPGRADE' => array(SS_SADMIN|4, _("Software upgrades")),
+	'SA_CDATATRANS' => array(SS_SADMIN|5, _("Data Synchronization")),
 //
 //	Company setup
 //
