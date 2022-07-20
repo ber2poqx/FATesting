@@ -106,7 +106,7 @@ label_row(_("Co-maker"),
 
 /*Added by Albert*/
 if(get_so_item_type($_GET['trans_no'], $_GET['trans_type']) == 'repo'){
-label_row(_("Previous Owner"), $_SESSION['View']->previous_owner, "class='tableheader2'", "colspan=3");
+label_row(_("Previous Owner"), get_customer_name($_SESSION['View']->previous_owner), "class='tableheader2'", "colspan=3");
 }
 //
 label_row(_("Telephone"), $_SESSION['View']->phone, "class='tableheader2'", "colspan=3");

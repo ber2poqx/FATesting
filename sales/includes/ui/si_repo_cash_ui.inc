@@ -529,11 +529,13 @@ function display_order_header(&$order, $editable, $date_text)
 	sales_persons_list_row(_("Sales Person:"), 'salesman_id', $_POST['salesman_id']);
 	saleorder_types_row(_("Sale Type:"), 'stype_id', $_POST['stype_id'], true);
 	hidden('sales_type', 2);
-	comaker_types_row(_("Co-maker:"), 'co_maker', $_POST['co_maker'], $order->customer_id, true);//modified by Albert
+	// comaker_types_row(_("Co-maker:"), 'co_maker', $_POST['co_maker'], $order->customer_id, true);//modified by Albert
 	
-	$previous_owner = get_stock_reference($order->line_items[0]->lot_no) != '' ? get_previous_owner(get_stock_reference($order->line_items[0]->lot_no)) : '';
-	label_row(_("Previous Owner:"), $previous_owner);
-	hidden('previous_owner',$previous_owner);
+	$previous_owner = get_previous_owner($order->line_items[0]->lot_no);
+
+	label_row(_("Previous Owner:"), $previous_owner['name']);
+	hidden('previous_owner',$previous_owner['debtor_no']);
+
 	table_section(2);
 
 	start_row();

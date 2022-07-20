@@ -640,79 +640,6 @@ function void_sales_invoice_repo($type, $type_no)
 	commit_transaction();
 }
 
-function is_cust_invoice_credited_repo($trans_no)
-{
-	return db_num_rows(get_sales_child_lines(ST_SALESINVOICEREPO, $trans_no));
-}
-
-function get_cust_prepayment_invoice_factor_repo($trans_no)
-{
-	$sql = "SELECT IF(dt.prep_amount>0, dt.prep_amount/so.total ,0) 
-		FROM " . TB_PREF . "debtor_trans dt
-		LEFT JOIN " . TB_PREF . "sales_orders so ON so.trans_type=" . ST_SALESORDER . " AND so.order_no=dt.order_
-		 WHERE dt.type=" . ST_SALESINVOICEREPO . " AND trans_no=" . db_escape($trans_no);
-	$row = db_fetch(db_query($sql, 'cannot retrieve prepaid invoice factor'));
-	return $row[0];
-}
-
-/*
-	Return yet not invoiced amount of prepayment invoice (or 0 if normal invoice)
-*/
-function prepaid_invoice_remainder_repo($order)
-{
-	$sql = "SELECT so.total - IFNULL(SUM(inv.prep_amount),0) FROM "
-		. TB_PREF . "sales_orders so,
-		" . TB_PREF . "debtor_trans inv,
-		" . TB_PREF . "payment_terms pt
-		WHERE  so.order_no=" . db_escape($order)
-		. " AND so.trans_type=" . ST_SALESORDER
-		. " AND inv.type=" . ST_SALESINVOICEREPO
-		. " AND inv.order_=so.order_no"
-		. " AND so.payment_terms=pt.terms_indicator"
-		. " AND inv.payment_terms=pt.terms_indicator"
-		. " AND pt.days_before_due = -1";
-
-	$result = db_fetch(db_query($sql, "cannot find final invoice value"));
-	return $result[0] ? $result[0] : 0;
-}
-
-
-/*
-	Find oldest delivery date for sales invoice
-*/
-function get_oldest_delivery_date_repo($invoice_no)
-{
-	$sql = "SELECT MIN(trans.tran_date)
-			FROM
-				" . TB_PREF . "debtor_trans_details del
-			LEFT JOIN " . TB_PREF . "debtor_trans_details inv
-				ON inv.src_id=del.id
-			LEFT JOIN " . TB_PREF . "debtor_trans trans 
-				ON trans.type=" . ST_CUSTDELIVERY . " AND trans.trans_no = del.debtor_trans_no
-			WHERE
-				inv.debtor_trans_type=" . ST_SALESINVOICEREPO
-		. " AND inv.debtor_trans_no=" . db_escape($invoice_no);
-	$res = db_query($sql, 'cannot find oldest delivery date');
-	$date = db_fetch($res);
-	return $date[0];
-}
-/*
-	Find oldest payment date for sales invoice
-*/
-function get_oldest_payment_date_repo($invoice_no)
-{
-	$sql = "SELECT MIN(payment.tran_date)
-			FROM
-			" . TB_PREF . "cust_allocations alloc,
-			" . TB_PREF . "debtor_trans payment
-			WHERE
-				alloc.trans_type_to=" . ST_SALESINVOICEREPO . " AND alloc.trans_no_to=" . db_escape($invoice_no)
-		. " AND alloc.trans_type_from=payment.type AND alloc.trans_no_from=payment.trans_no";
-	$res = db_query($sql, 'cannot find oldest delivery date');
-	$date = db_fetch($res);
-	return $date[0];
-}
-
 /* Added by Ronelle 5/6/2021 */
 //Modified by spyrax10 23-Oct-2021
 function get_sales_invoice_header_repo($invoice_no)
@@ -860,162 +787,6 @@ function get_supplier_mcode_repo($stock_id) {
 	set_global_connection();
 	return db_fetch($result);
 }
-
-function get_SI_by_reference_repo ($reference) {
-
-	$sql = "SELECT * FROM " . TB_PREF . "debtor_trans 
-		WHERE reference = " .db_escape($reference);
-
-	$result = db_query($sql, "No SI details return! (spyrax10)");
-	set_global_connection();
-	return db_fetch($result);
-}
-//Added by Albert
-function get_ar_amount_repo($reference) {
-
-	$sql = "SELECT * FROM " . TB_PREF . "debtor_loans 
-		WHERE invoice_ref_no = " .db_escape($reference);
-
-	$result = db_query($sql, "No SI details return! (spyrax10)");
-	set_global_connection();
-	return db_fetch($result);
-}
-
-function get_SI_id_repo($trans_no, $stock_id, $lot_no = '', $chassis_no = '') {
-
-	$sql = "SELECT id FROM " . TB_PREF . "debtor_trans_details 
-		WHERE debtor_trans_type = 10 
-			AND debtor_trans_no = " .db_escape($trans_no) . "
-			AND stock_id = " .db_escape($stock_id) . " 
-			AND lot_no = " .db_escape($lot_no) . "
-			AND chassis_no = " .db_escape($chassis_no);
-
-	$result = db_query($sql, "No SI details return! (spyrax10)");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-function get_so_date_repo($order_no)
-{
-	$sql = "SELECT A.ord_date FROM " . TB_PREF . "sales_orders A 
-		WHERE A.order_no=" . db_escape($order_no);
-
-	$result = db_query($sql, "Can't get SO Date!");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-function get_total_discount_repo($order_no) {
-	$sql = "SELECT SUM(B.discount1 + B.discount2) AS discount
-		FROM " . TB_PREF . "sales_orders A 
-			INNER JOIN " . TB_PREF . "sales_order_details B ON A.order_no = B.order_no
-		WHERE A.order_no=" . db_escape($order_no). " GROUP BY B.order_no";
-
-	$result = db_query($sql, "Can't get SO Total Discount!");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-function reference_exist_repo($reference, $trans_no = null) {
-
-	$sql = "SELECT COUNT(*) FROM " . TB_PREF . "debtor_loans A 
-		WHERE A.ref_no=" . db_escape($reference);
-
-	if ($trans_no != null) {
-		$sql .= " AND trans_no != ".db_escape($trans_no);
-	}
-
-	$result = db_query($sql, "Can't get DL reference count!");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-
-function get_SO_trans_no_repo($stock_id, $order_no) {
-	$sql = "SELECT A.stock_trans_no
-	FROM " . TB_PREF . ".sales_order_details A
-	WHERE A.stk_code =".db_escape($stock_id) . " AND A.order_no=".db_escape($order_no);
-
-	$result = db_query($sql, "Can't get SO stock_trans_no!");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-function get_SO_trans_type_repo($stock_id, $order_no) {
-	$sql = "SELECT A.stock_trans_type
-		FROM " . TB_PREF . ".sales_order_details A
-		WHERE A.stk_code =".db_escape($stock_id) . " AND A.order_no=".db_escape($order_no);
-	
-	$result = db_query($sql, "Can't get SO stock_trans_type!");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-function get_SO_total_repo($order_no) {
-	$sql = "SELECT A.total
-		FROM " . TB_PREF . ".sales_orders A
-		WHERE A.order_no=".db_escape($order_no);
-	
-	$result = db_query($sql, "Can't get SO Total!");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-
-function get_stock_catID_repo($stock_id) {
-	$sql = "SELECT A.category_id 
-	FROM " . TB_PREF . ".stock_master A
-	WHERE A.stock_id=".db_escape($stock_id);
-	
-	$result = db_query($sql, "Cant get stock category id! ");
-	$row = db_fetch_row($result);
-	return $row[0];
-}
-//
-
-/* Added by Ronelle 11/11/2021 */
-function done_check_qty_return_invoice_repo($si_ref)
-{
-	$sql = "SELECT
-				(SELECT 
-					SUM(t1.quantity)
-				FROM 
-					debtor_trans_details t1
-				WHERE 
-					t1.debtor_trans_no = b.trans_no 
-				AND 
-					t1.debtor_trans_type = b.type
-				) - (SELECT
-					SUM(z1.Quantity)
-				FROM
-					returned_units z1
-				INNER JOIN
-					debtor_trans_details z2
-				ON
-					z2.id = z1.from_debtor_trans_details_id
-				WHERE
-					z1.debtor_trans_no = b.trans_no
-				AND
-					z2.debtor_trans_type = b.type
-				) as isFullySR
-			FROM
-				sales_return_replacement a
-			INNER JOIN
-				debtor_trans b
-			ON
-				b.reference = a.trans_ref
-			WHERE
-				a.trans_ref = " . db_escape($si_ref) . "
-			GROUP BY b.trans_no";
-
-	$result = db_query($sql, "sales invoice retreival retuurn qty");
-	$row = db_fetch($result);
-	$done = false;
-	
-	if (!empty($row) && $row[0] == 0){
-		$done = true;
-	}
-	return $done;
-}
 /* Added by Albert */
 function update_repo_items_status($trans_no,$lot_no){
 
@@ -1029,30 +800,18 @@ function update_repo_items_status($trans_no,$lot_no){
 		
 }
 
-function get_previous_owner($reference) {
+function get_previous_owner($lot_no) {
 
-	$sql = "SELECT name 
-			FROM " . TB_PREF . "debtor_loans a  
-			Inner Join " . TB_PREF . "debtors_master b ON a.debtor_no = b.debtor_no
-			WHERE a.delivery_ref_no = " .db_escape($reference);
+	set_global_connection();
+	$sql = "SELECT b.name, b.debtor_no
+			FROM ".TB_PREF."debtor_trans a  
+			Inner join ".TB_PREF."debtor_trans_details c ON c.debtor_trans_no = a.trans_no
+			Inner Join ".TB_PREF."debtors_master b ON a.debtor_no = b.debtor_no
+			WHERE c.lot_no =" . db_escape($lot_no);
 
-	$result = db_query($sql, "Can't get previous name!!!(Albert)");
-	$row = db_fetch_row($result);
-	return $row[0];
+	$sql.= " ORDER BY a.trans_no DESC LIMIT 1";
+
+	$result = db_query($sql, "Can't get previous name!!!");
+	
+	return db_fetch($result);
 }
-function get_stock_reference($lot_no)
-{
-
-	$sql = "SELECT A.reference FROM " . TB_PREF . "stock_moves A WHERE A.type = 13 AND A.lot_no =" . db_escape($lot_no);
-
-	$sql .= " AND A.lot_no =" . db_escape($lot_no);
-	/*modified by Albert*/
-	$sql .= " GROUP BY A.lot_no, A.trans_id";
-	$sql .= " ORDER BY A.trans_id DESC LIMIT 1";
-	//
-	$result = db_query($sql, "Can not get Reference");
-	$row = db_fetch_row($result);
-
-	return $row[0];
-}
-//

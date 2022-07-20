@@ -601,10 +601,13 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 		else {
 			hidden('co_maker', 0);
 		}
-	}	
-	$previous_owner = get_stock_reference($order->line_items[0]->lot_no) != '' ? get_previous_owner(get_stock_reference($order->line_items[0]->lot_no)) : '';
-	label_row(_("Previous Owner:"), $previous_owner);
-	hidden('previous_owner',$previous_owner);
+	}
+
+	$previous_owner =get_previous_owner($order->line_items[0]->lot_no);
+
+	label_row(_("Previous Owner:"), $previous_owner['name']);
+	hidden('previous_owner',$previous_owner['debtor_no']);
+	
 
 	table_section(2);
 

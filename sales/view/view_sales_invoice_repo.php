@@ -78,7 +78,7 @@ label_row(_("Sales Person: "), $header['sales_type'], "class='tableheader2'");
 label_row(_("Sale Type: "), $header['salesman_name'], "class='tableheader2'");
 label_row(_("Co-maker: "), $header['co_maker_name'], "class='tableheader2'");
 
-label_row(_("Previous Owner: "), $sales_order['previous_owner'], "class='tableheader2'");
+label_row(_("Previous Owner: "), get_customer_name($sales_order['previous_owner']), "class='tableheader2'");
 table_section(2);
 // label_row(_("WRC/EW Code: "), $header["warranty_code"], "class='tableheader2'");
 label_row(_("FSC Series: "), $header["fsc_series"], "class='tableheader2'");
