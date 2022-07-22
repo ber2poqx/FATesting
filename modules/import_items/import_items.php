@@ -314,12 +314,14 @@ if (isset($_POST['import'])) {
                       $code = trim(htmlentities($code));
                       $oldcode = trim(htmlentities($oldcode));
                       $description = trim(htmlentities($description));
+                      $currentdate = date('Y-m-d');
+
 			    $sql = "SELECT stock_id FROM ".TB_PREF."stock_master WHERE stock_id='$id'";
 			    $result = db_query($sql,"item could not be retreived");
 			    $row = db_fetch_row($result);
 			    if (!$row) {
 				    $sql = "INSERT INTO ".TB_PREF."stock_master (stock_id, description, long_description, category_id, tax_type_id, units, mb_flag, sales_account, inventory_account, cogs_account, adjustment_account, wip_account, dimension_id, dimension2_id, brand, manufacturer, distributor, importer, installment_sales_account, regular_sales_account, 
-				    	old_code, sap_code, serialised)
+				    	old_code, sap_code, serialised, date_modified)
 					    VALUES (
 							".db_escape($id).",
 							".db_escape($description).",'', ".db_escape($cat).", ".db_escape($_POST['tax_type_id']).", 
@@ -329,7 +331,7 @@ if (isset($_POST['import'])) {
 					    	".db_escape($_POST['wip_account']).", ".db_escape($dim).", '0', ".db_escape($brand).", 
 					    	".db_escape($manufacturer).",".db_escape($distributor).",".db_escape($importer).", 
 					    	".db_escape($_POST['installment_sales_account']).", ".db_escape($_POST['regular_sales_account']).",
-					    	".db_escape($oldcode).", ".db_escape($sapitemno).", ".db_escape($serialised)."
+					    	".db_escape($oldcode).", ".db_escape($sapitemno).", ".db_escape($serialised).", ".db_escape($currentdate)."
 						)";
 
 				    db_query($sql, "The item could not be added");
@@ -358,7 +360,8 @@ if (isset($_POST['import'])) {
                         regular_sales_account='{$_POST['regular_sales_account']}',
 					    old_code=".db_escape($oldcode).",
 					    sap_code=".db_escape($sapitemno).",
-					    serialised=".db_escape($serialised)."
+					    serialised=".db_escape($serialised).",
+					    date_modified=".db_escape($currentdate)."
                         WHERE stock_id='$id'";
 
 				    db_query($sql, "The item could not be updated");
