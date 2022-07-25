@@ -1135,6 +1135,7 @@ function get_available_item_for_si(
 		}
 
 		$sql .= " GROUP BY a.stock_id";
+		$sql .= " LIMIT 300";
 	} else {
 		/* Modified by Ronelle 11/11/2021 */
 		$sql = "SELECT
