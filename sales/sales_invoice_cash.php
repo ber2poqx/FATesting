@@ -578,6 +578,13 @@ function can_process()
 		$_SESSION['Items']->due_date = $_SESSION['Items']->document_date;
 	}
 
+	//Added by spyrax10 26 Jul 2022
+	if (check_value('pdc_chk') == 1 && get_post('pdc_no') == '') {
+		display_error(_("With PDC is selected! Please Input Customer's PDC Number.."));
+		return false;
+	} 
+	//
+
 	return true;
 }
 
