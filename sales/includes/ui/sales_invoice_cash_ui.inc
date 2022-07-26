@@ -261,8 +261,8 @@ function display_order_summary($title, &$order, $editable_items = false)
 				amount_cell(get_unit_cost_average($stock_item->stock_id, $order->Location, $stock_item->lot_no, $stock_item->chasis_no));
 			}
 
-			$dis1 = $stock_item->discount1;
-			$dis2 = $stock_item->discount2;
+			$dis1 = get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount($line_no) : $stock_item->discount1;
+			$dis2 = get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount($line_no) : $stock_item->discount2;
 
 			amount_cell($dis1);
 			amount_cell($dis2);

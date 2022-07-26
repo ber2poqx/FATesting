@@ -707,8 +707,8 @@ function update_header() {
 
 		$total += $order_item->price * $order_item->qty_dispatched;
 
-		$dis1 += get_post('pdc_no') != '' ? floor($order_item->price * $order_item->qty_dispatched * .05) : $order_item->discount1;
-		$dis2 += get_post('pdc_discount') == 1 ?  floor($order_item->price * $order_item->qty_dispatched * .05) : $order_item->discount2;
+		$dis1 += get_post('pdc_no') != '' ? floor($order_item->price * $order_item->qty_dispatched * 0.05) : $order_item->discount1;
+		$dis2 += get_post('pdc_discount') == 1 ?  floor($order_item->price * $order_item->qty_dispatched * 0.05) : $order_item->discount2;
 
 		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($dis1 + $dis2);
 
@@ -729,6 +729,7 @@ function update_header() {
 function handle_update_item()
 {
 	//Modified by spyrax10 7 Feb 2022
+	$pdc_dis = (input_num('qty') * input_num('price')) * 0.05;
 	if ($_POST['UpdateItem'] != '' && check_item_data()) {
 		$_SESSION['Items']->update_cart_item(
 			$_POST['LineNo'],
@@ -739,8 +740,8 @@ function handle_update_item()
 			$_POST['serialeng_no'],
 			$_POST['chassis_no'],
 			$_POST['color_desc'],
-			get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount() : input_num('discount1'),
-			get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : input_num('discount2'),
+			get_post('pdc_no') != '' ? $pdc_dis : input_num('discount1'),
+			get_post('pdc_discount') == 1 ? $pdc_dis : input_num('discount2'),
 			input_num('lcp_price'),
 			$_POST['smi'],
 			$_POST['incentives']
@@ -778,6 +779,9 @@ function handle_new_item()
 	if (!check_item_data()) {
 		return;
 	}
+
+	$pdc_dis = (input_num('qty') * input_num('price')) * 0.05;
+
 	add_to_order(
 		$_SESSION['Items'],
 		get_post('stock_id'),
@@ -789,8 +793,8 @@ function handle_new_item()
 		$_POST['chassis_no'],
 		$_POST['color_desc'],
 		$_POST['item_type'],
-		get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount() : input_num('discount1'),
-		get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : input_num('discount2'),
+		get_post('pdc_no') != '' ? $pdc_dis : input_num('discount1'),
+		get_post('pdc_discount') == 1 ? $pdc_dis : input_num('discount2'),
 		input_num('lcp_price'),
 		$_POST['smi'],
 		$_POST['incentives']

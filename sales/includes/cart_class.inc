@@ -620,11 +620,13 @@ class Cart
 		}
 	}
 
-	function get_cart_discount() {
+	function get_cart_discount($line_) {
 		$total = $sub_total = 0;
 
-		foreach ($this->line_items as $ln_itm) {
-			$sub_total += $ln_itm->quantity * $ln_itm->line_price();
+		foreach ($this->line_items as $line_no => $ln_itm) {
+			if ($line_ == $line_no) {
+				$sub_total += $ln_itm->quantity * $ln_itm->line_price();
+			}
 		}
 
 		$total = floor($sub_total * 0.05);
