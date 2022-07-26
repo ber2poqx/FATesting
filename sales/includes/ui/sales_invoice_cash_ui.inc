@@ -261,8 +261,8 @@ function display_order_summary($title, &$order, $editable_items = false)
 				amount_cell(get_unit_cost_average($stock_item->stock_id, $order->Location, $stock_item->lot_no, $stock_item->chasis_no));
 			}
 
-			$dis1 = get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount() : $stock_item->discount1;
-			$dis2 = get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : $stock_item->discount2;
+			$dis1 = $stock_item->discount1;
+			$dis2 = $stock_item->discount2;
 
 			amount_cell($dis1);
 			amount_cell($dis2);
@@ -815,7 +815,7 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		//Modified by spyrax10 26 Jul 2022
 		$_POST['discount1'] = get_post('pdc_no') != '' ? get_post('discount1') : price_format($discount1);
-		$_POST['discount2'] = get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : price_format($discount2);
+		$_POST['discount2'] = get_post('pdc_discount') == 1 ? get_post('discount2') : price_format($discount2);
 		//
 
 		//Added by spyrax10 7 Feb 2022
