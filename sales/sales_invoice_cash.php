@@ -414,6 +414,7 @@ if (get_post('StockLocation')) {
 }
 
 if (get_post('category_id')) {
+	clear_discount();
 	$Ajax->activate('order_head');
 }
 
