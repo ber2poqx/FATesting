@@ -52,7 +52,7 @@ function add_sales_order(&$order)
 				order_type, ship_via, deliver_to, delivery_address, contact_phone, freight_cost, from_stk_loc, delivery_date, payment_terms, total, 
 				prep_amount, doc_ref_no, salesman_id, category_id, dp_amount, lcp_amount, amortization, waranty_code, fsc_series, ar_amount, first_due_date, maturity_date,
 				months_term, rebate, financing_rate, status, co_maker, discount_downpayment, so_type,discount_downpayment2, account_specialist_remarks, so_item_type, previous_owner, 
-				payment_terms_name)
+				payment_terms_name, pdc_no)
 
 		VALUES (" . db_escape($order_no) . "," .
 		db_escape($order_type) . "," .
@@ -96,7 +96,9 @@ function add_sales_order(&$order)
 			".db_escape($order->account_specialist_remarks) . ",
 		    ".db_escape($order->so_item_type) . ",
 			".db_escape($order->previous_owner) . //modified by Albert 11/03/2021
-			", '$payterm_name')"; //Added by spyrax10
+			", '$payterm_name', 
+			".db_escape($order->pdc_no) ."
+		)"; 
 
 	db_query($sql, "order Cannot be Added");
 
@@ -247,7 +249,8 @@ function update_sales_order($order)
 		maturity_date = '$maturity_date',
 		co_maker = " . db_escape($order->co_maker) . ",
 		discount_downpayment = $order->discount_dp_amount,
-		so_type = " . db_escape($order->sales_type) . "
+		so_type = " . db_escape($order->sales_type) . ",
+		pdc_no = " . db_escape($order->pdc_no) . "
 
 	 WHERE order_no=" . db_escape($order_no) . "
 	 AND trans_type=" . $order->trans_type . " AND version=" . $version;

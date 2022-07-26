@@ -226,7 +226,6 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 	$total = 0;
 	$k = 0;  //row colour counter
-
 	$id = find_submit('Edit');
 
 	$low_stock = $order->check_qoh($_POST['OrderDate'], $_POST['Location']);
@@ -257,10 +256,16 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 			label_cell($stock_item->units);
 			amount_cell($stock_item->price);
-			if ($order->trans_type == ST_SALESINVOICE)
+			
+			if ($order->trans_type == ST_SALESINVOICE) {
 				amount_cell(get_unit_cost_average($stock_item->stock_id, $order->Location, $stock_item->lot_no, $stock_item->chasis_no));
-			amount_cell($stock_item->discount1);
-			amount_cell($stock_item->discount2);
+			}
+
+			$dis1 = get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount() : $stock_item->discount1;
+			$dis2 = get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : $stock_item->discount2;
+
+			amount_cell($dis1);
+			amount_cell($dis2);
 
 			/** Added by spyrax10
 			 * Original Formula (Please See file's history):
@@ -269,8 +274,9 @@ function display_order_summary($title, &$order, $editable_items = false)
 			 */
 
 			//Modified by spyrax10
-			$total_amount += $stock_item->price * $stock_item->qty_dispatched - ($stock_item->discount1 + $stock_item->discount2);
-			amount_cell($line_total - ($stock_item->discount1 + $stock_item->discount2));
+
+			$total_amount += $stock_item->price * $stock_item->qty_dispatched - ($dis1 + $dis2);
+			amount_cell($line_total - ($dis1 + $dis2));
 			//
 
 			label_cell($stock_item->lot_no);
@@ -333,6 +339,7 @@ function display_order_header(&$order, $editable, $date_text)
 {
 	global $Ajax, $SysPrefs;
 
+	div_start('order_head');
 	start_outer_table(TABLESTYLE2, "width='80%'");
 
 	table_section(1);
@@ -648,7 +655,7 @@ function display_order_header(&$order, $editable, $date_text)
 			/*End by Albert*/			}
 		$Ajax->activate('items_table');
 	} else {
-		$tot_discount = price_format(get_post('total_discount'));
+		$tot_discount = price_format(floor(get_post('total_discount')));
 		//$tot_discount = get_post('lcp_amount') - get_post('total_amount');
 	}
 	label_row(_("Total Discount:"), $tot_discount);
@@ -657,7 +664,36 @@ function display_order_header(&$order, $editable, $date_text)
 
 	label_row(_("Net Sales:"), price_format(get_post('lcp_amount'))); // update by Albert Total Cash amount= Net Sales
 	hidden('lcp_amount');
+
+	//Added by spyrax10 26 Jul 2022
+	if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
+		table_section(3);
+		
+		//check_row(_('With PDC Number?:'), 'pdc_chk', null, true);
+		value_type_list(('With PDC Number?:'), 'pdc_chk', 
+    		array(
+        		0 => 'No', 
+        		1 => 'Yes',
+    		), 'label', null, true, '', true
+		);
+
+		if (get_post('pdc_chk') == 1) {
+			text_row(_("Customer's PDC #: "), 'pdc_no', null, 28, 28);
+			value_type_list(_("Apply Additional Discount?: &nbsp;"), 'pdc_discount', 
+    			array(
+        			0 => 'No', 
+        			1 => 'Yes',
+    			), 'label', null, true, '', true
+			);
+		}
+	}
+	else {
+		hidden('pdc_no');
+	}
+	//
+	
 	end_outer_table(1); // outer table
+	div_end('order_head');
 
 	if ($change_prices != 0) {
 		foreach ($order->line_items as $line_no => $item) {
@@ -777,8 +813,10 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$_POST['price'] = price_format($price);
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
-		$_POST['discount1'] = price_format($discount1);
-		$_POST['discount2'] = price_format($discount2);
+		//Modified by spyrax10 26 Jul 2022
+		$_POST['discount1'] = get_post('pdc_no') != '' ? get_post('discount1') : price_format($discount1);
+		$_POST['discount2'] = get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : price_format($discount2);
+		//
 
 		//Added by spyrax10 7 Feb 2022
 		$smi = Get_Item_Incentive_Price($_POST['category_id'], $_POST['stock_id'], "SMI");

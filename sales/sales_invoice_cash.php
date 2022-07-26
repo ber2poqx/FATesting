@@ -328,6 +328,11 @@ function copy_to_cart()
 	$cart->lcp_amount = $_POST['lcp_amount'];
 	$cart->co_maker = $_POST['co_maker'];
 	$cart->stype_id = $_POST['stype_id'];
+	
+	if (isset($_POST['pdc_no'])) {
+		$cart->pdc_no = $_POST['pdc_no'];
+		$cart->pdc_discount = $_POST['pdc_discount'];
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -382,6 +387,8 @@ function copy_from_cart()
 	$_POST['lcp_amount'] = $cart->lcp_amount;
 	$_POST['co_maker'] = $cart->co_maker;
 	$_POST['stype_id'] = $cart->stype_id;
+	$_POST['pdc_no'] = $cart->pdc_no;
+	$_POST['pdc_discount'] = $cart->pdc_discount;
 }
 //--------------------------------------------------------------------------------
 
@@ -393,12 +400,46 @@ function line_start_focus()
 }
 
 //Added by spyrax10
+function clear_discount() {
+	unset($_POST['pdc_discount']);
+	unset($_POST['pdc_chk']);
+	unset($_POST['pdc_no']);
+}
+
 if (get_post('StockLocation')) {
 	$cart = &$_SESSION['Items'];
 	$_POST['Location'] = get_post('StockLocation');
 	$cart->Location = $_POST['Location'];
 	$Ajax->activate('delivery');
 }
+
+if (get_post('category_id')) {
+	$Ajax->activate('order_head');
+}
+
+if (get_post('pdc_chk')) {
+
+	$cart = &$_SESSION['Items'];
+
+	$cart->update_cart_discount(get_post('pdc_chk'), get_post('pdc_discount'));
+	update_header();
+	$Ajax->activate('_page_body');
+}
+else {
+	clear_discount();
+	$cart = &$_SESSION['Items'];
+	$cart->update_cart_discount(0, 0);
+	update_header();
+	$Ajax->activate('_page_body');
+}
+
+if (get_post('pdc_discount')) {
+	$cart = &$_SESSION['Items'];
+	$cart->update_cart_discount(get_post('pdc_chk'), get_post('pdc_discount'));
+	update_header();
+	$Ajax->activate('_page_body');
+}
+//
 
 //--------------------------------------------------------------------------------
 function can_process()
@@ -639,6 +680,13 @@ function check_item_data()
 		}
 		display_warning(sprintf(_("Price %s is below Standard Cost %s"), $price, $std_cost));
 	}
+
+	//Added by spyrax10 26 Jul 2022
+	if (check_value('pdc_chk') == 1 && get_post('pdc_no') == '') {
+		display_error(_("With PDC is selected! Please Input Customer's PDC Number.."));
+		return false;
+	} 
+	//
 	return true;
 }
 
@@ -647,11 +695,16 @@ function check_item_data()
 function update_header() {
 	$total = 0;
 	$total_lcp = $dis1 = $dis2 = $lcp = 0;
+
 	foreach ($_SESSION['Items']->line_items as $order_item) {
+
 		$total += $order_item->price * $order_item->qty_dispatched;
-		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($order_item->discount1 + $order_item->discount2);
-		$dis1 += $order_item->discount1;
-		$dis2 += $order_item->discount2;
+
+		$dis1 += get_post('pdc_no') != '' ? floor($total * .05) : $order_item->discount1;
+		$dis2 += get_post('pdc_discount') == 1 ?  floor($total * .05) : $order_item->discount2;
+
+		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($dis1 + $dis2);
+
 		//$total += ($order_item->price - ($order_item->discount1 + $order_item->discount2)) * $order_item->qty_dispatched;
 		//$total_lcp += $order_item->price * $order_item->qty_dispatched;
 	}
@@ -679,8 +732,8 @@ function handle_update_item()
 			$_POST['serialeng_no'],
 			$_POST['chassis_no'],
 			$_POST['color_desc'],
-			input_num('discount1'),
-			input_num('discount2'),
+			get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount() : input_num('discount1'),
+			get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : input_num('discount2'),
 			input_num('lcp_price'),
 			$_POST['smi'],
 			$_POST['incentives']
@@ -729,8 +782,8 @@ function handle_new_item()
 		$_POST['chassis_no'],
 		$_POST['color_desc'],
 		$_POST['item_type'],
-		input_num('discount1'),
-		input_num('discount2'),
+		get_post('pdc_no') != '' ? $_SESSION['Items']->get_cart_discount() : input_num('discount1'),
+		get_post('pdc_discount') == 1 ? $_SESSION['Items']->get_cart_discount() : input_num('discount2'),
 		input_num('lcp_price'),
 		$_POST['smi'],
 		$_POST['incentives']

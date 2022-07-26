@@ -156,6 +156,11 @@ class Cart
 	var $repo_type = "new";
 	/* */
 	var $calculation_id = 0;//Restructured Added by Albert 03/10/2022
+
+	//Added by spyrax10 25 Jul 2022
+	var $pdc_no = "";
+	var $pdc_discount = 0;
+	//
 	//-------------------------------------------------------------------------
 	//
 	//  $trans_no==0 => open new/direct document
@@ -604,6 +609,29 @@ class Cart
 			$this->line_items[$line_no]->smi = $smi;
 			$this->line_items[$line_no]->incentives = $incentives;
 	}
+
+	//Added by spyrax10 26 Jul 2022
+	function update_cart_discount($pdc_1 = 0, $pdc_2 = 0) { 
+
+		foreach ($this->line_items as $line_no => $ln_itm) {
+			$sub_total = $ln_itm->quantity * $ln_itm->line_price();
+			$this->line_items[$line_no]->discount1 = $pdc_1 > 0 ? floor($sub_total * 0.05) : 0;
+			$this->line_items[$line_no]->discount2 = $pdc_2 > 0 ? floor($sub_total * 0.05) : 0;
+		}
+	}
+
+	function get_cart_discount() {
+		$total = $sub_total = 0;
+
+		foreach ($this->line_items as $ln_itm) {
+			$sub_total += $ln_itm->quantity * $ln_itm->line_price();
+		}
+
+		$total = floor($sub_total * 0.05);
+
+		return $total;
+	}
+	//
 
 	function update_add_cart_item_qty($line_no, $qty)
 	{
