@@ -320,24 +320,28 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 	}
 
 	if ($type == "pr") {
-		$sql = "SELECT COUNT(s.stock_id) AS kit, s.stock_id AS item_code, s.description, c.description as category, 
-			b.name as brand_name, m.name as manufacturer_name, s.units, s.stock_id, d.name as distributor_name, ii.name as importer_name
-				FROM ".TB_PREF."stock_master s 
-					INNER JOIN ".TB_PREF."purch_data pd on pd.stock_id = s.stock_id AND pd.supplier_id = " . db_escape($supplier_id) . "
-					LEFT JOIN ".TB_PREF."stock_category c ON s.category_id = c.category_id 
-					LEFT JOIN ".TB_PREF."item_brand b ON s.brand = b.id 
-					LEFT JOIN ".TB_PREF."item_manufacturer m ON s.manufacturer = m.id 
-					LEFT JOIN ".TB_PREF."item_distributor d ON s.distributor = d.id 
-					LEFT JOIN ".TB_PREF."item_importer ii ON s.importer = ii.id	
+		$sql = 
+		"SELECT COUNT(s.stock_id) AS kit, s.stock_id AS item_code, s.description, c.description as category, 
+			b.name as brand_name, pd.supp_name AS manufacturer_name, s.units, s.stock_id, d.name as distributor_name, ii.name as importer_name
+		FROM ".TB_PREF."stock_master s 
+			INNER JOIN ".TB_PREF."suppliers pd on pd.supplier_id = s.manufacturer 
+			LEFT JOIN ".TB_PREF."stock_category c ON s.category_id = c.category_id 
+			LEFT JOIN ".TB_PREF."item_brand b ON s.brand = b.id 
+			LEFT JOIN ".TB_PREF."item_distributor d ON s.distributor = d.id 
+			LEFT JOIN ".TB_PREF."item_importer ii ON s.importer = ii.id	
 					
-		WHERE !s.inactive
-			AND (s.stock_id LIKE " . db_escape("%" . $description . "%") . " OR
+		WHERE !s.inactive AND pd.supplier_id = " . db_escape($supplier_id);
+		
+		if ($description != "") {
+			$sql = 
+			" AND (s.stock_id LIKE " . db_escape("%" . $description . "%") . " OR
 				s.description LIKE " . db_escape("%" . get_post("description") . "%") . " OR
 				b.name LIKE " . db_escape("%" . get_post("description") . "%") . "  OR
-				m.name LIKE " . db_escape("%" . get_post("description") . "%") . "
+				pd.supp_name LIKE " . db_escape("%" . get_post("description") . "%") . "
 			)";
+		}
 	}
-
+	
 	$sql .= $stmt_category;
 
 	switch ($type) {
