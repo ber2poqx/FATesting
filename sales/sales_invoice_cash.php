@@ -707,8 +707,8 @@ function update_header() {
 
 		$total += $order_item->price * $order_item->qty_dispatched;
 
-		$dis1 += get_post('pdc_no') != '' ? floor($order_item->price * $order_item->qty_dispatched * 0.05) : $order_item->discount1;
-		$dis2 += get_post('pdc_discount') == 1 ?  floor($order_item->price * $order_item->qty_dispatched * 0.05) : $order_item->discount2;
+		$dis1 += $order_item->discount1;
+		$dis2 += $order_item->discount2;
 
 		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($dis1 + $dis2);
 
