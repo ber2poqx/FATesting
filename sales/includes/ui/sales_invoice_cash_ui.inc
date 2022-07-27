@@ -227,6 +227,7 @@ function display_order_summary($title, &$order, $editable_items = false)
 	$total = 0;
 	$k = 0;  //row colour counter
 	$id = find_submit('Edit');
+	$pdc_no = '';
 
 	$low_stock = $order->check_qoh($_POST['OrderDate'], $_POST['Location']);
 	$total_amount = 0;
@@ -685,13 +686,14 @@ function display_order_header(&$order, $editable, $date_text)
 	
 			if (get_post('pdc_chk') == 1) {
 				text_row(_("Customer's PDC #: "), 'pdc_no', null, 28, 28);
-				value_type_list(_("Apply Additional Discount?: &nbsp;"), 'pdc_discount', 
+				value_type_list(_("Apply PDC Discount?: &nbsp;"), 'pdc_discount', 
 					array(
 						0 => 'No', 
 						1 => 'Yes',
 					), 'label', null, true, '', true
 				);
 			}
+			//hidden('pdc_discount');
 		}
 		else {
 			hidden('pdc_no');
@@ -824,8 +826,8 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		//Modified by spyrax10 26 Jul 2022
-		$_POST['discount1'] = get_post('pdc_no') != '' ? get_post('discount1') : price_format($discount1);
-		$_POST['discount2'] = get_post('pdc_discount') == 1 ? get_post('discount2') : price_format($discount2);
+		$_POST['discount1'] = get_post('pdc_chk') == 1 ? get_post('discount1') : price_format($discount1);
+		$_POST['discount2'] = get_post('pdc_discount') == 1 ? 0 : price_format($discount2);
 		//
 
 		//Added by spyrax10 7 Feb 2022

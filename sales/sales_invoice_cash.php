@@ -331,8 +331,8 @@ function copy_to_cart()
 	
 	if (isset($_POST['pdc_no'])) {
 		$cart->pdc_no = $_POST['pdc_no'];
-		$cart->pdc_discount = $_POST['pdc_discount'];
 	}
+	$cart->pdc_discount = $_POST['pdc_discount'];
 }
 
 //-----------------------------------------------------------------------------
@@ -400,11 +400,6 @@ function line_start_focus()
 }
 
 //Added by spyrax10
-function clear_discount() {
-	unset($_POST['pdc_discount']);
-	unset($_POST['pdc_chk']);
-	unset($_POST['pdc_no']);
-}
 
 if (get_post('StockLocation')) {
 	$cart = &$_SESSION['Items'];
@@ -421,12 +416,14 @@ if (get_post('pdc_chk')) {
 
 	$cart = &$_SESSION['Items'];
 
-	$cart->update_cart_discount(get_post('pdc_chk'), get_post('pdc_discount'));
-	update_header();
-	$Ajax->activate('_page_body');
+	if (get_post('pdc_chk') == 1) {
+		$cart->update_cart_discount(get_post('pdc_chk'), get_post('pdc_discount'));
+		update_header();
+		$Ajax->activate('_page_body');
+	}
 }
 else {
-	clear_discount();
+	$_POST['pdc_no'] = '';
 	$cart = &$_SESSION['Items'];
 	$cart->update_cart_discount(0, 0);
 	update_header();
@@ -435,9 +432,11 @@ else {
 
 if (get_post('pdc_discount')) {
 	$cart = &$_SESSION['Items'];
-	$cart->update_cart_discount(get_post('pdc_chk'), get_post('pdc_discount'));
-	update_header();
-	$Ajax->activate('_page_body');
+	if (get_post('pdc_chk') == 1) {
+		$cart->update_cart_discount(get_post('pdc_chk'), get_post('pdc_discount'));
+		update_header();
+		$Ajax->activate('_page_body');
+	}
 }
 //
 
@@ -730,6 +729,10 @@ function handle_update_item()
 {
 	//Modified by spyrax10 7 Feb 2022
 	$pdc_dis = (input_num('qty') * input_num('price')) * 0.05;
+	if (get_post('pdc_discount') == 1) {
+		$pdc_dis += $pdc_dis;
+	}
+
 	if ($_POST['UpdateItem'] != '' && check_item_data()) {
 		$_SESSION['Items']->update_cart_item(
 			$_POST['LineNo'],
@@ -741,7 +744,7 @@ function handle_update_item()
 			$_POST['chassis_no'],
 			$_POST['color_desc'],
 			get_post('pdc_no') != '' ? $pdc_dis : input_num('discount1'),
-			get_post('pdc_discount') == 1 ? $pdc_dis : input_num('discount2'),
+			input_num('discount2'),
 			input_num('lcp_price'),
 			$_POST['smi'],
 			$_POST['incentives']
@@ -781,6 +784,9 @@ function handle_new_item()
 	}
 
 	$pdc_dis = (input_num('qty') * input_num('price')) * 0.05;
+	if (get_post('pdc_discount') == 1) {
+		$pdc_dis += $pdc_dis;
+	}
 
 	add_to_order(
 		$_SESSION['Items'],
@@ -794,7 +800,7 @@ function handle_new_item()
 		$_POST['color_desc'],
 		$_POST['item_type'],
 		get_post('pdc_no') != '' ? $pdc_dis : input_num('discount1'),
-		get_post('pdc_discount') == 1 ? $pdc_dis : input_num('discount2'),
+		input_num('discount2'),
 		input_num('lcp_price'),
 		$_POST['smi'],
 		$_POST['incentives']

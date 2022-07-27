@@ -616,7 +616,8 @@ class Cart
 		foreach ($this->line_items as $line_no => $ln_itm) {
 			$sub_total = $ln_itm->quantity * $ln_itm->line_price();
 			$this->line_items[$line_no]->discount1 = $pdc_1 > 0 ? floor($sub_total * 0.05) : 0;
-			$this->line_items[$line_no]->discount2 = $pdc_2 > 0 ? floor($sub_total * 0.05) : 0;
+			$this->line_items[$line_no]->discount1 = $pdc_2 > 0 
+				? $this->line_items[$line_no]->discount1 + floor($sub_total * 0.05) : $this->line_items[$line_no]->discount1;
 		}
 	}
 
