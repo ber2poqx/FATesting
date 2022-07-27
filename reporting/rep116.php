@@ -84,7 +84,7 @@ function get_dailycash_balance_to($from, $cashier = '') {
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
 				AND C.void_status = 'Voided' 
-		WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
+		WHERE A.type <> 0 AND A.trans_date <= '$date' AND ISNULL(C.void_id)";
 
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
