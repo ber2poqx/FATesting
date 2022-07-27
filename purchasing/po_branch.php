@@ -64,7 +64,9 @@ function prt_link($row)
     //Modified by spyrax10 13 Jul 2022
     if ($_SESSION["wa_current_user"]->can_access_page('SA_PO_PRINT')) {
         return $row['Status'] == "Draft" || $row['Status'] == "Disapproved" || $row['Status'] == "Approved" ? '' :
-            print_document_link($row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT
+        print_document_link(
+            $row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT, 
+            'printlink', '', 0, 0, get_post('selected_po_branch')
         );
     }
     else {

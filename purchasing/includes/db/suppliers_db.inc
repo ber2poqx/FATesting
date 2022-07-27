@@ -162,13 +162,17 @@ function get_supplier_accounts($supplier_id)
 	return db_fetch($result);
 }
 
-function get_supplier_contacts($supplier_id, $action=null)
-{
+function get_supplier_contacts($supplier_id, $action = null, $coy = -1) {
+	//Modified by soyrax10 27 Jul 2022
+	set_global_connection($coy);
 	$results = array();
 	$res = get_crm_persons('supplier', $action, $supplier_id);
-	while($contact = db_fetch($res))
-		$results[] = $contact;
 
+	while($contact = db_fetch($res)) {
+		$results[] = $contact;
+	}
+
+	set_global_connection();
 	return $results;
 }
 

@@ -95,13 +95,15 @@ function get_purchase_conversion_factor($supplier_id, $stock_id)
 }
 //----------------------------------------------------------------------------------------
 
-function get_purchase_data($supplier_id, $stock_id)
-{
+function get_purchase_data($supplier_id, $stock_id, $coy = -1) {
+	//Modified by soyrax10 27 Jul 2022
+	set_global_connection($coy);
 	$sql = "SELECT * FROM ".TB_PREF."purch_data 
 		WHERE supplier_id = ".db_escape($supplier_id) . "
 		AND stock_id = ".db_escape($stock_id);
-	$result = db_query($sql, "The supplier pricing details for " . $stock_id . " could not be retrieved");    
 
+	$result = db_query($sql, "The supplier pricing details for " . $stock_id . " could not be retrieved");
+	set_global_connection();
 	return db_fetch($result);
 }
 

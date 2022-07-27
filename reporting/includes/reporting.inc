@@ -15,7 +15,7 @@
 // You only need full parameter list for invoices/credit notes
 
 function print_document_link($doc_no, $link_text, $link=true, $type_no, 
-	$icon=false, $class='printlink', $id='', $email=0, $extra=0)
+	$icon=false, $class='printlink', $id='', $email=0, $extra=0, $coy = -1)
 {
 	global $path_to_root;
 	include_once($path_to_root . "/includes/types.inc");
@@ -76,6 +76,7 @@ function print_document_link($doc_no, $link_text, $link=true, $type_no,
 				$ar['PARAM_7'] = $def_orientation;
 			break;
 		case ST_PURCHORDER :
+			//Modified by soyrax10 27 Jul 2022
 			$rep = 209;
 			// from, to, currency, email, comments, orientation
 			$ar = array(
@@ -84,7 +85,9 @@ function print_document_link($doc_no, $link_text, $link=true, $type_no,
 				'PARAM_2' => '', 
 				'PARAM_3' => $email, 
 				'PARAM_4' => '',
-				'PARAM_5' => $def_orientation);
+				'PARAM_5' => $def_orientation,
+				'PARAM_6' => $coy
+			);
 			break;
 		case ST_CUSTPAYMENT :
 			$rep = 112;

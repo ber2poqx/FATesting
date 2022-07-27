@@ -324,17 +324,19 @@ function update_reconciled_values($reconcile_id, $reconcile_value, $reconcile_da
 }
 //---------------------------------------------------------------------------------------------
 
-function get_default_bank_account($curr=null)
-{
+function get_default_bank_account($curr = null, $coy = -1) {
 	/* default bank account is selected as first found account from:
 		. default account in $curr if any
 		. first defined account in $curr if any
 		. default account in home currency
 		. first defined account in home currency
 	*/
+	//Modified by soyrax10 27 Jul 2022
+	set_global_connection($coy);
 	$home_curr = get_company_pref('curr_default');
-	if (!isset($curr))
+	if (!isset($curr)) {
 		$curr = $home_curr;
+	}
 
 	$sql = "SELECT b.*, b.bank_curr_code='$home_curr' as fall_back FROM "
 		.TB_PREF."bank_accounts b"
@@ -343,7 +345,7 @@ function get_default_bank_account($curr=null)
 		ORDER BY fall_back, dflt_curr_act desc";
 
 	$result = db_query($sql, "could not retreive default bank account");
-
+	set_global_connection();
 	return db_fetch($result);
 }
 
