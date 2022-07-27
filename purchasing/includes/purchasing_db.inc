@@ -45,8 +45,8 @@ function add_gl_trans_supplier($type, $type_no, $date_, $account, $dimension, $d
 	}
 
 	//Added by spyrax10
-	$mcode = $account == 2151 ? get_company_value(0, 'branch_code') : "";
-	$master_file = $account == 2151 ? get_company_value(0, 'name') : "";
+	$mcode = $account == get_company_pref('isa_employee') ? get_company_value(0, 'branch_code') : "";
+	$master_file = $account == get_company_pref('isa_employee') ? get_company_value(0, 'name') : "";
 	//
 
 	set_global_connection();
