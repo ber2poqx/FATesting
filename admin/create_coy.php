@@ -521,7 +521,8 @@ function display_companies()
 
 	start_table(TABLESTYLE);
 
-	$th = array(_("Branch Name"), _("Branch Area"),_("Branch Code"), _("Partner Code"), _("Type"), _("A/R Account"), _("Database Host"), _("Database Port"), _("Database User"),
+	$th = array(_("ID"), //Added by spyrax10 27 Jul 2022
+		_("Branch Name"), _("Branch Area"),_("Branch Code"), _("Partner Code"), _("Type"), _("A/R Account"), _("Database Host"), _("Database Port"), _("Database User"),
 		_("Database Name"), _("Table Pref"), _("Charset"), _("Default"), "E", "D"); //"Backup");
 	table_header($th);
 
@@ -542,6 +543,7 @@ function display_companies()
     	else
     		alt_table_row_color($k);
 
+		label_cell($i); //Added by spyrax10 27 Jul 2022
 		label_cell($conn[$i]['name']);
 		//label_cell($conn[$i]['address']);
 		label_cell($conn[$i]['branch_area']);
