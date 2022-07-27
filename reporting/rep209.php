@@ -89,10 +89,10 @@ function print_po() {
 	$orientation = ($orientation ? 'L' : 'P');
 	$dec = user_price_dec();
 //						 color,qty, unit, srp, total
-	$cols = array(10, 90, 250, 355, 385, 415, 465, 515);
+	$cols = array(10, 90, 255, 355, 385, 415, 465, 515);
 
 	// $headers in doctext.inc
-	$aligns = array('left',	'center', 'center', 'left', 'left', 'right', 'right');
+	$aligns = array('left',	'left', 'left', 'center', 'center', 'right', 'right');
 
 	$params = array('comments' => $comments);
 
@@ -129,11 +129,11 @@ function print_po() {
 		$rep->SetHeaderType('Header2');
 		$rep->NewPage();
 
-		$result = get_po_details($i, $coy);
+		$result2 = get_po_details($i, $coy);
 		$SubTotal = 0;
 		$items = $prices = array();
 		
-		while ($myrow2 = db_fetch($result)) {
+		while ($myrow2 = db_fetch($result2)) {
 
 			$data = get_purchase_data($myrow['supplier_id'], $myrow2['item_code'], $coy);
 			
@@ -155,23 +155,28 @@ function print_po() {
 			$items[] = $myrow2['item_code'];
 			$SubTotal += $Net;
 			$dec2 = 0;
-			
+
 			$DisplayPrice = price_decimal_format($myrow2["unit_price"], $dec2);
-			$DisplayQty = number_format2($myrow2["quantity_ordered"], get_qty_dec($myrow2['item_code']));
-			$DisplayNet = number_format2($Net,$dec);
+			$DisplayQty = number_format2($myrow2["quantity_ordered"]);
+			$DisplayNet = number_format2($Net, $dec);
 			
 			if ($SysPrefs->show_po_item_codes()) {
 				$rep->TextCol(0, 1,	$myrow2['item_code'], -2);
 				$rep->TextCol(1, 2,	$myrow2['description'], -2); //*Empty slot
-			} 
-			else {
-				$rep->TextCol(0, 1,	$myrow2['item_code'], -2);	
-				//$rep->TextCol(2, 3,	sql2date($myrow2['delivery_date']), -2);		
-				$rep->TextCol(2, 3,	$myrow2['color_code'], -2);	//* Slot used to display data for COLOR			
+				$rep->TextCol(2, 3,	$myrow2['color_code'], -2);
 				$rep->TextCol(3, 4,	$DisplayQty, -2);
 				$rep->TextCol(4, 5,	$myrow2['units'], -2);
 				$rep->TextCol(5, 6,	$DisplayPrice, -2);
 				$rep->TextCol(6, 7,	$DisplayNet, -2);
+			} 
+			else {
+				$rep->TextCol(0, 1,	$myrow2['item_code'], -2);	
+				//$rep->TextCol(2, 3,	sql2date($myrow2['delivery_date']), -2);		
+				$rep->TextCol(1, 2,	$myrow2['color_code']);	//* Slot used to display data for COLOR			
+				$rep->TextCol(2, 3,	$DisplayQty, -2);
+				$rep->TextCol(3, 4,	$myrow2['units'], -2);
+				$rep->TextCol(4, 5,	$DisplayPrice, -2);
+				$rep->TextCol(5, 6,	$DisplayNet, -2);
 				$rep->NewLine(1);
 			}
 
