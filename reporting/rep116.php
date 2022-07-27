@@ -76,7 +76,7 @@ function disbursement_transactions($from, $cashier = '') {
     return db_query($sql,"No transactions were returned");
 }
 
-function get_dailycash_balance_to($from, $cashier = '') {
+function opening_balance($from, $cashier = '') {
 	$date = date2sql($from);
 
 	$sql = "SELECT SUM(A.amount), A.cashier_user_id, B.real_name, B.user_id 
@@ -84,7 +84,7 @@ function get_dailycash_balance_to($from, $cashier = '') {
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
 				AND C.void_status = 'Voided' 
-		WHERE A.type <> 0 AND A.trans_date <= '$date' AND ISNULL(C.void_id)";
+		WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
 
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
@@ -189,7 +189,7 @@ function print_dailycash_sales()
 
 	//-----FOR PREVIOUS BALANCE-----//
 	$prev_balance = 0;
-	$prev_balance = get_dailycash_balance_to($from, $cashier);
+	$prev_balance = opening_balance($from, $cashier);
 	
 	$rep->NewLine(.5);
 	$rep->Font('bold');
