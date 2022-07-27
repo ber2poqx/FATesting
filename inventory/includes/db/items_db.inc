@@ -333,7 +333,7 @@ function get_items_search($description, $type, $category = -1, $supplier_id = 0)
 		WHERE !s.inactive AND pd.supplier_id = " . db_escape($supplier_id);
 		
 		if ($description != "") {
-			$sql = 
+			$sql .= 
 			" AND (s.stock_id LIKE " . db_escape("%" . $description . "%") . " OR
 				s.description LIKE " . db_escape("%" . get_post("description") . "%") . " OR
 				b.name LIKE " . db_escape("%" . get_post("description") . "%") . "  OR

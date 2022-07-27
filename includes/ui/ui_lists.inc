@@ -1385,12 +1385,12 @@ function pr_stock_items_list($supplier_id, $category, $name, $selected_id=null, 
 			c.description, 
 			s.inactive, 
 			s.editable
-			FROM stock_master s INNER JOIN 
-			stock_category c ON s.category_id=c.category_id LEFT JOIN 
-			item_brand b ON s.brand=b.id LEFT JOIN 
-			item_manufacturer m ON s.manufacturer=m.id INNER JOIN
-			purch_data pd on pd.stock_id = s.stock_id
-			WHERE s.description<>'NULL' AND pd.supplier_id = ".db_escape($supplier_id);
+			FROM stock_master s 
+				INNER JOIN stock_category c ON s.category_id = c.category_id 
+				LEFT JOIN item_brand b ON s.brand = b.id 
+				LEFT JOIN item_manufacturer m ON s.manufacturer = m.id 
+				INNER JOIN ".TB_PREF."suppliers pd on pd.supplier_id = s.manufacturer 
+			WHERE s.description <> 'NULL' AND pd.supplier_id = ".db_escape($supplier_id);
 
 	if ($editkey)
 		set_editor('item', $name, $editkey);
