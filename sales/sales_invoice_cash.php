@@ -707,8 +707,8 @@ function update_header() {
 
 		$total += $order_item->price * $order_item->qty_dispatched;
 
-		$dis1 += $order_item->discount1;
-		$dis2 += $order_item->discount2;
+		$dis1 += floor($order_item->discount1);
+		$dis2 += floor($order_item->discount2);
 
 		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($dis1 + $dis2);
 

@@ -600,7 +600,7 @@ function display_order_header(&$order, $editable, $date_text)
 	}
 
 	if ($order->trans_type == ST_SALESINVOICE) {
-		text_row_ex(_("WRC/EW Code") . ':', 'waranty_code', 16);
+		text_row_ex(_("WRC/EW Code") . ': &nbsp;', 'waranty_code', 16);
 		text_row_ex(_("FSC Series") . ':', 'fsc_series', 16);
 	} else {
 		hidden('waranty_code');
@@ -637,7 +637,7 @@ function display_order_header(&$order, $editable, $date_text)
 	//Added by spyrax10
 	$tot_discount = 0;
 	if ($order->trans_type == ST_SALESINVOICE && $editable) {
-		$tot_discount = get_total_discount($order->order_no);
+		$tot_discount = price_format(get_total_discount($order->order_no));
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
 			
@@ -658,37 +658,47 @@ function display_order_header(&$order, $editable, $date_text)
 		$tot_discount = price_format(floor(get_post('total_discount')));
 		//$tot_discount = get_post('lcp_amount') - get_post('total_amount');
 	}
-	label_row(_("Total Discount:"), $tot_discount);
+	label_row(_("Total Discount: &nbsp;"), $tot_discount);
 	hidden('total_discount');
 	//
 
 	label_row(_("Net Sales:"), price_format(get_post('lcp_amount'))); // update by Albert Total Cash amount= Net Sales
 	hidden('lcp_amount');
 
+	$pdc_no = '';
+	if (isset($order->order_no)) {
+		$so_head = get_SO_header($order->order_no);
+		$pdc_no = $so_head['pdc_no'];
+	}
 	//Added by spyrax10 26 Jul 2022
-	if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
-		table_section(3);
-		
-		//check_row(_('With PDC Number?:'), 'pdc_chk', null, true);
-		value_type_list(('With PDC Number?:'), 'pdc_chk', 
-    		array(
-        		0 => 'No', 
-        		1 => 'Yes',
-    		), 'label', null, true, '', true
-		);
-
-		if (get_post('pdc_chk') == 1) {
-			text_row(_("Customer's PDC #: "), 'pdc_no', null, 28, 28);
-			value_type_list(_("Apply Additional Discount?: &nbsp;"), 'pdc_discount', 
-    			array(
-        			0 => 'No', 
-        			1 => 'Yes',
-    			), 'label', null, true, '', true
+	if ($pdc_no == '') {
+		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
+			table_section(3);
+			
+			//check_row(_('With PDC Number?:'), 'pdc_chk', null, true);
+			value_type_list(('With PDC Number?:'), 'pdc_chk', 
+				array(
+					0 => 'No', 
+					1 => 'Yes',
+				), 'label', null, true, '', true
 			);
+	
+			if (get_post('pdc_chk') == 1) {
+				text_row(_("Customer's PDC #: "), 'pdc_no', null, 28, 28);
+				value_type_list(_("Apply Additional Discount?: &nbsp;"), 'pdc_discount', 
+					array(
+						0 => 'No', 
+						1 => 'Yes',
+					), 'label', null, true, '', true
+				);
+			}
+		}
+		else {
+			hidden('pdc_no');
 		}
 	}
 	else {
-		hidden('pdc_no');
+		label_row(_("Customer's PDC Number: &nbsp;"), $pdc_no);
 	}
 	//
 	

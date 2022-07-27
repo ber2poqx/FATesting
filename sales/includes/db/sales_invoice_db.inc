@@ -945,6 +945,15 @@ function get_SI_by_reference($reference) {
 	return db_fetch($result);
 }
 
+function get_SO_header($order_no) {
+	set_global_connection();
+
+	$sql = "SELECT * FROM " . TB_PREF . "sales_orders";
+	$sql .= " WHERE order_no = " .db_escape($order_no);
+
+	$result = db_query($sql, "get_SO_header");
+	return db_fetch($result);
+}
 function void_payments_thru_JE($reference = '', $trans_no = '', $is_alloc = false) {
 
 	set_global_connection();
