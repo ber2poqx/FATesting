@@ -332,7 +332,9 @@ function copy_to_cart()
 	if (isset($_POST['pdc_no'])) {
 		$cart->pdc_no = $_POST['pdc_no'];
 	}
-	$cart->pdc_discount = $_POST['pdc_discount'];
+	if (isset($_POST['pdc_discount'])) {
+		$cart->pdc_discount = $_POST['pdc_discount'];
+	}
 }
 
 //-----------------------------------------------------------------------------

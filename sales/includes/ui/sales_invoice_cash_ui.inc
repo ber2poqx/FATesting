@@ -696,6 +696,7 @@ function display_order_header(&$order, $editable, $date_text)
 			//hidden('pdc_discount');
 		}
 		else {
+			hidden('pdc_discount');
 			hidden('pdc_no');
 		}
 	}
