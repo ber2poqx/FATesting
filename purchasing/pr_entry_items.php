@@ -174,11 +174,11 @@ function handle_cancel_pr()
 
 function check_data()
 {
-	if (!get_post('stock_id_text', true)) {
-		display_error(_("Item description cannot be empty."));
-		set_focus('stock_id_edit');
-		return false;
-	}
+	// if (!get_post('stock_id_text', true)) {
+	// 	display_error(_("Item description cannot be empty."));
+	// 	set_focus('stock_id_edit');
+	// 	return false;
+	// }
 
 	// $dec = get_qty_dec($_POST['stock_id']);
 	// $min = 1 / pow(10, $dec);
