@@ -140,7 +140,7 @@ function add_grn_new(&$po, $is_consign = false)
 						$order_line->list_serial[$ctr]->serial_no,
 						$order_line->list_serial[$ctr]->chassis_no,
 						$po->category_id,
-						$order_line->stock_id
+						$order_line->color_code //Modified by spyrax10 28 Jul 2022
 					);
 					add_serialitems_detail(
 						$grn,
