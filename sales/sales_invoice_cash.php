@@ -423,11 +423,13 @@ if (get_post('pdc_chk')) {
 	}
 }
 else {
-	$_POST['pdc_no'] = '';
-	$cart = &$_SESSION['Items'];
-	$cart->update_cart_discount(0, 0);
-	update_header();
-	$Ajax->activate('_page_body');
+	if (get_post('category_id') == 23 || get_post('category_id') == 18) {
+		$_POST['pdc_no'] = '';
+		$cart = &$_SESSION['Items'];
+		$cart->update_cart_discount(0, 0);
+		update_header();
+		$Ajax->activate('_page_body');
+	}
 }
 
 if (get_post('pdc_discount')) {
