@@ -238,6 +238,7 @@ if (isset($_POST['addupdate']))
 		
 		if (!$new_item) 
 		{ /*so its an existing one */
+            $currentdate = date('Y-m-d');
 			update_item($_POST['NewStockID'], $_POST['description'],
 				$_POST['long_description'], $_POST['category_id'], 
 				$_POST['tax_type_id'], get_post('units'),
@@ -251,7 +252,7 @@ if (isset($_POST['addupdate']))
 				check_value('no_sale'), check_value('editable'), check_value('no_purchase'),
 				get_post('depreciation_method'), input_num('depreciation_rate'), input_num('depreciation_factor'), get_post('depreciation_start', null),
 			    get_post('fa_class_id'), get_post('size'), get_post('capacity'), 
-				check_value('allow_zero_cost')); //added by spyrax10
+				check_value('allow_zero_cost'), $currentdate); //added by spyrax10
 
 			update_record_status($_POST['NewStockID'], $_POST['inactive'],
 				'stock_master', 'stock_id');
@@ -264,6 +265,7 @@ if (isset($_POST['addupdate']))
 		else 
 		{ //it is a NEW part
 
+            $currentdate = date('Y-m-d');
 			add_item($_POST['NewStockID'], $_POST['description'],
 				$_POST['long_description'], $_POST['category_id'], $_POST['tax_type_id'],
 				$_POST['units'],$_POST['brand'],$_POST['manufacturer'],$_POST['distributor'],$_POST['importer'],
@@ -277,7 +279,7 @@ if (isset($_POST['addupdate']))
 				get_post('depreciation_method'), input_num('depreciation_rate'), input_num('depreciation_factor'), 
 				get_post('depreciation_start', null),
 			    get_post('fa_class_id'), get_post('size'), get_post('capacity'), 
-				check_value('allow_zero_cost')); //added by spyrax10
+				check_value('allow_zero_cost'), $currentdate); //added by spyrax10
 
 			display_notification(_("A new item has been added."));
 			$_POST['stock_id'] = $_POST['NewStockID'] = 

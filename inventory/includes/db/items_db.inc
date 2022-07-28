@@ -45,7 +45,8 @@ function update_item(
 	$fa_class_id = null,
 	$size = null,
 	$capacity = null,
-	$alllow_zero_cost
+	$alllow_zero_cost,
+	$currentdate
 ) {
 	$sql = "UPDATE " . TB_PREF . "stock_master SET long_description=" . db_escape($long_description) . ",
 		description=" . db_escape($description) . ",
@@ -72,7 +73,8 @@ function update_item(
 		fa_class_id=" . db_escape($fa_class_id) . ",
 		size=" . db_escape($size) . ",
 		capacity=" . db_escape($capacity) . ", 
-		allow_zero_cost=" . db_escape($alllow_zero_cost); //added by spyrax10
+		allow_zero_cost=" . db_escape($alllow_zero_cost) . ",
+		date_modified=" . db_escape($currentdate);
 
 	if ($units != '')
 		$sql .= ", units=" . db_escape($units);
@@ -103,13 +105,13 @@ function add_item($stock_id, $description, $long_description, $category_id, $tax
 	$importer, $old_code, $sap_code, $serialised, $itemstatus, $mb_flag, $sales_account, $installment_sales_account, 
 	$regular_sales_account, $inventory_account, $cogs_account, $adjustment_account, $wip_account, $dimension_id, $dimension2_id,
 	$no_sale, $editable, $no_purchase, $depreciation_method = 'D', $depreciation_rate = 100, $depreciation_factor = 1, 
-	$depreciation_start = null, $fa_class_id = null, $size = null, $capacity = null, $alllow_zero_cost)
+	$depreciation_start = null, $fa_class_id = null, $size = null, $capacity = null, $alllow_zero_cost, $currentdate)
 {
 	$sql = "INSERT INTO " . TB_PREF . "stock_master (stock_id, description, long_description, category_id, tax_type_id, units, 
 		mb_flag, sales_account, installment_sales_account, regular_sales_account, inventory_account, cogs_account, adjustment_account, 
 		wip_account, dimension_id, dimension2_id, no_sale, no_purchase, editable, depreciation_method, depreciation_rate, 
 		depreciation_factor" . (isset($depreciation_start) ? ", depreciation_start, depreciation_date, fa_class_id" : "") 
-		. ",brand, manufacturer, distributor, importer, old_code, sap_code, serialised, size, capacity, allow_zero_cost)
+		. ",brand, manufacturer, distributor, importer, old_code, sap_code, serialised, size, capacity, allow_zero_cost, date_modified)
 		VALUES (
 		" . db_escape($stock_id) . ",
 		" . db_escape($description) . ", 
@@ -145,7 +147,8 @@ function add_item($stock_id, $description, $long_description, $category_id, $tax
 		" . db_escape($serialised) . ",
 		" . db_escape($size) . ",
 		" . db_escape($capacity) . ",
-		" . db_escape($alllow_zero_cost) . ")"; //added by spyrax10
+		" . db_escape($alllow_zero_cost) . ",
+		" . db_escape($currentdate) . ")"; 
 
 	db_query($sql, "The item could not be added");
 
