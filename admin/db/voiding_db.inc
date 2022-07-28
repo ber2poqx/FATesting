@@ -305,7 +305,9 @@ function void_header($void_id, $type) {
 	label_row("Date: &nbsp;", phil_short_date($void_row['date_']));
 	
 	if ($banking) {
-		label_row(_("Pay To: "), payment_person_name($sql_row['person_type_id'], $sql_row['masterfile']));
+		label_row(_("Pay To: "), $sql_row['opening_balance'] == 1 ? "OPENING BALANCE" 
+			: payment_person_name($sql_row['person_type_id'], $sql_row['masterfile'])
+		);
 		$receipt_no = $sql_row['receipt_no'];
 		label_row(_("Cashier/Teller: &nbsp;"), get_user_name($sql_row['cashier_user_id']));
 	}
