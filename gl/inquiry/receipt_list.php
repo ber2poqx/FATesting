@@ -157,7 +157,7 @@ start_row();
 date_cells(_("From:"), 'from_date', '', null, -user_transaction_days());
 date_cells(_("To:"), 'to_date');
 
-check_cells(_('Opening Balance:'), 'open_bal', null, true);
+check_cells(_('&nbsp; Show Opening Balance Entries:'), 'open_bal', null, true);
 
 submit_cells('btn_search', _("Search"),'',_('Search documents'), 'default');
 
