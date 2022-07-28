@@ -244,13 +244,19 @@ function sales_restructured_approval($row)
 	//modified by Albert 07/13/2022
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RESTRUCTURED_APPROVAL')) {
 
-		return done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
+		return done_check_qty_return_invoice($row["reference"]) || 
+			($row["status"] == "Close" || $row["status"] == "Closed") || 
+			($row["restructured_status"] == 1 || $row["restructured_status"] == 2) ||
+			$row['payment_type'] == "CASH" ? '' :  
+
+		pager_link(
 			'Restructured Approval',
 			"/sales/sales_invoice_restructured_approval.php?SONumber=" . $row["order_"],
 			ICON_DOC
 		);
-	}else{
-		return NULL;
+	}
+	else {
+		return null;
 	}
 }
 
