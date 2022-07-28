@@ -149,7 +149,7 @@ function add_grn_new(&$po, $is_consign = false)
 						1,
 						"",
 						"",
-						$order_line->stock_id,
+						$order_line->color_code != '' ? $order_line->color_code : $order_line->stock_id, //Modified by spyrax10 28 Jul 2022
 						$po->Location,
 						$order_line->list_serial[$ctr]->chassis_no,
 						ST_SUPPRECEIVE,
