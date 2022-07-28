@@ -252,10 +252,10 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
         if($myrow["serialised"]){
            $qty=$stock_item->quantity;
         }else{
-           $demand_qty = get_demand_qty($stock_item->stock_id, $FromStockLocation);
+            $demand_qty = get_demand_qty($stock_item->stock_id, $FromStockLocation);
             $demand_qty += get_demand_asm_qty($stock_item->stock_id, $FromStockLocation);
             $qty=get_qoh_on_date_new($stock_item->type_out,$stock_item->transno_out,$stock_item->stock_id,$FromStockLocation);
-           $qty-=$demand_qty;
+            $qty-=$demand_qty;
         }
         if ($stock_item->lot_no == '') {
            $stock_quantity = 0;
@@ -268,7 +268,7 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
             'color' => $stock_item->color,
             'stock_description' => $stock_item->item_description,
             'standard_cost' => $stock_item->standard_cost,
-            'currentqty' => $qty,
+            'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
             'qty' => $stock_quantity,
             'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
             'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
