@@ -168,6 +168,7 @@ function print_po() {
 				$rep->TextCol(4, 5,	$myrow2['units'], -2);
 				$rep->TextCol(5, 6,	$DisplayPrice, -2);
 				$rep->TextCol(6, 7,	$DisplayNet, -2);
+				$rep->NewLine(1);
 			} 
 			else {
 				$rep->TextCol(0, 1,	$myrow2['item_code'], -2);	
