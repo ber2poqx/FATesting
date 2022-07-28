@@ -353,6 +353,12 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$sales_account = $category_gl_code['dflt_sales_act'];
 
 	if ($opening_balances <> 1) { // albert 09/14/2021
+
+		//Added by Albert 7/27/2022 for gl entry discount 
+		if($invoice->amortization == 0){
+			$entry_amount = $entry_amount + $c_discount1 + $c_discount2;
+		}
+		//
 		$total += add_gl_trans_customer(
 			ST_SALESINVOICE,
 			$invoice_no,
@@ -551,6 +557,11 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		} else {
 			$company_data = $company_data["isd_account"];
 		}
+		//Added by Albert 7/27/2022 for gl entry discount 
+		if($invoice->amortization == 0){
+			$deferred_gross_profit = $deferred_gross_profit + $c_discount1 + $c_discount2;
+		}
+		//
 
 		$total += add_gl_trans_customer(
 			ST_SALESINVOICE,
