@@ -715,6 +715,8 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 {
 	global $SysPrefs;
 	set_global_connection();
+	$ho_mcode = get_company_value(0, 'branch_code');
+	$hoc_masterfile = get_company_value(0, 'name');
 	
 	if (!empty($SysPrefs->prefs['shortname_name_in_list'])) {
 		if ($send_type != null) {
@@ -726,7 +728,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 			else if ($send_type == 3) {
 				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'";
+				WHERE account_name LIKE '%Branch Current%'
+				UNION
+				SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
 			}
 		}
 		else {
@@ -735,7 +739,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
 				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'";
+				WHERE account_name LIKE '%Branch Current%'
+				UNION
+				SELECT '$ho_mcode' as ref, CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
 		}		
 	} 
 	else {
@@ -748,7 +754,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 			else if ($send_type == 3) {
 				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'";
+				WHERE account_name LIKE '%Branch Current%'
+				UNION
+				SELECT '$ho_mcode' as ref, CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
 			}
 		}
 		else {
@@ -757,7 +765,9 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
 				UNION
 				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'";
+				WHERE account_name LIKE '%Branch Current%'
+				UNION
+				SELECT '$ho_mcode' as ref, CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
 		}	
 	}	
 	$mode = get_company_pref('no_sl_list');

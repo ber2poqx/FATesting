@@ -987,6 +987,9 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 	global $SysPrefs;
 	$sql = "";
 
+	$ho_mcode = get_company_value(0, 'branch_code');
+	$hoc_masterfile = get_company_value(0, 'name');
+
 	if (isset($SysPrefs->max_rows_in_search)) {
 		$limit = $SysPrefs->max_rows_in_search;
 	}
@@ -1016,6 +1019,8 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				FROM (
 					SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
 						WHERE account_name LIKE '%Branch Current%'
+					UNION
+					SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class
 				) x1 ";	
 		}
 	}
@@ -1042,6 +1047,8 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 					FROM (
 						SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
 							WHERE account_name LIKE '%Branch Current%'
+						UNION
+						SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class
 					) x1 ";	
 			}
 		}
@@ -1055,6 +1062,8 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				UNION
 				SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
 					WHERE account_name LIKE '%Branch Current%'
+				UNION
+				SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class
 			) x1 ";		
 		}
 	
@@ -1072,6 +1081,9 @@ function get_slname_by_ref($ref)
 {
 	//Modified by spyrax10 12-11-2021
 	set_global_connection();
+	$ho_mcode = get_company_value(0, 'branch_code');
+	$hoc_masterfile = get_company_value(0, 'name');
+
 	$sql = "SELECT
 			x1.sl_name
 			FROM (
@@ -1083,6 +1095,8 @@ function get_slname_by_ref($ref)
 				UNION
 				SELECT account_code as ref, account_name as sl_name FROM " . TB_PREF . "chart_master 
 				WHERE account_name LIKE '%Branch Current%'
+				UNION
+				SELECT '$ho_mcode' as ref, '$hoc_masterfile' as sl_name
 			) x1
 			WHERE x1.ref = " . db_escape($ref) . " ";
 	$result = db_query($sql, 'cannot retrieve sl name');
