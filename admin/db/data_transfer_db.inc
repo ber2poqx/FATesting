@@ -9,6 +9,30 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
+//items
+function get_items_to_transfer($date_from, $date_to)
+{
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."stock_master A 
+		WHERE A.date_modified BETWEEN ".db_escape($date_from). " AND ".db_escape($date_to);
+			
+	return db_query($sql, "could not get stock item ");
+}
+
+function check_item($stock_id, $db_coy)
+{
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.*
+			FROM ".TB_PREF."stock_master A 
+			WHERE A.stock_id = ".db_escape($cashier_id);
+
+	$result = db_query($sql, "could not get stock item ");
+
+	set_global_connection();
+	return $result;;
+}
+
 function add_branchplcy($dateadded, $branchcode, $branchname, $brpolicyid, $brcategoryid, $moduletype, $affectedfld)
 {
 	$sql = "INSERT INTO ".TB_PREF."branch_policy (
@@ -40,14 +64,6 @@ function update_branchplcy($syspk, $inactive, $brcategoryid, $moduletype, $brpol
 			WHERE id = " .db_escape($syspk). " AND module_type = ".db_escape($moduletype);
 	
 	db_query($sql, "could not update branch policy ");	
-}
-
-function get_plcybranch($id, $start, $limit)
-{
-	$sql = "SELECT DISTINCT A.branch_code, A.branch_name 
-			FROM ".TB_PREF."branch_policy A 
-			ORDER BY A.branch_code limit $start, $limit";
-	return db_query($sql, "could not get branch policy ");	
 }
 
 function get_all_Branchpolicy($module, $branch, $start, $limit, $search, $showall=false)

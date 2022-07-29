@@ -879,7 +879,7 @@ Ext.onReady(function(){
 				var $message;
 				var form_submit = Ext.getCmp('submit_form').getForm();
 				
-				if(Ext.getCmp('desouts_ar_amount').getValue() != Ext.getCmp('outs_ar_amount').getValue()){
+				/*if(Ext.getCmp('desouts_ar_amount').getValue() != Ext.getCmp('outs_ar_amount').getValue()){
 					$message = "Outstanding AR amount are not equal. Please review all data before saving.";
 					HaveErrors = 1;
 				}
@@ -904,7 +904,7 @@ Ext.onReady(function(){
 						icon: Ext.MessageBox.ERROR
 					});
 					return false;
-				}
+				}*/
 				Ext.MessageBox.confirm('Confirmation:', 'Have you reviewed all the data before saving?', function (btn, text) {
 					if (btn == 'yes') {
 						form_submit.submit({

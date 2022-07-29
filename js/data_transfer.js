@@ -37,8 +37,7 @@ Ext.onReady(function(){
 	Ext.define('branch_model',{
         extend: 'Ext.data.Model',
         fields: [
-			{name:'coy_no', mapping:'coy_no'},
-			{name:'branch_code', mapping:'branch_code'},
+			{name:'branch_no', mapping:'branch_no'},
 			{name:'branch_name', mapping:'branch_name'}
 		]
     });
@@ -47,11 +46,11 @@ Ext.onReady(function(){
 		mode: 'Single'
 	});
 	//------------------------------------: stores :----------------------------------------
-	var get_cbocashier = Ext.create('Ext.data.Store', {
-		model: 'cashierModel',
+	var datadesc_store = Ext.create('Ext.data.Store', {
+		model: 'data_description',
 		autoLoad : true,
 		proxy: {
-			url: '?get_cbocashier=15',
+			url: '?get_datadesc=00',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -65,11 +64,11 @@ Ext.onReady(function(){
 			direction : 'ASC'
 		}]
 	});
-	var get_cboTabang = Ext.create('Ext.data.Store', {
-        model: 'tabangModel',
+	var branch_store = Ext.create('Ext.data.Store', {
+        model: 'branch_model',
 		autoLoad : true,
         proxy: {
-			url: '?get_tabanguser=15',
+			url: '?get_branch=00',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -83,12 +82,12 @@ Ext.onReady(function(){
 			direction : 'ASC'
 		}]
 	});
-	var User_CHKOPStore = Ext.create('Ext.data.Store', {
-        model: 'User_CHECKOPmodel',
+	var datalogs_store = Ext.create('Ext.data.Store', {
+        model: 'data_logs',
 		autoLoad : true,
 		pageSize: itemsPerPage, // items per page
         proxy: {
-			url: '?get_CHKOPuser=zHun',
+			url: '?get_datalogs=00',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -106,70 +105,73 @@ Ext.onReady(function(){
 	
 	var submit_form = Ext.create('Ext.form.Panel', {
 		id: 'form_submit',
-		model: 'policytypeModel',
+		model: 'xxx',
 		frame: true,
 		defaultType: 'field',
 		defaults: {msgTarget: 'under', anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
-			items: [{
-				xtype: 'textfield',
-				id: 'syspk',
-				name: 'syspk',
-				fieldLabel: 'syspk',
-				//allowBlank: false,
-				hidden: true
-			},{
-				xtype: 'combobox',
-				id: 'cashier',
-				name: 'cashier',
-				fieldLabel: '<b>Main Cashier </b>',
-				store: get_cbocashier,
-				displayField: 'user_name',
-				valueField: 'user_id',
-				queryMode: 'local',
-				emptyText:'Select main cashier',
+		items: [{
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			margin: '2 2 2 5',
+			items:[{
+				xtype : 'datefield',
+				id	  : 'date_from',
+				name  : 'date_from',
+				fieldLabel : '<b>Date from </b>',
 				allowBlank: false,
-				forceSelection: true,
-				selectOnFocus:true,
-				labelWidth: 105,
-				margin: '5 0 5 0'
+				labelWidth: 100,
+				//width: 100,
+				margin: '0 20 0 0',
+				format : 'm/d/Y',
+				fieldStyle: 'font-weight: bold; color: #210a04;',
+				value: Ext.Date.format(new Date(), 'Y-m-d')
 			},{
-				xtype: 'combobox',
-				id: 'tabang_user',
-				name: 'tabang_user',
-				fieldLabel: '<b>Prepared User </b>',
+				xtype : 'datefield',
+				id	  : 'date_to',
+				name  : 'date_to',
+				fieldLabel : '<b>Date to </b>',
 				allowBlank: false,
-				store: get_cboTabang,
-				displayField: 'user_name',
-				valueField: 'user_id',
-				queryMode: 'local',
-				emptyText:'Select Preparer',
-				forceSelection: true,
-				selectOnFocus:true,
-				labelWidth: 105,
-				margin: '5 0 5 0',
-				//listConfig: {
-					//getInnerTpl: function(displayField) {
-						//return '{[Ext.String.htmlEncode(values.' + displayField + ')]}';
-					//}
-				//}
-			},{			
-				xtype: 'container',
-				layout: 'hbox',
-				defaults: {msgTarget: 'under', anchor: '-5', fieldCls:'DisabledAmountCls'},
-				items:[{
-					xtype: 'radiogroup',
-					fieldLabel: '<b>? Active </b>',
-					margin: '5 0 5 0',
-					layout: {type: 'hbox'},
-					items: [
-						{boxLabel: '<b>Yes</b>', name: 'inactive',id:'yes', inputValue:0, margin : '0 3 0 0'},
-						{boxLabel: '<b>No</b>', name: 'inactive', id:'no', inputValue:1}
-					]
-				}]
+				labelWidth: 100,
+				//width: 100,
+				format : 'm/d/Y',
+				fieldStyle: 'font-weight: bold; color: #210a04;',
+				value: Ext.Date.format(new Date(), 'Y-m-d')
 			}]
+		},{
+			xtype: 'combobox',
+			id: 'datadesc',
+			name: 'datadesc',
+			fieldLabel: '<b>Description </b>',
+			store: datadesc_store,
+			displayField: 'description',
+			valueField: 'id',
+			queryMode: 'local',
+			emptyText:'Select description',
+			allowBlank: false,
+			forceSelection: true,
+			selectOnFocus:true,
+			labelWidth: 105,
+			margin: '5 0 5 0'
+		},{
+			xtype: 'combobox',
+			id: 'branch',
+			name: 'branch',
+			fieldLabel: '<b>Branch </b>',
+			allowBlank: false,
+			store: branch_store,
+			displayField: 'branch_name',
+			valueField: 'branch_no',
+			queryMode: 'local',
+			emptyText:'Select branch',
+			forceSelection: true,
+			selectOnFocus:true,
+			multiSelect: true,
+			labelWidth: 105,
+			margin: '5 0 5 0'
+		}]
 	});
 	var submit_window = Ext.create('Ext.Window',{
-		width 	: 600,
+		width 	: 590,
 		modal	: true,
 		plain 	: true,
 		border 	: false,
@@ -178,29 +180,22 @@ Ext.onReady(function(){
 		//closable: false,
 		items:[submit_form],
 		buttons:[{
-			text: 'Save',
-			tooltip: 'Save policy installment',
-			icon: '../js/ext4/examples/shared/icons/add.png',
+			text: 'Process',
+			tooltip: 'Process',
+			icon: '../js/ext4/examples/shared/icons/table_row_insert.png',
 			single : true,				
 			handler:function(){
 				var form_submit = Ext.getCmp('form_submit').getForm();
 				if(form_submit.isValid()) {
 					form_submit.submit({
 						url: '?submit=info',
-						waitMsg: 'Saving builders. please wait...',
+						waitMsg: 'Proccessing data transfer. Please wait...',
 						method:'POST',
 						success: function(form_submit, action) {
 							//show and load new added
-							User_CHKOPStore.load();
-							Ext.MessageBox.confirm('Success!', action.result.message + '<br>Would you like to add more?', function (btn, text) {
-								if (btn == 'yes') {
-									form_submit.reset();
-									Ext.getCmp('yes').setValue(0)
-									submit_window.setTitle('Checkout operator builder maintenance - Add');
-								}else{
-									submit_window.close();
-								}
-							});
+							datadesc_store.load();
+							Ext.MessageBox.alert('Success!',action.result.message);
+							submit_window.close();
 						},
 						failure: function(form_submit, action) {
 							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
@@ -216,7 +211,7 @@ Ext.onReady(function(){
 		},{
 			text:'<b>Cancel</b>',
 			tooltip: 'Cancel builder',
-			icon: '../../js/ext4/examples/shared/icons/cancel.png',
+			icon: '../js/ext4/examples/shared/icons/cancel.png',
 			handler:function(){
 				Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to close this window?', function (btn, text) {
 					if (btn == 'yes') {
@@ -252,7 +247,7 @@ Ext.onReady(function(){
 				icon: '../js/ext4/examples/shared/icons/layout_content.png',
 				tooltip: 'view details',
 				handler: function(grid, rowIndex, colIndex) {
-					var records = User_CHKOPStore.getAt(rowIndex);
+					var records = datadesc_store.getAt(rowIndex);
 					
 					submit_form.getForm().reset();
 
@@ -272,7 +267,7 @@ Ext.onReady(function(){
 				icon: '../js/ext4/examples/shared/icons/fam/delete.png',
 				tooltip: 'Delete builder',
 				handler: function(grid, rowIndex, colIndex) {
-					var records = User_CHKOPStore.getAt(rowIndex);
+					var records = datadesc_store.getAt(rowIndex);
 					var MsgConfirm = Ext.MessageBox.confirm('Confirm?', 'Cashier: <b>' + records.get('cashier_name') + '</b><br\> Preparer: <b>' + records.get('tabang_name') + '</b><br\> Are you sure you want to delete this record? ', function (btn, text) {
 						if (btn == 'yes') {
 							Ext.Ajax.request({
@@ -286,7 +281,7 @@ Ext.onReady(function(){
 									var data = Ext.decode(response.responseText);
 									if (data.success == 'true') {
 										Ext.Msg.alert('Success', data.message);
-										User_CHKOPStore.load();
+										datadesc_store.load();
 									}else{
 										Ext.Msg.alert('Error', data.message);
 									}
@@ -308,23 +303,22 @@ Ext.onReady(function(){
 		width: 290,
 		emptyText: "Search by name...",
 		scale: 'small',
-		store: User_CHKOPStore,
+		store: datadesc_store,
 		listeners: {
 			change: function(field) {
-				User_CHKOPStore.proxy.extraParams = {query: field.getValue()};
-				User_CHKOPStore.load();
+				datadesc_store.proxy.extraParams = {query: field.getValue()};
+				datadesc_store.load();
 			}
 		}
 	}, '-', {
-		text:'<b>Add</b>',
-		tooltip: 'Add new checkout Operator builder.',
-		icon: '../js/ext4/examples/shared/icons/add.png',
+		text:'<b>Transfer Data</b>',
+		tooltip: 'Click transfer data to branches',
+		icon: '../js/ext4/examples/shared/icons/table_relationship.png',
 		scale: 'small',
 		handler: function(){
 			submit_form.getForm().reset();
-			Ext.getCmp('yes').setValue(0)
 			submit_window.show();
-			submit_window.setTitle('Checkout operator builder maintenance - Add');
+			submit_window.setTitle('Data Synchronization');
 			submit_window.setPosition(330,90);
 		}
 	}, '->' ,{
@@ -349,9 +343,9 @@ Ext.onReady(function(){
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
-			id: 'CheckOpUser_grid',
-			name: 'CheckOpUser_grid',
-			store:	User_CHKOPStore,
+			id: 'datagrid_logs',
+			name: 'datagrid_logs',
+			store:	datalogs_store,
 			columns: CheckOperatorModel,
 			columnLines: true,
 			autoScroll:true,
@@ -360,12 +354,12 @@ Ext.onReady(function(){
 			bbar : {
 				xtype : 'pagingtoolbar',
 				hidden: false,
-				store : User_CHKOPStore,
+				store : datalogs_store,
 				pageSize : itemsPerPage,
 				displayInfo : false,
 				emptyMsg: "No records to display",
 				doRefresh : function(){
-					User_CHKOPStore.load();
+					datalogs_store.load();
 					
 				}
 			}
