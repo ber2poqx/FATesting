@@ -446,7 +446,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $ena
 	if ($comp_id != $coy) {
 		sql_type_list(null, 'hocbc_id', 
 			hocbc_type_list(), 'id', 'hocbc',
-			'', null, true, _("Select HOC/BC")
+			'', null, false, _("Select HOC/BC")
 		);
 	}
 	else {
