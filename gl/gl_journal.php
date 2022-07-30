@@ -74,25 +74,12 @@ function line_start_focus() {
 }
 
 //Added by spyrax10 10 Feb 2022
-if (get_post('cashier_')) {
-	global $Ajax;
-	$_POST['cashier_teller'] = get_post('cashier_');
-	$Ajax->activate('cashier_teller');
-}
-
-$jnl = &$_SESSION['journal_items'];
-if (get_post('trans_db') && count($jnl->line_items) <= 0) {
-	global $Ajax;
-	$Ajax->activate('items_table');
-}
 
 if (get_post('ar_alloc')) {
-	$_POST['source_ref'] = '';
 	$Ajax->activate('pmt_header');
 	$Ajax->activate('items_table');
 }
 else {
-	$_POST['source_ref'] = '';
 	$Ajax->activate('pmt_header');
 	$Ajax->activate('items_table');
 }
@@ -169,6 +156,7 @@ function create_cart($type = 0, $trans_no = 0, $void_id = 0) {
 		$cart->currency = $header['currency'];
 		$cart->rate = $header['rate'];
 		$cart->source_ref = $header['source_ref'];
+		$cart->source_ref2 = $header['source_ref2'];
 
 		$result = get_gl_trans($type, $trans_no);
 
@@ -256,6 +244,7 @@ function create_cart($type = 0, $trans_no = 0, $void_id = 0) {
 	$_POST['currency'] = $cart->currency;
 	$_POST['_ex_rate'] = exrate_format($cart->rate);
 	$_POST['source_ref'] = $cart->source_ref;
+	$_POST['source_ref2'] = $cart->source_ref2;
 
 	if (isset($cart->tax_info['net_amount']) || (!$trans_no && get_company_pref('default_gl_vat'))) {
 		$_POST['taxable_trans'] = true;
@@ -401,7 +390,8 @@ if (isset($_POST['Process'])) {
 	$cart->tran_date = $_POST['date_'];
 	$cart->doc_date = $_POST['doc_date'];
 	$cart->event_date = $_POST['event_date'];
-	$cart->source_ref = get_post('ar_inv') ? get_post('ar_inv') : $_POST['source_ref2'];
+	$cart->source_ref = $_POST['source_ref'];
+	$cart->source_ref2 = $_POST['ar_inv'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
 	
@@ -465,7 +455,7 @@ if (isset($_POST['UpdateJE'])) {
 	$trans_no = $_SESSION['journal_items']->order_id;
 	$row = get_JE_transactions($trans_no, true);
 
-	$sql = "UPDATE " . TB_PREF . "journal SET source_ref = " .db_escape($_POST['source_ref2']);
+	$sql = "UPDATE " . TB_PREF . "journal SET source_ref = " .db_escape($_POST['source_ref']);
 	$sql .= " WHERE type = 0 AND trans_no = " .db_escape($trans_no);
 	db_query($sql, "Cannot update JE! (spyrax10)");
 

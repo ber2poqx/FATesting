@@ -10,10 +10,12 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 function add_journal($type, $trans_no, $amount, $tran_date, $currency, $reference, $source_ref='', $rate=1,
-	 $event_date='', $doc_date='')
+	 $event_date = '', $doc_date = '', $source_ref2 = '')
 {
 	$sql = "INSERT INTO ".TB_PREF."journal(
-	   `type`,`trans_no`, `amount`, `currency`, `rate`, `reference`, `source_ref`, `tran_date`,`event_date`,`doc_date`)
+		`type`, `trans_no`, `amount`, `currency`, `rate`, `reference`, 
+		`source_ref`, `tran_date`,`event_date`, `doc_date`, `source_ref2`
+	)
 	  VALUES("
 	  .db_escape($type).","
 	  .db_escape($trans_no).","
@@ -24,7 +26,8 @@ function add_journal($type, $trans_no, $amount, $tran_date, $currency, $referenc
 	  .db_escape($source_ref).","
 	  ."'".date2sql($tran_date)."','"
 	  . ($event_date === '' ? '0000-00-00' : date2sql($event_date))."','"
-	  . ($doc_date === '' ? '0000-00-00' : date2sql($doc_date))."')";
+	  . ($doc_date === '' ? '0000-00-00' : date2sql($doc_date))."','" 
+	  . ($source_ref2) . "')";
 
 	return db_query($sql, 'cannot add journal entry');
 }
@@ -128,7 +131,7 @@ function write_journal_entries(&$cart, $interbranch = false)
 	$cart->write_gl();
 
 	add_journal($trans_type, $trans_id, $total,	$date_ , $cart->currency, $ref,
-		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date
+		$cart->source_ref, $cart->rate, $cart->event_date, $cart->doc_date, $cart->source_ref2
 	);
 
 	if ($cart->ar_alloc == 1) {

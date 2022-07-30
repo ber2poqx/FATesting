@@ -54,10 +54,10 @@ function doc_date($row) {
 
 function doc_ref($row) {
 
-    $debtor_row = get_SI_by_reference($row['source_ref']);
+    $debtor_row = get_SI_by_reference($row['source_ref2']);
 
     return $debtor_row["trans_no"] != null ? 
-        get_trans_view_str(ST_SALESINVOICE, $debtor_row["trans_no"], $row['source_ref']) 
+    $row['source_ref'] . " - (" . get_trans_view_str(ST_SALESINVOICE, $debtor_row["trans_no"], $row['source_ref2']) . ")" 
     : $row['source_ref'];
 }
 
@@ -110,7 +110,7 @@ function void_row($row) {
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
 
         $void_entry = get_voided_entry(ST_JOURNAL, $row['trans_no']);
-        $debtor_row = get_SI_by_reference($row['source_ref']);
+        $debtor_row = get_SI_by_reference($row['source_ref2']);
 
         if ($void_entry == null) {
             $void_link = pager_link( _("Request to Void"),

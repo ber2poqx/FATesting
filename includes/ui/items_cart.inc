@@ -36,6 +36,7 @@ class items_cart
 	var $rate;
 	var $source_ref;
 	//Added by spyrax10 10 Feb 2022
+	var $source_ref2;
 	var $trans_db;
 	var $ar_type;
 	var $ar_alloc = 0;

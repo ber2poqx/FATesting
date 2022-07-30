@@ -104,12 +104,14 @@ function display_order_header(&$Order) {
 	//ref_row(_("Reference:"), 'ref', null, get_post('ref'), false, ST_JOURNAL, get_post('date_'));
 	//hidden('ref_original');
 
-	if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
-		label_row(_("Source Reference: &nbsp;"), get_post('ar_inv'));
-	}
-	else {
-		text_row(_("Source Reference: &nbsp;"), 'source_ref2', null, 30, 60);
-	}
+	text_row(_("Source Reference: &nbsp;"), 'source_ref', null, 30, 60);
+	
+	// if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
+	// 	label_row(_("Source Reference: &nbsp;"), get_post('ar_inv'));
+	// }
+	// else {
+		
+	// }
 
  	if ($new) {
 		table_section(3);
@@ -279,7 +281,7 @@ function display_gl_items($title, &$order, $enable_add_item) {
 				);
 			}
 			else {
-				$debtor_row = get_SI_by_reference($order->source_ref);
+				$debtor_row = get_SI_by_reference($order->source_ref2);
 				if ($debtor_row["trans_no"] == null) {
 					edit_button_cell("Edit$line", _("Edit"),
 						_('Edit journal line')
@@ -526,7 +528,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $ena
 function update_JE_header($trans_no) {
 
     $row = get_JE_transactions($trans_no, true);
-    $debtor_row = get_SI_by_reference($row['source_ref']);
+    $debtor_row = get_SI_by_reference($row['source_ref2']);
     $inv_row = db_fetch_assoc(get_customer_invoices($debtor_row['debtor_no'], $row['source_ref']));
     $cust_row = get_customer($inv_row['cust_id']);
 
