@@ -94,7 +94,14 @@ while ($myrow = db_fetch_assoc($result)) {
 		$class = $myrow['class'];
   		ahref_cell(_("Select"), 'javascript:void(0)', '', 'selectComboItem(window.opener.document, "'.$name.'", "'.$value.'", "'.$class.'")');
 	}
-  	label_cell(sprintf("%05s", $myrow["ref"]));
+
+	if ($myrow["class"] != 'Branch Current') {
+		label_cell(sprintf("%05s", $myrow["ref"]));
+	}
+	else {
+		label_cell($myrow["ref"]);
+	}
+  	
   	label_cell($myrow["name"]);
   	label_cell($myrow["class"]);
 	end_row();

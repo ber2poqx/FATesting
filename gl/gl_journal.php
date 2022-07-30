@@ -602,7 +602,7 @@ function check_item_data() {
 	}
 
 	if ($_POST['comp_id'] != $coy) {
-		if (str_contains_val($row['account_name'], 'Branch Current') && $comp_gl != $_POST['mcode']) {
+		if (str_contains_val($row['account_name'], 'Branch Current') && get_company_value($_POST['comp_id'], 'branch_code') != $_POST['mcode']) {
 			display_error(_("Masterfile Account is not match to the selected branch! Please select the appropriate Masterfile Account."));
 			return false;
 		}

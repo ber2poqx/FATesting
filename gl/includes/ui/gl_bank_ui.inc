@@ -422,7 +422,7 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 				$_POST['mcode'] = get_company_value(0, 'branch_code');
 			}
 			else {
-				$_POST['mcode'] = get_company_value($_POST['comp_id'], 'gl_account');
+				$_POST['mcode'] = get_company_value($_POST['comp_id'], 'branch_code');
 			}
 
 			$Ajax->activate('mcode');

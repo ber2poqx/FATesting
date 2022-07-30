@@ -984,7 +984,7 @@ function get_bank_account_name($id)
 function get_list_of_sl($sl, $send_type = null, $type = null)
 {
 	//Modified by spyrax10
-	global $SysPrefs;
+	global $SysPrefs, $db_connections;
 	$sql = "";
 
 	$ho_mcode = get_company_value(0, 'branch_code');
@@ -1014,14 +1014,26 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				) x1 ";	
 		}
 		else if ($send_type == 3) {
-			$sql = "SELECT
-				x1.*
-				FROM (
-					SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
-						WHERE account_name LIKE '%Branch Current%'
-					UNION
-					SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class
-				) x1 ";	
+
+			$sql = "SELECT x1.* FROM (";
+
+			for ($i = 0; $i < count($db_connections); $i++) {
+				if (check_db_exists($i)) {
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
+		
+					if ($i != 0) {
+						$sql .= " UNION ";
+					}
+					$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
+		
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
+					}
+				}
+			}
+
+			$sql .= ") x1 ";
 		}
 	}
 	else {
@@ -1042,14 +1054,25 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 					) x1 ";	
 			}
 			else if ($type == 3) {
-				$sql = "SELECT
-					x1.*
-					FROM (
-						SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
-							WHERE account_name LIKE '%Branch Current%'
-						UNION
-						SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class
-					) x1 ";	
+
+				$sql = "SELECT x1.* FROM (";
+
+				for ($i = 0; $i < count($db_connections); $i++) {
+					if (check_db_exists($i)) {
+						$ho_mcode = get_company_value($i, 'branch_code');
+						$hoc_masterfile = get_company_value($i, 'name');
+			
+						if ($i != 0) {
+							$sql .= " UNION ";
+						}
+						$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
+			
+						if ($i == count($db_connections)) {
+							$sql = substr(rtrim($sql), 0, -5);
+						}
+					}
+				}
+				$sql .= ") x1 ";
 			}
 		}
 		else {
@@ -1058,32 +1081,44 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 			FROM (
 				SELECT debtor_ref as ref, name, 'Customer' as class FROM " . TB_PREF . "debtors_master
 				UNION
-				SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers
-				UNION
-				SELECT account_code as ref, account_name as name, 'Branch Current' as class FROM " . TB_PREF . "chart_master 
-					WHERE account_name LIKE '%Branch Current%'
-				UNION
-				SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class
-			) x1 ";		
+				SELECT supplier_id as ref, supp_name as name, 'Supplier' as class FROM " . TB_PREF . "suppliers ";
+			
+			for ($i = 0; $i < count($db_connections); $i++) {
+		
+				if (check_db_exists($i)) {
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
+			
+					$sql .= " UNION ";
+					$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
+			
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
+					}
+				}
+			}
+			$sql .= ") x1 ";		
 		}
 	
 	}
 
-	$sql .= " WHERE (x1.ref LIKE " . db_escape("%" . $sl . "%") . " OR 
-				x1.name LIKE " . db_escape("%" . $sl . "%") . " OR
-				x1.class LIKE " . db_escape("%" . $sl . "%") . ") 
-			ORDER BY x1.name LIMIT 0," . (int)($limit);
+	$sql .= " 
+	WHERE (x1.ref LIKE " . db_escape("%" . $sl . "%") . " OR 
+		x1.name LIKE " . db_escape("%" . $sl . "%") . " OR
+		x1.class LIKE " . db_escape("%" . $sl . "%") . ") ";
+	
+	$sql .= " ORDER BY x1.name LIMIT 0," . (int)($limit);
 
 	return db_query($sql, "Failed in retreiving sl list.");
 }
 
-function get_slname_by_ref($ref)
-{
+function get_slname_by_ref($ref) {
+
+	global $db_connections;
+
 	//Modified by spyrax10 12-11-2021
 	set_global_connection();
-	$ho_mcode = get_company_value(0, 'branch_code');
-	$hoc_masterfile = get_company_value(0, 'name');
-
+	
 	$sql = "SELECT
 			x1.sl_name
 			FROM (
@@ -1091,18 +1126,30 @@ function get_slname_by_ref($ref)
 				UNION
 				SELECT supplier_id as ref, supp_name as sl_name FROM " . TB_PREF . "suppliers
 				UNION
-				SELECT user_id as ref, real_name as sl_name FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10)
-				UNION
-				SELECT account_code as ref, account_name as sl_name FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'
-				UNION
-				SELECT '$ho_mcode' as ref, '$hoc_masterfile' as sl_name
-			) x1
-			WHERE x1.ref = " . db_escape($ref) . " ";
+				SELECT user_id as ref, real_name as sl_name FROM " . TB_PREF . "users WHERE role_id NOT IN(2,10) ";
+	
+	for ($i = 0; $i < count($db_connections); $i++) {
+		
+		if (check_db_exists($i)) {
+            $ho_mcode = get_company_value($i, 'branch_code');
+	        $hoc_masterfile = get_company_value($i, 'name');
+
+			$sql .= "UNION ";
+			$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as sl_name ";
+
+			if ($i == count($db_connections)) {
+				$sql = substr(rtrim($sql), 0, -5);
+			}
+		}
+	}
+
+	
+	$sql .= ") x1 WHERE x1.ref = " . db_escape($ref) . " ";
+
 	$result = db_query($sql, 'cannot retrieve sl name');
 	if (db_num_rows($result)) {
 		$row = db_fetch($result);
-		return sprintf("%s", $row['sl_name']);
+		return $row['sl_name'];
 	}
 	return '';
 }

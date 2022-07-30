@@ -713,7 +713,8 @@ function sl_customer_list($name, $selected_id=null, $spec_option=false, $submit_
 function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_change=false, 
 	$show_inactive=false, $editkey = false, $send_type = null)
 {
-	global $SysPrefs;
+	global $SysPrefs, $db_connections;
+
 	set_global_connection();
 	$ho_mcode = get_company_value(0, 'branch_code');
 	$hoc_masterfile = get_company_value(0, 'name');
@@ -721,53 +722,96 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 	if (!empty($SysPrefs->prefs['shortname_name_in_list'])) {
 		if ($send_type != null) {
 			if ($send_type == 1) {
-				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
+				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers";
 			}
 			else if ($send_type == 2) {
-				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master";
+				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master";
 			}
 			else if ($send_type == 3) {
-				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'
-				UNION
-				SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
+
+				for ($i = 0; $i < count($db_connections); $i++) {	
+					if (check_db_exists($i)) {
+						$ho_mcode = get_company_value($i, 'branch_code');
+						$hoc_masterfile = get_company_value($i, 'name');
+			
+						if ($i != 0) {
+							$sql .= " UNION ";
+						}
+						$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+			
+						if ($i == count($db_connections)) {
+							$sql = substr(rtrim($sql), 0, -5);
+						}
+					}
+				}
 			}
 		}
 		else {
-			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master
+			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master
 				UNION
-				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
-				UNION
-				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'
-				UNION
-				SELECT '$ho_mcode' as ref, CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
+				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers ";
+
+			for ($i = 0; $i < count($db_connections); $i++) {	
+				if (check_db_exists($i)) {
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
+			
+					$sql .= " UNION ";
+
+					$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+			
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
+					}
+				}
+			}
 		}		
 	} 
 	else {
 		if ($send_type != null) {
 			if ($send_type == 1) {
-				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers";
+				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers";
 			}
 			else if ($send_type == 2) {
-				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master";
+				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master";
 			}
 			else if ($send_type == 3) {
-				$sql = "SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'
-				UNION
-				SELECT '$ho_mcode' as ref, CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
+				for ($i = 0; $i < count($db_connections); $i++) {	
+					if (check_db_exists($i)) {
+						$ho_mcode = get_company_value($i, 'branch_code');
+						$hoc_masterfile = get_company_value($i, 'name');
+			
+						if ($i != 0) {
+							$sql .= " UNION ";
+						}
+						$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+			
+						if ($i == count($db_connections)) {
+							$sql = substr(rtrim($sql), 0, -5);
+						}
+					}
+				}
 			}
 		}
 		else {
-			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ',name) as ref_label FROM ".TB_PREF."debtors_master
+			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master
 				UNION
-				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ',supp_name) as ref_label FROM ".TB_PREF."suppliers
-				UNION
-				SELECT account_code as ref, CONCAT(account_code, ' - ', account_name) as ref_label FROM " . TB_PREF . "chart_master 
-				WHERE account_name LIKE '%Branch Current%'
-				UNION
-				SELECT '$ho_mcode' as ref, CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label";
+				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers ";
+
+			for ($i = 0; $i < count($db_connections); $i++) {	
+				if (check_db_exists($i)) {
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
+			
+					$sql .= " UNION ";
+
+					$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+			
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
+					}
+				}
+			}
 		}	
 	}	
 	$mode = get_company_pref('no_sl_list');
