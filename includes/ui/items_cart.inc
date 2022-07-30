@@ -547,7 +547,7 @@ class items_cart
 					get_person_id(PT_CUSTOMER, $gl->mcode), 
 					$gl->master_file, 
 					$gl->hocbc,
-					$this->ar_alloc == 1 ? $this->order_id : 0, 
+					$this->ar_alloc == 1 ? $this->ar_trans_no : 0, 
 					$gl->comp_id != $coy ? 1 : 0,
 					false
 				);
@@ -575,7 +575,7 @@ class items_cart
 						$this->ar_debtor_no, 
 						get_person_name(PT_CUSTOMER, $this->ar_debtor_no), 
 						$gl->hocbc,
-						$this->order_id, 
+						$this->ar_trans_no, 
 						$gl->comp_id != $coy ? 1 : 0,
 						false
 					);
