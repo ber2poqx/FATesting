@@ -344,7 +344,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $ena
 			$_POST['dimension_id'] = $item->dimension_id;
 			$_POST['dimension2_id'] = $item->dimension2_id;
 			$_POST['person_id'] = $item->person_id;
-			$_POST['mcode'] = gl_comp_name($item->mcode, true, true) != '' ? gl_comp_name($item->mcode, true, true) : $item->mcode;
+			$_POST['mcode'] = $item->mcode;
 			$_POST['hocbc_id'] = $item->hocbc;
 			$_POST['sug_mcode'] = $item->sug_mcode; //Added by spyrax10
 
@@ -400,7 +400,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $ena
 			$Ajax->activate('sug_mcode');
 			$Ajax->activate('items_table');
 		}
-		if (check_value('ar_alloc') == 1 && get_post('ar_inv') ) {
+		if (check_value('ar_alloc') == 1 && get_post('ar_inv') && !list_updated('comp_id') ) {
 			$_POST['mcode'] = get_post('debtor_ref');
 			$Ajax->activate('mcode');
 		}

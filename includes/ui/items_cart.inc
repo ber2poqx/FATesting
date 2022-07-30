@@ -755,7 +755,7 @@ class items_cart
 			$void_row = get_voided_entry($this->trans_type, null, null, false, 'ALL', null, null, $void_id);
 			$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 			$debtor_row = get_SI_by_reference($void_row['reference_from']);
-			$si_row = get_SI_by_reference($this->source_ref);
+			$si_row = get_SI_by_reference('', $this->ar_trans_no, $this->ar_trans_type, $this->ar_debtor_no);
 
 			while ($row = db_fetch($gl_sql)) {
 

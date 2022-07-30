@@ -944,13 +944,22 @@ function get_supplier_mcode($stock_id) {
 	return db_fetch($result);
 }
 
-function get_SI_by_reference($reference) {
+function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debtor_no = '') {
 	
 	set_global_connection();
 
 	$sql = "SELECT DT.*, DL.months_term FROM " . TB_PREF . "debtor_trans DT
 			INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.reference
-		WHERE DT.reference = " .db_escape($reference);
+		WHERE IFNULL(DT.trans_no, '') <> ''";
+
+	if ($reference != '') {
+		$sql .= " AND DT.reference = " .db_escape($reference);
+	}
+	else {
+		$sql .= " AND DT.trans_no = " .db_escape($trans_no) . 
+		" AND DT.type = " .db_escape($type) . 
+		" AND DT.debtor_no = " .db_escape($debtor_no);
+	}
 
 	$result = db_query($sql, "No SI details return! (spyrax10)");
 	return db_fetch($result);
