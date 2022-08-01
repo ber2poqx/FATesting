@@ -349,7 +349,8 @@ function handle_submit($selected_id)
 	$db_connections[$selected_id]['name'] = $_POST['name'];
 	$db_connections[$selected_id]['address'] = $_POST['address'];
 	$db_connections[$selected_id]['branch_area'] = $_POST['branch_area'];
-	$db_connections[$selected_id]['branch_code'] = $_POST['branch_code'];
+	$db_connections[$selected_id]['old_code'] = $_POST['old_code'];
+	$db_connections[$selected_id]['name'] = $_POST['name'];
 	$db_connections[$selected_id]['partner_code'] = $_POST['partner_code'];
 	$db_connections[$selected_id]['type'] = $_POST['type'];
 	$db_connections[$selected_id]['gl_account'] = $_POST['gl_account'];
@@ -522,8 +523,8 @@ function display_companies()
 	start_table(TABLESTYLE);
 
 	$th = array(_("ID"), //Added by spyrax10 27 Jul 2022
-		_("Branch Name"), _("Branch Area"),_("Branch Code"), _("Partner Code"), _("Type"), _("A/R Account"), _("Database Host"), _("Database Port"), _("Database User"),
-		_("Database Name"), _("Table Pref"), _("Charset"), _("Default"), "E", "D"); //"Backup");
+		_("Branch Name"), _("Branch Code"), _("Old Code"), _("Partner Code"), _("Address"), _("Branch Area"), _("Type"), _("A/R Account"), _("Database Host"), _("Database Port"), _("Database User"),
+		_("Database Name"), _("Charset"), _("Default"), "E", "D"); // _("Table Pref"), //"Backup");
 	table_header($th);
 
 	//Added by Robert
@@ -545,17 +546,18 @@ function display_companies()
 
 		label_cell($i); //Added by spyrax10 27 Jul 2022
 		label_cell($conn[$i]['name']);
-		//label_cell($conn[$i]['address']);
-		label_cell($conn[$i]['branch_area']);
 		label_cell($conn[$i]['branch_code']);
+		label_cell($conn[$i]['old_code']);
 		label_cell($conn[$i]['partner_code']);
+		label_cell($conn[$i]['address']);
+		label_cell($conn[$i]['branch_area']);
 		label_cell($conn[$i]['type']);
 		label_cell($conn[$i]['gl_account']);
 		label_cell($conn[$i]['host']);
 		label_cell(isset($conn[$i]['port']) ? $conn[$i]['port'] : '');
 		label_cell($conn[$i]['dbuser']);
 		label_cell($conn[$i]['dbname']);
-		label_cell($conn[$i]['tbpref']);
+		//label_cell($conn[$i]['tbpref']);
 		label_cell(isset($conn[$i]['collation']) ? $supported_collations[$conn[$i]['collation']] : '');
 		label_cell($i == $def_coy ? _("Yes") : _("No"));
 	 	edit_button_cell("Edit".$i, _("Edit"));
@@ -614,6 +616,7 @@ function display_company_edit($selected_id)
 		$_POST['address'] = $conn['address'];
 		$_POST['branch_area'] = $conn['branch_area'];
 		$_POST['branch_code'] = $conn['branch_code'];
+		$_POST['old_code'] = $conn['old_code'];
 		$_POST['partner_code'] = $conn['partner_code'];
 		$_POST['type'] = $conn['type'];
 		$_POST['gl_account'] = $conn['gl_account'];
@@ -636,26 +639,28 @@ function display_company_edit($selected_id)
 		// Use current settings as default
 		$conn = $db_connections[user_company()];
 		$_POST['name'] = '';
-		$_POST['address'] = $conn['address'];
+		$_POST['branch_code'] = ''; //$conn['branch_code'];
+		$_POST['old_code'] = ''; //$conn['old_code'];
+		$_POST['partner_code'] = ''; //$conn['partner_code'];
+		$_POST['address'] = ''; //$conn['address'];
 		$_POST['branch_area'] = $conn['branch_area'];
-		$_POST['branch_code'] = $conn['branch_code'];
-		$_POST['partner_code'] = $conn['partner_code'];
 		$_POST['type'] = $conn['type'];
 		$_POST['gl_account'] = $conn['gl_account'];
 		$_POST['host']  = $conn['host'];
 		$_POST['port']  = isset($conn['port']) ? $conn['port'] : '';
 		$_POST['dbuser']  = $conn['dbuser'];
 		$_POST['dbpassword']  = $conn['dbpassword'];
-		$_POST['dbname']  = $conn['dbname'];
+		$_POST['dbname']  = ''; //$conn['dbname'];
 		$_POST['collation']  = isset($conn['collation']) ? $conn['collation'] : '';
 		unset($_POST['def']);
 	}
 
 	text_row_ex(_("Branch Name:"), 'name', 50);
+	text_row_ex(_("Branch Code:"), 'branch_code', 20);
+	text_row_ex(_("Old Branch Code:"), 'old_code', 20);
+	text_row_ex(_("Partner Code:"), 'partner_code', 20);
 	text_row_ex(_("Address:"), 'address', 50);
 	branch_area_list_row(_('Branch Area:'), 'branch_area', null,_('No Branch Area'));
-	text_row_ex(_("Branch Code:"), 'branch_code', 20);
-	text_row_ex(_("Partner Code:"), 'partner_code', 20);
 	company_type_row(_("Type:"), 'type', $_POST['type']);
 	gl_all_accounts_list_row(_("A/R Account:"), 'gl_account', $_POST['gl_account']);
 
