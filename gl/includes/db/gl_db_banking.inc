@@ -987,9 +987,6 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 	global $SysPrefs, $db_connections;
 	$sql = "";
 
-	$ho_mcode = get_company_value(0, 'branch_code');
-	$hoc_masterfile = get_company_value(0, 'name');
-
 	if (isset($SysPrefs->max_rows_in_search)) {
 		$limit = $SysPrefs->max_rows_in_search;
 	}

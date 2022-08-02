@@ -716,8 +716,6 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 	global $SysPrefs, $db_connections;
 
 	set_global_connection();
-	$ho_mcode = get_company_value(0, 'branch_code');
-	$hoc_masterfile = get_company_value(0, 'name');
 	
 	if (!empty($SysPrefs->prefs['shortname_name_in_list'])) {
 		if ($send_type != null) {

@@ -646,20 +646,6 @@ function handle_update_item() {
 			$amount = -input_num('AmountCredit');
 		}
 
-		if (gl_comp_name($_POST['mcode'], true) != '') {
-			$mcode = gl_comp_name($_POST['mcode'], true);
-		}
-		else {
-			$mcode = $_POST['mcode'];
-		}
-	
-		if (gl_comp_name($_POST['mcode']) != '') {
-			$masterfile = gl_comp_name($_POST['mcode']);
-		}
-		else {
-			$masterfile =  get_slname_by_ref($_POST['mcode']);
-		}
-
 		if ($_POST['class_name'] == 'Customer') {
 			$person_type = PT_CUSTOMER;
 		}
@@ -669,17 +655,7 @@ function handle_update_item() {
 		else if ($_POST['class_name'] == 'Branch Current') {
 			$person_type = PT_BRANCH;
 		}
-		else {
-			if ($cust_row['debtor_no'] != null) {
-				$person_type = PT_CUSTOMER;
-			}
-			else if (gl_comp_name($_POST['mcode'], true)) {
-				$person_type = PT_BRANCH;
-			}
-			else {
-				$person_type = PT_SUPPLIER;
-			}
-		}
+		else { $person_type = 0; }
     		
     	$_SESSION['journal_items']->update_gl_item(
     	    $_POST['Index'], 
@@ -690,8 +666,8 @@ function handle_update_item() {
     	    '',//$_POST['LineMemo'], 
     	    '', 
     	    null,
-			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $mcode,
-			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'name') : $masterfile,
+			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $_POST['mcode'],
+			$line_item->comp_id != $coy ? get_company_value($_POST['comp_id'], 'name') : get_slname_by_ref($_POST['mcode']),
     	    isset($_POST['hocbc_id']) ? $_POST['hocbc_id'] : 0, 
 			//Added by spyrax10
 			$line_item->comp_id,
@@ -721,8 +697,6 @@ function handle_new_item() {
 
 	$mcode = $masterfile = $person_type = '';
 
-	$cust_row = get_customer('', $_POST['mcode']);
-
 	//Added by spyrax10
 	$coy = user_company();
 	$code_id = $_POST['comp_id'] == $coy ? $_POST['code_id'] : get_company_value($_POST['comp_id'], 'gl_account');
@@ -735,20 +709,6 @@ function handle_new_item() {
 		$amount = -input_num('AmountCredit');
 	}
 
-	if (gl_comp_name($_POST['mcode'], true) != '') {
-		$mcode = gl_comp_name($_POST['mcode'], true);
-	}
-	else {
-		$mcode = $_POST['mcode'];
-	}
-
-	if (gl_comp_name($_POST['mcode']) != '') {
-		$masterfile = gl_comp_name($_POST['mcode']);
-	}
-	else {
-		$masterfile =  get_slname_by_ref($_POST['mcode']);
-	}
-
 	if ($_POST['class_name'] == 'Customer') {
 		$person_type = PT_CUSTOMER;
 	}
@@ -758,17 +718,7 @@ function handle_new_item() {
 	else if ($_POST['class_name'] == 'Branch Current') {
 		$person_type = PT_BRANCH;
 	}
-	else {
-		if ($cust_row['debtor_no'] != null) {
-			$person_type = PT_CUSTOMER;
-		}
-		else if (gl_comp_name($_POST['mcode'], true)) {
-			$person_type = PT_BRANCH;
-		}
-		else {
-			$person_type = PT_SUPPLIER;
-		}
-	}
+	else { $person_type = 0; }
 		
 	$_SESSION['journal_items']->add_gl_item(
 		$code_id, 
@@ -779,8 +729,8 @@ function handle_new_item() {
 	    null, 	// Account Description
 	    null,	// Person ID
 	    null,	// Date
-		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $mcode,
-		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : $masterfile,
+		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'branch_code') : $_POST['mcode'],
+		$_POST['comp_id'] != $coy ? get_company_value($_POST['comp_id'], 'name') : get_slname_by_ref($_POST['mcode']),
 		$_POST['comp_id'] != $coy ? $_POST['hocbc_id'] : 0, 
 		//Added by spyrax10
 		$_POST['comp_id'], 
