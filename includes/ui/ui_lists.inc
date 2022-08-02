@@ -728,18 +728,16 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			else if ($send_type == 3) {
 
 				for ($i = 0; $i < count($db_connections); $i++) {	
-					if (check_db_exists($i)) {
-						$ho_mcode = get_company_value($i, 'branch_code');
-						$hoc_masterfile = get_company_value($i, 'name');
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
 			
-						if ($i != 0) {
-							$sql .= " UNION ";
-						}
-						$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+					if ($i != 0) {
+						$sql .= " UNION ";
+					}
+					$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
 			
-						if ($i == count($db_connections)) {
-							$sql = substr(rtrim($sql), 0, -5);
-						}
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
 					}
 				}
 			}
@@ -750,17 +748,15 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers ";
 
 			for ($i = 0; $i < count($db_connections); $i++) {	
-				if (check_db_exists($i)) {
-					$ho_mcode = get_company_value($i, 'branch_code');
-					$hoc_masterfile = get_company_value($i, 'name');
+				$ho_mcode = get_company_value($i, 'branch_code');
+				$hoc_masterfile = get_company_value($i, 'name');
 			
-					$sql .= " UNION ";
+				$sql .= " UNION ";
 
-					$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+				$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
 			
-					if ($i == count($db_connections)) {
-						$sql = substr(rtrim($sql), 0, -5);
-					}
+				if ($i == count($db_connections)) {
+					$sql = substr(rtrim($sql), 0, -5);
 				}
 			}
 		}		
@@ -775,18 +771,16 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 			else if ($send_type == 3) {
 				for ($i = 0; $i < count($db_connections); $i++) {	
-					if (check_db_exists($i)) {
-						$ho_mcode = get_company_value($i, 'branch_code');
-						$hoc_masterfile = get_company_value($i, 'name');
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
 			
-						if ($i != 0) {
-							$sql .= " UNION ";
-						}
-						$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+					if ($i != 0) {
+						$sql .= " UNION ";
+					}
+					$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
 			
-						if ($i == count($db_connections)) {
-							$sql = substr(rtrim($sql), 0, -5);
-						}
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
 					}
 				}
 			}
@@ -797,17 +791,15 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers ";
 
 			for ($i = 0; $i < count($db_connections); $i++) {	
-				if (check_db_exists($i)) {
-					$ho_mcode = get_company_value($i, 'branch_code');
-					$hoc_masterfile = get_company_value($i, 'name');
+				$ho_mcode = get_company_value($i, 'branch_code');
+				$hoc_masterfile = get_company_value($i, 'name');
 			
-					$sql .= " UNION ";
+				$sql .= " UNION ";
 
-					$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
+				$sql .= "SELECT '$ho_mcode' as ref,  CONCAT('$ho_mcode', ' - ', '$hoc_masterfile') as ref_label ";
 			
-					if ($i == count($db_connections)) {
-						$sql = substr(rtrim($sql), 0, -5);
-					}
+				if ($i == count($db_connections)) {
+					$sql = substr(rtrim($sql), 0, -5);
 				}
 			}
 		}	

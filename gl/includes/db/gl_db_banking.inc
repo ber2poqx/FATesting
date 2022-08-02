@@ -1015,18 +1015,16 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 			$sql = "SELECT x1.* FROM (";
 
 			for ($i = 0; $i < count($db_connections); $i++) {
-				if (check_db_exists($i)) {
-					$ho_mcode = get_company_value($i, 'branch_code');
-					$hoc_masterfile = get_company_value($i, 'name');
+				$ho_mcode = get_company_value($i, 'branch_code');
+				$hoc_masterfile = get_company_value($i, 'name');
 		
-					if ($i != 0) {
-						$sql .= " UNION ";
-					}
-					$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
+				if ($i != 0) {
+					$sql .= " UNION ";
+				}
+				$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
 		
-					if ($i == count($db_connections)) {
-						$sql = substr(rtrim($sql), 0, -5);
-					}
+				if ($i == count($db_connections)) {
+					$sql = substr(rtrim($sql), 0, -5);
 				}
 			}
 
@@ -1055,18 +1053,16 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 				$sql = "SELECT x1.* FROM (";
 
 				for ($i = 0; $i < count($db_connections); $i++) {
-					if (check_db_exists($i)) {
-						$ho_mcode = get_company_value($i, 'branch_code');
-						$hoc_masterfile = get_company_value($i, 'name');
+					$ho_mcode = get_company_value($i, 'branch_code');
+					$hoc_masterfile = get_company_value($i, 'name');
 			
-						if ($i != 0) {
-							$sql .= " UNION ";
-						}
-						$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
+					if ($i != 0) {
+						$sql .= " UNION ";
+					}
+					$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
 			
-						if ($i == count($db_connections)) {
-							$sql = substr(rtrim($sql), 0, -5);
-						}
+					if ($i == count($db_connections)) {
+						$sql = substr(rtrim($sql), 0, -5);
 					}
 				}
 				$sql .= ") x1 ";
@@ -1082,16 +1078,14 @@ function get_list_of_sl($sl, $send_type = null, $type = null)
 			
 			for ($i = 0; $i < count($db_connections); $i++) {
 		
-				if (check_db_exists($i)) {
-					$ho_mcode = get_company_value($i, 'branch_code');
-					$hoc_masterfile = get_company_value($i, 'name');
+				$ho_mcode = get_company_value($i, 'branch_code');
+				$hoc_masterfile = get_company_value($i, 'name');
 			
-					$sql .= " UNION ";
-					$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
+				$sql .= " UNION ";
+				$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as name, 'Branch Current' as class ";
 			
-					if ($i == count($db_connections)) {
-						$sql = substr(rtrim($sql), 0, -5);
-					}
+				if ($i == count($db_connections)) {
+					$sql = substr(rtrim($sql), 0, -5);
 				}
 			}
 			$sql .= ") x1 ";		
@@ -1125,16 +1119,14 @@ function get_slname_by_ref($ref) {
 	
 	for ($i = 0; $i < count($db_connections); $i++) {
 		
-		if (check_db_exists($i)) {
-            $ho_mcode = get_company_value($i, 'branch_code');
-	        $hoc_masterfile = get_company_value($i, 'name');
+		$ho_mcode = get_company_value($i, 'branch_code');
+		$hoc_masterfile = get_company_value($i, 'name');
 
-			$sql .= "UNION ";
-			$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as sl_name ";
+		$sql .= "UNION ";
+		$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as sl_name ";
 
-			if ($i == count($db_connections)) {
-				$sql = substr(rtrim($sql), 0, -5);
-			}
+		if ($i == count($db_connections)) {
+			$sql = substr(rtrim($sql), 0, -5);
 		}
 	}
 
