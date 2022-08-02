@@ -10,18 +10,18 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 function interbranch_send_payment_add($target_branch, $debtor_ref, $name, $trans_date, $ref_no, $amount, $remarks, $prepared_by, $branch_code,
-		$trans_no, $tran_type, $branch_to)
+		$trans_no, $tran_type, $branch_to, $type=0)
 {
 	$db_coy = Get_db_coy($target_branch);
     set_global_connection($db_coy);
 
 	$sql = "INSERT INTO ".TB_PREF."interbranch_trans (
 					branch_code_from, debtor_ref, debtor_name, trans_date, ref_no, amount, remarks ,prepared_by,
-					transno_from_branch, trantype_from_branch, branch_code_to
+					transno_from_branch, trantype_from_branch, branch_code_to, type
 			) VALUES (
 			        ".db_escape($branch_code).", ".db_escape($debtor_ref).", ".db_escape($name).", ".db_escape($trans_date)."
 					,".db_escape($ref_no).", ".db_escape($amount)." ,".db_escape($remarks)." ,".db_escape($prepared_by)."
-					,".db_escape($trans_no).", ".db_escape($tran_type).", ".db_escape($branch_to)."
+					,".db_escape($trans_no).", ".db_escape($tran_type).", ".db_escape($branch_to).", ".db_escape($type)."
 			)";
 	
 	$ErrMsg = _('could not send data to other branch because ');
@@ -31,13 +31,13 @@ function interbranch_send_payment_add($target_branch, $debtor_ref, $name, $trans
 
 }
 
-function update_status_interbranch_trans($id, $user, $status, $trans_no, $type)
+function update_status_interbranch_trans($id, $user, $status, $trans_no, $type_to_branch)
 {
 	$sql = "UPDATE ".TB_PREF."interbranch_trans 
 			SET status = ".db_escape($status)."
 				,approved_by = ".db_escape($user)."
 				,transno_to_branch = ".db_escape($trans_no)."
-				,trantype_to_branch = ".db_escape($type)."
+				,trantype_to_branch = ".db_escape($type_to_branch)."
 		WHERE id = ".db_escape($id);
 
 	db_query($sql, "could not update table inter-branch because ");

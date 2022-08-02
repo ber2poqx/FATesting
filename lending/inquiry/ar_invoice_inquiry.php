@@ -272,9 +272,10 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Sorry, Account title was not found in GL Setup.');
     }
-    if(empty($db_connections[user_company()]["ap_account"])){
+    
+    if(empty($company_prefs["ap_account"])){
         $InputError = 1;
-        $dsplymsg = _('Sorry, Account title was not found in Company prefferences.');
+        $dsplymsg = _('Sorry, Account title was not found in Company preferences.');
     }
 
     //$trans_no = get_next_trans_no(ST_ARINVCINSTLITM);
@@ -287,6 +288,8 @@ if(isset($_GET['submit']))
         $firstdue_date = date("Y-m-d", strtotime($_POST['firstdue_date']));
         $maturity_date = date("Y-m-d", strtotime($_POST['maturity_date']));
         $invoice_date = date("Y-m-d", strtotime($_POST['invoice_date']));
+
+        $conn = $db_connections[user_company()];
 
         $trans_no = write_customer_trans(ST_ARINVCINSTLITM, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), date("m/d/Y", strtotime($approved_date)), $reference, 
                             check_isempty($_POST['total_amount']), 0, 0, 0, 0, 0, check_isempty($_POST['id']), 0, date("m/d/Y", strtotime($approved_date)), 0, 0, 0, 0, $loansrow["payment_terms"], 0, 0);
@@ -355,6 +358,11 @@ if(isset($_GET['submit']))
                 add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["deferred_income_act"], 0, 0,
                                 -$DGP_amount, $_POST['customername'], "The unearned interest amount GL posting could not be inserted");
             }
+
+            //pay to branch
+            interbranch_send_payment_add($_POST['branch_code'], $_POST['descustcode'], $_POST['descustname'], date("Y-m-d", strtotime($approved_date)), $reference, $ap_capital,
+            $_POST['comments'], $_SESSION["wa_current_user"]->name, $conn['branch_code'], $trans_no, ST_ARINVCINSTLITM, $_POST['branch_code'], 1);
+
 
             $Refs->save(ST_ARINVCINSTLITM, $trans_no, $reference, null);
             Update_debtor_trans_status(ST_ARINVCINSTLITM, $trans_no, "unpaid", null);
