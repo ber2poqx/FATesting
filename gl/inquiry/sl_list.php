@@ -92,7 +92,7 @@ while ($myrow = db_fetch_assoc($result)) {
 	}
 	else {
 		$class = $myrow['class'];
-  		ahref_cell(_("Select"), 'javascript:void(0)', '', 'selectComboItem(window.opener.document, "'.$name.'", "'.$value.'", "'.$class.'")');
+  		ahref_cell(_("Select"), 'javascript:void(0)', '', 'selectComboItem(window.opener.document, "'.$name.'", "'.$value.'", "'.$class.'", true)');
 	}
 
 	if ($myrow["class"] != 'Branch Current') {
