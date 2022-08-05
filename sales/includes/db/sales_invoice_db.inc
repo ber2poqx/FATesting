@@ -1056,16 +1056,21 @@ function get_so_date($order_no)
 	return $row[0];
 }
 
-function get_total_discount($order_no)
-{
+function get_total_discount($order_no, $dis1_only = false) {
 	set_global_connection();
 
-	$sql = "SELECT SUM(B.discount1 + B.discount2) AS discount
-		FROM sales_orders A 
+	if ($dis1_only) {
+		$sql = "SELECT SUM(B.discount1) AS discount";
+	}
+	else {
+		$sql = "SELECT SUM(B.discount1 + B.discount2) AS discount";
+	}
+
+	$sql .= " FROM sales_orders A 
 			INNER JOIN sales_order_details B ON A.order_no = B.order_no
 		WHERE A.order_no=" . db_escape($order_no) . " GROUP BY B.order_no";
 
-	$result = db_query($sql, "Can't get SO Total Discount! (spyrax10)");
+	$result = db_query($sql, "get_total_discount()");
 	$row = db_fetch_row($result);
 	return $row[0];
 }

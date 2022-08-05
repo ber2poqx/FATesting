@@ -676,8 +676,7 @@ function display_order_header(&$order, $editable, $date_text)
 		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
 			table_section(3);
 			
-			//check_row(_('With PDC Number?:'), 'pdc_chk', null, true);
-			value_type_list(('With PDC Number?:'), 'pdc_chk', 
+			value_type_list(('With PDC Number?:&nbsp;'), 'pdc_chk', 
 				array(
 					0 => 'No', 
 					1 => 'Yes',
@@ -685,7 +684,7 @@ function display_order_header(&$order, $editable, $date_text)
 			);
 	
 			if (get_post('pdc_chk') == 1) {
-				text_row(_("Customer's PDC #: "), 'pdc_no', null, 28, 28);
+				text_row(_("Customer's PDC #: &nbsp;"), 'pdc_no', null, 28, 28);
 				value_type_list(_("Apply PDC Discount?: &nbsp;"), 'pdc_discount', 
 					array(
 						0 => 'No', 
@@ -693,7 +692,6 @@ function display_order_header(&$order, $editable, $date_text)
 					), 'label', null, true, '', true
 				);
 			}
-			//hidden('pdc_discount');
 		}
 		else {
 			hidden('pdc_discount');
@@ -828,7 +826,7 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		//Modified by spyrax10 26 Jul 2022
 		$_POST['discount1'] = get_post('pdc_chk') == 1 ? get_post('discount1') : price_format($discount1);
-		$_POST['discount2'] = get_post('pdc_discount') == 1 ? 0 : price_format($discount2);
+		$_POST['discount2'] = price_format($discount2);
 		//
 
 		//Added by spyrax10 7 Feb 2022
@@ -862,10 +860,23 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 	// small_amount_cells(null, 'Disc', percent_format($_POST['Disc']), null, null, user_percent_dec());
 
 	$line_total = input_num('qty') * input_num('price');
-	label_cell(get_post('discount1'));
-	hidden('discount1');
+
+	if ($order->trans_type != ST_SALESINVOICE && ($_POST['category_id'] == 23 || $_POST['category_id'] == 18)) {
+		if (get_post('pdc_chk') == 1) {
+			text_cells(null, "discount1", null, 5, 5);
+		}
+		else {
+			label_cell(get_post('discount1'));
+			hidden('discount1');	
+		}
+	}
+	else {
+		label_cell(get_post('discount1'));
+		hidden('discount1');
+	}
 	label_cell(get_post('discount2'));
 	hidden('discount2');
+
 	amount_cell($line_total, false, '', 'line_total');
 
 	label_cell(get_post('serialeng_no'));
