@@ -617,6 +617,7 @@ function get_invoice_duedate($terms, $invdate)
 
 function get_customer_to_order($customer_id)
 {
+	set_global_connection();
 
 	// Now check to ensure this account is not on hold */
 	$sql = "SELECT cust.name, 

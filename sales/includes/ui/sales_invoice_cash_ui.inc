@@ -672,7 +672,7 @@ function display_order_header(&$order, $editable, $date_text)
 		$pdc_no = $so_head['pdc_no'];
 	}
 	//Added by spyrax10 26 Jul 2022
-	if ($pdc_no == '') {
+	if (!isset($order->order_no)) {
 		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
 			table_section(3);
 			
@@ -820,7 +820,12 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		$lcp_price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Added by spyrax10
 
 		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
-			$discount1 =  $order->line_items[$line_no]->discount1;
+			if ($order->trans_type == ST_SALESINVOICE) {
+				$discount1 = $order->line_items[$line_no]->discount1;
+			}
+			else {
+				$discount1 = get_post('discount1');
+			}
 		}
 		else {
 			$discount1 = Get_Sales_Discount1($_POST['stock_id']);
@@ -832,7 +837,7 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		// default to the customer's discount %
 		$_POST['Disc'] = percent_format($order->default_discount * 100);
 		//Modified by spyrax10 26 Jul 2022
-		$_POST['discount1'] = get_post('pdc_chk') == 1 ? get_post('discount1') : price_format($discount1);
+		$_POST['discount1'] = price_format($discount1);
 		$_POST['discount2'] = price_format($discount2);
 		//
 
