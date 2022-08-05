@@ -670,15 +670,18 @@ function check_item_data()
 				display_error(_("With PDC Number is selected! Please Input Customer's PDC Number.."));
 				return false;
 			}
-			else if (get_post('discount1') > 0 && get_post('discount1') > $pcd1) {
-				display_error(_("Discount is more than 5% of line total amount! Please try again.."));
-				return false;
+			else if (get_post('pdc_discount') == 1) {
+				if (get_post('discount1') > 0 && get_post('discount1') > $pdc2 ) {
+					display_error(_("Discount is over 10% of line total amount! Please try again.."));
+					return false;
+				}
 			}
-		}
-
-		if (get_post('pdc_discount') == 1 && get_post('discount1') > $pdc2 ) {
-			display_error(_("Discount is over 10% of line total amount! Please try again.."));
-			return false;
+			else {
+				if (get_post('discount1') > 0 && get_post('discount1') > $pdc1) {
+					display_error(_("Discount is more than 5% of line total amount! Please try again.."));
+					return false;
+				}			
+			}
 		}
 	}
 
