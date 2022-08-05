@@ -88,6 +88,11 @@ label_cells(_("Opening Balance: "), $open_bal, "class='tableheader2'");
 end_row();
 
 start_row();
+label_cells(_("Receipt no: &nbsp;"), $to_trans['receipt_no'], "class='tableheader2'");
+label_cells(_("Pay To: &nbsp;"), get_person_name($to_trans['person_type_id'], $to_trans['person_id']), "class='tableheader2'", "colspan=$colspan2");
+end_row();
+
+start_row();
 end_row();
 
 comments_display_row(ST_BANKDEPOSIT, $trans_no);
