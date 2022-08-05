@@ -1197,7 +1197,7 @@ Ext.onReady(function() {
 			//CollectionTypeStore.proxy.extraParams = {type: "amort"};
 			//CollectionTypeStore.load();
 
-			Ext.getCmp('intobankacct').setValue(3);
+			//Ext.getCmp('intobankacct').setValue(3);
 			Ext.getCmp('debit_acct').setValue("1050");
 			Ext.getCmp('paymentType').setValue('amort');
 			//Ext.getCmp('collectType').setValue(1);//'office'
@@ -1250,7 +1250,7 @@ Ext.onReady(function() {
 				}
 			});*/
 
-			Ext.getCmp('intobankacct_cash').setValue(3);
+			//Ext.getCmp('intobankacct_cash').setValue(3);
 			Ext.getCmp('debit_acct_cash').setValue("1050");
 			Ext.getCmp('paymentType_cash').setValue('other');
 			Ext.getCmp('collectType_cash').setValue(1);//'office'
@@ -1284,7 +1284,7 @@ Ext.onReady(function() {
 			//CollectionTypeStore.proxy.extraParams = {type: "interb"};
 			//CollectionTypeStore.load();
 
-			Ext.getCmp('intobankacct_inb').setValue(3);
+			//Ext.getCmp('intobankacct_inb').setValue(3);
 			Ext.getCmp('debit_acct_inb').setValue("1050");
 			Ext.getCmp('paymentType_inb').setValue('other');
 			Ext.getCmp('collectType_inb').setValue(3);//'interb'
@@ -1317,7 +1317,7 @@ Ext.onReady(function() {
 				}
 			});*/
 
-			Ext.getCmp('intobankacct_dp').setValue(3);
+			//Ext.getCmp('intobankacct_dp').setValue(3);
 			Ext.getCmp('debit_acct_dp').setValue("1050");
 			Ext.getCmp('paymentType_dp').setValue('down');
 			Ext.getCmp('collectType_dp').setValue(1);//'interb'
@@ -1738,8 +1738,7 @@ Ext.onReady(function() {
 							Ext.getCmp('tenderd_amount').focus(false, 200);
 						},
 						change: function(object, value) {
-							//console.log(value);
-							if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+							if(value == 1){ //object.getRawValue()
 								Ext.getCmp('check').setVisible(false);
 								Ext.getCmp('pay_type').setValue('Cash');
 							}else{
@@ -2283,7 +2282,7 @@ Ext.onReady(function() {
 						},
 						change: function(object, value) {
 							//console.log(value);
-							if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+							if(value == 1){ //object.getRawValue()
 								Ext.getCmp('check_inb').setVisible(false);
 								Ext.getCmp('pay_type_inb').setValue('Cash');
 							}else{
@@ -2701,7 +2700,7 @@ Ext.onReady(function() {
 						},
 						change: function(object, value) {
 							//console.log(value);
-							if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+							if(value == 1){ //object.getRawValue()
 								Ext.getCmp('check_dp').setVisible(false);
 								Ext.getCmp('pay_type_dp').setValue('Cash');
 							}else{
@@ -3165,7 +3164,7 @@ Ext.onReady(function() {
 						},
 						change: function(object, value) {
 							//console.log(value);
-							if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+							if(value == 1){ //object.getRawValue()
 								Ext.getCmp('check_cash').setVisible(false);
 								Ext.getCmp('pay_type_cash').setValue('Cash');
 							}else{
@@ -3525,7 +3524,7 @@ Ext.onReady(function() {
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
 					change: function(object, value) {
-						if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+						if(value == 1){ //object.getRawValue()
 							Ext.getCmp('v_check').setVisible(false);
 						}else{
 							Ext.getCmp('v_check').setVisible(true);
@@ -3825,7 +3824,7 @@ Ext.onReady(function() {
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
 					change: function(object, value) {
-						if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+						if(value == 1){ //object.getRawValue()
 							Ext.getCmp('v_check_cash').setVisible(false);
 						}else{
 							Ext.getCmp('v_check_cash').setVisible(true);
@@ -4118,7 +4117,8 @@ Ext.onReady(function() {
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
 					change: function(object, value) {
-						if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+						//if(value == 1 || value == 2 || value == 3){ //object.getRawValue()
+						if(value == 1){
 							Ext.getCmp('v_check_inb').setVisible(false);
 						}else{
 							Ext.getCmp('v_check_inb').setVisible(true);

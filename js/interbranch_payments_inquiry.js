@@ -39,7 +39,8 @@ Ext.onReady(function(){
 			{name:'remarks', mapping:'remarks'},
 			{name:'prepared_by', mapping:'prepared_by'},
 			{name:'status', mapping:'status'},
-			{name:'approved_by', mapping:'approved_by'}
+			{name:'approved_by', mapping:'approved_by'},
+			{name:'type', mapping:'type'}
 		]
 	});
 	var fstatusStore = Ext.create('Ext.data.Store',{
