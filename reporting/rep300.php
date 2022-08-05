@@ -70,8 +70,14 @@ function print_transaction() {
 		$supplier = get_supplier_name($supp);
 	}
 
-	$cols = array(0, 55, 130, 190, 230, 280, 345, 
-		400, 480, 540, 590, 605, 650, 700, 0
+	$cols = array(
+		0, 65, 145, 225, 260, 305, 390,
+		420, 515, 575, 605, 
+		615, 650, 700, 0
+	);
+	$aligns = array(
+		'left', 'left', 'left', 'center', 'center', 'left', 'center',
+		'left', 'left', 'center', 'left', 'right', 'right', 'right'
 	);
 
 	$headers = array(
@@ -91,10 +97,6 @@ function print_transaction() {
 		_('Location')
 	);
 
-	$aligns = array('left', 'left', 'left', 'center', 'center', 'left', 'center',
-		'left', 'left', 'center', 'center', 'right', 'right', 'right'
-	);
-
     $params = array( 	
 		0 => $comments,
     	1 => array('text' => _('End Date'), 'from' => $date, 'to' => ''),
@@ -103,7 +105,7 @@ function print_transaction() {
     	4 => array('text' => _('Location'), 'from' => $loc, 'to' => '')
 	);
 
-    $rep = new FrontReport(_('Inventory On Hand Report (Detailed)'), "InventoryValReport", 'LEGAL', 9, $orientation);
+    $rep = new FrontReport(_('Inventory On Hand Report (Detailed)'), "InventoryMovement(As of $date)", 'LEGAL', 9, $orientation);
     
 	if ($orientation == 'L') {
 		recalculate_cols($cols);
@@ -134,12 +136,10 @@ function print_transaction() {
 			if ($catt != '') {
 				$rep->NewLine();
 				$rep->Font('bold');
-				$rep->TextCol(0, 1, _('Sub_Total'));
-				$rep->fontSize -= 1;
+				$rep->TextCol(0, 1, _('Sub Total'));
 				$rep->AmountCol(9, 10, $qty);
 				$rep->AmountCol(11, 12, $unt_cst, $dec);
     			$rep->AmountCol(12, 13, $itm_tot, $dec);
-				$rep->fontSize += 1;
 				$rep->Line($rep->row  - 4);
 				$rep->Font();
 				$rep->NewLine(3);
@@ -157,26 +157,34 @@ function print_transaction() {
 		}
 
 		if ($trans['QoH'] > 0) {
-			$rep->fontSize -= 2;
-			$rep->TextCol(0, 1, $trans['Code']);
-			$rep->TextCol(1, 2, $trans['prod_desc']);
-			$rep->TextCol(2, 3, get_color_description($trans['color_code'], $trans['Code'], true));
+
+			$prod_code = $trans['Code'];
+			$prod_desc = $trans['prod_desc'];
+			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
+
+			$rep->fontSize -= 1;
+			$rep->TextCol(0, 1, $destination ? $prod_code : substr($prod_code, 0, 15));
+			$rep->TextCol(1, 2, $destination ? $prod_desc : substr($prod_desc, 0, 18));
+			$rep->TextCol(2, 3, $destination ? $color_desc : substr($color_desc, 0, 20));
+
         	$rep->TextCol(3, 4, $trans['Brand']);
+			$rep->SetTextColor(0, 0, 255);
         	$rep->TextCol(4, 5, sql2date($trans['Date']));
+			$rep->SetTextColor(0, 0, 0);
         	$rep->TextCol(5, 6, $reference);
         	$rep->TextCol(6, 7, $trans['trans_no']);
         	$rep->TextCol(7, 8, $trans['Serial#']);
         	$rep->TextCol(8, 9, $trans['Chassis#']);
-			$rep->fontSize += .5;
         	$rep->TextCol(9, 10, $trans['QoH']);
-			$rep->fontSize -= .5;
         	$rep->TextCol(10, 11, $trans['units']);      
         	
         	$dec2 = 0; 
 			$rep->AmountCol2(11, 12, $trans['UnitCost'], $dec2);
 			$rep->AmountCol2(12, 13, $trans['QoH'] * $trans['UnitCost'], $dec);
+			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(13, 14, $trans['loc_code']);
-			$rep->fontSize += 2;
+			$rep->SetTextColor(0, 0, 0);
+			$rep->fontSize += 1;
         	$rep->NewLine();
 		
 			$qty += $trans['QoH'];
@@ -192,12 +200,12 @@ function print_transaction() {
 	if ($catt != '') {
 		$rep->NewLine();
 		$rep->Font('bold');	
-		$rep->TextCol(0, 1, _('Sub_Total'));
-		$rep->fontSize -= 1;
+		$rep->TextCol(0, 1, _('Sub Total'));
+		//$rep->fontSize -= 1;
 		$rep->AmountCol(9, 10, $qty);
 		$rep->AmountCol(11, 12, $unt_cst, $dec);
     	$rep->AmountCol(12, 13, $itm_tot, $dec);
-		$rep->fontSize += 1;
+		//$rep->fontSize += 1;
 		$rep->Line($rep->row  - 4);
 		$rep->Font();
 		$rep->NewLine(3);
@@ -205,10 +213,10 @@ function print_transaction() {
 
     $rep->Font('bold');
     $rep->fontSize += 2;
-	$rep->TextCol(6, 7, _('GRAND TOTAL:'));
+	$rep->TextCol(0, 2, _('GRAND TOTAL:'));
 	$rep->fontSize -= 2;
 	$rep->TextCol(9, 10, $qtyTot);
-    $rep->AmountCol(11, 12, $total, $dec);
+    $rep->AmountCol(10, 12, $total, $dec);
     $rep->AmountCol(12, 13, $grandtotal, $dec);
 	$rep->Line($rep->row  - 4);
 	$rep->NewLine();
