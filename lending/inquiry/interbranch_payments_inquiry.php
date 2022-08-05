@@ -285,7 +285,8 @@ if(isset($_GET['get_incoming_interb'])){
                                 'remarks'=>$myrow['remarks'],
                                 'prepared_by'=>$myrow['prepared_by'],
                                 'status'=>$myrow['status'],
-                                'approved_by'=>$myrow['approved_by']
+                                'approved_by'=>$myrow['approved_by'],
+                                'type'=>$myrow['type']
                             );
      }
     $jsonresult = json_encode($status_array);
@@ -399,7 +400,7 @@ if(isset($_GET['submit']))
             set_global_connection();
             
             $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = 0;
-                
+            
             $partialpay = $partialpayment;
             $tenderd_amount = $_POST['tenderd_amount'];
 
