@@ -818,7 +818,14 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		}
 		
 		$lcp_price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Added by spyrax10
-		$discount1 = Get_Sales_Discount1($_POST['stock_id']);
+
+		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
+			$discount1 =  $order->line_items[$line_no]->discount1;
+		}
+		else {
+			$discount1 = Get_Sales_Discount1($_POST['stock_id']);
+		}
+
 		$discount2 = Get_Sales_Discount2($_POST['stock_id']);		
 		$_POST['lcp_price'] = price_format($lcp_price); //Added by spyrax10
 		$_POST['price'] = price_format($price);
