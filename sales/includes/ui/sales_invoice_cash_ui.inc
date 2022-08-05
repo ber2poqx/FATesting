@@ -252,8 +252,9 @@ function display_order_summary($title, &$order, $editable_items = false)
 			label_cell($stock_item->item_type);
 			qty_cell($stock_item->qty_dispatched, false, $dec);
 
-			if ($order->trans_no != 0)
-				qty_cell($stock_item->qty_done, false, $dec);
+			// if ($order->trans_no != 0 && $order->trans_type == ST_SALESINVOICE) {
+			// 	qty_cell($stock_item->qty_done, false, $dec);
+			// }
 
 			label_cell($stock_item->units);
 			amount_cell($stock_item->price);
@@ -653,9 +654,11 @@ function display_order_header(&$order, $editable, $date_text)
 		
 				$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 			}
-			/*End by Albert*/			}
+			/*End by Albert*/			
+		}
 		$Ajax->activate('items_table');
-	} else {
+	} 
+	else {
 		$tot_discount = price_format(floor(get_post('total_discount')));
 		//$tot_discount = get_post('lcp_amount') - get_post('total_amount');
 	}
@@ -857,12 +860,14 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 	if ($order->fixed_asset) {
 		label_cell(1, '', 'qty');
 		hidden('qty', 1);
-	} else
+	} 
+	else {
 		qty_cells(null, 'qty', $_POST['qty'], null, null, $dec);
-
-	if ($order->trans_no != 0) {
-		qty_cell($line_no == -1 ? 0 : $order->line_items[$line_no]->qty_done, false, $dec);
 	}
+
+	// if ($order->trans_no != 0) {
+	// 	qty_cell($line_no == -1 ? 0 : $order->line_items[$line_no]->qty_done, false, $dec);
+	// }
 
 	label_cell($units, '', 'units');
 
@@ -875,6 +880,9 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 
 	if ($order->trans_type != ST_SALESINVOICE && ($_POST['category_id'] == 23 || $_POST['category_id'] == 18)) {
 		if (get_post('pdc_chk') == 1) {
+			text_cells(null, "discount1", null, 5, 5);
+		}
+		else if ($id != -1) {
 			text_cells(null, "discount1", null, 5, 5);
 		}
 		else {

@@ -84,6 +84,7 @@ if (isset($_GET['NewDelivery']) && is_numeric($_GET['NewDelivery'])) {
 	$help_context = 'Modifying Sales Order';
 	$_SESSION['page_title'] = sprintf(_("Modifying Sales Order # %d"), $_GET['ModifyOrderNumber']);
 	create_cart(ST_SALESORDER, $_GET['ModifyOrderNumber']);
+	update_header();
 } elseif (isset($_GET['ModifyQuotationNumber']) && is_numeric($_GET['ModifyQuotationNumber'])) {
 
 	$help_context = 'Modifying Sales Quotation';
