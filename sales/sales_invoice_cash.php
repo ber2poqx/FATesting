@@ -110,11 +110,16 @@ if (isset($_GET['ModifyOrderNumber']) && is_prepaid_order_open($_GET['ModifyOrde
 	end_page();
 	exit;
 }
-if (isset($_GET['ModifyOrderNumber']))
-	check_is_editable(ST_SALESORDER, $_GET['ModifyOrderNumber']);
-elseif (isset($_GET['ModifyQuotationNumber']))
+//Modified by spyrax10 6 Aug 2022 Mantis Issue #940
+if (isset($_GET['ModifyOrderNumber'])) {
+	if (get_user_role($_SESSION["wa_current_user"]->user) != 'BR-Receptionist') {
+		check_is_editable(ST_SALESORDER, $_GET['ModifyOrderNumber']);
+	}
+}
+elseif (isset($_GET['ModifyQuotationNumber'])) {
 	check_is_editable(ST_SALESQUOTE, $_GET['ModifyQuotationNumber']);
-
+}
+//
 //-----------------------------------------------------------------------------
 
 if (list_updated('branch_id')) {
