@@ -1047,14 +1047,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     $restruct = ST_RESTRUCTURED;
 
      $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DM.address, 
-            CASE 
-	            WHEN GL.gl_code = 1200 THEN 'A/R - Regular Current'
-	            WHEN GL.gl_code = 1201 THEN 'A/R - Installment Current'
-	            WHEN GL.gl_code = 1202 THEN 'A/R - Regular Past Due'
-	            WHEN GL.gl_code = 1204 THEN 'A/R - Installment Past Due'
-            ELSE GL.gl_name END AS gl_name, 
-
-            CN.user_id, CN.real_name AS col_name, DM.debtor_ref, DM.name AS cust_name, 
+            GL.gl_name, CN.user_id, CN.real_name AS col_name, DM.debtor_ref, DM.name AS cust_name, 
             DL.delivery_ref_no, '0' AS adj, '0' AS restruct, DL.downpayment_amount AS down_pay,
 
             CASE 
