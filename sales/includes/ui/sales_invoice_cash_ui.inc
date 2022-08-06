@@ -284,7 +284,8 @@ function display_order_summary($title, &$order, $editable_items = false)
 			label_cell($stock_item->lot_no);
 			label_cell($stock_item->chasis_no);
 			//Added by spyrax10
-			amount_cell($stock_item->lcp_price);
+			$lcp_price = Get_Policy_Installment_Price(getCompDet('branch_code'), $order->category_id, $stock_item->stock_id);
+			amount_cell($lcp_price);
 			if ($order->trans_type == ST_SALESINVOICE || $order->trans_type == ST_SALESINVOICEREPO) {
 				amount_cell($stock_item->smi);
 				amount_cell($stock_item->incentives);

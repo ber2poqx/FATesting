@@ -704,19 +704,20 @@ function update_header() {
 
 		$total += $order_item->price * $order_item->qty_dispatched;
 
-		$dis1 += floor($order_item->discount1);
-		$dis2 += floor($order_item->discount2);
+		$dis1 += $order_item->discount1;
+		$dis2 += $order_item->discount2;
 
-		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($dis1 + $dis2);
+		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($order_item->discount1 + $order_item->discount2);
 
 		//$total += ($order_item->price - ($order_item->discount1 + $order_item->discount2)) * $order_item->qty_dispatched;
 		//$total_lcp += $order_item->price * $order_item->qty_dispatched;
 	}
+
+	$_POST['discount1'] = $dis1;
+	$_POST['discount2'] = $dis2;
 	$_POST['total_amount'] = $total;
 	$_POST['total_discount'] = $dis1 + $dis2;
 	$_POST['lcp_amount'] = $total_lcp;
-	$_POST['discount1'] = $dis1;
-	$_POST['discount2'] = $dis2;
 
 	global $Ajax;
 	$Ajax->activate('_page_body');
@@ -736,7 +737,7 @@ function handle_update_item()
 			$_POST['serialeng_no'],
 			$_POST['chassis_no'],
 			$_POST['color_desc'],
-			input_num('discount1'),
+			floor(input_num('discount1')),
 			input_num('discount2'),
 			input_num('lcp_price'),
 			$_POST['smi'],
@@ -787,7 +788,7 @@ function handle_new_item()
 		$_POST['chassis_no'],
 		$_POST['color_desc'],
 		$_POST['item_type'],
-		input_num('discount1'),
+		floor(input_num('discount1')),
 		input_num('discount2'),
 		input_num('lcp_price'),
 		$_POST['smi'],
