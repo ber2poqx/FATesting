@@ -675,9 +675,10 @@ function display_order_header(&$order, $editable, $date_text)
 		$pdc_no = $so_head['pdc_no'];
 	}
 	//Added by spyrax10 26 Jul 2022
+	table_section(3);
 	if (!isset($order->order_no)) {
+
 		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
-			table_section(3);
 			
 			value_type_list(('With PDC Number?:&nbsp;'), 'pdc_chk', 
 				array(
@@ -703,6 +704,10 @@ function display_order_header(&$order, $editable, $date_text)
 	}
 	else {
 		label_row(_("Customer's PDC Number: &nbsp;"), $pdc_no);
+		label_row(_("Apply PDC Discount?: &nbsp;"), $so_head['pdc_discount'] == 1 ? 'Yes' : 'No');
+		hidden('pdc_chk', $so_head['pdc_no'] != '' ? 1 : 0);
+		hidden('pdc_no', $so_head['pdc_no']);
+		hidden('pdc_discount', $so_head['pdc_discount']);
 	}
 	//
 	
