@@ -118,7 +118,7 @@ class Cart
 	var $invoice_type = "new";	// Added by Ronelle 5/5/2021
 	var $outstanding_ar_amount = 0;
 	var $lcp_amount = 0;
-	var $payment_location = 0; // Added by Ronelle 5/17/2021
+	var $payment_location = "Branch"; // Added by Ronelle 5/17/2021 ||  Updated by spyrax10 8 Aug 2022 (For uniformity) 
 	/* Sales Return Replacement Variable */
 	var $si_no_ref;
 	var $dr_no_ref;
