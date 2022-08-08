@@ -702,11 +702,10 @@ function update_header() {
 
 	foreach ($_SESSION['Items']->line_items as $order_item) {
 
-		$total += $order_item->price * $order_item->qty_dispatched;
-
 		$dis1 += $order_item->discount1;
 		$dis2 += $order_item->discount2;
-
+		
+		$total += $order_item->price * $order_item->qty_dispatched;
 		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($order_item->discount1 + $order_item->discount2);
 
 		//$total += ($order_item->price - ($order_item->discount1 + $order_item->discount2)) * $order_item->qty_dispatched;

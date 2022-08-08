@@ -98,8 +98,15 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	}
 	set_global_connection();
 	// write_customer_trans have to be called after optional void_cust_allocations above
-	$entry_amount = $invoice->payment_location == "Lending" ? $invoice->lcp_amount : $invoice->ar_amount;
-	
+
+	//Modified by spyrax10 8 Aug 2022
+	if ($invoice->months_term > 0) {
+		$entry_amount = $invoice->payment_location == "Lending" ? $invoice->lcp_amount : $invoice->ar_amount;
+	}
+	else {
+		$entry_amount = $invoice->ar_amount;
+	}
+	//
 	
 	//openning oustading ar balance (added by Albert)
 	$ar_balance = $entry_amount -  $invoice->ob_total_amount_paid;
@@ -334,14 +341,17 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	} /*end of delivery_line loop */
 
 	if ($invoice->amortization > 0) {
-		if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
+		if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id)) {
 			$sales_account = $category_gl_code['dflt_regular_sales_act'];
-		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id))
+		}
+		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id)) {
 			$sales_account = $category_gl_code['dflt_installment_sales_act'];
-		if (check_employee_customer($invoice->customer_id))
+		}
+		if (check_employee_customer($invoice->customer_id)) {
 			$sales_account = $company_data['isa_employee'];
+		}
 		/*Added by Albert */
-		if ($invoice->payment_location == "Lending"){
+		if ($invoice->payment_location == "Lending") {
 			$sales_account = $category_gl_code['dflt_sales_act'];
 		}
 		/**/
@@ -349,15 +359,16 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$sales_account = $category_gl_code['dflt_sales_act'];
 	}
 
-	if ($invoice->payment_location)
-		$sales_account = $category_gl_code['dflt_sales_act'];
+
+	// if ($invoice->payment_location)
+	// 	$sales_account = $category_gl_code['dflt_sales_act'];
 
 	if ($opening_balances <> 1) { // albert 09/14/2021
 
-		//Added by Albert 7/27/2022 for gl entry discount 
-		if($invoice->amortization == 0){
-			$entry_amount = $entry_amount + $c_discount1 + $c_discount2;
-		}
+		// //Added by Albert 7/27/2022 for gl entry discount 
+		// if($invoice->amortization == 0){
+		// 	$entry_amount = $entry_amount + $c_discount1 + $c_discount2;
+		// }
 		//
 		$total += add_gl_trans_customer(
 			ST_SALESINVOICE,
