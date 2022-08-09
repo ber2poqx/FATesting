@@ -232,8 +232,8 @@ if (!$voided) {
 	display_allocations_to(PT_CUSTOMER, $myrow['debtor_no'], ST_SALESINVOICE, $trans_id, $myrow['Total']);
 }
 
-
-if ($header["payment_type"] == "INSTALLMENT") {
+//Modified by spyrax10 9 Aug 2022
+if ($header["payment_type"] == "INSTALLMENT" && $header['payment_location'] == 'Branch') {
 	display_heading(_("Amortization Schedule"));
 	start_table(TABLESTYLE, "width='95%'");
 	$th = array(

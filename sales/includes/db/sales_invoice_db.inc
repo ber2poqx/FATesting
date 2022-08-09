@@ -175,7 +175,9 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 
 	);
 
-	if ($invoice->payment_policy != 0 && ST_SALESINVOICE) {
+	//Modified by spyrax10 9 Aug 2022
+	if ($invoice->payment_policy != 0 && ST_SALESINVOICE && 
+		$invoice->payment_location == "Branch") {
 
 		// Down-payment 
 		add_loan_schedule_ob(
