@@ -452,7 +452,15 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 		// }
 	}
 	//Added by spyrax10
-	company_list_row(null, 'comp_id', $id != -1 ? false : true);
+	//company_list_row(null, 'comp_id', $id != -1 ? false : true);
+	$sql = company_list_row(
+		null, 'comp_sql', false, false, true, false, false, false, true, true, true
+	);
+
+	combo_type_list(null,
+		'comp_id', null, $sql, $id != -1 ? false : true, 
+		'company', '', false, 'coy', ''
+	);
 	//
 	echo gl_all_accounts_list('code_id', null, true, true, true, false, false, false, _("Select Account Code"));
 	

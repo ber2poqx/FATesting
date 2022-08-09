@@ -384,7 +384,11 @@ $opts = array(		// default options
 				case "inty_stock":
         			$link = $path_to_root . "/inventory/inquiry/inty_stock_list.php?popup=1&type=". $adj_type ."&client_id=" . $id . "&category=" . $category . "&location=" . $loc_code . "&supplier=" . $supplier_id . 
 					"&item=" . $item_type;
-        			$img_title = _("Search items");
+        			$img_title = _("Search Items");
+        			break;
+				case "company":
+        			$link = $path_to_root . "/admin/inquiry/company_list.php?popup=1&client_id=" . $id;
+        			$img_title = _("Search Companies");
         			break;
 				/* */ 
 				/* Added by Albert 10/14/2021 */
@@ -938,6 +942,24 @@ function gl_account_list($name, $selected_id=null, $new_item=false, $skip_bank_a
 	);
 }
 
+function combo_type_list($label = null, $name, $selected_id = null, $sql = '', $submit_on_change = false, $type = '',
+	$spec_text = '', $cells = false, $value_id = '', $value_text = '', $show_inactive = false) {
+		
+	if ($label != null) {
+		echo "<td class='label'>$label</td>";
+	}
+	echo combo_input($name, $selected_id, $sql, $value_id, $value_text,
+		array(
+			'spec_option'=> $spec_text != '' ? $spec_text : false,
+			'spec_id' => '',
+			'cells' => true,
+			'select_submit'=> $submit_on_change,
+			'show_inactive' => $show_inactive,
+			'search_box' => $cells
+		), $type
+	);
+}
+
 function sql_type_list($label, $name, $query, $ret_id = '', $ret_val = '', $class = '', 
 	$selected = null, $submit_on_change = false, $all_text = '', $report = false, $row = false) {
 	
@@ -1100,15 +1122,17 @@ function numeric_type_list($label, $name, $val_array, $selected = null, $submit_
 }
 
 function company_list_row($label = null, $name, $submit_on_change = false, $all_text = false, 
-	$include_cur_comp = true, $bold = false, $row = false, $report = false) {
+	$include_cur_comp = true, $bold = false, $row = false, $report = false, 
+	$check_db = true, $combo = false, $short_name = false, $search = '') {
 	
 	global $db_connections;
 
-	$coy =  user_company();
+	$coy = user_company();
+	$sql = "SELECT x1.* FROM (";
 	$db_list = $all_arr = $sel_arr = array();
 	$bold = $bold ? 'label' : '';
 
-	if ($row) { 
+	if ($row && !$combo) { 
 		echo "<tr>";
 	}
 
@@ -1118,10 +1142,42 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 	echo "<td>";
 
 	for ($i = 0; $i < count($db_connections); $i++) {
-		
-		if (check_db_exists($i)) {
-			if ($i != $coy) {
-				$db_list[$i] = $db_connections[$i]['name'];		
+		$branch_code = $db_connections[$i]['branch_code'];
+		$branch_name = $short_name ? substr($db_connections[$i]['name'], 0, strlen($branch_code)) : 
+			$db_connections[$i]['name'];
+
+		if ($check_db) {
+			if (check_db_exists($i)) {
+				if ($i != $coy) {
+					if ($combo) {
+						if ($include_cur_comp) {
+							$coy_code = $db_connections[$coy]['branch_code'];
+							$coy_name = $short_name ? substr($db_connections[$coy]['name'], 0, strlen($coy_code)) : 
+								$db_connections[$coy]['name'];
+							$sql .= "SELECT '$coy' AS coy, '$coy_name' AS branch_name, '$coy_code' AS branch_code ";
+							$sql .= " UNION ";
+						}
+						$sql .= "SELECT '$i' AS coy, '$branch_name' AS branch_name, '$branch_code' AS branch_code";
+						$sql .= " UNION ";
+						
+					}
+					else {
+						$db_list[$i] = $db_connections[$i]['name'];
+					}	
+				}
+			}
+		}
+		else {
+			if ($combo) {
+				$sql .= "SELECT '$i' AS coy, '$branch_name' AS branch_name, '$branch_code' AS branch_code";
+				$sql .= " UNION ";
+
+				if ($i == count($db_connections)) {
+					$sql = substr(rtrim($sql), 0, -5);
+				}
+			}
+			else {
+				$db_list[$i] = $db_connections[$i]['name'];
 			}
 		}
 	}
@@ -1130,26 +1186,38 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 		array(ALL_TEXT=> _("All Branches")) + $db_list;
 	$sel_arr = $include_cur_comp ? array($coy => $db_connections[$coy]['name']) + $db_list : $db_list;
 
-	if ($report) {
-		return array_selector($name, null, 
-			$all_text ? $all_arr : $sel_arr,
-			array( 
-				'select_submit'=> $submit_on_change, 
-			'async' => false
-			) 	
-		);
+	if (!$combo) {
+		if ($report) {
+			return array_selector($name, null, 
+				$all_text ? $all_arr : $sel_arr,
+				array( 
+					'select_submit'=> $submit_on_change, 
+				'async' => false
+				) 	
+			);
+		}
+		else {
+			echo array_selector($name, null, 
+				$all_text ? $all_arr : $sel_arr,
+				array( 
+					'select_submit'=> $submit_on_change, 
+				'async' => false
+				) 	
+			);
+		}
 	}
 	else {
-		echo array_selector($name, null, 
-			$all_text ? $all_arr : $sel_arr,
-			array( 
-				'select_submit'=> $submit_on_change, 
-			'async' => false
-			) 	
-		);
-	}
+		$sql = substr(rtrim($sql), 0, -5);
 
-	if ($row) { 
+		$sql .= ") x1 ";
+
+		if ($search != '') {
+			$sql .= "WHERE branch_name LIKE '%$search%'";
+		}
+
+		return $sql;
+	}
+	if ($row && !$combo) { 
 		echo "</tr>";
 	}
 }

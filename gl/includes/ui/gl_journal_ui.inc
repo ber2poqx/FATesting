@@ -408,7 +408,14 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $ena
 		}
 
 		//Added by spyrax10
-		company_list_row(null, 'comp_id', $id != -1 ? false : true);
+		//company_list_row(null, 'comp_id', $id != -1 ? false : true);
+		$sql = company_list_row(
+			null, 'comp_sql', false, false, true, false, false, false, true, true, true
+		);
+		combo_type_list(null,
+			'comp_id', null, $sql, $id != -1 ? false : true, 
+			'company', '', false, 'coy', ''
+		);
 		//
 
 		$skip_bank = !$_SESSION["wa_current_user"]->can_access('SA_BANKJOURNAL');
