@@ -571,6 +571,13 @@ $rest->group('/receivingreport', function () use ($rest) {
     $rest->put('/update', function () use ($rest) {
         $rest->receivingreport->put($rest);
     });
+    /*aDDED By Albert*/
+    $rest->get('/apsupport', function () use ($rest) {
+        $birthdate = $rest->request->get('apsupport');
+        $rest->receivingreport->get_apsupport($rest);
+    });
+    /* */
+    
 });
 // ------------------------------ Receiving Report -----------------------------
 

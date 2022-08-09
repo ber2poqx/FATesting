@@ -226,11 +226,13 @@ class ReceivingReport
 
     public function put($rest)
     {
+        begin_transaction();
         $req = $rest->request();
         $info = $req->post();
 
         $po_details = $info['po_details'];
         $serials = $info['serials'];
+        $result = 0;
         foreach ($po_details as $detail) {
             $invoice_qty = $detail['selected_quantity'];
             $item_code = $detail['item_code'];
@@ -243,7 +245,7 @@ class ReceivingReport
                     po_detail_item = $po_detail_item
                 AND
                     item_code = " . db_escape($item_code) . "";
-            db_query($sql1, "The purch order details could not be updated");
+            $result +=db_query($sql1, "The purch order details could not be updated");
         }
 
         foreach ($serials as $serial_id) {
@@ -253,9 +255,42 @@ class ReceivingReport
                         invoice = 1
                     WHERE
                         serialise_id = $serial_id";
-            db_query($sql2, "The item serialize could not be updated");
+            $result +=db_query($sql2, "The item serialize could not be updated");
+        }
+        
+        $response = "Failed";
+        if($result == (count($po_details) + count($serials))){
+            commit_transaction();
+            $response = "Success";
+        }
+            
+        api_success_response($response);
+    }
+     //Added by Albert  apsupport 7/29/2022 
+    public function get_apsupport($rest){
+        $sql = "SELECT
+                    a.ap_support_type,
+                    a.distribution,
+                    'APSUPPORT' as ItemCode,
+                    b.price
+                FROM
+                    item_apsupport_type a
+                    Inner Join item_apsupport_price b on  a.id = b.apsupport_type_id
+                WHERE  a.inactive = '0'
+                ORDER by 2";
+        $query = db_query($sql, "error");
+        $info = array();
+
+        while ($data = db_fetch($query, "error")) {
+            $info[] = array(
+                'ap_support_fa' => $data['ap_support_type'],
+                'aps_desc_fa' => $data['distribution'],
+                'aps_ItemCode_fa' => $data['ItemCode'],
+                'aps_price_fa' => $data['price']
+               );
         }
 
-        api_success_response("Receiving Report has been updated");
+        api_success_response(json_encode($info));
+        
     }
 }
