@@ -1143,7 +1143,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
                 AND (CASE 
                     WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
                     WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
-                ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 ";
+                ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 AND DL.payment_location = 'Branch'";
       
     $sql .= 
     " AND (CASE 
