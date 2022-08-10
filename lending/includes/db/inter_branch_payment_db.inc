@@ -62,7 +62,7 @@ function update_status_interbranch_trans_HO($ref_no, $user, $status, $trans_no, 
 	set_global_connection();
 }
 
-function get_incoming_interb($status, $start, $limit, $branch=null, $query=null)
+function get_incoming_interb($status, $start, $limit, $branch=null, $query=null, $type=0)
 {
 	if(!isset($status)){
 		$status = "draft";
@@ -80,7 +80,8 @@ function get_incoming_interb($status, $start, $limit, $branch=null, $query=null)
 		FROM ".TB_PREF."interbranch_trans A 
 				LEFT JOIN ".TB_PREF."debtors_master B 
 					ON B.debtor_ref = A.debtor_ref
-		WHERE A.status = ".db_escape($status).$sWhere;
+		WHERE A.status = ".db_escape($status). "
+			AND type = ".$type.$sWhere;
 
 	return db_query($sql, "could not get inter-branch payment");
 }

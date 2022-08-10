@@ -102,11 +102,12 @@ Ext.onReady(function(){
 		mode: 'SINGLE'
 	});
 	//------------------------------------: stores :----------------------------------------
-	var PaymentTypeStore = Ext.create('Ext.data.Store',{
+	var FromStore = Ext.create('Ext.data.Store',{
 		fields: ['id','name'],
 		autoLoad: true,
 		data : 	[
-			{"id":"other","name":"Other Payment"}
+			{"id":"0","name":"From Branch"},
+			{"id":"1","name":"From lending"}
         ]
 	});
 	var CollectionTypeStore = Ext.create('Ext.data.Store', {
@@ -419,6 +420,7 @@ Ext.onReady(function(){
 					Ext.getCmp('collectType').setValue(0)
 					Ext.getCmp('tenderd_amount').setValue(records.get('amount'));
 					Ext.getCmp('trans_date').setValue(records.get('trans_date'));
+					Ext.getCmp('islending').setValue(records.get('type'));
 					Ext.getCmp('remarks').setValue("Inter branch payment from " + records.get('branch_name') + " with reference number " + records.get('ref_no'));
 					
 					GetCashierPrep();
@@ -492,6 +494,13 @@ Ext.onReady(function(){
 			id: 'paymentType',
 			name: 'paymentType',
 			fieldLabel: 'paymentType',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'islending',
+			name: 'islending',
+			fieldLabel: 'islending',
 			allowBlank: false,
 			hidden: true
 		},{
@@ -576,7 +585,7 @@ Ext.onReady(function(){
 						Getreference();
 						Ext.getCmp('transtype').setValue(record.get('type'));
 
-						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType').getValue()}; //, alloc_amount: Ext.getCmp('alloc_amount').getValue()
+						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType').getValue(), islending: Ext.getCmp('islending').getValue()}; //, alloc_amount: Ext.getCmp('alloc_amount').getValue()
 						AllocationStore.load();
 						SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
 						SIitemStore.load();
@@ -602,7 +611,7 @@ Ext.onReady(function(){
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
-				xtype: 'combobox',
+				/*xtype: 'combobox',
 				fieldLabel: 'Cashier/Teller ',
 				id: 'cashier',
 				name: 'cashier',
@@ -616,7 +625,7 @@ Ext.onReady(function(){
 				selectOnFocus:true,
 				allowBlank: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
-			},{
+			},{*/
 				xtype: 'textfield',
 				fieldLabel: 'Prepared By ',
 				id: 'preparedby',
@@ -625,6 +634,7 @@ Ext.onReady(function(){
 				readOnly: true,
 				labelWidth: 105,
 				width: 280,
+				margin: '0 280 0 0',
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
 				xtype: 'numericfield',
@@ -795,7 +805,7 @@ Ext.onReady(function(){
 		editable: false,
 		listeners: {
 			select: function(combo, record, index) {
-				qqinterb_store.proxy.extraParams = {status: combo.getValue(), branch: Ext.getCmp('branchcode').getValue(), query: Ext.getCmp('search').getValue()};
+				qqinterb_store.proxy.extraParams = {status: combo.getValue(), branch: Ext.getCmp('branchcode').getValue(), query: Ext.getCmp('search').getValue(), islending: Ext.getCmp("fromlending").getValue()};
 				qqinterb_store.load();
 			},
 			afterrender: function() {
@@ -819,7 +829,7 @@ Ext.onReady(function(){
 		fieldStyle : 'text-transform: capitalize; background-color: #F2F3F4; color:green; ',
 		listeners: {
 			select: function(combo, record, index) {
-				qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: combo.getValue(), query: Ext.getCmp('search').getValue()};
+				qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: combo.getValue(), query: Ext.getCmp('search').getValue(), islending: Ext.getCmp("fromlending").getValue()};
 				qqinterb_store.load();
 			},
 			afterrender: function() {
@@ -838,7 +848,7 @@ Ext.onReady(function(){
 		store: qqinterb_store,
 		listeners: {
 			change: function(field) {
-				qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: field.getValue()};
+				qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: field.getValue(), islending: Ext.getCmp("fromlending").getValue()};
 				qqinterb_store.load();
 			}
 		}
@@ -881,8 +891,27 @@ Ext.onReady(function(){
 				emptyMsg: "No records to display",
 				doRefresh : function(){
 					qqinterb_store.load();
-					
-				}
+				},
+				items:[{
+					xtype: 'checkbox',
+					id: 'fromlending',
+					name: 'fromlending',
+					boxLabel: 'Show from lending',
+					listeners: {
+						change: function(field) {
+							//Ext.getCmp("frombranch").setValue(0);
+							qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: Ext.getCmp('search').getValue(), islending: Ext.getCmp("fromlending").getValue()};
+							qqinterb_store.load();
+						}
+					}
+					/*xtype: 'combobox',
+					id: 'showl',
+					name: 'showl',
+					store : FromStore,
+					displayField: 'name',
+					valueField: 'id',
+					queryMode: 'local'*/
+				}]
 			}
 		}]
 	});

@@ -11,8 +11,7 @@
 ***********************************************************************/
 //----------------------------------------------------------------------------------------
 
-function add_cust_allocation($amount, $trans_type_from, $trans_no_from,
-	$trans_type_to, $trans_no_to, $person_id, $date_)
+function add_cust_allocation($amount, $trans_type_from, $trans_no_from, $trans_type_to, $trans_no_to, $person_id, $date_)
 {
 	$date = date2sql($date_);
 	$sql = "INSERT INTO ".TB_PREF."cust_allocations (

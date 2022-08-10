@@ -45,7 +45,8 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showall=fa
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 				LEFT JOIN ".TB_PREF."repo_accounts Z ON Z.ar_trans_no = A.trans_no AND Z.ar_trans_type = A.type
 			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.") 
-				AND A.payment_terms != 0 "
+				AND A.payment_terms != 0 
+				AND B.payment_location != 'Lending' "
 				.$sWhere."
                 
 			UNION ALL
