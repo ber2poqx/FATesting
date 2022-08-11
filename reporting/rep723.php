@@ -229,8 +229,10 @@ function print_SL_summary_particulars()
 	$res = getTransactions($from, $to, $gl_account, $masterfile);
 
 	if ($from != 0)
+	{
 		$Forwarded_bal = getBalance_forwarded($from, $gl_account, $masterfile);
-	
+	}
+
 	$Tot_bal = 0;
 	$Tot_deb = 0;
 	$Tot_cred = 0;
@@ -295,13 +297,13 @@ function print_SL_summary_particulars()
 		$rep->TextCol(3, 4, $SLsum['memo_']);
 		$rep->AmountCol2(4, 5, $SLsum['Debit'], $dec);
 		$rep->AmountCol2(5, 6, $SLsum['Credit'], $dec);
-		$rep->AmountCol2(6, 7, $running_bal, $dec);
-		/*
+		//$rep->AmountCol2(6, 7, -$running_bal, $dec);
+		
 		if ($running_bal < 0)
 			$rep->AmountCol2(6, 7, -$running_bal, $dec);
 		else
 			$rep->AmountCol2(6, 7, $running_bal, $dec);
-		*/
+		
 
 		$Tot_deb = $SLsum['Debit'] + $Tot_deb;
 		$Tot_cred = $SLsum['Credit'] + $Tot_cred;
