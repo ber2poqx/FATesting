@@ -196,7 +196,7 @@
 						}else{
 							//Update Price
 							if ($add == 1){
-								$price_id = get_existing_price_id($types);
+								$price_id = get_existing_price_id($types, $stock_id);
 								if( get_cash_types($types)==$types){
 
 									$cash_types = get_cash_price_types_id($types);

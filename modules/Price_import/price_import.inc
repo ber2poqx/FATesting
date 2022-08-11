@@ -284,33 +284,38 @@ function get_price_id($types){
         return $row[0];
 }
 
-function get_existing_price_id($types){
+function get_existing_price_id($types,$stock_id){
+    set_global_connection();
 
     if(get_cash_types($types)){
+        $cash_type = get_cash_price_types_id($types);
         $sql = "SELECT
                         a.id
-                    FROM ".TB_PREF."cash_prices a where a.scash_type_id =".db_escape($types);
-   
+                    FROM ".TB_PREF."cash_prices a where a.scash_type_id =".db_escape($cash_type)."AND a.stock_id =".db_escape($stock_id);
     }else if(get_lcp_price_types($types)){
+        $lcp_type = get_lcp_price_types_id($types);
 
             $sql = "SELECT
                         a.id
-                    FROM ".TB_PREF."prices a where a.sales_type_id =".db_escape($types);
+                    FROM ".TB_PREF."prices a where a.sales_type_id =".db_escape($lcp_type)."AND a.stock_id =".db_escape($stock_id);
     }else if(get_system_cost_types($types)){
+        $cost_type = get_system_cost_types_id($types);
             $sql = "SELECT
                         a.id
-                    FROM ".TB_PREF."purch_data a where a.cost_type_id =".db_escape($types); 
+                    FROM ".TB_PREF."purch_data a where a.cost_type_id =".db_escape($cost_type)."AND a.stock_id =".db_escape($stock_id);
     }else if(get_srp_types($types)){
+        $srp_type = get_srp_types_id($types);
             $sql = "SELECT
                         a.id
-                    FROM ".TB_PREF."item_srp a where a.srptype_id =".db_escape($types);
+                    FROM ".TB_PREF."item_srp a where a.srptype_id =".db_escape($srp_type)."AND a.stock_id =".db_escape($stock_id);
     
     }else{
           if(get_incentive_types($types)){
+            $incentive_type = get_incentive_types_id($types);
 
             $sql = "SELECT
                         a.id
-                    FROM ".TB_PREF."incentive_prices a where a.incentive_type_id =".db_escape($types);
+                    FROM ".TB_PREF."incentive_prices a where a.incentive_type_id =".db_escape($incentive_type)."AND a.stock_id =".db_escape($stock_id);
 
           }
 
