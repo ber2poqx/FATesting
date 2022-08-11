@@ -71,10 +71,11 @@ function print_transaction() {
 	}
 
 	$cols = array(
-		0, 65, 145, 225, 260, 305, 390,
-		420, 515, 575, 605, 
+		0, 70, 165, 240, 275, 320, 380,
+		410, 515, 575, 605, 
 		615, 650, 700, 0
 	);
+
 	$aligns = array(
 		'left', 'left', 'left', 'center', 'center', 'left', 'center',
 		'left', 'left', 'center', 'left', 'right', 'right', 'right'
@@ -120,15 +121,19 @@ function print_transaction() {
 
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
     $qtyTot = $demand_qty = $qoh = $qty = 0;
-	$catt = $code = $loc = $samp = $cor = $reference = '';
+	$catt = $code = $loc = $samp = $cor = $reference = $trim_ref = $loc_code = $ob_ref = '';
 
 	while ($trans = db_fetch($res)) {
 
+		$loc_code = $trans['loc_code'];
+		$reference = $trans['reference'];
+		
 		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
-			$reference = $trans['reference'] . " (OB)";
+			$ob_ref = str_replace($loc_code . "-", "", $reference);
+			$trim_ref = $ob_ref . " (OB)";
 		}
 		else {
-			$reference = $trans['reference'];
+			$trim_ref = $reference;
 		}
 
 		if ($catt != $trans['cat_description']) {		
@@ -163,15 +168,15 @@ function print_transaction() {
 			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
 
 			$rep->fontSize -= 1;
-			$rep->TextCol(0, 1, $destination ? $prod_code : substr($prod_code, 0, 15));
-			$rep->TextCol(1, 2, $destination ? $prod_desc : substr($prod_desc, 0, 18));
-			$rep->TextCol(2, 3, $destination ? $color_desc : substr($color_desc, 0, 20));
+			$rep->TextCol(0, 1, $destination ? $prod_code : substr($prod_code, 0, 25));
+			$rep->TextCol(1, 2, $destination ? $prod_desc : substr($prod_desc, 0, 25));
+			$rep->TextCol(2, 3, $destination ? $color_desc : substr($color_desc, 0, 25));
 
         	$rep->TextCol(3, 4, $trans['Brand']);
 			$rep->SetTextColor(0, 0, 255);
         	$rep->TextCol(4, 5, sql2date($trans['Date']));
 			$rep->SetTextColor(0, 0, 0);
-        	$rep->TextCol(5, 6, $reference);
+        	$rep->TextCol(5, 6, $trim_ref);
         	$rep->TextCol(6, 7, $trans['trans_no']);
         	$rep->TextCol(7, 8, $trans['Serial#']);
         	$rep->TextCol(8, 9, $trans['Chassis#']);
@@ -182,7 +187,7 @@ function print_transaction() {
 			$rep->AmountCol2(11, 12, $trans['UnitCost'], $dec2);
 			$rep->AmountCol2(12, 13, $trans['QoH'] * $trans['UnitCost'], $dec);
 			$rep->SetTextColor(0, 0, 255);
-			$rep->TextCol(13, 14, $trans['loc_code']);
+			$rep->TextCol(13, 14, $loc_code);
 			$rep->SetTextColor(0, 0, 0);
 			$rep->fontSize += 1;
         	$rep->NewLine();
