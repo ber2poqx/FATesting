@@ -278,7 +278,7 @@ function print_SL_summary_particulars()
 
 		if($amount_val >= 0)
 		{
-			$running_bal = $running_bal - $amount_val;
+			$running_bal = $running_bal + $amount_val;
 		}
 		if ($amount_val < 0)
 		{
