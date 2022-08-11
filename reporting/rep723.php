@@ -278,7 +278,7 @@ function print_SL_summary_particulars()
 
 		if($amount_val >= 0)
 		{
-			$running_bal = $running_bal + $amount_val;
+			$running_bal = $running_bal - $amount_val;
 		}
 		if ($amount_val < 0)
 		{
@@ -295,10 +295,13 @@ function print_SL_summary_particulars()
 		$rep->TextCol(3, 4, $SLsum['memo_']);
 		$rep->AmountCol2(4, 5, $SLsum['Debit'], $dec);
 		$rep->AmountCol2(5, 6, $SLsum['Credit'], $dec);
+		$rep->AmountCol2(6, 7, $running_bal, $dec);
+		/*
 		if ($running_bal < 0)
 			$rep->AmountCol2(6, 7, -$running_bal, $dec);
 		else
 			$rep->AmountCol2(6, 7, $running_bal, $dec);
+		*/
 
 		$Tot_deb = $SLsum['Debit'] + $Tot_deb;
 		$Tot_cred = $SLsum['Credit'] + $Tot_cred;
