@@ -13,6 +13,7 @@
 function add_stock_merchandise_transfer($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
+    $company_prefs = get_company_prefs();
     
     begin_transaction();
     $args = func_get_args();
@@ -72,7 +73,11 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
             
             add_stock_merchandise_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
             
-            add_stock_mt_details($mt_header_id,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code);
+            add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from);
+
+            if(!empty($company_prefs["deployment_status"])){
+                add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to);
+            }
             
             
             //Added by Herald - 02/06/2021
@@ -474,13 +479,16 @@ function update_mt_header($reference, $mtreference){
     return true;
 }
 
-function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='')
+function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='', $targetdb)
 {
     //$date = date2sql($date_);
     //$man_date = date2sql($manufacture_date);
     //$exp_date = date2sql($expire_date);
-    global $def_coy;
-    set_global_connection($def_coy);
+    //global $def_coy;
+    //set_global_connection($def_coy);
+
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
     
     $sql = "INSERT INTO ".TB_PREF."mt_details (mt_details_header_id, mt_details_stock_id, mt_details_item_code, mt_details_serial_no, mt_details_chasis_no, mt_details_total_qty, mt_details_st_cost, mt_details_price) VALUES ("
         .db_escape($header_id).","
