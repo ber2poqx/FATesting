@@ -64,9 +64,15 @@ function print_transaction() {
 	}
 
 	$cols = array(
-		0, 50, 115, 220, 300, 360, 
-		400, 490,
-		580, 610, 660, 720, 0
+		0, 40, 105, 205, 270, 330,
+		390, 480, 
+		570, 600, 650, 710, 0
+	);
+
+	$aligns = array(
+		'left', 'left', 'left', 'left', 'left', 'center', 
+		'left', 'left',
+		'center', 'center', 'center', 'center', 'right'
 	);
 
 	$headers = array(
@@ -82,12 +88,6 @@ function print_transaction() {
         _('Invty_Age'),
         _('Avg Cost'),
         _('Location')
-	);
-
-	$aligns = array(
-		'left', 'left', 'left', 'left', 'left', 'center', 
-		'left', 'left',
-		'center', 'center', 'center', 'center', 'right'
 	);
 
     $params = array( 	
@@ -111,15 +111,19 @@ function print_transaction() {
 	$res = get_inventory_movement($category, 'ALL', $location, $date);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
     $qtyTot = $demand_qty = $qoh = $qty = 0;
-	$catt = $code = $loc = $samp = $cor = $reference = '';
+	$catt = $code = $loc = $samp = $cor = $reference = $trim_ref = $loc_code = $ob_ref = '';
 
 	while ($trans = db_fetch($res)) {
 
+		$loc_code = $trans['loc_code'];
+		$reference = $trans['reference'];
+		
 		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
-			$reference = $trans['reference'] . " (OB)";
+			$ob_ref = str_replace($loc_code . "-", "", $reference);
+			$trim_ref = $ob_ref . " (OB)";
 		}
 		else {
-			$reference = $trans['reference'];
+			$trim_ref = $reference;
 		}
 
 		if ($catt != $trans['cat_description']) {		
@@ -146,24 +150,30 @@ function print_transaction() {
 		}
 
 		if ($trans['QoH'] > 0) {
-			$rep->fontSize -= 2;
+			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
+
+			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $trans['Brand']); 
         	$rep->TextCol(1, 2, $trans['Code']);
-			$rep->TextCol(2, 3, get_color_description($trans['color_code'], $trans['Code'], true));
+			$rep->TextCol(2, 3, $destination ? $color_desc : substr($color_desc, 0, 25));
         	$rep->TextCol(3, 4, $trans['Sub_Cat']);
-        	$rep->TextCol(4, 5, $reference);
+        	$rep->TextCol(4, 5, $trim_ref);
         	$rep->TextCol(5, 6, $trans['QoH']);
         
         	$rep->TextCol(6, 7, $trans['Serial#']);
         	$rep->TextCol(7, 8, $trans['Chassis#']);
-        	$rep->TextCol(8, 9, $trans['Date']);
+			$rep->SetTextColor(0, 0, 255);
+        	$rep->TextCol(8, 9, sql2date($trans['Date']));
+			$rep->SetTextColor(0, 0, 0);
         	$rep->TextCol(9, 10, $trans['Age']);
         
         	$dec2 = 0;
 			$rep->AmountCol2(10, 11, $trans['UnitCost'], $dec2);
 
-        	$rep->TextCol(11, 12, $trans['loc_code']);      
-			$rep->fontSize += 2;
+			$rep->SetTextColor(0, 0, 255);
+        	$rep->TextCol(11, 12, $loc_code);  
+			$rep->SetTextColor(0, 0, 0);    
+			$rep->fontSize += 1;
         	$rep->NewLine();
 
 			$total += $trans['UnitCost'];
