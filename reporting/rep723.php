@@ -90,7 +90,7 @@ function getEnding_bal($to, $gl_account, $masterfile)
 			CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit1`
 			, CASE WHEN gl.amount < 0 THEN -amount ELSE 0 END AS `Credit1`
 		FROM ".TB_PREF."gl_trans gl
-			INNER JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
+			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 		WHERE gl.account = '$gl_account' AND gl.tran_date <= '$to'";
 
 	if($masterfile != ALL_TEXT){
@@ -122,7 +122,7 @@ function getBalance_forwarded($from, $gl_account, $masterfile)
 					CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit1`
 					, CASE WHEN gl.amount < 0 THEN -amount ELSE 0 END AS `Credit1`
 				FROM ".TB_PREF."gl_trans gl 
-					INNER JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
+					LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from'";
 
 	if($masterfile != ALL_TEXT){
