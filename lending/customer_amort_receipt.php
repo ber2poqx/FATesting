@@ -1638,13 +1638,14 @@ if(isset($_GET['submitInterB']))
         $conn = $db_connections[user_company()];
         $interb_ref = get_debtor_interb_ref($_POST['customername_inb']);
        
-        interbranch_send_payment_add($_POST['branch_inb'], $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
-                                $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
-        
-        //make a copy to HO database
-        interbranch_send_payment_add("HO", $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
-                                $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
+        if(!empty($company_prefs["deployment_status"])){
+            interbranch_send_payment_add($_POST['branch_inb'], $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
+            $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
 
+            //make a copy to HO database
+            interbranch_send_payment_add("HO", $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
+                        $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
+        }
         //auto allocate payment para dili na makita sa customer allocation
         auto_allocate_payment($payment_no, ST_CUSTPAYMENT, $_POST['total_amount_inb']);
         

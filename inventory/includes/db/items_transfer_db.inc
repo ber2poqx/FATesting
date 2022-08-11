@@ -33,8 +33,12 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
         $st_reorder = array();
     }
     $total = 0;
-    $mt_header_id = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby);
     
+    $mt_header_id_local = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_from);
+    if(!empty($company_prefs["deployment_status"])){
+        $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_to);
+    }
+
     foreach ($Items as $line_item)
     {
         if ($SysPrefs->loc_notification() == 1)
@@ -424,9 +428,12 @@ function add_item_location_transfer($Items, $location_from, $location_to, $date_
         return $transfer_id;
 }
 //Added by Herald - 02/03/2021
-function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby){
-    global $def_coy;
-    set_global_connection($def_coy);
+function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $targetdb){
+    //global $def_coy;
+    //set_global_connection($def_coy);
+
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
     
     $trans_date = date2sql($transdate);
     
