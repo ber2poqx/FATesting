@@ -1293,24 +1293,25 @@ Ext.onReady(function(){
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 
 				if (value === 'Sales Invoice Opening Balances'){
-					metaData.style="color: #117a65";
+					metaData.style="font-weight: bold; color: #117a65";
 				}else if(value === 'Sales Invoice Installment'){
-					metaData.style="color: #229954";
+					metaData.style="font-weight: bold; color: #229954";
 				}else if(value === 'Sales Invoice Term Modification'){
-					metaData.style="color:#d35400";
+					metaData.style="font-weight: bold; color:#d35400";
 				}else if(value === 'Sales Invoice Repossessed'){
-					metaData.style="color:#c0392b";
+					metaData.style="font-weight: bold; color:#c0392b";
 				}else if(value === 'A/R Installment Lending'){
-					metaData.style="color: #f1c40f";
+					metaData.style="font-weight: bold; color: #f5a104";
 				}else{
-					metaData.style="color:#229954";
+					metaData.style="color: #5c09ec";
 				}
-				return value;
+				return "<b>" + value + "</b>";
 			}
 		},
 		{header:'<b>Customer Name</b>', dataIndex:'debtor_name', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
+				metaData.style="font-weight: bold;";
 				return value;
 			}
 		},

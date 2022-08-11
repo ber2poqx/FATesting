@@ -11,6 +11,7 @@
 ***********************************************************************/
 function get_ar_installment($InvType='new', $start, $limit, $search, $showall=false)
 {
+	global $db_connections;
 	if(isset($InvType) && $InvType != 'x'){
 		$sWhere .= " AND B.invoice_type = '".$InvType."' ";
 	}
@@ -18,6 +19,10 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showall=fa
 		$sWhere .= " AND (D.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%') ";
 	}
 	if (!$showall) $sWhere .= " AND (A.status != 'fully-paid' AND A.status != 'Closed')";
+	if (($db_connections[user_company()]["type"]) !== "LENDING"){
+		$sWhere .= " AND B.payment_location != 'Lending' ";
+	}
+
 
 	/*$sql = "SELECT A.*, B.*, C.memo_,  D.*, E.description, Z.unrecovered_cost, Z.addon_amount, Z.total_unrecovered, 
 				Z.repo_date, Z.past_due, Z.over_due, Z.comments
@@ -45,8 +50,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showall=fa
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 				LEFT JOIN ".TB_PREF."repo_accounts Z ON Z.ar_trans_no = A.trans_no AND Z.ar_trans_type = A.type
 			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.") 
-				AND A.payment_terms != 0 
-				AND B.payment_location != 'Lending' "
+				AND A.payment_terms != 0 "
 				.$sWhere."
                 
 			UNION ALL
