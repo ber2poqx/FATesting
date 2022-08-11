@@ -42,9 +42,9 @@ function item_img_name($stock_id)
 //ROBERT ADDED
 function getmtreceipt($mt_header_reference)
 {
-	$def_coy = 0;
-	set_global_connection($def_coy);
-
+	//$def_coy = 0;
+	//set_global_connection($def_coy);
+	set_global_connection();
 	$sql = "SELECT mt_header.mt_header_date, mt_header.mt_header_category_id, mt_header.mt_header_reference,
     mt_header.mt_header_tolocation, mt_header.mt_header_comments, mt_header.mt_header_rsd, mt_header.mt_header_servedby,
     mt_header.mt_header_item_type, mt_details.mt_details_stock_id, mt_details.mt_details_total_qty, 

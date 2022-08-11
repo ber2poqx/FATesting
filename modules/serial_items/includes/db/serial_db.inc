@@ -212,8 +212,8 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
 
 /*Added by robert 04/19/2022*/
 function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',$all=false){
-    global $def_coy;
-    set_global_connection($def_coy);
+    //global $def_coy;
+    //set_global_connection($def_coy);
 
     $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,
     sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 
