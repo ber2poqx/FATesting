@@ -155,7 +155,9 @@ function write_sales_delivery(&$delivery, $bo_policy)
 						break;
 					}
 				}
-				$total_cost += $myrow["standard_cost"] * $dispatch_qty;
+				//Modified by spyrax10 12 Aug 2022
+				$total_cost = $myrow["standard_cost"] * $dispatch_qty;
+				//
 				write_customer_trans_detail_item(
 					ST_CUSTDELIVERY,
 					$delivery_no,
