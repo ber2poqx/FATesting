@@ -60,6 +60,7 @@ function get_all_stockmoves_repo($start,$limit,$querystr='',$category=0,$branchc
 function add_stock_merchandise_transfer_repo($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null, $repo_id)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
+    $company_prefs = get_company_prefs();
     
     begin_transaction();
     $args = func_get_args();
@@ -82,7 +83,12 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
         $st_reorder = array();
     }
     $total = 0;
-    $mt_header_id = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id);
+    $mt_header_id_local = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id,
+        $location_from);
+    if(!empty($company_prefs["deployment_status"])){
+        $mt_header_id_target = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id,
+        $location_to);
+    }
     
     foreach ($Items as $line_item)
     {
@@ -94,7 +100,11 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
             
             add_stock_merchandise_transfer_item_repo($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
             
-            add_stock_mt_repo_details($mt_header_id,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code);
+            $originating = 0;
+            $originating = add_stock_mt_repo_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
+            if(!empty($company_prefs["deployment_status"])){
+                add_stock_mt_repo_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+            }
             //Updating Repo Item Status
             update_repo_status($line_item->transno_out);
     }
@@ -129,9 +139,9 @@ function update_repo_status($trans_no){
 }
 
 //Added by Herald - 02/03/2021
-function add_mt_header_repo($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $repo_id){
-    global $def_coy;
-    set_global_connection($def_coy);
+function add_mt_header_repo($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $repo_id, $targetdb){
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
     
     $trans_date = date2sql($transdate);
     
@@ -161,10 +171,11 @@ function add_stock_merchandise_transfer_item_repo($transfer_id, $stock_id, $loca
     
 }
 
-function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='')
+function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='', 
+    $targetdb, $originating)
 {
-    global $def_coy;
-    set_global_connection($def_coy);
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
     
     $sql = "INSERT INTO ".TB_PREF."mt_details (
         mt_details_header_id, 
@@ -174,7 +185,8 @@ function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost
         mt_details_chasis_no, 
         mt_details_total_qty, 
         mt_details_st_cost, 
-        mt_details_price
+        mt_details_price,
+        originating_id
         ) VALUES ("
         .db_escape($header_id).","
         .db_escape($stock_id).", "
@@ -183,7 +195,8 @@ function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost
         .db_escape($chasis_no).", "
         .db_escape($quantity).", "
         .db_escape($std_cost).", "
-        .db_escape($price).")";
+        .db_escape($price).", "
+        .db_escape($originating).")";
                         
     db_query($sql, "The MT details record cannot be inserted");
                         

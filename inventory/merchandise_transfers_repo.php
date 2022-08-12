@@ -421,8 +421,8 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'MTserialitems':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection($def_coy);
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
@@ -487,8 +487,9 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'BRMTserialitems':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection($def_coy);
+            set_global_connection();
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
@@ -588,8 +589,9 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'viewin':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection($def_coy);
+            set_global_connection();
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
