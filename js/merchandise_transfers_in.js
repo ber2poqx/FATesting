@@ -299,6 +299,7 @@ Ext.onReady(function(){
 													rrbrreference: record.get('rrbrreference'),
 
 													line_item: record.get('line_item'),
+													originating_id: record.get('originating_id'),
 													model: record.get('model'),	
 													qty: record.get('qty'),	
 													currentqty: record.get('currentqty'),
@@ -758,7 +759,7 @@ Ext.onReady(function(){
 	
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'receivedqty', 'category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item'],
+		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'receivedqty', 'category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item', 'originating_id'],
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -775,6 +776,7 @@ Ext.onReady(function(){
 	var columnItemSerial = [
 		{header:'id', dataIndex:'trans_id', sortable:true, width:60,hidden: true},
 		{header:'Line Item', dataIndex:'line_item', sortable:true, width:50,hidden: true},
+		{header:'Originating', dataIndex:'originating_id', sortable:true, width:50,hidden: true},
 		{header:'reference', dataIndex:'reference', sortable:true, width:100,hidden: true},
 		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
 		{header:'Item Code', dataIndex:'item_code', sortable:true, width:60, renderer: columnWrap,hidden: true},

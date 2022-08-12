@@ -753,7 +753,7 @@ function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_n
 	$sql = "SELECT move.*, item.description as description, item.mb_flag, item.units, 
 		stock.location_name, brand.name as brand_name, man.supp_name as manufacturer_name, 
 		d.name as distributor_name, importer.name as importer_name, item.category_id,
-		audit.gl_date AS ob_date 
+		audit.gl_date AS ob_date, codes.description AS Color 
 	
 	FROM " . TB_PREF . "stock_moves move 
 		INNER JOIN " . TB_PREF . "stock_master item ON move.stock_id = item.stock_id
@@ -762,6 +762,7 @@ function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_n
 		LEFT JOIN " . TB_PREF . "suppliers man ON item.manufacturer = man.supplier_id
 		LEFT JOIN " . TB_PREF . "item_distributor d ON item.distributor = d.id
 		LEFT JOIN " . TB_PREF . "item_importer importer ON item.importer = importer.id
+		LEFT JOIN " . TB_PREF . "item_codes codes ON move.color_code = codes.item_code
 		LEFT JOIN ".TB_PREF."audit_trail audit ON (move.type = audit.type AND move.trans_no = audit.trans_no AND NOT ISNULL(audit.gl_seq))
 
 	WHERE move.trans_id > 0";

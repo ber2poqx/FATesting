@@ -709,8 +709,8 @@ function get_sql_for_journal_inquiry($filter, $from, $to, $ref='', $memo='', $al
 }
 //Added by Herald 12/02/2021 for MT Header
 function get_mt_header($reference){
-    global $def_coy;
-    set_global_connection($def_coy);
+    //global $def_coy;
+    set_global_connection();
 
     $sql = "SELECT * FROM ".TB_PREF."mt_header  WHERE `mt_header_reference`=".db_escape($reference);
     

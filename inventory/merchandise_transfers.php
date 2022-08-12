@@ -642,8 +642,9 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'BRMTserialitems':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //et_global_connection($def_coy);
+            //set_global_connection();
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
@@ -658,7 +659,7 @@ if(!is_null($action) || !empty($action)){
             //$brcode = $db_connections[user_company()]["branch_code"];
             $sql = "SELECT *, sc.description AS category, md.mt_details_total_qty AS totalqty, md.mt_details_recvd_qty AS totalrcvd,
             sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) AS balance_total, ic.description AS item_description, 
-            sm.description AS stock_description, md.mt_details_st_cost 
+            sm.description AS stock_description, md.mt_details_st_cost, md.originating_id 
             FROM ".TB_PREF."mt_header mh 
             LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
             LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
@@ -705,7 +706,8 @@ if(!is_null($action) || !empty($action)){
                     'item_description' => $myrow["item_description"],
                     'status_msg'=>$status_msg,
                     'status'=>$myrow["mt_details_status"],
-                    'status'=>$myrow["mt_details_status"]
+                    'status'=>$myrow["mt_details_status"],
+                    'originating_id'=>$myrow["originating_id"]
                 );
                 
             }
@@ -775,8 +777,8 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'viewin':
-            global $def_coy;
-            set_global_connection($def_coy);
+            //global $def_coy;
+            //set_global_connection();
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);

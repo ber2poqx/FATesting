@@ -73,10 +73,11 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
             
             add_stock_merchandise_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
             
-            add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from);
+            $originating = 0;
+            $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
 
             if(!empty($company_prefs["deployment_status"])){
-                add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to);
+                add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
             }
             
             
@@ -207,7 +208,9 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
     $total = 0;
     include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
     add_js_ufile($path_to_root.'/js/merchandise_transfers_in.js');
-    update_mt_header($reference,$mtreference);
+
+    update_mt_header($reference,$mtreference,$branch_code);
+    update_mt_header($reference,$mtreference,$location_from);
 
     $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
@@ -229,8 +232,11 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
             $catcode = $item['catcode'];
             $item_code = $item['item_code'];
             $standard_cost = $item['standard_cost'];
+            $originating_id = $item['originating_id'];
 
-            update_stock_mt_details($line_item, $quantity, $currentqty, $receivedqty);
+
+            update_stock_mt_details($line_item, $quantity, $currentqty, $receivedqty,$branch_code);
+            update_stock_mt_details($originating_id, $quantity, $currentqty, $receivedqty,$location_from);
             
             $stock_gl_mt_code = get_stock_gl_code($stock_id);
             $totalCost =  str_replace(",","",$standard_cost) *  str_replace(",","",$quantity);
@@ -467,9 +473,9 @@ function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id
     return $dbid;
 }
 //Added by Herald - 03/18/2021 - to update the MT header for the RR Reference
-function update_mt_header($reference, $mtreference){
-    global $def_coy;
-    set_global_connection($def_coy);
+function update_mt_header($reference, $mtreference, $targetdb){
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
     
     $sql = "UPDATE ".TB_PREF."mt_header SET mt_header_rrbranch_reference=".db_escape($reference)." WHERE mt_header_reference= ".db_escape($mtreference);
     
@@ -479,7 +485,8 @@ function update_mt_header($reference, $mtreference){
     return true;
 }
 
-function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='', $targetdb)
+function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='', $targetdb, 
+    $originating)
 {
     //$date = date2sql($date_);
     //$man_date = date2sql($manufacture_date);
@@ -490,12 +497,13 @@ function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $pr
     $db_coy = Get_db_coy($targetdb);
     set_global_connection($db_coy);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_details (mt_details_header_id, mt_details_stock_id, mt_details_item_code, mt_details_serial_no, mt_details_chasis_no, mt_details_total_qty, mt_details_st_cost, mt_details_price) VALUES ("
+    $sql = "INSERT INTO ".TB_PREF."mt_details (mt_details_header_id, mt_details_stock_id, mt_details_item_code, mt_details_serial_no, mt_details_chasis_no, mt_details_total_qty, mt_details_st_cost, mt_details_price, originating_id) VALUES ("
         .db_escape($header_id).","
             .db_escape($stock_id).", ".db_escape($color_code).", "
                 .db_escape($lot_no).", ".db_escape($chasis_no).", ".db_escape($quantity).", "
                     .db_escape($std_cost).", "
-                        .db_escape($price).")";
+                        .db_escape($price).", "
+                            .db_escape($originating).")";
                 
     db_query($sql, "The MT details record cannot be inserted");
                 
@@ -505,10 +513,10 @@ function add_stock_mt_details($header_id, $stock_id, $quantity=0, $std_cost, $pr
     return $dbid;
 }
 
-function update_stock_mt_details($line_item,$quantity=0,$currentqty,$receivedqty)
+function update_stock_mt_details($line_item,$quantity=0,$currentqty,$receivedqty,$targetdb)
 {
-    global $def_coy;
-    set_global_connection($def_coy);
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
     if($quantity==$currentqty) {
         $status = '2';
     }else{
