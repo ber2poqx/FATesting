@@ -63,16 +63,23 @@ function print_transaction() {
 		$loc = get_location_name($location);
 	}
 
-	$cols = array(0, 45, 120, 205, 
-		283, 375, 
-		465, 500, 555, 605, 655, 695, 
-		720, 0
+	$maxYear = (int)get_smo_max_year();
+	$maxYear_1 = $maxYear - 1;
+	$maxYear_2 = $maxYear_1 - 1;
+	$maxYear_3 = $maxYear_2 - 1;
+
+	$cols = array(
+		0, 45, 110, 180, 
+		250, 335, 390, 
+		440, 480, 
+		540, 570, 645, 680, 705, 0
 	);
 
-    $maxYear = (int)get_smo_max_year();
-	$maxYear_1 = (int)get_smo_max_year() - 1;
-	$maxYear_2 = (int)get_smo_max_year() - 2;
-	$maxYear_3 = (int)get_smo_max_year() - 3;
+	$aligns = array(
+		'left', 'left', 'left', 'left', 'left', 'left', 'center', 
+		'center', 'center', 'center', 'center',
+		'left', 'center', 'right'	
+	);
 
 	$headers = array(
 		_('Brand'), 
@@ -87,14 +94,9 @@ function print_transaction() {
         _($maxYear_2),
         _((string)$maxYear_3.'<<'),
         _('Date'),
-        _('Age')
+        _('Age'), 
+		_('Location')
     );
-
-	$aligns = array(
-		'left', 'left', 'left', 'left', 'left', 'left', 'center', 
-		'center', 'center', 'center', 'center',
-		'left', 'right'	
-	);
 
     $params = array( 	
 		0 => $comments,
@@ -116,17 +118,21 @@ function print_transaction() {
 	$res = get_inventory_movement($category, 'ALL', $location, $date);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
     $qtyTot = $demand_qty = $qoh = $qty = 0;
-	$catt = $code = $loc = $samp = $reference = '';
+	$catt = $code = $loc = $samp = $reference = $trim_ref = $loc_code = $ob_ref = '';
 	$m0 = $m1 = $m2 = $m3 = 0.0;
 	$am0 = $am1 = $am2 = $am3 = 0.0;
 
 	while ($trans = db_fetch($res)) {
 
+		$loc_code = $trans['loc_code'];
+		$reference = $trans['reference'];
+		
 		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
-			$reference = $trans['reference'] . " (OB)";
+			$ob_ref = str_replace($loc_code . "-", "", $reference);
+			$trim_ref = $ob_ref . " (OB)";
 		}
 		else {
-			$reference = $trans['reference'];
+			$trim_ref = $reference;
 		}
 		
 		if ($catt != $trans['cat_description']) {	
@@ -157,11 +163,11 @@ function print_transaction() {
 		}
 
 		if ($trans['QoH'] > 0) {
-			$rep->fontSize -= 1.5;
+			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $trans['Brand']);
         	$rep->TextCol(1, 2, $trans['Code']);
         	$rep->TextCol(2, 3, $trans['Sub_Cat']);
-        	$rep->TextCol(3, 4, $reference);
+        	$rep->TextCol(3, 4, $trim_ref);
         	$rep->TextCol(4, 5, $trans['Serial#']);
         	$rep->TextCol(5, 6, $trans['Chassis#']);
         	$rep->TextCol(6, 7, $trans['QoH']);
@@ -169,12 +175,17 @@ function print_transaction() {
         	$rep->AmountCol2(8, 9, $trans['maxYear_1'] * $trans['QoH']);
         	$rep->AmountCol2(9, 10, $trans['maxYear_2'] * $trans['QoH']);
         	$rep->AmountCol2(10, 11, $trans['maxYear_3'] * $trans['QoH']);
+			$rep->SetTextColor(0, 0, 255);
         	$rep->TextCol(11, 12, $trans['Date']);
+			$rep->SetTextColor(0, 0, 0);
         	$rep->TextCol(12, 13, $trans['Age']);
+			$rep->SetTextColor(0, 0, 255);
+        	$rep->TextCol(13, 14, $loc_code);  
+			$rep->SetTextColor(0, 0, 0);    
         
         	$dec2 = 0;
 				  
-			$rep->fontSize += 1.5;
+			$rep->fontSize += 1;
         	$rep->NewLine();
 		
 			$m0 += $trans['maxYear'] * $trans['QoH'];
