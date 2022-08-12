@@ -383,8 +383,8 @@ function get_rr_supplier_gl($type_no, $type)
 #Added by AJE 03/19/2021
 function lookup_to_HO_mt_header($rr_num)
 {
-	$def_coy = 0;
-	set_global_connection($def_coy);
+	//$def_coy = 0;
+	set_global_connection();
 
 	$sql = "SELECT 
 				mt_header.mt_header_date AS MTdate
