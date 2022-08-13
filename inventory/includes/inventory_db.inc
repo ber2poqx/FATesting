@@ -806,7 +806,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 			INNER JOIN ".TB_PREF."stock_master SM ON SMO.stock_id = SM.stock_id
 			INNER JOIN ".TB_PREF."stock_category SC ON SM.category_id = SC.category_id
 			LEFT JOIN ".TB_PREF."item_brand IB ON SM.brand = IB.id
-			LEFT JOIN ".TB_PREF."suppliers SUP ON IB.name = SUP.supp_ref 
+			LEFT JOIN ".TB_PREF."suppliers SUP ON SM.manufacturer = SUP.supplier_id 
 			LEFT JOIN ".TB_PREF."item_distributor ID ON SM.distributor = ID.id
 
 		WHERE SMO.tran_date <= '$date' AND SM.mb_flag <> 'D' AND SM.mb_flag <> 'F'";
