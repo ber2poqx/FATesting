@@ -401,7 +401,7 @@ function get_stock_movements($stock_id, $Inventory_type, $StockLocation, $Before
 	$before_date = date2sql($BeforeDate);
 	$after_date = date2sql($AfterDate);
 	// PO Delivery and Customer Credit Notes references should be saved in stock moves reference in 2.5
-	$sql = "SELECT SUM(move.qty), move.*, item_codes.description, 
+	$sql = "SELECT SUM(move.qty) AS qty_total, move.*, item_codes.description, 
 			IM.name AS manu_name,
 			IF(ISNULL(supplier.supplier_id), debtor.name, supplier.supp_name) name,
 			

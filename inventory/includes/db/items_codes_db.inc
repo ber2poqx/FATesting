@@ -264,16 +264,15 @@ INNER JOIN "
 
 function get_MTitem_serial_kit($item_code)
 {
-    $sql="SELECT icode.*, iserial.*, item.units, item.description as sdescription, icode.description as idescription, item.inventory_account FROM ".TB_PREF."item_codes icode
-LEFT JOIN "
-            .TB_PREF."stock_master item ON item.stock_id=icode.stock_id
-INNER JOIN "
-                .TB_PREF."item_serialise iserial ON icode.item_code=iserial.serialise_item_code
-		WHERE iserial.serialise_id=".db_escape($item_code);
+    $sql="SELECT icode.*, iserial.*, item.units, item.description as sdescription, icode.description as idescription, 
+    item.inventory_account FROM ".TB_PREF."item_codes icode
+	LEFT JOIN ".TB_PREF."stock_master item ON item.stock_id=icode.stock_id
+	INNER JOIN ".TB_PREF."item_serialise iserial ON icode.item_code=iserial.serialise_item_code
+	WHERE iserial.serialise_id=".db_escape($item_code);
                 
-                $result = db_query($sql,"item could not be retrieved");
-                
-                return $result;
+	$result = db_query($sql,"item could not be retrieved");
+
+	return $result;
 }
 //Added by Herald 03/25/2021
 function get_item_supplier_id($stock_id){
@@ -293,8 +292,8 @@ function get_item_supplier_id($stock_id){
 //Added by Herald 03/05/2021 for RR Branch Search Serial
 function get_item_serial_mt($mt_details_id)
 {
-    global $def_coy;
-    set_global_connection($def_coy);
+    //global $def_coy;
+    set_global_connection();
     
     $sql="SELECT icode.*, iserial.*, item.units, item.description as sdescription, icode.description as idescription FROM "
         .TB_PREF."item_codes icode
