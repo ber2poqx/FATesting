@@ -179,31 +179,36 @@ function write_sales_delivery(&$delivery, $bo_policy)
 					$smi,
 					$incentives
 				);
-				add_stock_move(
-					ST_CUSTDELIVERY,
-					$delivery_line->stock_id,
-					$delivery_no,
-					$delivery->Location,
-					$delivery->document_date,
-					$delivery->reference,
-					-$dispatch_qty,
-					//Modified by spyrax10
-					/* Updated by Ronelle 11/11/2021 */
-					$myrow["standard_cost"],
-					/* */
-					$line_price * (1 - $delivery_line->discount_percent),
-					$delivery_line->lot_no,
-					$delivery_line->chasis_no,
-					get_stock_catID($delivery_line->stock_id), 
-					$delivery_line->color_desc,
-					//Modified by spyrax10
-					/* UPDATED BY RONELLE 11/11/2021 */
-					$myrow["type"],
-					$myrow["trans_no"],
-					/* */
-					// modified by albert
-					$item_type
-				);
+
+				//Modified by spyrax10 13 Aug 2022
+				if ($dispatch_qty != 0) {
+					add_stock_move(
+						ST_CUSTDELIVERY,
+						$delivery_line->stock_id,
+						$delivery_no,
+						$delivery->Location,
+						$delivery->document_date,
+						$delivery->reference,
+						-$dispatch_qty,
+						//Modified by spyrax10
+						/* Updated by Ronelle 11/11/2021 */
+						$myrow["standard_cost"],
+						/* */
+						$line_price * (1 - $delivery_line->discount_percent),
+						$delivery_line->lot_no,
+						$delivery_line->chasis_no,
+						get_stock_catID($delivery_line->stock_id), 
+						$delivery_line->color_desc,
+						//Modified by spyrax10
+						/* UPDATED BY RONELLE 11/11/2021 */
+						$myrow["type"],
+						$myrow["trans_no"],
+						/* */
+						// modified by albert
+						$item_type
+					);
+				}
+				//
 			}
 		}
 
