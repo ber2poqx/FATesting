@@ -668,8 +668,8 @@ function check_item_data()
 	}
 
 	if ($_SESSION['Items']->trans_type != ST_SALESINVOICE && ($_POST['category_id'] == 23 || $_POST['category_id'] == 18)) {
-		$pdc1 = (get_post('qty') * get_post('price')) * 0.05;
-		$pdc2 = (get_post('qty') * get_post('price')) * 0.10;
+		$pdc1 = (input_num('qty') * input_num('price')) * (5 / 100);
+		$pdc2 = (input_num('qty') * input_num('price')) * (10 / 100);
 
 		if (get_post('pdc_chk') == 1) {
 			if (get_post('pdc_no') == '') {
@@ -677,13 +677,13 @@ function check_item_data()
 				return false;
 			}
 			else if (get_post('pdc_discount') == 1) {
-				if (get_post('discount1') > 0 && get_post('discount1') > $pdc2 ) {
+				if (input_num('discount1') > 0 && input_num('discount1') > $pdc2) {
 					display_error(_("Discount is over 10% of line total amount! Please try again.."));
 					return false;
 				}
 			}
 			else {
-				if (get_post('discount1') > 0 && get_post('discount1') > $pdc1) {
+				if (input_num('discount1') > 0 && input_num('discount1') > $pdc1) {
 					display_error(_("Discount is more than 5% of line total amount! Please try again.."));
 					return false;
 				}			
