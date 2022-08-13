@@ -208,8 +208,8 @@ function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost
 
 /*Added by robert 04/26/2022*/
 function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcode='',$all=false){
-    global $def_coy;
-    set_global_connection($def_coy);
+    //global $def_coy;
+    set_global_connection();
 
     $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty, 
     sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 

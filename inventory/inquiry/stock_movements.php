@@ -226,16 +226,16 @@ while ($myrow = db_fetch($result))
 	if ($myrow["qty"] > 0)
 	{
 		$quantity_formatted = number_format2($myrow["qty_total"], $dec);
-		$cost_formatted = number_format2($myrow["standard_cost"] * $myrow["qty_total"], $dec);
+		$cost_formatted = number_format2($myrow["standard_cost"], $dec);
 		$total_in += $myrow["qty_total"];
-		$cost_in = $myrow["standard_cost"] * $total_in;
+		$cost_in += $myrow["standard_cost"];
 	}
 	else
 	{
 		$quantity_formatted = number_format2(-$myrow["qty_total"], $dec);
-		$cost_formatted = number_format2($myrow["standard_cost"] * -$myrow["qty"], $dec);
+		$cost_formatted = number_format2($myrow["standard_cost"], $dec);
 		$total_out += -$myrow["qty"];
-		$cost_out = $myrow["standard_cost"] * $total_out;
+		$cost_out += $myrow["standard_cost"];
 	}
 	$after_qty += $myrow["qty_total"];
 	if ($myrow["qty"] < 0) {
