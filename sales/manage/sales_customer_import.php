@@ -104,7 +104,7 @@
 					if ($lines++ == 0) continue;
 
 				    list($type, $name, $address, $barangay, $municipality, $province, $tax_id, $age, $gender, $status, $spouse,
-				    $name_father, $name_mother, $area, $credit_limit, $phone, $email, $facebook) = $data;
+				    $name_mother, $name_father, $area, $credit_limit, $phone, $email, $facebook) = $data;
 
 					//$debtor_ref = strtoupper($debtor_ref);
 
@@ -114,8 +114,8 @@
 					$barangay = utf8_encode($barangay);
 					$province = utf8_encode($province);
 					$spouse = utf8_encode($spouse);
-					$name_father = utf8_encode($name_father);
 					$name_mother = utf8_encode($name_mother);
+					$name_father = utf8_encode($name_father);
 					$email = utf8_encode($email);
 					$facebook = utf8_encode($facebook);
 
@@ -128,10 +128,11 @@
 
 					if ($credit_limit == '') {					
 						display_error("Line $lines: The credit limit must not be empty");
-						$CI++;
+						//$CI++;
            				break;
 					} else if ($area == '') {
 						display_error("Line $lines: The area must not be empty");
+           				break;
 					} else if (check_customer_code_already_exist($debtor_ref)) {
 				        $sql = "SELECT debtor_ref FROM ".TB_PREF."debtors_master WHERE debtor_ref = ".db_escape($debtor_ref);
 				        $result = db_query($sql, "Could not search Customer Code");
