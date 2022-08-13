@@ -194,7 +194,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 					$line_price * (1 - $delivery_line->discount_percent),
 					$delivery_line->lot_no,
 					$delivery_line->chasis_no,
-					$delivery->category_id,
+					get_stock_catID($delivery_line->stock_id), 
 					$delivery_line->color_desc,
 					//Modified by spyrax10
 					/* UPDATED BY RONELLE 11/11/2021 */
