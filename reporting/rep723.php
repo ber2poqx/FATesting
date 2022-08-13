@@ -353,16 +353,19 @@ function print_SL_summary_particulars()
 		$rep->Line($rep->row);
 		$rep->NewLine(2);
 		$rep->TextCol(2, 7, _('-  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  '));
-		$rep->NewLine();
+		$rep->NewLine(1);
 	}
 	
-	/*
-	$rep->Font('bold');
-	$rep->TextCol(3, 5, _('Subtotal'));
-	$rep->Font('italic');
-	$rep->AmountCol(4, 5, $Tot_deb, $dec);
-	$rep->AmountCol(5, 6, $Tot_cred, $dec);
-	$rep->Font();*/
+	if($Tot_bal != 0)
+	{
+		$rep->Font('bold');
+		$rep->TextCol(3, 5, _('Subtotal'));
+		$rep->Font('italic');
+		$rep->AmountCol(4, 5, $Tot_deb, $dec);
+		$rep->AmountCol(5, 6, $Tot_cred, $dec);
+		$rep->Font();
+	}
+
 	$rep->Line($rep->row - 25);
 
 	$rep->NewLine(3);
