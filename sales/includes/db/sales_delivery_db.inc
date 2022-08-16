@@ -197,7 +197,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 						$line_price * (1 - $delivery_line->discount_percent),
 						$delivery_line->lot_no,
 						$delivery_line->chasis_no,
-						get_stock_catID($delivery_line->stock_id), 
+						$myrow['category_id'], //Modified by spyrax10 16 Aug 2022
 						$delivery_line->color_desc,
 						//Modified by spyrax10
 						/* UPDATED BY RONELLE 11/11/2021 */
@@ -460,65 +460,39 @@ function get_serial_no($lot_no)
 }
 
 /* Added by Ronelle  */
-function get_available_items($stock_id, $location, $date, $serial_no = "", $chassis_no = "")
-{
-	$sql = "SELECT
-				x1.trans_id,
-				x1.trans_no,
-				x1.type,
-				x1.stock_id,
-				x1.qty as InQty,
-				x1.OutQty as OutQty,
-				(x1.qty - x1.OutQty) as qoh,
-				x1.standard_cost,
-				x1.tran_date
-			FROM
-			(SELECT
-				a.trans_id,
-				a.trans_no,
-				a.stock_id,
-				a.type,
-				a.qty,
-				(SELECT 
-					ifnull(SUM(t1.qty * -1), 0)
-				FROM
-					stock_moves t1
-				WHERE
-					t1.transno_out = a.trans_no
-				AND
-					t1.type_out = a.type
-				AND
-                    t1.stock_id = a.stock_id
-                AND
-                    t1.lot_no = a.lot_no
-                AND
-                    t1.chassis_no = a.chassis_no
-				AND
-						t1.item_type = a.item_type
-                AND
-                    t1.loc_code = a.loc_code
-				AND
-					t1.qty < 0
-				) as OutQty,
-				a.standard_cost,
-				a.tran_date
-			FROM
-				stock_moves a
-			WHERE
-				a.qty > 0
-			AND
-				a.loc_code = " . db_escape($location) . "
-			AND
-				a.tran_date < NOW()
-			AND
-				a.stock_id = " . db_escape($stock_id) . "
-			AND
-				a.lot_no = " . db_escape($serial_no) . "
-			AND
-				a.chassis_no = " . db_escape($chassis_no) . "
-			) x1
-			WHERE
-				x1.qty > x1.OutQty";
+function get_available_items($stock_id, $location, $date, $serial_no = "", $chassis_no = "") {
+	
+	//Modified by spyrax10 16 Aug 2022
+	$sql = 
+	"SELECT x1.trans_id, x1.trans_no, x1.type, x1.stock_id,
+		x1.qty as InQty, x1.OutQty as OutQty,
+		(x1.qty - x1.OutQty) as qoh,
+		x1.standard_cost, x1.tran_date
+	FROM
+		(SELECT a.trans_id, a.trans_no, a.stock_id, 
+		    a.type, a.qty, a.category_id,
+		    (SELECT IFNULL(SUM(t1.qty * -1), 0)
+			FROM stock_moves t1
+		    WHERE t1.transno_out = a.trans_no AND t1.type_out = a.type
+				AND t1.stock_id = a.stock_id
+				AND t1.lot_no = a.lot_no AND t1.chassis_no = a.chassis_no
+				AND t1.item_type = a.item_type AND t1.loc_code = a.loc_code
+				AND t1.qty < 0
+			) as OutQty, a.standard_cost, a.tran_date
+
+		FROM stock_moves a 
+		WHERE a.qty > 0 AND a.loc_code = " . db_escape($location) . 
+			" AND a.tran_date < NOW() AND a.stock_id = " . db_escape($stock_id);
+	
+	if ($serial_no != "") {
+		$sql .= " AND a.lot_no = " . db_escape($serial_no);
+	}
+
+	if ($chassis_no) {
+		$sql .= " AND a.chassis_no = " . db_escape($chassis_no);
+	}
+	
+	$sql .= ") x1 WHERE x1.qty > x1.OutQty";
 
 	$result = db_query($sql, "retrieve available items failed");
 	return $result;
