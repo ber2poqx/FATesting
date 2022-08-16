@@ -466,7 +466,7 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 	$sql = 
 	"SELECT x1.trans_id, x1.trans_no, x1.type, x1.stock_id,
 		x1.qty as InQty, x1.OutQty as OutQty,
-		(x1.qty - x1.OutQty) as qoh,
+		(x1.qty - x1.OutQty) as qoh, x1.category_id,
 		x1.standard_cost, x1.tran_date
 	FROM
 		(SELECT a.trans_id, a.trans_no, a.stock_id, 
