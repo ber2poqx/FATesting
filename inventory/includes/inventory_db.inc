@@ -768,6 +768,8 @@ function clean_spaces($table_name = '', $column = '', $company_id = -1) {
 function get_inventory_movement($category = 0, $supplier = "ALL", $location = "ALL", $date, 
 	$repo = false, $summarized = false) {
 	
+	set_global_connection();
+	
 	$date = date2sql($date);
 
 	$maxYear = (int)get_smo_max_year();
