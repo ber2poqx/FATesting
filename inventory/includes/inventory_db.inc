@@ -799,8 +799,8 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 			SMO.trans_id, SMO.trans_no, SMO.reference, SMO.type, 
 			SM.stock_id AS 'Code', IB.name AS Brand, SMO.color_code,
 			SMO.tran_date AS 'Date',  
-			SMO.lot_no AS 'Serial#', 
-			SMO.chassis_no AS 'Chassis#', 
+			IFNULL(SMO.lot_no, '') AS 'Serial#', 
+			IFNULL(SMO.chassis_no, '') AS 'Chassis#', 
 			SMO.loc_code,
 			SM.description AS prod_desc
 	
