@@ -837,7 +837,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 		$sql .= " ORDER BY SMO.category_id, SMO.stock_id, SMO.tran_date";
 	}
 	else {
-		$sql .= " GROUP BY SMO.transno_out, SMO.type_out, SMO.stock_id, SMO.loc_code, SMO.lot_no, SMO.chassis_no";
+		$sql .= " GROUP BY SMO.transno_out, SMO.type_out, SMO.stock_id, SMO.loc_code, IFNULL(SMO.lot_no, ''), IFNULL(SMO.chassis_no, '')";
 		$sql .= " ORDER BY SMO.category_id, SMO.stock_id, SMO.tran_date, SMO.lot_no";
 	}
 
