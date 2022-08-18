@@ -1046,104 +1046,105 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     $change_term = ST_SITERMMOD;
     $restruct = ST_RESTRUCTURED;
 
-     $sql = "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DM.address, 
-            GL.gl_name, CN.user_id, CN.real_name AS col_name, DM.debtor_ref, DM.name AS cust_name, 
-            DL.delivery_ref_no, '0' AS adj, '0' AS restruct, DL.downpayment_amount AS down_pay,
+    $sql = 
+    "SELECT '$date' AS cur_date, GL.gl_code, DM.area, A.description AS area_name, DM.address, 
+        GL.gl_name, CN.user_id, CN.real_name AS col_name, DM.debtor_ref, DM.name AS cust_name, 
+        DL.delivery_ref_no, '0' AS adj, '0' AS restruct, DL.downpayment_amount AS down_pay,
 
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.invoice_ref_no
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.invoice_ref_no
-            ELSE DL.invoice_ref_no END AS invoice_ref_no,
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.invoice_ref_no
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.invoice_ref_no
+        ELSE DL.invoice_ref_no END AS invoice_ref_no,
 
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN YEAR(CT.term_mod_date)
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN YEAR(RT.term_mod_date)
-            ELSE YEAR(DL.invoice_date) END AS inv_year,
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN YEAR(CT.term_mod_date)
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN YEAR(RT.term_mod_date)
+        ELSE YEAR(DL.invoice_date) END AS inv_year,
 
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
-            ELSE DL.debtor_no END AS debtor_no,
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
+        ELSE DL.debtor_no END AS debtor_no,
 
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.term_mod_date
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.term_mod_date
-            ELSE DL.invoice_date END AS buy_date,
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.term_mod_date
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.term_mod_date
+        ELSE DL.invoice_date END AS buy_date,
 
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
-            ELSE DL.ar_amount END AS gross,
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
+        ELSE DL.ar_amount END AS gross,
             
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.months_term
-                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.months_term
-            ELSE DL.months_term END AS Term,
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.months_term
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.months_term
+        ELSE DL.months_term END AS Term,
 
-            CASE 
-	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
+        ELSE DL.trans_no END AS trans_no,
+
+        CASE 
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
+        ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type
+
+    FROM " . TB_PREF . "debtor_loans DL
+        LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
+        LEFT JOIN " . TB_PREF . "areas A ON DM.area = A.area_code
+        LEFT JOIN " . TB_PREF . "users CN ON A.collectors_id = CN.user_id
+        LEFT JOIN (
+	        SELECT debtor_no, Y.account_code AS gl_code, Y.account_name AS gl_name 
+            FROM " . TB_PREF . " cust_branch X
+		        INNER JOIN " . TB_PREF . "chart_master Y ON X.receivables_account = Y.account_code
+        ) GL ON DM.debtor_no = GL.debtor_no
+            
+        LEFT JOIN ".TB_PREF."debtor_term_modification CT ON DL.invoice_ref_no = CT.invoice_ref_no 
+            AND DL.debtor_no = CT.debtor_no AND CT.type = $change_term
+            
+        LEFT JOIN ".TB_PREF."debtor_term_modification RT ON DL.invoice_ref_no = RT.invoice_ref_no 
+            AND DL.debtor_no = RT.debtor_no AND RT.type = $restruct
+
+        LEFT JOIN (
+            SELECT DLL.trans_no, DLL.debtor_no, DLL.trans_type_to, 
+                SUM(DLL.payment_applied) AS sum_pay 
+            FROM ".TB_PREF."debtor_loan_ledger DLL 
+            WHERE DATE_FORMAT(DLL.date_paid, '%Y-%m') < DATE_FORMAT('$date', '%Y-%m')
+            GROUP BY DLL.trans_no, DLL.debtor_no
+        ) CPAY ON (CASE
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
                 WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
-            ELSE DL.trans_no END AS trans_no,
-
-            CASE 
+            ELSE DL.trans_no END) = CPAY.trans_no 
+                
+            AND (CASE
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
+            ELSE DL.debtor_no END) = CPAY.debtor_no 
+                    
+            AND (CASE 
 	            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
                 WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
-            ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type
+            ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END) = CPAY.trans_type_to
 
-            FROM " . TB_PREF . "debtor_loans DL
-                LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
-                LEFT JOIN " . TB_PREF . "areas A ON DM.area = A.area_code
-                LEFT JOIN " . TB_PREF . "users CN ON A.collectors_id = CN.user_id
-                LEFT JOIN (
-	                SELECT debtor_no, Y.account_code AS gl_code, Y.account_name AS gl_name 
-                    FROM " . TB_PREF . " cust_branch X
-		                INNER JOIN " . TB_PREF . "chart_master Y ON X.receivables_account = Y.account_code
-                ) GL ON DM.debtor_no = GL.debtor_no
-            
-                LEFT JOIN ".TB_PREF."debtor_term_modification CT ON DL.invoice_ref_no = CT.invoice_ref_no 
-                    AND DL.debtor_no = CT.debtor_no AND CT.type = $change_term
-            
-                LEFT JOIN ".TB_PREF."debtor_term_modification RT ON DL.invoice_ref_no = RT.invoice_ref_no 
-                    AND DL.debtor_no = RT.debtor_no AND RT.type = $restruct
-
-                LEFT JOIN (
-                    SELECT DLL.trans_no, DLL.debtor_no, DLL.trans_type_to, 
-                        SUM(DLL.payment_applied) AS sum_pay 
-                    FROM ".TB_PREF."debtor_loan_ledger DLL 
-                    WHERE DATE_FORMAT(DLL.date_paid, '%Y-%m') < DATE_FORMAT('$date', '%Y-%m')
-                    GROUP BY DLL.trans_no, DLL.debtor_no
-                ) CPAY ON (CASE
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
-                    ELSE DL.trans_no END) = CPAY.trans_no 
-                
-                    AND (CASE
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
-                    ELSE DL.debtor_no END) = CPAY.debtor_no 
+        LEFT JOIN (
+            SELECT A.ar_trans_no, A.debtor_no, A.repo_date FROM ".TB_PREF."repo_accounts A
+        ) REPO ON (CASE
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
+            ELSE DL.trans_no END) = REPO.ar_trans_no 
                     
-                    AND (CASE 
-	                    WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
-                    ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END) = CPAY.trans_type_to
-
-                LEFT JOIN (
-                    SELECT A.ar_trans_no, A.debtor_no, A.repo_date FROM ".TB_PREF."repo_accounts A
-                ) REPO ON (CASE
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
-                    ELSE DL.trans_no END) = REPO.ar_trans_no 
-                    
-                    AND (CASE
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
-                        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
-                    ELSE DL.debtor_no END) = REPO.debtor_no
+            AND (CASE
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.debtor_no
+                WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.debtor_no
+            ELSE DL.debtor_no END) = REPO.debtor_no
            
-            WHERE DL.months_term <> 0 AND DL.invoice_date <= '$date' 
-                AND (CASE 
-                    WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
-                    WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
-                ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 AND DL.payment_location = 'Branch'";
+    WHERE DL.months_term <> 0 AND DL.invoice_date <= '$date' 
+        AND (CASE 
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
+            WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
+        ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 AND DL.payment_location = 'Branch'";
       
     $sql .= 
     " AND (CASE 
