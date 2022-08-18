@@ -221,7 +221,7 @@ function print_transaction() {
 	$rep->TextCol(0, 2, _('GRAND TOTAL:'));
 	$rep->fontSize -= 2;
 	$rep->TextCol(9, 10, $qtyTot);
-    $rep->AmountCol(10, 12, $total, $dec);
+    $rep->AmountCol(11, 12, $total, $dec);
     $rep->AmountCol(12, 13, $grandtotal, $dec);
 	$rep->Line($rep->row  - 4);
 	$rep->NewLine();
