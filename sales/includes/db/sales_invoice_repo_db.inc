@@ -160,7 +160,8 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		$invoice->ar_amount //Added by Albert 06/30/2022
 	);
 
-	if ($invoice->payment_policy != 0 && ST_SALESINVOICEREPO) {
+	if ($invoice->payment_policy != 0 && ST_SALESINVOICEREPO && 
+	$invoice->payment_location == "Branch") { //Modified by Albert 18 Aug 2022
 
 		// Down-payment 
 		add_loan_schedule_ob(
