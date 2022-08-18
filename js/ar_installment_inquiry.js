@@ -478,6 +478,13 @@ Ext.onReady(function(){
 			xtype: 'panel',
 			id: 'mainpanel',
 			items: [{
+				xtype: 'textfield',
+				id: 'trans_type',
+				name: 'trans_type',
+				fieldLabel: 'trans_type',
+				allowBlank: false,
+				hidden: true
+			},{
 				xtype: 'panel',
 				id: 'upanel',
 				items: [{
@@ -1061,7 +1068,17 @@ Ext.onReady(function(){
 									emptyMsg: "No records to display",
 									doRefresh : function(){
 										AmortLedgertore.load();
-									}
+									},
+									items:[{
+										xtype: 'button',
+										text : '<b>Open in new tab</b>',
+										tooltip: 'Click to view amortization report',
+										margin: '0 0 0 0',
+										icon: '../../js/ext4/examples/shared/icons/application_side_expand.png',
+										handler : function() {
+											window.open('../../reports/installment_inquiry.php?&trans_no=' + Ext.getCmp('trans_no').getValue() + '&trans_type='+Ext.getCmp('trans_type').getValue());
+										}
+									}]
 								}
 							},{
 								xtype:'gridpanel',
@@ -1089,9 +1106,9 @@ Ext.onReady(function(){
 										text : '<b>Open in new tab</b>',
 										//tooltip: 'Click to search customer information',
 										margin: '0 0 0 0',
-										icon: '../../js/ext4/examples/shared/icons/vcard.png',
+										icon: '../../js/ext4/examples/shared/icons/application_side_expand.png',
 										handler : function() {
-											window.open('../../lending/inquiry/deptor_amortization.php?invoice_no='+Ext.getCmp('trans_no').getValue() +'&debtor_no='+Ext.getCmp('debtor_no').getValue() +'&Type=70');
+											window.open('../../lending/inquiry/deptor_amortization.php?invoice_no='+Ext.getCmp('trans_no').getValue() +'&debtor_no='+Ext.getCmp('debtor_no').getValue() +'&Type='+ Ext.getCmp('trans_type').getValue());
 										}
 									}]
 								}
@@ -1358,6 +1375,7 @@ Ext.onReady(function(){
 					var records = ARInstallQstore.getAt(rowIndex);
 					
 					Ext.getCmp('trans_no').setValue(records.get('trans_no'));
+					Ext.getCmp('trans_type').setValue(records.get('type'));
 					Ext.getCmp('invoice_no').setValue(records.get('invoice_ref_no'));
 					Ext.getCmp('invoice_date').setValue(records.get('invoice_date'));
 					Ext.getCmp('delivery_no').setValue(records.get('delivery_ref_no'));

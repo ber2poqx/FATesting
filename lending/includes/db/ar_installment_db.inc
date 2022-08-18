@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function get_ar_installment($InvType='new', $start, $limit, $search, $showall=false)
+function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=false, $showall=false)
 {
 	global $db_connections;
 	if(isset($InvType) && $InvType != 'x'){
@@ -18,7 +18,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showall=fa
 	if($search != ''){
 		$sWhere .= " AND (D.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%') ";
 	}
-	if (!$showall) $sWhere .= " AND (A.status != 'fully-paid' AND A.status != 'Closed')";
+	if (!$showZeroB) $sWhere .= " AND (A.status != 'fully-paid' AND A.status != 'Closed')";
 	if (($db_connections[user_company()]["type"]) !== "LENDING"){
 		$sWhere .= " AND B.payment_location != 'Lending' ";
 	}
@@ -71,9 +71,16 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showall=fa
 			WHERE (A.type = ".ST_SITERMMOD.")
 				AND A.payment_terms != 0 "
 				.$sWhere."
-			ORDER BY tran_date DESC limit $start, $limit";
+			ORDER BY tran_date DESC";
+			
+	$sqllimit = $sql ." limit $start, $limit";
 
-	return db_query($sql, "could not get all ar invoice");
+	if($showall){
+		$result = db_query($sql, "could not get all ar invoice");
+	}else{
+		$result = db_query($sqllimit, "could not get all ar invoice");
+	}
+	return $result;
 }
 
 function get_ar_installment_termmode($InvType='new', $start, $limit, $search, $showall=false)
