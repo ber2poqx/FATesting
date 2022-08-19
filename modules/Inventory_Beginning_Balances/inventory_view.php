@@ -185,7 +185,7 @@ $cols = array(
 
 $table = &new_db_pager('inty_tbl', $sql, $cols, null, null, 25);
 
-$table->width = "60%";
+$table->width = "75%";
 
 display_db_pager($table);
 
