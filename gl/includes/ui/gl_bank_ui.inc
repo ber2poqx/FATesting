@@ -105,7 +105,15 @@ function display_bank_header(&$order) {
 				break;
 			
 			case PT_BRANCH:
-				company_list_row(_('Branch: '), 'person_id', true, false, true, true, true);
+				echo "<tr>";
+				$sql = company_list_row(
+					_("Branch: "), 'comp_sql', false, false, true, true, true, false, true, true, false
+				);
+			
+				combo_type_list(null, 'person_id', null, $sql, false, 
+					'company', '', false, 'coy', '' 
+				);
+				echo "</tr>";
 				break;
 	
 			/*
@@ -452,7 +460,6 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 		// }
 	}
 	//Added by spyrax10
-	//company_list_row(null, 'comp_id', $id != -1 ? false : true);
 	$sql = company_list_row(
 		null, 'comp_sql', false, false, true, false, false, false, true, true, true
 	);

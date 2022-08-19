@@ -184,6 +184,20 @@ function payment_person_name($type, $person_id, $full = true)
 }
 
 //Added by spyrax10 17 Feb 2022
+function get_person_type($type_id = '', $type_only = false) {
+	$types = array(
+		PT_MISC => 'Misc',
+		PT_QUICKENTRY => 'Quick Entry',
+		PT_WORKORDER => 'Work Order',
+		PT_CUSTOMER => 'Customer',
+		PT_SUPPLIER => 'Supplier',
+		PT_EMPLOYEE => 'Employee',
+		PT_BRANCH => 'Branch'
+	);
+
+	return $type_only ? $types[$type_id] : "[" . $types[$type_id] . "] ";
+}
+
 function get_person_name($type, $person_id) {
 	global $payment_person_types;
 
@@ -203,7 +217,6 @@ function get_person_name($type, $person_id) {
 }
 
 function get_person_id($type, $person_ref) {
-
 
 	if ($type == PT_CUSTOMER) {
 		$cust_row = get_customer('', $person_ref);
