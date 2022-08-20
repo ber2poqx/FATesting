@@ -245,7 +245,7 @@ function print_dailycash_sales()
 			$rep->TextCol(0, 1, sql2date($trans['trans_date']));
 			$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
 			$rep->TextCol(2, 3, $trans['memo_']);
-			$rep->TextCol(3, 4, $trans['ref']);
+			$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $trans['ref']));
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(4, 5, $trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
@@ -368,7 +368,7 @@ function print_dailycash_sales()
 			$rep->TextCol(0, 1, sql2date($dis_trans['trans_date']));
 			$rep->TextCol(1, 2, get_person_name($dis_trans['person_type_id'], $dis_trans['person_id']));
 			$rep->TextCol(2, 3, $dis_trans['memo_']);
-			$rep->TextCol(3, 4, $dis_trans['ref']);
+			$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $dis_trans['ref']));
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
