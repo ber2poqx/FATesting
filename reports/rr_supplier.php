@@ -126,7 +126,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	    border: 0px;
 	    text-decoration: underline;
 	    text-align: left;
-	    width:480px;
+	    width:400px;
 	    font-size: 11px;
 	}
 	.underlined{
@@ -328,25 +328,25 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 			<tr><td>&nbsp;</td></tr>
 			<tr>
 				<td align=left class="text-params">Supplier&nbsp;Name :</td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo $supp_name?>" class="underline_input_long" readonly></th>
+				<th style="width: 60%;" align=left><input type="text" value="<?php echo $supp_name?>" class="underline_input_long" readonly></th>
 				<td class="text-params">RR # :</td>
 				<th align=left><input type="text" value="<?php echo $reference?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
 				<td align=left class="text-params">Address :</td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo $supp_address?>" class="underline_input_long" readonly></th>
+				<th style="width: 60%;" align=left><input type="text" value="<?php echo $supp_address?>" class="underline_input_long" readonly></th>
 				<td class="text-params">Issue Date :</td>
 				<th align=left><input type="text" value="<?php echo $issue_date?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
 				<td align=left class="text-params">Supplier&nbsp;Ref.# :</td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo $supp_ref?>" class="underline_input_long" readonly></th>
+				<th style="width: 60%;" align=left><input type="text" value="<?php echo $supp_ref?>" class="underline_input_long" readonly></th>
 				< <td class="text-params">PO # :</td>
 				<th align=left><input type="text" value="<?php echo $po_ref?>" class="underline_input" readonly></th> >
 			</tr>
 			<tr>
 				<td align=left class="text-params">Reference&nbsp;date :</td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo $rrsupp_date?>" class="underline_input_long" readonly></th>
+				<th style="width: 60%;" align=left><input type="text" value="<?php echo $rrsupp_date?>" class="underline_input_long" readonly></th>
 				<td class="text-params">&nbsp;</td>
 				<th align=left><input type="text" value="" class="underline_input" readonly></th>
 			</tr>
