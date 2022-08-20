@@ -47,7 +47,7 @@ function remittance_transactions($from, $cashier = '') {
 
 	$sql .= " AND RT.remit_stat = 'Approved'"; 
 
-	$sql .= " ORDER BY RT.remit_ref, RT.type DESC";
+	$sql .= " ORDER BY RT.remit_ref, RT.type DESC, BT.receipt_no";
 
 	return db_query($sql, "No transactions were returned");
 }
@@ -71,7 +71,7 @@ function disbursement_transactions($from, $cashier = '') {
 	
 	$sql .= " AND A.remit_stat <> 'Approved'";
 			
-	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC";
+	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.receipt_no";
 
     return db_query($sql,"No transactions were returned");
 }
