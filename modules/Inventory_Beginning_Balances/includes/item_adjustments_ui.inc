@@ -59,12 +59,9 @@ function display_order_header(&$order, $id = 0, $line_items = 0)
 	}	
     
 	table_section(2, "50%");
-
-	ref_row(_("Reference: "), 'ref', '', 
-		$Refs->get_next(ST_INVADJUST, null, 
-		array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate'))),
-		false, ST_INVADJUST
-	);
+	$_POST['ref'] = $order->reference;
+	label_row(_("Reference #: &nbsp;"), get_post('ref'));
+	hidden('ref');
 	
 	sql_type_list(_("Category: "), 'category', 
 		get_category_list(), 'category_id', 'description', 

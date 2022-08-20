@@ -86,6 +86,7 @@ if (get_post('StockLocation')) {
 //-----------------------------------------------------------------------------------------------
 
 function handle_new_order() {
+	global $Refs;
 
 	if (isset($_SESSION['adj_items'])) {
 		$_SESSION['adj_items']->clear_items();
@@ -101,6 +102,7 @@ function handle_new_order() {
 	}
 
 	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
+	$_SESSION['adj_items']->reference = $Refs->get_next(ST_INVADJUST, null, array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate')));
 }
 
 //-----------------------------------------------------------------------------------------------
