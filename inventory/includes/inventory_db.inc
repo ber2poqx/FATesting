@@ -141,6 +141,7 @@ function get_rr_details($rr_num, $trans_num, $trans_type)
 			,CONCAT(stk.description,' - ',ic.description) AS descript
 			,grn.grn_remarks
 			,po.reference AS poNumber
+			,po.requisition_no AS prNumber
         FROM " . TB_PREF . "grn_batch grn
 			INNER JOIN " . TB_PREF . "stock_moves sm ON grn.id = sm.trans_no
 			INNER JOIN " . TB_PREF . "suppliers supp ON grn.supplier_id = supp.supplier_id

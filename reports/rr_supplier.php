@@ -69,6 +69,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		text-align: left;
 		font-size: 11px;
 		font-weight: bold;
+		border: 0px solid black;
+		width: 100px;
 	}
 	.text-center{
 		text-align: center;
@@ -100,16 +102,17 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	  html, body {
 
 		width: 8.5in;
-		height: 11.5in;
+		height: 11in;
 		padding-left: 5px;
 		padding-right: 5px;
 		  }
 	  /* ... the rest of the rules ... */
 	}
 	.underline_input{
-	    border: 0px;
+	    border: 0px solid black;
 	    text-decoration: underline;
-	    text-align: left;
+	    text-align: left;			
+		width: 150px;
 	    font-size: 11px;
 	}
 	
@@ -123,10 +126,10 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	}
 	
 	.underline_input_long{
-	    border: 0px;
+	    border: 0px solid black;
 	    text-decoration: underline;
 	    text-align: left;
-	    width:400px;
+	    width:350px;
 	    font-size: 11px;
 	}
 	.underlined{
@@ -277,7 +280,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		$supp_ref = $myrow["suppl_ref_no"];	
 		$rrsupp_date = date('m/d/Y', strtotime($myrow["suppl_ref_date"]));
 		$po_num = $myrow["purch_order_no"];
-		$po_ref = $myrow["poNumber"];
+		$po_ref = $myrow["poNumber"];		
+		$pr_ref = $myrow["prNumber"];
 		$trans_category = $myrow["category_id"];
 		$reference = $myrow["reference"];
 		$rr_remarks = $myrow["grn_remarks"];
@@ -328,27 +332,27 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 			<tr><td>&nbsp;</td></tr>
 			<tr>
 				<td align=left class="text-params">Supplier&nbsp;Name :</td>
-				<th style="width: 60%;" align=left><input type="text" value="<?php echo $supp_name?>" class="underline_input_long" readonly></th>
-				<td class="text-params">RR # :</td>
-				<th align=left><input type="text" value="<?php echo $reference?>" class="underline_input" readonly></th>
-			</tr>
-			<tr>
-				<td align=left class="text-params">Address :</td>
-				<th style="width: 60%;" align=left><input type="text" value="<?php echo $supp_address?>" class="underline_input_long" readonly></th>
-				<td class="text-params">Issue Date :</td>
+				<th style="width: 40%;" align=left><input type="text" value="<?php echo $supp_name?>" class="underline_input_long" readonly></th>
+				<td class="text-params" style="padding-left:50px;">Issue Date :</td>
 				<th align=left><input type="text" value="<?php echo $issue_date?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
+				<td align=left class="text-params">Address :</td>
+				<th style="width: 40%;" align=left><input type="text" value="<?php echo $supp_address?>" class="underline_input_long" readonly></th>
+				<td class="text-params" style="padding-left:50px;">RR # :</td>
+				<th align=left><input type="text" value="<?php echo $reference?>" class="underline_input" readonly></th>
+			</tr>
+			<tr>
 				<td align=left class="text-params">Supplier&nbsp;Ref.# :</td>
-				<th style="width: 60%;" align=left><input type="text" value="<?php echo $supp_ref?>" class="underline_input_long" readonly></th>
-				< <td class="text-params">PO # :</td>
-				<th align=left><input type="text" value="<?php echo $po_ref?>" class="underline_input" readonly></th> >
+				<th style="width: 40%;" align=left><input type="text" value="<?php echo $supp_ref?>" class="underline_input_long" readonly></th>
+				<td class="text-params" style="padding-left:50px;">PO # :</td>
+				<th align=left><input type="text" value="<?php echo $po_ref?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
 				<td align=left class="text-params">Reference&nbsp;date :</td>
-				<th style="width: 60%;" align=left><input type="text" value="<?php echo $rrsupp_date?>" class="underline_input_long" readonly></th>
-				<td class="text-params">&nbsp;</td>
-				<th align=left><input type="text" value="" class="underline_input" readonly></th>
+				<th style="width: 40%;" align=left><input type="text" value="<?php echo $rrsupp_date?>" class="underline_input_long" readonly></th>
+				<td class="text-params" style="padding-left:50px;">PR # :</td>
+				<th align=left><input type="text" value="<?php echo $pr_ref?>" class="underline_input" readonly></th>
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 		</table>
