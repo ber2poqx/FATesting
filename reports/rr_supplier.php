@@ -277,6 +277,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		$supp_ref = $myrow["suppl_ref_no"];	
 		$rrsupp_date = date('m/d/Y', strtotime($myrow["suppl_ref_date"]));
 		$po_num = $myrow["purch_order_no"];
+		$po_ref = $myrow["poNumber"];
 		$trans_category = $myrow["category_id"];
 		$reference = $myrow["reference"];
 		$rr_remarks = $myrow["grn_remarks"];
@@ -341,7 +342,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				<td align=left class="text-params">Supplier&nbsp;Ref.# :</td>
 				<th style="width: 50%;" align=left><input type="text" value="<?php echo $supp_ref?>" class="underline_input_long" readonly></th>
 				< <td class="text-params">PO # :</td>
-				<th align=left><input type="text" value="<?php echo $po_num?>" class="underline_input" readonly></th> >
+				<th align=left><input type="text" value="<?php echo $po_ref?>" class="underline_input" readonly></th> >
 			</tr>
 			<tr>
 				<td align=left class="text-params">Reference&nbsp;date :</td>
