@@ -173,7 +173,7 @@ get_stock_moves_list(
 );
 
 $cols = array(
-	_("Trans #") => array('align' => 'left', 'fun' => 'trans_num'),
+	_("Trans #") => array('align' => 'left', 'fun' => 'trans_num', 'ord' => ''),
 	_("Reference") => array('align' => 'center', 'fun' => 'trans_ref'),
 	_("Category") => array('align' => 'center', 'fun' => 'category'),
 	_("Location") => array('align' => 'center', 'fun' => 'loc_'),

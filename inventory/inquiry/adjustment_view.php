@@ -279,7 +279,7 @@ get_stock_adjust_list($_POST['reference'], $_POST['stock_loc'], $_POST['adj_type
 );
 
 $cols = array(
-	_("Trans #") => array('fun' => 'trans_num'),
+	_("Trans #") => array('fun' => 'trans_num', 'ord' => ''),
 	_("Status") => array('fun' => 'status_link'),
 	_("Approver") => array('fun' => 'approver_row'),
 	_("Date Approved") => array('align' => 'center', 'fun' => 'date_approved'),
