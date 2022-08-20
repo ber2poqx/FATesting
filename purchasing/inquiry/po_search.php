@@ -98,14 +98,15 @@ function edit_link($row)
 	return trans_editor_link(ST_PURCHORDER, $row["order_no"]);
 }
 
-function prt_link($row)
-{
-	return print_document_link($row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT);
+//Modified by spyrax10 20 Aug 2022
+function prt_link($row) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_RR_PRINT')) {
+		return print_document_link($row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT);
+	}
 }
 
-//Modified by spyrax10 20 Aug 2022
 function receive_link($row) {
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_RR_PRINT')) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GRN')) {
 		return pager_link( _("Receive"),
 			"/purchasing/po_receive_items.php?PONumber=" . $row["order_no"], ICON_RECEIVE
 		);
