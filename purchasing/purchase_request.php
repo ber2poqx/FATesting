@@ -74,6 +74,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PURCHASEREQUEST')) {
 }
 
 ref_cells(_("PR#:"), 'pr_number', '', null, '', true);
+sql_type_list(_("Category: "), 'category', 
+	get_category_list(), 'category_id', 'description', 
+	'', null, true, _("All Category")
+);
 submit_cells('SearchRequest', _("Search"), '', _('Select documents'), 'default');
 end_row();
 end_table();
@@ -163,10 +167,14 @@ if (get_post("ClosePR")) {
 	meta_forward($_SERVER['PHP_SELF'], "PRNumber=$trans_no");
 }
 
+if (get_post('category')) {
+	$Ajax->activate('pr_tbl');
+}
+
 //---------------------------------------------------------------------------------------------
 
 //figure out the sql required from the inputs available
-$sql = get_sql_for_pr_search($_POST['pr_number']);
+$sql = get_sql_for_pr_search($_POST['pr_number'], get_post('category'));
 
 //$result = db_query($sql,"No Request were returned");
 

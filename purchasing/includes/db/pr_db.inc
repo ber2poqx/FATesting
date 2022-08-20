@@ -115,7 +115,7 @@ function cancel_pr($pr_obj)
 	commit_transaction();
 }
 //modified by Albert  06/16/2022
-function get_sql_for_pr_search($request_number = '', $ho_data = '')
+function get_sql_for_pr_search($request_number = '', $category_id = '', $ho_data = '')
 {
 	$sql = "SELECT
 				a.pr_no,
@@ -171,6 +171,11 @@ function get_sql_for_pr_search($request_number = '', $ho_data = '')
 	//Added by Albert in PR Branch not display dissapproved 06/16/2022
 	if ($ho_data != "") {
 		$sql .= " AND  a.draft_status <> 2";
+	}
+
+	//Added by spyrax10 20 Aug 2022
+	if ($category_id != '') {
+		$sql .= " AND a.item_group_id = " . db_escape($category_id);
 	}
 
 	$sql .= " GROUP BY a.pr_no ORDER BY a.pr_date DESC, a.pr_no DESC"; // modified by spyrax10
