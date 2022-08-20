@@ -77,9 +77,13 @@ function copy_pr_to_po(&$po_obj)
 	begin_transaction();
 	hook_db_prewrite($po_obj, ST_PURCHORDER);
 
+	//Modified by spyrax10 20 Aug 2022
+	$po_status = $po_obj->category_id == 18 || $po_obj->category_id == 23 ? 1 : 0;
+
 	/*Insert to purchase order header record */
 	$sql = "INSERT INTO " . TB_PREF . "purch_orders (supplier_id, Comments, ord_date, reference, 
-     	requisition_no, into_stock_location, delivery_address, total, tax_included, item_group_id, category_id, prep_amount, purch_type_id, served_status) VALUES(";
+     	requisition_no, into_stock_location, delivery_address, total, tax_included, item_group_id, category_id, prep_amount, purch_type_id, served_status, 
+		draft_status) VALUES(";
 	$sql .= db_escape($po_obj->supplier_id) . "," .
 		db_escape($po_obj->Comments) . ",'" .
 		date2sql($po_obj->orig_order_date) . "', " .
@@ -93,7 +97,8 @@ function copy_pr_to_po(&$po_obj)
 		db_escape($po_obj->category_id) . ", " .
 		db_escape($po_obj->prep_amount) . ", " .
 		db_escape($po_obj->purch_type_id) . ", " .
-		db_escape($po_obj->served_status) . ")";
+		db_escape($po_obj->served_status) . ", " . 
+		db_escape($po_status) . ") ";
 
 	db_query($sql, "The purchase order header record could not be inserted");
 
