@@ -103,17 +103,23 @@ function prt_link($row)
 	return print_document_link($row['order_no'], _("Print"), true, ST_PURCHORDER, ICON_PRINT);
 }
 
-function receive_link($row) 
-{
-  return pager_link( _("Receive"),
-	"/purchasing/po_receive_items.php?PONumber=" . $row["order_no"], ICON_RECEIVE);
+//Modified by spyrax10 20 Aug 2022
+function receive_link($row) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_RR_PRINT')) {
+		return pager_link( _("Receive"),
+			"/purchasing/po_receive_items.php?PONumber=" . $row["order_no"], ICON_RECEIVE
+		);
+	}
 }
 
-function receive_new_link($row) 
-{
-  return pager_link( _("Receive"),
-	"/purchasing/po_receive_items_new.php?PONumber=" . $row["order_no"], ICON_RECEIVE);
+function receive_new_link($row) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_GRN')) {
+		return pager_link( _("Receive"),
+			"/purchasing/po_receive_items_new.php?PONumber=" . $row["order_no"], ICON_RECEIVE
+		);
+	}
 }
+//
 
 function check_overdue($row)
 {

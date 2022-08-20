@@ -307,6 +307,7 @@ $security_areas =array(
 	'SA_POCLOSESTATUS' => array(SS_PURCH|21, _("Cancel Purchased Order")),//Added by Albert 07/02/2022
 	'SA_PR_CLOSE' => array(SS_PURCH|23, _("Close Purchase Request")),
 	'SA_PO_PRINT' => array(SS_PURCH|24, _("Print Purchase Order")),
+	'SA_RR_PRINT' => array(SS_PURCH|25, _("Print Purchase Receive")),
 	//
 	
 	//Added by spyrax10 18 Jun 2022
