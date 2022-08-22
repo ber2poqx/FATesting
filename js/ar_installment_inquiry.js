@@ -85,7 +85,8 @@ Ext.onReady(function(){
 			{name:'adj_rate', mapping:'adj_rate'},
 			{name:'oppnity_cost', mapping:'oppnity_cost'},
 			{name:'amount_to_be_paid', mapping:'amount_to_be_paid'},
-			{name:'Termremarks', mapping:'Termremarks'}
+			{name:'Termremarks', mapping:'Termremarks'},
+			{name:'profit_margin', mapping:'profit_margin'}
 		]
 	});
     Ext.define('AmortSchedmodel',{
@@ -1284,6 +1285,15 @@ Ext.onReady(function(){
 									}]
 								},{
 									xtype: 'textfield',
+									fieldLabel: '<b>Profit margin </b>',
+									id: 'profit_margin',
+									name: 'profit_margin',
+									labelWidth: 120,
+									margin: '2 5 2 0',
+									width: 385,
+									fieldStyle: 'font-weight: bold; color: #210a04;'
+								},{
+									xtype: 'textfield',
 									fieldLabel: '<b>Remarks</b>',
 									id: 'Termremarks',
 									name: 'Termremarks',
@@ -1415,6 +1425,7 @@ Ext.onReady(function(){
 					Ext.getCmp('oppnity_cost').setValue(records.get('oppnity_cost'));
 					Ext.getCmp('amount_to_paid').setValue(records.get('amount_to_be_paid'));
 					Ext.getCmp('Termremarks').setValue(records.get('Termremarks'));
+					Ext.getCmp('profit_margin').setValue(records.get('profit_margin'));
 					
 					EntryLedgertore.proxy.extraParams = {trans_no: records.get('trans_no'), type: records.get('type')};
 					EntryLedgertore.load();

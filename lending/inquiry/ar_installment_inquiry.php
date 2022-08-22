@@ -140,7 +140,8 @@ if(isset($_GET['get_arinstallment'])){
                                'adj_rate'=>$myrow["adj_rate"],
                                'oppnity_cost'=>$myrow["opportunity_cost"],
                                'amount_to_be_paid'=>$myrow["amount_to_be_paid"],
-                               'Termremarks'=>$myrow["termremarks"]
+                               'Termremarks'=>$myrow["termremarks"],
+                               'profit_margin'=>$myrow["profit_margin"]
                             );
     }
     $jsonresult = json_encode($status_array);

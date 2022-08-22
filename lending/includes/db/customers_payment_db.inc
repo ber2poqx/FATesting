@@ -221,7 +221,7 @@ function get_invoice_per_customer($debtor_no, $tag)
 				AND A.debtor_no = ".db_escape($debtor_no)."
 				".$criteria."
 			ORDER BY A.tran_date ASC";*/
-	$sql = "SELECT A.trans_no, A.reference, A.type, A.status, B.stock_id, B.description itemdesc, D.description category, C.profit_margin
+	$sql = "SELECT A.trans_no, A.reference, A.type, A.status, B.stock_id, B.description itemdesc, C.payment_location, C.profit_margin, D.description category
 			FROM ".TB_PREF."debtor_trans A
 		        INNER JOIN ".TB_PREF."debtor_trans_details B ON B.debtor_trans_no = A.trans_no AND B.debtor_trans_type = A.type
                 INNER JOIN ".TB_PREF."debtor_loans C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
@@ -234,7 +234,7 @@ function get_invoice_per_customer($debtor_no, $tag)
 
 			UNION ALL
 
-			SELECT A.trans_no, A.reference, A.type, A.status, XT.stock_id, XT.description itemdesc, D.description category, C.profit_margin
+			SELECT A.trans_no, A.reference, A.type, A.status, XT.stock_id, XT.description itemdesc, null payment_location, C.profit_margin, D.description category
 			FROM ".TB_PREF."debtor_trans A
                 INNER JOIN ".TB_PREF."debtor_term_modification C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
                 INNER JOIN ".TB_PREF."stock_category D ON D.category_id = C.category_id
@@ -470,7 +470,7 @@ function get_amort_downpayment($trans_no, $debtor_no, $type)
 			AND A.trans_no = ".db_escape($trans_no)."
 			AND A.debtor_no = ".db_escape($debtor_no)."
 			AND A.trans_type = ".db_escape($type);
-
+		
 	return db_query($sql, "could not get down-payment amount schedule");
 }
 
@@ -586,7 +586,7 @@ function get_AllocDP_customer()
 
 function get_invoice_per_adjustment($debtor_no)
 {
-	$sql = "SELECT A.trans_no, A.type, A.debtor_no, A.reference, A.status, B.total_receivable, D.category_id, D.description category, F.stock_id, F.description itemdesc
+	$sql = "SELECT A.trans_no, A.type, A.debtor_no, A.reference, A.status, B.total_receivable, C.payment_location, D.category_id, D.description category, F.stock_id, F.description itemdesc
 			FROM ".TB_PREF."debtor_trans A
 				INNER JOIN ".TB_PREF."sales_return_replacement B ON B.trans_no = A.trans_no
 				INNER JOIN ".TB_PREF."sales_return_replacement_details E ON B.trans_no = E.sales_return_replacement_no
@@ -805,4 +805,27 @@ function get_item_to_supplier($trans_no, $trans_type)
 				AND A.debtor_trans_type = ".db_escape($trans_type);
 
 	return db_query($sql, "could not get item supplier");
+}
+
+function get_NoSchedDownPaymnt($trans_no, $debtor_no)
+{
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."debtor_loans A
+		WHERE A.trans_no = ".db_escape($trans_no)."
+			AND A.debtor_no = ".db_escape($debtor_no);
+		
+	return db_query($sql, "could not get down-payment amount schedule");
+}
+
+function get_deferdBal($trans_no, $glcode)
+{
+	$sql = "SELECT abs(SUM(TRUNCATE(X.amount, 2))) 
+			FROM gl_trans X 
+			WHERE X.loan_trans_no=".db_escape($trans_no)."
+				And X.account = ".db_escape($glcode);
+
+	$result = db_query($sql, "could not get defered balance");
+	$row =  db_fetch($result);
+
+	return $row[0];
 }
