@@ -507,6 +507,14 @@ start_row();
 branch_company_list_row(_('Branch: '), 'selected_pr_branch', true, false, false);//modified by albert
 
 ref_cells(_("PR#:"), 'pr_number', '', null, '', true);
+
+//Added by spyrax10 22 Aug 2022
+sql_type_list(_("Category: "), 'category', 
+	get_category_list(), 'category_id', 'description', 
+	'', null, true, _("All Category")
+);
+//
+
 end_row();
 end_table();
 
@@ -609,10 +617,14 @@ if (get_post("ClosePR")) {
 	meta_forward($_SERVER['PHP_SELF'], "PRNumber=$trans_no");
 }
 
+if (get_post('category')) {
+	$Ajax->activate('pr_tbl');
+}
+
 //---------------------------------------------------------------------------------------------
 //figure out the sql required from the inputs available
 set_global_connection(get_post('selected_pr_branch'));
-$sql = get_sql_for_pr_search($_POST['pr_number'], 1);// Modifed by Albert one means Ho database 06/16/2022
+$sql = get_sql_for_pr_search($_POST['pr_number'], 1, get_post('category'));// Modifed by Albert one means Ho database 06/16/2022
 
 //$result = db_query($sql,"No Request were returned");
 
