@@ -240,6 +240,8 @@ $cols = array(
 	_("RR #") => array('fun' => 'rr_trans_view', 'ord' => '', 'align' => 'right'),
 	_("Category"),
 	_("Supplier's Ref#"),
+	_("Supplier's PO#"),
+	_("Supplier's DR#"),
 	_("PO #") => array('fun' => 'po_trans_view', 'ord' => '', 'align' => 'right'),
 	_("Supplier"),
 	_("Served Status"),
