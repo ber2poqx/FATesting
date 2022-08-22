@@ -38,13 +38,19 @@ function display_grn_summary(&$po)
 	label_cells(_("Status"), $po->po_status, "class='tableheader2'");
 
 	end_row();
-
+	//Modfied by spyrax10 22 Aug 2022
 	start_row();
 	label_cells(_("Supplier's Ref #"), $po->suppl_ref_no, "class='tableheader2'");
-	label_cells(_("Supplier's Ref Date"), sql2date($po->suppl_ref_date), "class='tableheader2'");
-	label_cells(_("Invoiced Served By"), $po->suppl_served_by, "class='tableheader2'");
+	label_cells(_("Supplier's PO #:"), $po->sup_po, "class='tableheader2'");
+	label_cells(_("Supplier's DR #:"), $po->sup_dr, "class='tableheader2'");
 
 	end_row();
+
+	start_row();
+	label_cells(_("Supplier's Ref Date"), sql2date($po->suppl_ref_date), "class='tableheader2'");
+	label_cells(_("Invoiced Served By"), $po->suppl_served_by, "class='tableheader2'");
+	end_row();
+	//
 
 	label_row(_("Delivery Address"), $po->delivery_address, "class='tableheader2'", "colspan=9");
 
@@ -53,53 +59,54 @@ function display_grn_summary(&$po)
 	end_table(1);
 }
 
-function edit_grn_summary(&$po)
-{
+function edit_grn_summary(&$po) {
 	global $Refs;
 
 	start_outer_table(TABLESTYLE2, "width='80%'");
-
+	//Modified by spyrax10 22 Aug 2022
 	table_section(1);
-	label_row(_("Supplier"), $po->supplier_name);
+	label_row(_("Supplier: &nbsp;"), $po->supplier_name);
 
 	if (!is_company_currency($po->curr_code))
 		label_row(_("Order Currency"), $po->curr_code);
-	label_row(_("For Purchase Order"), get_post('po_number'));
+	label_row(_("For Purchase Order: &nbsp;"), get_post('po_number'));
 
-	label_row(_("Ordered On"), $po->orig_order_date);
-	ref_row(_("Supplier's Ref. #"), 'suppl_ref_no', '', null);
-	date_row(_("Supplier's Ref Date"), 'suppl_ref_date', '', true, 0, 0, 0, '', true);
-	ref_row(_("Invoiced served by"), 'suppl_served_by', '', null);
+	label_row(_("Ordered On: &nbsp;"), $po->orig_order_date);
+	ref_row(_("Supplier's Ref #: &nbsp;"), 'suppl_ref_no', '', null);
+	ref_row(_("Supplier's PO #: &nbsp;"), 'sup_po', '', null);
+	ref_row(_("Supplier's DR #: &nbsp;"), 'sup_dr', '', null);
+	date_row(_("Supplier's Ref Date: &nbsp;"), 'suppl_ref_date', '', true, 0, 0, 0, '', true);
+	ref_row(_("Invoiced served by: &nbsp;"), 'suppl_served_by', '', null);
 
 	table_section(2);
 	if (!isset($_POST['ref']))
 		$_POST['ref'] = $Refs->get_next(ST_SUPPRECEIVE, null, array('supplier' => $po->supplier_id, 'date' => Today()));
-	ref_row(_("RR Document #"), 'ref', '', null);
+	ref_row(_("RR Document #: &nbsp;"), 'ref', '', null);
 
 	if (!isset($_POST['Location']))
 		$_POST['Location'] = $po->Location;
 
 	if ($_POST['Location'] != "HO") {
-		label_row(_("Deliver Into Location"), get_location_name($_POST['Location']));
+		label_row(_("Deliver Into Location: &nbsp;"), get_location_name($_POST['Location']));
 		hidden('Location');
 	} else {
-		locations_list_row(_("Deliver Into Location"), "Location", $_POST['Location']);
+		locations_list_row(_("Deliver Into Location: &nbsp;"), "Location", $_POST['Location']);
 	}
 
 	if (!isset($_POST['DefaultReceivedDate']))
 		$_POST['DefaultReceivedDate'] = new_doc_date();
 
-	date_row(_("Date Items Received"), 'DefaultReceivedDate', '', true, 0, 0, 0, '', true);
-	label_row(_("Category"), get_category_name($po->category_id));
-	label_row(_("Is Consignment"), $po->is_consign);
+	date_row(_("Date Items Received: &nbsp;"), 'DefaultReceivedDate', '', true, 0, 0, 0, '', true);
+	label_row(_("Category: &nbsp;"), get_category_name($po->category_id));
+	label_row(_("Is Consignment: &nbsp;"), $po->is_consign);
 
 	table_section(3);
-	label_row(_("Trans Reference #"), get_trans_view_str($po->is_consign == "Consignment" ? ST_RECEIVECONSIGN : ST_PURCHREQUEST, $po->supp_ref));
+	label_row(_("Trans Reference #: &nbsp;"), get_trans_view_str($po->is_consign == "Consignment" ? ST_RECEIVECONSIGN : ST_PURCHREQUEST, $po->supp_ref));
 
-	label_row(_("Delivery Address"), $po->delivery_address);
+	label_row(_("Delivery Address: &nbsp;"), $po->delivery_address);
 
 	if ($po->Comments != "")
-		label_row(_("Order Comments"), $po->Comments, "class='tableheader2'", "colspan=9");
+		label_row(_("Order Comments: &nbsp;"), $po->Comments);
 
 	if (!is_company_currency($po->curr_code))
 		exchange_rate_display(get_company_currency(), $po->curr_code, get_post('DefaultReceivedDate'));

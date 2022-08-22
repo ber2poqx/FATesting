@@ -186,17 +186,20 @@ function add_grn(&$po, $is_consign = false)
 
 //----------------------------------------------------------------------------------------
 
-function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, $rate, $suppl_ref_no, $suppl_ref_date, $suppl_served_by, $Comments, $category_id)
+function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, $rate, $suppl_ref_no, $suppl_ref_date, $suppl_served_by, $Comments, $category_id,
+	$sup_po = '', $sup_dr = '')
 {
     set_global_connection();
 	//$po_number = 0;
     $date = date2sql($date_);
 
+	//Modified by spyrax10 22 Aug 2022 (Added $sup_po and $sup_dr)
 	$suppl_ref_date = date2sql($suppl_ref_date);
 	$sql = "INSERT INTO ".TB_PREF."grn_batch (
 		purch_order_no, delivery_date, 
 		supplier_id, reference, 
-		loc_code, rate, suppl_ref_no, suppl_ref_date, suppl_served_by, grn_remarks, category_id)
+		loc_code, rate, suppl_ref_no, suppl_ref_date, suppl_served_by, grn_remarks, category_id, 
+		sup_po, sup_dr)
 
 		VALUES (".db_escape($po_number).", 
 				".db_escape($date).", 
@@ -208,7 +211,9 @@ function add_grn_batch($po_number, $supplier_id, $reference, $location, $date_, 
 				".db_escape($date).", 
 				".db_escape($suppl_served_by).", 
 				".db_escape($Comments).", 
-				".db_escape($category_id).")";
+				".db_escape($category_id).", 
+				".db_escape($sup_po).", 
+				".db_escape($sup_dr).")";
 
 	db_query($sql, "A grn batch record could not be inserted.");
 
@@ -449,6 +454,10 @@ function read_grn($grn_batch, &$order)
 	$order->suppl_ref_date = $row["suppl_ref_date"];
 	$order->suppl_served_by = $row["suppl_served_by"];
 	$order->grnComments = $row["grn_remarks"];
+	//Added by spyrax10 22 Aug 2022
+	$order->sup_po = $row["sup_po"];
+	$order->sup_dr = $row["sup_dr"];
+	//
 
 	$result = read_po_header($po_number, $order);
 

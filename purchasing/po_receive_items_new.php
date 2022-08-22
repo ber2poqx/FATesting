@@ -366,42 +366,48 @@ function process_receive_po()
     $grn->Comments = $_POST['GRNComments'];
     $category_id = $grn->category_id;
 
+    //Added by spyrax10 22 Aug 2022
+    $grn->sup_po = $_POST['sup_po'];
+    $grn->sup_dr = $_POST['sup_dr'];
+    //
+
     new_doc_date($_POST['DefaultReceivedDate']);
     $_SESSION['SetSerial'] = 1;
 
     meta_forward($_SERVER['PHP_SELF'], "SetSerial=true");
 }
 
-function serial_summary_header($po)
-{
+function serial_summary_header($po) {
     global $Refs;
 
     start_outer_table(TABLESTYLE2, "width='80%'");
-
+    //Modified by spyrax10 22 Aug 2022
     table_section(1);
-    label_row(_("Supplier"), $po->supplier_name);
-    label_row(_("For Purchase Order"), $po->po_no);
-    label_row(_("Ordered On"), $po->orig_order_date);
-    label_row(_("Supplier's Ref. #"), $po->suppl_ref_no);
-    label_row(_("Supplier's Ref Date"), $po->suppl_ref_date);
-    label_row(_("Invoiced served by"), $po->suppl_served_by);
+    label_row(_("Supplier: &nbsp;"), $po->supplier_name);
+    label_row(_("For Purchase Order: &nbsp;"), $po->po_no);
+    label_row(_("Ordered On: &nbsp;"), $po->orig_order_date);
+    label_row(_("Supplier's Ref. #: &nbsp;"), $po->suppl_ref_no);
+    label_row(_("Supplier's PO #: &nbsp;"), $po->sup_po);
+    label_row(_("Supplier's DR #: &nbsp;"), $po->sup_dr);
+    label_row(_("Supplier's Ref Date: &nbsp;"), $po->suppl_ref_date);
+    label_row(_("Invoiced served by: &nbsp;"), $po->suppl_served_by);
 
     table_section(2);
     if (!isset($_POST['ref']))
         $_POST['ref'] = $Refs->get_next(ST_SUPPRECEIVE, null, array('supplier' => $po->supplier_id, 'date' => Today()));
-    ref_row(_("RR Document #"), 'ref', '', null);
+    ref_row(_("RR Document #: &nbsp;"), 'ref', '', null);
 
-    label_row(_("Deliver Into Location"), get_location_name($po->Location));
-    label_row(_("Date Items Received"), $po->orig_order_date);
-    label_row(_("Category"), get_category_name($po->category_id));
-    label_row(_("Is Consignment"), $po->is_consign);
+    label_row(_("Deliver Into Location: &nbsp;"), get_location_name($po->Location));
+    label_row(_("Date Items Received: &nbsp;"), $po->orig_order_date);
+    label_row(_("Category: &nbsp;"), get_category_name($po->category_id));
+    label_row(_("Is Consignment: &nbsp;"), $po->is_consign);
     table_section(3);
-    label_row(_("Trans Reference #"), get_trans_view_str($po->is_consign == "Consignment" ? ST_RECEIVECONSIGN : ST_PURCHREQUEST, $po->supp_ref));
+    label_row(_("Trans Reference #: &nbsp;"), get_trans_view_str($po->is_consign == "Consignment" ? ST_RECEIVECONSIGN : ST_PURCHREQUEST, $po->supp_ref));
 
-    label_row(_("Delivery Address"), $po->delivery_address);
+    label_row(_("Delivery Address: &nbsp;"), $po->delivery_address);
 
     if ($po->Comments != "")
-        label_row(_("Remarks"), $po->Comments, "class='tableheader2'", "colspan=9");
+        label_row(_("Remarks: &nbsp;"), $po->Comments, "class='tableheader2'", "colspan=9");
 
     end_outer_table(1);
 }

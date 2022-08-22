@@ -30,7 +30,11 @@ function add_grn_new(&$po, $is_consign = false)
 		$po->suppl_ref_date,
 		$po->suppl_served_by,
 		$po->Comments,
-		$po->category_id
+		$po->category_id,
+		//Added by spyrax10 22 Aug 2022
+		$po->sup_po,
+		$po->sup_dr
+		//
 	);
 
 	$clearing_act = get_company_pref('grn_clearing_act');

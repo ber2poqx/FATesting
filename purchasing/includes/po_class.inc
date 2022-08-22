@@ -61,6 +61,11 @@ class purch_order
 	var $po_no;	// Added by Ronelle - 01/11/2021
 	var $is_consign;	// Added by Ronelle - 01/11/2021
 
+	//Added by spyrax10 22 Aug 2022
+	var $sup_po;
+	var $sup_dr;
+	//
+
 	function __construct()
 	{
 		/*Constructor function initialises a new purchase order object */
