@@ -174,7 +174,7 @@ if (get_post('category')) {
 //---------------------------------------------------------------------------------------------
 
 //figure out the sql required from the inputs available
-$sql = get_sql_for_pr_search($_POST['pr_number'], get_post('category'));
+$sql = get_sql_for_pr_search($_POST['pr_number'], '', get_post('category'));
 
 //$result = db_query($sql,"No Request were returned");
 

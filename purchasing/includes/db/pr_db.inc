@@ -115,7 +115,7 @@ function cancel_pr($pr_obj)
 	commit_transaction();
 }
 //modified by Albert  06/16/2022
-function get_sql_for_pr_search($request_number = '', $category_id = '', $ho_data = '')
+function get_sql_for_pr_search($request_number = '', $ho_data = '', $category_id = '')
 {
 	$sql = "SELECT
 				a.pr_no,
