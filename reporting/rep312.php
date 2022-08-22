@@ -125,11 +125,10 @@ function print_transaction() {
 	while ($trans = db_fetch($res)) {
 
 		$loc_code = $trans['loc_code'];
-		$reference = $trans['reference'];
+		$reference = str_replace($loc_code . "-", "", $trans['reference']);
 		
 		if ($trans['type'] == ST_INVADJUST && is_invty_open_bal('', $trans['reference'])) {
-			$ob_ref = str_replace($loc_code . "-", "", $reference);
-			$trim_ref = $ob_ref . " (OB)";
+			$trim_ref = $reference . " (OB)";
 		}
 		else {
 			$trim_ref = $reference;
