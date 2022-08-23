@@ -343,16 +343,21 @@ if (get_post('_OrderNumber_changed') || get_post('_OrderReference_changed')) { /
 	$Ajax->activate('orders_tbl');
 }
 
+//Added by spyrax10 23 Aug 2022
+if (get_post('category')) {
+	$Ajax->activate('orders_tbl');
+}
+//
 start_form();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
-ref_cells(_("#:"), 'OrderNumber', '',null, '', true);
-ref_cells(_("Ref"), 'OrderReference', '',null, '', true);
+ref_cells(_("#: &nbsp;"), 'OrderNumber', '',null, '', true);
+ref_cells(_("Ref: &nbsp;"), 'OrderReference', '',null, '', true);
 
 if ($show_dates) {
-  	date_cells(_("from:"), 'OrdersAfterDate', '', null, -user_transaction_days());
-  	date_cells(_("to:"), 'OrdersToDate', '', null, 1);
+  	date_cells(_("From:"), 'OrdersAfterDate', '', null, -user_transaction_days());
+  	date_cells(_("To:"), 'OrdersToDate', '', null, 1);
 }
 // locations_list_cells(_("Location:"), 'StockLocation', null, true, true);
 
@@ -364,6 +369,13 @@ if($show_dates) {
 	start_row();
 }
 stock_items_list_cells(_("Item:"), 'SelectStockFromList', null, true, true);
+
+//Added by spyrax10 23 Aug 2022
+sql_type_list(_("Category: "), 'category', 
+	get_category_list(), 'category_id', 'description', 
+	'', null, true, _("All Category")
+);
+//
 
 if (!$page_nested) {
 	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
@@ -402,7 +414,8 @@ $sql = get_sql_for_sales_orders_view(
 	get_post('OrdersToDate'), 
 	get_post('OrderReference'), 
 	get_post('StockLocation'),
-	get_post('customer_id')
+	get_post('customer_id'),
+	get_post('category')
 );
 
 if ($trans_type == ST_SALESORDER) {
