@@ -562,6 +562,18 @@ function can_process()
 		display_error(_("With PDC is selected! Please Input Customer's PDC Number.."));
 		return false;
 	} 
+
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && get_post('dr_ref') == '') {
+		display_error(_("Delivery Reference cannot be empty!"));
+		set_focus('dr_ref');
+		return false;
+	}
+
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && get_post('category') == 14 && 
+		str_contains_val(get_post('dr_ref'), getCompDet('branch_code'))) {
+		display_error(_("Invalid Delivery Reference Format! Please refer to your Delivery Invoice..."));
+		return false;
+	}
 	//
 
 	return true;

@@ -476,7 +476,14 @@ function display_order_header(&$order, $editable, $date_text)
 		ref_row(_("Order No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
 	} else {
 		ref_row(_("Reference #") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
-		ref_row(_("DR No.") . ':', 'dr_ref', _('Reference number unique for this document type'), null, '', ST_CUSTDELIVERY, array('date' => @$_POST['OrderDate']));
+		//Modified by spyrax10 23 Aug 2022
+		if ($order->category_id == 14) {
+			text_row_ex(_("DR No.:"), 'dr_ref', 16);
+		}
+		else {
+			ref_row(_("DR No.") . ':', 'dr_ref', _('Reference number unique for this document type'), null, '', ST_CUSTDELIVERY, array('date' => @$_POST['OrderDate']));
+		}
+		//
 	}
 	if ($order->trans_type == ST_SALESINVOICE) {
 		text_row_ex(_("Sales Invoice #") . ':', 'document_ref', 16);
