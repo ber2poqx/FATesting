@@ -74,7 +74,7 @@ else {
 
 $js = "";
 if ($SysPrefs->use_popup_windows) {
-	$js .= get_js_open_window(900, 600);
+	$js .= get_js_open_window(1100, 600);
 }
 if (user_use_date_picker()) {
 	$js .= get_js_date_picker();

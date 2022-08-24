@@ -239,7 +239,7 @@ display_heading2(_("Line Details"));
 start_table(TABLESTYLE, "width='95%'");
 $th = array(
 	_("Item Code"), _("Item Description"), _("Serial/Eng Num"), _("Chassis Num"), _("Color"), _("Quantity"), _("Unit"),
-	_("Unit Price"), _("Discount"), _("Other Discount"), _("Line Total LCP"), _("Line Total Gross Amount"), _("Quantity Delivered")
+	_("Unit Price"), _("LCP Price"), _("Discount"), _("Other Discount"), _("Line Total LCP"), _("Line Total Gross Amount"), _("Quantity Delivered")
 );
 table_header($th);
 
@@ -265,6 +265,7 @@ foreach ($_SESSION['View']->line_items as $stock_item) {
 	qty_cell($stock_item->quantity, false, $dec);
 	label_cell($stock_item->units);
 	amount_cell($stock_item->price);
+	amount_cell(Get_Policy_Installment_Price(getCompDet('branch_code'), $cart->category_id, $stock_item->stock_id));
 	amount_cell($stock_item->discount1);
 	amount_cell($stock_item->discount2);
 	amount_cell($stock_item->price * $stock_item->quantity);
