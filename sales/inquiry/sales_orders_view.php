@@ -347,6 +347,10 @@ if (get_post('_OrderNumber_changed') || get_post('_OrderReference_changed')) { /
 if (get_post('category')) {
 	$Ajax->activate('orders_tbl');
 }
+
+if (get_post('so_stat')) {
+	$Ajax->activate('orders_tbl');
+}
 //
 start_form();
 
@@ -354,6 +358,16 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 ref_cells(_("#: &nbsp;"), 'OrderNumber', '',null, '', true);
 ref_cells(_("Ref: &nbsp;"), 'OrderReference', '',null, '', true);
+
+value_type_list(_("Sales Order Status: "), 'so_stat', 
+	array(
+		'Draft', 
+		'Approved', 
+		'Disapproved', 
+		'Cancelled',
+		'Closed' 
+	), '', null, true, _('All Status Types')
+);
 
 if ($show_dates) {
   	date_cells(_("From:"), 'OrdersAfterDate', '', null, -user_transaction_days());
@@ -415,7 +429,8 @@ $sql = get_sql_for_sales_orders_view(
 	get_post('OrderReference'), 
 	get_post('StockLocation'),
 	get_post('customer_id'),
-	get_post('category')
+	get_post('category'),
+	get_post('so_stat')
 );
 
 if ($trans_type == ST_SALESORDER) {

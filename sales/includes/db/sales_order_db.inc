@@ -688,7 +688,9 @@ function get_sql_for_sales_orders_view(
 	$ref = '',
 	$location = ALL_TEXT,
 	$customer_id = ALL_TEXT,
-	$category_id = '' //Added by spyrax10 23 Aug 2022
+	//Added by spyrax10 23 Aug 2022
+	$category_id = '',
+	$status = '' 
 ) {
 
 	$sql = "SELECT 
@@ -787,6 +789,10 @@ function get_sql_for_sales_orders_view(
 	//Added by spyrax10 23 Aug 2022
 	if ($category_id != '') {
 		$sql .= " AND sorder.category_id = " .db_escape($category_id);
+	}
+
+	if ($status != '') {
+		$sql .= " AND sorder.status = " .db_escape($status);
 	}
 	//
 
