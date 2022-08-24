@@ -289,6 +289,24 @@ Ext.onReady(function(){
 			{"id":"x","name":"All"}
         ]
 	});
+	var deferdtore = Ext.create('Ext.data.Store', {
+		model: 'EntryLedgrmodel',
+		proxy: {
+			url: '?get_deferedLed=zHun',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		groupField: 'trans_no',
+		sorters : [{
+			property : 'acct_code',
+			direction : 'ASC'
+		}]
+	});
 	//---------------------------------------------------------------------------------------
 	var AmortSchedcolModel = [
 		//new Ext.grid.RowNumberer(),
@@ -340,7 +358,7 @@ Ext.onReady(function(){
 		},
 		{header:'<b>Account Code</b>', dataIndex:'acct_code', sortable:true, width:150},
 		{header:'<b>Description</b>', dataIndex:'descrption', sortable:true, width:275},
-		{header:'<b>Debit</b>', dataIndex:'debit_amount', sortable:true, width:150,
+		{header:'<b>Debit</b>', dataIndex:'debit_amount', sortable:true, width:140,
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:green;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			},
@@ -349,7 +367,7 @@ Ext.onReady(function(){
 				return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			}
 		},
-		{header:'<b>Credit</b>', dataIndex:'credit_amount', sortable:true, width:150,
+		{header:'<b>Credit</b>', dataIndex:'credit_amount', sortable:true, width:140,
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:green;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			},
@@ -1140,6 +1158,31 @@ Ext.onReady(function(){
 								}
 							},{
 								xtype:'gridpanel',
+								id: 'DeferredGrid',
+								title: 'Deferred Ledger',
+								anchor:'100%',
+								autoScroll: true,
+								loadMask: true,
+								store: deferdtore,
+								columns: EntryLedgerHeader,
+								height: 275,
+								columnLines: true,
+								features: [{
+									ftype: 'summary'
+								}],
+								bbar : {
+									xtype : 'pagingtoolbar',
+									id: 'Deferred',
+									hidden: false,
+									store : deferdtore,
+									displayInfo : false,
+									emptyMsg: "No records to display",
+									doRefresh : function(){
+										deferdtore.load();
+									}
+								}
+							},{
+								xtype:'gridpanel',
 								id: 'ItemGrid',
 								anchor:'100%',
 								autoScroll: true,
@@ -1441,6 +1484,9 @@ Ext.onReady(function(){
 
 					SIitemStore.proxy.extraParams = {transNo: records.get('trans_no'), transtype: records.get('type'), invoice_ref: records.get('invoice_ref_no'), };
 					SIitemStore.load();
+
+					deferdtore.proxy.extraParams = {trans_no: records.get('trans_no'), type: records.get('type')};
+					deferdtore.load();
 
 					if(records.get('module_type') == "REPO" || records.get('module_type') == "TEMP-REPO"){
 						Ext.getCmp('frepo').setVisible(true);

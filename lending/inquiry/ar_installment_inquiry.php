@@ -175,6 +175,37 @@ if(isset($_GET['get_AREntry'])){
     return; 
 }
 
+if(isset($_GET['get_deferedLed'])){
+    $company_record = get_company_prefs();
+    $balance = 0;
+
+    $result = get_gl_deferred($_GET['type'], $_GET['trans_no'], $company_record["deferred_income_act"]);
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+        if ($balance == 0 ){
+            $balance = abs($myrow['amount']);
+        }else {
+            $balance -= abs($myrow['amount']);
+        }
+        $status_array[] = array('transno'=>$_GET['trans_no'],
+                               'docno'=>$myrow["type_no"],
+                               'type'=>$myrow["type"],
+                               'tran_date'=>date('m/d/Y',strtotime($myrow["tran_date"])),
+                               'debtor_no'=>$myrow["debtor_no"],
+                               'name'=>$myrow["name"],
+                               'account'=>$myrow["account_code"],
+                               'account_name'=>$myrow["account_name"],
+                               'debit'=>abs($myrow["debit"]),
+                               'credit'=>abs($myrow["credit"]),
+                               'balance'=>$balance,
+                               'reference'=>$myrow["ref_no"]
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return; 
+}
+
 if(isset($_GET['get_AmortLedger'])){
     $result = get_loan_amortization_ledger($_GET['type'], $_GET['trans_no']);
     $total = DB_num_rows($result);

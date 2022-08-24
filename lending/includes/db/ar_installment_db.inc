@@ -198,6 +198,33 @@ function get_ar_ledger_entries($type, $trans_no)
 	return db_query($sql, "could not get a/r ledger entries because ");
 }
 
+function get_gl_deferred($type, $trans_no, $account)
+{
+	$sql = "SELECT A.type_no, A.type, A.tran_date, A.amount, B.account_code, B.account_name,
+				CASE WHEN A.amount >= 0 THEN A.amount
+					ELSE 0
+				END AS debit ,
+				CASE WHEN A.amount < 0 THEN A.amount
+					ELSE 0
+				END AS credit,
+				CASE WHEN A.type = 70 THEN (SELECT Z.reference_no FROM ".TB_PREF."repo_accounts Z WHERE Z.id = A.type_no)
+					ELSE (SELECT Z.reference FROM ".TB_PREF."debtor_trans Z WHERE Z.trans_no = A.type_no AND Z.type = A.type)
+				END AS ref_no,
+				Y.debtor_no,
+				Y.name
+			FROM ".TB_PREF."gl_trans A
+				INNER JOIN ".TB_PREF."chart_master B ON B.account_code = A.account
+				INNER JOIN (SELECT Z.name, Z.debtor_no, X.trans_no
+                			FROM ".TB_PREF."debtor_trans X 
+								INNER JOIN ".TB_PREF."debtors_master Z ON Z.debtor_no = X.debtor_no AND X.type = ".db_escape($type)."
+							) Y ON Y.trans_no = A.loan_trans_no
+			WHERE A.account = ".db_escape($account)."
+				AND A.loan_trans_no = ".db_escape($trans_no)."
+			ORDER BY A.tran_date ASC, A.counter ASC";
+			
+	return db_query($sql, "could not get a/r ledger entries because ");
+}
+
 function get_ar_item_detials($trans_no, $trans_type)
 {
 	if($trans_type == ST_SITERMMOD){
