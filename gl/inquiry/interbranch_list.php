@@ -205,7 +205,9 @@ start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-company_list_row(_('Originating Branch: '), 'comp_id', true, true, false);
+$sql = company_list_row(_("Originating Branch:"), 'comp_sql', true, true, true, false, false, false, true, true);
+combo_type_list(null, 'comp_id', null, $sql, true, 'company', '', false, 'coy', '');
+
 ref_cells(_("Reference:"), 'Ref', '',null, _('Enter reference fragment or leave empty'));
 value_type_list('Status: ', 'status', array('Reviewed', 'Disaaproved', 'Draft', 'Closed'), '', null, true, 
     _('All Status Types')

@@ -1150,6 +1150,12 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 			if (check_db_exists($i)) {
 				if ($i != $coy) {
 					if ($combo) {
+
+						if ($all_text) {
+							$sql .= "SELECT '' AS coy, 'All Branches' AS branch_name, '' AS branch_code ";
+							$sql .= " UNION ";
+						}
+
 						if ($include_cur_comp) {
 							$coy_code = $db_connections[$coy]['branch_code'];
 							$coy_name = $short_name ? substr($db_connections[$coy]['name'], 0, strlen($coy_code)) : 
@@ -1192,7 +1198,7 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 				$all_text ? $all_arr : $sel_arr,
 				array( 
 					'select_submit'=> $submit_on_change, 
-				'async' => false
+					'async' => false
 				) 	
 			);
 		}
@@ -1201,7 +1207,7 @@ function company_list_row($label = null, $name, $submit_on_change = false, $all_
 				$all_text ? $all_arr : $sel_arr,
 				array( 
 					'select_submit'=> $submit_on_change, 
-				'async' => false
+					'async' => false
 				) 	
 			);
 		}
