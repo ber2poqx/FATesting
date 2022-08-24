@@ -138,6 +138,11 @@ function display_db_pager(&$pager) {
 			case 'inactive':
 				if(get_post('show_inactive'))
 					$pager->inactive_control_cell($row); break;
+			//Added by spyrax10 24 Aug 2022
+			case 'nowrap':
+				label_cell($cell, isset( $col['align']) ? "align='" . $col['align'] . "' nowrap" : null); 
+			break;
+			//
 		    default:
 			  if (isset( $col['align']))
 			  	  label_cell($cell, "align='" . $col['align'] . "'");

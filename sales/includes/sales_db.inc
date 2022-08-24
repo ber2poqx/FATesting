@@ -673,7 +673,8 @@ function get_sales_child_documents($trans_type, $trans_no)
 }
 
 /* Added by Ronelle 3/14/2021 Retrieving Sales Invoices */
-function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0)
+function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0, 
+	$status = '')
 {
 	//Modified by spyrax10 21-Oct-2021
 	$sql = "SELECT
@@ -736,6 +737,11 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 	if ($debtor_no != '') {
 		$sql .= " AND a.debtor_no = " . db_escape($debtor_no);
 	}
+
+	if ($status != '') {
+		$sql .= " AND a.status = " .db_escape($status);
+	}
+
 	//Added by Albert
 	if ($category_id != -1) {
 		$sql .= " AND c.category_id = " . db_escape($category_id);

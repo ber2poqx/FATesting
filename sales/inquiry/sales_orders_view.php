@@ -392,7 +392,7 @@ sql_type_list(_("Category: "), 'category',
 //
 
 if (!$page_nested) {
-	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
+	customer_list_cells(_("Select Customer: "), 'customer_id', null, true, true);
 }
 if ($trans_type == ST_SALESQUOTE) {
 	check_cells(_("Show All:"), 'show_all');

@@ -37,24 +37,35 @@ start_row();
 // ahref_cell(_("New Sales Invoice Cash"), "sales_invoice_cash.php?NewInvoice=0");
 ref_cells(_("#:"), 'search_val', '', null, '', true);
 
-if (!$page_nested)
-	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
-	stock_categories_list_cells(_("Category:"), "category_id", null, _("All Categories"),true);//Added by Albert
-	payment_terms_type(_("Payment Type:"), "payment_terms", null, _("All Payment Type"),true);
+if (!$page_nested) {
+	customer_list_cells(_("Select Customer: "), 'customer_id', null, true, true);
+	stock_categories_list_cells(_("Category:"), "category_id", null, _("All Categories"), true);//Added by Albert
+	payment_terms_type(_("Payment Type:"), "payment_terms", null, _("All Payment Type"), true);
+
+	value_type_list(_("Sales Invoice Status:"), 'si_stat', 
+    	array(
+        	'Open' => 'Open',
+			'Pending' => 'Pending',
+        	'part-paid' => 'Part-Paid',
+        	'fully-paid' => 'Fully-Paid'
+    	), '', null, true, _('All Status Types')
+	);
+}
+
 submit_cells('SearchRequest', _("Search"), '', _('Select documents'), 'default');
 end_row();
 end_table();
 
 //---------------------------------------------------------------------------------------------
 global $Ajax;
- if(get_post('category_id') !=''){
 
+if (get_post('category_id') !='') {
 	div_start('items_table');
- }
- if(get_post('payment_terms') !=''){
+}
 
+if (get_post('payment_terms') !='') { 
 	div_start('items_table');
- }
+}
 
 function trans_view($trans)
 {
@@ -286,13 +297,25 @@ function edit_link($row)
 	    return null;
 	}
 }
+
+function invoice_status($row) {
+	return ucwords($row['status'], '-');
+}
+
 //figure out the sql required from the inputs available
-$sql = get_sales_invoices($_POST['search_val'], $_POST['customer_id'],$_POST['category_id'],$_POST['payment_terms']); //Added by spyrax10
+$sql = get_sales_invoices(
+	$_POST['search_val'], 
+	$_POST['customer_id'], 
+	$_POST['category_id'], 
+	$_POST['payment_terms'],
+	0,
+	$_POST['si_stat']
+);
 
 /*show a table of the Request returned by the sql */
 $cols = array(
 	_("Trans #") => array('fun' => 'trans_view', 'ord' => '', 'align' => 'right'),
-	_("Status"),
+	_("Status") => array('fun' => 'invoice_status', 'type' => 'nowrap', 'align' => 'left'),
 	_("Sales Invoice #"),
 	_("Customer"),
 	_("Payment Type"),
@@ -321,7 +344,7 @@ $cols = array(
 
 $table = &new_db_pager('invoice_tbl', $sql, $cols, null, null, 25);
 $table->set_marker('check_pending');
-$table->width = "90%";
+$table->width = "95%";
 
 display_db_pager($table);
 
