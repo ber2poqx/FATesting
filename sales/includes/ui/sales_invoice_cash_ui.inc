@@ -340,7 +340,7 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 function display_order_header(&$order, $editable, $date_text)
 {
-	global $Ajax, $SysPrefs;
+	global $Ajax, $SysPrefs, $Refs;
 
 	div_start('order_head');
 	start_outer_table(TABLESTYLE2, "width='80%'");
@@ -472,24 +472,29 @@ function display_order_header(&$order, $editable, $date_text)
 	}
 	if ($order->trans_type == ST_SALESQUOTE) {
 		ref_row(_("Quotation No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
-	} elseif ($order->trans_type == ST_SALESORDER) {
+	} 
+	elseif ($order->trans_type == ST_SALESORDER) {
 		ref_row(_("Order No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
-	} else {
-		ref_row(_("Reference #") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
+	} 
+	else {
 		//Modified by spyrax10 23 Aug 2022
+		$reference = $Refs->get_next($order->trans_type, null, array('date' => @$_POST['OrderDate']));
+		label_row(_("Reference #: "), $reference);
+		hidden('ref', $reference);
 		if ($order->category_id == 14) {
 			text_row_ex(_("DR No.:"), 'dr_ref', 16);
 		}
 		else {
-			ref_row(_("DR No.") . ':', 'dr_ref', _('Reference number unique for this document type'), null, '', ST_CUSTDELIVERY, array('date' => @$_POST['OrderDate']));
+			$dr_reference = $Refs->get_next(ST_CUSTDELIVERY, null, array('date' => @$_POST['OrderDate']));
+			label_row(_("DR No.:"), $dr_reference);
+			hidden('dr_ref', $dr_reference);
 		}
 		//
 	}
+
 	if ($order->trans_type == ST_SALESINVOICE) {
-		text_row_ex(_("Sales Invoice #") . ':', 'document_ref', 16);
+		text_row_ex(_("Sales Invoice #: &nbsp;"), 'document_ref', 16);
 	}
-
-
 
 	if ($editable) {
 		if (!isset($_POST['OrderDate']) || $_POST['OrderDate'] == "")
