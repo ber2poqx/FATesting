@@ -57,7 +57,7 @@ function disbursement_transactions($from, $cashier = '') {
 	$from = date2sql($from);
 
 	$sql = "SELECT A.ref, A.type, A.trans_date, abs(A.amount) AS amt, A.person_id, A.cashier_user_id, B.name, 
-			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile, A.receipt_no, A.trans_no
+			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile, A.receipt_no, A.trans_no, A.bank_act
 			
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
@@ -99,7 +99,7 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 
 	$date = date2sql($from);
 
-	$sql = "SELECT SUM(A.amount), A.cashier_user_id
+	$sql = "SELECT SUM(IF(A.bank_act = 1 || A.bank_act = 2, A.amount, 0)), A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
@@ -108,10 +108,10 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 		WHERE A.type <> 0 AND A.opening_balance = 0 AND ISNULL(C.void_id)";
 
 	if ($cash) {
-		$sql .= " AND A.pay_type = 'Cash' ";
+		$sql .= " AND A.bank_act = 1 ";
 	}
 	else {
-		$sql .= " AND A.pay_type = 'Cheque' OR A.pay_type = 'Check' ";
+		$sql .= " AND A.bank_act = 2 ";
 	}
 
 	if ($cashier != '') {
@@ -120,7 +120,7 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 
 	$sql .= " AND A.trans_date <= '$date' ";
 
-	$result = db_query($sql, "Cant calculate breakdown balance!");
+	$result = db_query($sql, "get_breakdown_balance()");
 	$row = db_fetch_row($result);
 	return $row[0];
 
@@ -241,6 +241,14 @@ function print_dailycash_sales()
 		$void_entry = get_voided_entry($trans['type'], $trans['trans_no']); 
 
 		if ($void_entry['void_status'] != 'Voided') {
+
+			if ($trans['bank_act'] == 1 || $trans['bank_act'] == 2) {
+				$entry_amt = $trans['amt'];
+			}
+			else {
+				$entry_amt = 0;
+			}
+
 			$rep->NewLine(1.2);
 			$rep->TextCol(0, 1, sql2date($trans['trans_date']));
 			$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
@@ -249,10 +257,10 @@ function print_dailycash_sales()
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(4, 5, $trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
-			$rep->AmountCol(5, 6, ABS($trans['amt']), $dec);
+			$rep->AmountCol(5, 6, ABS($entry_amt), $dec);
 
-			$sub_total += ABS($trans['amt']);
-			$total += ABS($trans['amt']);
+			$sub_total += ABS($entry_amt);
+			$total += ABS($entry_amt);
 			$sum_receipt = $total;
 		}
 		
@@ -364,6 +372,13 @@ function print_dailycash_sales()
 		$void_entry = get_voided_entry($dis_trans['type'], $dis_trans['trans_no']); 
 
 		if ($void_entry['void_status'] != 'Voided') {
+			if ($dis_trans['bank_act'] == 1 || $dis_trans['bank_act'] == 2) {
+				$entry_amt = $dis_trans['amt'];
+			}
+			else {
+				$entry_amt = 0;
+			}
+
 			$rep->NewLine(1.2);
 			$rep->TextCol(0, 1, sql2date($dis_trans['trans_date']));
 			$rep->TextCol(1, 2, get_person_name($dis_trans['person_type_id'], $dis_trans['person_id']));
@@ -373,10 +388,10 @@ function print_dailycash_sales()
 			$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
 			$rep->SetTextColor(255, 0, 0);
-			$rep->AmountCol(5, 6, $dis_trans['amt'], $dec);
+			$rep->AmountCol(5, 6, $entry_amt, $dec);
 			$rep->SetTextColor(0, 0, 0);
 	
-			$sum_dis += $dis_trans['amt'];
+			$sum_dis += $entry_amt;
 		}
 	}
 

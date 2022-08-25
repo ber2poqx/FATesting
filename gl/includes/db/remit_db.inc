@@ -15,7 +15,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 	}
 
 	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
-            A.amount AS amt, A.person_id, A.cashier_user_id, B.name, 
+            A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act,  
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
 				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt:'
