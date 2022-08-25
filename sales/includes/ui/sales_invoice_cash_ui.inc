@@ -473,11 +473,13 @@ function display_order_header(&$order, $editable, $date_text)
 	if ($order->trans_type == ST_SALESQUOTE) {
 		ref_row(_("Quotation No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
 	} 
+	//Modified by spyrax10 23 Aug 2022
 	elseif ($order->trans_type == ST_SALESORDER) {
-		ref_row(_("Order No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
+		$reference = $Refs->get_next($order->trans_type, null, array('date' => @$_POST['OrderDate']));
+		label_row(_("Order No.: "), $reference);
+		hidden('ref', $reference);
 	} 
 	else {
-		//Modified by spyrax10 23 Aug 2022
 		$reference = $Refs->get_next($order->trans_type, null, array('date' => @$_POST['OrderDate']));
 		label_row(_("Reference #: "), $reference);
 		hidden('ref', $reference);
