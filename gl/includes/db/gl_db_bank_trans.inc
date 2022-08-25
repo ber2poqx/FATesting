@@ -624,7 +624,7 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date = n
 }
 
 function get_banking_transactions($type = null, $reference = '', $doc_ref = '', $from_date = null, $to_date = null, $cashier_id = '', 
-$interbranch = '', $open_bal = '', $trans_no = 0) {
+$interbranch = '', $open_bal = '', $trans_no = 0, $person_id = '', $person_type ='') {
 	
 	set_global_connection();
 
@@ -668,6 +668,22 @@ $interbranch = '', $open_bal = '', $trans_no = 0) {
 			AND BT.trans_date <= '" . date2sql($to_date) . "'";
 	}
 
+	if ($person_id != '') {
+		if ($person_type == "Customer") {
+			$person_id = get_person_id(PT_CUSTOMER, $person_id);
+			$person_type = PT_CUSTOMER;
+		}
+		else if ($person_type == "Supplier") {
+			$person_type = PT_SUPPLIER;
+		}
+		else if ($person_type == "Branch Current") {
+			$person_type = PT_BRANCH;
+		}
+		
+		$sql .= " AND BT.masterfile = " .db_escape($person_id);
+		$sql .= " AND BT.person_type_id = " .db_escape($person_type);
+	}
+
 	if ($interbranch != '') {
 		$sql .= " GROUP BY GL.type, GL.type_no";
 	}
@@ -676,7 +692,6 @@ $interbranch = '', $open_bal = '', $trans_no = 0) {
 	}
 
 	$sql .= " ORDER BY BT.trans_date DESC, BT.trans_no DESC";
-
 	return $sql;
 }
 

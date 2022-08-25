@@ -33,6 +33,7 @@ if (db_num_rows($result) != 1) {
 }
 
 $from_trans = db_fetch($result);
+$person_type = get_person_type($from_trans['person_type_id'], false);
 
 $company_currency = get_company_currency();
 
@@ -83,6 +84,16 @@ label_cells(_("Reference"), $from_trans['ref'], "class='tableheader2'", "colspan
 label_cells(_("Cashier / Teller: "), get_user_name($from_trans['cashier_user_id'], true), "class='tableheader2'");
 //
 end_row();
+
+start_row();
+label_cells(_("Disbursement no: &nbsp;"), $from_trans['receipt_no'], "class='tableheader2'");
+label_cells(_("Pay To: &nbsp;"), 
+	$person_type . get_person_name($from_trans['person_type_id'], $from_trans['person_id']), 
+	"class='tableheader2'", "colspan=$colspan2"
+);
+
+end_row();
+
 comments_display_row(ST_BANKPAYMENT, $trans_no);
 
 end_table(1);

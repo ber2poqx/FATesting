@@ -55,6 +55,11 @@ function pay_type($row) {
     return strtoupper($row['pay_type']);
 }
 
+function pay_to($row) {
+    $person_type = get_person_type($row['person_type_id'], false);
+    return $person_type . get_person_name($row['person_type_id'], $row['person_id']);
+}
+
 function is_interbranch($row) {
     return has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT) ? "Interbranch Entry" : "Normal Entry";
 }
@@ -125,6 +130,10 @@ function check_void($row) {
     return $void_entry['void_status'] == 'Voided' ? true : false;
 }
 
+if (get_post('mcode')) {
+    $Ajax->activate('bank_items');
+}
+
 //---------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
@@ -153,6 +162,9 @@ end_table();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
+
+sl_list_gl_cells(_("Pay To: "), 'mcode', null, _("All Recipients"), true);
+hidden('class_name');
 
 date_cells(_("From:"), 'from_date', '', null, -user_transaction_days());
 date_cells(_("To:"), 'to_date');
@@ -188,7 +200,10 @@ $sql = get_banking_transactions(ST_BANKDEPOSIT,
     get_post('to_date'),
     get_post('cashier'),
     get_post('interbranch'),
-    get_post('open_bal')
+    get_post('open_bal'),
+    0,
+    get_post('mcode'),
+    get_post('class_name')
 );
 
 $cols = array(
@@ -196,6 +211,7 @@ $cols = array(
     _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
     _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
+    _("Pay To: ") => array('align' => 'left', 'fun' => 'pay_to'),
     _('Receipt #') => array('align' => 'center', 'fun' => 'doc_ref'),
     _('Cashier / Teller') => array('align' => 'center', 'fun' => 'cashier_name'),
     _('Prepared By') => array('align' => 'center', 'fun' => 'preparer_name'),
@@ -208,7 +224,7 @@ $cols = array(
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
 $table->set_marker('check_void', _("Marked Rows are Voided"));
 
-$table->width = "80%";
+$table->width = "95%";
 
 display_db_pager($table);
 

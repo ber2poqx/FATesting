@@ -195,9 +195,9 @@ function display_bank_header(&$order) {
 	// 	}
 	// }
 
-	//bank_accounts_list_row(_("Debit To: "), 'bank_account', null, true, true, _("Select Bank Account"));
-
-	sql_type_list(_("Debit To:"), 'bank_account', get_bank_accounts(), 'id', 'bank_account_name', 
+	$bank_text = $order->trans_type == ST_BANKDEPOSIT ? "Debit To: " : "Credit To: ";
+	
+	sql_type_list($bank_text, 'bank_account', get_bank_accounts(), 'id', 'bank_account_name', 
 		'label', null, true, _("Select Bank Account")
 	);
 
