@@ -22,6 +22,9 @@ Ext.onReady(function(){
 	var cellEditing = Ext.create('Ext.grid.plugin.CellEditing',{
         clicksToEdit: 1
     });
+    var cellEditing1 = Ext.create('Ext.grid.plugin.CellEditing',{
+        clicksToEdit: 1
+    });
 
 	var GroupTypeStore = new Ext.create('Ext.data.Store',{
 		fields 	: 	['id','groupname'],
@@ -452,6 +455,49 @@ Ext.onReady(function(){
 		autoLoad: true
 	});
 
+	var Supplier_Filter = Ext.create('Ext.form.ComboBox', {
+    	xtype:'combo',
+    	hidden: true,
+    	fieldLabel:'Suppliers',
+		labelWidth: 60,
+    	name:'search_suppliers',
+    	id:'search_suppliers',
+    	queryMode: 'local',
+    	triggerAction : 'all',
+    	displayField  : 'supp_name',
+    	valueField    : 'supplier_id',
+    	editable      : true,
+    	forceSelection: false,
+    	allowBlank: true,
+    	required: false,
+    	hiddenName: 'suppliers_id',
+    	typeAhead: true,
+    	selectOnFocus:true,
+    	//layout:'anchor',
+    	store: Ext.create('Ext.data.Store',{
+    		fields:['supplier_id','supp_name'],
+    		autoLoad: true,
+    		proxy: {
+    			type:'ajax',
+    			url: '?suppliers_list=1',
+    			reader:{
+    				type : 'json',
+    				root : 'result',
+    				totalProperty : 'total'
+    			}
+    		}
+    	}),
+          listeners: {
+  			select: function(cmb, rec, idx) {
+  				var v = this.getValue();
+                //var branch_combo = Ext.getCmp('branch_combo').getValue();
+  				myInsurance.proxy.extraParams = { supplier_id: v }
+  				myInsurance.load();
+  			}
+  		}
+
+    })
+
 
 	var Branches_Filter = Ext.create('Ext.form.ComboBox', {
     	xtype:'combo',
@@ -541,7 +587,7 @@ Ext.onReady(function(){
 	    }
 	);
 
-	var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+	/*var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1,
 		rowIndex:-1,
 		listeners:{
@@ -558,7 +604,7 @@ Ext.onReady(function(){
         		rowIndex = context.rowIdx;
 			}
 		}
-    });	
+    });*/	
 	
 	var MerchandiseTransStore = Ext.create('Ext.data.Store', {
 	    storeId:'DetaiItemsTransferListStore',
@@ -596,16 +642,16 @@ Ext.onReady(function(){
 		{header:'Trans No', dataIndex:'trans_no', sortable:true, width:100, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:100, hidden: true},
 		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:100, hidden: true},
-		{header:'Brand', dataIndex:'brand_name', sortable:true, width:100, renderer: columnWrap,hidden: false},
-		{header:'Stock ID', dataIndex:'stock_id', sortable:true, width:180, renderer: columnWrap,hidden: false},
-		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:280, renderer: columnWrap,hidden: false},
-		{header:'Color', dataIndex:'color', sortable:true, width:180, renderer: columnWrap,hidden: false},
-		{header:'Category', dataIndex:'category_id', sortable:true, width:180, renderer: columnWrap,hidden: true},
-		{header:'Type', dataIndex:'type', sortable:true,width:100, hidden: true},
-		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
-		{header:'Price', dataIndex:'price', sortable:true, width:55, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:150,renderer: columnWrap, align:'right',hidden: false,
+		{header:'Brand', dataIndex:'brand_name', sortable:true, width:100, renderer: columnWrap,hidden: true},
+		{header:'Model', dataIndex:'stock_id', sortable:true, width:100, renderer: columnWrap,hidden: false},
+		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:140, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, width:100, renderer: columnWrap,hidden: false},
+		{header:'Category', dataIndex:'category', sortable:true, width:10, renderer: columnWrap,hidden: true},
+		{header:'Type', dataIndex:'type', sortable:true,width:10, hidden: true},
+		{header:'Location', dataIndex:'loc_code', sortable:true,width:15, hidden: true},
+		{header:'Price', dataIndex:'price', sortable:true, width:20, hidden: true},
+		{header:'Qty', dataIndex:'qty', sortable:true, width:80, hidden: false},
+		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:140,renderer: columnWrap, align:'right',hidden: false,
 		renderer: Ext.util.Format.numberRenderer('0,000.00'),
 			editor:{
 				field:{
@@ -615,7 +661,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false,
+		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -624,7 +670,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Chassis No.', dataIndex:'chasis_no', sortable:true, width:150,renderer: columnWrap, hidden: false,
+		{header:'Chassis No.', dataIndex:'chasis_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -677,14 +723,14 @@ Ext.onReady(function(){
 		{header:'Trans No', dataIndex:'trans_no', sortable:true, width:100, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:100, hidden: true},
 		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:100, hidden: true},
-		{header:'Brand', dataIndex:'brand_name', sortable:true, width:100, renderer: columnWrap,hidden: false},
-		{header:'Stock ID', dataIndex:'stock_id', sortable:true, width:180, renderer: columnWrap,hidden: false},
-		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:280, renderer: columnWrap,hidden: false},
+		{header:'Brand', dataIndex:'brand_name', sortable:true, width:100, renderer: columnWrap,hidden: true},
+		{header:'Model', dataIndex:'stock_id', sortable:true, width:100, renderer: columnWrap,hidden: false},
+		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:180, renderer: columnWrap,hidden: true},
 		{header:'Type', dataIndex:'type', sortable:true,width:100, hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
 		{header:'Price', dataIndex:'price', sortable:true, width:55, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false,
+		{header:'Qty', dataIndex:'qty', sortable:true, width:80, hidden: false,
 			editor:{
 				field:{
 					xtype:'numberfield',
@@ -703,7 +749,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false,
+		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:180,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -759,7 +805,7 @@ Ext.onReady(function(){
 	
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'receivedqty', 'category_id','reference','rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item', 'originating_id'],
+		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'receivedqty', 'category_id', 'reference', 'rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item', 'originating_id'],
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -845,7 +891,10 @@ Ext.onReady(function(){
 		forceFit: true,
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
-		plugins: [cellEditing],
+		plugins: {
+	        ptype: 'cellediting',
+	        clicksToEdit: 1
+	    },
 		border: false,
 		frame:false,
 		viewConfig:{
@@ -861,6 +910,11 @@ Ext.onReady(function(){
 				tooltip	: 'Select Item',
 				text 	: 'Select Item',
 				handler: function(){
+					var categoryheader = Ext.getCmp('category').getValue();
+					if(categoryheader==null){
+						Ext.Msg.alert('Warning','Please select category');
+						return false;	
+					}	
 					
 					if(!windowItemListSerial){
 						var catcode = Ext.getCmp('category').getValue();
@@ -922,8 +976,8 @@ Ext.onReady(function(){
 							title:'Stock Master Listing',
 							id:'windowItemListSerial',
 							modal: true,
-							width: 1200,
-							height:600,
+							width: 1000,
+							height:470,
 							bodyPadding: 5,
 							layout:'fit',
 							items:[
@@ -968,14 +1022,20 @@ Ext.onReady(function(){
 											layout:'fit',
 											id:'ItemSerialListing',
 											store: ItemListingStore,
+											selModel: {
+											selType: 'checkboxmodel',
+											id: 'checkidbox',
+											checkOnly: true,
+											mode: 'Multi'			
+											},	
 											columns: [
-												{header:'Brand', dataIndex:'brand_name', sortable:true, width:60, renderer: columnWrap,hidden: false},
-												{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
-												{header:'Item Code', dataIndex:'item_code', sortable:true, width:60, renderer: columnWrap,hidden: false},
-												{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
-												{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
-												{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-												{header	:'Action',	xtype:'actioncolumn', align:'center', width:50,
+												{header:'Brand', dataIndex:'brand_name', sortable:true, width:20, renderer: columnWrap,hidden: false},
+												{header:'Model', dataIndex:'model', sortable:true, width:30, renderer: columnWrap,hidden: false},
+												{header:'Item Code', dataIndex:'item_code', sortable:true, width:30, renderer: columnWrap,hidden: false},
+												{header:'Item Description', dataIndex:'stock_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
+												{header:'Color', dataIndex:'item_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
+												{header:'Category', dataIndex:'category_id', sortable:true, width:50, renderer: columnWrap,hidden: true,
+												/*{header	:'Action',	xtype:'actioncolumn', align:'center',
 												items:[
 													{
 														icon: '../js/ext4/examples/shared/icons/accept.png',
@@ -1010,7 +1070,7 @@ Ext.onReady(function(){
 														}
 														
 													}
-												]
+												]*/
 												
 												}
 											],
@@ -1058,6 +1118,74 @@ Ext.onReady(function(){
 							],
 							buttons:[
 								{
+									text:'Add Item',
+										disabled: false,
+										id:'btnAddItem',			
+										handler: function(grid, rowIndex, colIndex) {	
+										    var grid = Ext.getCmp('ItemSerialListing');
+											var selected = grid.getSelectionModel().getSelection();
+											for (i = 0; i < selected.length; i++) {
+												var record = selected[i];
+											  						
+												var model = record.get('model');	
+												var item_code = record.get('item_code');	
+												var stock_description = record.get('stock_description');	
+												var item_description = record.get('item_description');
+												var color = record.get('color');													
+												var category = record.get('category_id');													
+												var serialised = record.get('serialised');
+												var AdjDate = Ext.getCmp('AdjDate').getValue();		
+								
+												Ext.toast({
+													icon   	: '../js/ext4/examples/shared/icons/accept.png',
+												    html: '<b>' + 'Model:' + record.get('model') + ' <br><br/> ' + 'Description:' + record.get('stock_description') + '<b/>',
+												    title: 'Selected Item',
+												    width: 250,
+												    bodyPadding: 10,
+												    align: 'tr'
+												});	
+											}
+
+											var grid = Ext.getCmp('ItemSerialListing');
+											var selected = grid.getSelectionModel().getSelection();
+											var gridRepoData = [];
+											count = 0;
+											Ext.each(selected, function(record) {
+												var ObjItem = {										
+													model: record.get('model'),	
+													item_code: record.get('item_code'),	
+												    stock_description: record.get('stock_description'),	
+												    item_description: record.get('item_description'),	
+													color: record.get('color'),	
+													category: record.get('category_id'),	
+													serialised: record.get('serialised'),
+													AdjDate: Ext.getCmp('AdjDate').getValue(),														
+												};
+												gridRepoData.push(ObjItem);
+											});
+
+											if (gridRepoData == "") {
+												Ext.MessageBox.alert('Error','Please Select Item..');
+												return false;
+											}else{
+												MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+											}
+
+											MerchandiseTransStore.load({
+												scope: this,
+												callback: function(records, operation, success){
+													var countrec = MerchandiseTransStore.getCount();
+													if(countrec>0){
+														setButtonDisabled(false);
+													}else{
+														setButtonDisabled(true);
+													}								
+												}	
+
+											});											
+											ItemListingStore.load();
+										}
+									},{
 									text:'Close',
 									iconCls:'cancel-col',
 									handler: function(){
@@ -1083,7 +1211,10 @@ Ext.onReady(function(){
 		forceFit: true,
 		store: MerchandiseTransStore,
 		columns: columnTransferModelNonSerial,
-		plugins: [cellEditing1],
+		plugins: {
+	        ptype: 'cellediting',
+	        clicksToEdit: 1
+	    },
 		border: false,
 		frame:false,
 		viewConfig:{
@@ -1157,8 +1288,8 @@ Ext.onReady(function(){
 							title:'Item Listing',
 							id:'windowNonItemList',
 							modal: true,
-							width: 1200,
-							height:600,
+							width: 1000,
+							height:470,
 							bodyPadding: 5,
 							layout:'fit',
 							items:[
@@ -1171,15 +1302,20 @@ Ext.onReady(function(){
 										forceFit: true,
 										//flex:1,
 										layout:'fit',
+										selModel: {
+										selType: 'checkboxmodel',
+										id: 'checkidbox',
+										checkOnly: true,
+										mode: 'Multi'			
+										},
 										id:'ItemNonSerialListing',
 										store: ItemListingStore,
 										columns: [
-											{header:'Brand', dataIndex:'brand_name', sortable:true, width:60, renderer: columnWrap,hidden: false},
-											{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
-											{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
-									
-											{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-											{header	:'Action',	xtype:'actioncolumn', align:'center', width:50,
+											{header:'Brand', dataIndex:'brand_name', sortable:true, width:20, renderer: columnWrap,hidden: false},
+											{header:'Model', dataIndex:'model', sortable:true, width:20, renderer: columnWrap,hidden: false},
+											{header:'Item Description', dataIndex:'stock_description', sortable:true, width:20, renderer: columnWrap,hidden: false},
+											{header:'Category', dataIndex:'category_id', sortable:true, width:5, renderer: columnWrap,hidden: true,
+											/*{header	:'Action',	xtype:'actioncolumn', align:'center', width:20,
 											items:[
 												{
 													icon: '../js/ext4/examples/shared/icons/accept.png',
@@ -1214,7 +1350,7 @@ Ext.onReady(function(){
 													}
 													
 												}
-											]
+											]*/
 											
 											}
 										],
@@ -1266,6 +1402,74 @@ Ext.onReady(function(){
 							],
 							buttons:[
 								{
+									text:'Add Item',
+										disabled: false,
+										id:'btnAddItem',			
+										handler: function(grid, rowIndex, colIndex) {	
+										    var grid = Ext.getCmp('ItemNonSerialListing');
+											var selected = grid.getSelectionModel().getSelection();
+											for (i = 0; i < selected.length; i++) {
+												var record = selected[i];
+											  						
+												var model = record.get('model');	
+												var item_code = record.get('item_code');	
+												var stock_description = record.get('stock_description');	
+												var item_description = record.get('item_description');
+												var color = record.get('color');													
+												var category = record.get('category_id');													
+												var serialised = record.get('serialised');
+												var AdjDate = Ext.getCmp('AdjDate').getValue();		
+								
+												Ext.toast({
+													icon   	: '../js/ext4/examples/shared/icons/accept.png',
+												    html: '<b>' + 'Model:' + record.get('model') + ' <br><br/> ' + 'Description:' + record.get('stock_description') + '<b/>',
+												    title: 'Selected Item',
+												    width: 250,
+												    bodyPadding: 10,
+												    align: 'tr'
+												});	
+											}
+
+											var grid = Ext.getCmp('ItemNonSerialListing');
+											var selected = grid.getSelectionModel().getSelection();
+											var gridRepoData = [];
+											count = 0;
+											Ext.each(selected, function(record) {
+												var ObjItem = {										
+													model: record.get('model'),	
+													item_code: record.get('item_code'),	
+												    stock_description: record.get('stock_description'),	
+												    item_description: record.get('item_description'),	
+													color: record.get('color'),	
+													category: record.get('category_id'),	
+													serialised: record.get('serialised'),
+													AdjDate: Ext.getCmp('AdjDate').getValue(),														
+												};
+												gridRepoData.push(ObjItem);
+											});
+
+											if (gridRepoData == "") {
+												Ext.MessageBox.alert('Error','Please Select Item..');
+												return false;
+											}else{
+												MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+											}
+
+											MerchandiseTransStore.load({
+												scope: this,
+												callback: function(records, operation, success){
+													var countrec = MerchandiseTransStore.getCount();
+													if(countrec>0){
+														setButtonDisabled(false);
+													}else{
+														setButtonDisabled(true);
+													}								
+												}	
+
+											});											
+											ItemListingStore.load();
+										}
+									},{
 									text:'Close',
 									iconCls:'cancel-col',
 									handler: function(){
@@ -1281,7 +1485,7 @@ Ext.onReady(function(){
 			}
 			]	
 		}],
-		listeners:{
+		/*listeners:{
             validateedit: function(editor, e){
                 var catcode = Ext.getCmp('category').getValue();
 				var brcode = Ext.getCmp('fromlocation').getValue();
@@ -1302,7 +1506,7 @@ Ext.onReady(function(){
 
                 //return true;
             }
-        }
+        }*/
 	}
 		
 	Ext.create('Ext.grid.Panel', {
@@ -1363,29 +1567,31 @@ Ext.onReady(function(){
 				},{
 					iconCls:'clear-search',
 					hidden: true
-				},'->',{
-					iconCls:'windform',
-					hidden: true,
+				},Supplier_Filter,{
+					icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
+					tooltip	: 'Manual RR Branch',
+					text 	: 'Manual RR Branch',
+					hidden: false,
 					handler: function(){
 						//var catcode = Ext.getCmp('category').getValue();
 						
 						if(!windowNewTransfer){
 							var brcode = Ext.getCmp('from_location').getValue();
-							if(!brcode){
+							/*if(!brcode){
 								Ext.Msg.alert('Error', 'Select From Branch');
 								return;
-							}
+							}*/
 							var windowNewTransfer = Ext.create('Ext.Window',{
-								title:'Merchandise Transfer - Manual Entry ',
+								title:'Receiving RR Branch - Manual Entry ',
 								modal: true,
-								width: 1200,
+								width: 950,
 								//height:500,
 								bodyPadding: 5,
 								layout:'anchor',
 								items:[
 									{
 										xtype:'fieldset',
-										title:'Merchandise Transfer Header',
+										//title:'Receiving RR Branch Header',
 										layout:'anchor',
 										defaultType:'textfield',
 										fieldDefaults:{
@@ -1396,8 +1602,44 @@ Ext.onReady(function(){
 											{
 												xtype:'fieldcontainer',
 												layout:'hbox',
+												margin: '2 0 2 5',
 												items:[
 													{
+														xtype:'combobox',
+														fieldLabel:'From Branches',
+														name:'From_StockLocation',
+														id:'From_StockLocation',
+														queryModel:'local',
+														triggerAction : 'all',
+                    									displayField  : 'location_name',
+                    									valueField    : 'loc_code',
+                    									editable      : true,
+                    									forceSelection: true,
+                                                        allowBlank: false,
+                    									required: true,
+                    									hiddenName: 'loc_code',
+                    									typeAhead: true,
+                    									emptyText:'--Select--',
+                    									selectOnFocus:true,
+														store: Ext.create('Ext.data.Store',{
+                    										fields: ['loc_code', 
+																	'location_name', 
+																	'delivery_address', 
+																	'phone', 
+																	'phone2'
+															],
+                                                    		autoLoad: true,
+															proxy: {
+																type:'ajax',
+																url: '?action=branch_location',
+																reader:{
+																	type : 'json',
+																	root : 'result',
+																	totalProperty : 'total'
+																}
+															}
+                    									})
+													},{
 														xtype:'combobox',
 														fieldLabel:'Category',
 														name:'category',
@@ -1409,6 +1651,7 @@ Ext.onReady(function(){
                     									editable      : true,
                     									forceSelection: true,
                                                         allowBlank: false,
+                                                        labelWidth: 80,
                     									required: true,
                     									hiddenName: 'category_id',
                     									typeAhead: true,
@@ -1435,14 +1678,11 @@ Ext.onReady(function(){
 																
 																if(v=='14'){
 																	mtgridcol.show();
-																	mtgridcolNon.hide();
-																	
+																	mtgridcolNon.hide();																	
 																}else{
-																		
 																	mtgridcol.hide();
-																	mtgridcolNon.show();
-																}
-																
+																	mtgridcolNon.show();																	
+																}																
 															}
 														}
 													},
@@ -1450,37 +1690,37 @@ Ext.onReady(function(){
 														xtype:'datefield',
 														fieldLabel:'Trans Date',
 														name:'trans_date',
+														labelWidth: 80,
 														id:'AdjDate'/*,
 														value: new Date()*/
-													},{
-												xtype:'textfield',
-												name:'referencenumber',
-												id:'manualreferencenum',
-												fieldLabel:'Reference No.',
-												labelWidth: 120
-											}
+													}
 												]
 											},{
 												xtype:'fieldcontainer',
 												layout:'hbox',
+												margin: '2 0 2 5',
 												items:[{
-														xtype:'textfield',
-														name:'rsdno',
-														id:'rsdno',
-														fieldLabel:'RSD #'
-													},{
-														xtype:'textfield',
-														name:'servedby',
-														id:'servedby',
-														fieldLabel:'Served By'
-													}]
+													xtype:'textfield',
+													name:'reference',
+													id:'reference',
+													fieldLabel:'RR Ref No.',
+													readOnly: true
+												},{
+													xtype:'textfield',
+													name:'mtreferencemanual',
+													id:'mtreferencemanual',
+													labelWidth: 80,
+													fieldLabel:'MT Ref No.'
+												}]
 											},{
 												xtype:'fieldcontainer',
-												//width:1200,
+												width:785,
+												layout:'hbox',
+												margin: '2 0 2 5',
 												layout:'fit',
 												items:[{
 													xtype:'textareafield',
-													fieldLabel:'Memo',
+													fieldLabel:'Remarks',
 													name:'memo',
 													id:'memo',
 													grow: true,
@@ -1504,27 +1744,44 @@ Ext.onReady(function(){
 									{
 										text:'Process Manual Transfer',
 										id:'btnManualProcess',
-										handler:function(){
+										handler:function(){									
+										
+									        var gridData = MerchandiseTransStore.getRange();
+											var gridRepoData = [];
+											count = 0;
+											Ext.each(gridData, function(item) {
+												var ObjItem = {															
+													stock_id: item.get('stock_id'),
+													item_code: item.get('item_code'),
+													stock_description: item.get('stock_description'),
+													item_description: item.get('item_description'),
+													qty: item.get('qty'),
+													standard_cost:item.get('standard_cost'),													
+													lot_no:item.get('lot_no'),													
+													chasis_no:item.get('chasis_no'),													
+													serialised:item.get('serialised'),
+													catcode: Ext.getCmp('category').getValue()												
+												};
+												gridRepoData.push(ObjItem);
+											});
+
 											var AdjDate = Ext.getCmp('AdjDate').getValue();	
 											var catcode = Ext.getCmp('category').getValue();
-											var FromStockLocation = Ext.getCmp('from_location').getValue();
+											var FromStockLocation = Ext.getCmp('From_StockLocation').getValue();
 											var ToStockLocation = Ext.getCmp('currentbranch').getValue();
-											var brreference = Ext.getCmp('manualreferencenum').getValue();
-											var rsdno = Ext.getCmp('rsdno').getValue();
-											var servedby = Ext.getCmp('servedby').getValue();
-											var memo_ = Ext.getCmp('memo').getValue();
-											if(brreference==null || brreference==''){
-												Ext.MessageBox.alert('Error','Reference field should not be empty.');
+											var br_reference = Ext.getCmp('reference').getValue();
+											var mt_reference = Ext.getCmp('mtreferencemanual').getValue();
+											var remarks = Ext.getCmp('memo').getValue();
+
+											if(FromStockLocation==null || FromStockLocation==''){
+												Ext.MessageBox.alert('Error','From Branches field should not be empty.');
 												return false;
 											}
-											if(rsdno==null || rsdno==''){
-												Ext.MessageBox.alert('Error','RSD field should not be empty.');
+											if(mt_reference==null || mt_reference==''){
+												Ext.MessageBox.alert('Error','MT Reference field should not be empty.');
 												return false;
 											}
-											if(servedby==null || servedby==''){
-												Ext.MessageBox.alert('Error','Serve By field should not be empty.');
-												return false;
-											}
+										
 											Ext.MessageBox.show({
 												msg: 'Saving Date, please wait...',
 												progressText: 'Saving...',
@@ -1543,12 +1800,12 @@ Ext.onReady(function(){
 													catcode:catcode,
 													FromStockLocation: FromStockLocation,
 													ToStockLocation: ToStockLocation,
-													memo_: memo_,
-													reference: brreference,
-													rsdno: rsdno,
-													servedby: servedby 
+													remarks: remarks,
+													br_reference: br_reference,
+													mt_reference: mt_reference,
+													DataOnGrid: Ext.encode(gridRepoData) 
 												},
-												success: function (response){
+												/*success: function (response){
 													var jsonData = Ext.JSON.decode(response.responseText);
 													var AdjDate = jsonData.AdjDate;
 													Ext.getCmp('AdjDate').setValue(AdjDate);
@@ -1560,9 +1817,24 @@ Ext.onReady(function(){
 													//Ext.MessageBox.hide();
 													//var jsonData = Ext.JSON.decode(response.responseText);
 													//Ext.MessageBox.alert('Error','Error Processing');
-												}
+												}*/
+												success: function(response){
+													var jsonData = Ext.JSON.decode(response.responseText);
+													var errmsg = jsonData.message;
+													//Ext.getCmp('AdjDate').setValue(AdjDate);
+													if(errmsg!=''){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error',errmsg);
+													}else{
+														windowNewTransfer.close();
+														//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+														myInsurance.load();
+														Ext.MessageBox.alert('Success','Success Processing');
+													}													
+												} 
 											});
 											Ext.MessageBox.hide();
+											this.setDisabled(true);											
 										}
 									},
 									{
@@ -1582,11 +1854,13 @@ Ext.onReady(function(){
 							success: function (response){
 								var jsonData = Ext.JSON.decode(response.responseText);
 								var AdjDate = jsonData.AdjDate;
+								var reference = jsonData.reference;
 								Ext.getCmp('AdjDate').setValue(AdjDate);
+								Ext.getCmp('reference').setValue(reference);
 								
-								//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+								MerchandiseTransStore.proxy.extraParams = {action: 'ManualAddItem'}
 								//MerchandiseTransStore.load();
-								//MerchandiseTransStore.proxy.extraParams = {action: 'view'}
+								MerchandiseTransStore.proxy.extraParams = {action: 'view'}
 								MerchandiseTransStore.load({
 									params:{view:1},
 									scope: this,

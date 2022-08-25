@@ -69,8 +69,11 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'NewTransferManual';
             $brcode = $db_connections[user_company()]["branch_code"];
-            handle_new_order_manual(ST_MERCHANDISETRANSFER);
-            echo json_encode(array('AdjDate'=>$_POST['AdjDate'],'branchcode'=>$brcode));
+            handle_new_order(ST_RRBRANCH);
+            $AdjDate = sql2date($_POST['AdjDate']);
+            $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$_POST['AdjDate'], 'location'=> $brcode));
+            
+            echo '({"AdjDate":"'.$_POST['AdjDate'].'","branchcode":"'.$brcode.'","reference":"'.$_POST['ref'].'"})';
             exit;
             break;
         case 'AddItem';
@@ -100,7 +103,31 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'ManualAddItem';
-            $category_id = $_REQUEST['category'];
+            $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+            //var_dump($objDataGrid);
+            foreach($objDataGrid as $value=>$data) 
+            {
+                //echo $data;
+                $category_id = $data['category'];
+                $AdjDate = $data['AdjDate'];
+                $model = $data['model'];
+                $item_code = $data['item_code'];                
+                $serialised = $data['serialised'];
+                $stock_description = $data['stock_description'];
+                $item_description = $data['item_description'];
+                $brcode = $db_connections[user_company()]["branch_code"];
+                $_SESSION['transfer_items']->from_loc=$brcode;
+
+                if(!isset($_REQUEST['view'])){
+                    $line_item_header = rand();
+                    $line_item = count($_SESSION['transfer_items']->line_items);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header);
+                }
+            }
+            display_transfer_items_serial_for_rr($_SESSION['transfer_items'], $brcode, $AdjDate);
+
+            /*$category_id = $_REQUEST['category'];
             $AdjDate = $_POST['AdjDate'];
             $model = $_REQUEST['model'];
             $item_code = $_REQUEST['item_code'];
@@ -117,8 +144,7 @@ if(!is_null($action) || !empty($action)){
                 $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header);
             }
             
-            
-            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
+            display_transfer_items_serial_for_rr($_SESSION['transfer_items'], $brcode, $AdjDate);*/
             exit;
             break;
         case 'SaveTransfer';
@@ -172,35 +198,76 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'SaveManualTransfer';
-            global $def_coy;
-        
-            set_global_connection($def_coy);
+            set_global_connection();
+
+            $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+
             $message="";
             $AdjDate = sql2date($_POST['AdjDate']);
             
             $counteritem=$_SESSION['transfer_items']->count_items();
-            //$total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
-            //if($total_rrdate>0){
-            //    $message="This document cannot be processed because there is insufficient quantity for items marked.";
-                
-                
-            if($counteritem<=0){
-                //echo '({"success":"false","message":"No Item Selected"})';
-                $message="No Item Selected";
-                
-                
-            }else{
-                $AdjDate = sql2date($_POST['AdjDate']);
-                $catcode = $_POST['catcode'];
-                $reference = $_POST['reference'];
-                //$_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                //$_POST['ref']=rand();
-                $trans_no = add_stock_merchandise_transfer_manual($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $reference, $_POST['memo_'],$catcode, $_POST['rsdno'],$_POST['servedby']);
-                //new_doc_date($AdjDate);
-                //$_SESSION['transfer_items']->clear_items();
-                //unset($_SESSION['transfer_items']);
+                          
+            $isError = 0;
+            foreach($objDataGrid as $value=>$data) 
+            {
+                $stock_id = $data['stock_id'];
+                $item_code = $data['item_code'];
+                $stock_description = $data['stock_description'];
+                $item_description = $data['item_description'];
+                $quantity = $data['qty'];
+                $standard_cost = $data['standard_cost'];
+                $lot_no = $data['lot_no'];
+                $chasis_no = $data['chasis_no'];
+                $serialised = $data['serialised'];
+                $catcode = $data['catcode'];
+
+                if($counteritem<=0){
+                    $isError = 1;
+                    //echo '({"success":"false","message":"No Item Selected"})';
+                    $message="No Item Selected";                     
+                    break;
+                }elseif($quantity == 0){
+                    $isError = 1;
+                    $message="Quantity must not be zero.";
+                    break;
+                }elseif($standard_cost == 0){
+                    $isError = 1;
+                    $message="Standard Cost must not be zero.";
+                    break;
+                }elseif ($catcode == '14' && $lot_no == ''){
+                    $isError = 1;
+                    $message="Serial No. must not be empty.";
+                    break;
+                }elseif($catcode == '14' && $chasis_no == ''){
+                    $isError = 1;
+                    $message="Chassis No. must not be empty.";
+                    break;
+                }elseif ($catcode == '15' && $lot_no == ''){
+                    $isError = 1;                    
+                    $message="Serial No. must not be empty.";
+                    break;                    
+                }
             }
-            echo '({"success":"true","reference":"'.$_POST['ref'].'","message":"'.$message.'"})';
+
+            if($isError != 1){
+                $brcode = $db_connections[user_company()]["branch_code"];
+                $catcode = $_POST['catcode'];
+                $FromStockLocation = $_POST['FromStockLocation'];
+                $br_reference = $_POST['br_reference'];
+                $mt_reference = $_POST['mt_reference'];
+                $remarks = $_POST['remarks'];
+
+                $servedby = $_SESSION["wa_current_user"]->name;
+                              
+                $totalline=count($objDataGrid);
+            
+                $trans_no = add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $brcode, $AdjDate, $br_reference, $remarks, $catcode,$mt_reference, $servedby);
+
+                $_SESSION['transfer_items']->clear_items();
+                unset($_SESSION['transfer_items']);
+            }                       
+            echo '({"total":"'.$totalline.'","reference":"'.$br_reference.'","message":"'.$message.'"})';
             exit;
             break;
         case 'receive_header';
@@ -351,7 +418,7 @@ if(!is_null($action) || !empty($action)){
             $_SESSION['transfer_items']->update_cart_item($filter['id'], $filter['qty'],$filter['standard_cost'],'0000-00-00','0000-00-00',$filter['lot_no'], $filter['chasis_no'], $filter['color']);
         
         
-            echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'"})';
+            echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'","standard_cost":"'.$filter['standard_cost'].'","lot_no":"'.$filter['lot_no'].'","chasis_no":"'.$filter['chasis_no'].'"})';
             exit;
         break;
         case 'save_rrbr';
@@ -653,7 +720,7 @@ if(!is_null($action) || !empty($action)){
             $reference = (integer) (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
-            
+
             if($start < 1)  $start = 0; if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];

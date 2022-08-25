@@ -121,7 +121,8 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
 function add_stock_merchandise_transfer_manual($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
-    
+    $company_prefs = get_company_prefs();
+
     //begin_transaction();
     //$args = func_get_args();
     //$args = (object)array_combine(array('Items', 'location_from', 'location_to','date_', 'reference', 'memo_','catcode','rsdno','servedby'), $args);
@@ -266,6 +267,90 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
     $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, '', 0, null, $mcode, $master_file);
     
     $Refs->save(ST_RRBRANCH, $transfer_id, $reference);
+    add_audit_trail(ST_RRBRANCH, $transfer_id, $date_,'RR Branch to '.$branch_code);
+    
+    $args->trans_no = $transfer_id;
+    hook_db_postwrite($args, ST_RRBRANCH);
+    
+    commit_transaction();
+    
+    if ($SysPrefs->loc_notification() == 1 && count($st_ids) > 0)
+        send_reorder_email($loc, $st_ids, $st_names, $st_num, $st_reorder);
+
+        
+    return $transfer_id;
+}
+
+//--Added by Robert--08/25/2022--//
+function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_code, $date_, $br_reference, $memo_,$catcode=0,$mt_reference, 
+    $servedby)
+{
+    global $SysPrefs, $path_to_root, $Refs, $db_connections;
+    
+    begin_transaction();
+    $args = func_get_args();
+    $args = (object)array_combine(array('objDataGrid', 'FromStockLocation', 'branch_code','date_', 'br_reference', 'memo_','catcode','mt_reference', 'servedby'), $args);
+    $args->trans_no = 0;
+    hook_db_prewrite($args,ST_RRBRANCH);
+    
+    $transfer_id = get_next_trans_no(ST_RRBRANCH);
+
+    $mcode = $FromStockLocation;
+    $master_file = get_db_location_name($FromStockLocation);
+    
+    if ($SysPrefs->loc_notification() == 1)
+    {
+        include_once($path_to_root . "/inventory/includes/inventory_db.inc");
+        $st_ids = array();
+        $st_names = array();
+        $st_num = array();
+        $st_reorder = array();
+    }
+    $total = 0;
+    include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
+    add_js_ufile($path_to_root.'/js/merchandise_transfers_in.js');
+
+    $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
+
+    $mt_header_id_local_manual = add_mt_header_manual($date_, $mt_reference, $br_reference, $FromStockLocation, $branch_code, 
+        $catcode, $memo_, $servedby);
+    
+    foreach ($objDataGrid as $item)
+    {
+            $stock_id = $item['stock_id'];
+            $item_code = $item['item_code'];
+            $stock_qty = $item['qty'];
+            $standard_cost = $item['standard_cost'];
+            $lot_no = $item['lot_no'];
+            $chasis_no = $item['chasis_no'];
+            $serialised = $item['serialised'];
+            $catcode = $item['catcode'];
+
+            add_stock_mt_details_manual($mt_header_id_local_manual, $stock_id, $stock_qty, str_replace(",","",$standard_cost), 0, $lot_no, 
+                $chasis_no, $item_code);
+            
+            $stock_gl_mt_code = get_stock_gl_code($stock_id);
+            $totalCost =  str_replace(",","",$standard_cost) *  str_replace(",","",$stock_qty);
+
+            $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,
+                $totalCost, '', 0, $stock_id, $mcode, $master_file);
+            
+            $refline = add_stock_rrbranch_item($transfer_id, $stock_id, $FromStockLocation, $branch_code, $date_, $br_reference, 
+                $stock_qty, $lot_no, $chasis_no, $catcode,  $item_code, $standard_cost);
+           
+            add_serialitems_detail($transfer_id,$refline,$lot_no,$stock_qty,'0000-00-00','0000-00-00',
+                $item_code,$branch_code, $chasis_no,ST_RRBRANCH);   
+    }
+    
+    add_comments(ST_RRBRANCH, $transfer_id, $date_, $memo_);
+
+    $accs = $db_connections[Get_db_coy($FromStockLocation)]["gl_account"];
+    
+    //$total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, null);
+    $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, '', 0, null, $mcode, $master_file);
+    
+    $Refs->save(ST_RRBRANCH, $transfer_id, $br_reference);
     add_audit_trail(ST_RRBRANCH, $transfer_id, $date_,'RR Branch to '.$branch_code);
     
     $args->trans_no = $transfer_id;
@@ -457,6 +542,50 @@ function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_
     set_global_connection();
     return $dbid;
 }
+
+//Added by Robert - 08/25/2022
+function add_mt_header_manual($transdate, $mt_reference, $br_reference, $fromlocation, $tolocation, $cat_id=0, $comments, $servedby){
+    //$db_coy = Get_db_coy($targetdb);
+    set_global_connection();
+    
+    $trans_date = date2sql($transdate);
+    
+    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby) VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", 
+        ".db_escape($servedby).")";
+                
+    db_query($sql, "The MT Header record cannot be inserted");
+                
+    $dbid = db_insert_id();
+    
+    set_global_connection();
+    return $dbid;
+}
+
+//Added by Robert - 08/25/2022
+function add_stock_mt_details_manual($header_id, $stock_id, $quantity=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='')
+{
+    //$db_coy = Get_db_coy($targetdb);
+    set_global_connection();
+    
+    $sql = "INSERT INTO ".TB_PREF."mt_details (mt_details_header_id, mt_details_stock_id, mt_details_item_code, mt_details_serial_no, mt_details_chasis_no, mt_details_total_qty, mt_details_st_cost, mt_details_price, mt_details_recvd_qty, mt_details_status) VALUES ("
+        .db_escape($header_id).","
+            .db_escape($stock_id).", 
+                ".db_escape($color_code).", "
+                    .db_escape($lot_no).", 
+                        ".db_escape($chasis_no).", 
+                            ".db_escape($quantity).", "
+                                .db_escape($std_cost).", "
+                                     .db_escape($price).", "
+                                        .db_escape($quantity).",
+                                            '2')";            
+    db_query($sql, "The MT details record cannot be inserted");
+                
+    $dbid = db_insert_id();
+                
+    set_global_connection();
+    return $dbid;
+}
+
 //Added by Herald - 08/31/2021
 function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile=''){
     set_global_connection();
