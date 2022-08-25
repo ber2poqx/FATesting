@@ -983,12 +983,6 @@ if(isset($_GET['submit']))
                 $InputError = 1;
                 $dsplymsg = _('Tendered amount must be lesser than or equal to A/R amount balance.');
             }
-        }else{
-            if(($ar_balance - $_POST['totalrebate']) == $_POST['tenderd_amount']){
-                $islastPay = 1;
-            }elseif(($ar_balance + $_POST['totalrebate']) == $_POST['tenderd_amount']){
-
-            }
         }
     }
 
@@ -1018,6 +1012,13 @@ if(isset($_GET['submit']))
             $Alloc_Amount = $data['alloc_amount'];
             $dp_discount = $data['dp_discount'];
             $GPM = $data['grossPM'];
+
+            //CHECK IF LAST PAYMENT
+            if(($ar_balance - $total_rebate) == $_POST['tenderd_amount']){
+                $islastPay = 1;
+            }elseif(($ar_balance + $total_penalty) == $_POST['tenderd_amount']){
+                $islastPay = 1;
+            }
 
             set_global_connection();
             
@@ -1498,7 +1499,7 @@ if(isset($_GET['submit']))
                         $rgp_account = $company_record["rgp_account"];
                         
                         if($islastPay != 0){
-                            $DeferdAmt = $get_deferdBal($_POST['InvoiceNo'], $dgp_account);
+                            $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
                         }else{
                             $ARValue = ($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty));
                             $DeferdAmt = $ARValue * $GPM;

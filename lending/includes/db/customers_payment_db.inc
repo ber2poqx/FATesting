@@ -823,7 +823,7 @@ function get_deferdBal($trans_no, $glcode)
 			FROM gl_trans X 
 			WHERE X.loan_trans_no=".db_escape($trans_no)."
 				And X.account = ".db_escape($glcode);
-
+				
 	$result = db_query($sql, "could not get defered balance");
 	$row =  db_fetch($result);
 
