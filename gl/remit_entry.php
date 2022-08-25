@@ -207,12 +207,13 @@ while ($row = db_fetch_assoc($sql)) {
     $void_entry = get_voided_entry($row['type'], $row['trans_no']); 
 
     if ($void_entry['void_status'] == "Voided") {
-        $total += $row['amt'];
         start_row("class='overduebg'");
     }
     else {
         alt_table_row_color($k);
     }
+
+    $total += $row['amt'];
 
     label_cell($count . ".)", "nowrap align='left'");
     label_cell(_systype_name($row['type']), "nowrap align='left'");
@@ -240,9 +241,10 @@ br();
 start_outer_table(TABLESTYLE2, "width='50%'");
 
 table_section(1);
-ref_row(_("Transaction Reference: "), 'ref', '', 
-    $Refs->get_next(ST_REMITTANCE, null, null), true, ST_REMITTANCE
-);
+
+$ref = $Refs->get_next(ST_REMITTANCE, null, null);
+label_row("Transaction Reference: ", $ref);
+hidden('ref', $ref);
 
 table_section(2);
 date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);

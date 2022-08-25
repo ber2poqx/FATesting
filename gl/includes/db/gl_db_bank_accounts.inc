@@ -77,9 +77,11 @@ function get_bank_account($id)
 //---------------------------------------------------------------------------------------------
 
 //Modified by spyrax10 9 Jul 2022
-function get_bank_accounts($show_inactive = false, $bank_id = null) {
+function get_bank_accounts($show_inactive = false, $bank_id = null, $act_code = false) {
 	
-	$sql = "SELECT account.*, gl_account.account_name
+	$ret_val = $act_code ? 'account_code' : 'account_name';
+
+	$sql = "SELECT account.*, gl_account.$ret_val
 		FROM ".TB_PREF."bank_accounts account, ".TB_PREF."chart_master gl_account
 		WHERE account.account_code = gl_account.account_code";
 	
@@ -91,12 +93,12 @@ function get_bank_accounts($show_inactive = false, $bank_id = null) {
 		$sql .= " AND account.id = " .db_escape($bank_id);
 	}
 
-	$sql .= " ORDER BY account_code, bank_curr_code";
+	$sql .= " ORDER BY account.account_code";
 	$result = db_query($sql, "could not get bank accounts");
 
 	if ($bank_id != null) {
 		$row = db_fetch_row($result);
-		return $row[1];
+		return $row[$act_code ? 0 : 1];
 	}
 	else {
 		return $result;

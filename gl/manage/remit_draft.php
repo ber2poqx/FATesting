@@ -102,12 +102,12 @@ if (isset($_POST['Approved']) && can_proceed()) {
                 $res_head['remit_from'], $_SESSION["wa_current_user"]->user
             );
         }
-
+        
         add_gl_trans(
             ST_REMITTANCE,
             $res_head['remit_num'],
             $_POST['date_'],
-            1050,
+            get_bank_accounts(false, 1, true),
             0, 0, 
             $_POST['memo_'],
             $total,
@@ -124,7 +124,7 @@ if (isset($_POST['Approved']) && can_proceed()) {
             ST_REMITTANCE,
             $res_head['remit_num'],
             $_POST['date_'],
-            1050,
+            get_bank_accounts(false, 1, true),
             0, 0, 
             $_POST['memo_'],
             -$total,

@@ -49,9 +49,6 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
     }
 
     if ($report) {
-        $sql .= " AND A.remit_stat <> 'Approved'";
-    }
-    else {
         $sql .= " AND A.remit_stat = 'Open'";
     }
 
@@ -105,7 +102,7 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
         $sql .= " GROUP BY RT.remit_ref";
     }
 
-    $sql .= " ORDER BY RT.type DESC";
+    $sql .= " ORDER BY RT.remit_num DESC";
 
     if ($details) {
         return db_query($sql, _("No remittance transactions were returned from the database."));

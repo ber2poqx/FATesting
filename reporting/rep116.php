@@ -310,9 +310,9 @@ function print_dailycash_sales()
 			$rep->NewLine();
 			$rep->fontSize += 1;
 			$rep->Font('bold');
-			$rep->TextCol(0, 5, $remit_trans['remit_ref']);
-			$rep->TextCol(2, 5, "From: " . get_user_name($remit_trans['remit_from']));
-			$rep->TextCol(5, 7, _('Remittance Date: ' . sql2date($remit_trans['remit_date'])));
+			$rep->TextCol(0, 2, $remit_trans['remit_ref']);
+			$rep->TextCol(2, 3, "From: " . get_user_name($remit_trans['remit_from']));
+			$rep->TextCol(3, 7, _('Remittance Date: ' . sql2date($remit_trans['remit_date'])));
 			$reference = $remit_trans['remit_ref'];
 			$rep->Font();
 			$rep->fontSize -= 1;
@@ -328,7 +328,7 @@ function print_dailycash_sales()
 			$rep->TextCol(2, 3, $remit_trans['status_memo']);
 
 			$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
-			$rep->TextCol(3, 4, $remit_trans['from_ref']);
+			$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_trans['from_ref']));
 			$rep->SetTextColor(0, 0, 0);
 
 			$rep->SetTextColor(0, 0, 255);
