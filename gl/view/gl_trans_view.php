@@ -259,13 +259,14 @@ function _gl_details() {
 			label_cell($myrow['mcode']);
 			label_cell($myrow['master_file']);
 		}
-		else if($rrbranch){//Added by Herald 12/02/2021 for RR Branch
-	    	$rrbranch_header = get_mt_rrbranch_header($myrow["reference"]);
-	    	label_cell($rrbranch_header["mt_header_fromlocation"]);
-	    	label_cell(get_db_location_name($rrbranch_header["mt_header_fromlocation"]));
-		}	
+		//Modified by spyrax10 26 Aug 2022
+		// else if($rrbranch){//Added by Herald 12/02/2021 for RR Branch
+	    // 	$rrbranch_header = get_mt_rrbranch_header($myrow["reference"]);
+	    // 	label_cell($rrbranch_header["mt_header_fromlocation"]);
+	    // 	label_cell(get_db_location_name($rrbranch_header["mt_header_fromlocation"]));
+		// }	
 		//Added by spyrax10
-		else if ($invoice || $sales_return || $sup_recv || $remittance) {
+		else if ($invoice || $sales_return || $sup_recv || $remittance || $rrbranch) {
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 				get_subaccount_code($_GET['type_id'], $_GET['trans_no'])
 			);
