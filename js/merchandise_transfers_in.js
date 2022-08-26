@@ -36,7 +36,6 @@ Ext.onReady(function(){
         autoLoad:true
 	});
 
-	
 	var ItemListingStore = Ext.create('Ext.data.Store', {
 		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id', 'serialised','type_out', 'transno_out', 'reference', 'tran_date','brand_id','brand_name', 'brand_id'],
 		autoLoad: false,
@@ -71,7 +70,6 @@ Ext.onReady(function(){
 		]
 	});
 
-	
 	var columnModel =[
 		{header:'ID', dataIndex:'id', sortable:true, width:20,hidden: true},
 		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:70, hidden: false},
@@ -433,9 +431,6 @@ Ext.onReady(function(){
 		}
 	];
 
-
-	
-
 	var myInsurance = Ext.create('Ext.data.Store', {
 		model : 'insurance',
 		name : 'myInsurance',
@@ -497,7 +492,6 @@ Ext.onReady(function(){
   		}
 
     })
-
 
 	var Branches_Filter = Ext.create('Ext.form.ComboBox', {
     	xtype:'combo',
@@ -1001,7 +995,6 @@ Ext.onReady(function(){
 							bodyPadding: 5,
 							layout:'fit',
 							items:[
-								
 								{
 									xtype:'panel',
 									autoScroll: true,
