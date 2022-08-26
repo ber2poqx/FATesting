@@ -819,7 +819,7 @@ function get_NoSchedDownPaymnt($trans_no, $debtor_no)
 
 function get_deferdBal($trans_no, $glcode)
 {
-	$sql = "SELECT abs(SUM(TRUNCATE(X.amount, 2))) 
+	$sql = "SELECT abs(TRUNCATE(SUM(X.amount),2)) bal 
 			FROM gl_trans X 
 			WHERE X.loan_trans_no=".db_escape($trans_no)."
 				And X.account = ".db_escape($glcode);

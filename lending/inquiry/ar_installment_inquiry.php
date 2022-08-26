@@ -194,7 +194,7 @@ if(isset($_GET['get_deferedLed'])){
                                'debtor_no'=>$myrow["debtor_no"],
                                'name'=>$myrow["name"],
                                'account'=>$myrow["account_code"],
-                               'account_name'=>$myrow["account_name"],
+                               'account_name'=>$myrow["account_code"] .' - '. $myrow["account_name"],
                                'debit'=>abs($myrow["debit"]),
                                'credit'=>abs($myrow["credit"]),
                                'balance'=>$balance,
