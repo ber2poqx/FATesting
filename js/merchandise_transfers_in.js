@@ -657,9 +657,23 @@ Ext.onReady(function(){
 				field:{
 					xtype:'numberfield',
 					name:'standard_cost',
-					anchor:'100%'
+					anchor:'100%',
+					listeners : {
+					    keyup: function(grid, rowIndex, colIndex) {
+							GetTotalBalance();
+                    	},
+						specialkey: function(f,e){
+							if (e.getKey() == e.ENTER) {
+								GetTotalBalance();
+							}
+						}
+					}	
 				}
-			}
+			},
+			renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
+				GetTotalBalance();
+                return Ext.util.Format.number(value,'0,000.00');
+            } 
 		},
 		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
 			editor:{
@@ -889,7 +903,7 @@ Ext.onReady(function(){
 		id:'gridMT',
 		anchor:'100%',
 		forceFit: true,
-		height:300,
+		height:250,
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
 		plugins: {
@@ -899,7 +913,12 @@ Ext.onReady(function(){
 		border: false,
 		frame:false,
 		viewConfig:{
-			stripeRows: true
+			stripeRows: true,
+			listeners: {
+            	refresh: function(view) {
+					GetTotalBalance();
+				}
+        	}
 		},
 		dockedItems:[{
 			dock	: 'top',
@@ -1220,7 +1239,12 @@ Ext.onReady(function(){
 		border: false,
 		frame:false,
 		viewConfig:{
-			stripeRows: true
+			stripeRows: true,
+			listeners: {
+            	refresh: function(view) {
+					GetTotalBalance();
+				}
+        	}
 		},
 		dockedItems:[{
 			dock	: 'top',
@@ -1619,6 +1643,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
+                    									width:420,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
                     									emptyText:'--Select--',
@@ -1642,6 +1667,19 @@ Ext.onReady(function(){
 															}
                     									})
 													},{
+														xtype:'textfield',
+														name:'reference',
+														id:'reference',
+														fieldLabel:'RR Ref No.',
+														readOnly: true,
+														width:366
+													}													
+												]
+											},{
+												xtype:'fieldcontainer',
+												layout:'hbox',
+												margin: '2 0 2 5',
+												items:[{
 														xtype:'combobox',
 														fieldLabel:'Category',
 														name:'category',
@@ -1653,7 +1691,7 @@ Ext.onReady(function(){
                     									editable      : true,
                     									forceSelection: true,
                                                         allowBlank: false,
-                                                        labelWidth: 80,
+                                                        //labelWidth: 80,
                     									required: true,
                     									hiddenName: 'category_id',
                     									typeAhead: true,
@@ -1687,26 +1725,13 @@ Ext.onReady(function(){
 																}																
 															}
 														}
-													},
-													{
+													},{
 														xtype:'datefield',
 														fieldLabel:'Trans Date',
 														name:'trans_date',
 														labelWidth: 80,
 														id:'AdjDate'/*,
 														value: new Date()*/
-													}
-												]
-											},{
-												xtype:'fieldcontainer',
-												layout:'hbox',
-												margin: '2 0 2 5',
-												items:[{
-													xtype:'textfield',
-													name:'reference',
-													id:'reference',
-													fieldLabel:'RR Ref No.',
-													readOnly: true
 												},{
 													xtype:'textfield',
 													name:'mtreferencemanual',
@@ -1730,8 +1755,7 @@ Ext.onReady(function(){
 												}]
 											}
 										]	
-									},
-									{
+									},{
 										xtype:'panel',
 										title:'Items',
 										frame: false,
@@ -1741,6 +1765,20 @@ Ext.onReady(function(){
 										padding:'5px',
 										border: false,
 										items:[gridMTNonSerialize,gridMT]
+									},{
+										xtype:'fieldcontainer',
+										layout:'center',
+										margin: '2 0 2 5',
+										items:[
+											{
+												xtype:'textfield',
+												fieldLabel:'TOTAL COST:',
+												readOnly: true,
+												labelWidth: 90,
+												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+												id:'totalcost'
+											}
+										]
 									}
 								],buttons:[
 									{
@@ -1921,6 +1959,19 @@ Ext.onReady(function(){
 			Ext.MessageBox.alert('Error','Error Processing');
 		}
 	});
+
+	function GetTotalBalance(){
+		Ext.Ajax.request({
+			url : '?action=getTotalBalance',
+			method: 'POST',
+			success: function(response){
+				var jsonData = Ext.JSON.decode(response.responseText);
+				var Total_Cost = jsonData.TotalCost;
+				Ext.getCmp('totalcost').setValue(Total_Cost);
+			}
+		});	
+		return true;
+	}
 	
 	function setButtonDisabled(valpass=false){
 		Ext.getCmp('btnManualProcess').setDisabled(valpass);
