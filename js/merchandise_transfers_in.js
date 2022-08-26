@@ -889,6 +889,7 @@ Ext.onReady(function(){
 		id:'gridMT',
 		anchor:'100%',
 		forceFit: true,
+		height:300,
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
 		plugins: {
@@ -1209,6 +1210,7 @@ Ext.onReady(function(){
 		anchor:'100%',
 		hidden: true,
 		forceFit: true,
+		height:300,
 		store: MerchandiseTransStore,
 		columns: columnTransferModelNonSerial,
 		plugins: {
