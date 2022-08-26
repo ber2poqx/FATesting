@@ -498,7 +498,7 @@ Ext.onReady(function(){
     	hidden: false,
     	fieldLabel:'From Branches',
 		labelWidth: 100,
-		width:500,
+		width:630,
     	name:'from_location',
     	id:'from_location',
     	queryMode: 'local',
