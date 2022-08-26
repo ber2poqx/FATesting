@@ -498,6 +498,7 @@ Ext.onReady(function(){
     	hidden: false,
     	fieldLabel:'From Branches',
 		labelWidth: 100,
+		width:500,
     	name:'from_location',
     	id:'from_location',
     	queryMode: 'local',
@@ -1636,7 +1637,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
-                    									width:455,
+                    									width:785,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
                     									emptyText:'--Select--',
@@ -1659,14 +1660,7 @@ Ext.onReady(function(){
 																}
 															}
                     									})
-													},{
-														xtype:'textfield',
-														name:'reference',
-														id:'reference',
-														fieldLabel:'RR Ref No.',
-														readOnly: true,
-														width:330
-													}													
+													}												
 												]
 											},{
 												xtype:'fieldcontainer',
@@ -1731,6 +1725,18 @@ Ext.onReady(function(){
 													id:'mtreferencemanual',
 													labelWidth: 80,
 													fieldLabel:'MT Ref No.'
+												}]
+											},{
+												xtype:'fieldcontainer',
+												layout:'hbox',
+												margin: '2 0 2 5',
+												items:[{
+													xtype:'textfield',
+													name:'reference',
+													id:'reference',
+													fieldLabel:'RR Ref No.',
+													readOnly: true,
+													width:362
 												}]
 											},{
 												xtype:'fieldcontainer',
