@@ -776,9 +776,9 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 	$date = date2sql($date);
 
 	$maxYear = (int)get_smo_max_year();
-	$maxYear_1 = (int)get_smo_max_year() - 1;
-	$maxYear_2 = (int)get_smo_max_year() - 2;
-	$maxYear_3 = (int)get_smo_max_year() - 3;
+	$maxYear_1 = $maxYear - 1;
+	$maxYear_2 = $maxYear_1 - 1;
+	$maxYear_3 = $maxYear_2 - 1;
 
 	$sql = "
 		SELECT DATEDIFF(DATE('$date'), SMO.tran_date) AS Age, ID.name AS Sub_Cat,	
@@ -840,7 +840,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 		$sql .= " ORDER BY SMO.category_id, SMO.stock_id, SMO.tran_date";
 	}
 	else {
-		$sql .= " GROUP BY SMO.transno_out, SMO.type_out, SMO.stock_id, SMO.loc_code, IFNULL(SMO.lot_no, ''), IFNULL(SMO.chassis_no, '')";
+		$sql .= " GROUP BY SMO.stock_id, SMO.loc_code, IFNULL(SMO.lot_no, ''), IFNULL(SMO.chassis_no, '')";
 		$sql .= " ORDER BY SMO.category_id, SMO.stock_id, SMO.tran_date, SMO.lot_no";
 	}
 
