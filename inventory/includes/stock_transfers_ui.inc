@@ -313,7 +313,7 @@ function display_transfer_items_serial_for_rr(&$order, $FromStockLocation, $AdjD
         } else {            
             $stock_quantity = 0;
         }
-        if($line_no != null || $line_no != ''){
+        if($stock_item->stock_id != ''){
             $group_array[] = array('id'=>$line_no,
                 'stock_id'=>$stock_item->stock_id,
                 'item_code'=>$stock_item->item_code,
