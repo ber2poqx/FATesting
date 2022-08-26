@@ -851,6 +851,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
+                    									width:455,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
                     									emptyText:'--Select--',
@@ -885,6 +886,7 @@ Ext.onReady(function(){
                     									editable      : true,
                     									forceSelection: true,
 														labelWidth: 80,
+														width:330,
                                                         allowBlank: false,
                     									required: true,
                     									hiddenName: 'category_id',
@@ -923,49 +925,51 @@ Ext.onReady(function(){
 																
 															}
 														}
-													},{
-														xtype:'datefield',
-														fieldLabel:'Trans Date',
-														labelWidth: 80,
-														name:'trans_date',
-														id:'AdjDate',
-														listeners:{
-															change: function(){
-																MerchandiseTransStore.load({
-																	params:{view:1},
-																	scope: this,
-																	callback: function(records, operation, success){
-																		var countrec = MerchandiseTransStore.getCount();
-																		if(countrec>0){
-																			setButtonDisabled(false);
-																		}else{
-																			setButtonDisabled(true);
-																			
-																		}
-																	}
-																});
-															}
-														}
-													}													
+													}										
 												]
 											},{
 												xtype:'fieldcontainer',
 												layout:'hbox',
 												margin: '2 0 2 5',							
 												items:[{
-														xtype:'textfield',
-														name:'rsdno',
-														id:'rsdno',
-														fieldLabel:'RSD #',
-														allowBlank: true,
-														hidden: true
-													},{
-														xtype:'textfield',
-														name:'servedby',
-														id:'servedby',
-														fieldLabel:'Served By',
-														readOnly: true
-													}]
+													xtype:'datefield',
+													fieldLabel:'Trans Date',									
+													name:'trans_date',
+													id:'AdjDate',
+													width: 260,
+													listeners:{
+														change: function(){
+															MerchandiseTransStore.load({
+																params:{view:1},
+																scope: this,
+																callback: function(records, operation, success){
+																	var countrec = MerchandiseTransStore.getCount();
+																	if(countrec>0){
+																		setButtonDisabled(false);
+																	}else{
+																		setButtonDisabled(true);
+																		
+																	}
+																}
+															});
+														}
+													}
+												},{			
+													xtype:'textfield',
+													name:'rsdno',
+													id:'rsdno',
+													fieldLabel:'RSD #',
+													allowBlank: true,
+													hidden: true
+												},{
+													xtype:'textfield',
+													name:'servedby',
+													id:'servedby',
+													fieldLabel:'Served By',
+													labelWidth:80,
+													width: 281,
+													readOnly: true
+												}]
 											},{
 												xtype:'fieldcontainer',
 												width:785,

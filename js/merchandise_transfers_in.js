@@ -1636,7 +1636,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
-                    									width:420,
+                    									width:455,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
                     									emptyText:'--Select--',
@@ -1665,7 +1665,7 @@ Ext.onReady(function(){
 														id:'reference',
 														fieldLabel:'RR Ref No.',
 														readOnly: true,
-														width:366
+														width:330
 													}													
 												]
 											},{
