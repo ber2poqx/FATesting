@@ -1164,8 +1164,6 @@ Ext.onReady(function(){
 											var gridRepoData = [];
 											count = 0;
 											Ext.each(selected, function(record) {
-												alert(record.get('model'));
-												alert(record.get('color'));
 												var ObjItem = {										
 													model: record.get('model'),	
 													item_code: record.get('item_code'),	

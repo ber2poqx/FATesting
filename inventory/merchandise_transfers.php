@@ -104,7 +104,7 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'ManualAddItem';
             $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
-            $objDataGrid = json_decode($DataOnGrid, true);
+            $objDataGrid = json_decode(trim($DataOnGrid), true);
             //var_dump($objDataGrid);
             foreach($objDataGrid as $value=>$data) 
             {
