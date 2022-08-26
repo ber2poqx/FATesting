@@ -411,12 +411,17 @@ if(!is_null($action) || !empty($action)){
             echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'"})';
             exit;
             break;
+        case 'getTotalBalance';
+            $totalcost=$_SESSION['transfer_items']->gl_items_total_credit();
+
+            echo '({"TotalCost":"'.number_format2($totalcost,2).'"})';
+            exit;
+        break;
         case 'ManualupdateData';
             $arrayremove = array("[","]");
             $onlyconsonants = str_replace($arrayremove, "", html_entity_decode($_REQUEST['dataManualUpdate']));
             $filter = json_decode($onlyconsonants, true);
             $_SESSION['transfer_items']->update_cart_item($filter['id'], $filter['qty'],$filter['standard_cost'],'0000-00-00','0000-00-00',$filter['lot_no'], $filter['chasis_no'], $filter['color']);
-        
         
             echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'","standard_cost":"'.$filter['standard_cost'].'","lot_no":"'.$filter['lot_no'].'","chasis_no":"'.$filter['chasis_no'].'"})';
             exit;
@@ -594,7 +599,8 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'items_listing':
-            set_global_connection();
+            global $def_coy;
+            set_global_connection($def_coy);
             
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
