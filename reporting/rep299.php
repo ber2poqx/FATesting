@@ -102,7 +102,7 @@ function print_transaction() {
 
 	$res = get_inventory_movement($category, $supplier, $location, $date, false, true);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
-    $qtyTot = $demand_qty = $qoh = $qty = 0;
+    $qtyTot = $demand_qty = $qoh = $qty = $qoh = $qty_ = 0;
 	$catt = $code = $loc = $samp = $cor = $poc = '';
 
 	while ($trans = db_fetch($res)) {
@@ -134,23 +134,30 @@ function print_transaction() {
 			$rep->NewLine(2);		
 		}
 
+		if ($trans['QoH'] < 0) {
+			$qty_ = ABS($trans['QoH']);
+		}
+
 		if ($trans['QoH'] > 0) {
+
+			$qoh = $trans['QoH'] - $qty_;
+
 			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $trans['Brand']);
 			$rep->TextCol(1, 2, $trans['prod_desc']);
 			$rep->TextCol(2, 3, $trans['Code']);
-			$rep->TextCol(3, 4, $trans['QoH']);
+			$rep->TextCol(3, 4, $qoh);
 
         	$dec2 = 0; 
-			$rep->AmountCol2(4, 5, $trans['UnitCost'] * $trans['QoH'], $dec);
+			$rep->AmountCol2(4, 5, $trans['UnitCost'] * $qoh, $dec);
 			$rep->fontSize += 1;
         	$rep->NewLine();
 		
-			$qty += $trans['QoH'];
-			$itm_tot += $trans['UnitCost'] * $trans['QoH'];
+			$qty += $qoh;
+			$itm_tot += $trans['UnitCost'] * $qoh;
 		
-			$qtyTot += $trans['QoH'];
-			$grandtotal += $trans['UnitCost'] * $trans['QoH'];
+			$qtyTot += $qoh;
+			$grandtotal += $trans['UnitCost'] * $qoh;
 		}
 	} //END while
 

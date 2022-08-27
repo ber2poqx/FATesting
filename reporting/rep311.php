@@ -110,7 +110,7 @@ function print_transaction() {
 
 	$res = get_inventory_movement($category, 'ALL', $location, $date);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
-    $qtyTot = $demand_qty = $qoh = $qty = 0;
+    $qtyTot = $demand_qty = $qoh = $qty = $qoh = $qty_ = 0;
 	$catt = $code = $loc = $samp = $cor = $reference = $trim_ref = $loc_code = $ob_ref = '';
 
 	while ($trans = db_fetch($res)) {
@@ -148,7 +148,12 @@ function print_transaction() {
 			$rep->NewLine(2);			
 		}
 
+		if ($trans['QoH'] < 0) {
+			$qty_ = ABS($trans['QoH']);
+		}
+
 		if ($trans['QoH'] > 0) {
+			$qoh = $trans['QoH'] - $qty_;
 			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
 
 			$rep->fontSize -= 1;
@@ -157,7 +162,7 @@ function print_transaction() {
 			$rep->TextCol(2, 3, $destination ? $color_desc : substr($color_desc, 0, 25));
         	$rep->TextCol(3, 4, $trans['Sub_Cat']);
         	$rep->TextCol(4, 5, $trim_ref);
-        	$rep->TextCol(5, 6, $trans['QoH']);
+        	$rep->TextCol(5, 6, $qoh);
         
         	$rep->TextCol(6, 7, $trans['Serial#']);
         	$rep->TextCol(7, 8, $trans['Chassis#']);

@@ -117,7 +117,7 @@ function print_transaction() {
 
 	$res = get_inventory_movement($category, 'ALL', $location, $date);
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
-    $qtyTot = $demand_qty = $qoh = $qty = 0;
+    $qtyTot = $demand_qty = $qoh = $qty = $qoh = $qty_ = 0;
 	$catt = $code = $loc = $samp = $reference = $trim_ref = $loc_code = $ob_ref = '';
 	$m0 = $m1 = $m2 = $m3 = 0.0;
 	$am0 = $am1 = $am2 = $am3 = 0.0;
@@ -161,7 +161,13 @@ function print_transaction() {
 			$rep->NewLine(2);	
 		}
 
+		if ($trans['QoH'] < 0) {
+			$qty_ = ABS($trans['QoH']);
+		}
+
 		if ($trans['QoH'] > 0) {
+			$qoh = $trans['QoH'] - $qty_;
+
 			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $trans['Brand']);
         	$rep->TextCol(1, 2, $trans['Code']);
@@ -169,11 +175,11 @@ function print_transaction() {
         	$rep->TextCol(3, 4, $trim_ref);
         	$rep->TextCol(4, 5, $trans['Serial#']);
         	$rep->TextCol(5, 6, $trans['Chassis#']);
-        	$rep->TextCol(6, 7, $trans['QoH']);
-        	$rep->AmountCol2(7, 8, $trans['maxYear'] * $trans['QoH']);
-        	$rep->AmountCol2(8, 9, $trans['maxYear_1'] * $trans['QoH']);
-        	$rep->AmountCol2(9, 10, $trans['maxYear_2'] * $trans['QoH']);
-        	$rep->AmountCol2(10, 11, $trans['maxYear_3'] * $trans['QoH']);
+        	$rep->TextCol(6, 7, $qoh);
+        	$rep->AmountCol2(7, 8, $trans['maxYear'] * $qoh);
+        	$rep->AmountCol2(8, 9, $trans['maxYear_1'] * $qoh);
+        	$rep->AmountCol2(9, 10, $trans['maxYear_2'] * $qoh);
+        	$rep->AmountCol2(10, 11, $trans['maxYear_3'] * $qoh);
 			$rep->SetTextColor(0, 0, 255);
         	$rep->TextCol(11, 12, $trans['Date']);
 			$rep->SetTextColor(0, 0, 0);
@@ -187,16 +193,16 @@ function print_transaction() {
 			$rep->fontSize += 1;
         	$rep->NewLine();
 		
-			$m0 += $trans['maxYear'] * $trans['QoH'];
-			$m1 += $trans['maxYear_1'] * $trans['QoH'];
-			$m2 += $trans['maxYear_2'] * $trans['QoH'];
-			$m3 += $trans['maxYear_3'] * $trans['QoH'];
-			$qtyTot += $trans['QoH'];
-			$qty += $trans['QoH'];	
-			$am0 += $trans['maxYear'] * $trans['QoH'];
-			$am1 += $trans['maxYear_1'] * $trans['QoH'];
-			$am2 += $trans['maxYear_2'] * $trans['QoH'];
-			$am3 += $trans['maxYear_3'] * $trans['QoH'];
+			$m0 += $trans['maxYear'] * $qoh;
+			$m1 += $trans['maxYear_1'] * $qoh;
+			$m2 += $trans['maxYear_2'] * $qoh;
+			$m3 += $trans['maxYear_3'] * $qoh;
+			$qtyTot += $qoh;
+			$qty += $qoh;	
+			$am0 += $trans['maxYear'] * $qoh;
+			$am1 += $trans['maxYear_1'] * $qoh;
+			$am2 += $trans['maxYear_2'] * $qoh;
+			$am3 += $trans['maxYear_3'] * $qoh;
 		}		
 	} //END while
 

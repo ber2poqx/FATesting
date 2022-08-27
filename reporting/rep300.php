@@ -120,7 +120,7 @@ function print_transaction() {
 	$res = get_inventory_movement($category, $supplier, $location, $date);
 
 	$total = $grandtotal = $itm_tot = $unt_cst = 0.0;
-    $qtyTot = $demand_qty = $qoh = $qty = 0;
+    $qtyTot = $demand_qty = $qoh = $qty = $qoh = $qty_ = 0;
 	$catt = $code = $loc = $samp = $cor = $reference = $trim_ref = $loc_code = $ob_ref = '';
 
 	while ($trans = db_fetch($res)) {
@@ -160,11 +160,16 @@ function print_transaction() {
 			$rep->NewLine(2);		
 		}
 
+		if ($trans['QoH'] < 0) {
+			$qty_ = ABS($trans['QoH']);
+		}
+
 		if ($trans['QoH'] > 0) {
 
 			$prod_code = $trans['Code'];
 			$prod_desc = $trans['prod_desc'];
 			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
+			$qoh = $trans['QoH'] - $qty_;
 
 			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $destination ? $prod_code : substr($prod_code, 0, 25));
@@ -179,25 +184,25 @@ function print_transaction() {
         	$rep->TextCol(6, 7, $trans['trans_no']);
         	$rep->TextCol(7, 8, $trans['Serial#']);
         	$rep->TextCol(8, 9, $trans['Chassis#']);
-        	$rep->TextCol(9, 10, $trans['QoH']);
+        	$rep->TextCol(9, 10, $qoh);
         	$rep->TextCol(10, 11, $trans['units']);      
         	
         	$dec2 = 0; 
 			$rep->AmountCol2(11, 12, $trans['UnitCost'], $dec2);
-			$rep->AmountCol2(12, 13, $trans['QoH'] * $trans['UnitCost'], $dec);
+			$rep->AmountCol2(12, 13, $qoh * $trans['UnitCost'], $dec);
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(13, 14, $loc_code);
 			$rep->SetTextColor(0, 0, 0);
 			$rep->fontSize += 1;
         	$rep->NewLine();
 		
-			$qty += $trans['QoH'];
+			$qty += $qoh;
 			$unt_cst += $trans['UnitCost'];
-			$itm_tot += $trans['QoH'] * $trans['UnitCost'];
+			$itm_tot += $qoh * $trans['UnitCost'];
 		
-			$qtyTot += $trans['QoH'];
+			$qtyTot += $qoh;
 			$total += $trans['UnitCost'];
-			$grandtotal += $trans['QoH'] * $trans['UnitCost'];
+			$grandtotal += $qoh * $trans['UnitCost'];
 		}
 	} //END while
 
@@ -205,11 +210,9 @@ function print_transaction() {
 		$rep->NewLine();
 		$rep->Font('bold');	
 		$rep->TextCol(0, 1, _('Sub Total'));
-		//$rep->fontSize -= 1;
 		$rep->AmountCol(9, 10, $qty);
 		$rep->AmountCol(11, 12, $unt_cst, $dec);
     	$rep->AmountCol(12, 13, $itm_tot, $dec);
-		//$rep->fontSize += 1;
 		$rep->Line($rep->row  - 4);
 		$rep->Font();
 		$rep->NewLine(3);
@@ -219,7 +222,7 @@ function print_transaction() {
     $rep->fontSize += 2;
 	$rep->TextCol(0, 2, _('GRAND TOTAL:'));
 	$rep->fontSize -= 2;
-	$rep->TextCol(9, 10, $qtyTot);
+	$rep->AmountCol(9, 10, $qtyTot);
     $rep->AmountCol(11, 12, $total, $dec);
     $rep->AmountCol(12, 13, $grandtotal, $dec);
 	$rep->Line($rep->row  - 4);
