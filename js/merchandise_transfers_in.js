@@ -664,11 +664,11 @@ Ext.onReady(function(){
 						}
 					}*/	
 				}
-			}
-			/*renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
+			},
+			renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
 				GetTotalBalance();
                 return Ext.util.Format.number(value,'0,000.00');
-            }*/ 
+            } 
 		},
 		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
 			editor:{
@@ -908,12 +908,12 @@ Ext.onReady(function(){
 		border: false,
 		frame:false,
 		viewConfig:{
-			stripeRows: true
-			/*listeners: {
+			stripeRows: true,
+			listeners: {
             	refresh: function(view) {
 					GetTotalBalance();
 				}
-        	}*/
+        	}
 		},
 		dockedItems:[{
 			dock	: 'top',
@@ -1233,12 +1233,12 @@ Ext.onReady(function(){
 		border: false,
 		frame:false,
 		viewConfig:{
-			stripeRows: true
-			/*listeners: {
+			stripeRows: true,
+			listeners: {
             	refresh: function(view) {
 					GetTotalBalance();
 				}
-        	}*/
+        	}
 		},
 		dockedItems:[{
 			dock	: 'top',
@@ -1959,7 +1959,7 @@ Ext.onReady(function(){
 		}
 	});
 
-	/*function GetTotalBalance(){
+	function GetTotalBalance(){
 		Ext.Ajax.request({
 			url : '?action=getTotalBalance',
 			method: 'POST',
@@ -1970,7 +1970,7 @@ Ext.onReady(function(){
 			}
 		});	
 		return true;
-	}*/
+	}
 	
 	function setButtonDisabled(valpass=false){
 		Ext.getCmp('btnManualProcess').setDisabled(valpass);

@@ -181,6 +181,18 @@ class items_cart
 		$this->line_items[$line_no]->remarks = $remarks;
 	}
 
+	//Added by Robert 08/27/2022
+	function rr_manual_items_total_cost()
+	{
+		$total = 0;
+		foreach ($this->line_items as $line_items)
+		{
+			if ($line_items->standard_cost > 0)
+				$total += $line_items->standard_cost;
+		}
+		return $total;
+	}
+
 	function remove_from_cart($line_no)
 	{
 		array_splice($this->line_items, $line_no, 1);

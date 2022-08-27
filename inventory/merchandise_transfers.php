@@ -412,7 +412,7 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'getTotalBalance';
-            $totalcost=$_SESSION['transfer_items']->gl_items_total_credit();
+            $totalcost=$_SESSION['transfer_items']->rr_manual_items_total_cost();
 
             echo '({"TotalCost":"'.number_format2($totalcost,2).'"})';
             exit;
