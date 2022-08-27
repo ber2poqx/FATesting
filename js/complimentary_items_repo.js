@@ -1738,7 +1738,8 @@ Ext.onReady(function(){
 													name:'reference',
 													id:'reference',
 													layout:'anchor',
-													anchor:'100%'
+													anchor:'100%',
+													readOnly: true
 													//flex:1
 												},{
 													xtype: 'combobox',
