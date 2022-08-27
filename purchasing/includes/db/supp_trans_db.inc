@@ -230,7 +230,7 @@ function post_void_supp_trans($type, $type_no)
 //----------------------------------------------------------------------------------------
 
 function get_sql_for_supplier_inquiry($filter, $after_date, $to_date, 
-	$supplier_id=ALL_TEXT, $po = '', $pr = '', $rr = '', $sup = '', $serv_stat)
+	$supplier_id=ALL_TEXT, $po = '', $pr = '', $rr = '', $sup = '', $serv_stat, $category = '')
 {
     $date_after = date2sql($after_date);
     $date_to = date2sql($to_date);
@@ -311,6 +311,10 @@ function get_sql_for_supplier_inquiry($filter, $after_date, $to_date,
 	//Served Status
 	if ($serv_stat != "") {
 		$sql2 .= " AND po.served_status = ".db_escape(trim($serv_stat));
+	}
+
+	if ($category != '') {
+		$sql2 .= " AND trans.category_id = " .db_escape($category);
 	}
 
 	if ($filter == '2')

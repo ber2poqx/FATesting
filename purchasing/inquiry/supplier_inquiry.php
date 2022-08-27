@@ -196,6 +196,12 @@ if (!$page_nested)
 
 supp_transactions_list_cell("filterType", null, true);
 
+//Added by spyrax10 22 Aug 2022
+sql_type_list(_("Category: "), 'category', 
+	get_category_list(), 'category_id', 'description', 
+	'', null, true, _("All Category")
+);
+
 if ($_POST['filterType'] != '2') {
 	date_cells(_("From:"), 'TransAfterDate', '', null, -user_transaction_days());
 	date_cells(_("To:"), 'TransToDate');
@@ -231,7 +237,8 @@ $sql = get_sql_for_supplier_inquiry(
 	get_post('pr_no'),
 	get_post('rr_no'),
 	get_post('sup_no'),
-	get_post('serv_stat')
+	get_post('serv_stat'),
+	get_post('category')
 );
 
 $cols = array(
