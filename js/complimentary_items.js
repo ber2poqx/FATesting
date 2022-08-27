@@ -1610,8 +1610,7 @@ Ext.onReady(function(){
 								//height:500,
 								bodyPadding: 5,
 								layout:'anchor',
-								items:[
-									{
+								items:[{
 										xtype:'fieldset',
 										//title:'Complimentary Header',
 										layout:'anchor',
@@ -1619,143 +1618,143 @@ Ext.onReady(function(){
 										fieldDefaults:{
 											labelAlign:'right'
 										},
-										items:[
-											{
-												xtype:'fieldcontainer',
-												layout:'hbox',
-												margin: '2 0 2 5',
-												items:[
-													{
-														xtype:'combobox',
-														fieldLabel:'Location From',
-														name:'fromlocation',
-														id:'fromlocation',
-														queryModel:'local',
-														triggerAction : 'all',
-                    									displayField  : 'location_name',
-                    									valueField    : 'loc_code',
-                    									editable      : true,
-                    									forceSelection: true,
-                                                        allowBlank: false,
-                    									required: true,
-                    									hiddenName: 'loc_code',
-                    									typeAhead: true,
-                    									emptyText:'--Select--',
-                    									selectOnFocus:true,
-														store: Ext.create('Ext.data.Store',{
-                    										fields: ['loc_code', 
-																	'location_name', 
-																	'delivery_address', 
-																	'phone', 
-																	'phone2'
-															],
-                                                    		autoLoad: true,
-															proxy: {
-																type:'ajax',
-																url: '?action=fromlocation',
-																reader:{
-																	type : 'json',
-																	root : 'result',
-																	totalProperty : 'total'
-																}
-															}
-                    									})
-													},{
-														xtype:'combobox',
-														fieldLabel:'Category',
-														name:'category',
-														id:'category',
-														queryModel:'local',
-														triggerAction:'all',
-														displayField  : 'description',
-                    									valueField    : 'category_id',
-                    									editable      : true,
-                    									forceSelection: true,
-                                                        allowBlank: false,
-                                                        labelWidth: 80,
-                    									required: true,
-                    									hiddenName: 'category_id',
-                    									typeAhead: true,
-                    									emptyText:'--Select--',
-                    									selectOnFocus:true,
-														store: Ext.create('Ext.data.Store',{
-                    										fields: ['category_id', 'description'],
-                                                    		autoLoad: true,
-															proxy: {
-																type:'ajax',
-																url: '?action=category',
-																reader:{
-																	type : 'json',
-																	root : 'result',
-																	totalProperty : 'total'
-																}
-															}
-                    									}),
-														listeners:{
-															select: function(cmb, rec, idx){
-																var v = this.getValue();
-																//var mtgridcol = Ext.getCmp('mtgrid');
-																if(v=='14'){
-																	
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
-																	
-																}else{
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
-																}
-																//Ext.Msg.alert('Category', v);
-																
-															}
-														}
-													},{
-														xtype:'datefield',
-														fieldLabel:'Trans Date',
-                                                        labelWidth: 80,
-                                                   		width: 208,
-														name:'trans_date',
-														id:'AdjDate',
-														listeners:{
-															change: function(){
-																MerchandiseTransStore.load({
-																	params:{view:1}
-																});
-															}
-														}
-													},{
-														xtype:'textfield',
-														fieldLabel:'Reference #',
-                                                        labelWidth: 90,
-                                                   		width: 312, 
-														name:'reference',
-														id:'reference',
-														layout:'anchor',
-														anchor:'100%'
-														//flex:1
-													}
-												]
-											},{
+										items:[{
 												xtype:'fieldcontainer',
 												layout:'hbox',
 												margin: '2 0 2 5',
 												items:[{
-													xtype: 'combobox',
-													fieldLabel:'Sent To',
-													name:'masterfile_type_header',
-								                    id:'masterfile_type_header',
-								                    typeAhead: true,
-										            triggerAction: 'all',
-										            store: MasterfileTypeStore,
-													displayField  : 'namecaption',
-													valueField    : 'id',
-													editable      : false,
-													forceSelection: true,
-													required: true,
-													hiddenName: 'id',
-													listeners: {
-														select: function(cmb, rec, idx) {
+													xtype:'combobox',
+													fieldLabel:'Location From',
+													name:'fromlocation',
+													id:'fromlocation',
+													queryModel:'local',
+													triggerAction : 'all',
+                									displayField  : 'location_name',
+                									valueField    : 'loc_code',
+                									editable      : true,
+                									forceSelection: true,
+                                                    allowBlank: false,
+                									required: true,
+                									hiddenName: 'loc_code',
+                									typeAhead: true,
+                									width: 525,
+                									emptyText:'--Select--',
+                									selectOnFocus:true,
+													store: Ext.create('Ext.data.Store',{
+                										fields: ['loc_code', 
+																'location_name', 
+																'delivery_address', 
+																'phone', 
+																'phone2'
+														],
+                                                		autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=fromlocation',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+                    								})
+												},{
+													xtype:'combobox',
+													fieldLabel:'Category',
+													name:'category',
+													id:'category',
+													queryModel:'local',
+													triggerAction:'all',
+													displayField  : 'description',
+                									valueField    : 'category_id',
+                									editable      : true,
+                									forceSelection: true,
+                                                    allowBlank: false,
+                                                    labelWidth: 70,
+                									required: true,
+                									hiddenName: 'category_id',
+                									typeAhead: true,
+                									emptyText:'--Select--',
+                									selectOnFocus:true,
+													store: Ext.create('Ext.data.Store',{
+                										fields: ['category_id', 'description'],
+                                                		autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=category',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+                									}),
+													listeners:{
+														select: function(cmb, rec, idx){
+															var v = this.getValue();
+															//var mtgridcol = Ext.getCmp('mtgrid');
+															if(v=='14'){
+																
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
+																
+															}else{
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
+															}
+															//Ext.Msg.alert('Category', v);
+															
+														}
+													}
+												},{
+													xtype:'datefield',
+													fieldLabel:'Trans Date',
+                                                    labelWidth: 80,
+                                               		width: 230,
+													name:'trans_date',
+													id:'AdjDate',
+													listeners:{
+														change: function(){
+															MerchandiseTransStore.load({
+																params:{view:1}
+															});
+														}
+													}
+												}													
+											]
+												},{
+													xtype:'fieldcontainer',
+													layout:'hbox',
+													margin: '2 0 2 5',
+													items:[{
+													xtype:'textfield',
+														fieldLabel:'Reference #',
+                                                   		width: 350, 
+														name:'reference',
+														id:'reference',
+														layout:'anchor',
+														anchor:'100%',
+														readOnly: true
+														//flex:1
+													},{
+														xtype: 'combobox',
+														fieldLabel:'Sent To',
+														name:'masterfile_type_header',
+									                    id:'masterfile_type_header',
+									                    typeAhead: true,
+											            triggerAction: 'all',
+											            store: MasterfileTypeStore,
+														displayField  : 'namecaption',
+														valueField    : 'id',
+														editable      : false,
+														forceSelection: true,
+														required: true,
+														labelWidth: 60,
+														hiddenName: 'id',
+														listeners: {
+															select: function(cmb, rec, idx) {
 															MasterfileModel=Ext.getCmp('masterfile_header');
 									                        MasterfileModel.clearValue();
 															if( this.getValue()===99){
@@ -1763,16 +1762,13 @@ Ext.onReady(function(){
 															}else{
 																MasterfileModel.store.load({
 																	params: { 'masterfile_type': this.getValue()
-																	 }
+																	}
 																});
-															}
-									
-									                        MasterfileModel.enable();
-									
+															}								
+									                        MasterfileModel.enable();									
 														}
 													}
-												},
-												{
+												},{
 			                                        xtype:'combo',
 			                                        fieldLabel:'Masterfile',
 			                                        name:'masterfile_header',
@@ -1780,7 +1776,7 @@ Ext.onReady(function(){
 			                                        anchor:'100%',
 			                                        typeAhead: true,
                                                     labelWidth: 80,
-                                                    width: 775,
+                                                    width: 415,
 										            triggerAction: 'all',
 										            store: MasterfileStore,
 													queryMode: 'local',
@@ -1792,14 +1788,13 @@ Ext.onReady(function(){
 														change: function(combo, value,index){
 															return decodeHtmlEntity(combo.getRawValue());
 														}
-													} 
-														
+													} 	
 			                                    }
 											]
 											},{
 												xtype:'fieldcontainer',
 												margin: '2 0 2 5',
-												width: 1051,
+												width: 1000,
 												layout:'fit',
 												items:[{
 													xtype:'textareafield',
@@ -1811,8 +1806,7 @@ Ext.onReady(function(){
 												}]
 											}
 										]	
-									},
-									{
+									},{
 										xtype:'tabpanel',
 										items:[
 											{
@@ -1825,8 +1819,7 @@ Ext.onReady(function(){
 												layout:'fit',
 												id:'tabItemEntry',
 												items:[gridMT]
-											},
-											{
+											},{
 												xtype:'panel',
 												title:'Journal Entry',
 												frame: true,
@@ -1852,8 +1845,7 @@ Ext.onReady(function(){
 								            }
 								        }
 										
-									},
-									{
+									},{
 										xtype:'fieldcontainer',
 										layout:'hbox',
 										items:[
@@ -1863,15 +1855,13 @@ Ext.onReady(function(){
 												readOnly: true,
 												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
 												id:'totaldebit'
-											},
-											{
+											},{
 												xtype:'textfield',
 												fieldLabel:'CREDIT:',
 												readOnly: true,
 												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
 												id:'totalcredit'
-											},
-											{
+											},{
 												xtype:'textfield',
 												fieldLabel:'MODEL:',
 												readOnly: true,
@@ -1881,68 +1871,66 @@ Ext.onReady(function(){
 											}
 										]
 									}
-									
 								],
-								buttons:[
-									{
-										text:'Process',
-										id:'btnProcess',
-										disabled: true,
-										handler:function(){
+								buttons:[{
+									text:'Process',
+									id:'btnProcess',
+									disabled: true,
+									handler:function(){
 
-											var gridData = MerchandiseTransStore.getRange();
-											var gridRepoData = [];
-											count = 0;
-											Ext.each(gridData, function(item) {
-												var ObjItem = {							
-													qty: item.get('qty'),
-													currentqty:item.get('currentqty'),												
-													stock_id:item.get('stock_id')													
-												};
-												gridRepoData.push(ObjItem);
-											});
+										var gridData = MerchandiseTransStore.getRange();
+										var gridRepoData = [];
+										count = 0;
+										Ext.each(gridData, function(item) {
+											var ObjItem = {							
+												qty: item.get('qty'),
+												currentqty:item.get('currentqty'),												
+												stock_id:item.get('stock_id')													
+											};
+											gridRepoData.push(ObjItem);
+										});
 
-											var AdjDate = Ext.getCmp('AdjDate').getValue();	
-											var catcode = Ext.getCmp('category').getValue();
-											var FromStockLocation = Ext.getCmp('fromlocation').getValue();
-											var memo_ = Ext.getCmp('memo').getValue();
-											var totaldebit = Ext.getCmp('totaldebit').getValue();
-											var totalcredit = Ext.getCmp('totalcredit').getValue();
-											var reference = Ext.getCmp('reference').getValue();
-											var person_id = Ext.getCmp('masterfile_header').getValue();
-											var masterfile = Ext.getCmp('masterfile_header').getRawValue();
-											
-											var person_type = Ext.getCmp('masterfile_type_header').getValue();
+										var AdjDate = Ext.getCmp('AdjDate').getValue();	
+										var catcode = Ext.getCmp('category').getValue();
+										var FromStockLocation = Ext.getCmp('fromlocation').getValue();
+										var memo_ = Ext.getCmp('memo').getValue();
+										var totaldebit = Ext.getCmp('totaldebit').getValue();
+										var totalcredit = Ext.getCmp('totalcredit').getValue();
+										var reference = Ext.getCmp('reference').getValue();
+										var person_id = Ext.getCmp('masterfile_header').getValue();
+										var masterfile = Ext.getCmp('masterfile_header').getRawValue();
+										
+										var person_type = Ext.getCmp('masterfile_type_header').getValue();
 
-											var item_models = Ext.getCmp('item_model').getValue();
+										var item_models = Ext.getCmp('item_model').getValue();
 
-											Ext.MessageBox.show({
-												msg: 'Saving Date, please wait...',
-												progressText: 'Saving...',
-												width:300,
-												wait:true,
-												waitConfig: {interval:200},
-												//icon:'ext-mb-download', //custom class in msg-box.html
-												iconHeight: 50
-											});
+										Ext.MessageBox.show({
+											msg: 'Saving Date, please wait...',
+											progressText: 'Saving...',
+											width:300,
+											wait:true,
+											waitConfig: {interval:200},
+											//icon:'ext-mb-download', //custom class in msg-box.html
+											iconHeight: 50
+										});
 												
 											Ext.Ajax.request({
-												url : '?action=SaveTransfer',
-												method: 'POST',
-												params:{
-													AdjDate:AdjDate,
-													catcode:catcode,
-													FromStockLocation: FromStockLocation,
-													memo_: memo_,
-													totaldebit:totaldebit,
-													totalcredit: totalcredit,
-													ref: reference,
-													person_type: person_type,
-													person_id: person_id,
-													masterfile: masterfile,
-													item_models: item_models,
-													Dataongrid: Ext.encode(gridRepoData)
-												},
+											url : '?action=SaveTransfer',
+											method: 'POST',
+											params:{
+												AdjDate:AdjDate,
+												catcode:catcode,
+												FromStockLocation: FromStockLocation,
+												memo_: memo_,
+												totaldebit:totaldebit,
+												totalcredit: totalcredit,
+												ref: reference,
+												person_type: person_type,
+												person_id: person_id,
+												masterfile: masterfile,
+												item_models: item_models,
+												Dataongrid: Ext.encode(gridRepoData)
+											},
 												success: function(response){
 													var jsonData = Ext.JSON.decode(response.responseText);
 													var errmsg = jsonData.errmsg;
@@ -1955,21 +1943,18 @@ Ext.onReady(function(){
 														//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
 														myInsurance.load();
 														Ext.MessageBox.alert('Success','Success Processing');
-													}
-													
+													}	
 												} 
 											});
 											Ext.MessageBox.hide();
 										}
-									},
-									{
+									},{
 										text:'Close',
 										handler: function(){
 											windowNewTransfer.close();
 										}
 									}
 								]
-								
 							});
 						}
 						var AdjDate = Ext.getCmp('AdjDate').getValue();	

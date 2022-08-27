@@ -1638,6 +1638,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
+                    									width: 525,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
                     									emptyText:'--Select--',
@@ -1672,7 +1673,7 @@ Ext.onReady(function(){
                     									editable      : true,
                     									forceSelection: true,
                                                         allowBlank: false,
-                                                        labelWidth: 80,
+                                                        labelWidth: 70,
                     									required: true,
                     									hiddenName: 'category_id',
                     									typeAhead: true,
@@ -1714,7 +1715,7 @@ Ext.onReady(function(){
 														xtype:'datefield',
 														fieldLabel:'Trans Date',
                                                         labelWidth: 80,
-                                                   		width: 208,
+                                                   		width: 230,
 														name:'trans_date',
 														id:'AdjDate',
 														listeners:{
@@ -1724,16 +1725,6 @@ Ext.onReady(function(){
 																});
 															}
 														}
-													},{
-														xtype:'textfield',
-														fieldLabel:'Reference #',
-                                                        labelWidth: 90,
-                                                   		width: 312,                                                     
-														name:'reference',
-														id:'reference',
-														layout:'anchor',
-														anchor:'100%'
-														//flex:1
 													}
 												]
 											},{
@@ -1741,6 +1732,15 @@ Ext.onReady(function(){
 												layout:'hbox',
 												margin: '2 0 2 5',
 												items:[{
+													xtype:'textfield',
+													fieldLabel:'Reference #',
+                                               		width: 350,                                                     
+													name:'reference',
+													id:'reference',
+													layout:'anchor',
+													anchor:'100%'
+													//flex:1
+												},{
 													xtype: 'combobox',
 													fieldLabel:'Sent To',
 													name:'masterfile_type_header',
@@ -1753,6 +1753,7 @@ Ext.onReady(function(){
 													editable      : false,
 													forceSelection: true,
 													required: true,
+													labelWidth: 60,
 													hiddenName: 'id',
 													listeners: {
 														select: function(cmb, rec, idx) {
@@ -1771,8 +1772,7 @@ Ext.onReady(function(){
 									
 														}
 													}
-												},
-												{
+												},{
 			                                        xtype:'combo',
 			                                        fieldLabel:'Masterfile',
 			                                        name:'masterfile_header',
@@ -1780,7 +1780,7 @@ Ext.onReady(function(){
 			                                        anchor:'100%',
 			                                        typeAhead: true,
                                                     labelWidth: 80,
-                                                    width: 775,
+                                                    width: 415,
 										            triggerAction: 'all',
 										            store: MasterfileStore,
 													queryMode: 'local',
@@ -1799,7 +1799,7 @@ Ext.onReady(function(){
 											},{
 												xtype:'fieldcontainer',
 												margin: '2 0 2 5',
-												width: 1051,
+												width: 1000,
 												layout:'fit',
 												items:[{
 													xtype:'textareafield',

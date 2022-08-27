@@ -851,7 +851,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
-                    									width:455,
+                    									width:785,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
                     									emptyText:'--Select--',
@@ -874,8 +874,14 @@ Ext.onReady(function(){
 																}
 															}
                     									})
-													},{
-														xtype:'combobox',
+													}					
+												]
+											},{
+												xtype:'fieldcontainer',
+												layout:'hbox',
+												margin: '2 0 2 5',							
+												items:[{
+													xtype:'combobox',
 														fieldLabel:'Category',
 														name:'category',
 														id:'category',
@@ -884,9 +890,7 @@ Ext.onReady(function(){
 														displayField  : 'description',
                     									valueField    : 'category_id',
                     									editable      : true,
-                    									forceSelection: true,
-														labelWidth: 80,
-														width:330,
+                    									forceSelection: true,												
                                                         allowBlank: false,
                     									required: true,
                     									hiddenName: 'category_id',
@@ -925,19 +929,14 @@ Ext.onReady(function(){
 																
 															}
 														}
-													}										
-												]
-											},{
-												xtype:'fieldcontainer',
-												layout:'hbox',
-												margin: '2 0 2 5',							
-												items:[{
-													xtype:'datefield',
-													fieldLabel:'Trans Date',									
-													name:'trans_date',
-													id:'AdjDate',
-													width: 260,
-													listeners:{
+													},{						
+														xtype:'datefield',
+														fieldLabel:'Trans Date',									
+														name:'trans_date',
+														id:'AdjDate',
+														width: 232,
+														labelWidth: 80,
+														listeners:{
 														change: function(){
 															MerchandiseTransStore.load({
 																params:{view:1},
@@ -967,7 +966,7 @@ Ext.onReady(function(){
 													id:'servedby',
 													fieldLabel:'Served By',
 													labelWidth:80,
-													width: 281,
+													width: 278,
 													readOnly: true
 												}]
 											},{
