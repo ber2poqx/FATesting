@@ -574,6 +574,13 @@ function can_process()
 		display_error(_("Invalid Delivery Reference Format! Please refer to your Delivery Invoice..."));
 		return false;
 	}
+
+	if ($_SESSION['Items']->trans_type != ST_SALESINVOICE && get_post('pdc_chk') == 1) {
+		if ($_SESSION['Items']->count_items() == 1 && input_num('total_discount') == 0) {
+			display_error(_("With PDC Number is selected! Please Input Discount.."));
+			return false;
+		}
+	}
 	//
 
 	return true;
@@ -686,10 +693,6 @@ function check_item_data()
 		if (get_post('pdc_chk') == 1) {
 			if (get_post('pdc_no') == '') {
 				display_error(_("With PDC Number is selected! Please Input Customer's PDC Number.."));
-				return false;
-			}
-			else if (input_num('discount1') == 0) {
-				display_error(_("With PDC Number is selected! Please Input Discount.."));
 				return false;
 			}
 			else if (get_post('pdc_discount') == 1) {
