@@ -160,13 +160,9 @@ function print_transaction() {
 			$rep->SetTextColor(0, 0, 0);
 			$rep->NewLine(2);	
 		}
-
-		if ($trans['QoH'] < 0) {
-			$qty_ = ABS($trans['QoH']);
-		}
-
+		
 		if ($trans['QoH'] > 0) {
-			$qoh = $trans['QoH'] - $qty_;
+			$qoh = $trans['QoH'];
 
 			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $trans['Brand']);

@@ -148,12 +148,8 @@ function print_transaction() {
 			$rep->NewLine(2);			
 		}
 
-		if ($trans['QoH'] < 0) {
-			$qty_ = ABS($trans['QoH']);
-		}
-
 		if ($trans['QoH'] > 0) {
-			$qoh = $trans['QoH'] - $qty_;
+			$qoh = $trans['QoH'];
 			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
 
 			$rep->fontSize -= 1;
