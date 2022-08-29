@@ -695,6 +695,9 @@ function check_item_data()
 				display_error(_("With PDC Number is selected! Please Input Customer's PDC Number.."));
 				return false;
 			}
+			else if (input_num('discount1') == 0) {
+				display_warning(_("With PDC Number is selected! Please Double Check your Discount Input.."));
+			}
 			else if (get_post('pdc_discount') == 1) {
 				if (input_num('discount1') > 0 && input_num('discount1') > $pdc2) {
 					display_error(_("Discount is over 10% of line total amount! Please try again.."));
