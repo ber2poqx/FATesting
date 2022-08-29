@@ -160,16 +160,16 @@ function print_transaction() {
 			$rep->NewLine(2);		
 		}
 
-		if ($trans['QoH'] < 0) {
-			$qty_ = ABS($trans['QoH']);
-		}
+		// if ($trans['QoH'] < 0) {
+		// 	$qty_ = ABS($trans['QoH']);
+		// }
 
 		if ($trans['QoH'] > 0) {
 
 			$prod_code = $trans['Code'];
 			$prod_desc = $trans['prod_desc'];
 			$color_desc = get_color_description($trans['color_code'], $trans['Code'], true);
-			$qoh = $trans['QoH'] - $qty_;
+			$qoh = $trans['QoH'];
 
 			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $destination ? $prod_code : substr($prod_code, 0, 25));
