@@ -518,7 +518,12 @@ Ext.onReady(function(){
 				var resultdis = record.get('rr_date') > AdjDate ? disabledClass : '';
 				//console.log(resultdis);
 				return resultdis;
-		    }
+		    },
+		    listeners: {
+            	refresh: function(view) {
+					GetTotalCost();
+				}
+        	}
 		},
 		dockedItems:[{
 			dock	: 'top',
@@ -1002,6 +1007,21 @@ Ext.onReady(function(){
 										layout:'fit',
 										border: false,
 										items:[gridMT]
+									},{
+										xtype:'fieldcontainer',
+										layout:'center',
+										margin: '2 0 1 0',
+										items:[
+											{
+												xtype:'textfield',
+												fieldLabel:'TOTAL COST:',
+												readOnly: true,
+												width: 210,
+												labelWidth: 85,
+												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+												id:'totalcost'
+											}
+										]
 									}
 								],buttons:[
 									{
@@ -1200,5 +1220,17 @@ Ext.onReady(function(){
 			}
 		});
 	};
+	function GetTotalCost(){
+		Ext.Ajax.request({
+			url : '?action=getTotalCost',
+			method: 'POST',
+			success: function(response){
+				var jsonData = Ext.JSON.decode(response.responseText);
+				var Total_Cost = jsonData.TotalCost;
+				Ext.getCmp('totalcost').setValue(Total_Cost);
+			}
+		});	
+		return true;
+	}
 	/*----------End Here--------*/
 });

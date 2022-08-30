@@ -411,6 +411,12 @@ if(!is_null($action) || !empty($action)){
             echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'"})';
             exit;
             break;
+        case 'getTotalCost';
+            $totalcost=$_SESSION['transfer_items']->rr_manual_items_total_cost();
+
+            echo '({"TotalCost":"'.number_format2($totalcost,2).'"})';
+            exit;
+        break;
         case 'getTotalBalance';
             $totalcost=$_SESSION['transfer_items']->rr_manual_items_total_cost();
 
