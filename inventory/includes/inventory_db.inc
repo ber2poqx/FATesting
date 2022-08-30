@@ -138,6 +138,7 @@ function get_rr_details($rr_num, $trans_num, $trans_type)
 			,sm.standard_cost
 			,sm.category_id
 			,ic.pnp_color
+			,ic.description AS colorDesc
 			,CONCAT(stk.description,' - ',ic.description) AS descript
 			,grn.grn_remarks
 			,po.reference AS poNumber
