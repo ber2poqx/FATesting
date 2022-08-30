@@ -303,10 +303,10 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 							<?php 
 							if($mt_header_category_id==14){
 							    echo '<th style= "border: 1px solid;">Color</th>';
-								echo '<th style= "border: 1px solid;">Serial No.</th>';
-								echo '<th style= "border: 1px solid;">Chasis No.</th>';
+								echo '<th style= "border: 1px solid; width: 20%;">Serial No.</th>';
+								echo '<th style= "border: 1px solid; width: 20%;">Chasis No.</th>';
 							}else{
-							    echo '<th style= "border: 1px solid;">Serial No.</th>';
+							    echo '<th style= "border: 1px solid; width: 20%;">Serial No.</th>';
 							}
 							?>
 							
