@@ -475,7 +475,8 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 			FROM stock_moves t1
 		    WHERE t1.transno_out = a.trans_no AND t1.type_out = a.type
 				AND t1.stock_id = a.stock_id
-				AND t1.lot_no = a.lot_no AND t1.chassis_no = a.chassis_no
+				AND IFNULL(t1.lot_no, '') = IFNULL(a.lot_no, '') 
+				AND IFNULL(t1.chassis_no, '') = IFNULL(a.chassis_no, '')
 				AND t1.item_type = a.item_type AND t1.loc_code = a.loc_code
 				AND t1.qty < 0
 			) as OutQty, a.standard_cost, a.tran_date
