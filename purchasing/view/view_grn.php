@@ -84,18 +84,18 @@ $display_sub_tot = number_format2($total, user_price_dec());
 label_row(
 	_("Sub Total"),
 	$display_sub_tot,
-	"align=right colspan=8",
+	"align=right colspan=10",
 	"nowrap align=right",
 	1
 );
 
 $taxes = $purchase_order->get_taxes();
-$tax_total = display_edit_tax_items($taxes, 8, $purchase_order->tax_included, 1);
+$tax_total = display_edit_tax_items($taxes, 10, $purchase_order->tax_included, 1);
 
 $display_total = price_format(($total + $tax_total));
 
 start_row();
-label_cells(_("Amount Total"), $display_total, "colspan=8 align='right'", "align='right'");
+label_cells(_("Amount Total"), $display_total, "colspan=10 align='right'", "align='right'");
 label_cell('');
 end_row();
 
