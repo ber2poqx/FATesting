@@ -68,7 +68,7 @@ while ($adjustment = db_fetch($adjustment_items))
     label_cell($adjustment['stock_id']);
     label_cell($adjustment['description']);
     if($adjustment['category_id']==14){
-        label_cell($adjustment['color_desc']);
+        label_cell($adjustment['Color']);
     }
     
     qty_cell(abs($adjustment['qty']), false, get_qty_dec($adjustment['stock_id']));

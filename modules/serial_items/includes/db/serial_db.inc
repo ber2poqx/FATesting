@@ -141,8 +141,8 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
 
     $sql = "SELECT SUM(serial.qty) as serialise_qty, serial.stock_id as model, serial.color_code as serialise_item_code, 
     serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
-    smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out, 
-    serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,
+    smaster.description as stock_description, icode.description as item_description, smaster.serialised, smaster.inventory_account, 
+    serial.type_out, serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,
     IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
     IFNULL(SPGEN.QTY, NULL) /*Added by Robert */
     FROM ".TB_PREF."stock_moves serial 

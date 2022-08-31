@@ -61,20 +61,49 @@ if(!is_null($action) || !empty($action)){
                 //$AdjDate = $data['AdjDate'];
                 $AdjDate = date("m/d/Y",strtotime($data['AdjDate']));
                 $model = $data['model'];
+                $item_code = $data['item_code'];
+                $sdescription = $data['sdescription'];
+                $color = $data['color'];
                 $lot_no = $data['lot_no'];
+                $chasis_no = $data['chasis_no'];
                 $type_out = $data['type_out'];
                 $transno_out = $data['transno_out'];
                 $serialised = $data['serialised'];
                 $rr_date = $data['rr_date'];
                 $qty = $data['qty'];
+                $inventory_account = $data['inventory_account'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
                 if(!isset($_REQUEST['view'])){
-                    add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'new',$qty, $rr_date, $AdjDate);
+                    //add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'new',$qty, 
+                        //$rr_date, $AdjDate);
+                    $line_item_header = rand();
+
+                    if($serialised) {
+                       $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                       $line_item = count($_SESSION['transfer_items']->line_items);
+
+                       $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', 
+                        $line_item_header);
+
+                       $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
+                       $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
+                    }else{
+                        $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                        $line_item = count($_SESSION['transfer_items']->line_items);
+
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                        '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', 
+                        $line_item_header);
+
+                        $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
+                        $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, 99, $line_item_header);
+                    }
                 } 
             }
-            display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
+            display_transfer_items_serial_compli($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             exit;
             break;
         case 'updateData';
@@ -346,7 +375,7 @@ if(!is_null($action) || !empty($action)){
             }
             
             
-            display_transfer_items_serial($_SESSION['transfer_items'],$_POST['FromStockLocation'],$AdjDate);
+            display_transfer_items_serial_compli($_SESSION['transfer_items'],$_POST['FromStockLocation'],$AdjDate);
             
             //echo '({"trans_date":"'.sql2date($trans_date).'","reference":"'.$reference.'","trans_id":"'.$trans_id.'","line_item":"'.$line_item.'","RRReference":"'.$_POST['ref'].'"})';
             exit;
@@ -396,7 +425,7 @@ if(!is_null($action) || !empty($action)){
             $_SESSION['transfer_items']->remove_gl_line_item($line_item);
             //$_SESSION['transfer_items']->remove_from_cart_line($line_item);
             
-            display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
+            display_transfer_items_serial_compli($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;
             break;
@@ -446,7 +475,7 @@ if(!is_null($action) || !empty($action)){
                             'transno_out' => $myrow["transno_out"],
                             'reference' => $myrow["reference"],
                             'tran_date' => $myrow["tran_date"],
-                            'color' => $myrow["serialise_item_code"],
+                            'item_code' => $myrow["serialise_item_code"],
                             'stock_description' => $myrow["stock_description"],
                             'item_description' => $myrow["item_description"],
                             'model' => $myrow["model"],
@@ -456,7 +485,8 @@ if(!is_null($action) || !empty($action)){
                             'serialised'=>$myrow["serialised"],
                             'lot_no' => $myrow["serialise_lot_no"]==null?'':$myrow["serialise_lot_no"],
                             'chasis_no' => $myrow["serialise_chasis_no"]==null?'':$myrow["serialise_chasis_no"],
-                            'serialise_loc_code'=>$myrow["serialise_loc_code"]
+                            'serialise_loc_code'=>$myrow["serialise_loc_code"],
+                            'inventory_account'=>$myrow["inventory_account"]
                         );                        
                     }
                 }                                

@@ -262,29 +262,84 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
         } else {
             $stock_quantity = $stock_item->quantity;
         }
-        $group_array[] = array('id'=>$line_no,
-            'stock_id'=>$stock_item->stock_id,
-            'item_code'=>$stock_item->item_code,
-            'color' => $stock_item->color,
-            'stock_description' => $stock_item->item_description,
-            'standard_cost' => $stock_item->standard_cost,
-            'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
-            'qty' => $stock_quantity,
-            'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
-            'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
-            'mt_lines' => $stock_item->mt_lines,
-            'remarks' => $stock_item->remarks,
-            'serialise_loc_code'=>$FromStockLocation,
-            'serialise_id'=>$serialise_id,
-            'type_out' => $stock_item->type_out,
-            'transno_out' => $stock_item->transno_out,
-            'serialised' => $myrow["serialised"],
-            'brand_name' => $myrow["brand_name"],
-            'item_type' => $stock_item->item_type,
-            'line_item' => $stock_item->line_item_row,
-            'rr_date' => $stock_item->manufacture_date,
-            'repo_id'=>$repo_id
-        );
+        if($stock_item->stock_id != ''){
+            $group_array[] = array('id'=>$line_no,
+                'stock_id'=>$stock_item->stock_id,
+                'item_code'=>$stock_item->item_code,
+                'color' => $stock_item->color,
+                'stock_description' => $stock_item->item_description,
+                'standard_cost' => $stock_item->standard_cost,
+                'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
+                'qty' => $stock_quantity,
+                'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
+                'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
+                'mt_lines' => $stock_item->mt_lines,
+                'remarks' => $stock_item->remarks,
+                'serialise_loc_code'=>$FromStockLocation,
+                'serialise_id'=>$serialise_id,
+                'type_out' => $stock_item->type_out,
+                'transno_out' => $stock_item->transno_out,
+                'serialised' => $myrow["serialised"],
+                'brand_name' => $myrow["brand_name"],
+                'item_type' => $stock_item->item_type,
+                'line_item' => $stock_item->line_item_row,
+                'rr_date' => $stock_item->manufacture_date,
+                'repo_id'=>$repo_id
+            );
+        }
+    }
+    $jsonresult = json_encode($group_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.',"AdjDate":"'.$AdjDate.'","branchcode":"'.$FromStockLocation.'"})';
+}
+
+//Added by Robert [08/31/2022] for new COMPLI Module
+function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $repo_id='', $type_out=0, $transno_out=0)
+{
+   // global $path_to_root;
+
+   // $low_stock = $order->check_qoh($FromStockLocation, $AdjDate, true);
+    foreach ($order->line_items as $line_no=>$stock_item)
+    {
+        $kit = get_item_kit($stock_item->item_code);
+        $myrow = db_fetch($kit);
+        if($myrow["serialised"]){
+           $qty=$stock_item->quantity;
+        }else{
+            $demand_qty = get_demand_qty($stock_item->stock_id, $FromStockLocation);
+            $demand_qty += get_demand_asm_qty($stock_item->stock_id, $FromStockLocation);
+            $qty=get_qoh_on_date_new($stock_item->type_out,$stock_item->transno_out,$stock_item->stock_id,$FromStockLocation);
+            $qty-=$demand_qty;
+        }
+        if ($stock_item->lot_no == '') {
+           $stock_quantity = 0;
+        } else {
+            $stock_quantity = $stock_item->quantity;
+        }
+        if($stock_item->stock_id != ''){
+            $group_array[] = array('id'=>$line_no,
+                'stock_id'=>$stock_item->stock_id,
+                'item_code'=>$stock_item->item_code,
+                'color' => $stock_item->color,
+                'stock_description' => $stock_item->item_description,
+                'standard_cost' => $stock_item->standard_cost,
+                'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
+                'qty' => $stock_quantity,
+                'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
+                'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
+                'mt_lines' => $stock_item->mt_lines,
+                'remarks' => $stock_item->remarks,
+                'serialise_loc_code'=>$FromStockLocation,
+                'serialise_id'=>$serialise_id,
+                'type_out' => $stock_item->type_out,
+                'transno_out' => $stock_item->transno_out,
+                'serialised' => $myrow["serialised"],
+                'brand_name' => $myrow["brand_name"],
+                'item_type' => $stock_item->item_type,
+                'line_item' => $stock_item->line_item_row,
+                'rr_date' => $stock_item->manufacture_date,
+                'repo_id'=>$repo_id
+            );
+        }
     }
     $jsonresult = json_encode($group_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.',"AdjDate":"'.$AdjDate.'","branchcode":"'.$FromStockLocation.'"})';

@@ -87,7 +87,11 @@ if(!is_null($action) || !empty($action)){
                 $category_id = $data['category'];
                 $AdjDate = $data['AdjDate'];
                 $model = $data['model'];
+                $item_code = $data['item_code'];
+                $sdescription = $data['sdescription'];
+                $color = $data['color'];
                 $lot_no = $data['lot_no'];
+                $chasis_no = $data['chasis_no'];
                 $type_out = $data['type_out'];
                 $transno_out = $data['transno_out'];
                 $serialised = $data['serialised'];
@@ -96,8 +100,19 @@ if(!is_null($action) || !empty($action)){
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
-                add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
-                    $transno_out,'new',$qty, $rr_date);   
+                //add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
+                    //$transno_out,'new',$qty, $rr_date);
+                $line_item_header = rand();
+                if($serialised) {
+                    $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                    $line_item = count($_SESSION['transfer_items']->line_items);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header);
+                }else{
+                    $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                    $line_item = count($_SESSION['transfer_items']->line_items);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header);
+                } 
             }
             display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
             exit;
@@ -584,7 +599,7 @@ if(!is_null($action) || !empty($action)){
                             'transno_out' => $myrow["transno_out"],
                             'reference' => $myrow["reference"],
                             'tran_date' => $myrow["tran_date"],
-                            'color' => $myrow["serialise_item_code"],
+                            'item_code' => $myrow["serialise_item_code"],
                             'stock_description' => $myrow["stock_description"],
                             'item_description' => $myrow["item_description"],
                             'model' => $myrow["model"],

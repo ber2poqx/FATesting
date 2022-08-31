@@ -404,7 +404,7 @@ Ext.onReady(function(){
 	});
 	
 	var ItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised'],
+		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','item_code', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised'],
 		autoLoad: false,
 		pageSize: itemsPerPage, // items per page
 		proxy : {
@@ -678,6 +678,7 @@ Ext.onReady(function(){
 											   
 											    var serialise_id = record.get('serialise_id');	
 												var model = record.get('model');	
+												var item_code = record.get('item_code');	
 												var sdescription = record.get('stock_description');	
 												var color = record.get('item_description');	
 												var category = record.get('category_id');	
@@ -709,6 +710,7 @@ Ext.onReady(function(){
 												var ObjItem = {
 													serialise_id: record.get('serialise_id'),	
 													model: record.get('model'),	
+													item_code: record.get('item_code'),	
 												    sdescription: record.get('stock_description'),	
 													color: record.get('item_description'),	
 													category: record.get('category_id'),	
