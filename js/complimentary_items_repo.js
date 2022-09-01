@@ -850,7 +850,7 @@ Ext.onReady(function(){
 	});
 	
 	var ItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id', 'serialised','type_out', 'transno_out', 'reference', 'tran_date'],
+		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','item_code', 'item_description', 'stock_description', 'qty','category_id', 'serialised','type_out', 'transno_out', 'reference', 'tran_date', 'dflt_repo_invty_act'],
 		autoLoad: false,
 		pageSize: itemsPerPage,
 		proxy : {
@@ -1190,7 +1190,8 @@ Ext.onReady(function(){
 										for (i = 0; i < selected.length; i++) {
 											var record = selected[i];
 											var serialise_id = record.get('serialise_id');	
-											var model = record.get('model');	
+											var model = record.get('model');
+											var item_code = record.get('item_code');	
 											var sdescription = record.get('stock_description');	
 											var color = record.get('item_description');	
 											var category = record.get('category_id');	
@@ -1203,6 +1204,7 @@ Ext.onReady(function(){
 											var transno_out = record.get('transno_out');	
 											var standard_cost = record.get('standard_cost');	
 											var serialised = record.get('serialised');	
+											var dflt_repo_invty_act = record.get('dflt_repo_invty_act');	
 
 											Ext.toast({
 												icon   	: '../js/ext4/examples/shared/icons/accept.png',
@@ -1224,6 +1226,7 @@ Ext.onReady(function(){
 											var ObjItem = {
 											    serialise_id: record.get('serialise_id'),
 												model: record.get('model'),	
+												item_code: record.get('item_code'),	
 												sdescription: record.get('stock_description'),	
 												color: record.get('item_description'),	
 												category: record.get('category_id'),	
@@ -1235,7 +1238,8 @@ Ext.onReady(function(){
 												type_out: record.get('type_out'),	
 												transno_out: record.get('transno_out'),	
 												standard_cost: record.get('standard_cost'),	
-												serialised: record.get('serialised')	
+												serialised: record.get('serialised'),
+												dflt_repo_invty_act: record.get('dflt_repo_invty_act')		
 											};
 											gridRepoData.push(ObjItem);
 										});

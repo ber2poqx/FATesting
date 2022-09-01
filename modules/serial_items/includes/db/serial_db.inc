@@ -143,12 +143,13 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
     serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
     smaster.description as stock_description, icode.description as item_description, smaster.serialised, smaster.inventory_account, 
     serial.type_out, serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,
-    IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
+    categstock.dflt_inventory_act, IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
     IFNULL(SPGEN.QTY, NULL) /*Added by Robert */
     FROM ".TB_PREF."stock_moves serial 
     LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code
-    INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
+    INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id
+    INNER JOIN ".TB_PREF."stock_category categstock ON serial.category_id=categstock.category_id  
 
     LEFT JOIN (
     SELECT robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no, SUM(robert.qty) AS QTY

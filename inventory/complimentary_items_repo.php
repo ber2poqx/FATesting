@@ -62,17 +62,46 @@ if(!is_null($action) || !empty($action)){
                 //$AdjDate = $data['AdjDate'];
                 $AdjDate = date("m/d/Y",strtotime($data['AdjDate']));
                 $model = $data['model'];
+                $item_code = $data['item_code'];
+                $sdescription = $data['sdescription'];
+                $color = $data['color'];
                 $lot_no = $data['lot_no'];
+                $chasis_no = $data['chasis_no'];
                 $type_out = $data['type_out'];
                 $transno_out = $data['transno_out'];
                 $serialised = $data['serialised'];
                 $rr_date = $data['rr_date'];
                 $qty = $data['qty'];
+                $dflt_repo_invty_act = $data['dflt_repo_invty_act'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
                 if(!isset($_REQUEST['view'])){
-                    add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'repo',$qty, $rr_date, $AdjDate);
+                    //add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'repo',$qty, 
+                        //$rr_date, $AdjDate);
+                    $line_item_header = rand();
+
+                    if($serialised) {
+                       $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                       $line_item = count($_SESSION['transfer_items']->line_items);
+
+                       $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'repo', 
+                        $line_item_header);
+
+                       $_SESSION['transfer_items']->add_gl_item($dflt_repo_invty_act, '', '', -($standard_cost * $qty), 
+                       $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
+                    }else{
+                        $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                        $line_item = count($_SESSION['transfer_items']->line_items);
+
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                        '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'repo', 
+                        $line_item_header);
+
+                        $_SESSION['transfer_items']->add_gl_item($dflt_repo_invty_act, '', '', -($standard_cost * $qty), 
+                        $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, 99, $line_item_header);
+                    }
                 } 
             }
             display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
@@ -362,7 +391,7 @@ if(!is_null($action) || !empty($action)){
                             'transno_out' => $myrow["transno_out"],
                             'reference' => $myrow["reference"],
                             'tran_date' => $myrow["tran_date"],
-                            'color' => $myrow["serialise_item_code"],
+                            'item_code' => $myrow["serialise_item_code"],
                             'stock_description' => $myrow["stock_description"],
                             'item_description' => $myrow["item_description"],
                             'model' => $myrow["model"],
@@ -372,7 +401,8 @@ if(!is_null($action) || !empty($action)){
                             'serialised'=>$myrow["serialised"],
                             'lot_no' => $myrow["serialise_lot_no"]==null?'':$myrow["serialise_lot_no"],
                             'chasis_no' => $myrow["serialise_chasis_no"]==null?'':$myrow["serialise_chasis_no"],
-                            'serialise_loc_code'=>$myrow["serialise_loc_code"]
+                            'serialise_loc_code'=>$myrow["serialise_loc_code"],
+                            'dflt_repo_invty_act'=>$myrow["dflt_repo_invty_act"]
                         );                        
                     }
                 }                                

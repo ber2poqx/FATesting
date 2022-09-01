@@ -486,7 +486,7 @@ if(!is_null($action) || !empty($action)){
                             'lot_no' => $myrow["serialise_lot_no"]==null?'':$myrow["serialise_lot_no"],
                             'chasis_no' => $myrow["serialise_chasis_no"]==null?'':$myrow["serialise_chasis_no"],
                             'serialise_loc_code'=>$myrow["serialise_loc_code"],
-                            'inventory_account'=>$myrow["inventory_account"]
+                            'inventory_account'=>$myrow["dflt_inventory_act"]
                         );                        
                     }
                 }                                
