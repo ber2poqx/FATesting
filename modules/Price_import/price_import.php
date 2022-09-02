@@ -113,11 +113,7 @@
 
 								$cash_types = get_cash_price_types_id($types);
 
-								add_cash_price( 
-								$cash_types, 
-								$stock_id, 
-								$price,
-								$date_epic);
+								add_item_scashprice($stock_id, $cash_types,'PHP', $price, $date_epic);
 
 								add_pricehistory($stock_id, $price, $Selected_id, 0, $cash_types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 
@@ -127,12 +123,8 @@
 
 								$lcp_types = get_lcp_price_types_id($types);
 
-								add_lcp_pricing(
-								$lcp_types,
-								$stock_id,
-								$price,
-								$date_epic);
-
+								add_item_price($stock_id, $lcp_types, 'PHP', $price, $date_epic);
+	
 								add_pricehistory($stock_id, $price, $Selected_id, 0, 0, $lcp_types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 								
 							}
@@ -140,13 +132,8 @@
  
 								$cost_types = get_system_cost_types_id($types);
 
-								add_System_cost_pricing(
-								$supplier_id, 
-								$cost_types, 
-								$stock_id, 
-								$supplierdesc,
-								$price,
-								$date_epic);
+								add_item_supplrcost($supplier_id, $stock_id, $price, '', 1, $supplierdesc, $cost_types, $date_epic);
+
 
 								add_pricehistory($stock_id, $price, $Selected_id, $supplier_id, 0, 0, $cost_types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),$date_epic);
 
@@ -157,12 +144,7 @@
 
 								$srp_types = get_srp_types_id($types);
 
-								add_srp_pricing(
-								$supplier_id, 
-								$srp_types, 
-								$stock_id, 
-								$price,
-								$date_epic);
+								add_item_stdcost($stock_id, $srp_types, 'PHP', $price, $supplier_id, $date_epic);
 
 								add_pricehistory($stock_id, $price, $Selected_id, $supplier_id, 0, 0, 0, $srp_types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
 
@@ -172,14 +154,9 @@
 
 								$incentives_types = get_incentive_types_id($types);
 
-								add_incentives_pricing(
-								$incentives_types, 
-								$stock_id, 
-								$price);
+								add_item_incentiveprice($stock_id, $incentives_types, 'PHP', $price);
 							
 								add_pricehistory($stock_id, $price, $Selected_id, 0, 0, 0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
-
-
 
 							}else {
 								if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){

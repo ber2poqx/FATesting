@@ -6,61 +6,6 @@
  * Created By: Albert
  */
 
-//Cash Pricing
-function add_cash_price($types, $stock_id, $price, $date_epic)
-{
-	global $Refs;
-   
-   $sql = "INSERT INTO ".TB_PREF."cash_prices ( stock_id, scash_type_id, curr_abrev, price, date_epic)
-	VALUES ('$stock_id', '$types', 'PHP', '$price', '$date_epic')";
-
-   db_query($sql,"The Import Price List Data could not be added");
-}
-
-//Lcp Pricing
-function add_lcp_pricing($types, $stock_id, $price, $date_epic)
-{
-	global $Refs;
-   
-   $sql = "INSERT INTO ".TB_PREF."prices ( stock_id, sales_type_id, curr_abrev, price, date_epic)
-	VALUES ('$stock_id', '$types', 'PHP', '$price', '$date_epic')";
-
-    db_query($sql,"The Import Price List Data could not be added");
-}
-
-//System cost
-function add_System_cost_pricing($supplier, $types, $stock_id, $supplierdesc, $price, $date_epic)
-{
-	global $Refs;
-   
-   $sql = "INSERT INTO ".TB_PREF."purch_data ( supplier_id, stock_id, price, suppliers_uom, conversion_factor,supplier_description, cost_type_id, date_epic)
-	VALUES ('$supplier', '$stock_id', '$price', '', '1', '$supplierdesc', '$types', '$date_epic')";
-
-    db_query($sql,"The Import Price List Data could not be added");
-}
-
-//SRP
-function add_srp_pricing($supplier, $types, $stock_id, $price, $date_epic)
-{
-	global $Refs;
-   
-   $sql = "INSERT INTO ".TB_PREF."item_srp ( stock_id, srptype_id, supplier_id, curr_abrev, standard_cost, date_epic)
-	VALUES ( '$stock_id', '$types', '$supplier', 'PHP', '$price', '$date_epic')";
-
-    db_query($sql,"The Import Price List Data could not be added");
-}
-
-//Incentives Pricing
-function add_incentives_pricing($types, $stock_id, $price)
-{
-	global $Refs;
-   
-   $sql = "INSERT INTO ".TB_PREF."incentive_prices (  stock_id, incentive_type_id, curr_abrev, price)
-	VALUES ('$stock_id','$types' , 'PHP','$price')";
-
-    db_query($sql,"The Import Price List Data could not be added");
-}
-
 function get_cash_price_types_id($types){
     $sql = "SELECT id FROM ".TB_PREF."sales_cash_type
             WHERE scash_type = ".db_escape($types);
