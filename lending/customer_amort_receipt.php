@@ -302,7 +302,7 @@ if(isset($_GET['get_aloc']))
             $month_no = $PartialPayment = 0;
             $total_runbal = $ar_balance;
             $loansched_id = $_GET['transNo'];
-            $date_due = date('m-d-Y', strtotime($dprow["firstdue_date"]));
+            $date_due = date('m-d-Y', strtotime($dprow["invoice_date"]));
         }else{
             if($dprow['status'] == 'unpaid'){
                 $DP_Discount = ($dprow["discount_downpayment"] + $dprow["discount_downpayment2"]);
