@@ -512,6 +512,8 @@ Ext.onReady(function(){
     	hiddenName: 'loc_code',
     	typeAhead: true,
     	selectOnFocus:true,
+		emptyText:'Select Branches',
+		fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
     	//layout:'anchor',
     	store: Ext.create('Ext.data.Store',{
     		fields:['loc_code','location_name'],
@@ -1559,8 +1561,7 @@ Ext.onReady(function(){
 					name:'currentbranch',
 					id:'currentbranch',
 					hidden: true
-				},
-				{
+				},{
 					width	: 300,
 					xtype	: 'textfield',
 					name 	: 'searchSerialItem',
@@ -1585,6 +1586,65 @@ Ext.onReady(function(){
 						}						
 					}
 				},{
+					xtype:'fieldcontainer',
+					layout:'hbox',
+					margin: '2 0 2 5',
+						items:[{
+							xtype:'combobox',
+							fieldLabel:'Category',
+							name:'category',
+							id:'category',
+							queryModel:'local',
+							triggerAction:'all',
+							displayField  : 'description',
+							valueField    : 'category_id',
+							editable      : true,
+							forceSelection: true,
+	                        allowBlank: false,
+	                        //labelWidth: 80,
+							required: true,
+							hiddenName: 'category_id',
+							typeAhead: true,
+							emptyText:'Select Category',
+							selectOnFocus:true,
+							fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+							store: Ext.create('Ext.data.Store',{
+								fields: ['category_id', 'description'],
+	                    		autoLoad: true,
+								proxy: {
+									type:'ajax',
+									url: '?action=category',
+									reader:{
+										type : 'json',
+										root : 'result',
+										totalProperty : 'total'
+									}
+								}
+							}),
+							/*listeners: {
+								select: function(combo, record, index) {
+									var search = Ext.getCmp("search").getValue();
+
+									//Promotional_pricing_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue(), query: Ext.getCmp('search').getValue()};
+									//Promotional_pricing_store.load();
+
+									//Promotional_pricing_brand_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue()};
+									//Promotional_pricing_brand_store.load();	
+
+									//Promotional_pricing_item_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue()};
+									//Promotional_pricing_item_store.load();	
+								}
+							}*/
+							listeners: {
+					  			select: function(cmb, rec, idx) {
+					  				var v = this.getValue();
+					                //var branch_combo = Ext.getCmp('branch_combo').getValue();
+					  				myInsurance.proxy.extraParams = { catcode: v }
+					  				myInsurance.load();
+					  			}
+					  		}		
+						}]
+					},{
 					iconCls:'clear-search',
 					hidden: true
 				},Supplier_Filter,{

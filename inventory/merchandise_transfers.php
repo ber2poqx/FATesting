@@ -899,8 +899,8 @@ if(!is_null($action) || !empty($action)){
             
             //$result = db_query($sql, "could not get all Serial Items");
 
-            $result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,false);
-            $total_result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,true);
+            $result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,$catcode,false);
+            $total_result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,$catcode,true);
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
 

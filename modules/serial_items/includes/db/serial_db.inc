@@ -263,19 +263,26 @@ function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$a
 }
 
 /*Added by robert 04/28/2022*/
-function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode='',$fromlocation='',$all=false){
+function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode='',$fromlocation='',$catcode='',$all=false){
 
     if($fromlocation!=null || isset($fromlocation)){
-        $str_fromlocation=" AND  mh.mt_header_fromlocation='".$fromlocation."'";
+        $str_fromlocation=" AND mh.mt_header_fromlocation='".$fromlocation."'";
     }else{
         $str_fromlocation="";
     }
+
+    if($catcode != 0){
+        $str_category=" AND mh.mt_header_category_id='".$catcode."'";
+    }else{
+        $str_category="";
+    }
+
     $sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty, 
     sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_qty 
     FROM ".TB_PREF."mt_header mh 
     LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
     LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
-    WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation AND mh.mt_header_item_type = 'new'
+    WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation $str_category AND mh.mt_header_item_type = 'new'
     GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
 
     /*Added by Robert */
@@ -352,5 +359,18 @@ function get_serial_by_consign_no($consign_no, $items_id)
 			".TB_PREF."consignment c on c.consign_no = b.consign_no
 			WHERE a.serialise_grn_items_id = ".db_escape($items_id). " AND a.serialise_trans_type = 51 AND c.consign_no = ".db_escape($consign_no)."";
 	return db_query($sql, "could not get Consignment Serial");
+}
+
+//--Added by robert--09/05/2022--//
+function get_category_receiving_branch()
+{   
+    $sql = "SELECT category_id, description
+            FROM ".TB_PREF."stock_category 
+            WHERE dflt_mb_flag <> 'D'";
+
+    $result = db_query($sql, "The promotional price from other database could not be retrieved");
+    
+    set_global_connection();        
+    return $result;
 }
 /* */
