@@ -120,6 +120,18 @@ label_row(_("Comments"), nl2br($_SESSION['View']->Comments), "class='tableheader
 // label_row(_("Account Specialist Remarks"), nl2br(get_account_specialist_remarks($_GET['trans_no'])), "class='tableheader2'", "colspan=3"); //Added by Albert 10/25/2021
 end_table();
 
+//Added by spyrax10 5 Sep 2022
+$so_head = get_SO_header($_GET['trans_no']);
+if ($so_head['pdc_no'] != '') {
+	br();
+	start_table(TABLESTYLE, "width='90%'");
+	
+	label_cells("Customer's PDC #:", $so_head['pdc_no'], "class='tableheader2'");
+	label_cells("PDC Discount Applied?:", $so_head['pdc_discount'] == 1 ? "Yes" : "No", "class='tableheader2'");
+	end_table();
+}
+//
+
 if ($_GET['trans_type'] != ST_SALESQUOTE) {
 	echo "</td><td valign='top'>";
 
