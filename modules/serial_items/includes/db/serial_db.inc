@@ -265,7 +265,7 @@ function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$a
 /*Added by robert 04/28/2022*/
 function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode='',$fromlocation='',$catcode='',$all=false){
 
-    if($fromlocation!=null || isset($fromlocation)){
+    if($fromlocation!=''){
         $str_fromlocation=" AND mh.mt_header_fromlocation='".$fromlocation."'";
     }else{
         $str_fromlocation="";

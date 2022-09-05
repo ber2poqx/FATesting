@@ -528,7 +528,7 @@ Ext.onReady(function(){
     			}
     		}
     	}),
-          listeners: {
+        /*listeners: {
   			select: function(cmb, rec, idx) {
   				var v = this.getValue();
                 //var branch_combo = Ext.getCmp('branch_combo').getValue();
@@ -536,7 +536,36 @@ Ext.onReady(function(){
   				myInsurance.load();
   			}
   		}
+  		listeners: {
+  			select: function(f,e) {
+  				var fromlocation = Ext.getCmp('from_location').getValue();
+				//var brcode = Ext.getCmp('from_location').getValue();
+				myInsurance.proxy.extraParams = { 
+					query:this.getValue(), 
+					fromlocation: fromlocation,
+					//branchcode: brcode
+				}
+				myInsurance.load();		
+  			}
+  		}*/
 
+  		listeners: {
+			select: function(combo, record, index) {
+				var fromlocation = Ext.getCmp('from_location').getValue();
+				//var brcode = Ext.getCmp('from_location').getValue();
+				myInsurance.proxy.extraParams = {fromlocation:this.getValue(), catcode: Ext.getCmp('categoryS').getValue()}
+				myInsurance.load();		
+			}
+		}
+
+		/*listeners: {
+			select: function(combo, record, index) {
+				var fromlocation = Ext.getCmp('from_location').getValue();
+				//var brcode = Ext.getCmp('from_location').getValue();
+				myInsurance.proxy.extraParams = {query: this.getValue(), catcode: Ext.getCmp('categoryS').getValue()}
+				myInsurance.load();		
+			}
+		}*/		
     });
 
 	var Brand_Filter = Ext.create('Ext.form.ComboBox', 
@@ -1592,8 +1621,8 @@ Ext.onReady(function(){
 						items:[{
 							xtype:'combobox',
 							fieldLabel:'Category',
-							name:'category',
-							id:'category',
+							name:'categoryS',
+							id:'categoryS',
 							queryModel:'local',
 							triggerAction:'all',
 							displayField  : 'description',
@@ -1634,15 +1663,28 @@ Ext.onReady(function(){
 									//Promotional_pricing_item_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue()};
 									//Promotional_pricing_item_store.load();	
 								}
-							}*/
+							}
 							listeners: {
-					  			select: function(cmb, rec, idx) {
-					  				var v = this.getValue();
-					                //var branch_combo = Ext.getCmp('branch_combo').getValue();
-					  				myInsurance.proxy.extraParams = { catcode: v }
-					  				myInsurance.load();
+					  			select: function(f,e) {
+					  				var catcode = Ext.getCmp('categoryS').getValue();
+									//var brcode = Ext.getCmp('from_location').getValue();
+									myInsurance.proxy.extraParams = { 
+										queryss:this.getValue(), 
+										catcode: catcode,
+										//branchcode: brcode
+									}
+									myInsurance.load();		
 					  			}
-					  		}		
+					  		}*/
+
+					  		listeners: {
+								select: function(combo, record, index) {
+									//var catcode = Ext.getCmp('categoryS').getValue();
+									//var brcode = Ext.getCmp('from_location').getValue();
+									myInsurance.proxy.extraParams = {fromlocation:Ext.getCmp('from_location').getValue(), catcode: this.getValue()}
+									myInsurance.load();		
+								}
+							}	
 						}]
 					},{
 					iconCls:'clear-search',
