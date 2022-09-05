@@ -1037,25 +1037,22 @@ if(isset($_GET['submit']))
                 add_cust_allocation(($_POST['tenderd_amount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
 
-                if($_POST['total_amount'] == $_POST['tenderd_amount']){
-                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
-                    
-                    if($_POST['paylocation'] =! "Lending"){
+                if($_POST['paylocation'] =! "Lending"){
+                    if($_POST['total_amount'] == $_POST['tenderd_amount']){
+                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
-                    }
-
-                    update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
-
-                    $tenderd_amount = 0;
-
-                }elseif($_POST['total_amount'] > $_POST['tenderd_amount']) {
-                    $nextDPBal = ($_POST['total_amount'] - $_POST['tenderd_amount']);
-
-                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, $_POST['tenderd_amount'], 0, 0, 0, $trans_date, $payment_no);
-                    
-                    if($_POST['paylocation'] =! "Lending"){
+                        update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
+    
+                        $tenderd_amount = 0;
+    
+                    }elseif($_POST['total_amount'] > $_POST['tenderd_amount']) {
+                        $nextDPBal = ($_POST['total_amount'] - $_POST['tenderd_amount']);
+    
+                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, $_POST['tenderd_amount'], 0, 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
                     }
+                }else{
+                    update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
                 }
 
                 if($GPM != 0){

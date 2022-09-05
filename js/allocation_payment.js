@@ -103,6 +103,16 @@ Ext.onReady(function(){
 			{name:'type', mapping:'type'}
 		]
     });
+	Ext.define('InvoiceModel',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'id', mapping:'id'},
+			{name:'name', mapping:'name'},
+			{name:'type', mapping:'type'},
+			{name:'status', mapping:'status'},
+			{name:'pay_location', mapping:'pay_location'}
+		]
+    });
 	Ext.define('AllocationModel',{
 		extend : 'Ext.data.Model',
 		fields  : [
@@ -234,7 +244,7 @@ Ext.onReady(function(){
 		}]
 	});
 	var ARInvoiceStore = Ext.create('Ext.data.Store', {
-		model: 'comboModel',
+		model: 'InvoiceModel',
 		//autoLoad : true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
@@ -648,6 +658,12 @@ Ext.onReady(function(){
 			allowBlank: false,
 			hidden: true
 		},{
+			xtype: 'textfield',
+			id: 'paylocation',
+			name: 'paylocation',
+			fieldLabel: 'pay location',
+			hidden: true
+		},{
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 5',
@@ -683,6 +699,8 @@ Ext.onReady(function(){
 						
 						ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), tag: "inst"};
 						ARInvoiceStore.load();
+						AllocationStore.proxy.extraParams = {transNo: 0, debtor_no: 0, transtype: 0 };
+						AllocationStore.load();
 
 					}
 				}
@@ -731,8 +749,9 @@ Ext.onReady(function(){
 					select: function(combo, record, index) {
 						Getreference("DP");
 						Ext.getCmp('transtype').setValue(record.get('type'));
+						Ext.getCmp('paylocation').setValue(record.get('pay_location'));
 
-						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: "down" };
+						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: "down", payloc: record.get('pay_location') };
 						AllocationStore.load();
 						SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
 						SIitemStore.load();

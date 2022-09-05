@@ -470,7 +470,7 @@ function get_amort_downpayment($trans_no, $debtor_no, $type)
 			AND A.trans_no = ".db_escape($trans_no)."
 			AND A.debtor_no = ".db_escape($debtor_no)."
 			AND A.trans_type = ".db_escape($type);
-		
+		echo $sql;
 	return db_query($sql, "could not get down-payment amount schedule");
 }
 
