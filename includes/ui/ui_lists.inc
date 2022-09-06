@@ -4896,6 +4896,7 @@ function si_list_cells($label, $name, $loc_code=null, $selected_id=null, $catego
 function si_list($name, $loc_code= null, $selected_id=null, $category, $all_option=false, 
 	$submit_on_change=false, $type='', $opts=array())
 {
+	set_global_connection(0);
 	// all sales codes
 	$sql = "SELECT i.item_code, i.description, c.description, count(*)>1 as kit,
 			 i.inactive, if(count(*)>1, '0', s.editable) as editable
