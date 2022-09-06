@@ -913,9 +913,15 @@ if(!is_null($action) || !empty($action)){
                 }else{
                     $status_msg='In-transit';
                 }
+
+                if($myrow["mt_type"] == 0) {
+                    $manual_type = 'NO';
+                }else{
+                    $manual_type = 'YES';
+                }
                 $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
                     'reference' => $myrow["mt_header_reference"],
-                    'rrbrreference' => $myrow["mt_header_rrbranch_reference"],
+                    'rrbrreference' => is_null($myrow["mt_header_rrbranch_reference"])?'':$myrow["mt_header_rrbranch_reference"],
                     'trans_date' => sql2date($myrow["mt_header_date"]),
                     'fromlocation' => get_db_location_name($myrow["mt_header_fromlocation"]),
                     'from_loc' => $myrow["mt_header_fromlocation"],
@@ -928,7 +934,8 @@ if(!is_null($action) || !empty($action)){
                     'serialise_loc_code'=>$myrow["serialise_loc_code"],
                     'remarks' => $myrow["mt_header_comments"],
                     'status_msg'=>$status_msg,
-                    'status'=>$myrow["mt_header_status"]
+                    'status'=>$myrow["mt_header_status"],
+                    'type_rr'=>$manual_type
                 );                
             }
             

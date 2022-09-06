@@ -66,22 +66,60 @@ Ext.onReady(function(){
 			{name:'status_msg',mapping:'status_msg'},
 			{name:'remarks',mapping:'remarks'},
 			{name:'status',mapping:'status'},
-			{name:'delivery_date',mapping:'delivery_date'}
+			{name:'delivery_date',mapping:'delivery_date'},
+			{name:'type_rr',mapping:'type_rr'}
 		]
 	});
 
 	var columnModel =[
 		{header:'ID', dataIndex:'id', sortable:true, width:20,hidden: true},
-		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:70, hidden: false},
-		{header:'RR Ref#', dataIndex:'rrbrreference', sortable:true, width:80, hidden: false},
-		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:60, align:'center'},
+		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:75, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}
+		},
+		{header:'RR Ref#', dataIndex:'rrbrreference', sortable:true, width:85, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:blue; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
+		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:55, align:'center',
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
 		{header:'From Location Code', dataIndex:'from_loc', sortable:true, width:90, hidden: true},
-		{header:'From Location', dataIndex:'fromlocation', sortable:true, width:90},
+		{header:'From Location', dataIndex:'fromlocation', sortable:true, width:90,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
 		{header:'To Location', dataIndex:'tolocation', sortable:true, width:90, hidden: true},
-		{header:'Category', dataIndex:'category', sortable:true, width:50},
-		{header:'Total Items', dataIndex:'total_qty', sortable:true, width:50, align:'center'},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, align:'left', renderer: columnWrap},
-		{header:'Status', dataIndex:'status_msg', sortable:true, width:40},
+		{header:'Category', dataIndex:'category', sortable:true, width:50,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}
+		},
+		{header:'Manual', dataIndex:'type_rr', sortable:true, width:33, align:'center',
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:blue; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
+		{header:'Total Items', dataIndex:'total_qty', sortable:true, width:50, align:'center',
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			}	
+		},
+		{header:'Remarks', dataIndex:'remarks', sortable:true, align:'left', renderer: columnWrap,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:40,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
 			items:[
 				{
@@ -1617,7 +1655,7 @@ Ext.onReady(function(){
 				},{
 					xtype:'fieldcontainer',
 					layout:'hbox',
-					margin: '2 0 2 5',
+					//margin: '2 0 2 5',
 						items:[{
 							xtype:'combobox',
 							fieldLabel:'Category',
@@ -1630,7 +1668,7 @@ Ext.onReady(function(){
 							editable      : true,
 							forceSelection: true,
 	                        allowBlank: false,
-	                        //labelWidth: 80,
+	                        labelWidth: 60,
 							required: true,
 							hiddenName: 'category_id',
 							typeAhead: true,
@@ -1851,7 +1889,7 @@ Ext.onReady(function(){
 													fieldLabel:'Remarks',
 													name:'memo',
 													id:'memo',
-													grow: true,
+													//grow: true,
 													anchor:'100%'
 												}]
 											}
