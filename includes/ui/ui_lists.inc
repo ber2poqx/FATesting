@@ -67,7 +67,8 @@ $opts = array(		// default options
 	'category' => false, // category column name or false
 	'show_inactive' => false, // show inactive records. 
 	'editable' => false, // false, or length of editable entry field
-	'editlink' => false	// link to entity entry/edit page (optional)
+	'editlink' => false, // link to entity entry/edit page (optional)
+	'use_like' => true //Added by spyrax10 6 Sep 2022
 );
 // ------ merge options with defaults ----------
 	if($options != null)
@@ -150,14 +151,17 @@ $opts = array(		// default options
 				else
 					$opts['where'][] = $valfield . "=". db_escape(get_post($name, $spec_id));
 			}
-			else
+			else {
 				if ($txt != '*') {
-
-					foreach($opts['search'] as $i=> $s)
-						$opts['search'][$i] = $s . " LIKE "
-							.db_escape(($class=='combo3' ? '' : '%').$txt.'%');
+					//Modified by spyrax10 6 Sep 2022
+					$like_ = $opts['use_like'] ? " LIKE " .db_escape(($class=='combo3' ? '' : '%').$txt.'%') : "= '$txt'";
+					foreach($opts['search'] as $i=> $s) {
+						$opts['search'][$i] = $s . $like_;
+					}
 					$opts['where'][] = '('. implode($opts['search'], ' OR ') . ')';
+					//
 				}
+			}
 		}
 	}
 
@@ -4922,7 +4926,8 @@ function si_list($name, $loc_code= null, $selected_id=null, $category, $all_opti
 				'category' => 2,
 				// 'order' => array('c.description','i.item_code'),
 				'editable' => 30,
-				'max' => 255
+				'max' => 255,
+				'use_like' => false
 			), $opts), "si_stock", null, $category, 1, $loc_code);
 	return $ret;
 }

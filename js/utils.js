@@ -35,9 +35,9 @@ function disp_msg(msg, cl) {
 //
 JsHttpRequest.request= function(trigger, form, tout) {
 //	if (trigger.type=='submit' && !validate(trigger)) return false;
-	tout = tout || 10000;	// default timeout value
+	tout = tout || 50000;	// default timeout value
 	document.getElementById('msgbox').innerHTML='';
-	set_mark(tout>10000 ? 'progressbar.gif' : 'ajax-loader.gif');
+	set_mark(tout>50000 ? 'progressbar.gif' : 'ajax-loader.gif');
 	JsHttpRequest._request(trigger, form, tout, 0);
 };
 
