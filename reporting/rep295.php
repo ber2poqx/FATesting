@@ -69,16 +69,14 @@ function print_transaction() {
         array_splice($headers, 7, 0, 'QoH');
     }
 
-    $cols = array(0, 70, 140, 190, 230, 410, 480, 530, 620, 0);
-
     if ($show_all == 1) {
-        $cols = array(0, 70, 140, 190, 230, 410, 480, 540, 560, 610, 0);
+        $cols = array(0, 90, 140, 190, 230, 410, 480, 540, 560, 610, 0);
     }
     else {
-        $cols = array(0, 70, 140, 190, 230, 410, 480, 530, 620, 0);
+        $cols = array(0, 90, 140, 190, 230, 410, 480, 530, 620, 0);
     }
 
-    $aligns = array('left', 'center', 'center', 'center',
+    $aligns = array('left', 'left', 'center', 'center',
         'left', 'left', 'left', 'center', 'left'
     );
 
@@ -109,19 +107,22 @@ function print_transaction() {
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($trans['serialise_item_code']));
         $is_cleared = $trans['cleared'] == 1 ? _("Yes") : _("No");
+        $reference = str_replace($trans['loc_code'] . "-", "", $trans['reference']);
+        $loc_name = str_replace($trans['loc_code'] . " - ", "", get_company_value(get_comp_id($trans['branch']), 'name'));
 
         $rep->fontSize -= 1;
 
-        $rep->TextCol(0, 1, get_company_value(get_comp_id($trans['branch']), 'name'));
+        $rep->TextCol(0, 1, $loc_name);
         $rep->SetTextColor(0, 0, 255);
-        $rep->TextCol(1, 2, $trans['reference']);
+        $rep->TextCol(1, 2, $reference);
         $rep->SetTextColor(0, 0, 0);
         $rep->TextCol(2, 3, get_category_name($stock_row['category_id']));
         $rep->SetTextColor(0, 0, 255);	
         $rep->TextCol(3, 4, $trans['trans_date']);
         $rep->SetTextColor(0, 0, 0);
         $rep->TextCol(4, 5, $stock_row['color'] != '' ? 
-            $trans['stock_id'] . " | ".  $stock_row['color'] . " | " . get_color_description($trans['serialise_item_code'], $trans['stock_id']) 
+            $trans['stock_id'] . " | ".  $stock_row['color'] . " | " 
+            . substr(get_color_description($trans['serialise_item_code'], $trans['stock_id']), 0 , 25) 
             : $trans['stock_id']
         );
         $rep->TextCol(5, 6, $trans['serialise_lot_no']);

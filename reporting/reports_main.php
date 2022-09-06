@@ -709,9 +709,9 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SERIAL_LIST')) {
 
 	$reports->addReport(RC_INVENTORY, 295, _('PNP Clearance Monitoring Report'),
 		array(	
-			_("Origin Branch: ") => 'BRANCH',
-			_("Clearance Status: ") => 'PNP_STAT',
-			_('Show Complete Transaction?') => 'YES_NO',
+			_("Origin Branch") => 'BRANCH',
+			_("Clearance Status") => 'PNP_STAT',
+			_('Include OUT Transaction/s?') => 'YES_NO',
 			_("Serial/Engine Number") => 'TEXT',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'DESTINATION'

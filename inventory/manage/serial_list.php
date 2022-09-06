@@ -112,10 +112,12 @@ foreach ($res_details as $value => $data) {
 
     $stock_row = db_fetch_assoc(get_stock_by_itemCode($data['serialise_item_code']));
     $is_cleared = $data['cleared'] == 1 ? _("Yes") : _("No");
+    $loc_name = str_replace($data['loc_code'] . " - ", "", get_company_value(get_comp_id($data['branch']), 'name'));
+    $reference = str_replace($data['loc_code'] . "-", "", $data['reference']);
    
     label_cell($data['trans_id']);
-    label_cell(get_company_value(get_comp_id($data['branch']), 'name'), "align='left'");
-    label_cell($data['reference'], "nowrap align='center'; style='color: blue'");
+    label_cell($loc_name, "align='left'");
+    label_cell($reference, "nowrap align='left'; style='color: blue'");
     label_cell(get_category_name($data['category_id']), "nowrap align='center'");
     label_cell(phil_short_date($data['trans_date']), "nowrap align='center'; style='color: blue'");
     label_cell($stock_row['color'] != '' ? 
