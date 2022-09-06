@@ -313,9 +313,12 @@ function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_cod
     $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
 
-    $mt_header_id_local_manual = add_mt_header_manual($date_, $mt_reference, $br_reference, $FromStockLocation, $branch_code, 
+    $coy_target_branches = get_coy_target_branch($FromStockLocation);
+    if($coy_target_branches != 1) {
+        $mt_header_id_local_manual = add_mt_header_manual($date_, $mt_reference, $br_reference, $FromStockLocation, $branch_code, 
         $catcode, $memo_, $servedby);
-    
+    }
+
     foreach ($objDataGrid as $item)
     {
             $stock_id = $item['stock_id'];
@@ -327,34 +330,37 @@ function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_cod
             $serialised = $item['serialised'];
             $catcode = $item['catcode'];
 
-            add_stock_mt_details_manual($mt_header_id_local_manual, $stock_id, $stock_qty, str_replace(",","",$standard_cost), 0, $lot_no, 
-                $chasis_no, $item_code);
-            
-            $stock_gl_mt_code = get_stock_gl_code($stock_id);
-            $totalCost =  str_replace(",","",$standard_cost) *  str_replace(",","",$stock_qty);
+            if($coy_target_branches != 1) {
+                add_stock_mt_details_manual($mt_header_id_local_manual, $stock_id, $stock_qty, str_replace(",","",$standard_cost), 0, $lot_no, 
+                    $chasis_no, $item_code);
+                
+                $stock_gl_mt_code = get_stock_gl_code($stock_id);
+                $totalCost =  str_replace(",","",$standard_cost) *  str_replace(",","",$stock_qty);
 
-            $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,
-                $totalCost, '', 0, $stock_id, $mcode, $master_file);
-            
-            $refline = add_stock_rrbranch_item($transfer_id, $stock_id, $FromStockLocation, $branch_code, $date_, $br_reference, 
-                $stock_qty, $lot_no, $chasis_no, $catcode,  $item_code, $standard_cost);
-           
-            add_serialitems_detail($transfer_id,$refline,$lot_no,$stock_qty,'0000-00-00','0000-00-00',
-                $item_code,$branch_code, $chasis_no,ST_RRBRANCH);   
+                $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,
+                    $totalCost, '', 0, $stock_id, $mcode, $master_file);
+                
+                $refline = add_stock_rrbranch_item($transfer_id, $stock_id, $FromStockLocation, $branch_code, $date_, $br_reference, 
+                    $stock_qty, $lot_no, $chasis_no, $catcode,  $item_code, $standard_cost);
+               
+                add_serialitems_detail($transfer_id,$refline,$lot_no,$stock_qty,'0000-00-00','0000-00-00',
+                    $item_code,$branch_code, $chasis_no,ST_RRBRANCH);  
+            } 
     }
-    
-    add_comments(ST_RRBRANCH, $transfer_id, $date_, $memo_);
+    if($coy_target_branches != 1) {
+        add_comments(ST_RRBRANCH, $transfer_id, $date_, $memo_);
 
-    $accs = $db_connections[Get_db_coy($FromStockLocation)]["gl_account"];
-    
-    //$total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, null);
-    $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, '', 0, null, $mcode, $master_file);
-    
-    $Refs->save(ST_RRBRANCH, $transfer_id, $br_reference);
-    add_audit_trail(ST_RRBRANCH, $transfer_id, $date_,'RR Branch to '.$branch_code);
-    
-    $args->trans_no = $transfer_id;
-    hook_db_postwrite($args, ST_RRBRANCH);
+        $accs = $db_connections[Get_db_coy($FromStockLocation)]["gl_account"];
+        
+        //$total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, null);
+        $total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $accs, '', '', -$total, '', 0, null, $mcode, $master_file);
+        
+        $Refs->save(ST_RRBRANCH, $transfer_id, $br_reference);
+        add_audit_trail(ST_RRBRANCH, $transfer_id, $date_,'RR Branch to '.$branch_code);
+        
+        $args->trans_no = $transfer_id;
+        hook_db_postwrite($args, ST_RRBRANCH);
+    }
     
     commit_transaction();
     
@@ -543,6 +549,21 @@ function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_
     return $dbid;
 }
 
+//Added by Robert - 09/05/2022
+function get_coy_target_branch($targetdb){
+
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
+    
+    $sql = "SELECT value FROM ".TB_PREF."sys_prefs WHERE name='deployment_status'";
+                
+    $result = db_query($sql, "The deployment status could not be retrieved");
+    $row =  db_fetch($result);
+
+    set_global_connection();        
+    return $row[0];
+}
+
 //Added by Robert - 08/25/2022
 function add_mt_header_manual($transdate, $mt_reference, $br_reference, $fromlocation, $tolocation, $cat_id=0, $comments, $servedby){
     //$db_coy = Get_db_coy($targetdb);
@@ -550,8 +571,7 @@ function add_mt_header_manual($transdate, $mt_reference, $br_reference, $fromloc
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby) VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", 
-        ".db_escape($servedby).")";
+    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby, mt_type) VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($servedby).", '1')";
                 
     db_query($sql, "The MT Header record cannot be inserted");
                 
