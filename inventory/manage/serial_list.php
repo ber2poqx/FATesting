@@ -23,13 +23,21 @@ if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search) {
 page(_($help_context = "PNP Clearance Monitoring"), false, false, "", $js);
 //--------------------------------------------------------------------------------------------------
 
+if (get_post('search')) {
+    $Ajax->activate('item_tbl');
+}
+
+//--------------------------------------------------------------------------------------------------
+
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 ref_cells(_("Search Here: &nbsp;"), 'searchval', '', null, '', true);
-company_list_row(_('&nbsp; Origin Branch: '), 'comp_id', true, true, false);
+$sql = company_list_row(_("Originating Branch:"), 'comp_sql', true, true, true, false, false, false, true, true);
+combo_type_list(null, 'comp_id', null, $sql, true, 'company', '', false, 'coy', '');
+
 value_type_list(_("&nbsp; Clearance Status: "), 'cleared_id', 
     array(
         'ALL' => 'All Clearance Status',
@@ -44,7 +52,8 @@ end_table();
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-check_cells(_('Show Complete Transaction:'), 'show_all', null, true);
+check_cells(_('Show Complete Transaction:'), 'show_all', null, false);
+submit_cells('search', _("Search"),'',_('Select documents'), 'default');
 
 end_row();
 end_table();
@@ -83,7 +92,7 @@ $th = array(
 
 
 if (check_value('show_all') == 1) {
-    array_splice($th, 8, 0, 'QoH');
+    array_splice($th, 8, 0, 'Qty');
 }
 
 table_header($th);
@@ -124,14 +133,17 @@ foreach ($res_details as $value => $data) {
     label_cell($is_cleared, "align='center'");
     label_cell($data['pnp_note']);
 
-    if ($serial_no != $data['serialise_lot_no']) {
-        if ($data['cleared'] != null) {
+    if ($data['qoh'] > 0) {
+        if ($data['cleared'] == 0) {
             label_cell(serial_update_cell(get_comp_id($data['branch']), $data['serialise_id'], $data['serialise_lot_no']), "nowrap");
         }
         else {
             label_cell("N/A", "nowrap align='center'");
         }
         $serial_no = $data['serialise_lot_no'];
+    }
+    else {
+        label_cell("N/A", "nowrap align='center'");
     }
 }
 
