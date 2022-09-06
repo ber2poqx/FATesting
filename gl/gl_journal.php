@@ -446,16 +446,27 @@ if (isset($_POST['Process'])) {
 	}	
 }
 
-if (isset($_POST['UpdateJE'])) {
+function can_update() {
+	$trans_no = $_SESSION['journal_items']->order_id;
+	$row = get_JE_transactions($trans_no, true);
+
+	if (!allowed_posting_date(sql2date($row['tran_date']))) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		return false;
+	}
+
+	return true;
+}
+
+if (isset($_POST['UpdateJE']) && can_update()) {
 
 	global $Ajax;
-
 	set_global_connection();
 
 	$trans_no = $_SESSION['journal_items']->order_id;
 	$row = get_JE_transactions($trans_no, true);
 
-	$sql = "UPDATE " . TB_PREF . "journal SET source_ref = " .db_escape($_POST['source_ref']);
+	$sql = "UPDATE " . TB_PREF . "journal SET source_ref = " .db_escape($_POST['source_ref2']);
 	$sql .= " WHERE type = 0 AND trans_no = " .db_escape($trans_no);
 	db_query($sql, "Cannot update JE! (spyrax10)");
 
