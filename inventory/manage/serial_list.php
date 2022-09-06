@@ -52,7 +52,7 @@ end_table();
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-check_cells(_('Show Complete Transaction:'), 'show_all', null, false);
+check_cells(_('Include OUT Transaction/s:'), 'show_all', null, false);
 submit_cells('search', _("Search"),'',_('Select documents'), 'default');
 
 end_row();

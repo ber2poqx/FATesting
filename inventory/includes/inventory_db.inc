@@ -862,8 +862,8 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 		$sql .= " LEFT JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_lot_no = SMO.lot_no";
 	}
 	else {
-		$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_items_id = SMO.trans_id 
-			AND $branch_code.serialise_lot_no = SMO.lot_no";
+		$sql .= " INNER JOIN " . TB_PREF . "stock_moves SMO ON $branch_code.serialise_grn_id = SMO.trans_no 
+			AND $branch_code.serialise_trans_type = SMO.type AND $branch_code.serialise_lot_no = SMO.lot_no";
 	}
 
 	$sql .= " WHERE IFNULL(serialise_item_code, '') <> '' ";
@@ -885,6 +885,8 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 	if ($serial_no != '') {
 		$sql .= " AND serialise_lot_no = " .db_escape($serial_no);
 	}
+
+	$sql .= " ORDER BY serialise_lot_no, tran_date";
 
 	$result = db_query($sql, _("_item_serialise()"));
 	set_global_connection();
