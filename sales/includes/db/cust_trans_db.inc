@@ -432,11 +432,12 @@ function get_sql_for_customer_inquiry(
             LEFT JOIN " . TB_PREF . "audit_trail as audit ON (trans.type=audit.type AND trans.trans_no=audit.trans_no)
             LEFT JOIN " . TB_PREF . "users as user ON (audit.user=user.id)
 			LEFT JOIN " . TB_PREF . "cust_branch as branch ON trans.branch_code=branch.branch_code 
-			LEFT JOIN (SELECT DTT.debtor_trans_no, 
+			LEFT JOIN (SELECT DTT.debtor_trans_no, DTT.debtor_trans_type, 
 				CASE WHEN DTT.item_type = 'Promo' THEN 'FREE ITEM'
 				ELSE 'MAIN UNIT' END AS item_type 
 				FROM " . TB_PREF . "debtor_trans_details DTT
-				GROUP BY DTT.debtor_trans_no) X ON trans.trans_no = X.debtor_trans_no, " //Added by spyrax10
+				GROUP BY DTT.debtor_trans_no, DTT.debtor_trans_type) X ON trans.trans_no = X.debtor_trans_no 
+				AND X.debtor_trans_type = trans.type, " //Added by spyrax10
 		. TB_PREF . "debtors_master as debtor
 
 		WHERE debtor.debtor_no = trans.debtor_no"; // exclude voided transactions and self-balancing (journal) transactions:
