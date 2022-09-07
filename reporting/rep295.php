@@ -16,6 +16,91 @@ include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 //----------------------------------------------------------------------------------------------------
+
+function get_transactions($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL', $show_all = null, 
+    $serial_no = '') {
+
+    global $db_connections, $def_coy;
+    $return_arr = array();
+	$default_table_count = count_columns(0, 'item_serialise');
+
+    if ($branch_id) {
+
+		$not_include = $db_connections[$branch_id]['type'] == 'LENDING' 
+		|| $db_connections[$branch_id]['branch_code'] == 'HO' 
+		|| $db_connections[$branch_id]['branch_code'] == 'DESIHOFC'
+		|| str_contains_val($db_connections[$branch_id]['branch_code'], 'LEND')
+		|| $default_table_count != count_columns($branch_id, 'item_serialise');
+
+		if (!$not_include) {
+			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat, $show_all, $serial_no);
+
+			if ($result != null) {
+				while ($row = db_fetch_assoc($result)) {
+
+					$return_arr[] = array(
+						'serialise_id' => $row['serialise_id'],
+						'trans_id' => $row['trans_id'],
+						'branch' => $row['branch'],
+						'serialise_item_code' => $row['color_code'],
+						'serialise_lot_no' => $row['serialise_lot_no'],
+						'serialise_chasis_no' => $row['serialise_chasis_no'],
+						'cleared' => $row['cleared'],
+						'pnp_note' => $row['pnp_note'],
+						'stock_id' => $row['stock_id'],
+						'category_id' => $row['category_id'],
+						'reference' => $row['reference'],
+						'trans_date' => $row['tran_date'],
+						'loc_code' => $row['loc_code'],
+						'qoh' => $row['qty']
+					);
+				}
+			}
+		}
+    }
+    else {
+	
+        for ($i = 0; $i < count($db_connections); $i++) {
+
+			$not_include = $db_connections[$i]['type'] == 'LENDING' 
+			|| $db_connections[$i]['branch_code'] == 'HO' 
+			|| $db_connections[$i]['branch_code'] == 'DESIHOFC' 
+			|| str_contains_val($db_connections[$i]['branch_code'], 'LEND')
+			|| $default_table_count != count_columns($i, 'item_serialise');
+
+			
+			if (!$not_include) {
+				$result = _item_serialise($i, $search, $trans_no, $cleared_stat, $show_all, $serial_no);
+
+				if ($result != null) {
+					while ($row = db_fetch_assoc($result)) {
+						$return_arr[] = array(
+							'serialise_id' => $row['serialise_id'],
+							'trans_id' => $row['trans_id'],
+							'branch' => $row['branch'],
+							'serialise_item_code' => $row['color_code'],
+							'serialise_lot_no' => $row['serialise_lot_no'],
+							'serialise_chasis_no' => $row['serialise_chasis_no'],
+							'cleared' => $row['cleared'],
+							'pnp_note' => $row['pnp_note'],
+							'stock_id' => $row['stock_id'],
+							'category_id' => $row['category_id'],
+							'reference' => $row['reference'],
+							'trans_date' => $row['tran_date'],
+							'loc_code' => $row['loc_code'],
+							'qoh' => $row['qty']
+						);
+					}
+				}
+			}
+
+        } // End of forloop
+    }
+
+	return $return_arr;
+}
+
+//----------------------------------------------------------------------------------------------------
 print_transaction();
 //----------------------------------------------------------------------------------------------------
 
@@ -101,7 +186,7 @@ function print_transaction() {
 	$rep->SetHeaderType('PO_Header');
     $rep->NewPage();
 
-    $res = get_serial_list('', $branch_id, null, $cleared_stat, $show_all, $serial_no);
+    $res = get_transactions('', $branch_id, null, $cleared_stat, $show_all, $serial_no);
    
     foreach ($res as $value => $trans) {
 
