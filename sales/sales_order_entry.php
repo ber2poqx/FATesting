@@ -924,7 +924,12 @@ function installment_computation()
 
 	//modified by spyrax10
 	$mature_date = add_months($_POST['first_due_date'], $terms);
-	$_POST['maturity_date'] = add_months($mature_date, -1);
+	if ($terms > 1) {
+		$_POST['maturity_date'] = add_months($mature_date, -1);
+	}
+	else {
+		$_POST['maturity_date'] = add_days($mature_date, 15);
+	}
 	//
 
 	$_POST['rebate'] = $rebate;
@@ -968,7 +973,12 @@ function new_installment_computation()
 
 	//modified by spyrax10
 	$mature_date = add_months($_POST['first_due_date'], $terms);
-	$_POST['new_maturity_date'] = add_months($mature_date, -1);
+	if ($terms > 1) {
+		$_POST['maturity_date'] = add_months($mature_date, -1);
+	}
+	else {
+		$_POST['maturity_date'] = add_days($mature_date, 15);
+	}
 	//
 
 	$_POST['new_rebate'] = $rebate;
