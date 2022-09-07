@@ -97,24 +97,33 @@ if(!is_null($action) || !empty($action)){
                 $serialised = $data['serialised'];
                 $rr_date = $data['rr_date'];
                 $qty = $data['qty'];
+                $currentqty = $data['qty'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
                 //add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
                     //$transno_out,'new',$qty, $rr_date);
+
+                if($lot_no == ''){
+                    $qty = 0;
+                }
                 $line_item_header = rand();
                 if($serialised) {
                     $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                     $line_item = count($_SESSION['transfer_items']->line_items);
                     $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header);
+                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header,
+                        null, null, null, null, $currentqty);
                 }else{
                     $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                     $line_item = count($_SESSION['transfer_items']->line_items);
-                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header,
+                        null, null, null, null, $currentqty);
                 } 
             }
-            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
+
+            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id, $color);
+
             exit;
             break;
         case 'ManualAddItem';
@@ -137,7 +146,7 @@ if(!is_null($action) || !empty($action)){
                 if(!isset($_REQUEST['view'])){
                     $line_item_header = rand();
                     $line_item = count($_SESSION['transfer_items']->line_items);
-                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header, null, null, null, null, null);
                 }
             }
             display_transfer_items_serial_for_rr($_SESSION['transfer_items'], $brcode, $AdjDate);
@@ -420,13 +429,17 @@ if(!is_null($action) || !empty($action)){
             $arrayremove = array("[","]");
             $onlyconsonants = str_replace($arrayremove, "", html_entity_decode($_REQUEST['dataUpdate']));
             $filter = json_decode($onlyconsonants, true);
-            $_SESSION['transfer_items']->update_cart_item($filter['id'], $filter['qty'],$filter['standard_cost'],'0000-00-00','0000-00-00',$filter['lot_no'],$filter['chasis_no']);
+            $_SESSION['transfer_items']->update_cart_item($filter['id'], $filter['qty'],$filter['standard_cost'],'0000-00-00','0000-00-00',$filter['lot_no'],$filter['chasis_no'], $filter['color']);
 
 
             echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'"})';
             exit;
             break;
         case 'getTotalCost';
+            $arrayremove = array("[","]");
+            $onlyconsonants = str_replace($arrayremove, "", html_entity_decode($_REQUEST['dataUpdate']));
+            $filter = json_decode($onlyconsonants, true);
+
             $totalcost=$_SESSION['transfer_items']->rr_manual_items_total_cost();
 
             echo '({"TotalCost":"'.number_format2($totalcost,2).'"})';
@@ -589,6 +602,8 @@ if(!is_null($action) || !empty($action)){
 	               $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, sql2date($trans_date));
                    $qty-=$demand_qty;
                 }
+
+                //$subtotal_cost = $myrow["standard_cost"] * $myrow["qty_serialise"];
                 
                 if($qty>0){
                     $serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
@@ -610,6 +625,7 @@ if(!is_null($action) || !empty($action)){
                             'lot_no' => $myrow["serialise_lot_no"]==null?'':$myrow["serialise_lot_no"],
                             'chasis_no' => $myrow["serialise_chasis_no"]==null?'':$myrow["serialise_chasis_no"],
                             'serialise_loc_code'=>$myrow["serialise_loc_code"]
+                            //'subtotal_cost'=>$subtotal_cost
                         );   
                     }         
                 }      

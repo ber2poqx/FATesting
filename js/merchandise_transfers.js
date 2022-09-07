@@ -53,15 +53,72 @@ Ext.onReady(function(){
 		]
 	});
 
+	Ext.define('mymerchandise',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'stock_id', mapping:'stock_id'},
+			{name:'stock_description', mapping:'stock_description'},
+			{name:'trans_date', mapping:'trans_date'},
+			{name:'price', mapping:'price'},
+			{name:'reference', mapping:'reference'},
+			{name:'currentqty', mapping:'currentqty'},
+			{name:'qty', mapping:'qty', type: 'float'},
+			{name:'standard_cost', mapping:'standard_cost', type: 'float'},
+			{name:'lot_no', mapping:'lot_no'},
+			{name:'chasis_no', mapping:'chasis_no'},
+			{name:'category_id', mapping:'category_id'},
+			{name:'serialise_id', mapping:'serialise_id'},
+			{name:'color', mapping:'color'},
+			{name:'type_out', mapping:'type_out'},
+			{name:'transno_out', mapping:'transno_out'},
+			{name:'rr_date', mapping:'rr_date'},
+			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'}
+		]
+	});
+
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:20, hidden: true},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:70},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:55},
-		{header:'To Location', dataIndex:'loc_name', sortable:true, width:90},
-		{header:'Category', dataIndex:'category', sortable:true, width:90},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:50, align:'center'},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150, align:'center'},
-		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50},
+		{header:'Reference', dataIndex:'reference', sortable:true, width:75,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:blue; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}	
+		},
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:40,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold">' + Ext.util.Format.number(value) + '</span>';
+			}
+		},
+		{header:'To Location', dataIndex:'loc_name', sortable:true, width:90,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			}
+		},
+		{header:'Category', dataIndex:'category', sortable:true, width:50,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold">' + Ext.util.Format.number(value) + '</span>';
+			}
+		},
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:38, align:'center',
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
+			}
+		},
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) + '</span>';
+			}
+		},
+		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				if (value == "Received"){
+					return '<span style="color:green; font-weight:bold;">' + value + '</span>';
+				}else if(value == "Partial"){
+					return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+				}
+			}
+		},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
 			items:[
 				{
@@ -278,7 +335,8 @@ Ext.onReady(function(){
 	
 	var MerchandiseTransStore = Ext.create('Ext.data.Store', {
 	    storeId:'DetaiItemsTransferListStore',
-		fields: ['stock_id','stock_description','trans_date','price','reference','currentqty','qty','standard_cost', 'lot_no', 'chasis_no', 'category_id','serialise_id','color','type_out','transno_out','rr_date'],
+		model: mymerchandise,
+		name : 'MerchandiseTransStore',
 		autoLoad: false,
 		autoSync: true,
 		proxy : {
@@ -311,37 +369,81 @@ Ext.onReady(function(){
 		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', hidden: true},
 		{header:'Type', dataIndex:'type_out', sortable:true, width:40, renderer: columnWrap,hidden: true},
 		{header:'Trans No', dataIndex:'transno_out', sortable:true, width:40, renderer: columnWrap,hidden: true},
-		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, hidden: false},
+		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, hidden: true},
 		{header:'Model', dataIndex:'stock_id', sortable:true, width:90, renderer: columnWrap,hidden: false},
 		{header:'Stock Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'color', sortable:true, width:50, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:80, hidden: false,
-		renderer: Ext.util.Format.numberRenderer('0,000.00')
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:60, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
 		},
         {header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, align:'center',
+		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
 			editor:{
+				field:{
+					xtype:'textfield',
+					name:'qty',
+					id: 'qty',
+					anchor:'100%',
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModel = Ext.getCmp('mtgrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('standard_cost'));
+							GridRecords.set("subtotal_cost",(newcost));
+						}
+					}	
+				}
+			}	
+			/*editor:{
 				completeOnEnter: true,
 				field:{
-					xtype:'numberfield',
+					xtype:'textfield',
 					allowBlank: false,
 					minValue:0,
-					listeners : {
-					    keyup: function(grid, rowIndex, colIndex) {
-						//var record = GRNItemsStore.getAt(rowIndex);
-                        //console.log('Keup Logs');
-
-                    },
-						specialkey: function(f,e){
-							if (e.getKey() == e.ENTER) {
-								//alert('Hello World'+f.value());
-							}
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModel = Ext.getCmp('mtgrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('standard_cost'));
+							GridRecords.set("subtotal_cost",(newcost));
 						}
-					}
+					}	
 				}
-			}
+			}*/
+		},
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, width:60, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
 		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
@@ -404,7 +506,7 @@ Ext.onReady(function(){
 	});
 	
 	var ItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','item_code', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised'],
+		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','item_code', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','tran_date','reference','serialised', 'subtotal_cost'],
 		autoLoad: false,
 		pageSize: itemsPerPage, // items per page
 		proxy : {
@@ -506,6 +608,9 @@ Ext.onReady(function(){
 	        ptype: 'cellediting',
 	        clicksToEdit: 1
 	    },
+		features: [{
+			ftype: 'summary'
+		}],
 		border: false,
 		frame:false,
 		viewConfig:{
@@ -518,12 +623,7 @@ Ext.onReady(function(){
 				var resultdis = record.get('rr_date') > AdjDate ? disabledClass : '';
 				//console.log(resultdis);
 				return resultdis;
-		    },
-		    listeners: {
-            	refresh: function(view) {
-					GetTotalCost();
-				}
-        	}
+		    }
 		},
 		dockedItems:[{
 			dock	: 'top',
@@ -722,7 +822,8 @@ Ext.onReady(function(){
 													transno_out: record.get('transno_out'),
 													standard_cost: record.get('standard_cost'),	
 													serialised: record.get('serialised'),	
-													rr_date: record.get('tran_date')
+													rr_date: record.get('tran_date'), 
+													subtotal_cost: record.get('subtotal_cost')
 												};
 												gridRepoData.push(ObjItem);
 											});
@@ -869,7 +970,8 @@ Ext.onReady(function(){
                     									width:785,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
-                    									emptyText:'--Select--',
+                    									emptyText:'Select Transder Location',
+                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
                     									selectOnFocus:true,
 														store: Ext.create('Ext.data.Store',{
                     										fields: ['loc_code', 
@@ -910,7 +1012,8 @@ Ext.onReady(function(){
                     									required: true,
                     									hiddenName: 'category_id',
                     									typeAhead: true,
-                    									emptyText:'--Select--',
+                    									emptyText:'Select Category',
+                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',                    									
                     									selectOnFocus:true,
 														store: Ext.create('Ext.data.Store',{
                     										fields: ['category_id', 'description'],
@@ -951,6 +1054,7 @@ Ext.onReady(function(){
 														id:'AdjDate',
 														width: 232,
 														labelWidth: 80,
+                    									fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
 														listeners:{
 															change: function(){
 															MerchandiseTransStore.load({
@@ -982,6 +1086,7 @@ Ext.onReady(function(){
 													fieldLabel:'Served By',
 													labelWidth:80,
 													width: 278,
+                    								fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
 													readOnly: true
 												}]
 											},{
@@ -1018,6 +1123,7 @@ Ext.onReady(function(){
 												xtype:'textfield',
 												fieldLabel:'TOTAL COST:',
 												readOnly: true,
+												hidden: true,
 												width: 210,
 												labelWidth: 85,
 												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
@@ -1043,6 +1149,15 @@ Ext.onReady(function(){
 												};
 												gridRepoData.push(ObjItem);
 											});
+											Ext.each(gridData, function(item) {
+												//alert(item.get('qty') + ' - '+ item.get('currentqty'));
+
+												if(item.get('qty') > item.get('currentqty')){
+														Ext.MessageBox.alert('Error','Sorry, Quantity you entered' + item.get('qty') + 'is Greater than Available Quantity On Hand:' + item.get('currentqty'));
+														return false;
+												}	
+											});
+
 											
 											var AdjDate = Ext.getCmp('AdjDate').getValue();	
 											var catcode = Ext.getCmp('category').getValue();
@@ -1222,7 +1337,7 @@ Ext.onReady(function(){
 			}
 		});
 	};
-	function GetTotalCost(){
+	/*function GetTotalCost(){
 		Ext.Ajax.request({
 			url : '?action=getTotalCost',
 			method: 'POST',
@@ -1233,6 +1348,6 @@ Ext.onReady(function(){
 			}
 		});	
 		return true;
-	}
+	}*/
 	/*----------End Here--------*/
 });
