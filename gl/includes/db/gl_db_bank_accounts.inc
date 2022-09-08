@@ -81,7 +81,7 @@ function get_bank_accounts($show_inactive = false, $bank_id = null, $act_code = 
 	
 	$ret_val = $act_code ? 'account_code' : 'account_name';
 
-	$sql = "SELECT account.*, gl_account.$ret_val
+	$sql = "SELECT gl_account.$ret_val, account.*
 		FROM ".TB_PREF."bank_accounts account, ".TB_PREF."chart_master gl_account
 		WHERE account.account_code = gl_account.account_code";
 	
@@ -98,7 +98,7 @@ function get_bank_accounts($show_inactive = false, $bank_id = null, $act_code = 
 
 	if ($bank_id != null) {
 		$row = db_fetch_row($result);
-		return $row[$act_code ? 0 : 1];
+		return $row[0];
 	}
 	else {
 		return $result;

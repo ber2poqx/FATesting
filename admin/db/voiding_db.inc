@@ -233,13 +233,15 @@ function get_voided_entry($type = '', $type_no = null, $reference = null, $list 
 
 //--------------------------------------------------------------------------------------------------
 
-function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $ref_to = '', $status = 'Draft') {
+function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $ref_to = '', $status = 'Draft', $cancel = 0) {
 	
 	set_global_connection();
 	
 	$date = date2sql($date_);
-	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference_from, reference_to, void_status)
-		VALUES (
+	$cancel_qry = $cancel == 1 ? ", cancel" : "";
+
+	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference_from, reference_to, void_status$cancel_qry) ";
+	$sql .= " VALUES (
 			". db_escape($type) .", 
 			". db_escape($type_no) .", 
 			". db_escape($date) .", 
@@ -247,8 +249,13 @@ function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $refe
 			".db_escape($branch_id) .",
 			".db_escape($reference) .",
 			".db_escape($ref_to) .",
-			".db_escape($status) ."
-		)";
+			".db_escape($status);
+	
+	if ($cancel == 1) {
+		$sql .= ", " .db_escape($cancel);
+	}
+	
+	$sql .= ")";
 
 	db_query($sql, "could not add voided transaction entry");
 

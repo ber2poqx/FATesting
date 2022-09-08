@@ -38,12 +38,14 @@ function systype_name($row) {
 }
 
 function void_status($row) {
+    $void_text = $row['cancel'] == 1 && $row["void_status"] == "Voided" ? "Cancelled" : $row["void_status"];
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOID_APPROVED')) {
 		$status_link = $row["void_status"] == "Draft" ? pager_link(
 			$row['void_status'],
-			"/admin/manage/void_draft.php?trans_no=" . $row['id'] . "&type=" . $row['type'] ."&status=1",
+			"/admin/manage/void_draft.php?trans_no=" . $row['id'] . "&type=" . $row['type'] ."&status=1&cancel=" . $row['cancel'] 
+            . "&void_id=" . $row['void_id'],
 			false
-		) : $row["void_status"];
+		) : $void_text;
 	}
 	else {
 		$status_link = $row['void_status'];

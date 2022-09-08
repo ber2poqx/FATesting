@@ -103,9 +103,8 @@ function print_voucher($row) {
 	return $print_link;
 }
 
-function void_row($row) {
-    
-    $void_link = '';
+function cancel_row($row) {
+    $cancel_link = '';
 
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
 
@@ -114,13 +113,13 @@ function void_row($row) {
 
         if ($void_entry == null) {
             $void_link = pager_link( _("Request to Void"),
-                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
             );
         }
         else if ($void_entry['void_status'] == 'Disapproved') {
 
             $void_link = pager_link( _("Request to Void"),
-                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
             );
         }
         else if (has_interbranch_entry($row['trans_no'], ST_JOURNAL)) {
@@ -130,7 +129,7 @@ function void_row($row) {
             
             if ($interb_status == 'Draft' && $void_entry == null) {
                 $void_link = pager_link( _("Request to Void"),
-                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
                 );
             }
         }
@@ -145,7 +144,58 @@ function void_row($row) {
 
             if ($current_bal != 0) {
                 $void_link = pager_link( _("Request to Void"),
-                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0", ICON_DOC
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
+                );
+            }
+        }
+	}
+
+    return $cancel_link;
+}
+
+function void_row($row) {
+    
+    $void_link = '';
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
+
+        $void_entry = get_voided_entry(ST_JOURNAL, $row['trans_no']);
+        $debtor_row = get_SI_by_reference($row['source_ref2']);
+
+        if ($void_entry == null) {
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=0", ICON_DOC
+            );
+        }
+        else if ($void_entry['void_status'] == 'Disapproved') {
+
+            $void_link = pager_link( _("Request to Void"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=0", ICON_DOC
+            );
+        }
+        else if (has_interbranch_entry($row['trans_no'], ST_JOURNAL)) {
+           
+            $comp_id = get_comp_id(has_interbranch_entry($row['trans_no'], ST_JOURNAL));
+            $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_JOURNAL);
+            
+            if ($interb_status == 'Draft' && $void_entry == null) {
+                $void_link = pager_link( _("Request to Void"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=0", ICON_DOC
+                );
+            }
+        }
+        else if ($debtor_row["trans_no"] != null && $void_entry['void_status'] == "Disapproved") {
+            $inv_row = db_fetch_assoc(get_customer_invoices('', $row['source_ref']));
+            $current_bal = current_balance_display(
+				$inv_row['trans_no'],
+				$inv_row['type'],
+				$inv_row['cust_id'],
+				date2sql(Today())
+			);
+
+            if ($current_bal != 0) {
+                $void_link = pager_link( _("Request to Void"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=0", ICON_DOC
                 );
             }
         }

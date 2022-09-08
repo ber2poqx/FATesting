@@ -36,6 +36,10 @@ else if (isset($_GET['ApprovedID'])) {
     $trans_no = $_GET['ApprovedID'];
     $header_text = _("Approved to");
 }
+else if (isset($_GET['CancelID'])) {
+    $trans_no = $_GET['CancelID'];
+    $header_text = _("Request to ");
+}
 else {
     $trans_no = $_GET['trans_no'];
     if ($_GET['status'] == 1) {
@@ -46,19 +50,35 @@ else {
     }
 }
 
-page(_($help_context = $header_text ." Void Transaction # " . $trans_no), false, false, "", $js);
+if ($_GET['cancel'] == 1) {
+    $type_text = "Cancel";
+}
+else if ($_GET['cancel'] == 0) {
+    $type_text = "Void";
+}
+
+page(_($help_context = $header_text ." $type_text Transaction # " . $trans_no), false, false, "", $js);
 //---------------------------------------------------------------------------------------------
 if (isset($_GET['AddedID'])) {
     $trans_no = $_GET['AddedID'];
+    $type_text = $_GET['cancel'] == 1 ? "Cancel" : "Void";
 
-    display_notification_centered(sprintf(_("Request to Void this Transaction Success!"), $trans_no));
+    display_notification_centered(sprintf(_("Request to $type_text this Transaction Success!"), $trans_no));
     hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");
 	display_footer_exit();
 }
 else if (isset($_GET['ApprovedID'])) {
     $trans_no = $_GET['ApprovedID'];
+    $type_text = $_GET['cancel'] == 1 ? "Cancel" : "Void";
 
-    display_notification_centered(sprintf(_("Request to Void this Transaction has been Approved!"), $trans_no));
+    display_notification_centered(sprintf(_("Request to $type_text this Transaction has been Approved!"), $trans_no));
+    hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");
+	display_footer_exit();
+}
+else if (isset($_GET['CancelID'])) {
+    $trans_no = $_GET['CancelID'];
+
+    display_notification_centered(sprintf(_("This Transaction has been cancelled!"), $trans_no));
     hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");
 	display_footer_exit();
 }
@@ -242,7 +262,7 @@ function can_proceed() {
 //---------------------------------------------------------------------------------------------
 
 if (isset($_POST['Process'])) {
-
+    $cancel = $type_text == "Cancel" ? 1 : 0;
     $trans_no = add_voided_entry(
         $_GET['type'], 
         $_GET['trans_no'], 
@@ -250,27 +270,39 @@ if (isset($_POST['Process'])) {
         get_post('memo_'), 
         user_company(),
         get_post('reference'),
-        ''
+        '', 'Draft', $cancel
     );
 
     if ($trans_no) {
-        meta_forward($_SERVER['PHP_SELF'], "AddedID=" . $trans_no);
+        meta_forward($_SERVER['PHP_SELF'], "AddedID=" . $trans_no . "&cancel=" . $cancel);
     }
 
 }
 
 if (isset($_POST['Approved']) && can_proceed()) {
-    $trans_no = update_void_status(
-        $_GET['type'], 
-        $_GET['trans_no'], 
-        Today(),
-        "Approved",
-        get_post('memo_'),
-        $_SESSION["wa_current_user"]->user
-    );
+    $cancel = $type_text == "Cancel" ? 1 : 0;
 
-    if ($trans_no) {
-        meta_forward($_SERVER['PHP_SELF'], "ApprovedID=" . $trans_no);
+    if ($cancel == 0) {
+        $trans_no = update_void_status(
+            $_GET['type'], 
+            $_GET['trans_no'], 
+            Today(),
+            "Approved",
+            get_post('memo_'),
+            $_SESSION["wa_current_user"]->user,
+            ''
+        );
+    
+        if ($trans_no) {
+            meta_forward($_SERVER['PHP_SELF'], "ApprovedID=" . $trans_no . "&cancel=" . $cancel);
+        }
+    }
+    else {
+        $void_id = void_banking($_GET['void_id'], $_GET['type']);
+
+        if ($void_id) {
+            meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel);
+        }
     }
 }
 
@@ -300,7 +332,7 @@ menu_rows($_GET['trans_no'], $_GET['type']);
 void_remarks($_GET['status']);
 
 if ($_GET['status'] == 0 && $void_row == null) {
-    submit_center_last('Process', _("Request to Void this Transaction"), '', 'default');
+    submit_center_last('Process', _("Request to $type_text this Transaction"), '', 'default');
 }
 else if ($_GET['status'] ==  1 && $void_row['void_status'] == "Draft") {
     submit_center_first('Approved', _("Approved"), '', 'default');

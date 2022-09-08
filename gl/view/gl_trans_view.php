@@ -418,6 +418,6 @@ if ($edit_id != -1) {
 
 //-----------------------------------------------------------------------------
 
-is_voided_display($_GET['type_id'], $_GET['trans_no'], _("This transaction has been voided."));
+is_voided_display($_GET['type_id'], $_GET['trans_no'], _("This Transaction has been Voided."));
 
 end_page(true, false, false, $_GET['type_id'], $_GET['trans_no']);

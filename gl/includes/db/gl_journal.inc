@@ -180,6 +180,81 @@ function void_journal_trans($type, $type_no, $use_transaction=true)
 
 //Added by spyrax10 11 Jun 2022
 
+function void_journal($void_id, $date = "", $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor_no = 0, $ref_to = '') {
+	
+	global $Refs;
+
+	if ($date == "") {
+		$date = Today();
+	}
+
+	$void_row = get_voided_entry(0, null, null, false, 'ALL', null, null, $void_id);
+	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
+	$debtor_row = get_SI_by_reference($void_row['reference_from']);
+
+	if ($ar_trans_no > 0) {
+		$si_row = get_SI_by_reference('', $ar_trans_no, $ar_trans_type, $ar_debtor_no);	
+	}
+
+	while ($row = db_fetch($gl_sql)) {
+
+		add_gl_trans(
+			$row['type'],
+			$row['type_no'],
+			$date,
+			$row['account'],
+			0, 0,
+			$void_row['memo_'],
+			-$row['amount'],
+			'PHP',
+			$row['person_type_id'],
+			$row['person_id'],
+			"",
+			0,
+			$row['mcode'],
+			$row['master_file'],
+			$row['hocbc_id'],
+			$row['loan_trans_no'],
+			$row['interbranch'],
+			false,
+			1
+		);
+	}
+
+	update_void_status(
+		$void_row['type'], 
+		$void_row['id'], 
+		$date, "Voided", 
+		$void_row['memo_'], 
+		$_SESSION["wa_current_user"]->user,
+		$ref_to 
+	);
+
+	if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
+	
+		$comp_id = get_comp_id(has_interbranch_entry($void_row['id'], $void_row['type']));
+		$interb_status = bank_interB_stat($comp_id, $void_row['reference_from'], $void_row['type']);
+
+		if ($interb_status == "Draft") {
+			void_interB($comp_id, $void_row['reference_from'], $void_row['type'], 1);
+		}
+	}
+
+	if ($debtor_row["trans_no"] != null && $ar_trans_no > 0)  {
+		if ($debtor_row['alloc'] > 0 && $debtor_row['ov_amount'] == 0) {
+			void_payments_thru_JE($void_row['reference_from'], $void_row['id'], true);
+			update_debtor_trans_allocation($si_row["type"], $si_row["trans_no"], $si_row["debtor_no"]);
+		}
+		else if ($debtor_row['ov_amount'] > 0 && $debtor_row['alloc'] == 0) {
+			void_payments_thru_JE($void_row['reference_from'], $void_row['id']);
+			update_AR_amount($si_row["trans_no"], $si_row["type"], $si_row["debtor_no"], -$debtor_row['ov_amount']);
+		}
+	}
+
+	add_audit_trail($void_row['type'], $void_row['id'], $date, _("Voided.")."\n". $void_row['memo_']);
+	$Refs->restore_last($void_row['type'], $void_row['id']);
+}
+
 function gl_account_exists($type, $trans_no, $account) {
 	
 	set_global_connection();

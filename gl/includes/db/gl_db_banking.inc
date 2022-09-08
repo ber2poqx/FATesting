@@ -889,56 +889,7 @@ function write_bank_transaction(
 	}
 
 	if ($void_id > 0) {
-		
-		$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
-		$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
-
-		while ($row = db_fetch($gl_sql)) {
-			
-			add_gl_trans(
-				$row['type'],
-				$row['type_no'],
-				$date_,
-				$row['account'],
-				0, 0,
-				$void_row['memo_'],
-				-$row['amount'],
-				'PHP',
-				$row['person_type_id'],
-				$row['person_id'],
-				"",
-				0,
-				$row['mcode'],
-				$row['master_file'],
-				$row['hocbc_id'],
-				$row['loan_trans_no'],
-				$row['interbranch'],
-				false,
-				1
-			);
-		}
-
-		update_void_status(
-			$void_row['type'], 
-			$void_row['id'], 
-			$date_, "Voided", 
-			$void_row['memo_'], 
-			$_SESSION["wa_current_user"]->user,
-			$ref
-		);
-
-		if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
-
-			$comp_id = get_comp_id(has_interbranch_entry($void_row['id'], $void_row['type']));
-			$interb_status = bank_interB_stat($comp_id, $void_row['reference_from'], $void_row['type']);
-
-			if ($interb_status == "Draft") {
-				void_interB($comp_id, $void_row['reference_from'], $void_row['type'], 1);
-			}
-		}
-
-		add_audit_trail($void_row['type'], $void_row['id'], $date_, _("Voided.")."\n". $void_row['memo_']);
-		$Refs->restore_last($void_row['type'], $void_row['id']);
+		void_banking($void_id, $trans_type);	
 	}
 
 	add_comments($trans_type, $trans_no, $date_, $memo_);
@@ -1161,6 +1112,62 @@ function cheque_exists($cheque_no) {
 	$result = db_query($sql, "Can't get cheque number count! (spyrax10)");
 	$row = db_fetch_row($result);
 	return $row[0];
+}
+
+function void_banking($void_id, $trans_type) {
+	global $Refs;
+
+	$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
+	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
+
+	while ($row = db_fetch($gl_sql)) {
+		
+		add_gl_trans(
+			$row['type'],
+			$row['type_no'],
+			Today(),
+			$row['account'],
+			0, 0,
+			$void_row['memo_'],
+			-$row['amount'],
+			'PHP',
+			$row['person_type_id'],
+			$row['person_id'],
+			"",
+			0,
+			$row['mcode'],
+			$row['master_file'],
+			$row['hocbc_id'],
+			$row['loan_trans_no'],
+			$row['interbranch'],
+			false,
+			1
+		);
+	}
+
+	update_void_status(
+		$void_row['type'], 
+		$void_row['id'], 
+		Today(), "Voided", 
+		$void_row['memo_'], 
+		$_SESSION["wa_current_user"]->user,
+		''
+	);
+
+	if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
+
+		$comp_id = get_comp_id(has_interbranch_entry($void_row['id'], $void_row['type']));
+		$interb_status = bank_interB_stat($comp_id, $void_row['reference_from'], $void_row['type']);
+
+		if ($interb_status == "Draft") {
+			void_interB($comp_id, $void_row['reference_from'], $void_row['type'], 1);
+		}
+	}
+
+	add_audit_trail($void_row['type'], $void_row['id'], Today(), _("Voided.")."\n". $void_row['memo_']);
+	$Refs->restore_last($void_row['type'], $void_row['id']);
+
+	return $void_id;
 }
 
 //

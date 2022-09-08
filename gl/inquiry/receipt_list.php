@@ -85,6 +85,43 @@ function gl_view($row) {
     return $gl_link;
 }
 
+function cancel_row($row) {
+    $cancel_link = '';
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
+        $void_entry = get_voided_entry(ST_BANKDEPOSIT, $row['trans_no']);
+
+        if ($void_entry == null) {
+            $cancel_link = pager_link( _("Request to Cancel"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0&cancel=1", ICON_CANCEL
+            );
+        }
+        else if ($void_entry['void_status'] == 'Disapproved') {
+
+            $cancel_link = pager_link( _("Request to Cancel"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0&cancel=1", ICON_CANCEL
+            );
+        }
+        else if (has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT)) {
+           
+            $comp_id = get_comp_id(has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT));
+            $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_BANKDEPOSIT);
+            
+            if ($interb_status == 'Draft' && $void_entry == null) {
+                $cancel_link = pager_link( _("Request to Cancel"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0&cancel=1", ICON_CANCEL
+                );
+            }
+        }
+
+    }
+    else {
+		$cancel_link = '';
+	}
+
+    return $cancel_link;
+}
+
 
 function void_row($row) {
     
@@ -96,13 +133,13 @@ function void_row($row) {
 
         if ($void_entry == null) {
             $void_link = pager_link( _("Request to Void"),
-                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0&cancel=0", ICON_DOC
             );
         }
         else if ($void_entry['void_status'] == 'Disapproved') {
 
             $void_link = pager_link( _("Request to Void"),
-                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0&cancel=0", ICON_DOC
             );
         }
         else if (has_interbranch_entry($row['trans_no'], ST_BANKDEPOSIT)) {
@@ -112,7 +149,7 @@ function void_row($row) {
             
             if ($interb_status == 'Draft' && $void_entry == null) {
                 $void_link = pager_link( _("Request to Void"),
-                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0", ICON_DOC
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_BANKDEPOSIT ."&status=0&cancel=0", ICON_DOC
                 );
             }
         }
@@ -218,6 +255,7 @@ $cols = array(
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center')
 );
 
