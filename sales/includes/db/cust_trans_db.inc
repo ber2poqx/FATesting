@@ -384,7 +384,9 @@ function get_sql_for_customer_inquiry(
 	$to,
 	$cust_id = ALL_TEXT,
 	$filter = ALL_TEXT,
-	$del_type = ALL_TEXT // Added by spyrax10
+	// Added by spyrax10
+	$del_type = ALL_TEXT,
+	$trans_no = ''
 	//, $show_voided = 0 //Commented by spyrax10
 ) {
 	$date_after = date2sql($from);
@@ -447,6 +449,10 @@ function get_sql_for_customer_inquiry(
 	//$sql .= " AND ISNULL(v.date_) AND (trans.ov_amount + trans.ov_gst + trans.ov_freight + trans.ov_freight_tax + trans.ov_discount) != 0";
 
 	//Added by spyrax10
+	if ($trans_no != '') {
+		$sql .= " AND trans.trans_no = " .db_escape($trans_no) . " OR trans.order_ = " .db_escape($trans_no);
+	}
+
 	if ($del_type != ALL_TEXT) {
 		if ($del_type == '1') { //Main Unit
 			$sql .= " AND X.item_type = 'MAIN UNIT' ";

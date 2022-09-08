@@ -166,14 +166,25 @@ if (isset($_GET['customer_id']))
 
 start_form();
 
-if (!isset($_POST['customer_id']))
+if (!isset($_POST['customer_id'])) {
 	$_POST['customer_id'] = get_global_customer();
+}
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-if (!$page_nested)
-	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true, false, true);
+ref_cells(_("#: &nbsp;"), 'trans_no', '',null, '', true);
+
+if (!$page_nested) {
+	customer_list_cells(_("&nbsp; Select Customer: "), 'customer_id', null, true, true, false, true);
+}
+
+end_row();
+end_table();
+
+
+start_table(TABLESTYLE_NOBORDER);
+start_row();
 
 cust_allocations_list_cells(null, 'filterType', null, true, true);
 
@@ -221,7 +232,10 @@ $sql = get_sql_for_customer_inquiry(
 	get_post('TransAfterDate'), 
 	get_post('TransToDate'),
 	get_post('customer_id'), 
-	get_post('filterType'), get_post('del_type') //Added by spyrax10
+	get_post('filterType'), 
+	//Added by spyrax10
+	get_post('del_type'),
+	get_post('trans_no')
 	//check_value('show_voided') //Commented by spyrax10
 );
 
