@@ -180,13 +180,9 @@ function void_journal_trans($type, $type_no, $use_transaction=true)
 
 //Added by spyrax10 11 Jun 2022
 
-function void_journal($void_id, $date = "", $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor_no = 0, $ref_to = '') {
+function void_journal($void_id, $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor_no = 0, $ref_to = '') {
 	
 	global $Refs;
-
-	if ($date == "") {
-		$date = Today();
-	}
 
 	$void_row = get_voided_entry(0, null, null, false, 'ALL', null, null, $void_id);
 	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
@@ -201,7 +197,7 @@ function void_journal($void_id, $date = "", $ar_trans_no = 0, $ar_trans_type = 0
 		add_gl_trans(
 			$row['type'],
 			$row['type_no'],
-			$date,
+			$void_row['date_'],
 			$row['account'],
 			0, 0,
 			$void_row['memo_'],
@@ -224,7 +220,7 @@ function void_journal($void_id, $date = "", $ar_trans_no = 0, $ar_trans_type = 0
 	update_void_status(
 		$void_row['type'], 
 		$void_row['id'], 
-		$date, "Voided", 
+		$void_row['date_'], "Voided", 
 		$void_row['memo_'], 
 		$_SESSION["wa_current_user"]->user,
 		$ref_to 
@@ -251,7 +247,7 @@ function void_journal($void_id, $date = "", $ar_trans_no = 0, $ar_trans_type = 0
 		}
 	}
 
-	add_audit_trail($void_row['type'], $void_row['id'], $date, _("Voided.")."\n". $void_row['memo_']);
+	add_audit_trail($void_row['type'], $void_row['id'], $void_row['date_'], _("Voided.")."\n". $void_row['memo_']);
 	$Refs->restore_last($void_row['type'], $void_row['id']);
 }
 

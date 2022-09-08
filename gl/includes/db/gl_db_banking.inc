@@ -1125,7 +1125,7 @@ function void_banking($void_id, $trans_type) {
 		add_gl_trans(
 			$row['type'],
 			$row['type_no'],
-			Today(),
+			$void_row['date_'],
 			$row['account'],
 			0, 0,
 			$void_row['memo_'],
@@ -1148,7 +1148,7 @@ function void_banking($void_id, $trans_type) {
 	update_void_status(
 		$void_row['type'], 
 		$void_row['id'], 
-		Today(), "Voided", 
+		$void_row['date_'], "Voided", 
 		$void_row['memo_'], 
 		$_SESSION["wa_current_user"]->user,
 		''
@@ -1164,7 +1164,7 @@ function void_banking($void_id, $trans_type) {
 		}
 	}
 
-	add_audit_trail($void_row['type'], $void_row['id'], Today(), _("Voided.")."\n". $void_row['memo_']);
+	add_audit_trail($void_row['type'], $void_row['id'], $void_row['date_'], _("Voided.")."\n". $void_row['memo_']);
 	$Refs->restore_last($void_row['type'], $void_row['id']);
 
 	return $void_id;
