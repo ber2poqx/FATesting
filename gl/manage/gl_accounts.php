@@ -88,7 +88,7 @@ if (isset($_POST['add']) || isset($_POST['update']))
 				display_error(_("The account belongs to a bank account and cannot be inactivated."));
 			}
     		elseif (update_gl_account($_POST['account_code'], $_POST['account_name'], 
-    		    $_POST['account_type'], $_POST['account_code2'], check_value($_POST['control']))
+    		    $_POST['account_type'], $_POST['account_code2'], check_value($_POST['control']), $_POST['normalbal'])
 			) {
 
 				update_record_status($_POST['account_code'], $_POST['inactive'], 'chart_master', 'account_code');
@@ -103,7 +103,7 @@ if (isset($_POST['add']) || isset($_POST['update']))
     	else 
 		{
     		if (add_gl_account($_POST['account_code'], $_POST['account_name'], 
-				$_POST['account_type'], $_POST['account_code2'], check_value('control')))
+				$_POST['account_type'], $_POST['account_code2'], check_value('control'), $_POST['normalbal']))
 				{
 					add_tag_associations($_POST['account_code'], $_POST['account_tags']);
 					display_notification(_("New account has been added."));
@@ -232,6 +232,7 @@ if ($selected_account != "")
 	$_POST['account_type'] = $myrow["account_type"];
  	$_POST['inactive'] = $myrow["inactive"];
  	$_POST['control'] = $myrow["control"];
+	$_POST['normalbal'] = $myrow["normal_balance"];
  	
  	$tags_result = get_tags_associated_with_record(TAG_ACCOUNT, $selected_account);
  	$tagids = array();
@@ -252,6 +253,7 @@ else
 		$_POST['account_name']	= $_POST['account_type'] = '';
  		$_POST['inactive'] = 0;
  		$_POST['control'] = 0;
+		$_POST['normalbal'] = 0;
  		if ($filter_id) $_POST['account_type'] = $_POST['id'];
 	}
 	text_row_ex(_("Account Code:"), 'account_code', 15);
@@ -266,7 +268,7 @@ gl_account_types_list_row(_("Account Group:"), 'account_type', null);
 tag_list_row(_("Account Tags:"), 'account_tags', 5, TAG_ACCOUNT, true);
 
 check_row(_("Controlled:"), 'control');
-
+normalbal_list_row(_("Normal Balance:"), 'normalbal');
 record_status_list_row(_("Account status:"), 'inactive');
 end_table(1);
 

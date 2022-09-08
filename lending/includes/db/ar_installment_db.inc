@@ -148,7 +148,7 @@ function get_loan_amortization_ledger($type, $trans_no)
 			( 
 				CASE WHEN C.reference IS NULL and B.date_paid IS NOT NULL
 					THEN(SELECT X.reference 
-							FROM debtor_trans X 
+							FROM ".TB_PREF."debtor_trans X 
 							WHERE X.trans_no = ".db_escape($trans_no)." 
 							AND X.type = ".db_escape($type).")
     				ELSE C.reference
@@ -161,7 +161,7 @@ function get_loan_amortization_ledger($type, $trans_no)
 			WHERE A.trans_no = ".db_escape($trans_no)."
 				AND A.trans_type = ".db_escape($type)."
 			ORDER BY A.month_no ASC, B.date_paid ASC";
-
+		
 	return db_query($sql, "could not get amortization ledger because ");
 }
 

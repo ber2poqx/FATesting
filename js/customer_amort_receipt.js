@@ -3627,14 +3627,14 @@ Ext.onReady(function() {
 					minValue: 0,
 					margin: '0 0 2 0',
 					fieldStyle: 'font-weight: bold;color: red; text-align: right;'
-				},{
+				/*},{
 					xtype: 'button',
 					text:'<b>Void</b>',
 					margin: '0 12 100 0',
 					icon: '../js/ext4/examples/shared/icons/table_row_delete.png',
 					handler : function() {
 						
-					}
+					}*/
 				}]
 			}]
 		},{

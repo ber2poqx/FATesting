@@ -9,20 +9,20 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_gl_account($account_code, $account_name, $account_type, $account_code2, $control)
+function add_gl_account($account_code, $account_name, $account_type, $account_code2, $control, $normalbal)
 {
-	$sql = "INSERT INTO ".TB_PREF."chart_master (account_code, account_code2, account_name, account_type, control)
+	$sql = "INSERT INTO ".TB_PREF."chart_master (account_code, account_code2, account_name, account_type, control, normal_balance)
 		VALUES (".db_escape($account_code).", ".db_escape($account_code2).", "
-			.db_escape($account_name).", ".db_escape($account_type).", ".db_escape($control).")";
+			.db_escape($account_name).", ".db_escape($account_type).", ".db_escape($control).", ".db_escape($normalbal).")";
 
 	return db_query($sql);
 }
 
-function update_gl_account($account_code, $account_name, $account_type, $account_code2, $control)
+function update_gl_account($account_code, $account_name, $account_type, $account_code2, $control, $normalbal)
 {
     $sql = "UPDATE ".TB_PREF."chart_master SET account_name=".db_escape($account_name)
     .",account_type=".db_escape($account_type).", account_code2=".db_escape($account_code2)
-    .", control=".db_escape($control)
+    .", control=".db_escape($control).", normal_balance=".db_escape($normalbal)
 		." WHERE account_code = ".db_escape($account_code);
 
 	return db_query($sql);

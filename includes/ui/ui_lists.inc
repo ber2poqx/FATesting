@@ -2970,6 +2970,35 @@ function rebate_month_row($label, $name, $selected_id=null, $submit_on_change=fa
 	rebate_month_list_cells(null, $name, $selected_id, $submit_on_change);
 	echo "</tr>\n";
 }
+
+//normal balance COA
+function normalbal_list($name, $selected_id=null, $name_cre="", $name_deb="", $submit_on_change=false)
+{
+	$items = array();
+	$items['0'] = strlen($name_deb) ? $name_deb : _("Debit");
+	$items['1'] = strlen($name_cre) ? $name_cre : _("Credit");
+
+	return array_selector($name, $selected_id, $items, 
+		array( 
+			'select_submit'=> $submit_on_change,
+			'async' => false ) ); // FIX?
+}
+
+function normalbal_list_cells($label, $name, $selected_id=null, $name_cre="", $name_deb="", $submit_on_change=false)
+{
+	if ($label != null)
+		echo "<td>$label</td>\n";
+	echo "<td>";
+	echo normalbal_list($name, $selected_id, $name_cre, $name_deb, $submit_on_change);
+	echo "</td>\n";
+}
+
+function normalbal_list_row($label, $name, $selected_id=null, $name_cre="", $name_deb="", $submit_on_change=false)
+{
+	echo "<tr><td class='label'>$label</td>";
+	normalbal_list_cells(null, $name, $selected_id, $name_cre, $name_deb, $submit_on_change);
+	echo "</tr>\n";
+}
 //---------------------------------------end--------------------------------------------------------
 
 function _format_date($row)
