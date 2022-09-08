@@ -82,7 +82,6 @@ if(!is_null($action) || !empty($action)){
             //var_dump($objDataGrid);
             foreach($objDataGrid as $value=>$data) 
             {
-                //echo $data;
                 $serialise_id = $data['serialise_id'];
                 $category_id = $data['category'];
                 $AdjDate = $data['AdjDate'];
@@ -101,9 +100,6 @@ if(!is_null($action) || !empty($action)){
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
-                //add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
-                    //$transno_out,'new',$qty, $rr_date);
-
                 if($lot_no == ''){
                     $qty = 0;
                 }
@@ -121,18 +117,15 @@ if(!is_null($action) || !empty($action)){
                         null, null, null, null, $currentqty);
                 } 
             }
-
-            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id, $color);
-
+            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
             exit;
             break;
         case 'ManualAddItem';
             $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
             $objDataGrid = json_decode(trim($DataOnGrid), true);
-            //var_dump($objDataGrid);
+
             foreach($objDataGrid as $value=>$data) 
             {
-                //echo $data;
                 $category_id = $data['category'];
                 $AdjDate = $data['AdjDate'];
                 $model = $data['model'];
@@ -143,32 +136,19 @@ if(!is_null($action) || !empty($action)){
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
+                if($serialised) {
+                    $qty = 1;
+                }else{
+                    $qty = 0;
+                }
+
                 if(!isset($_REQUEST['view'])){
                     $line_item_header = rand();
                     $line_item = count($_SESSION['transfer_items']->line_items);
-                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header, null, null, null, null, null);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header, null, null, null, null, null);
                 }
             }
             display_transfer_items_serial_for_rr($_SESSION['transfer_items'], $brcode, $AdjDate);
-
-            /*$category_id = $_REQUEST['category'];
-            $AdjDate = $_POST['AdjDate'];
-            $model = $_REQUEST['model'];
-            $item_code = $_REQUEST['item_code'];
-            $serialised = $_REQUEST['serialised'];
-            $stock_description = $_REQUEST['stock_description'];
-            $item_description = $_REQUEST['item_description'];
-            $brcode = $db_connections[user_company()]["branch_code"];
-            $_SESSION['transfer_items']->from_loc=$brcode;
-            
-            //add_to_manual_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'new',$qty, $rr_date);
-            if(!isset($_REQUEST['view'])){
-                $line_item_header = rand();
-                $line_item = count($_SESSION['transfer_items']->line_items);
-                $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header);
-            }
-            
-            display_transfer_items_serial_for_rr($_SESSION['transfer_items'], $brcode, $AdjDate);*/
             exit;
             break;
         case 'SaveTransfer';
@@ -271,6 +251,14 @@ if(!is_null($action) || !empty($action)){
                     $isError = 1;                    
                     $message="Serial No. must not be empty.";
                     break;                    
+                }elseif($serialised && $lot_no == '') {
+                    $isError = 1;                    
+                    $message="Serial No. must not be empty.";
+                    break;  
+                }elseif($serialised && $quantity > 1) {
+                    $isError = 1;                    
+                    $message="Quantity must not greater than 1";
+                    break; 
                 }
             }
 

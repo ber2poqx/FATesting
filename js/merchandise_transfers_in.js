@@ -71,6 +71,31 @@ Ext.onReady(function(){
 		]
 	});
 
+	Ext.define('mymerchandisereceiving',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'stock_id', mapping:'stock_id'},
+			{name:'stock_description', mapping:'stock_description'},
+			{name:'item_description', mapping:'item_description'},
+			{name:'trans_date', mapping:'trans_date'},
+			{name:'price', mapping:'price'},
+			{name:'reference', mapping:'reference'},
+			{name:'currentqty', mapping:'currentqty'},
+			{name:'qty', mapping:'qty', type: 'float'},
+			{name:'standard_cost', mapping:'standard_cost', type: 'float'},
+			{name:'lot_no', mapping:'lot_no'},
+			{name:'chasis_no', mapping:'chasis_no'},
+			{name:'category_id', mapping:'category_id'},
+			{name:'serialise_id', mapping:'serialise_id'},
+			{name:'color', mapping:'color'},
+			{name:'type_out', mapping:'type_out'},
+			{name:'transno_out', mapping:'transno_out'},
+			{name:'rr_date', mapping:'rr_date'},
+			{name:'brand_name', mapping:'brand_name'},
+			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'}
+		]
+	});
+
 	var columnModel =[
 		{header:'ID', dataIndex:'id', sortable:true, width:20,hidden: true},
 		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:75, hidden: false,
@@ -682,7 +707,9 @@ Ext.onReady(function(){
 	
 	var MerchandiseTransStore = Ext.create('Ext.data.Store', {
 	    storeId:'DetaiItemsTransferListStore',
-		fields: ['stock_id','stock_description','item_description','trans_date','price','reference','currentqty','qty','standard_cost', 'lot_no', 'chasis_no', 'category_id','serialise_id','color','type_out','transno_out','rr_date','brand_name'],
+		//fields: ['stock_id','stock_description','item_description','trans_date','price','reference','currentqty','qty','standard_cost', 'lot_no', 'chasis_no', 'category_id','serialise_id','color','type_out','transno_out','rr_date','brand_name'],
+		model: mymerchandisereceiving,
+		name : 'MerchandiseTransStore',
 		autoLoad: false,
 		autoSync: true,
 		proxy : {
@@ -724,18 +751,65 @@ Ext.onReady(function(){
 		{header:'Type', dataIndex:'type', sortable:true,width:10, hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:15, hidden: true},
 		{header:'Price', dataIndex:'price', sortable:true, width:20, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:80, hidden: false},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:140,renderer: columnWrap, align:'right',hidden: false,
-		renderer: Ext.util.Format.numberRenderer('0,000.00'),
-			editor:{
-				field:{
-					xtype:'numberfield',
-					name:'standard_cost',
-					anchor:'100%'
+		{header:'Qty', dataIndex:'qty', sortable:true, width:70, hidden: false,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}
 		},
-		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:90,renderer: columnWrap, hidden: false,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
+			editor:{
+				field:{
+					xtype:'textfield',
+					name:'standard_cost',
+					id: 'standard_cost',
+					anchor:'100%',
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModelmanual = Ext.getCmp('gridMT').getSelectionModel();
+							var GridRecords = ItemModelmanual.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('qty'));
+							GridRecords.set("subtotal_cost",(newcost));
+						}
+					}	
+				}
+			}	
+		},
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, width:90, hidden: false,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
+		},
+		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -744,7 +818,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Chassis No.', dataIndex:'chasis_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
+		{header:'Chassis No.', dataIndex:'chasis_no', sortable:true, width:150,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -804,26 +878,84 @@ Ext.onReady(function(){
 		{header:'Type', dataIndex:'type', sortable:true,width:100, hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
 		{header:'Price', dataIndex:'price', sortable:true, width:55, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:80, hidden: false,
+		{header:'Qty', dataIndex:'qty', sortable:true, width:70, hidden: false,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
 			editor:{
 				field:{
-					xtype:'numberfield',
+					xtype:'textfield',
 					name:'qty',
-					anchor:'100%'
+					id: 'qty',
+					anchor:'100%',
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModelmanual = Ext.getCmp('gridMTNonSerialize').getSelectionModel();
+							var GridRecords = ItemModelmanual.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('standard_cost'));
+							GridRecords.set("subtotal_cost",(newcost));
+						}
+					}	
 				}
-			}
+			}	
 		},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:150,renderer: columnWrap, align:'right', hidden: false,
-		renderer: Ext.util.Format.numberRenderer('0,000.00'),
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:90,renderer: columnWrap, hidden: false,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
 			editor:{
 				field:{
-					xtype:'numberfield',
+					xtype:'textfield',
 					name:'standard_cost',
-					anchor:'100%'
+					id: 'standard_cost',
+					anchor:'100%',
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModelmanual = Ext.getCmp('gridMTNonSerialize').getSelectionModel();
+							var GridRecords = ItemModelmanual.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('qty'));
+							GridRecords.set("subtotal_cost",(newcost));
+						}
+					}	
 				}
-			}
+			}	
 		},
-		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:180,renderer: columnWrap, hidden: false,
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, width:70, hidden: false,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
+		},
+		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -832,7 +964,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Chassis No.', dataIndex:'chassis_no', sortable:true, width:150,renderer: columnWrap, hidden: true},
+		{header:'Chassis No.', dataIndex:'chassis_no', sortable:true, width:140,renderer: columnWrap, hidden: true},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:60,
 			items:[
 				{
@@ -971,6 +1103,9 @@ Ext.onReady(function(){
 	        ptype: 'cellediting',
 	        clicksToEdit: 1
 	    },
+	    features: [{
+			ftype: 'summary'
+		}],
 		border: false,
 		frame:false,
 		viewConfig:{
@@ -1284,13 +1419,17 @@ Ext.onReady(function(){
 		anchor:'100%',
 		hidden: true,
 		forceFit: true,
-		height:300,
+		//height:300,
 		store: MerchandiseTransStore,
 		columns: columnTransferModelNonSerial,
+		columnLines: true,
 		plugins: {
 	        ptype: 'cellediting',
 	        clicksToEdit: 1
 	    },
+	    features: [{
+			ftype: 'summary'
+		}],
 		border: false,
 		frame:false,
 		viewConfig:{
@@ -1767,7 +1906,8 @@ Ext.onReady(function(){
                     									width:785,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
-                    									emptyText:'--Select--',
+                    									emptyText:'Select Branches',
+                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
                     									selectOnFocus:true,
 														store: Ext.create('Ext.data.Store',{
                     										fields: ['loc_code', 
@@ -1809,7 +1949,8 @@ Ext.onReady(function(){
                     									required: true,
                     									hiddenName: 'category_id',
                     									typeAhead: true,
-                    									emptyText:'--Select--',
+                    									emptyText:'Select Category',
+                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
                     									selectOnFocus:true,
 														store: Ext.create('Ext.data.Store',{
                     										fields: ['category_id', 'description'],
@@ -1844,14 +1985,16 @@ Ext.onReady(function(){
 														fieldLabel:'Trans Date',
 														name:'trans_date',
 														labelWidth: 80,
-														id:'AdjDate'/*,
+														id:'AdjDate',
+														fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'/*,
 														value: new Date()*/
 												},{
 													xtype:'textfield',
 													name:'mtreferencemanual',
 													id:'mtreferencemanual',
 													labelWidth: 80,
-													fieldLabel:'MT Ref No.'
+													fieldLabel:'MT Ref No.',
+													fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'
 												}]
 											},{
 												xtype:'fieldcontainer',
@@ -1863,7 +2006,8 @@ Ext.onReady(function(){
 													id:'reference',
 													fieldLabel:'RR Ref No.',
 													readOnly: true,
-													width:362
+													width:362,
+													fieldStyle : 'background-color: #F2F3F4; color:blue; font-weight:bold;'
 												}]
 											},{
 												xtype:'fieldcontainer',
@@ -1933,6 +2077,18 @@ Ext.onReady(function(){
 												};
 												gridRepoData.push(ObjItem);
 											});
+
+											/*Ext.each(gridData, function(item) {
+												//alert(item.get('qty') + ' - '+ item.get('standard_cost'));
+												if(item.get('qty') == 0){
+														Ext.MessageBox.alert('Error','Sorry, Quantity must not be zero');
+														return false;
+												}
+												if(item.get('standard_cost') == 0){
+														Ext.MessageBox.alert('Error','Sorry, Unit Cost must not be zero');
+														return false;
+												}	
+											});*/
 
 											var AdjDate = Ext.getCmp('AdjDate').getValue();	
 											var catcode = Ext.getCmp('category').getValue();

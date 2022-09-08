@@ -166,7 +166,7 @@ class items_cart
 	    }
 	    return null;
 	}
-	function update_cart_item($line_no, $qty, $standard_cost, $manufacture_date='0000-00-00',$expire_date='0000-00-00', $lot_no='',$chasis_no='',
+	function update_cart_item($line_no, $qty=0, $standard_cost, $manufacture_date='0000-00-00',$expire_date='0000-00-00', $lot_no='',$chasis_no='',
 		$color = '', $remarks=null)
 	{
 		$this->line_items[$line_no]->quantity = $qty;

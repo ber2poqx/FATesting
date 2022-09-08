@@ -292,7 +292,7 @@ function display_transfer_items_serial_repo(&$order, $FromStockLocation, $AdjDat
     echo '({"total":"'.$total.'","result":'.$jsonresult.',"AdjDate":"'.$AdjDate.'","branchcode":"'.$FromStockLocation.'"})';
 }
 
-function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $color='', $type_out=0, $transno_out=0)
+function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $type_out=0, $transno_out=0)
 {
    // global $path_to_root;
 
@@ -346,11 +346,8 @@ function display_transfer_items_serial(&$order, $FromStockLocation, $AdjDate, $s
 }
 
 //Added by Robert [08/31/2022] for new COMPLI Module
-function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $repo_id='', $type_out=0, $transno_out=0)
+function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $type_out=0, $transno_out=0)
 {
-   // global $path_to_root;
-
-   // $low_stock = $order->check_qoh($FromStockLocation, $AdjDate, true);
     foreach ($order->line_items as $line_no=>$stock_item)
     {
         $kit = get_item_kit($stock_item->item_code);
@@ -389,8 +386,7 @@ function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjD
                 'brand_name' => $myrow["brand_name"],
                 'item_type' => $stock_item->item_type,
                 'line_item' => $stock_item->line_item_row,
-                'rr_date' => $stock_item->manufacture_date,
-                'repo_id'=>$repo_id
+                'rr_date' => $stock_item->manufacture_date
             );
         }
     }
@@ -401,9 +397,6 @@ function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjD
 //Added by Robert [08/24/2022] for new MT Module
 function display_transfer_items_serial_for_rr(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $type_out=0, $transno_out=0)
 {
-   // global $path_to_root;
-
-   // $low_stock = $order->check_qoh($FromStockLocation, $AdjDate, true);
     foreach ($order->line_items as $line_no=>$stock_item)
     {
         $kit = get_item_kit($stock_item->item_code);
@@ -419,8 +412,9 @@ function display_transfer_items_serial_for_rr(&$order, $FromStockLocation, $AdjD
         if ($myrow["serialised"]) {
             $stock_quantity = $stock_item->quantity;
         } else {            
-            $stock_quantity = 0;
+            $stock_quantity = $stock_item->quantity;
         }
+        $subtotal_cost = ($stock_item->standard_cost * $stock_quantity);
         if($stock_item->stock_id != ''){
             $group_array[] = array('id'=>$line_no,
                 'stock_id'=>$stock_item->stock_id,
@@ -443,7 +437,7 @@ function display_transfer_items_serial_for_rr(&$order, $FromStockLocation, $AdjD
                 'item_type' => $stock_item->item_type,
                 'line_item' => $stock_item->line_item_row,
                 'rr_date' => $stock_item->manufacture_date,
-                'repo_id'=>$repo_id
+                'subtotal_cost'=>$subtotal_cost
             );
         }
     }

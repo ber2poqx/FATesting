@@ -1141,7 +1141,33 @@ Ext.onReady(function(){
 										
 									        var gridData = MerchandiseTransStore.getRange();
 											var gridRepoData = [];
+											var HaveErrors = 0;
+											var $message;
+
 											count = 0;
+
+											Ext.each(gridData, function(item) {
+												if(item.get('qty') > item.get('currentqty')){
+													//alert("Sorry,");
+													//Ext.Msg.alert("Error","Agoy - Sorry, Quantity you entered");
+													//return false;
+													 $message = "Agoy - Sorry, Quantity you entered";
+													 $HaveErrors = 1;
+												}
+												/*if(item.get('qty') > item.get('currentqty')){
+													$message = "'Error','Agoy - Sorry, Quantity you entered' + item.get('qty') + "is Greater than Available Quantity On Hand:" + item.get('currentqty');
+													HaveErrors = 1;
+												}*/
+												if($HaveErrors == 1){
+													Ext.Msg.show({
+														title: 'Error!',
+														msg: '<font color="red">' + $message + '</font>',
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.ERROR
+													});
+												}
+											});
+		
 											Ext.each(gridData, function(item) {
 												var ObjItem = {							
 													qty: item.get('qty'),
@@ -1149,15 +1175,6 @@ Ext.onReady(function(){
 												};
 												gridRepoData.push(ObjItem);
 											});
-											Ext.each(gridData, function(item) {
-												//alert(item.get('qty') + ' - '+ item.get('currentqty'));
-
-												if(item.get('qty') > item.get('currentqty')){
-														Ext.MessageBox.alert('Error','Sorry, Quantity you entered' + item.get('qty') + 'is Greater than Available Quantity On Hand:' + item.get('currentqty'));
-														return false;
-												}	
-											});
-
 											
 											var AdjDate = Ext.getCmp('AdjDate').getValue();	
 											var catcode = Ext.getCmp('category').getValue();
