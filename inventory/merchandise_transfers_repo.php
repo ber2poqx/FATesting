@@ -78,10 +78,14 @@ if(!is_null($action) || !empty($action)){
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
 
+                if($lot_no == ''){
+                    $qty = 0;
+                }
+
                 add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
                     $transno_out,'repo',$qty, $rr_date);   
             }
-            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id, $repo_id);
+            display_transfer_items_serial_repo($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id, $repo_id);
             exit;
             break;
         case 'ManualAddItem';
@@ -99,7 +103,7 @@ if(!is_null($action) || !empty($action)){
                 $line_item = count($_SESSION['transfer_items']->line_items);
                 $_SESSION['transfer_items']->add_to_cart($line_item, $model, 1, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header);
             }
-            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
+            display_transfer_items_serial_repo($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
             exit;
             break;
         case 'SaveTransfer';
@@ -309,7 +313,7 @@ if(!is_null($action) || !empty($action)){
             $model = $_REQUEST['model'];
             $brcode = $db_connections[user_company()]["branch_code"];
             $_SESSION['transfer_items']->remove_from_cart($id);
-            display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
+            display_transfer_items_serial_repo($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             exit;
             break;
 

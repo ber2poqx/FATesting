@@ -240,7 +240,7 @@ function display_transfer_items($title, &$order)
 
 //---------------------------------------------------------------------------------
 //Added by Herald [12-18-2020] for new MT Module
-function display_transfer_items_serial_repo(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $repo_id='', $type_out=0, $transno_out=0)
+function display_transfer_items_serial_repo(&$order, $FromStockLocation, $AdjDate, $serialise_id='', $repo_id='')
 {
    // global $path_to_root;
 
@@ -258,10 +258,11 @@ function display_transfer_items_serial_repo(&$order, $FromStockLocation, $AdjDat
             $qty-=$demand_qty;
         }
         if ($stock_item->lot_no == '') {
-           $stock_quantity = 0;
+           $stock_quantity = $stock_item->quantity;
         } else {
             $stock_quantity = $stock_item->quantity;
         }
+        $subtotal_cost = ($stock_item->standard_cost * $stock_quantity);
         if($stock_item->stock_id != ''){
             $group_array[] = array('id'=>$line_no,
                 'stock_id'=>$stock_item->stock_id,
@@ -284,7 +285,8 @@ function display_transfer_items_serial_repo(&$order, $FromStockLocation, $AdjDat
                 'item_type' => $stock_item->item_type,
                 'line_item' => $stock_item->line_item_row,
                 'rr_date' => $stock_item->manufacture_date,
-                'repo_id'=>$repo_id
+                'repo_id'=>$repo_id,
+                'subtotal_cost'=>$subtotal_cost
             );
         }
     }

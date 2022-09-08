@@ -79,23 +79,23 @@ Ext.onReady(function(){
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:20, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:75,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:blue; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
 			}	
 		},
 		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:40,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:black; font-weight:bold">' + Ext.util.Format.number(value) + '</span>';
-			}
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
 		},
 		{header:'To Location', dataIndex:'loc_name', sortable:true, width:90,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
-			}
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
 		},
 		{header:'Category', dataIndex:'category', sortable:true, width:50,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:green; font-weight:bold">' + Ext.util.Format.number(value) + '</span>';
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
 			}
 		},
 		{header:'Total Items', dataIndex:'qty', sortable:true, width:38, align:'center',
@@ -104,8 +104,8 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value) + '</span>';
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
 		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50,
@@ -376,8 +376,12 @@ Ext.onReady(function(){
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
 		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:60, hidden: false,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			renderer: function(value, metadata, record, rowIndex, colIndex, store) {
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
 			},
 			summaryType: 'sum',
 			summaryRenderer: function(value, summaryData, dataIndex){
@@ -1141,12 +1145,12 @@ Ext.onReady(function(){
 										
 									        var gridData = MerchandiseTransStore.getRange();
 											var gridRepoData = [];
-											var HaveErrors = 0;
-											var $message;
+											//var HaveErrors = 0;
+											//var $message;
 
 											count = 0;
 
-											Ext.each(gridData, function(item) {
+											/*Ext.each(gridData, function(item) {
 												if(item.get('qty') > item.get('currentqty')){
 													//alert("Sorry,");
 													//Ext.Msg.alert("Error","Agoy - Sorry, Quantity you entered");
@@ -1158,7 +1162,7 @@ Ext.onReady(function(){
 													$message = "'Error','Agoy - Sorry, Quantity you entered' + item.get('qty') + "is Greater than Available Quantity On Hand:" + item.get('currentqty');
 													HaveErrors = 1;
 												}*/
-												if($HaveErrors == 1){
+												/*if($HaveErrors == 1){
 													Ext.Msg.show({
 														title: 'Error!',
 														msg: '<font color="red">' + $message + '</font>',
@@ -1166,7 +1170,7 @@ Ext.onReady(function(){
 														icon: Ext.MessageBox.ERROR
 													});
 												}
-											});
+											});*/
 		
 											Ext.each(gridData, function(item) {
 												var ObjItem = {							
