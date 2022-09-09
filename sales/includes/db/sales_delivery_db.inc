@@ -489,7 +489,7 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 		$sql .= " AND a.lot_no = " . db_escape($serial_no);
 	}
 
-	if ($chassis_no) {
+	if ($chassis_no != "") {
 		$sql .= " AND a.chassis_no = " . db_escape($chassis_no);
 	}
 	
