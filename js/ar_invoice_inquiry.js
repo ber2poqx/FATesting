@@ -186,7 +186,7 @@ Ext.onReady(function(){
 		fields: ['id','name'],
 		autoLoad: true,
 		data : 	[
-            {"id":"Open","name":"Draft"},
+            {"id":"Open","name":"Open"},
             {'id':'Approved','name':'Approved'},
 			{'id':'Disapproved','name':'Disapproved'}
         ]
