@@ -246,7 +246,11 @@ if(isset($_GET['submit']))
     }
     if (empty($_POST['invoice_no'])) {
         $InputError = 1;
-        $dsplymsg = _('invoice number date must not be empty.');
+        $dsplymsg = _('invoice number must not be empty.');
+    }
+    if (empty($_POST['invoice_date'])) {
+        $InputError = 1;
+        $dsplymsg = _('invoice date must not be empty.');
     }
     /*if(check_customer_exist($_POST['invoice_no'], $_POST['id'])){
         $InputError = 1;
@@ -284,7 +288,7 @@ if(isset($_GET['submit']))
         $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
         $reference = $Refs->get_next(ST_ARINVCINSTLITM);
 
-        $approved_date = date("Y-m-d");
+        $approved_date = date("Y-m-d", strtotime($_POST['invoice_date'])); //date("Y-m-d");
         $firstdue_date = date("Y-m-d", strtotime($_POST['firstdue_date']));
         $maturity_date = date("Y-m-d", strtotime($_POST['maturity_date']));
         $invoice_date = date("Y-m-d", strtotime($_POST['invoice_date']));
