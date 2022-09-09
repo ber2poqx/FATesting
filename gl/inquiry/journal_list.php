@@ -112,14 +112,14 @@ function cancel_row($row) {
         $debtor_row = get_SI_by_reference($row['source_ref2']);
 
         if ($void_entry == null) {
-            $void_link = pager_link( _("Request to Void"),
-                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
+            $cancel_link = pager_link( _("Request to Cancel"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_CANCEL
             );
         }
         else if ($void_entry['void_status'] == 'Disapproved') {
 
-            $void_link = pager_link( _("Request to Void"),
-                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
+            $cancel_link = pager_link( _("Request to Cancel"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_CANCEL
             );
         }
         else if (has_interbranch_entry($row['trans_no'], ST_JOURNAL)) {
@@ -128,8 +128,8 @@ function cancel_row($row) {
             $interb_status = bank_interB_stat($comp_id, $row['ref'], ST_JOURNAL);
             
             if ($interb_status == 'Draft' && $void_entry == null) {
-                $void_link = pager_link( _("Request to Void"),
-                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
+                $cancel_link = pager_link( _("Request to Cancel"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_CANCEL
                 );
             }
         }
@@ -143,8 +143,8 @@ function cancel_row($row) {
 			);
 
             if ($current_bal != 0) {
-                $void_link = pager_link( _("Request to Void"),
-                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_DOC
+                $cancel_link = pager_link( _("Request to Cancel"),
+                    "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . ST_JOURNAL ."&status=0&cancel=1", ICON_CANCEL
                 );
             }
         }
@@ -276,6 +276,7 @@ $cols = array(
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_update', 'align' => 'center'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
 	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
 );

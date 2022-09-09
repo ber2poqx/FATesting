@@ -77,8 +77,10 @@ else if (isset($_GET['ApprovedID'])) {
 }
 else if (isset($_GET['CancelID'])) {
     $trans_no = $_GET['CancelID'];
+    $trans_type = $_GET['CancelType'];
 
     display_notification_centered(sprintf(_("This Transaction has been cancelled!"), $trans_no));
+    display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Payment"), false, '', '', 1));
     hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");
 	display_footer_exit();
 }
@@ -242,6 +244,8 @@ function void_remarks($status) {
 //---------------------------------------------------------------------------------------------
 function can_proceed() {
 
+    $void_row = get_voided_entry($_GET['type'], null, null, false, 'ALL', null, null, $_GET['void_id']);
+
     if (!is_date_in_fiscalyear(Today())) {
         display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
 		return false;
@@ -253,6 +257,11 @@ function can_proceed() {
     
     if (get_post('memo_') == null) {
         display_error(_("Remarks is needed for this transaction..."));
+        return false;
+    }
+
+    if ($void_row['void_status'] == 'Voided') {
+        display_error(_("This transaction is already Voided..."));
         return false;
     }
     
@@ -298,11 +307,25 @@ if (isset($_POST['Approved']) && can_proceed()) {
         }
     }
     else {
-        $void_id = void_banking($_GET['void_id'], $_GET['type']);
 
-        if ($void_id) {
-            meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel);
+        if ($_GET['type'] == 0) {
+            $void_row = get_voided_entry(0, null, null, false, 'ALL', null, null, $_GET['void_id']);
+            $debtor_row = get_SI_by_reference($void_row['reference_from']);
+
+            $void_id = void_journal($_GET['void_id'], $debtor_row['trans_no'], $debtor_row['type'], $debtor_row['debtor_no']);
+
+            if ($void_id) {
+                meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel . "&CancelType=" . $_GET['type']);
+            }
         }
+        else {
+            $void_id = void_banking($_GET['void_id'], $_GET['type']);
+
+            if ($void_id) {
+                meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel . "&CancelType=" . $_GET['type']);
+            }
+        }
+
     }
 }
 

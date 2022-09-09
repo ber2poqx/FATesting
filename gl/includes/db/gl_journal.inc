@@ -197,7 +197,7 @@ function void_journal($void_id, $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor
 		add_gl_trans(
 			$row['type'],
 			$row['type_no'],
-			$void_row['date_'],
+			sql2date($void_row['date_']),
 			$row['account'],
 			0, 0,
 			$void_row['memo_'],
@@ -220,7 +220,7 @@ function void_journal($void_id, $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor
 	update_void_status(
 		$void_row['type'], 
 		$void_row['id'], 
-		$void_row['date_'], "Voided", 
+		sql2date($void_row['date_']), "Voided", 
 		$void_row['memo_'], 
 		$_SESSION["wa_current_user"]->user,
 		$ref_to 
@@ -247,8 +247,10 @@ function void_journal($void_id, $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor
 		}
 	}
 
-	add_audit_trail($void_row['type'], $void_row['id'], $void_row['date_'], _("Voided.")."\n". $void_row['memo_']);
+	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
 	$Refs->restore_last($void_row['type'], $void_row['id']);
+
+	return $void_id;
 }
 
 function gl_account_exists($type, $trans_no, $account) {
