@@ -366,16 +366,17 @@ Ext.onReady(function(){
 	});
 	
 	var columnTransferModel = [
+		{xtype: 'rownumberer'},
 		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', hidden: true},
 		{header:'Type', dataIndex:'type_out', sortable:true, width:40, renderer: columnWrap,hidden: true},
 		{header:'Trans No', dataIndex:'transno_out', sortable:true, width:40, renderer: columnWrap,hidden: true},
 		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, hidden: true},
-		{header:'Model', dataIndex:'stock_id', sortable:true, width:90, renderer: columnWrap,hidden: false},
-		{header:'Stock Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
-		{header:'Color', dataIndex:'color', sortable:true, width:50, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'stock_id', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Description', dataIndex:'stock_description', sortable:true, width:150, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
-		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:60, hidden: false,
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, hidden: false,
 			renderer: function(value, metadata, record, rowIndex, colIndex, store) {
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -389,7 +390,7 @@ Ext.onReady(function(){
 			}	
 		},
         {header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false, align:'center',
+		{header:'Qty', dataIndex:'qty', sortable:true, hidden: false, align:'center',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -440,7 +441,7 @@ Ext.onReady(function(){
 				}
 			}*/
 		},
-		{header:'Total', dataIndex:'subtotal_cost', sortable:true, width:60, hidden: false,
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, hidden: false,
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
 			},
@@ -449,9 +450,9 @@ Ext.onReady(function(){
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}	
 		},
-		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Action',xtype:'actioncolumn', align:'center', width:40,
+		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false},
+		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:150,renderer: columnWrap, hidden: false},
+		{header:'Action',xtype:'actioncolumn', align:'center',
 			items:[
 				{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
@@ -601,10 +602,15 @@ Ext.onReady(function(){
 		id:'mtgrid',
         loadMask:true,
 		anchor:'100%',
-		forceFit: true,
+		//forceFit: true,
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
 		columnLines: true,
+		height: 270,
+		width: 700,
+		autoScroll:true,
+		layout:'fit',
+		//frame: true,
 		//selModel: {selType: 'cellmodel'},
 		//plugins: [cellEditing],
 		selModel: 'cellmodel',
@@ -942,7 +948,7 @@ Ext.onReady(function(){
 							var windowNewTransfer = Ext.create('Ext.Window',{
 								title:'Merchandise Transfer Entry',
 								modal: true,
-								width: 950,
+								width: 980,
 								bodyPadding: 5,
 								layout:'anchor',
 								items:[
@@ -1040,12 +1046,12 @@ Ext.onReady(function(){
 																	
 																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
 																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
+																	//Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
 																	
 																}else{
 																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
 																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
+																	//Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
 																}
 																//Ext.Msg.alert('Category', v);
 																

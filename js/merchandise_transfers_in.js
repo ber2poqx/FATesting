@@ -739,19 +739,20 @@ Ext.onReady(function(){
 	});
 	
 	var columnTransferModel = [
-		{header:'#', dataIndex:'trans_id', sortable:true, width:70, align:'center', hidden: true},
+		{xtype: 'rownumberer'},
+		{header:'#', dataIndex:'trans_id', sortable:true, width:30, align:'center', hidden: true},
 		{header:'Trans No', dataIndex:'trans_no', sortable:true, width:100, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:100, hidden: true},
 		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:100, hidden: true},
 		{header:'Brand', dataIndex:'brand_name', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Model', dataIndex:'stock_id', sortable:true, width:100, renderer: columnWrap,hidden: false},
-		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:140, renderer: columnWrap,hidden: false},
-		{header:'Color', dataIndex:'color', sortable:true, width:100, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'stock_id', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Description', dataIndex:'stock_description', sortable:true, width:150, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category', sortable:true, width:10, renderer: columnWrap,hidden: true},
 		{header:'Type', dataIndex:'type', sortable:true,width:10, hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:15, hidden: true},
 		{header:'Price', dataIndex:'price', sortable:true, width:20, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:70, hidden: false,
+		{header:'Qty', dataIndex:'qty', sortable:true, hidden: false,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -764,7 +765,7 @@ Ext.onReady(function(){
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}
 		},
-		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:90,renderer: columnWrap, hidden: false,
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, renderer: columnWrap, hidden: false,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -796,7 +797,7 @@ Ext.onReady(function(){
 				}
 			}	
 		},
-		{header:'Total', dataIndex:'subtotal_cost', sortable:true, width:90, hidden: false,
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, hidden: false,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -827,7 +828,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Action',xtype:'actioncolumn', align:'center', width:60,
+		{header:'Action',xtype:'actioncolumn', align:'center',
 			items:[
 				{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
@@ -867,18 +868,20 @@ Ext.onReady(function(){
 		}
 	]
 	var columnTransferModelNonSerial = [
+		{xtype: 'rownumberer'},
 		{header:'#', dataIndex:'trans_id', sortable:true, width:70, align:'center', hidden: true},
 		{header:'Trans No', dataIndex:'trans_no', sortable:true, width:100, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:100, hidden: true},
 		{header:'Trans Date', dataIndex:'trans_date', sortable:true, width:100, hidden: true},
 		{header:'Brand', dataIndex:'brand_name', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Model', dataIndex:'stock_id', sortable:true, width:100, renderer: columnWrap,hidden: false},
-		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:150, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'stock_id', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Description', dataIndex:'stock_description', sortable:true, width:150, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:180, renderer: columnWrap,hidden: true},
 		{header:'Type', dataIndex:'type', sortable:true,width:100, hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
 		{header:'Price', dataIndex:'price', sortable:true, width:55, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:70, hidden: false,
+		{header:'Qty', dataIndex:'qty', sortable:true, hidden: false,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -910,7 +913,7 @@ Ext.onReady(function(){
 				}
 			}	
 		},
-		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:90,renderer: columnWrap, hidden: false,
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, renderer: columnWrap, hidden: false,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -942,7 +945,7 @@ Ext.onReady(function(){
 				}
 			}	
 		},
-		{header:'Total', dataIndex:'subtotal_cost', sortable:true, width:70, hidden: false,
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, hidden: false,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -955,7 +958,7 @@ Ext.onReady(function(){
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}	
 		},
-		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:170,renderer: columnWrap, hidden: false,
+		{header:'Serial No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -964,8 +967,8 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Chassis No.', dataIndex:'chassis_no', sortable:true, width:140,renderer: columnWrap, hidden: true},
-		{header:'Action',xtype:'actioncolumn', align:'center', width:60,
+		{header:'Chassis No.', dataIndex:'chassis_no', sortable:true, width:150,renderer: columnWrap, hidden: true},
+		{header:'Action',xtype:'actioncolumn', align:'center',
 			items:[
 				{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
@@ -1094,11 +1097,14 @@ Ext.onReady(function(){
 		xtype:'gridpanel',
 		id:'gridMT',
 		anchor:'100%',
-		forceFit: true,
-		//height:250,
+		//forceFit: true,
+		height:270,
+		width: 700,
+		autoScroll:true,
+		layout:'fit',
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
-		columnLines: true,
+		//columnLines: true,
 		plugins: {
 	        ptype: 'cellediting',
 	        clicksToEdit: 1
@@ -1245,78 +1251,9 @@ Ext.onReady(function(){
 												{header:'Item Description', dataIndex:'stock_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
 												{header:'Color', dataIndex:'item_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
 												{header:'Category', dataIndex:'category_id', sortable:true, width:50, renderer: columnWrap,hidden: true,
-												/*{header	:'Action',	xtype:'actioncolumn', align:'center',
-												items:[
-													{
-														icon: '../js/ext4/examples/shared/icons/accept.png',
-														tooltip: 'Select Item',
-														handler: function(grid, rowIndex, colIndex) {
-															var record = ItemListingStore.getAt(rowIndex);
-															var item_code = record.get('item_code');
-															var model = record.get('model');
-															var stock_description = record.get('stock_description');
-															var item_description = record.get('item_description');
-															var color = record.get('color');
-															var category = record.get('category_id');
-															var serialised = record.get('serialised');
-															MerchandiseTransStore.load({
-																params:{item_code: item_code, AdjDate:AdjDate, model:model, stock_description:stock_description, item_description:item_description, color:color, category:category, serialised:serialised},
-																scope: this,
-																callback: function(records, operation, success){
-																	var countrec = MerchandiseTransStore.getCount();
-																
-																	if(countrec>0){
-																		setButtonDisabled(false);
-																	}else{
-																		setButtonDisabled(true);
-																		
-																	}
-																	
-																}
-																	
-															});
-	
-															windowItemListSerial.close();
-														}
-														
-													}
-												]*/
-												
+																					
 												}
-											],
-											/*dockedItems:[{
-												dock:'top',
-												xtype:'toolbar',
-												name:'searchSerialBar',
-												items:[Brand_Filter,{
-													width	: 300,
-													xtype	: 'textfield',
-													hidden: false,
-													name 	: 'searchSerialItem',
-													id		:'searchSerialItem',
-													fieldLabel: 'Item Description',
-													labelWidth: 120,
-													listeners : {
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-	
-																var catcode = Ext.getCmp('category').getValue();
-																var brcode = Ext.getCmp('search_suppliers').getValue();
-																ItemListingStore.proxy.extraParams = { 
-																	query:this.getValue(), 
-																	catcode: catcode,
-																	branchcode: brcode
-																}
-																ItemListingStore.load();									
-															}
-														}						
-													}
-												},{
-													iconCls:'clear-search',
-													hidden: true
-												}]
-											}],*/
+											],						
 											bbar : {
 												xtype : 'pagingtoolbar',
 												store : ItemListingStore,
@@ -1393,7 +1330,7 @@ Ext.onReady(function(){
 												}	
 
 											});											
-											ItemListingStore.load();
+											//ItemListingStore.load();
 										}
 									},{
 									text:'Close',
@@ -1404,8 +1341,7 @@ Ext.onReady(function(){
 								}
 							]
 						});	
-					}						
-					
+					}											
 					windowItemListSerial.show();
 				}	
 			}
@@ -1418,11 +1354,14 @@ Ext.onReady(function(){
 		id:'gridMTNonSerialize',
 		anchor:'100%',
 		hidden: true,
-		forceFit: true,
-		//height:300,
+		//forceFit: true,
+		height:270,
+		width: 700,
+		autoScroll:true,
+		layout:'fit',
 		store: MerchandiseTransStore,
 		columns: columnTransferModelNonSerial,
-		columnLines: true,
+		//columnLines: true,
 		plugins: {
 	        ptype: 'cellediting',
 	        clicksToEdit: 1
@@ -1682,7 +1621,7 @@ Ext.onReady(function(){
 												}	
 
 											});											
-											ItemListingStore.load();
+											//ItemListingStore.load();
 										}
 									},{
 									text:'Close',
@@ -1700,28 +1639,6 @@ Ext.onReady(function(){
 			}
 			]	
 		}],
-		/*listeners:{
-            validateedit: function(editor, e){
-                var catcode = Ext.getCmp('category').getValue();
-				var brcode = Ext.getCmp('fromlocation').getValue();
-
-                var record = MerchandiseTransStore.getAt(e.record.id);
-			    var id = record.get('id');
-                var currentqty = record.get('currentqty');
-                var qty = record.get('qty');
-                var stock_id = record.get('stock_id');
-                var serial_no = record.get('lot_no');
-
-                if(currentqty < e.value){
-                    alert('Sorry, Quantity '+e.value+' is Greater than Available Quantity On Hand: '+currentqty);
-                    
-                    return false;
-                }else return true;
-
-
-                //return true;
-            }
-        }*/
 	}
 		
 	Ext.create('Ext.grid.Panel', {
@@ -1814,33 +1731,6 @@ Ext.onReady(function(){
 									}
 								}
 							}),
-							/*listeners: {
-								select: function(combo, record, index) {
-									var search = Ext.getCmp("search").getValue();
-
-									//Promotional_pricing_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue(), query: Ext.getCmp('search').getValue()};
-									//Promotional_pricing_store.load();
-
-									//Promotional_pricing_brand_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue()};
-									//Promotional_pricing_brand_store.load();	
-
-									//Promotional_pricing_item_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), category: Ext.getCmp('Itemcateg_search').getValue(), brand: Ext.getCmp('Itembrand_search').getValue()};
-									//Promotional_pricing_item_store.load();	
-								}
-							}
-							listeners: {
-					  			select: function(f,e) {
-					  				var catcode = Ext.getCmp('categoryS').getValue();
-									//var brcode = Ext.getCmp('from_location').getValue();
-									myInsurance.proxy.extraParams = { 
-										queryss:this.getValue(), 
-										catcode: catcode,
-										//branchcode: brcode
-									}
-									myInsurance.load();		
-					  			}
-					  		}*/
-
 					  		listeners: {
 								select: function(combo, record, index) {
 									//var catcode = Ext.getCmp('categoryS').getValue();
@@ -1870,7 +1760,7 @@ Ext.onReady(function(){
 							var windowNewTransfer = Ext.create('Ext.Window',{
 								title:'Receiving RR Branch - Manual Entry ',
 								modal: true,
-								width: 950,
+								width: 980,
 								//height:500,
 								bodyPadding: 5,
 								layout:'anchor',
