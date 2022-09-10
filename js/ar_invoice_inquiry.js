@@ -1140,7 +1140,6 @@ Ext.onReady(function(){
 				tooltip : 'Entries',
 				handler : function(grid, rowIndex, colIndex){
 					var records = ARInstallQstore.getAt(rowIndex);
-
 					Ext.getCmp('ARINQRYGRID').getSelectionModel().select(rowIndex);
 					if(records.get('status') == "Approved"){
 						/*entry_window.setTitle('A/R Installment Entries - ' + records.get('invoice_no') + ' - ' + records.get('status'));

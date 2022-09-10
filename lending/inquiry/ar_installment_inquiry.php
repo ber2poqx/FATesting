@@ -54,8 +54,8 @@ if(isset($_GET['get_arinstallment'])){
     $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
-    $result = get_ar_installment($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showZeroB'], FILTER_VALIDATE_BOOLEAN), false);
-    $total_result = get_ar_installment($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showZeroB'], FILTER_VALIDATE_BOOLEAN), true);
+    $result = get_ar_installment($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showZeroB'], FILTER_VALIDATE_BOOLEAN), false, filter_var($_GET['showlend'], FILTER_VALIDATE_BOOLEAN));
+    $total_result = get_ar_installment($_GET['InvType'], $start, $limit, $_GET['query'], filter_var($_GET['showZeroB'], FILTER_VALIDATE_BOOLEAN), true, filter_var($_GET['showlend'], FILTER_VALIDATE_BOOLEAN));
     $total = DB_num_rows($total_result);
 
     while ($myrow = db_fetch($result)) {

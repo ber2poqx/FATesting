@@ -21,6 +21,7 @@ Ext.onReady(function(){
 	var itemsPerPage = 18;   // set the number of items you want per page on grid.
 	var GridItemOnTab = 7;
 	var showall = false;
+	var showlend = false;
 
 	////define model for policy installment
     Ext.define('ARInstlqmodel',{
@@ -1574,12 +1575,12 @@ Ext.onReady(function(){
 				/*ARInstallQstore.load({
 					params: { InvType: combo.getValue(),  status: Ext.getCmp('fstatus').getValue()}
 				});*/
-				ARInstallQstore.proxy.extraParams = {InvType: combo.getValue(), showZeroB: showall, query: Ext.getCmp('search').getValue()};
+				ARInstallQstore.proxy.extraParams = {InvType: combo.getValue(), showZeroB: showall, query: Ext.getCmp('search').getValue(), showlend: showlend};
 				ARInstallQstore.load();
 			},
 			afterrender: function(combo) {
 				Ext.getCmp("invtype").setValue("new");
-				ARInstallQstore.proxy.extraParams = {InvType: combo.getValue(), showZeroB: showall, query: Ext.getCmp('search').getValue()};
+				ARInstallQstore.proxy.extraParams = {InvType: combo.getValue(), showZeroB: showall, query: Ext.getCmp('search').getValue(), showlend: showlend};
 				ARInstallQstore.load();
 			}
 		}
@@ -1596,10 +1597,10 @@ Ext.onReady(function(){
 		listeners: {
 			change: function(field) {
 				if(field.getValue() != ""){
-					ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: field.getValue()};
+					ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: field.getValue(), showlend: showlend};
 					ARInstallQstore.load();
 				}else{
-					ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: field.getValue()};
+					ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: field.getValue(), showlend: showlend};
 					ARInstallQstore.load();
 				}
 			}
@@ -1667,9 +1668,32 @@ Ext.onReady(function(){
 							}
 
 							if(search.getValue() != ""){
-								ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: search.getValue()};
+								ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: search.getValue(), showlend: showlend};
 							}else{
-								ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall};
+								ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, showlend: showlend};
+							}
+							ARInstallQstore.load();
+						}
+					}
+				},{
+					xtype: 'checkbox',
+					id: 'showlending',
+					name: 'showlending',
+					boxLabel: 'Show lending accounts',
+					listeners: {
+						change: function(field, rowIdx, checked, eOpts) {
+							var search = Ext.getCmp('search');
+
+							if(checked){
+								showlend = false;
+							}else{
+								showlend = true;
+							}
+
+							if(search.getValue() != ""){
+								ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, query: search.getValue(), showlend: showlend};
+							}else{
+								ARInstallQstore.proxy.extraParams = {InvType: Ext.getCmp('invtype').getValue(), showZeroB: showall, showlend: showlend};
 							}
 							ARInstallQstore.load();
 						}
