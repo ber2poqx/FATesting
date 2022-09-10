@@ -1125,7 +1125,9 @@ function reset_computation()
 	$_POST['total_amount'] = 0;
 	$_POST['ar_amount'] = 0;
 	$_POST['due_amort'] = 0;
-	$_POST['down_pay'] = 0;
+	if ($_SESSION['Items']->count_items() == 0) {
+		$_POST['down_pay'] = 0;
+	}
 	$_POST['discount_dp2_amount'] = 0;
 	$_POST['count_term'] = 0;
 	global $Ajax;
