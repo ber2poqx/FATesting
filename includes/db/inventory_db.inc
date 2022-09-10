@@ -1139,6 +1139,7 @@ function get_available_item_for_si(
 		$sql .= " LIMIT 300";
 	} else {
 		/* Modified by Ronelle 11/11/2021 */
+		/*modified by albert 09/10/2022*/
 		$sql = "SELECT
 					x1.trans_id,
 					x1.reference,
@@ -1212,10 +1213,14 @@ function get_available_item_for_si(
 					a.loc_code = " . db_escape($loc_code) . "
 				AND
 					b.category_id = $category_id
-				) x1
+		  		) x1
 				WHERE
-					x1.type <> 80 AND
-					x1.qty > x1.OutQty > 0";
+					x1.type <> 80 AND  
+					x1.qty > x1.OutQty > 0 AND x1.lot_no not in (
+                SELECT a.lot_no 
+                FROM debtor_trans_details a
+                inner Join sales_return_replacement b ON a.debtor_trans_no = b.trans_no
+                where debtor_trans_type = 55 and b.sr_item_type = 'repo')";
 
 		if ($search_value != "") {
 			$sql .= " AND (
@@ -1289,7 +1294,7 @@ function get_available_item_for_si_repo(
 				INNER JOIN " . TB_PREF . "stock_category b ON b.category_id = a.category_id
 				LEFT JOIN " . TB_PREF . "item_brand c ON c.id = a.brand
 				LEFT JOIN " . TB_PREF . "stock_moves d ON a.stock_id = d.stock_id AND d.qty > 0
-
+   
 				WHERE a.serialised = 0 AND d.loc_code = '$loc_code' AND
 					a.category_id =" . db_escape($category_id);
 
