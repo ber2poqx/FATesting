@@ -899,8 +899,14 @@ Ext.onReady(function(){
 					boxLabel: 'Show from lending',
 					listeners: {
 						change: function(field) {
-							//Ext.getCmp("frombranch").setValue(0);
-							qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: Ext.getCmp('search').getValue(), islending: Ext.getCmp("fromlending").getValue()};
+							//alert(field.getValue());
+							if(field.getValue()){
+								Ext.getCmp('branchcode').setDisabled(true);
+							}else{
+								Ext.getCmp('branchcode').setDisabled(false);
+							}
+							
+							qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: Ext.getCmp('search').getValue(), islending: field.getValue()};
 							qqinterb_store.load();
 						}
 					}
