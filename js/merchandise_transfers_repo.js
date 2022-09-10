@@ -932,7 +932,7 @@ Ext.onReady(function(){
 														fieldLabel:'Transfer To',
 														name:'ToStockLocation',
 														id:'ToStockLocation',
-														queryModel:'local',
+														queryMode:'local',
 														triggerAction : 'all',
                     									displayField  : 'location_name',
                     									valueField    : 'loc_code',

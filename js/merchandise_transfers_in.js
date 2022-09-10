@@ -1785,7 +1785,7 @@ Ext.onReady(function(){
 														fieldLabel:'From Branches',
 														name:'From_StockLocation',
 														id:'From_StockLocation',
-														queryModel:'local',
+														queryMode:'local',
 														triggerAction : 'all',
                     									displayField  : 'location_name',
                     									valueField    : 'loc_code',

@@ -383,10 +383,6 @@ Ext.onReady(function(){
 				}else{
 					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
 				}
-			},
-			summaryType: 'sum',
-			summaryRenderer: function(value, summaryData, dataIndex){
-				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}	
 		},
         {header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
@@ -969,7 +965,7 @@ Ext.onReady(function(){
 														fieldLabel:'Transfer To',
 														name:'ToStockLocation',
 														id:'ToStockLocation',
-														queryModel:'local',
+														queryMode:'local',
 														triggerAction : 'all',
                     									displayField  : 'location_name',
                     									valueField    : 'loc_code',

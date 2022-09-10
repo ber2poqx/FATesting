@@ -516,10 +516,11 @@ if(!is_null($action) || !empty($action)){
             //$total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,$reference);
             
             $sql = "SELECT move.trans_no, move.stock_id, move.reference, move.lot_no, move.chassis_no, move.qty, 
-            move.category_id, code.description, items.id
+            move.category_id, code.description, items.id, master.description AS description_item
             FROM ".TB_PREF."stock_moves move 
             LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
             LEFT JOIN ".TB_PREF."complimentary_items items ON items.reference = move.reference
+            LEFT JOIN ".TB_PREF."stock_master master ON master.stock_id = move.stock_id
             WHERE move.reference = '$reference'";
 
             if($catcode!=0){
@@ -558,15 +559,13 @@ if(!is_null($action) || !empty($action)){
                     $group_array[] = array('trans_no' => $myrow["trans_no"],
                         'model' => $myrow["stock_id"],
                         'color' => $myrow["description"],
-                        'item_description' => $myrow["description"],
+                        'item_description' => $myrow["description_item"],
                         'qty' => price_format(abs($myrow["qty"])),
                         'category_id'=>$catcode,
                         'lot_no' => $myrow["lot_no"],
                         'chasis_no' => $myrow["chassis_no"]
                     );
                 //}
-                
-                
             }
             
             $jsonresult = json_encode($group_array);

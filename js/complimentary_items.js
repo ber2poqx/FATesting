@@ -42,13 +42,37 @@ Ext.onReady(function(){
 	});
 	
 	var columnModel =[
-		{header:'ID', dataIndex:'trans_id', sortable:true, width:25, hidden: false},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:90},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:60},
-		{header:'From Location', dataIndex:'loc_name', sortable:true, width:110, hidden: false},
-		{header:'Category', dataIndex:'category_name', sortable:true, width:90},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:50, align:'center'},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150, align:'left'},
+		{header:'ID', dataIndex:'trans_id', sortable:true, width:25, hidden: true},
+		{header:'Reference', dataIndex:'reference', sortable:true, width:90,
+			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:40,
+			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'From Location', dataIndex:'loc_name', sortable:true, width:150, hidden: false,
+			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Category', dataIndex:'category_name', sortable:true, width:50,
+ 			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:45, align:'center',
+			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '00,000.00') + '</span>';
+			}
+		},
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150,
+			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}
+		},
 		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50, hidden: true},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
 			items:[
@@ -323,7 +347,7 @@ Ext.onReady(function(){
 	});
 
 	var columnTransferModel = [
-		{header:'line', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: false},
+		{header:'line', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: true},
 		{header:'Trans', dataIndex:'transno_out', sortable:true, width:60, hidden: true},
 		{header:'Type', dataIndex:'type_out', sortable:true, width:60, hidden: true},
 		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, align:'center', hidden: false},
@@ -334,10 +358,23 @@ Ext.onReady(function(){
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:60, hidden: true},
 		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:100, hidden: false, align:'right',
-			renderer: Ext.util.Format.numberRenderer('0,000.00')
+			renderer: function(value, metadata, summaryData, record, rowIndex, colIndex, store) {
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			}
 		},
 		{header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, align:'center',
+			renderer: function(value, metadata, summaryData, record, rowIndex, colIndex, store) {
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
 			editor:{
 				completeOnEnter: true,
 				field:{
@@ -356,10 +393,7 @@ Ext.onReady(function(){
 						}
 					}
 				}
-			},
-			renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
-                return Ext.util.Format.number(value,'0,000.00');
-            } 
+			}
 		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
@@ -490,9 +524,13 @@ Ext.onReady(function(){
 	});
 		
 	var columnJEModel = [
-		{header:'#', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: false},
+		{header:'#', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: true},
 		{header:'#', dataIndex:'line', sortable:true, width:30, align:'center', hidden: true},
-		{header:'Account Code', dataIndex:'code_id', sortable:true, width:100, align:'center', hidden: false},
+		{header:'Account Code', dataIndex:'code_id', sortable:true, width:100, align:'center', hidden: false, 
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+			}
+		},
 		{header:'Account Name', dataIndex:'description', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Mcode', dataIndex:'mcode', sortable:true, width:50, renderer: columnWrap,hidden: true},
 		{header:'Person ID', dataIndex:'person_id', sortable:true, width:50, renderer: columnWrap,hidden: true},
@@ -587,18 +625,23 @@ Ext.onReady(function(){
 					}										
                 }
 			},
-			renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
-				GetTotalBalance();
-                return Ext.util.Format.number(value,'0,000.00');
-            } 
-			
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			}
 			//Ext.util.Format.numberRenderer('0,000.00')
 		},
 		{header:'Credit', dataIndex:'credit', sortable:true, width:80, hidden: false, align:'right',
-			renderer:function(value, metaData, record, rowIdx, colIdx, store, view) {
-				GetTotalBalance();
-                return Ext.util.Format.number(value,'0,000.00');
-            }
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			}
 		},
 		{header:'Actual Price', dataIndex:'actualprice', sortable:true, width:80, hidden: true, align:'right'},
 		{header:'Memo', dataIndex:'memo', sortable:true, width:150, renderer: columnWrap,hidden: false,
@@ -1631,7 +1674,7 @@ Ext.onReady(function(){
 													fieldLabel:'Location From',
 													name:'fromlocation',
 													id:'fromlocation',
-													queryModel:'local',
+													queryMode:'local',
 													triggerAction : 'all',
                 									displayField  : 'location_name',
                 									valueField    : 'loc_code',
@@ -1642,7 +1685,8 @@ Ext.onReady(function(){
                 									hiddenName: 'loc_code',
                 									typeAhead: true,
                 									width: 525,
-                									emptyText:'--Select--',
+                									emptyText:'Select Location',
+                									fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
                 									selectOnFocus:true,
 													store: Ext.create('Ext.data.Store',{
                 										fields: ['loc_code', 
@@ -1678,7 +1722,8 @@ Ext.onReady(function(){
                 									required: true,
                 									hiddenName: 'category_id',
                 									typeAhead: true,
-                									emptyText:'--Select--',
+                									emptyText:'Select Category',
+                									fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
                 									selectOnFocus:true,
 													store: Ext.create('Ext.data.Store',{
                 										fields: ['category_id', 'description'],
@@ -1719,6 +1764,7 @@ Ext.onReady(function(){
                                                		width: 230,
 													name:'trans_date',
 													id:'AdjDate',
+                									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
 													listeners:{
 														change: function(){
 															MerchandiseTransStore.load({
@@ -1740,6 +1786,7 @@ Ext.onReady(function(){
 														id:'reference',
 														layout:'anchor',
 														anchor:'100%',
+														fieldStyle: 'background-color: #F2F3F4; color: blue; font-weight: bold;',
 														readOnly: true
 														//flex:1
 													},{
@@ -1757,6 +1804,7 @@ Ext.onReady(function(){
 														required: true,
 														labelWidth: 60,
 														hiddenName: 'id',
+														fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',							
 														listeners: {
 															select: function(cmb, rec, idx) {
 															MasterfileModel=Ext.getCmp('masterfile_header');
@@ -1787,6 +1835,7 @@ Ext.onReady(function(){
 													displayField  : 'namecaption',
 													valueField    : 'id',
 													hiddenName: 'id',
+													fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
 													//flex:1,
 													listeners:{
 														change: function(combo, value,index){
