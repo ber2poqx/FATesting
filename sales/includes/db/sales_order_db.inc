@@ -98,7 +98,7 @@ function add_sales_order(&$order)
 			".db_escape($order->previous_owner) . //modified by Albert 11/03/2021
 			", '$payterm_name', 
 			".db_escape($order->pdc_no) .",
-			".db_escape($order->pdc_discount) ."
+			".db_escape($order->pdc_discount != '' ? $order->pdc_discount : 0) ."
 		)"; 
 
 	db_query($sql, "order Cannot be Added");
