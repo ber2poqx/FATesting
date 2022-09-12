@@ -142,7 +142,8 @@ function print_transaction() {
     //Parent
     $total_payment_this_month = $advance_payment = $current_balance = 
     $not_yet_due = $due_nxt_month = $due_this_month = $overdue_1month = 
-    $overdue_2months = $past_due = $total_collectibles = $total_adjusment = $penalty = 0;
+    $overdue_2months = $past_due = $total_collectibles = $total_adjusment = 
+    $penalty = $void_entries = 0;
 
     //Sub - Total
     $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
@@ -173,6 +174,8 @@ function print_transaction() {
         $past_due = past_due($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $total_collectibles = total_collectibles($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $penalty = total_penalty($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
+
+        $void_entry = get_voided_entry($trans['trans_type'], $trans['trans_no']);
 
 
         if ($group == 1) {
@@ -321,7 +324,9 @@ function print_transaction() {
         $rep->fontSize -= .5;
 
         $rep->TextCol(0, 1, $total_act . ".) ");
+        $void_entry['void_status'] == "Voided" ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
         $rep->TextCol(1, 2, $trans['cust_name']);
+        $rep->SetTextColor(0, 0, 0);
         $rep->TextCol(2, 3, debtor_stock_id($trans['trans_no'], $trans['trans_type']));
         $rep->SetTextColor(0, 0, 255);	
         $rep->TextCol(3, 4, $trans['buy_date']);
@@ -342,7 +347,17 @@ function print_transaction() {
         $rep->AmountCol(16, 17, $overdue_2months, $dec);
         $rep->SetTextColor(0, 0, 0);
         $rep->AmountCol(17, 18, $past_due, $dec);
-        $rep->AmountCol(18, 19, $total_collectibles, $dec);
+        if ($void_entry['void_status'] == "Voided") {
+            $void_entries += $total_collectibles;
+            $rep->Font('bold');
+            $rep->SetTextColor(255, 0, 0);
+            $rep->TextCol(18, 19, "(" . price_format($total_collectibles) . ")", $dec);
+            $rep->SetTextColor(0, 0, 0);
+            $rep->Font();
+        }
+        else {
+            $rep->AmountCol(18, 19, $total_collectibles, $dec);
+        }
 
         if ($show_add == 1) {
             $rep->SetTextColor(255, 0, 0);
@@ -396,7 +411,7 @@ function print_transaction() {
             $rep->AmountCol(16, 17, $tot_ovr2, $dec);
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
-            $rep->AmountCol(18, 19, $tot_grand, $dec);
+            $rep->AmountCol(18, 19, $tot_grand - $void_entries, $dec);
             if ($show_add == 1) {
                 $rep->AmountCol(19, 20, $tot_penalty, $dec);
             }
@@ -424,7 +439,7 @@ function print_transaction() {
             $rep->AmountCol(16, 17, $tot_ovr2, $dec);
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
-            $rep->AmountCol(18, 19, $tot_grand, $dec);
+            $rep->AmountCol(18, 19, $tot_grand - $void_entries, $dec);
             if ($show_add == 1) {
                 $rep->AmountCol(19, 20, $tot_penalty, $dec);
             }
@@ -452,7 +467,7 @@ function print_transaction() {
             $rep->AmountCol(16, 17, $tot_ovr2, $dec);
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
-            $rep->AmountCol(18, 19, $tot_grand, $dec);
+            $rep->AmountCol(18, 19, $tot_grand - $void_entries, $dec);
             if ($show_add == 1) {
                 $rep->AmountCol(19, 20, $tot_penalty, $dec);
             }
@@ -482,13 +497,18 @@ function print_transaction() {
     $rep->AmountCol(16, 17, $tot1_ovr2, $dec);
     $rep->SetTextColor(0, 0, 0);
     $rep->AmountCol(17, 18, $tot1_past, $dec);
-    $rep->AmountCol(18, 19, $tot1_grand, $dec);
+    $rep->AmountCol(18, 19, $tot1_grand - $void_entries, $dec);
     if ($show_add == 1) {
         $rep->AmountCol(19, 20, $tot1_penalty, $dec);
     }
     
 	$rep->Line($rep->row  - 4);
+    $rep->NewLine(1.5);
     
+    $rep->SetTextColor(255, 0, 0);
+    $rep->TextCol(0, 5, _("Marked Customer's Name and Collectibles are Voided..."));
+    $rep->SetTextColor(0, 0, 0);
+
 	$rep->NewLine();
     $rep->End();
     
