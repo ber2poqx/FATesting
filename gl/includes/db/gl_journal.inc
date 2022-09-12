@@ -197,7 +197,7 @@ function void_journal($void_id, $ar_trans_no = 0, $ar_trans_type = 0, $ar_debtor
 		add_gl_trans(
 			$row['type'],
 			$row['type_no'],
-			sql2date($void_row['date_']),
+			sql2date($row['tran_date']),
 			$row['account'],
 			0, 0,
 			$void_row['memo_'],

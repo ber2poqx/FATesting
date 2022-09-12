@@ -246,6 +246,11 @@ function restructured_link($row) {
 	return $link;
 }
 
+function status_row($row) {
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
+	return $void_entry['void_status'] == 'Voided' ? ucwords($row['status'], '-') . " (Voided)" : ucwords($row['status'], '-');
+}
+
 function check_void($row) {
     $void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
@@ -285,7 +290,7 @@ $sql = get_sales_invoices_aropening($_POST['search_val'], $_POST['customer_id'],
 /*show a table of the Request returned by the sql */
 $cols = array(
 	_("Trans #") => array('fun'=>'trans_view', 'ord'=>'', 'align'=>'right'),
-	_("Status"),
+	_("Status") => array('fun' => 'status_row', 'type' => 'nowrap', 'align' => 'left'),
 	_("Sales Invoice #"),
 	_("Customer"),
 	_("Payment Type"),
@@ -314,7 +319,7 @@ $table = &new_db_pager('invoice_tbl', $sql, $cols, null, null, 25);
 $table->set_marker('check_pending');
 $table->set_marker('check_void');
 
-$table->width = "90%";
+$table->width = "95%";
 
 display_db_pager($table);
 

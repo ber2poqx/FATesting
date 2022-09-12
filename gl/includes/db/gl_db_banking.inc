@@ -1125,7 +1125,7 @@ function void_banking($void_id, $trans_type) {
 		add_gl_trans(
 			$row['type'],
 			$row['type_no'],
-			sql2date($void_row['date_']),
+			sql2date($row['tran_date']),
 			$row['account'],
 			0, 0,
 			$void_row['memo_'],

@@ -80,7 +80,7 @@ else if (isset($_GET['CancelID'])) {
     $trans_type = $_GET['CancelType'];
 
     display_notification_centered(sprintf(_("This Transaction has been cancelled!"), $trans_no));
-    display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Payment"), false, '', '', 1));
+    display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Transaction"), false, '', '', 1));
     hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");
 	display_footer_exit();
 }
@@ -408,7 +408,7 @@ else if ($_GET['status'] ==  1 && $void_row['void_status'] == "Draft") {
     submit_center_last('Disapproved', _("Disapproved"), '', 'default', ICON_DELETE);
 }
 
-	
+br();
 end_form();
 //---------------------------------------------------------------------------------------------
 end_page();
