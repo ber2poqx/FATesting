@@ -29,7 +29,7 @@ function get_transactions($search = '', $branch_id = null, $trans_no = null, $cl
 		$not_include = $db_connections[$branch_id]['type'] == 'LENDING' 
 		|| $db_connections[$branch_id]['branch_code'] == 'HO' 
 		|| $db_connections[$branch_id]['branch_code'] == 'DESIHOFC'
-		|| str_contains_val($db_connections[$branch_id]['branch_code'], 'LEND')
+		|| str_contains_val($db_connections[$branch_id]['branch_code'], 'DESL')
 		|| $default_table_count != count_columns($branch_id, 'item_serialise');
 
 		if (!$not_include) {
@@ -65,7 +65,7 @@ function get_transactions($search = '', $branch_id = null, $trans_no = null, $cl
 			$not_include = $db_connections[$i]['type'] == 'LENDING' 
 			|| $db_connections[$i]['branch_code'] == 'HO' 
 			|| $db_connections[$i]['branch_code'] == 'DESIHOFC' 
-			|| str_contains_val($db_connections[$i]['branch_code'], 'LEND')
+			|| str_contains_val($db_connections[$i]['branch_code'], 'DESL')
 			|| $default_table_count != count_columns($i, 'item_serialise');
 
 			
