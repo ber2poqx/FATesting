@@ -187,6 +187,7 @@ function print_transaction() {
     $rep->NewPage();
 
     $res = get_transactions('', $branch_id, null, $cleared_stat, $show_all, $serial_no);
+    display_error($branch_id);
    
     foreach ($res as $value => $trans) {
 
