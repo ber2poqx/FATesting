@@ -341,10 +341,10 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
     }
-    if (empty($_POST['islending'])) {
+    /*if (empty($_POST['islending'])) {
         $InputError = 1;
         $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
-    }
+    }*/
     if (empty($_POST['customercode'])) {
         $InputError = 1;
         $dsplymsg = _('Customer code must not be empty.');
