@@ -219,7 +219,7 @@ function get_voided_entry($type = '', $type_no = null, $reference = null, $list 
 			AND date_ <= '" . date2sql($to_date) . "'";
 	}
 
-	$sql .= " ORDER BY type, id DESC";
+	$sql .= " ORDER BY id DESC";
 
 	if ($list) {
 		return $sql;

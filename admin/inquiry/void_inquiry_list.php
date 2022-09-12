@@ -209,11 +209,6 @@ submit_cells('Search', _("Search"), '', '', 'default');
 end_row();
 end_table();
 
-// start_table(TABLESTYLE_NOBORDER);
-// start_row();
-// ahref_cell(_("Void New Transaction"), "../void_transaction.php?", "SA_VOIDTRANSACTION");
-// end_row();
-// end_table();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();

@@ -673,8 +673,8 @@ function get_sales_child_documents($trans_type, $trans_no)
 }
 
 /* Added by Ronelle 3/14/2021 Retrieving Sales Invoices */
-function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0, 
-	$status = '')
+function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms = -1, $opening_balances = 0, 
+	$status = '', $include_repo = false)
 {
 	//Modified by spyrax10 21-Oct-2021
 	$sql = "SELECT
@@ -707,7 +707,7 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 				c.lcp_amount as lcp_2,
 				a.order_,
 				a.return_status,
-				a.restructured_status
+				a.restructured_status, a.ov_amount, c.ref_no, c.category_id, b.debtor_ref
 
 			FROM " . TB_PREF . "debtor_trans a
 				INNER JOIN " . TB_PREF . "debtors_master b ON b.debtor_no= a.debtor_no
@@ -730,6 +730,13 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 				a.type = " . ST_SALESINVOICE . " AND a.opening_balances = " . db_escape($opening_balances) . "";
 
 	//Added by spyrax10
+	if ($include_repo) {
+		$sql .= " AND a.type IN (" . ST_SALESINVOICE . ", " . ST_SALESINVOICEREPO . ")";
+	}
+	else {
+		$sql .= " AND a.type = " . ST_SALESINVOICE . "";
+	}
+
 	if ($trans_no != '') {
 		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);
 	}

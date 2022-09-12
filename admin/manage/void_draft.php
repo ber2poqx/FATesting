@@ -88,16 +88,20 @@ else if (isset($_GET['CancelID'])) {
 
 function display_menu($trans_no, $type) {
 
-    $display_sql = "";
+    $display_sql = $debtor_no = ""; 
     $void_row = get_voided_entry($type, $trans_no);
     $banking = $type == ST_BANKPAYMENT || $type == ST_BANKDEPOSIT;
     $journal = $type == ST_JOURNAL;
+    $sales_inv = $type == ST_SALESINVOICE || $type == ST_SALESINVOICEREPO;
 
     if ($banking) {
         $display_sql = db_query(get_banking_transactions($type, '', '', null, null, '', '', '', $trans_no));
     }
     else if ($journal) {
         $display_sql = db_query(get_journal_transactions('', '', null, null, '', $trans_no));
+    }
+    else if ($sales_inv) {
+        $display_sql = db_query(get_sales_invoices($trans_no, '', -1, -1, 1, '', true));
     }
 
     div_start("menu_head");
@@ -108,7 +112,7 @@ function display_menu($trans_no, $type) {
         while ($row = db_fetch_assoc($display_sql)) {
             
             if ($banking) {
-                $trans_date = $row['trans_date'];
+                $trans_date = phil_short_date($row['trans_date']);
                 $reference = $row['ref'];
                 $source_ref = $row['receipt_no'];
                 $cashier = get_user_name($row['cashier_user_id']);
@@ -127,17 +131,27 @@ function display_menu($trans_no, $type) {
             }
             else if ($journal) {
                 $reference = $row['reference'];
-                $trans_date = $row['tran_date'];
+                $trans_date = phil_short_date($row['tran_date']);
                 $source_ref = $row['source_ref'];
                 $total_amount = $row['amount'];
                 $source_ref_text= "Source Reference: &nbsp;";
             }
+            else if ($sales_inv) {
+                $reference = $row['reference'];
+                $trans_date = phil_short_date($row['tran_date']);
+                $source_ref = $row['debtor_ref'] . ' - ' . $row['name'];
+                $total_amount = $row['ov_amount'];
+                $source_ref_text= "Customer's Name: &nbsp;";
+            }
 
             table_section(1);
-            label_row("Reference: &nbsp;", $reference);
+            label_row("Transaction Reference: &nbsp;", get_trans_view_str($type, $trans_no, $reference));
             label_row("Transaction Date: &nbsp;", phil_short_date($trans_date));
             if ($banking) {
                 label_row("Pay To: ", $pay_to);
+            }
+            else if ($sales_inv) {
+                label_row("Reference: &nbsp;", $row['ref_no']);
             }
 
             if ($void_row != null) {
@@ -146,8 +160,15 @@ function display_menu($trans_no, $type) {
             
             table_section(2);
             label_row($source_ref_text, $source_ref);
+            
             if ($banking) {
-                label_row("Cashier / Teller : &nbsp;", $cashier);
+                label_row("Cashier / Teller: &nbsp;", $cashier);
+            }
+            else if ($sales_inv) {
+                label_row("Invoice Type: &nbsp;", strtoupper($row['invoice_type']));
+                label_row("Payment Type: &nbsp;", $row['payment_type']);
+                label_row("Category: &nbsp;", get_category_name($row['category_id']));
+                label_row("Payment Location: &nbsp;", $row['payment_location']);
             }
 
             table_section(3);
@@ -160,18 +181,38 @@ function display_menu($trans_no, $type) {
                 }
             }
 
-            label_row("Document Total: &nbsp;", price_format($total_amount));
+            if ($sales_inv) {
+                label_row("Payment Terms: &nbsp;", get_policy_name($row['months_term'], $row['category_id']));
+                label_row("Months Term: &nbsp;", $row['months_term']);
+                label_row("A/R Amount: &nbsp;", price_format($total_amount));
+                label_row("LCP Amount: &nbsp;", price_format($row['lcp_2']));
+                label_row("Amortization: &nbsp;", price_format($row['amortization_amount']));
+                label_row("Downpayment: &nbsp;", price_format($row['downpayment_amount']));
+            }
+            else {
+                label_row("Document Total: &nbsp;", price_format($total_amount));
+            }
 
+            if ($sales_inv) {
+                $debtor_no = $row['debtor_no'];
+                hidden("debtor_no", $row['debtor_no']);
+            }
             hidden("reference", $reference);
         }
     }
     end_outer_table(1);
+
+    menu_rows($_GET['trans_no'], $_GET['type'], $debtor_no);
     div_end();
 }
 
-function menu_rows($trans_no, $type) {
-
+function menu_rows($trans_no, $type, $debtor_no = '') {
     $display_sql = get_gl_trans($type, $trans_no);
+
+    if ($debtor_no != '') {
+        $cust_id = $debtor_no;
+        $cust_name = get_customer_name($debtor_no);
+    }
 
     div_start("menu_rows");
     start_table(TABLESTYLE, "width='75%'");
@@ -191,16 +232,23 @@ function menu_rows($trans_no, $type) {
     table_header($th);
     
     $k = $debit = $credit = 0;
-
+    $masterfile = '';
     while ($row = db_fetch($display_sql)) {
         alt_table_row_color($k);
+        if (($type == ST_SALESINVOICE || $type == ST_SALESINVOICEREPO) && $row['mcode'] == '') {
+            $mcode = $cust_id;
+            $masterfile = $cust_name;
+        }
+        else {
+            $mcode = $row['mcode']; $masterfile = $row['master_file'];
+        }
 
         label_cell($row['counter']);
         label_cell(phil_short_date($row['tran_date']), "align='center'");
         label_cell($row['account'], "align='center'");
         label_cell(get_gl_account_name($row['account']), "nowrap align='left'");
-        label_cell($row['mcode'], "align='center'");
-        label_cell($row['master_file'], "nowrap align='left'");
+        label_cell($mcode, "align='center'");
+        label_cell($masterfile, "nowrap align='left'");
         display_debit_or_credit_cells($row['amount'], true);
         label_cell($row['memo_'], "align='right'");
 
@@ -308,22 +356,21 @@ if (isset($_POST['Approved']) && can_proceed()) {
     }
     else {
 
-        if ($_GET['type'] == 0) {
-            $void_row = get_voided_entry(0, null, null, false, 'ALL', null, null, $_GET['void_id']);
+        if ($_GET['type'] == ST_JOURNAL) {
+            $void_row = get_voided_entry(ST_JOURNAL, null, null, false, 'ALL', null, null, $_GET['void_id']);
             $debtor_row = get_SI_by_reference($void_row['reference_from']);
 
             $void_id = void_journal($_GET['void_id'], $debtor_row['trans_no'], $debtor_row['type'], $debtor_row['debtor_no']);
-
-            if ($void_id) {
-                meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel . "&CancelType=" . $_GET['type']);
-            }
         }
-        else {
+        else if ($_GET['type'] == ST_BANKPAYMENT || $_GET['type'] == ST_BANKDEPOSIT) {
             $void_id = void_banking($_GET['void_id'], $_GET['type']);
+        }
+        else if ($_GET['type'] == ST_SALESINVOICE || $_GET['type'] == ST_SALESINVOICEREPO) {
+            $void_id = void_invoice($_GET['void_id'], $_GET['type']);
+        }
 
-            if ($void_id) {
-                meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel . "&CancelType=" . $_GET['type']);
-            }
+        if ($void_id) {
+            meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel . "&CancelType=" . $_GET['type']);
         }
 
     }
@@ -351,7 +398,6 @@ $void_row = get_voided_entry($_GET['type'], $_GET['trans_no']);
 
 display_menu($_GET['trans_no'], $_GET['type']);
 
-menu_rows($_GET['trans_no'], $_GET['type']);
 void_remarks($_GET['status']);
 
 if ($_GET['status'] == 0 && $void_row == null) {
