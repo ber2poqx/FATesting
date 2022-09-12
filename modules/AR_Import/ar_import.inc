@@ -293,13 +293,15 @@ function check_transaction_already_exist($old_trans_no, $invoice_type, $term)
 	if($term == 3){
 		$sql = " SELECT 
    				COUNT(*) 
-   			FROM ".TB_PREF."debtor_loans
-		    WHERE months_term = 3 and old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
+   			FROM ".TB_PREF."debtor_loans a
+			LEFT JOIN voided b ON  a.trans_no = b.id and b.void_status <> 'Voided'
+		    WHERE a.months_term = 3 and a.old_trans_no = ".db_escape($old_trans_no)." And a.invoice_type = ".db_escape($invoice_type);
 	}else{
 		$sql = " SELECT 
 					COUNT(*) 
-				FROM ".TB_PREF."debtor_loans
-				WHERE months_term <> 3 and old_trans_no = ".db_escape($old_trans_no)." And invoice_type = ".db_escape($invoice_type);
+				FROM ".TB_PREF."debtor_loans a
+				LEFT JOIN voided b ON  a.trans_no = b.id and b.void_status <> 'Voided'
+				WHERE a.months_term <> 3 and a.old_trans_no = ".db_escape($old_trans_no)." And a.invoice_type = ".db_escape($invoice_type);
 	}
    $result = db_query($sql, "check old_trans_no Code failed");
    $count =  db_fetch($result);
