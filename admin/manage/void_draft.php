@@ -358,9 +358,8 @@ if (isset($_POST['Approved']) && can_proceed()) {
 
         if ($_GET['type'] == ST_JOURNAL) {
             $void_row = get_voided_entry(ST_JOURNAL, null, null, false, 'ALL', null, null, $_GET['void_id']);
-            $debtor_row = get_SI_by_reference($void_row['reference_from']);
 
-            $void_id = void_journal($_GET['void_id'], $debtor_row['trans_no'], $debtor_row['type'], $debtor_row['debtor_no']);
+            $void_id = void_journal($_GET['void_id']);
         }
         else if ($_GET['type'] == ST_BANKPAYMENT || $_GET['type'] == ST_BANKDEPOSIT) {
             $void_id = void_banking($_GET['void_id'], $_GET['type']);

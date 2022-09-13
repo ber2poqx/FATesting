@@ -763,7 +763,7 @@ class items_cart
 		} // End of Inserting Tax Records
 
 		if ($this->void_id > 0) {
-			void_journal($this->void_id, $this->ar_trans_no, $this->ar_trans_type, $this->ar_debtor_no, $this->reference);
+			void_journal($this->void_id, $this->reference);
 		}
 	}
 }

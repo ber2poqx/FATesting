@@ -889,7 +889,7 @@ function write_bank_transaction(
 	}
 
 	if ($void_id > 0) {
-		void_banking($void_id, $trans_type);	
+		void_banking($void_id, $trans_type, $ref);	
 	}
 
 	add_comments($trans_type, $trans_no, $date_, $memo_);
@@ -1114,9 +1114,8 @@ function cheque_exists($cheque_no) {
 	return $row[0];
 }
 
-function void_banking($void_id, $trans_type) {
-	global $Refs;
-
+function void_banking($void_id, $trans_type, $ref_to = '') {
+	
 	$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
 	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 
@@ -1151,7 +1150,7 @@ function void_banking($void_id, $trans_type) {
 		sql2date($void_row['date_']), "Voided", 
 		$void_row['memo_'], 
 		$_SESSION["wa_current_user"]->user,
-		''
+		$ref_to
 	);
 
 	if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
@@ -1165,8 +1164,7 @@ function void_banking($void_id, $trans_type) {
 	}
 
 	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
-	$Refs->restore_last($void_row['type'], $void_row['id']);
-
+	
 	return $void_id;
 }
 

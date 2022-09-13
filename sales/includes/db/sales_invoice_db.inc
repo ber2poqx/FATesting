@@ -960,10 +960,16 @@ function get_supplier_mcode($stock_id) {
 function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debtor_no = '') {
 	
 	set_global_connection();
+	
+	$months_term = $reference == '' ? ', DL.months_term' : '' ;
 
-	$sql = "SELECT DT.*, DL.months_term FROM " . TB_PREF . "debtor_trans DT
-			INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.reference
-		WHERE IFNULL(DT.trans_no, '') <> ''";
+	$sql = "SELECT DT.*$months_term FROM " . TB_PREF . "debtor_trans DT ";
+
+	if ($reference == '') {
+		$sql .= " INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.reference";
+	}
+
+	$sql .= " WHERE IFNULL(DT.trans_no, '') <> ''";
 
 	if ($reference != '') {
 		$sql .= " AND DT.reference = " .db_escape($reference);
@@ -979,7 +985,6 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 }
 
 function void_invoice($void_id, $trans_type) {
-	global $Refs;
 
 	$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
 	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
@@ -1019,7 +1024,6 @@ function void_invoice($void_id, $trans_type) {
 	);
 
 	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
-	$Refs->restore_last($void_row['type'], $void_row['id']);
 
 	return $void_id;
 
