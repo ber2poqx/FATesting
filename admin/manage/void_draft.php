@@ -355,23 +355,11 @@ if (isset($_POST['Approved']) && can_proceed()) {
         }
     }
     else {
-
-        if ($_GET['type'] == ST_JOURNAL) {
-            $void_row = get_voided_entry(ST_JOURNAL, null, null, false, 'ALL', null, null, $_GET['void_id']);
-
-            $void_id = void_journal($_GET['void_id']);
-        }
-        else if ($_GET['type'] == ST_BANKPAYMENT || $_GET['type'] == ST_BANKDEPOSIT) {
-            $void_id = void_banking($_GET['void_id'], $_GET['type']);
-        }
-        else if ($_GET['type'] == ST_SALESINVOICE || $_GET['type'] == ST_SALESINVOICEREPO) {
-            $void_id = void_invoice($_GET['void_id'], $_GET['type']);
-        }
+        $void_id = void_entries($_GET['void_id'], $_GET['type']);
 
         if ($void_id) {
             meta_forward($_SERVER['PHP_SELF'], "CancelID=" . $trans_no . "&cancel=" . $cancel . "&CancelType=" . $_GET['type']);
         }
-
     }
 }
 

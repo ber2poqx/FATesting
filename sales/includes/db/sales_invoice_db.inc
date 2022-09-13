@@ -984,51 +984,6 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 	return db_fetch($result);
 }
 
-function void_invoice($void_id, $trans_type) {
-
-	$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
-	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
-
-	while ($row = db_fetch($gl_sql)) {
-		
-		add_gl_trans(
-			$row['type'],
-			$row['type_no'],
-			sql2date($row['tran_date']),
-			$row['account'],
-			0, 0,
-			$void_row['memo_'],
-			-$row['amount'],
-			'PHP',
-			$row['person_type_id'],
-			$row['person_id'],
-			"",
-			0,
-			$row['mcode'],
-			$row['master_file'],
-			$row['hocbc_id'],
-			$row['loan_trans_no'],
-			$row['interbranch'],
-			false,
-			1
-		);
-	}
-
-	update_void_status(
-		$void_row['type'], 
-		$void_row['id'], 
-		sql2date($void_row['date_']), "Voided", 
-		$void_row['memo_'], 
-		$_SESSION["wa_current_user"]->user,
-		''
-	);
-
-	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
-
-	return $void_id;
-
-}
-
 function get_SO_header($order_no) {
 	set_global_connection();
 
