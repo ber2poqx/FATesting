@@ -340,7 +340,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 	$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
 	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
 
-	if ($type == ST_JOURNAL) {
+	if ($trans_type == ST_JOURNAL) {
 		$debtor_row = get_SI_by_reference($void_row['reference_from']);
 		$source_si = db_fetch(db_query(get_journal_transactions($void_row['reference_from'])));
 		$si_row = get_SI_by_reference($source_si['source_ref2']);	
@@ -380,7 +380,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		$ref_to
 	);
 
-	if ($type != ST_SALESINVOICE || $type != ST_SALESINVOICEREPO) {
+	if ($trans_type != ST_SALESINVOICE || $trans_type != ST_SALESINVOICEREPO) {
 		if (has_interbranch_entry($void_row['id'], $void_row['type'])) {
 	
 			$comp_id = get_comp_id(has_interbranch_entry($void_row['id'], $void_row['type']));
@@ -392,7 +392,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		}	
 	}
 
-	if ($type == ST_JOURNAL) {
+	if ($trans_type == ST_JOURNAL) {
 		if ($debtor_row["trans_no"] != null)  {
 			if ($debtor_row['alloc'] > 0 && $debtor_row['ov_amount'] == 0) {
 				void_payments_thru_JE($void_row['reference_from'], $void_row['id'], true);
@@ -409,7 +409,6 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
 	return $void_id;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 
