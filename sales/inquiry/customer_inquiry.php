@@ -257,7 +257,7 @@ $cols = array(
 	_("Balance") => array('align'=>'right', 'type'=>'amount'),
 		array('insert'=>true, 'fun'=>'gl_view'),
 		array('insert'=>true, 'fun'=>'edit_link'),
-		array('insert'=>true, 'fun'=>'credit_link'),
+		//array('insert'=>true, 'fun'=>'credit_link'),
 		array('insert'=>true, 'fun'=>'prt_link')
 	);
 
