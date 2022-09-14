@@ -248,7 +248,7 @@ $cols = array(
     _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
     _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
-    _("Pay To: ") => array('align' => 'left', 'fun' => 'pay_to'),
+    _("Pay To ") => array('align' => 'left', 'fun' => 'pay_to'),
     _('Receipt #') => array('align' => 'center', 'fun' => 'doc_ref'),
     _('Cashier / Teller') => array('align' => 'center', 'fun' => 'cashier_name'),
     _('Prepared By') => array('align' => 'center', 'fun' => 'preparer_name'),
