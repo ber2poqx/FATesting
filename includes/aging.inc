@@ -554,7 +554,7 @@ function current_balance($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
     $row = get_DL_details($trans_no, $trans_type, $debtor_no);
     $void_entry = get_voided_entry($trans_type, $trans_no);
 
-    if ($void_entry['void_status']) {
+    if ($void_entry['void_status'] == "Voided") {
         $total = 0;
     }
     else {
