@@ -961,7 +961,7 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 	
 	set_global_connection();
 	
-	$months_term = $reference == '' ? ', DL.months_term' : '' ;
+	$months_term = $reference == '' ? ', DL.months_term, DL.delivery_ref_no' : '' ;
 
 	$sql = "SELECT DT.*$months_term FROM " . TB_PREF . "debtor_trans DT ";
 
@@ -976,8 +976,11 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 	}
 	else {
 		$sql .= " AND DT.trans_no = " .db_escape($trans_no) . 
-		" AND DT.type = " .db_escape($type) . 
-		" AND DT.debtor_no = " .db_escape($debtor_no);
+		" AND DT.type = " .db_escape($type); 
+		
+		if ($debtor_no != '') {
+			$sql .= " AND DT.debtor_no = " .db_escape($debtor_no);
+		}
 	}
 
 	$result = db_query($sql, "No SI details return! (spyrax10)");

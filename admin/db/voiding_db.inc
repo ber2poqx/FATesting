@@ -233,14 +233,14 @@ function get_voided_entry($type = '', $type_no = null, $reference = null, $list 
 
 //--------------------------------------------------------------------------------------------------
 
-function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $ref_to = '', $status = 'Draft', $cancel = 0) {
+function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $reference = '', $ref_to = '', $status = 'Draft', $cancel = 0,
+	$voided_by = 0) {
 	
 	set_global_connection();
 	
 	$date = date2sql($date_);
-	$cancel_qry = $cancel == 1 ? ", cancel" : "";
 
-	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference_from, reference_to, void_status$cancel_qry) ";
+	$sql = "INSERT INTO ".TB_PREF."voided (type, id, date_, memo_, branch_id, reference_from, reference_to, void_status, cancel, voided_by) ";
 	$sql .= " VALUES (
 			". db_escape($type) .", 
 			". db_escape($type_no) .", 
@@ -249,11 +249,9 @@ function add_voided_entry($type, $type_no, $date_, $memo_, $branch_id = 0, $refe
 			".db_escape($branch_id) .",
 			".db_escape($reference) .",
 			".db_escape($ref_to) .",
-			".db_escape($status);
-	
-	if ($cancel == 1) {
-		$sql .= ", " .db_escape($cancel);
-	}
+			".db_escape($status) . ",
+			".db_escape($cancel) . ",
+			".db_escape($voided_by);
 	
 	$sql .= ")";
 
@@ -346,6 +344,12 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		$si_row = get_SI_by_reference($source_si['source_ref2']);	
 	}
 
+	if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO) {
+		$debtor_row = get_SI_by_reference('', $void_row['id'], $void_row['type']);
+		$delivery_row = get_SI_by_reference($debtor_row['delivery_ref_no']);
+		$delivery_gl = get_gl_trans($delivery_row['type'], $delivery_row['trans_no'], "DESC");
+	}
+
 	while ($row = db_fetch($gl_sql)) {
 		
 		add_gl_trans(
@@ -405,6 +409,48 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		}
 	}
 
+	if ($delivery_row['trans_no'] > 0) {
+
+		$trans_no = add_voided_entry(
+			$delivery_row['type'], 
+			$delivery_row['trans_no'], 
+			sql2date($void_row['date_']), 
+			$void_row['memo_'], 
+			user_company(),
+			$debtor_row['delivery_ref_no'],
+			'', 'Voided', $void_row['cancel'],
+			$_SESSION["wa_current_user"]->user
+		);
+
+		while ($row = db_fetch($delivery_gl)) {
+			add_gl_trans(
+				$row['type'],
+				$row['type_no'],
+				sql2date($row['tran_date']),
+				$row['account'],
+				0, 0,
+				$void_row['memo_'],
+				-$row['amount'],
+				'PHP',
+				$row['person_type_id'],
+				$row['person_id'],
+				"",
+				0,
+				$row['mcode'],
+				$row['master_file'],
+				$row['hocbc_id'],
+				$row['loan_trans_no'],
+				$row['interbranch'],
+				false,
+				1
+			);
+		}
+
+		delete_smo($delivery_row['trans_no'], $delivery_row['type']);
+		add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), 
+			_("Voided From Reference: " . $void_row['reference_from'])."\n". $void_row['memo_']
+		);
+	}
 
 	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
 	return $void_id;

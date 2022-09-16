@@ -112,7 +112,12 @@ function date_voided($row, $type) {
     return $row['date_voided'] != '0000-00-00' ? phil_short_date($row['date_voided']) : '0000-00-00';
 }
 
+function trans_no($row) {
+    return $row['id'];
+}
+
 function post_void($row) {
+    $post_link = '';
     
     if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
 
@@ -138,7 +143,7 @@ function post_void($row) {
 		        : null;
             }
             else {
-                if ($si_row['months_term'] > 0) {
+                if (isset($si_row['months_term']) && $si_row['months_term'] > 0) {
                     $post_link = $row['void_status'] == "Approved" ? pager_link( _("Void This Transaction"),
                         "/sales/sales_order_entry.php?NewOrder=0&void_id=" . $row['void_id'], ICON_DOC) 
 		            : null;
@@ -232,6 +237,7 @@ $sql = get_voided_entry(
 $cols = array(
     _('ID') => array('align' => 'left', 'name' => 'void_id'),
     _('Transaction Type') => array('align' => 'left', 'fun' => 'systype_name'),
+    _('Transaction #') => array('align' => 'left', 'fun' => 'trans_no'),
     _('Voided Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Created Reference') => array('align' => 'center', 'fun' => 'reference_to'),
     _('Transaction Date') => array('align' => 'center', 'fun' => 'date_transact'),
