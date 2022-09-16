@@ -18,6 +18,7 @@ include_once($path_to_root . "/admin/db/transactions_db.inc");
 
 include_once($path_to_root . "/admin/db/voiding_db.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
+include_once($path_to_root . "/includes/aging.inc");
 
 $js = "";
 
@@ -311,6 +312,21 @@ function can_proceed() {
     if ($void_row['void_status'] == 'Voided') {
         display_error(_("This transaction is already Voided..."));
         return false;
+    }
+
+    if ($_GET['type'] == ST_SALESINVOICE || $_GET['type'] == ST_SALESINVOICEREPO) {
+        $debtor_row = get_SI_by_reference($void_row['reference_from']);
+
+        $payment_sql = get_customer_payments($debtor_row['trans_no'], $_GET['type'], $debtor_row['debtor_no']);
+
+        while ($row = db_fetch($payment_sql)) {
+            $void_pay = get_voided_entry($row['trans_type_from'], $row['trans_no']);
+
+            if ($void_pay['void_status'] != 'Voided') {
+                display_error(_("Can't Proceed! Payments are not fully voided..."));
+                return false;
+            }
+        }
     }
     
     return true;

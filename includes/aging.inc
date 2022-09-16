@@ -66,6 +66,18 @@ function debtor_remaining_month($trans_no, $trans_type = ST_SALESINVOICE, $debto
     return $row[0];
 }
 
+function get_customer_payments($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
+    set_global_connection();
+
+    $sql = "SELECT * FROM " . TB_PREF . "debtor_loan_ledger DLL 
+        WHERE DLL.payment_trans_no <> " .db_escape($trans_no);
+    
+    $sql .= " AND DLL.trans_no = " .db_escape($trans_no) . 
+        " AND DLL.debtor_no = " .db_escape($debtor_no);
+
+    return db_query($sql, _("get_customer_payments()"));
+}
+
 function get_customer_loansched($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
 
 	set_global_connection();
