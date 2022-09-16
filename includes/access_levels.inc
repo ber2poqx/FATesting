@@ -175,8 +175,8 @@ $security_areas =array(
 	'SA_INSTLPLCYTYPS' => array(SS_SALES_C|10, _("Sales Installment Policy Type")),
 	'SA_INSTLPLCY' => array(SS_SALES_C|11, _("Sales Installment Policy")),
 	'SA_SCASHPRCTYPES' => array(SS_SALES_C|12, _("Cash Price Types")),
-	'SA_SCASHPRICE' => array(SS_SALES_C|13, _("Cash Prices edition")),
-	
+	'SA_SCASHPRICE' => array(SS_SALES_C|13, _("Cash Prices edition")),	
+
 	'SA_HOCBCTYPE' => array(SS_SALES_C|14, _("HOC/BC Type changes")),	// Added by Ronelle 2/22/2021
 
 	'SA_SLINCNTIVTYPE' => array(SS_SALES_C|15, _("Sales Incentive Type")), //progjr 3/19/2021
@@ -185,6 +185,8 @@ $security_areas =array(
 	'SA_ITMAPSUPPORT' => array(SS_SALES_C|18, _("Item AP Support Type")), //progjr 10/26/2021
 	'SA_ITMAPSUPPORT' => array(SS_SALES_C|19, _("Item AP Support Price")), //progjr 10/26/2021
 	'SA_SALES_TARGET' => array(SS_SALES_C|20, _("Sales Target Changes")), // Added by Prog6	(11/09/2021)
+	'SA_PRICE_UPDATE_STATUS' => array(SS_SALES_C|21, _("Price Approval")), //Added by Albert 09/15/2022
+	'SA_PRICE_HISTORY_LIST' => array(SS_SALES_C|22, _("Price History List")), //Added by Albert 09/15/2022
 
 	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales Transactions View")),
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales Customer and Branches Changes")),
