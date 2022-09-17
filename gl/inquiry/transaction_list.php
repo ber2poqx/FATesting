@@ -12,28 +12,73 @@ include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/gl/includes/db/gl_db_banking.inc");
 include_once($path_to_root . "/admin/db/transactions_db.inc");
 include_once($path_to_root . "/admin/db/voiding_db.inc");
+include_once($path_to_root . "/gl/includes/gl_db.inc");
 
 
-$mode = get_company_pref('no_sl_list');
-if ($mode != 0) {
-    $js = get_js_set_combo_item();
-}
-else {
-    $js = get_js_select_combo_item();
-}
+$js = get_js_set_combo_item();
 
 page(_($help_context = "List of Transaction References"), true, false, "", $js);
 #--------------------------------------------------------------------------------
-function get_all_transactions() {
-
-    $sql = "";
-
-    return db_query($sql, "get_all_transactions()");
+if (get_post('trans_type')) {
+    $Ajax->activate('ref_tbl');
 }
+
 #--------------------------------------------------------------------------------
+
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
+global $systypes_array;
 
+start_table(TABLESTYLE_NOBORDER);
 
+start_row();
+
+value_type_list(null, 'trans_type', 
+    array(
+        ST_JOURNAL => 'Journal Entries',
+        ST_BANKPAYMENT => 'Disbursement Entries',
+        ST_BANKDEPOSIT => 'Receipts Entries',
+        ST_SALESINVOICE => 'Sales Invoice Entries',
+        ST_INVADJUST => 'Inventory Adjustment Entries',
+        ST_COMPLIMENTARYITEM => 'Complimentary Entries'
+    ), '', null, true, _("All Transaction Types"), true
+);
+
+ref_cells(_("Transaction Reference: &nbsp;"), 'ref', '', null, '', true);
+
+end_row();
+
+end_table();
 
 end_form();
+
+div_start("ref_tbl");
+
+start_table(TABLESTYLE);
+
+$th = array("", _("#"), _("Type"), _("Transaction Date"), _("Reference"), _("Amount"), _(""));
+
+table_header($th);
+
+$k = 0;
+$name = $_GET["client_id"];
+
+$result = get_all_transactions(get_post('trans_type'), get_post('ref')); 
+
+while ($row = db_fetch_assoc($result)) {
+    alt_table_row_color($k);
+	
+    $value = $row['counter'];
+    $text = $row['ref'];
+  	
+    ahref_cell(_("Select"), 'javascript:void(0)', '', 'setComboItem(window.opener.document, "'.$name.'",  "'.$value.'", "'.$text.'")');
+    label_cell($row['type_no']);
+    label_cell($systypes_array[$row['type']]);
+    label_cell(phil_short_date($row['tran_date']));
+    label_cell($row['reference'] != null ? $row['reference'] : $row['si_ref']);
+    amount_cell(ABS($row['amount']));
+    label_cell(get_gl_view_str($row['type'], $row["type_no"]));
+
+}
+end_table(1);
+
 end_page(true);

@@ -726,3 +726,48 @@ function get_mt_rrbranch_header($reference){
     $myrow= db_query($sql, 'cannot retrieve MT Header entry');
     return db_fetch($myrow);
 }
+
+//Added by spyrax10 17 Sep 2022
+function get_all_transactions($type = '', $reference = '', $pop_up = true) {
+
+    $sql = "SELECT GL.counter,
+		CASE WHEN IFNULL(RF.reference, '') = '' THEN DT.reference ELSE RF.reference END AS ref,
+		GL.type, GL.type_no, GL.tran_date, GL.account, GL.amount, 
+        CM.account_name, RF.reference, DT.reference AS si_ref
+    FROM " . TB_PREF . "gl_trans GL
+        LEFT JOIN " . TB_PREF . "chart_master CM ON GL.account = CM.account_code
+        LEFT JOIN " . TB_PREF . "journal JN ON GL.type = JN.type = GL.type_no = JN.trans_no 
+        LEFT JOIN " . TB_PREF . "debtor_trans DT ON GL.type = DT.type AND GL.type_no = DT.trans_no 
+        LEFT JOIN " . TB_PREF . "bank_trans BT ON GL.type = BT.type AND GL.type_no = BT.trans_no
+        LEFT JOIN " . TB_PREF . "stock_moves SM ON GL.type = SM.type AND GL.type_no = SM.trans_no 
+        LEFT JOIN " . TB_PREF . "voided V ON GL.type_no = V.id AND GL.type = V.type
+            AND V.void_status = 'Voided'
+        LEFT JOIN " . TB_PREF . "refs RF ON GL.type = RF.type AND GL.type_no = RF.id
+    WHERE ISNULL(V.void_id)";
+    
+    if ($type != '') {
+        $sql .= " AND GL.type = " .db_escape($type);
+    }
+	else {
+		$sql .= " AND GL.type IN (
+			" . ST_JOURNAL . ", " . ST_BANKPAYMENT . ", " . ST_BANKDEPOSIT . ", 
+			" . ST_SALESINVOICE . ", " . ST_INVADJUST . ", " . ST_COMPLIMENTARYITEM . "
+		)";
+	}
+
+    if ($reference != '') {
+        $sql .= " AND (RF.reference LIKE " . db_escape('%' . trim($reference) . '%') . " OR 
+            DT.reference LIKE " . db_escape('%' . trim($reference) . '%') . "
+        )";
+    }
+
+    
+    $sql .= " GROUP BY GL.type_no, GL.type";
+	if ($pop_up) {
+		$sql .= " ORDER BY GL.type, GL.type_no, GL.counter";
+		return db_query($sql, "get_all_transactions()");
+	}
+	else {
+		return $sql;
+	}
+}

@@ -394,6 +394,10 @@ $opts = array(		// default options
         			$link = $path_to_root . "/admin/inquiry/company_list.php?popup=1&client_id=" . $id;
         			$img_title = _("Search Companies");
         			break;
+				case "trans_ref":
+					$link = $path_to_root . "/gl/inquiry/transaction_list.php?popup=1&client_id=" . $id;
+					$img_title = _("Search Transaction References");
+					break;
 				/* */ 
 				/* Added by Albert 10/14/2021 */
 				case "si_repo_stock":
@@ -842,6 +846,54 @@ function sl_list_gl_cells($label, $name, $selected_id=null, $all_option=false,
 	echo "<td nowrap colspan='2'>";
 	echo sl_list_gl($name, $selected_id, $all_option, $submit_on_change,
 		$show_inactive, $editkey, $send_type);
+	echo "</td>\n";
+}
+
+function trans_ref_qry($name, $selected_id=null, $spec_option=false, $submit_on_change=false, 
+	$show_inactive=false, $editkey = false) {
+	
+	set_global_connection();
+
+	$sql = "SELECT GL.counter, CASE WHEN IFNULL(RF.reference, '') = '' THEN DT.reference ELSE RF.reference END AS ref,
+		GL.type_no, GL.type, GL.tran_date, GL.account, GL.amount, 
+		CM.account_name, RF.reference, DT.reference AS si_ref
+	FROM " . TB_PREF . "gl_trans GL
+		LEFT JOIN " . TB_PREF . "chart_master CM ON GL.account = CM.account_code
+		LEFT JOIN " . TB_PREF . "journal JN ON GL.type = JN.type = GL.type_no = JN.trans_no 
+		LEFT JOIN " . TB_PREF . "debtor_trans DT ON GL.type = DT.type AND GL.type_no = DT.trans_no 
+		LEFT JOIN " . TB_PREF . "bank_trans BT ON GL.type = BT.type AND GL.type_no = BT.trans_no
+		LEFT JOIN " . TB_PREF . "stock_moves SM ON GL.type = SM.type AND GL.type_no = SM.trans_no 
+		LEFT JOIN " . TB_PREF . "voided V ON GL.type_no = V.id AND GL.type = V.type
+			AND V.void_status = 'Voided'
+		LEFT JOIN " . TB_PREF . "refs RF ON GL.type = RF.type AND GL.type_no = RF.id
+	WHERE ISNULL(V.void_id) AND GL.type IN (
+		" . ST_JOURNAL . ", " . ST_BANKPAYMENT . ", " . ST_BANKDEPOSIT . ", 
+		" . ST_SALESINVOICE . ", " . ST_INVADJUST . ", " . ST_COMPLIMENTARYITEM . ")  
+	GROUP BY GL.type_no, GL.type";
+		
+	$ret = combo_input($name, $selected_id, $sql, 'counter', 'GL.type',
+		array(
+		'search_box' => true,
+		'type' => 1,
+        'search' => array('counter'),        
+		'spec_option' => false,
+		'spec_id' => ALL_TEXT,
+		'select_submit'=> $submit_on_change,
+		'async' => true
+	), "trans_ref");
+
+	return $ret;
+}
+
+function trans_ref_cell($label, $name, $selected_id=null, $all_option=false, 
+	$submit_on_change=false, $show_inactive=false, $editkey = false) {
+
+	if ($label != null) {
+		echo "<td class='bold'>$label</td>\n";
+	}
+	echo "<td nowrap colspan='2'>";
+	echo trans_ref_qry($name, $selected_id, $all_option, $submit_on_change,
+		$show_inactive, $editkey);
 	echo "</td>\n";
 }
 

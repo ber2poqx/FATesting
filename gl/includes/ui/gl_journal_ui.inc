@@ -105,7 +105,9 @@ function display_order_header(&$Order) {
 	//hidden('ref_original');
 
 	text_row(_("Source Reference: &nbsp;"), 'source_ref', null, 30, 60);
-	
+
+	//trans_ref_cell(_("Transaction Link:"), 'trans_ref', null, _("Select Reference"), true);
+
 	// if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
 	// 	label_row(_("Source Reference: &nbsp;"), get_post('ar_inv'));
 	// }
@@ -144,7 +146,6 @@ function display_order_header(&$Order) {
 		 		null, "&nbsp;&nbsp;".submit('go', _("Go"), false, false, true)
 			);
 		}
-
 	}
 
 	check_row(_('Include in tax register:'), 'taxable_trans', null, true);
