@@ -83,7 +83,10 @@ class inventory_app extends application
 				"inventory/manage/serial_list.php", 'SA_FORITEMCODE', MENU_MAINTENANCE
 			);
 		}
-
+		/*Added by Albert 09/16/2022*/
+		$this->add_lapp_function(2, _("Price History List "),
+		"inventory/manage/price_history_list.php", 'SA_PRICE_HISTORY_LIST', MENU_MAINTENANCE);
+		/**/
 		$this->add_rapp_function(2, _("&Made-in Setup"),
 			"inventory/manage/item_manufacturer.php?", 'SA_MANUFACTURER', MENU_MAINTENANCE);
 		$this->add_rapp_function(2, _("SRP Types Setup"),
