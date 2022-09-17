@@ -50,7 +50,7 @@ function display_order_header(&$Order) {
 
 		if (get_post('person_id')) {
 			sql_type_list(_("Invoice No:"), 'ar_inv', 
-				get_customer_invoices(get_post('person_id')), 'ar_ref', 'ar_ref', 
+				get_customer_invoices(get_post('persPon_id')), 'ar_ref', 'ar_ref', 
 				'label', null, true, _("Select Invoice")
 			);
 		}

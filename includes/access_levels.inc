@@ -477,6 +477,7 @@ $security_areas =array(
 	/* */
 	
 	//Added by spyrax10 24 Feb 2022
+	'SA_SEARCHTRANS' => array(SS_GL|21, _("Transaction List References")),
 	'SA_INTER_BANK_DRAFT' => array(SS_GL|14, _("Review Bank Interbranch Transactions")),
 	'SA_INTER_BANK_POST' => array(SS_GL|15, _("Post Bank Interbranch Transactions")),
 	//
