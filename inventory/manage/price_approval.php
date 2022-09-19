@@ -51,7 +51,7 @@ function get_price_history($price_id, $price_code, $stock_id){
 
 	$sql.= " order by a.date_defined desc, a.id desc";
 
-return db_query($sql,"The Price History could not be retreived");
+	return db_query($sql,"The Price History could not be retreived");
 
 }
 

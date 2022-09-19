@@ -409,5 +409,21 @@ function price_status_update($status,$price_id)
 	
 	return $result;
 }
+function get_price_history_data($price_id)
+{
+	$sql = "SELECT a.*, b.supp_name FROM ".TB_PREF."price_cost_archive a LEFT JOIN suppliers b ON a.supplier_id = b.supplier_id WHERE id=".db_escape($price_id);
+
+	$result = db_query($sql,"cash price could not be retreived");
+
+	return db_fetch($result);
+}
+function update_active_pricehistory($id, $price_id)
+{
+	$sql = "UPDATE ".TB_PREF."price_cost_archive SET inactive = 0, prcecost_id = ".db_escape($price_id)."
+		WHERE id = ".db_escape($id);
+	db_query($sql,"The price/cost history could not be updated");
+	
+}
+
 
 /*END by Albert*/

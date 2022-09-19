@@ -47,11 +47,10 @@ if (get_post('stock_loc')) {
 
 function get_price_history_list($search_val= null){
 
-
-
 	$sql = "SELECT a.prcecost_id,
 	case when a.status = 0 then 'Draft'
-		when a.status = 1 then 'Approved' else 'Disapproved' end as status,
+		when a.status = 1 then 'Approved'
+		when a.status = 1 then 'Disapproved' else 'Closed' end as status,
 	a.stock_id, supp.supp_name, a.date_defined, 
     b.scash_type, c.sales_type, d.cost_type, e.srp_type, a.amount, a.date_epic, a.id
 
@@ -78,24 +77,23 @@ function update_price_status_link($row) {
 
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICE_UPDATE_STATUS')) {
 		
-		if($row["scash_type"] != ''){
+		if($row["scash_type"] <> ''){
 			$price_code = $row["scash_type"];
-		}else if($row["sales_type"] != ''){
-			$price_code = $row["scash_type"];
-		}else if($row["cost_type"] != ''){
+		}else if($row["sales_type"] <> ''){
+			$price_code = $row["sales_type"];
+		}else if($row["cost_type"] <> ''){
 			$price_code = $row["cost_type"];
-		}else if($row["srp_type"] != ''){
+		}else if($row["srp_type"] <> ''){
 			$price_code = $row["srp_type"];
 		}else{
 			// $price_code = $row["incentive_type"];
 			$price_code='';
 		}
 
-
 		$status_link = 
 		$row["status"] == "Draft" ? pager_link(
 			$row['status'],
-			"/inventory/manage/price_approval.php?price_id=" . $row["id"]."&&price_code=" . $price_code."&&stock_id=".$row["stock_id"],
+			"/inventory/manage/price_approval.php?price_id=" . $row["id"]."&&price_code=" .$price_code."&&stock_id=".$row["stock_id"],
 			false
 		) : $row["status"];
 	}
@@ -104,6 +102,36 @@ function update_price_status_link($row) {
 	}
 
 	return $status_link;
+}
+//Added by Albert 09/15/2022
+function post_price($row) {
+	global $page_nested;
+
+	if($row["scash_type"] <> ''){
+		$price_code = $row["scash_type"];
+	}else if($row["sales_type"] <> ''){
+		$price_code = $row["sales_type"];
+	}else if($row["cost_type"] <> ''){
+		$price_code = $row["cost_type"];
+	}else if($row["srp_type"] <> ''){
+		$price_code = $row["srp_type"];
+	}else{
+		// $price_code = $row["incentive_type"];
+		$price_code='';
+	}
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_POSTPRICE')) {
+		$price_link = $row["status"] == "Approved" ? pager_link(
+			'post',
+			"/inventory/manage/post_price.php?price_id=" . $row["id"]."&&price_code=" . $price_code."&&stock_id=".$row["stock_id"]."&&prcecost_id=".$row["prcecost_id"],
+			ICON_DOC
+		) : '';
+	}
+	else {
+		$price_link = '';
+	}
+
+	return $price_link;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -145,7 +173,8 @@ $cols = array(
 	_("System Cost"),
 	_("SRP"),
 	_("Price"), 
-	_("Date Effect") 
+	_("Date Effect"),
+	array('insert'=>true, 'fun'=>'post_price'), 
 );
 
 

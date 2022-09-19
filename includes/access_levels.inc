@@ -186,7 +186,8 @@ $security_areas =array(
 	'SA_ITMAPSUPPORT' => array(SS_SALES_C|19, _("Item AP Support Price")), //progjr 10/26/2021
 	'SA_SALES_TARGET' => array(SS_SALES_C|20, _("Sales Target Changes")), // Added by Prog6	(11/09/2021)
 	'SA_PRICE_UPDATE_STATUS' => array(SS_SALES_C|21, _("Price Approval")), //Added by Albert 09/15/2022
-	'SA_PRICE_HISTORY_LIST' => array(SS_SALES_C|22, _("Price History List")), //Added by Albert 09/15/2022
+	'SA_PRICE_HISTORY_LIST' => array(SS_SALES_C|22, _("List of Price Upload")), //Added by Albert 09/15/2022
+	'SA_POSTPRICE' => array(SS_SALES_C|23, _("Post Price")), //Added by Albert 09/15/2022
 
 	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales Transactions View")),
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales Customer and Branches Changes")),

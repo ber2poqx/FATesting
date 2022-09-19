@@ -84,7 +84,7 @@ class inventory_app extends application
 			);
 		}
 		/*Added by Albert 09/16/2022*/
-		$this->add_lapp_function(2, _("Price History List "),
+		$this->add_lapp_function(2, _("List of Price Upload"),
 		"inventory/manage/price_history_list.php", 'SA_PRICE_HISTORY_LIST', MENU_MAINTENANCE);
 		/**/
 		$this->add_rapp_function(2, _("&Made-in Setup"),
