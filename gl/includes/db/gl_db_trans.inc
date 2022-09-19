@@ -21,7 +21,7 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 	$person_id = null, $err_msg = "", $rate = 0, $mcode = null, $master_file = null, $hocbc = 0, 
 	$loan_trans_no = 0,
 	//Added by spyrax10 15 Jun 2022 
-	$interbranch = 0, $check_AR = true, $void_entry = 0)
+	$interbranch = 0, $check_AR = true, $void_entry = 0, $link_type = 0)
 {
 	global $SysPrefs;
 	set_global_connection();
@@ -79,6 +79,10 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 		$sql .= ", void_entry";
 	}
 
+	if ($link_type > 0) {
+		$sql .= ", link_type";
+	}
+
 	$sql .= ") ";
 
 	$sql .= "VALUES (".db_escape($type).", ".db_escape($trans_id).", '$date',
@@ -94,6 +98,10 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 
 	if ($void_entry > 0) {
 		$sql .= ", " .db_escape($void_entry);
+	}
+
+	if ($link_type > 0) {
+		$sql .= ", " .db_escape($link_type);
 	}
 
 	$sql .= ") ";
@@ -225,7 +233,7 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
 //--------------------------------------------------------------------------------
 
 // Update Query Format (spyrax10) 3 May 2022 
-function get_gl_trans($type, $trans_id, $order = "ASC") {
+function get_gl_trans($type = '', $trans_id = '', $order = "ASC", $counter = '') {
 	set_global_connection();
 	
 	$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
@@ -254,12 +262,22 @@ function get_gl_trans($type, $trans_id, $order = "ASC") {
 			)
 		LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type = gl.type AND bt.trans_no = gl.type_no 
 			AND bt.amount != 0 AND bt.person_type_id = gl.person_type_id AND bt.person_id = gl.person_id
-		LEFT JOIN ".TB_PREF."journal j ON j.type = gl.type AND j.trans_no = gl.type_no"
+		LEFT JOIN ".TB_PREF."journal j ON j.type = gl.type AND j.trans_no = gl.type_no
+	WHERE gl.amount <> 0";
 
-		." WHERE gl.type = ".db_escape($type) 
-		." AND gl.type_no = ".db_escape($trans_id)
-		." AND gl.amount <> 0"
-		." ORDER BY tran_date, counter $order"; //Added by spyrax10 24 Jun 2022
+	if ($type != '') {
+		$sql .= " AND gl.type = ".db_escape($type); 
+	}
+
+	if ($trans_id != '') {
+		$sql .= " AND gl.type_no = ".db_escape($trans_id);
+	}
+	
+	if ($counter != '') {
+		$sql .= " AND gl.counter = ".db_escape($counter);
+	}
+
+	$sql .= " ORDER BY tran_date, counter $order"; //Added by spyrax10 24 Jun 2022
 
 	return db_query($sql, "The gl transactions could not be retrieved");
 }
@@ -728,12 +746,12 @@ function get_mt_rrbranch_header($reference){
 }
 
 //Added by spyrax10 17 Sep 2022
-function get_all_transactions($type = '', $reference = '', $pop_up = true) {
+function get_all_transactions($type = '', $reference = '', $pop_up = true, $trans_no = '') {
 
     $sql = "SELECT GL.counter,
 		CASE WHEN IFNULL(RF.reference, '') = '' THEN DT.reference ELSE RF.reference END AS ref,
 		GL.type, GL.type_no, GL.tran_date, GL.account, GL.amount, 
-        CM.account_name, RF.reference, DT.reference AS si_ref
+        CM.account_name, RF.reference, DT.reference AS si_ref, GL.loan_trans_no, GL.link_type
     FROM " . TB_PREF . "gl_trans GL
         LEFT JOIN " . TB_PREF . "chart_master CM ON GL.account = CM.account_code
         LEFT JOIN " . TB_PREF . "journal JN ON GL.type = JN.type = GL.type_no = JN.trans_no 
@@ -746,6 +764,7 @@ function get_all_transactions($type = '', $reference = '', $pop_up = true) {
     WHERE ISNULL(V.void_id)";
     
     if ($type != '') {
+		$type = $type == 99 ? 0 : $type;
         $sql .= " AND GL.type = " .db_escape($type);
     }
 	else {
@@ -760,6 +779,10 @@ function get_all_transactions($type = '', $reference = '', $pop_up = true) {
             DT.reference LIKE " . db_escape('%' . trim($reference) . '%') . "
         )";
     }
+
+	if ($trans_no != '') {
+		$sql .= " AND GL.type_no = " .db_escape($trans_no);
+	}
 
     
     $sql .= " GROUP BY GL.type_no, GL.type";

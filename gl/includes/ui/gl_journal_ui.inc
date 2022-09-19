@@ -106,7 +106,16 @@ function display_order_header(&$Order) {
 
 	text_row(_("Source Reference: &nbsp;"), 'source_ref', null, 30, 60);
 
-	//trans_ref_cell(_("Transaction Link:"), 'trans_ref', null, _("Select Reference"), true);
+	if (!get_post('ar_inv')) {
+		trans_ref_cell(_("Transaction Link:"), 'trans_ref', null, _("Select Reference"), true);
+	}
+
+	if (get_post('trans_ref')) {
+		$gl_row = db_fetch(get_gl_trans('', '', 'ASC', get_post('trans_ref')));
+		
+		hidden('ar_trans_no', $gl_row['type_no']);
+		hidden('ar_trans_type', $gl_row['type']);
+	}
 
 	// if (check_value('ar_alloc') == 1 && get_post('ar_inv')) {
 	// 	label_row(_("Source Reference: &nbsp;"), get_post('ar_inv'));

@@ -573,7 +573,7 @@ function write_bank_transaction(
 	$interbranch = false,
 	$open_bal = 0,
 	$inter_total = 0,
-	$void_id = 0
+	$void_id = 0, $ar_trans_no = 0, $ar_trans_type = null
 	// 
 ) {
 	global $Refs, $SysPrefs;
@@ -744,9 +744,9 @@ function write_bank_transaction(
 			get_person_id($person_type_id, $gl_item->mcode),
 			$gl_item->master_file,
 			$gl_item->hocbc,
-			0,
+			$ar_trans_no,
 			$gl_item->comp_id != $coy ? 1 : 0,
-			false
+			false, 0, $ar_trans_type
 		);
 
 		//Added by spyrax10 -- Interbranch Entry

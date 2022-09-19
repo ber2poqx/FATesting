@@ -14,8 +14,12 @@ include_once($path_to_root . "/admin/db/transactions_db.inc");
 include_once($path_to_root . "/admin/db/voiding_db.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
 
+$js = "";
+if ($SysPrefs->use_popup_windows) {
+    $js .= get_js_open_window(1000, 500);
+}
 
-$js = get_js_set_combo_item();
+$js .= get_js_set_combo_item();
 
 page(_($help_context = "List of Transaction References"), true, false, "", $js);
 #--------------------------------------------------------------------------------
@@ -34,7 +38,7 @@ start_row();
 
 value_type_list(null, 'trans_type', 
     array(
-        ST_JOURNAL => 'Journal Entries',
+        99 => 'Journal Entries',
         ST_BANKPAYMENT => 'Disbursement Entries',
         ST_BANKDEPOSIT => 'Receipts Entries',
         ST_SALESINVOICE => 'Sales Invoice Entries',
@@ -69,12 +73,13 @@ while ($row = db_fetch_assoc($result)) {
 	
     $value = $row['counter'];
     $text = $row['ref'];
+    $reference = $row['reference'] != null ? $row['reference'] : $row['si_ref'];
   	
     ahref_cell(_("Select"), 'javascript:void(0)', '', 'setComboItem(window.opener.document, "'.$name.'",  "'.$value.'", "'.$text.'")');
     label_cell($row['type_no']);
     label_cell($systypes_array[$row['type']]);
-    label_cell(phil_short_date($row['tran_date']));
-    label_cell($row['reference'] != null ? $row['reference'] : $row['si_ref']);
+    label_cell(phil_short_date($row['tran_date']), "nowrap align='center'; style='color: blue'");
+    label_cell(get_trans_view_str($row['type'], $row['type_no'], $reference));
     amount_cell(ABS($row['amount']));
     label_cell(get_gl_view_str($row['type'], $row["type_no"]));
 
