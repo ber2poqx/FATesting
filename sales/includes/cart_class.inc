@@ -160,6 +160,7 @@ class Cart
 	//Added by spyrax10 25 Jul 2022
 	var $pdc_no = "";
 	var $pdc_discount = 0;
+	var $promo_only = 0;
 	//
 	//-------------------------------------------------------------------------
 	//

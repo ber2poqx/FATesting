@@ -29,7 +29,7 @@ page(_($help_context = "Pending Delivery Inquiry List"), false, false, '', $js);
 
 //----------------------------------------------------------------------
 
-function get_pending_deliveries($order_no = '') {
+function get_pending_deliveries($order_no = '', $pay_type = '') {
     
     set_global_connection();
 
@@ -45,6 +45,10 @@ function get_pending_deliveries($order_no = '') {
 
     if ($order_no != '') {
         $sql .= " AND SOD.order_no = " .db_escape($order_no);
+    }
+
+    if ($pay_type != '') {
+        $sql .= " AND (CASE WHEN SO.months_term > 0 THEN 'INSTALLMENT' ELSE 'CASH' END) = " .db_escape($pay_type);
     }
     
     $sql .= " GROUP BY SO.order_no";
@@ -68,7 +72,7 @@ function edit_row($row) {
     $del_link = '';
 
     if ($_SESSION["wa_current_user"]->can_access_page('SA_SALESDELIVERY')) {
-        $del_link = trans_editor_link($row['so_type'], $row['order_no']);
+        $del_link = trans_editor_link2($row['so_type'], $row['order_no'], $row['pay_type'], 1);
     }
     else {
         $del_link = '';
@@ -84,6 +88,13 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 ref_cells(_("SO #:"), 'so_no', '', null, '', true);
+
+value_type_list(_("&nbsp; Payment Types"), 'pay_type', 
+    array(
+        "INSTALLMENT" => 'Installment',
+        "CASH" => 'Cash'
+    ), '', null, true, _("All Payment Types"), true
+);
 
 end_row();
 end_table();
@@ -105,7 +116,7 @@ $Ajax->activate('del_items');
 end_row();
 end_table(); 
 
-$sql = get_pending_deliveries(get_post('so_no'));
+$sql = get_pending_deliveries(get_post('so_no'), get_post('pay_type'));
 
 
 $cols = array(

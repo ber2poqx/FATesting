@@ -1916,19 +1916,19 @@ function trans_editor_link($type, $trans_no)
 }
 
 //Added by spyrax10
-function trans_editor_link2($type, $trans_no, $payment)
+function trans_editor_link2($type, $trans_no, $payment, $promo_only = 0)
 {
 	global $path_to_root;
 	$editor_url = '';
 
 	if ($payment == "CASH") {
 		$editor_url = array(
-			ST_SALESORDER => "/sales/sales_invoice_cash.php?ModifyOrderNumber=%d",
+			ST_SALESORDER => "/sales/sales_invoice_cash.php?ModifyOrderNumber=%d&promo=" . $promo_only,
 		);
 	}
 	else if ($payment == "INSTALLMENT") {
 		$editor_url = array(
-			ST_SALESORDER => "/sales/sales_order_entry.php?ModifyOrderNumber=%d",
+			ST_SALESORDER => "/sales/sales_order_entry.php?ModifyOrderNumber=%d&promo=" . $promo_only,
 		);
 	}
 	

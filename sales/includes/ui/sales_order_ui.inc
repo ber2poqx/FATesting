@@ -252,13 +252,18 @@ function display_order_summary($title, &$order, $editable_items = false)
 	foreach ($order->get_items() as $line_no => $stock_item) {
 
 		$line_total = round($stock_item->qty_dispatched * $stock_item->price, user_price_dec());
+		$remain_qty = $stock_item->qty_dispatched - $stock_item->qty_done;
 
 		$qoh_msg = '';
 		if (!$editable_items || $id != $line_no) {
-			if (in_array($stock_item->stock_id, $low_stock))
+			
+			if (in_array($stock_item->stock_id, $low_stock)) {
 				start_row("class='stockmankobg'");	// notice low stock status
-			else
-				alt_table_row_color($k);
+			}
+			else {
+				alt_table_row_color($k);	
+			}
+
 			view_stock_status_cell($stock_item->stock_id);
 
 			label_cell($stock_item->item_description);
@@ -286,16 +291,19 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 			//Modified by spyrax10 11 May 2022
 			if ($title != _("Sales Invoice Items")) {
-				edit_button_cell(
-					"Edit$line_no",
-					_("Edit"),
-					_('Edit document line')
-				);
-				delete_button_cell(
-					"Delete$line_no",
-					_("Delete"),
-					_('Remove line from document')
-				);
+
+				if ($remain_qty > 0) {
+					edit_button_cell(
+						"Edit$line_no",
+						_("Edit"),
+						_('Edit document line')
+					);
+					delete_button_cell(
+						"Delete$line_no",
+						_("Delete"),
+						_('Remove line from document')
+					);
+				}
 			}
 			else {
 				label_cell("");
@@ -362,7 +370,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	$change_prices = 0;
 
 	if (isset($order) && !$editable) {
-		label_row(null, $order->customer_name . " - " . $order->deliver_to);
+		label_row(_("Customer: "), $order->customer_name . " - " . $order->deliver_to);
 		hidden('customer_id', $order->customer_id);
 		hidden('branch_id', $order->Branch);
 		hidden('sales_type', $order->sales_type);
@@ -656,7 +664,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 		$is_order = in_array($order->trans_type, array(ST_SALESQUOTE, ST_SALESORDER));
 		// sale_payment_list_cells(_('Payment Term:'), 'payment', $is_order ? PM_ANY : $paymcat, null, true, $is_order);
 	} else {
-		label_cells(_('Payment Term:'), $order->payment_terms['terms'], "class='label'");
+		//label_cells(_('Payment Term:'), $order->payment_terms['terms'], "class='label'");
 	}
 	end_row();
 
@@ -690,7 +698,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	}
 
 	//Modified by spyrax10 5 Feb 2022
-	if (isset($_POST['category_id']) && $order->trans_type != ST_SALESORDER) {
+	if ((isset($_POST['category_id']) && $order->trans_type != ST_SALESORDER) || $order->promo_only == 1) {
 		label_row(_("Category:"), get_category_name($order->category_id));
 		hidden('category_id', $_POST['category_id']);
 	}
@@ -703,38 +711,41 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 		$order->set_category($order->category_id, get_category_name($order->category_id));
 		$Ajax->activate('items_table');
 	}
-	text_row_ex1(_("Downpayment:"), 'down_pay', 16); //modified by spyrax10
-	if ($order->trans_type == ST_SALESINVOICE || $order->trans_type == ST_SALESORDER)
+
+	if ($order->promo_only == 1) {
+		label_row(_("Downpayment: &nbsp;"), price_format($order->dp_amount));
+		hidden('down_pay', $order->dp_amount);
+	}
+	else {
+		text_row_ex1(_("Downpayment:"), 'down_pay', 16); //modified by spyrax10
+	}
+
+	if ($order->trans_type == ST_SALESINVOICE || $order->trans_type == ST_SALESORDER) {
 		// text_row_ex1(_("Discount DP:"), 'discount_dp_amount', 16, null, null, 0); //modified by spyrax10
 		// text_row_ex1(_("Discount DP2:"), 'discount_dp2_amount', 16, null, null, 0); //modified by Albert
 		label_row(_("Discount DP:"), $_POST['discount_dp_amount'] );
 		label_row(_("Discount DP2:"), $_POST['discount_dp2_amount']);
 		hidden('discount_dp_amount');
 		hidden('discount_dp2_amount');
+	}
 
-	date_row(
-		"First Due Date:",
-		'first_due_date',
-		_('Date of first due'),
-		$order->trans_no == 0,
-		0,
-		1,
-		0,
-		null,
-		true
-	);
+	if ($order->promo_only == 1) {
+		label_row(_("First Due Date: "), phil_short_date($order->first_due_date));
+		label_row(_("Maturity Date: "), phil_short_date($order->maturity_date));
+		hidden('first_due_date', $order->first_due_date);
+		hidden('maturity_date', $order->maturity_date);
+	}
+	else {
+		date_row("First Due Date:", 'first_due_date',
+			_('Date of first due'), $order->trans_no == 0, 
+			0, 1, 0, null, true
+		);
 
-	date_row(
-		"Maturity Date:",
-		'maturity_date',
-		_('Date of maturity'),
-		$order->trans_no == 0,
-		0,
-		0,
-		0,
-		null,
-		true
-	);
+		date_row("Maturity Date:", 'maturity_date', _('Date of maturity'),
+			$order->trans_no == 0, 0, 0, 0, null, true
+		);
+	}
+
 	if ($order->trans_type == ST_SALESINVOICE) {
 		$total_unit_cost = get_unit_cost_average(
 			$order->line_items[0]->stock_id,
@@ -760,7 +771,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 		table_section(3);
 
 		//Modified by spyrax10 5 Feb 2022
-		if (isset($_POST['installment_policy_id']) && $order->trans_type != ST_SALESORDER) {
+		if ((isset($_POST['installment_policy_id']) && $order->trans_type != ST_SALESORDER) || $order->promo_only == 1) {
 			$plcy_row = db_fetch(get_instlpolicy_by_id($_POST['installment_policy_id']));
 
 			label_row(_("Payment Term:"), $plcy_row['plcydtl_code']);
@@ -794,7 +805,10 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 
 		label_row(_("Due/Amortization:"), price_format(get_post('due_amort')));
 		label_row(_("A/R Amount:"), price_format(get_post('ar_amount')));
-		submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);
+
+		if ($order->promo_only != 1) {
+			submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);
+		}
 	}
 
 	end_outer_table(1); // outer table
@@ -1819,15 +1833,16 @@ function display_delivery_details(&$order)
 			$delname = _("Valid until") . ':';
 		} else {
 			$title = _("Order Delivery Details");
-			$delname = _("Required Delivery Date") . ':';
+			$delname = _("Required Delivery Date") . ': &nbsp;';
 		}
 		display_heading($title);
 		start_outer_table(TABLESTYLE2, "width='90%'");
 		table_section(1);
 		hidden('Location');
 		if ($_POST['Location'] != "HO") {
-			label_row(_("Deliver from Location: "), get_location_name($order->Location));
-		} else {
+			label_row(_("Deliver from Location: "), get_location_name($_POST['StockLocation']));
+		} 
+		else {
 			locations_list_row(_("Deliver from Location:"), 'Location', null, false, true, $order->fixed_asset);
 		}
 

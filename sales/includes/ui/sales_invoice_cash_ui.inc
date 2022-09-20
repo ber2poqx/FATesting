@@ -236,6 +236,9 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 		$line_total = round($stock_item->qty_dispatched * $stock_item->price, user_price_dec());
 		$total_lcp += $stock_item->price * $stock_item->qty_dispatched;
+
+		$remain_qty = $stock_item->qty_dispatched - $stock_item->qty_done;
+
 		$qoh_msg = '';
 		if (!$editable_items || $id != $line_no) {
 			if (in_array($stock_item->stock_id, $low_stock))
@@ -294,16 +297,18 @@ function display_order_summary($title, &$order, $editable_items = false)
 			//Modified by spyrax10
 			if ($order->trans_type != ST_SALESINVOICE) {
 				if ($editable_items) {
-					edit_button_cell(
-						"Edit$line_no",
-						_("Edit"),
-						_('Edit document line')
-					);
-					delete_button_cell(
-						"Delete$line_no",
-						_("Delete"),
-						_('Remove line from document')
-					);
+					if ($remain_qty > 0) {
+						edit_button_cell(
+							"Edit$line_no",
+							_("Edit"),
+							_('Edit document line')
+						);
+						delete_button_cell(
+							"Delete$line_no",
+							_("Delete"),
+							_('Remove line from document')
+						);
+					}
 				}
 			}
 
@@ -351,7 +356,7 @@ function display_order_header(&$order, $editable, $date_text)
 	$change_prices = 0;
 
 	if (isset($order) && !$editable) {
-		label_row(null, $order->customer_name . " - " . $order->deliver_to);
+		label_row(_("Customer:"), $order->customer_name . " - " . $order->deliver_to);
 		hidden('customer_id', $order->customer_id);
 		hidden('branch_id', $order->Branch);
 		hidden('sales_type', $order->sales_type);
@@ -603,7 +608,7 @@ function display_order_header(&$order, $editable, $date_text)
 		$is_order = in_array($order->trans_type, array(ST_SALESQUOTE, ST_SALESORDER));
 		// sale_payment_list_cells(_('Payment Term:'), 'payment', $is_order ? PM_ANY : $paymcat, null, true, $is_order);
 	} else {
-		label_cells(_('Payment Term:'), $order->payment_terms['terms'], "class='label'");
+		//label_cells(_('Payment Term:'), $order->payment_terms['terms'], "class='label'");
 	}
 	end_row();
 
@@ -633,7 +638,7 @@ function display_order_header(&$order, $editable, $date_text)
 
 	$category_disabled = false;
 	//Modified by spyrax10 5 Feb 2022
-	if (isset($_POST['category_id']) && $order->trans_type != ST_SALESORDER) {
+	if ((isset($_POST['category_id']) && $order->trans_type != ST_SALESORDER) || $order->promo_only == 1) {
 		label_row(_("Category:"), get_category_name($order->category_id));
 		hidden('category_id', $_POST['category_id']);
 	}
