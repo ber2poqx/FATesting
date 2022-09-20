@@ -24,6 +24,20 @@ if (user_use_date_picker())
 $page_title ="Price Approval";
 page(_($help_context = $page_title), false, false, "", $js);
 
+if (isset($_GET['AddedID']) && isset($_GET['PriceCode'])) {
+
+    $price_no = $_GET['AddedID'];
+    $price_code = $_GET['PriceCode'];
+	$status = $_GET['Status'];
+    if ($status == 'Add')
+        display_notification_centered(_("Price is successfuly added"). " #$price_code");
+    else
+        display_notification_centered(_("Price is successfuly updated") . " #$price_code");
+	
+	hyperlink_params("$path_to_root/inventory/manage/price_history_list.php", _("Back to List of Uploaded Price"), "", true);
+    display_footer_exit();
+}
+
 $price_id = $_GET['price_id'];
 $price_code = $_GET['price_code'];
 $row = get_price_history_data($price_id);
@@ -57,14 +71,8 @@ return db_query($sql,"The Price History could not be retreived");
 
 }
 
-function post_price_data($row, $price_code, $price_id)
+function post_price_data($row, $price_code, $price_id, $type)
 {
-	
-	if (check_price_already_exist( $price_code, $row['stock_id'], normalize_chars($row['supp_name']))){	
-		$type = 'Update';//updated
-	}else{
-		$type = 'Add';//Added
-	}
 
 	$cash_types = get_cash_price_types_id($price_code);
 	$lcp_types = get_lcp_price_types_id($price_code);
@@ -221,11 +229,17 @@ function post_price_data($row, $price_code, $price_id)
 //-----------------------------------------------------------------------------
 
 if (isset($_POST['PostPrice']) ) { 
+
+	if (check_price_already_exist( $price_code, $row['stock_id'], normalize_chars($row['supp_name']))){	
+		$type = 'Update';//updated
+	}else{
+		$type = 'Add';//Added
+	}
 	$status = 3; // close
-	post_price_data($row, $price_code, $price_id);
+	post_price_data($row, $price_code, $price_id, $type);
 
 	price_status_update($status, $price_id);
-	meta_forward($path_to_root . "/inventory/manage/price_history_list.php?");	
+	meta_forward($_SERVER['PHP_SELF'],"AddedID=$price_id&PriceCode=$price_code&Status=$type");	
     
 }
 
