@@ -44,7 +44,7 @@ function get_price_history($price_id, $price_code, $stock_id){
 			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
 			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
 			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
-			where a.price_upload = 1 and a.stock_id =".db_escape($stock_id)." And a.id =".db_escape($price_id);
+			where a.is_upload = 1 and a.stock_id =".db_escape($stock_id)." And a.id =".db_escape($price_id);
 
 	$sql.= " AND (b.scash_type like ".db_escape($price_code)."
 				OR c.sales_type like ".db_escape($price_code)."

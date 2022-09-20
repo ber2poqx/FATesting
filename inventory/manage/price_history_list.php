@@ -60,7 +60,7 @@ function get_price_history_list($search_val= null){
 			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
 			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
 			Left Join ".TB_PREF." suppliers supp on a.supplier_id = supp.supplier_id
-			where a.price_upload=1";
+			where a.is_upload=1";
 
 	if($search_val <> null){
 		$sql.=" And stock_id like".db_escape($search_val);

@@ -9,10 +9,10 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded,$date_epic = '0000-00-00', $status=0, $price_upload=0)  //date epic Added by Albert
+function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded,$date_epic = '0000-00-00', $status=0, $is_upload=0)  //date epic Added by Albert
 {
 	// for price import Add by Albert 09/16/2022
-	if($price_upload ==1){
+	if($is_upload ==1){
 		$inactive = 1;
 	}else{
 		$inactive = 0;
@@ -33,7 +33,7 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,inactive
 					,date_epic
 					,status
-					,price_upload
+					,is_upload
 			) VALUES (
 			        ".db_escape($stock_id)."
 					,".db_escape($amount)."
@@ -49,7 +49,7 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,".db_escape($inactive)."
 					,".db_escape($date_epic)."
 					,".db_escape($status)."
-					,".db_escape($price_upload)."
+					,".db_escape($is_upload)."
 			)";
 	
 	$ErrMsg = _('Could not insert the new price/cost history because ');
