@@ -87,7 +87,8 @@ Ext.onReady(function(){
 			{name:'oppnity_cost', mapping:'oppnity_cost'},
 			{name:'amount_to_be_paid', mapping:'amount_to_be_paid'},
 			{name:'Termremarks', mapping:'Termremarks'},
-			{name:'profit_margin', mapping:'profit_margin'}
+			{name:'profit_margin', mapping:'profit_margin'},
+			{name:'payment_loc', mapping:'payment_loc'}
 		]
 	});
     Ext.define('AmortSchedmodel',{
@@ -1705,7 +1706,7 @@ Ext.onReady(function(){
 					refresh: function(view) {      
 						// get all grid view nodes
 						var nodes = view.getNodes();
-
+						
 						for (var i = 0; i < nodes.length; i++) {
 							var node = nodes[i];
 							var record = view.getRecord(node);
@@ -1719,6 +1720,12 @@ Ext.onReady(function(){
 								}else if(record.get('module_type') == "TEMP-REPO"){
 									Ext.fly(cells[j]).setStyle('background-color', "#f7b86d");
 								}
+							}
+							
+							if(record.get('payment_loc') == 'Lending'){
+								Ext.getCmp('showlending').setVisible(false);
+							}else{
+								Ext.getCmp('showlending').setVisible(true);
 							}
 						}
 					}

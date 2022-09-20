@@ -60,6 +60,9 @@ if(isset($_GET['get_PaymentType']))
         $status_array[] = array('id'=>"down",
                                'name'=>"Down Payment"
                             );
+        $status_array[] = array('id'=>"other",
+                                'name'=>"Other Payment"
+                            );
     }elseif($_GET['type'] == "cash"){
         $status_array[] = array('id'=>"other",
                                 'name'=>"Other Payment"
@@ -716,14 +719,14 @@ if(isset($_GET['get_DownPaymnt']))
         //into bank/debit to bank //COH
         if(isset($_GET['debitTo'])){
             $gl_row = get_gl_account($_GET['debitTo']);
-            $intoB_result = get_CPbank_accounts($_GET['debitTo']);
-            $intoB_row = db_fetch($intoB_result);
+            //$intoB_result = get_CPbank_accounts($_GET['debitTo']);
+            //$intoB_row = db_fetch($intoB_result);
             //echo $intoB_row['account_code'];
             $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
                                     'gl_code'=>$gl_row["account_code"],
                                     'gl_name'=>$gl_row["account_name"],
-                                    'sl_code'=>$intoB_row['account_code'],
-                                    'sl_name'=>$intoB_row['bank_account_name'],
+                                    'sl_code'=>$_GET['branch_code'], //$intoB_row['account_code'],
+                                    'sl_name'=>$_GET['branch_name'], //$intoB_row['bank_account_name'],
                                     'debtor_id'=>$_GET['debtor_id'],
                                     'debit_amount'=>$_GET['amount'],
                                     'credit_amount'=>0,
