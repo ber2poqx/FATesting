@@ -14,6 +14,7 @@ include_once($path_to_root . "/modules/Price_import/price_import.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 include_once($path_to_root . "/includes/db/manufacturing_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
+include_once($path_to_root . "/sales/includes/db/sales_incentive_db.inc");
 
 $js = "";
 if ($SysPrefs->use_popup_windows)
@@ -50,7 +51,7 @@ function get_price_history($price_id, $price_code, $stock_id){
 					when a.plcyprice_id = c.id then c.sales_type
 					when a.plcycost_id = d.id then d.cost_type
 					when a.plcysrp_id = e.id then e.srp_type
-					else ''end as price_code,
+					else incen.module_type end as price_code,
 				a.*
 
 			FROM ".TB_PREF."price_cost_archive a
@@ -58,12 +59,15 @@ function get_price_history($price_id, $price_code, $stock_id){
 			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
 			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
 			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
+			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
+			Left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
 			where a.is_upload = 1 and a.stock_id =".db_escape($stock_id)." And a.id =".db_escape($price_id);
 
 	$sql.= " AND (b.scash_type like ".db_escape($price_code)."
 				OR c.sales_type like ".db_escape($price_code)."
 				OR d.cost_type like ".db_escape($price_code)." 
-				OR e.srp_type like ".db_escape($price_code).")";
+				OR e.srp_type like ".db_escape($price_code)."
+				OR incen.module_type like ".db_escape($price_code).")";
 
 	$sql.= " order by a.date_defined desc, a.id desc";
 
@@ -148,6 +152,22 @@ function post_price_data($row, $price_code, $price_id, $type)
 				$row['date_epic']);
 			update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, 0, $srp_types, 0, 'SRPPLCY');
 			update_active_pricehistory($price_id, $row['prcecost_id']); 
+		
+		}else{
+			if(get_incentive_types($price_code) == $price_code){
+
+				update_item_incentiveprice(
+					$row['prcecost_id'], 
+					$incentives_types, 
+					'PHP',
+					$row['amount']);
+
+				update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, 0, $incentives_types, 0, 'SRPPLCY');
+				update_active_pricehistory($price_id, $row['prcecost_id']);
+
+			}
+
+
 		}
 
 
@@ -219,7 +239,20 @@ function post_price_data($row, $price_code, $price_id, $type)
 					$price_id, 
 					$item_price_id['id']); 
 			}else{
-
+				if(get_incentive_types($price_code) == $price_code){
+	
+					add_item_incentiveprice(
+						$row['stock_id'], 
+						$incentives_types, 
+						'PHP', 
+						$row['amount']);
+					$item_price_id = get_stock_incentive_currency($row['stock_id'], $incentives_types, 'PHP');
+	
+					update_active_pricehistory($price_id, $item_price_id['id']);
+	
+				}
+	
+	
 			}
 		}
 	}

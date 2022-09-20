@@ -161,7 +161,7 @@
 								// add_item_incentiveprice($stock_id, $incentives_types, 'PHP', $price);
 							
 								add_pricehistory($stock_id, $price, $Selected_id, 0, 0, 
-								0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
+								0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic,0,1);
 
 							}else {
 								if(( get_system_cost_types($types)==$types && $supplier == null) || ( get_srp_types($types)==$types && $supplier == null)){

@@ -48,18 +48,19 @@ if (get_post('stock_loc')) {
 function get_price_history_list($search_val= null){
 
 	$sql = "SELECT a.prcecost_id,
-	case when a.status = 0 then 'Draft'
-		when a.status = 1 then 'Approved'
-		when a.status = 1 then 'Disapproved' else 'Closed' end as status,
-	a.stock_id, supp.supp_name, a.date_defined, 
-    b.scash_type, c.sales_type, d.cost_type, e.srp_type, a.amount, a.date_epic, a.id
+				case when a.status = 0 then 'Draft'
+					when a.status = 1 then 'Approved'
+					when a.status = 1 then 'Disapproved' else 'Closed' end as status,
+				a.stock_id, supp.supp_name, a.date_defined, 
+				b.scash_type, c.sales_type, d.cost_type, e.srp_type, incen.module_type, a.amount, a.date_epic, a.id
 
 			FROM ".TB_PREF."price_cost_archive a
 			Left JOIN ".TB_PREF."sales_cash_type b on a.plcycashprice_id = b.id
 			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
 			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
 			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
-			Left Join ".TB_PREF." suppliers supp on a.supplier_id = supp.supplier_id
+			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
+			left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
 			where a.is_upload=1";
 
 	if($search_val <> null){
@@ -86,10 +87,9 @@ function update_price_status_link($row) {
 		}else if($row["srp_type"] <> ''){
 			$price_code = $row["srp_type"];
 		}else{
-			// $price_code = $row["incentive_type"];
-			$price_code='';
+			$price_code = $row["module_type"];
 		}
-
+		
 		$status_link = 
 		$row["status"] == "Draft" ? pager_link(
 			$row['status'],
@@ -116,8 +116,7 @@ function post_price($row) {
 	}else if($row["srp_type"] <> ''){
 		$price_code = $row["srp_type"];
 	}else{
-		// $price_code = $row["incentive_type"];
-		$price_code='';
+		$price_code = $row["module_type"];
 	}
 
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_POSTPRICE')) {
@@ -172,6 +171,7 @@ $cols = array(
 	_("Cash"),
 	_("System Cost"),
 	_("SRP"),
+	_("Incentive"),
 	_("Price"), 
 	_("Date Effect"),
 	array('insert'=>true, 'fun'=>'post_price'), 

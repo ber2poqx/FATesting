@@ -34,7 +34,7 @@ function get_price_history($price_id, $price_code, $stock_id){
 					when a.plcyprice_id = c.id then c.sales_type
 					when a.plcycost_id = d.id then d.cost_type
 					when a.plcysrp_id = e.id then e.srp_type
-					else ''end as price_code,
+					else incen.module_type end as price_code,
 				a.*
 
 			FROM ".TB_PREF."price_cost_archive a
@@ -42,12 +42,15 @@ function get_price_history($price_id, $price_code, $stock_id){
 			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
 			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
 			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
+			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
+			Left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
 			where a.is_upload = 1 and a.stock_id =".db_escape($stock_id)." And a.id =".db_escape($price_id);
 
 	$sql.= " AND (b.scash_type like ".db_escape($price_code)."
 				OR c.sales_type like ".db_escape($price_code)."
 				OR d.cost_type like ".db_escape($price_code)." 
-				OR e.srp_type like ".db_escape($price_code).")";
+				OR e.srp_type like ".db_escape($price_code)."
+				OR incen.module_type like ".db_escape($price_code).")";
 
 	$sql.= " order by a.date_defined desc, a.id desc";
 
