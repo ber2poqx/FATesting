@@ -27,11 +27,11 @@ page(_($help_context = "Customer Transactions"), isset($_GET['customer_id']), fa
 
 //------------------------------------------------------------------------------------------------
 
-function systype_name($dummy, $type)
-{
+function systype_name($row, $type) {
 	global $systypes_array;
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
-	return $systypes_array[$type];
+	return $void_entry['void_status'] == 'Voided' ? $systypes_array[$type] . " - (Voided)" : $systypes_array[$type];
 }
 
 function order_view($row)
@@ -84,45 +84,69 @@ function credit_link($row)
 	}	
 }
 
-function edit_link($row)
-{
+function edit_link($row) {
 	global $page_nested;
+	$link = '';
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
-	$str = '';
-	if ($page_nested)
-		return '';
+	if ($void_entry['void_status'] == "Voided") {
+		$link = '';
+	}
+	else {
+		$str = '';
+		if ($page_nested) {
+			$link = '';
+		}
 
-	return $row['type'] == ST_CUSTCREDIT && $row['order_'] ? '' : 	// allow  only free hand credit notes edition
-			trans_editor_link($row['type'], $row['trans_no']);
+		$link = $row['type'] == ST_CUSTCREDIT && $row['order_'] ? '' : 	// allow  only free hand credit notes edition
+			trans_editor_link($row['type'], $row['trans_no']
+		);
+	}
+
+	return $link;
 }
 
-function prt_link($row)
-{
-  	if ($row['type'] == ST_CUSTPAYMENT || $row['type'] == ST_BANKDEPOSIT) 
-		return print_document_link($row['trans_no']."-".$row['type'], _("Print Receipt"), true, ST_CUSTPAYMENT, ICON_PRINT);
-  	elseif ($row['type'] == ST_BANKPAYMENT) // bank payment printout not defined yet.
-		return '';
+function prt_link($row) {
+	$link = '';
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
-	else if($row['type'] == ST_CUSTDELIVERY)//Added by Prog6 6/15/2021
-	{
-		return pager_link(
-			_("Print Delivery Receipt"),
-			"/reports/prnt_delivery_receipt.php?trans_no=" . $row["trans_no"],
-			ICON_PRINT
-			);
+	if ($void_entry['void_status'] == "Voided") {
+		$link = '';
 	}
- 	else
- 		if($row['type'] != ST_CUSTDELIVERY)
- 		{
- 			return print_document_link($row['trans_no']."-".$row['type'], _("Print Invoice"), true, $row['type'], ICON_PRINT);
- 		}
- 		
+	else {
+		if ($row['type'] == ST_CUSTPAYMENT || $row['type'] == ST_BANKDEPOSIT) {
+			$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Receipt"), true, ST_CUSTPAYMENT, ICON_PRINT);
+		}
+  		elseif ($row['type'] == ST_BANKPAYMENT) {
+			$link = '';
+		}
+		else if($row['type'] == ST_CUSTDELIVERY) {
+			$link = pager_link(
+				_("Print Delivery Receipt"),
+				"/reports/prnt_delivery_receipt.php?trans_no=" . $row["trans_no"],
+				ICON_PRINT
+			);
+		}
+ 		else {
+			if ($row['type'] != ST_CUSTDELIVERY) {
+ 				$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Invoice"), true, $row['type'], ICON_PRINT);
+	 		}
+		}
+	}
+  	
+ 	return $link;
 }
 
 function check_overdue($row)
 {
 	return $row['OverDue'] == 1
 		&& floatcmp($row["TotalAmount"], $row["Allocated"]) != 0;
+}
+
+function check_void($row) {
+    $void_entry = get_voided_entry($row['type'], $row['trans_no']);
+
+    return $void_entry['void_status'] == 'Voided' ? true : false;
 }
 //------------------------------------------------------------------------------------------------
 
@@ -271,6 +295,7 @@ if ($_POST['filterType'] != '2')
 
 $table =& new_db_pager('trans_tbl', $sql, $cols);
 $table->set_marker('check_overdue', _("Marked items are overdue."));
+$table->set_marker('check_void');
 
 $table->width = "90%";
 

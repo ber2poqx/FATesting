@@ -24,8 +24,13 @@ class customers_app extends application
 		$this->add_lapp_function(0, _("Sales Order"),
 			"sales/inquiry/sales_orders_view.php?type=30", 'SA_SALESTRANSVIEW', MENU_TRANSACTION
 		);
-		$this->add_lapp_function(0, _("Sales Delivery"),
-			"sales/sales_order_entry.php?NewDelivery=0", 'SA_SALESDELIVERY', MENU_TRANSACTION);
+
+		//Modified by spyrax10 15 2022
+		$this->add_lapp_function(0, _("Sales Delivery Inqiury List"),
+			"sales/inquiry/delivery_inquiry.php?", 'SA_SALESDELIVERY', MENU_TRANSACTION
+		);
+		//
+		
 		// $this->add_lapp_function(0, _("Sales &Invoice Installment"),
 		// 	"sales/sales_order_entry.php?NewInvoice=0", 'SA_SALESINVOICE', MENU_TRANSACTION);
 		// $this->add_lapp_function(0, _("Sales &Invoice Cash"),

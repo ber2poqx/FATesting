@@ -9,8 +9,15 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded,$date_epic = '0000-00-00')  //date epic Added by Albert
+function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded,$date_epic = '0000-00-00', $status=0, $is_upload=0)  //date epic Added by Albert
 {
+	// for price import Add by Albert 09/16/2022
+	if($is_upload ==1){
+		$inactive = 1;
+	}else{
+		$inactive = 0;
+	}
+	//
 	$sql = "INSERT INTO ".TB_PREF."price_cost_archive (
 					stock_id 
 					,amount
@@ -25,6 +32,8 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,date_defined
 					,inactive
 					,date_epic
+					,status
+					,is_upload
 			) VALUES (
 			        ".db_escape($stock_id)."
 					,".db_escape($amount)."
@@ -37,8 +46,10 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,".db_escape($incentive_id)."
 				   	,".db_escape($module)."
 					,".db_escape($dateadded)."
-					,0
+					,".db_escape($inactive)."
 					,".db_escape($date_epic)."
+					,".db_escape($status)."
+					,".db_escape($is_upload)."
 			)";
 	
 	$ErrMsg = _('Could not insert the new price/cost history because ');
@@ -388,4 +399,31 @@ function Get_Previous_Policy_Cost($branchCode, $categoryID, $stockID, $supplierI
 	set_global_connection();
 	return $price;
 }
+/*----Added by Albert 09/16/2022 */
+function price_status_update($status,$price_id)
+{
+	$sql = "UPDATE ".TB_PREF."price_cost_archive SET status = ".db_escape($status)."
+			WHERE id=".db_escape($price_id);
+
+	$result = db_query($sql,"an item cash price status could not be updated");
+	
+	return $result;
+}
+function get_price_history_data($price_id)
+{
+	$sql = "SELECT a.*, b.supp_name FROM ".TB_PREF."price_cost_archive a LEFT JOIN suppliers b ON a.supplier_id = b.supplier_id WHERE id=".db_escape($price_id);
+
+	$result = db_query($sql,"cash price could not be retreived");
+
+	return db_fetch($result);
+}
+function update_active_pricehistory($id, $price_id)
+{
+	$sql = "UPDATE ".TB_PREF."price_cost_archive SET inactive = 0, prcecost_id = ".db_escape($price_id)."
+		WHERE id = ".db_escape($id);
+	db_query($sql,"The price/cost history could not be updated");
+	
+}
+
+
 /*END by Albert*/

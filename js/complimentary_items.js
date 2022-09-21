@@ -1711,7 +1711,7 @@ Ext.onReady(function(){
 													fieldLabel:'Category',
 													name:'category',
 													id:'category',
-													queryModel:'local',
+													queryMode:'local',
 													triggerAction:'all',
 													displayField  : 'description',
                 									valueField    : 'category_id',

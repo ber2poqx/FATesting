@@ -95,7 +95,7 @@ function opening_balance($from, $cashier = '') {
 	return $row[0];
 }
 
-function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_name = '') {
+function get_breakdown_balance($bank_id = '', $from, $cashier = '', $cashier_name = '') {
 
 	$date = date2sql($from);
 
@@ -107,13 +107,10 @@ function get_breakdown_balance($cash = false, $from, $cashier = '', $cashier_nam
 
 		WHERE A.type <> 0 AND A.opening_balance = 0 AND ISNULL(C.void_id)";
 
-	if ($cash) {
-		$sql .= " AND A.bank_act = 1 ";
+	if ($bank_id != '') {
+		$sql .= " AND A.bank_act = " .db_escape($bank_id);
 	}
-	else {
-		$sql .= " AND A.bank_act = 2 ";
-	}
-
+	
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
@@ -260,15 +257,24 @@ function print_dailycash_sales()
 		$rep->SetTextColor(0, 0, 255);
 		$rep->TextCol(4, 5, $trans['receipt_no']);
 		$rep->SetTextColor(0, 0, 0);
+		$rep->AmountCol(5, 6, ABS($entry_amt), $dec);
+
+
 		if ($void_entry['void_status'] == 'Voided') {
+
+			$rep->NewLine(1.2);
+			$rep->TextCol(0, 1, sql2date($trans['trans_date']));
+			$rep->TextCol(1, 2,	get_person_name($trans['person_type_id'], $trans['person_id']));
+			$rep->TextCol(2, 3, $trans['memo_']);
+			$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $trans['ref']));
+			$rep->SetTextColor(0, 0, 255);
+			$rep->TextCol(4, 5, $trans['receipt_no']);
+			$rep->SetTextColor(0, 0, 0);
 			$rep->SetTextColor(255, 0, 0);
 			$rep->TextCol(5, 6, "(" . price_format(ABS($entry_amt)) . ")");
 			$rep->SetTextColor(0, 0, 0);
 		}
-		else {
-			$rep->AmountCol(5, 6, ABS($entry_amt), $dec);
-		}
-
+	
 		$pre_subB += ABS($entry_amt);
 		$total += ABS($entry_amt);
 
@@ -346,12 +352,22 @@ function print_dailycash_sales()
 			$rep->SetTextColor(0, 0, 0);
 
 			$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
+			$rep->AmountCol(5, 6, $remit_trans['amount'], $dec);
+
 			if ($void_entry['void_status'] == 'Voided') {
+				$rep->TextCol(0, 1, sql2date($remit_trans['trans_date']));
+				$rep->TextCol(1, 2,	get_person_name($remit_trans['person_type_id'], $remit_trans['person_id']));
+				$rep->TextCol(2, 3, $remit_trans['status_memo']);
+	
+				$remit_trans['amount'] < 0 ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
+				$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_trans['from_ref']));
+				$rep->SetTextColor(0, 0, 0);
+	
+				$rep->SetTextColor(0, 0, 255);
+				$rep->TextCol(4, 5, $remit_trans['receipt_no']);
+				$rep->SetTextColor(0, 0, 0);
 				$rep->TextCol(5, 6, "(" . price_format($remit_trans['amount']) . ")", $dec);
 				$void_remit += $remit_trans['amount'];
-			}
-			else {
-				$rep->AmountCol(5, 6, $remit_trans['amount'], $dec);
 			}
 			$rep->SetTextColor(0, 0, 0);
 
@@ -404,15 +420,20 @@ function print_dailycash_sales()
 		$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 		$rep->SetTextColor(0, 0, 0);
 		$rep->SetTextColor(255, 0, 0);
+		$rep->AmountCol(5, 6, $entry_amt, $dec);
 
 		if ($void_entry['void_status'] == 'Voided') {
+			$rep->NewLine(1.2);
+			$rep->TextCol(0, 1, sql2date($dis_trans['trans_date']));
+			$rep->TextCol(1, 2, get_person_name($dis_trans['person_type_id'], $dis_trans['person_id']));
+			$rep->TextCol(2, 3, $dis_trans['memo_']);
+			$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $dis_trans['ref']));
+			$rep->SetTextColor(0, 0, 255);
+			$rep->TextCol(4, 5, $dis_trans['receipt_no']);
+			$rep->SetTextColor(0, 0, 0);
 			$rep->TextCol(5, 6, "(" . price_format($entry_amt) . ")", $dec);
 			$void_dis += $entry_amt;
 		}
-		else {
-			$rep->AmountCol(5, 6, $entry_amt, $dec);
-		}
-
 		$rep->SetTextColor(0, 0, 0);
 
 		$pre_subD += $entry_amt;
@@ -440,27 +461,31 @@ function print_dailycash_sales()
 
 	$rep->Line($rep->row  - 1);
 	$rep->NewLine(2);
-	
-	$coc = get_breakdown_balance(true, $from, $cashier, $cashier_name);
-	$coci = get_breakdown_balance(false, $from, $cashier, $cashier_name);
 
 	$rep->fontSize += 1;
 	$rep->TextCol(0, 4, _('ENDING BALANCE BREAKDOWN: '));
+	$rep->NewLine();
 	$rep->Font();
-	$rep->NewLine(2);
-	$rep->TextCol(1, 3, _('Cash On Hand (COH): '));
-	$rep->AmountCol(5, 6, $coc, $dec);
-	$rep->NewLine(1.5);
-	$rep->TextCol(1, 3, _('Cheque & Other Cash Items (COCI): '));
-	$rep->AmountCol(5, 6, $coci, $dec);
+
+	$bank_sql = get_bank_accounts();
+	$bank_ = 0;
+
+	while ($bank_row = db_fetch($bank_sql)) {
+
+		$bank_total = get_breakdown_balance($bank_row['id'], $from, $cashier, $cashier_name);
+
+		$rep->NewLine(1.2);
+		$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
+		$rep->AmountCol(5, 6, $bank_total, $dec);
+		$bank_ += $bank_total;
+	}
 	
 	$rep->NewLine(2);
 	$rep->Font('bold');
 	$rep->TextCol(1, 3, _('Total Ending Balance: '));
-	$rep->AmountCol(5, 6, $coc + $coci, $dec);
+	$rep->AmountCol(5, 6, $bank_, $dec);
 	$rep->Font();
 	$rep->fontSize -= 1;
 
-	//$rep->SetFooterType('compFooter');
     $rep->End();
 }

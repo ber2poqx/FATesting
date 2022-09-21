@@ -142,6 +142,15 @@ function display_bank_header(&$order) {
 	label_row(_("Transaction #: &nbsp;"), get_post('ref'));
 	hidden('ref');
 
+	trans_ref_cell(_("Transaction Link:"), 'trans_ref', null, _("Select Reference"), true);
+
+	if (get_post('trans_ref')) {
+		$gl_row = db_fetch(get_gl_trans('', '', 'ASC', get_post('trans_ref')));
+		
+		hidden('ar_trans_no', $gl_row['type_no']);
+		hidden('ar_trans_type', $gl_row['type']);
+	}
+
 	table_section(2, "33%");
 
 	date_row(_("Date:"), 'date_', '', true, 0, 0, 0, null, true);

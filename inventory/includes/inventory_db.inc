@@ -640,6 +640,15 @@ function smo_exists($trans_no, $trans_type) {
 	return $row[0];
 }
 
+function delete_smo($trans_no, $trans_type) {
+	set_global_connection();
+
+	$sql = "DELETE FROM ".TB_PREF."stock_moves 
+	WHERE trans_no = " .db_escape($trans_no) . " AND type = " .db_escape($trans_type);
+
+	return db_query($sql, _("delete_smo()"));
+}
+
 function is_smo_repo($trans_no, $trans_type) {
 	set_global_connection();
 
@@ -887,7 +896,6 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 	}
 
 	$sql .= " ORDER BY serialise_lot_no, tran_date";
-	display_error($sql);
 	$result = db_query($sql, _("_item_serialise()"));
 	set_global_connection();
 

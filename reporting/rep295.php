@@ -16,6 +16,8 @@ include_once($path_to_root . "/inventory/includes/db/items_db.inc");
 include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 
 //----------------------------------------------------------------------------------------------------
+print_transaction();
+//----------------------------------------------------------------------------------------------------
 
 function get_transactions($search = '', $branch_id = null, $trans_no = null, $cleared_stat = 'ALL', $show_all = null, 
     $serial_no = '') {
@@ -101,9 +103,6 @@ function get_transactions($search = '', $branch_id = null, $trans_no = null, $cl
 }
 
 //----------------------------------------------------------------------------------------------------
-print_transaction();
-//----------------------------------------------------------------------------------------------------
-
 function print_transaction() {
 
     global $path_to_root, $SysPrefs, $def_coy;
@@ -187,8 +186,7 @@ function print_transaction() {
     $rep->NewPage();
 
     $res = get_transactions('', $branch_id, null, $cleared_stat, $show_all, $serial_no);
-    display_error($branch_id);
-   
+    
     foreach ($res as $value => $trans) {
 
         $stock_row = db_fetch_assoc(get_stock_by_itemCode($trans['serialise_item_code']));

@@ -42,7 +42,7 @@ class items_cart
 	var $ar_alloc = 0;
 	var $ar_date;
 	var $ar_trans_no = 0;
-	var $ar_trans_type;
+	var $ar_trans_type = null;
 	var $ar_debtor_no;
 	var $gross_profit = 0;
 	var $profit_margin;
@@ -537,10 +537,14 @@ class items_cart
 		$bank_trans = $supp_trans = $cust_trans = array();
 		$total_gl = 0;
 
+		$link_to_entry = false;
 		foreach($this->gl_items as $gl) {
 			if (!isset($gl->date)) {
 				$gl->date = $this->tran_date;
 			}
+
+			$row = get_gl_account($gl->code_id);
+			$link_to_entry = ($row['control'] == 1 && $gl->amount > 0) || $this->ar_alloc == 1  ? true : false;
 
 			$total_gl += 
 				add_gl_trans(
@@ -559,9 +563,11 @@ class items_cart
 					get_person_id(PT_CUSTOMER, $gl->mcode), 
 					$gl->master_file, 
 					$gl->hocbc,
-					$this->ar_alloc == 1 ? $this->ar_trans_no : 0, 
+					$link_to_entry ? $this->ar_trans_no : 0, 
 					$gl->comp_id != $coy ? 1 : 0,
-					false
+					false,
+					0,
+					$link_to_entry ? $this->ar_trans_type : null
 				);
 				
 			if ($this->ar_alloc == 1) {

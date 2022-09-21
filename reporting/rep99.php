@@ -109,6 +109,7 @@ function print_transaction() {
     $acct_due1 = $acct_due2 = $acct_due3 = $acct_due4 = $acct_due5 = 0.0;
     $total_ar1 = $total_ar2 = $total_ar3 = $total_ar4 = $total_ar5 = 0.0;
     $total_acc1 = $total_acc2 = $total_acc3 = $total_acc4 = $total_acc5 = 0;
+    $voided_act = 0;
     
 
     $res = get_AR_transactions($date, $customer, 0, '', true);
@@ -144,6 +145,12 @@ function print_transaction() {
                 $trans_type_arr4[$trans['trans_no']] = $trans['trans_type'];
                 $debt_no_arr4[$trans['trans_no']] = $trans['debtor_no'];
             }
+        }
+
+        $void_entry = get_voided_entry($trans['trans_type'], $trans['trans_no']);
+
+        if ($void_entry["void_status"] == "Voided") {
+            $voided_act++;
         }
         //display_error($trans['trans_no'] . " || " . $trans['trans_type'] . " || " . $trans['debtor_no'] . " || " . $trans['inv_year']);
     }
@@ -329,6 +336,14 @@ function print_transaction() {
     $rep->Font('bold');
     $rep->AmountCol(5, 6, $total_acc5);
     $rep->Font();
+
+    if ($voided_act > 0) {
+        $rep->NewLine(2);
+        $rep->Font('bold');
+        $rep->TextCol(3, 5, _("Total No Of Accounts Voided: "));
+        $rep->AmountCol(5, 6, $voided_act);
+        $rep->Font();
+    }
 
     $rep->End();
 }

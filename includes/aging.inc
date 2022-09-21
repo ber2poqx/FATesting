@@ -66,6 +66,18 @@ function debtor_remaining_month($trans_no, $trans_type = ST_SALESINVOICE, $debto
     return $row[0];
 }
 
+function get_customer_payments($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
+    set_global_connection();
+
+    $sql = "SELECT * FROM " . TB_PREF . "debtor_loan_ledger DLL 
+        WHERE DLL.payment_trans_no <> " .db_escape($trans_no);
+    
+    $sql .= " AND DLL.trans_no = " .db_escape($trans_no) . 
+        " AND DLL.debtor_no = " .db_escape($debtor_no);
+
+    return db_query($sql, _("get_customer_payments()"));
+}
+
 function get_customer_loansched($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no) {
 
 	set_global_connection();
@@ -552,9 +564,15 @@ function current_balance($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
     $total = 0;
 
     $row = get_DL_details($trans_no, $trans_type, $debtor_no);
+    $void_entry = get_voided_entry($trans_type, $trans_no);
 
-    $total = $row['ar_amount'] 
-    - total_current_payment($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year);
+    if ($void_entry['void_status'] == "Voided") {
+        $total = 0;
+    }
+    else {
+        $total = $row['ar_amount'] 
+            - total_current_payment($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year);
+    }
 
     return $total;
 }
@@ -564,14 +582,19 @@ function current_balance_display($trans_no, $trans_type = ST_SALESINVOICE, $debt
     $total = 0;
 
     $row = get_DL_details($trans_no, $trans_type, $debtor_no);
+    $void_entry = get_voided_entry($trans_type, $trans_no);
 
-    if (invoice_type_status($trans_no, $debtor_no, $end_date) == 'new' ) {
-        $total = $row['ar_amount'] - total_current_payment($trans_no, $trans_type, $debtor_no, $end_date);
-    }
-    else {
+    if ($void_entry['void_status'] == "Voided") {
         $total = 0;
     }
-
+    else {
+        if (invoice_type_status($trans_no, $debtor_no, $end_date) == 'new' ) {
+            $total = $row['ar_amount'] - total_current_payment($trans_no, $trans_type, $debtor_no, $end_date);
+        }
+        else {
+            $total = 0;
+        }
+    }
     return $total;
 }
 
@@ -844,21 +867,27 @@ function not_yet_due($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_
     
     $total = 0;
     $resRow = get_DL_details($trans_no, $trans_type, $debtor_no);
+    $void_entry = get_voided_entry($trans_type, $trans_no);
 
     $new_end_date = new DateTime(sql2date($end_date));
     $new_maturity_date = new DateTime(sql2date($resRow['maturity_date']));
     
-    if ($new_maturity_date < $new_end_date) {
+    if ($void_entry['void_status'] == "Voided") {
         $total = 0;
     }
     else {
-        $total = (current_balance($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) +
-            payment_this_month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) + 
-            advance_payment($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year)) -
-            due_nxt_month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) - 
-            due_this_month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) - 
-            overdue_1month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) - 
-            overdue_2months($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year);
+        if ($new_maturity_date < $new_end_date) {
+            $total = 0;
+        }
+        else {
+            $total = (current_balance($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) +
+                payment_this_month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) + 
+                advance_payment($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year)) -
+                due_nxt_month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) - 
+                due_this_month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) - 
+                overdue_1month($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year) - 
+                overdue_2months($trans_no, $trans_type, $debtor_no, $end_date, $summarized, $trans_year, $last_year);
+        }
     }
 
     return $total;
@@ -916,11 +945,17 @@ function total_penalty($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $en
 function total_collectibles($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date) {
 
     $total = 0;
+    $void_entry = get_voided_entry($trans_type, $trans_no);
 
-    $total = due_this_month($trans_no, $trans_type, $debtor_no, $end_date) + 
-        overdue_1month($trans_no, $trans_type, $debtor_no, $end_date) + 
-        overdue_2months($trans_no, $trans_type, $debtor_no, $end_date) + 
-        past_due($trans_no, $trans_type, $debtor_no, $end_date);
+    if ($void_entry['void_status'] == "Voided") {
+        $total = 0;
+    }
+    else {
+        $total = due_this_month($trans_no, $trans_type, $debtor_no, $end_date) + 
+            overdue_1month($trans_no, $trans_type, $debtor_no, $end_date) + 
+            overdue_2months($trans_no, $trans_type, $debtor_no, $end_date) + 
+            past_due($trans_no, $trans_type, $debtor_no, $end_date);
+    }
 
     return $total;
 }

@@ -573,7 +573,7 @@ function write_bank_transaction(
 	$interbranch = false,
 	$open_bal = 0,
 	$inter_total = 0,
-	$void_id = 0
+	$void_id = 0, $ar_trans_no = 0, $ar_trans_type = null
 	// 
 ) {
 	global $Refs, $SysPrefs;
@@ -712,6 +712,7 @@ function write_bank_transaction(
 		//
 	);
 	$total = 0;
+	$link_to_entry = false;
 	foreach ($items->gl_items as $gl_item) {
 		
 		$is_bank_to = is_bank_account($gl_item->code_id);
@@ -724,6 +725,9 @@ function write_bank_transaction(
 			// we don't allow payments to go to a bank account. use transfer for this !
 			display_db_error("invalid payment entered. Cannot pay to another bank account", "");
 		}
+
+		$row = get_gl_account($gl_item->code_id);
+		$link_to_entry = $row['control'] == 1 && $gl_item->amount > 0 ? true : false;
 
 		// do the destination account postings
 		/* Modified by Ronelle 2/22/2021 */
@@ -744,9 +748,10 @@ function write_bank_transaction(
 			get_person_id($person_type_id, $gl_item->mcode),
 			$gl_item->master_file,
 			$gl_item->hocbc,
-			0,
+			$link_to_entry ? $ar_trans_no : 0,
 			$gl_item->comp_id != $coy ? 1 : 0,
-			false
+			false, 0, 
+			$link_to_entry ? $ar_trans_type : null
 		);
 
 		//Added by spyrax10 -- Interbranch Entry

@@ -404,6 +404,11 @@ if (isset($_POST['Process'])) {
 		$cart->gross_profit = $cart->gl_items_total_debit() * $_POST['profit_margin'];
 	}
 
+	if (get_post('trans_ref')) {
+		$cart->ar_trans_no = $_POST['ar_trans_no'];
+		$cart->ar_trans_type = $_POST['ar_trans_type'];
+	}
+
 	$cart->memo_ = $_POST['memo_'];
 
 	$cart->currency = 'PHP';
@@ -591,6 +596,13 @@ function check_item_data() {
 	$row = get_gl_account($_POST['code_id']);
 	$mcode_row = get_gl_account($_POST['mcode']);
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
+
+	if ($row['control'] == 1 && $_POST['AmountDebit'] > 0 && !get_post('ar_inv')) {
+		if (!get_post('trans_ref')) {
+			display_error(_("Selected GL Account is Controlled! Please Select a Transaction to Link with this Entry...."));
+			return false;
+		}
+	}
 
 	if (str_contains_val($row['account_name'], 'Branch Current') && getCompDet('deployment_status', $_POST['comp_id']) == 1) {
 		display_error(_('Cannot Entry Branch Current Account! Company Selected is Already Deployed!'));

@@ -43,6 +43,12 @@ if (!isset($_GET['type_id']) || !isset($_GET['trans_no']))
 function display_gl_heading($myrow)
 {
 	global $systypes_array;
+	$link_type = $link_no = '';
+
+	if ($myrow['loan_trans_no'] > 0 && $myrow['link_type'] != null) {
+		$link_type = $myrow['link_type']; $link_no = $myrow['loan_trans_no'];
+		$gl_row = db_fetch(get_all_transactions($myrow['link_type'], '', true, $myrow['loan_trans_no']));
+	}
 
 	//Modified by spyrax10 26 Feb 2022
 	if ($_GET['type_id'] == ST_INVADJUST) {
@@ -125,9 +131,17 @@ function display_gl_heading($myrow)
 	label_cell( get_journal_number($myrow['type'], $_GET['trans_no']), "align='center'");
 	end_row();
 
+	if ($link_type != '') {
+		start_row();
+		label_cells(_('Transaction Link:'), get_trans_view_str($link_type, $link_no, $gl_row["ref"]), "class='tableheader2'");
+		end_row();
+	}
+
 	start_row();
 	label_cells(_('Entered By'), $myrow["real_name"], "class='tableheader2'", "colspan=" .
-		 ($journal ? ($header['rate']==1 ? '3':'1'):'6'));
+		($journal ? ($header['rate']==1 ? '3':'1'):'6')
+	);
+
 	if ($journal)
 	{
 		if ($header['rate'] != 1)
@@ -136,6 +150,7 @@ function display_gl_heading($myrow)
 	}
 	end_row();
 	comments_display_row($_GET['type_id'], $_GET['trans_no']);
+
     end_table(1);
 }
 

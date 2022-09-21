@@ -445,7 +445,9 @@ if (isset($_POST['Process']) && !check_trans()) {
 		get_post('bank_account') == BT_CHECK ? $_POST['check_date'] : null,
 		false,
 		get_post('open_bal') != null ? get_post('open_bal') : 0, 0,
-		$_SESSION['pay_items']->void_id
+		$_SESSION['pay_items']->void_id,
+		$_POST['ar_trans_no'] != null ? $_POST['ar_trans_no'] : 0, 
+		$_POST['ar_trans_type'] != null ? $_POST['ar_trans_type'] : 0
 	);
 
 	$trans_type = $trans[0];
@@ -527,6 +529,13 @@ function check_item_data()
 	$mcode_row = get_gl_account($_POST['mcode']);
 	$comp_gl = get_company_value($_POST['comp_id'], 'gl_account');
 	
+	if ($row['control'] == 1 && $_POST['AmountDebit'] > 0) {
+		if (!get_post('trans_ref')) {
+			display_error(_("Selected GL Account is Controlled! Please Select a Transaction to Link with this Entry...."));
+			return false;
+		}
+	}
+
 	if (str_contains_val($row['account_name'], 'Branch Current') && $comp_gl != $_POST['code_id']) {
 		display_error(_("GL Account is not match to the selected branch! Please select the appropriate GL Account."));
 		return false;

@@ -429,8 +429,6 @@ function get_sql_for_customer_inquiry(
 		FROM " . TB_PREF . "debtor_trans as trans
 			LEFT JOIN " . TB_PREF . "debtor_trans_details as line
 				ON trans.trans_no=line.debtor_trans_no AND trans.type=line.debtor_trans_type
-			LEFT JOIN " . TB_PREF . "voided as v
-				ON trans.trans_no=v.id AND trans.type=v.type
             LEFT JOIN " . TB_PREF . "audit_trail as audit ON (trans.type=audit.type AND trans.trans_no=audit.trans_no)
             LEFT JOIN " . TB_PREF . "users as user ON (audit.user=user.id)
 			LEFT JOIN " . TB_PREF . "cust_branch as branch ON trans.branch_code=branch.branch_code 

@@ -18,6 +18,7 @@ include_once($path_to_root . "/admin/db/transactions_db.inc");
 
 include_once($path_to_root . "/admin/db/voiding_db.inc");
 include_once($path_to_root . "/gl/includes/gl_db.inc");
+include_once($path_to_root . "/includes/aging.inc");
 
 $js = "";
 
@@ -78,9 +79,14 @@ else if (isset($_GET['ApprovedID'])) {
 else if (isset($_GET['CancelID'])) {
     $trans_no = $_GET['CancelID'];
     $trans_type = $_GET['CancelType'];
-
+    
     display_notification_centered(sprintf(_("This Transaction has been cancelled!"), $trans_no));
     display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Transaction"), false, '', '', 1));
+    if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO) {
+        $debtor_row = get_SI_by_reference('', $trans_no, $trans_type);
+        $delivery_row = get_SI_by_reference($debtor_row['delivery_ref_no']);
+        display_note(get_gl_view_str($delivery_row['type'], $delivery_row['trans_no'], _("&View the GL Postings for this Delivery Transaction"), false, '', '', 1));
+    }
     hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");
 	display_footer_exit();
 }
@@ -101,7 +107,8 @@ function display_menu($trans_no, $type) {
         $display_sql = db_query(get_journal_transactions('', '', null, null, '', $trans_no));
     }
     else if ($sales_inv) {
-        $display_sql = db_query(get_sales_invoices($trans_no, '', -1, -1, 1, '', true));
+        $debtor_row = get_SI_by_reference($void_row['reference_from']);
+        $display_sql = db_query(get_sales_invoices($trans_no, '', -1, -1, $debtor_row['opening_balances'], '', true));
     }
 
     div_start("menu_head");
@@ -311,6 +318,21 @@ function can_proceed() {
     if ($void_row['void_status'] == 'Voided') {
         display_error(_("This transaction is already Voided..."));
         return false;
+    }
+
+    if ($_GET['type'] == ST_SALESINVOICE || $_GET['type'] == ST_SALESINVOICEREPO) {
+        $debtor_row = get_SI_by_reference($void_row['reference_from']);
+
+        $payment_sql = get_customer_payments($debtor_row['trans_no'], $_GET['type'], $debtor_row['debtor_no']);
+
+        while ($row = db_fetch($payment_sql)) {
+            $void_pay = get_voided_entry($row['trans_type_from'], $row['trans_no']);
+
+            if ($void_pay['void_status'] != 'Voided') {
+                display_error(_("Can't Proceed! Payments are not fully voided..."));
+                return false;
+            }
+        }
     }
     
     return true;

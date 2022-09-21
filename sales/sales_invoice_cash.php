@@ -908,6 +908,7 @@ function create_cart($type, $trans_no)
 
 		$branch_code = $company["branch_code"];
 		$_SESSION['Items']->Location = $branch_code;
+		$_SESSION['Items']->promo_only = $_GET['promo'];
 	}
 	copy_from_cart();
 }
