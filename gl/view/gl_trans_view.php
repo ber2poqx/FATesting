@@ -375,22 +375,6 @@ function can_proceed() {
     return true;
 }
 
-function update_gl_memo($id, $memo = '') {
-
-	global $Ajax;
-    set_global_connection();
-
-	$sql = "UPDATE ".TB_PREF."gl_trans SET memo_ = '$memo' 
-		WHERE counter = " .db_escape($id);
-
-	db_query($sql, "Cannot update gl_trans GL! (spyrax10)");
-
-	add_audit_trail($_GET['type_id'], $_GET['trans_no'], Today(), "Update memo of gl_trans. counter #: " .$id);
-
-	$Ajax->activate('_page_body');
-	display_notification(_("Counter ID #" . $id . " sucessfully updated!"));
-	
-}
 
 function display_edit_line($id) {
 
@@ -414,7 +398,9 @@ function display_edit_line($id) {
 //-----------------------------------------------------------------------------
 if (isset($_POST['UPDATE_ITEM']) && can_proceed()) {
 	update_gl_memo(get_post('counter_id'), 
-	get_post('memo_') != '' ? get_post('memo_') : get_GLmemo_by_counter(get_post('counter_id')) );
+		get_post('memo_') != '' ? get_post('memo_') : get_GLmemo_by_counter(get_post('counter_id')),
+		true 
+	);
 }
 
 //-----------------------------------------------------------------------------

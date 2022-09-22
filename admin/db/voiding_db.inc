@@ -211,7 +211,13 @@ function get_voided_entry($type = '', $type_no = null, $reference = null, $list 
 	}
 
 	if ($status != 'ALL') {
-		$sql .= " AND void_status = " .db_escape($status);
+		
+		if ($status == 1) {
+			$sql .= " AND cancel = 1";
+		}
+		else {
+			$sql .= " AND cancel = 0 AND void_status = " .db_escape($status);
+		}
 	}
 
 	if ($from_date != null || $to_date != null) {
@@ -337,6 +343,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 
 	$void_row = get_voided_entry($trans_type, null, null, false, 'ALL', null, null, $void_id);
 	$gl_sql = get_gl_trans($void_row['type'], $void_row['id'], "DESC");
+	$memo_ = $void_row['cancel'] == 1 ? "Cancelled" : "Voided";
 
 	if ($trans_type == ST_JOURNAL) {
 		$debtor_row = get_SI_by_reference($void_row['reference_from']);
@@ -351,7 +358,9 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 	}
 
 	while ($row = db_fetch($gl_sql)) {
-		
+	
+		update_gl_memo($row['counter'], $row['memo_'] . " - " . $memo_);
+
 		add_gl_trans(
 			$row['type'],
 			$row['type_no'],
@@ -423,6 +432,9 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		);
 
 		while ($row = db_fetch($delivery_gl)) {
+			
+			update_gl_memo($row['counter'], $row['memo_'] . " - " . $memo_);
+
 			add_gl_trans(
 				$row['type'],
 				$row['type_no'],
@@ -444,6 +456,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 				false,
 				1
 			);
+
 		}
 
 		delete_smo($delivery_row['trans_no'], $delivery_row['type']);

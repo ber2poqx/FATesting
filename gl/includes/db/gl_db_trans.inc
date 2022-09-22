@@ -794,3 +794,23 @@ function get_all_transactions($type = '', $reference = '', $pop_up = true, $tran
 		return $sql;
 	}
 }
+
+function update_gl_memo($id, $memo = '', $view = false) {
+
+	global $Ajax;
+    set_global_connection();
+
+	$gl_row = db_fetch(get_gl_trans('', '', "ASC", $id));
+
+	$sql = "UPDATE ".TB_PREF."gl_trans SET memo_ = '$memo' 
+		WHERE counter = " .db_escape($id);
+
+	db_query($sql, "Cannot update gl_trans GL! (spyrax10)");
+
+	add_audit_trail($gl_row['type'], $gl_row['type_no'], Today(), "Update memo of gl_trans. counter #: " .$id);
+
+	if ($view) {
+		$Ajax->activate('_page_body');
+		display_notification(_("Counter ID #" . $id . " sucessfully updated!"));
+	}
+}

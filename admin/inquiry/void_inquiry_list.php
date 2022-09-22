@@ -202,7 +202,8 @@ value_type_list(_("Status:"), 'void_stat',
         'Draft' => 'Draft',
         'Approved' => 'Approved',
 		'Disapproved' => 'Disapproved',
-        'Voided' => 'Voided'
+        'Voided' => 'Voided',
+        1 => 'Cancelled'
     ), '', null, true, '', true
 );
 
