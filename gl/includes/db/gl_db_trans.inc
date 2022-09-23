@@ -814,3 +814,25 @@ function update_gl_memo($id, $memo = '', $view = false) {
 		display_notification(_("Counter ID #" . $id . " sucessfully updated!"));
 	}
 }
+
+function get_gl_total($type = '', $trans_no = 0) {
+	set_global_connection();
+
+	$sql = " SELECT SUM(IFNULL(GL.amount, 0)) AS amt 
+		FROM " . TB_PREF . "gl_trans GL WHERE GL.amount > 0";
+	
+	if ($type != '') {
+		$sql .= " AND GL.type = " .db_escape($type);
+	}
+
+	if ($trans_no > 0) {
+		$sql .= " AND GL.type_no = " .db_escape($trans_no);
+	}
+	
+	$sql .= " GROUP BY GL.type_no, GL.type";
+
+	$res = db_query($sql, "get_gl_total()");
+	$row = db_fetch_row($res);
+
+	return $row[0] != null ? $row[0] : 0;
+}

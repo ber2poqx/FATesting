@@ -201,6 +201,12 @@ class customers_app extends application
 		$this->add_lapp_function(2, _("Add Inter-Branch Customers"),
 			"lending/manage/auto_add_interb_customers.php?", 'SA_ADDCUSTINTERB', MENU_MAINTENANCE);
 
+		//Added by spyrax10 23 Sep 2022
+		$this->add_lapp_function(2, _("Delivery Discrepancy Monitoring"),
+			"sales/manage/delivery_monitoring.php?", 'SA_SALESDELIVERY', MENU_MAINTENANCE
+		);
+		//
+
 		/* Added by Ronelle 2/22/2021 */
 		$this->add_rapp_function(2, _("HOC/BC Types"),
 			"sales/manage/hocbc_type.php?", 'SA_HOCBCTYPE', MENU_MAINTENANCE);
