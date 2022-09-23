@@ -121,10 +121,9 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICEREP')) {
 	$reports->addReport(RC_CUSTOMER, 104, _('&Item Lcp Price List Report'),
 		array(	
 			_('Inventory Category') => 'CATEGORIES',
-			_('Sales Price Code') => 'SALESTYPES',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
+			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
 

@@ -45,10 +45,6 @@ function fetch_items($category=0)
 			WHERE item.category_id = category.category_id AND item.stock_id = lcp.stock_id";
 		if ($category != 0)
 			$sql .= " AND category.category_id = ".db_escape($category);
-		/*
-		if ($fromsupp != '')
-			$sql .= " AND supplier.supplier_id = ".db_escape($fromsupp);
-		*/
 
 		$sql .= " AND item.mb_flag<> 'F' GROUP BY item.stock_id ORDER BY item.category_id,
 				item.stock_id";
@@ -56,21 +52,58 @@ function fetch_items($category=0)
     return db_query($sql,"No transactions were returned");
 }
 
-/*
-function get_kits($category=0)
+function get_price_lcp($stock_id, $currency, $sales_type_id, $factor = null, $date = null)
 {
-	$sql = "SELECT i.item_code AS kit_code, i.description AS kit_name, c.category_id AS cat_id, c.description AS cat_name, count(*)>1 AS kit
-			FROM
-				".TB_PREF."item_codes i
-				LEFT JOIN ".TB_PREF."stock_category c ON i.category_id=c.category_id
-			WHERE !i.is_foreign AND i.item_code!=i.stock_id";
-	if ($category != 0)
-		$sql .= " AND c.category_id = ".db_escape($category);
-	$sql .= " GROUP BY i.item_code";
-    return db_query($sql,"No kits were returned");
-}
-*/
+	if ($date == null)
+		$date = new_doc_date();
 
+	if ($factor === null) {
+		$myrow = get_sales_type($sales_type_id);
+		$factor = $myrow['factor'];
+	}
+
+	$add_pct = get_company_pref('add_pct');
+	$base_id = get_base_sales_type();
+	$home_curr = get_company_currency();
+	$sql = "SELECT price, curr_abrev, sales_type_id
+		FROM " . TB_PREF . "prices
+		WHERE stock_id = " . db_escape($stock_id) . "
+			AND sales_type_id = " . db_escape($sales_type_id);
+
+	$result = db_query($sql, "There was a problem retrieving the pricing information for the part $stock_id for customer");
+	$num_rows = db_num_rows($result);
+	$rate = round2(
+		get_exchange_rate_from_home_currency($home_curr, $date),
+		user_exrate_dec()
+	);
+	$round_to = get_company_pref('round_to');
+	$prices = array();
+	while ($myrow = db_fetch($result)) {
+		$prices[$myrow['sales_type_id']][$myrow['curr_abrev']] = $myrow['price'];
+	}
+	$price = false;
+	if (isset($prices[$sales_type_id][$currency])) {
+		$price = $prices[$sales_type_id][$currency];
+	} elseif (isset($prices[$base_id][$currency])) {
+		$price = $prices[$base_id][$currency] * $factor;
+	} elseif (isset($prices[$sales_type_id][$home_curr])) {
+		$price = $prices[$sales_type_id][$home_curr] / $rate;
+	} elseif (isset($prices[$base_id][$home_curr])) {
+		$price = $prices[$base_id][$home_curr] * $factor / $rate;
+	} elseif ($num_rows == 0 && $add_pct != -1) {
+		$price = get_calculated_price($stock_id, $add_pct);
+		if ($currency != $home_curr)
+			$price /= $rate;
+		if ($factor != 0)
+			$price *= $factor;
+	}
+	if ($price === false)
+		return 0;
+	elseif ($round_to != 1)
+		return round_to_nearest($price, $round_to);
+	else
+		return round2($price, user_price_dec());
+}
 //----------------------------------------------------------------------------------------------------
 
 function print_price_listing()
@@ -78,11 +111,10 @@ function print_price_listing()
     global $path_to_root, $SysPrefs;
 
     $category = $_POST['PARAM_0'];
-    //$fromsupp = $_POST['PARAM_1'];
-    $salestype = $_POST['PARAM_1'];
-    $comments = $_POST['PARAM_2'];
-	$orientation = $_POST['PARAM_3'];
-	$destination = $_POST['PARAM_4'];
+    //$salestype = $_POST['PARAM_1'];
+    $comments = $_POST['PARAM_1'];
+	$orientation = $_POST['PARAM_2'];
+	$destination = $_POST['PARAM_3'];
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
 	else
@@ -112,27 +144,19 @@ function print_price_listing()
 	else
 		$stype = get_sales_type_name($salestype);
 
-	/*
-	if ($fromsupp == '')
-		$froms = _('All');
-	else
-		$froms = get_supplier_name($fromsupp);
+	$cols = array(0, 170, 450, 480, 540, 600, 660, 730, 820, 960, 1050, 1110, 1180, 1255, 1380, 1505, 1575, 1645, 1745, 1855, 1945, 2025, 2145, 2300, 2390, 2460, 2550, 2690, 2770, 2820, 
+				2920, 3020, 3105, 3205, 3375);
 
-	if ($showGP == 0)
-		$GP = _('No');
-	else
-		$GP = _('Yes');
-	*/
+	$headers = array(_('Category/Items'), _('Description'), _('UOM'), _('LCP-1'), _('LCP-2'), _('LCP-3'), _('LCP-BOHOL'), _('LCP-BUKIDNON'), _('LCP-CAGAYAN DE ORO'), _('LCP-CAMIGUIN'),
+					_('LCP-CEBU'), _('LCP-DAVAO'), _('LCP-KALIBO'), _('LCP-KAWASAKI 3S A'), _('LCP-KAWASAKI 3S B'), _('LCP-LEYTE'), _('LCP-LUZON'), _('LCP-MINDANAO'), _('LCP-MINDANAO 3'),
+					_('LCP-MINDORO'), _('LCP-NEGROS'), _('LCP-NON YAMAHA'), _('LCP-NON YAMAHA-MINDA'), _('LCP-PALAWAN'), _('LCP-PANAY'), _('LCP-ROMBLON'), _('LCP-ROMBLON OUTLET'), 
+					_('LCP-SIQUIJOR'), _('LCP-SP'),  _('LCP-SUZUKI 3S-A'), _('LCP-SUZUKI 3S-B'), _('LCP-VISAYAS'), _('LCP-YAMAHA 3S'), _('LCP-YAMAHA 3S-MINDA'));
 
-	$cols = array(0, 175, 180, 445, 450, 485);
-
-	$headers = array(_('Category/Items'), _(''), _('Description'), _(''), _('UOM'), _($stype));
-
-	$aligns = array('left', 'left',	'left', 'left',	'left', 'left');
+	$aligns = array('left', 'left', 'left',	'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left',
+					'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
 
     $params =   array( 	0 => $comments,
-    				    1 => array('text' => _('Category'), 'from' => $cat, 'to' => ''),
-    				    2 => array('text' => _('Sales Type'), 'from' => $stype, 'to' => ''));
+    				    1 => array('text' => _('Category'), 'from' => $cat, 'to' => ''));
 
 	if ($pictures)
 		$user_comp = user_company();
@@ -145,7 +169,6 @@ function print_price_listing()
 
     $rep->Font();
     $rep->Info($params, $cols, $headers, $aligns);
-    //$rep->SetHeaderType('COLLECTION_Header');
     if ($destination) {
         $rep->SetHeaderType('PO_Header');
     }
@@ -165,82 +188,112 @@ function print_price_listing()
 			$rep->Line($rep->row  - $rep->lineHeight);
 			$rep->NewLine(2);
 			$rep->fontSize += 2;
+			$rep->Font('bold');
+            $rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(0, 3, $myrow['category_id'] . " - " . $myrow['description']);
 			$catgor = $myrow['description'];
+			$rep->Font();
+            $rep->SetTextColor(0, 0, 0);
 			$rep->fontSize -= 2;
-			$rep->NewLine();
-		}
-		$rep->NewLine(1.3);
-		$rep->TextCol(0, 1,	$myrow['stock_id']);
-		$rep->TextCol(1, 2, $myrow['']);
-		$rep->TextCol(2, 3, $myrow['name']);
-		$rep->TextCol(3, 4, $myrow['']);
-		$rep->TextCol(4, 5, $myrow['units']);
-		$price = get_price($myrow['stock_id'], $currency, $salestype);
-		$rep->AmountCol(5, 6, $price, $dec);
-
-			/*
-			if ($showGP)
-			{
-				$price2 = get_price($myrow['stock_id'], $home_curr, $salestype);
-				if ($price2 != 0.0)
-					$disp = ($price2 - $myrow['Standardcost']) * 100 / $price2;
-				else
-					$disp = 0.0;
-				$rep->TextCol(4, 5,	number_format2($disp, user_percent_dec()) . " %");
-			}
-			if ($pictures)
-			{
-				$image = company_path(). "/images/"
-					. item_img_name($myrow['stock_id']) . ".jpg";
-				if (file_exists($image))
-				{
-					$rep->NewLine();
-					if ($rep->row - $SysPrefs->pic_height < $rep->bottomMargin)
-						$rep->NewPage();
-					$rep->AddImage($image, $rep->cols[1], $rep->row - $SysPrefs->pic_height, 0, $SysPrefs->pic_height);
-					$rep->row -= $SysPrefs->pic_height;
-					$rep->NewLine();
-				}
-			}
-
-			else
-			*/
-			$rep->NewLine(0, 1);
-	}
-	$rep->Line($rep->row  - 4);
-
-	/*
-	$result = get_kits($category);
-
-	$catgor = '';
-	while ($myrow=db_fetch($result))
-	{
-		if ($catgor != $myrow['cat_name'])
-		{
-			if ($catgor == '')
-			{
-				$rep->NewLine(2);
-				$rep->fontSize += 2;
-				$rep->TextCol(0, 3, _("Sales Kits"));
-				$rep->fontSize -= 2;
-			}
-			$rep->Line($rep->row  - $rep->lineHeight);
 			$rep->NewLine(2);
-			$rep->fontSize += 2;
-			$rep->TextCol(0, 3, $myrow['cat_id'] . " - " . $myrow['cat_name']);
-			$catgor = $myrow['cat_name'];
-			$rep->fontSize -= 2;
-			$rep->NewLine();
 		}
-		$rep->NewLine();
-		$rep->TextCol(0, 1,	$myrow['kit_code']);
-		$rep->TextCol(1, 3, $myrow['kit_name']);
-		$price = get_kit_price($myrow['kit_code'], $currency, $salestype);
+		$rep->TextCol(0, 1,	$myrow['stock_id']);
+		$rep->TextCol(1, 2, $myrow['name']);
+		$rep->TextCol(2, 3, $myrow['units']);
+		$price = get_price_lcp($myrow['stock_id'], 'PHP', '34');
 		$rep->AmountCol(3, 4, $price, $dec);
-		$rep->NewLine(0, 1);
+
+		$price1 = get_price_lcp($myrow['stock_id'], 'PHP', '33');
+		$rep->AmountCol(4, 5, $price1, $dec);
+
+		$price2 = get_price_lcp($myrow['stock_id'], 'PHP', '35');
+		$rep->AmountCol(5, 6, $price2, $dec);
+
+		$price3 = get_price_lcp($myrow['stock_id'], 'PHP', '2');
+		$rep->AmountCol(6, 7, $price3, $dec);
+
+		$price4 = get_price_lcp($myrow['stock_id'], 'PHP', '16');
+		$rep->AmountCol(7, 8, $price4, $dec);
+
+		$price5 = get_price_lcp($myrow['stock_id'], 'PHP', '17');
+		$rep->AmountCol(8, 9, $price5, $dec);
+
+		$price6 = get_price_lcp($myrow['stock_id'], 'PHP', '14');
+		$rep->AmountCol(9, 10, $price6, $dec);
+
+		$price7 = get_price_lcp($myrow['stock_id'], 'PHP', '13');
+		$rep->AmountCol(10, 11, $price7, $dec);
+
+		$price8 = get_price_lcp($myrow['stock_id'], 'PHP', '5');
+		$rep->AmountCol(11, 12, $price8, $dec);
+
+		$price9 = get_price_lcp($myrow['stock_id'], 'PHP', '9');
+		$rep->AmountCol(12, 13, $price9, $dec);
+
+		$price10 = get_price_lcp($myrow['stock_id'], 'PHP', '29');
+		$rep->AmountCol(13, 14, $price10, $dec);
+
+		$price11 = get_price_lcp($myrow['stock_id'], 'PHP', '30');
+		$rep->AmountCol(14, 15, $price11, $dec);
+
+		$price12 = get_price_lcp($myrow['stock_id'], 'PHP', '12');
+		$rep->AmountCol(15, 16, $price12, $dec);
+
+		$price13 = get_price_lcp($myrow['stock_id'], 'PHP', '18');
+		$rep->AmountCol(16, 17, $price13, $dec);
+
+		$price14 = get_price_lcp($myrow['stock_id'], 'PHP', '28');
+		$rep->AmountCol(17, 18, $price14, $dec);
+
+		$price15 = get_price_lcp($myrow['stock_id'], 'PHP', '3');
+		$rep->AmountCol(18, 19, $price15, $dec);
+
+		$price16 = get_price_lcp($myrow['stock_id'], 'PHP', '7');
+		$rep->AmountCol(19, 20, $price16, $dec);
+
+		$price17 = get_price_lcp($myrow['stock_id'], 'PHP', '11');
+		$rep->AmountCol(20, 21, $price17, $dec);
+
+		$price18 = get_price_lcp($myrow['stock_id'], 'PHP', '21');
+		$rep->AmountCol(21, 22, $price18, $dec);
+
+		$price19 = get_price_lcp($myrow['stock_id'], 'PHP', '22');
+		$rep->AmountCol(22, 23, $price19, $dec);
+
+		$price20 = get_price_lcp($myrow['stock_id'], 'PHP', '6');
+		$rep->AmountCol(23, 24, $price20, $dec);
+
+		$price21 = get_price_lcp($myrow['stock_id'], 'PHP', '10');
+		$rep->AmountCol(24, 25, $price21, $dec);
+
+		$price22 = get_price_lcp($myrow['stock_id'], 'PHP', '8');
+		$rep->AmountCol(25, 26, $price22, $dec);
+
+		$price23 = get_price_lcp($myrow['stock_id'], 'PHP', '4');
+		$rep->AmountCol(26, 27, $price23, $dec);
+
+		$price24 = get_price_lcp($myrow['stock_id'], 'PHP', '15');
+		$rep->AmountCol(27, 28, $price24, $dec);
+
+		$price25 = get_price_lcp($myrow['stock_id'], 'PHP', '36');
+		$rep->AmountCol(28, 29, $price25, $dec);
+
+		$price26 = get_price_lcp($myrow['stock_id'], 'PHP', '31');
+		$rep->AmountCol(29, 30, $price26, $dec);
+
+		$price27 = get_price_lcp($myrow['stock_id'], 'PHP', '32');
+		$rep->AmountCol(30, 31, $price27, $dec);
+
+		$price28 = get_price_lcp($myrow['stock_id'], 'PHP', '24');
+		$rep->AmountCol(31, 32, $price28, $dec);
+
+		$price29 = get_price_lcp($myrow['stock_id'], 'PHP', '19');
+		$rep->AmountCol(32, 33, $price29, $dec);
+
+		$price30 = get_price_lcp($myrow['stock_id'], 'PHP', '20');
+		$rep->AmountCol(33, 34, $price30, $dec);
+		$rep->NewLine();
 	}
-	*/
 	$rep->Line($rep->row  - 4);
 	$rep->NewLine();
     $rep->End();
