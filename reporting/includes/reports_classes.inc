@@ -271,6 +271,14 @@ class BoxReports
 						$def = 1;
 					return array_selector($name, $def, $sel);
 
+				//Added by Robert 09/23/2022 =================================
+				case 'EXCELDESTINATION':
+				$sel = array(_("PDF/Printer"), "Excel");
+				$def = 1;
+				if (user_def_print_destination() == 1)
+					$def = 1;
+				return array_selector($name, $def, $sel);
+
 				//Added by Prog6 =================================
 				case 'PDFDESTINATION':
 					$sel = array(_("PDF/Printer"), "Excel");
