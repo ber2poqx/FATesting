@@ -931,6 +931,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 	hidden('sales_type', 2);
 	label_row(_("Co-maker:"), $_POST['co_maker']);
 	hidden('co_maker');
+	termmode_type(_("Term Mode Type:"),'termmode_id', null	, true, 'label');
 	table_section(2);
 
 	start_row();
@@ -1839,9 +1840,11 @@ function display_delivery_details(&$order)
 		start_outer_table(TABLESTYLE2, "width='90%'");
 		table_section(1);
 		hidden('Location');
-		if ($_POST['Location'] != "HO") {
+		if ($_POST['Location'] != "HO" && $_POST['Location'] != 'DESIHOFC') {
+			label_row(_("Deliver from Location: "), get_location_name($_POST['Location']));
+		}else if ($_POST['Location'] != "HO" && $_POST['Location'] == 'DESIHOFC') {
 			label_row(_("Deliver from Location: "), get_location_name($_POST['StockLocation']));
-		} 
+		}  
 		else {
 			locations_list_row(_("Deliver from Location:"), 'Location', null, false, true, $order->fixed_asset);
 		}

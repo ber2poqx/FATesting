@@ -5227,6 +5227,20 @@ function calculation_type($label, $name, $selected = null, $submit_on_change = f
 	echo "</td>\n";
 }
 
+/*Added by Albert 09/23/2022*/
+function termmode_type($label, $name, $selected = null, $submit_on_change = false, $design = '' ) {
+	
+	if ($label != null)
+	echo "<tr><td class='label'>$label</td>";
+	echo "<td>\n";
+	$allocs = array( 
+		'0'=> _("New Payment term"),
+		'1'=> _("Full Payment term")
+	);
+	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change),$design);
+	echo "</td>\n";
+}
+
 function manual_ar_amount_cells($label, $name, $init = null, $params = null, $post_label = null, $dec = null)
 {
 	if (!isset($dec))
