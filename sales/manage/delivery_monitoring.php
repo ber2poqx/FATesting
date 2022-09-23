@@ -34,11 +34,12 @@ function get_transactions() {
     $sql = "SELECT DT.order_, DTT.debtor_trans_no AS dtt_no, DTT.debtor_trans_type AS dtt_type, 
 	    SUM(DTT.standard_cost * quantity) AS del_cost,
         DT.trans_no AS dt_no, DT.type AS dt_type, DT.debtor_no AS dt_debtor, DM.name,
-        DT.tran_date AS dt_date
+        DT.tran_date AS dt_date, SO.category_id
     FROM " . TB_PREF . "debtor_trans_details DTT
 	    LEFT JOIN " . TB_PREF . "debtor_trans DT ON DTT.debtor_trans_no = DT.trans_no 
 		    AND DTT.debtor_trans_type = DT.type
         LEFT JOIN " . TB_PREF . "debtors_master DM ON DT.debtor_no = DM.debtor_no
+        LEFT JOIN " . TB_PREF . "sales_orders SO ON DT.order_ = SO.order_no
     WHERE DTT.debtor_trans_type = " . ST_CUSTDELIVERY . " 
     GROUP BY DTT.debtor_trans_no, DTT.debtor_trans_type";
 
@@ -62,14 +63,15 @@ end_table();
 $result = get_transactions();
 
 div_start('del_tbl');
-start_table(TABLESTYLE, "width='45%'");
+start_table(TABLESTYLE, "width='55%'");
 
 $th = array(
     _("SO #"),
     _("Customer"),
     _("Delivery Date"),
+    _("Category"),
     _("Delivery #"),
-    _("Delivery Total"),
+    _("Unit Cost Total"),
     _("GL Total"),
     _("")
 );
@@ -89,7 +91,8 @@ while ($data = db_fetch_assoc($result)) {
     if ($status == 1) {
         label_cell(get_customer_trans_view_str(ST_SALESORDER, $data['order_']));
         label_cell($data['name']);
-        label_cell(phil_short_date($data['dt_date']), "align='center'");
+        label_cell(phil_short_date($data['dt_date']), "nowrap align='center'; style='color: blue'");
+        label_cell(get_category_name($data['category_id']), "align='center'");
         label_cell(get_trans_view_str($data['dtt_type'], $data['dtt_no']), "align='right'");
         label_cell($del_cost, "align='right'");
         label_cell($gl_total, "align='right'");
@@ -99,12 +102,12 @@ while ($data = db_fetch_assoc($result)) {
     }
 }
 
-label_row(_("Delivery Total Cost: "), price_format($delivery_total),
-	"align=right colspan=4; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+label_row(_("Delivery Unit Cost Total: "), price_format($delivery_total),
+	"align=right colspan=5; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 label_row(_("GL Total: "), price_format($gl_), 
-	"align=right colspan=5; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+	"align=right colspan=6; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table();
