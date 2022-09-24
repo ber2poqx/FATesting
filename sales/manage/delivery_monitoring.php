@@ -4,7 +4,7 @@
  * Date Added: 23 Sep 2022
 */
 
-$page_security = 'SA_SALESDELIVERY';
+$page_security = 'SA_FIX_DEL';
 $path_to_root = "../..";
 
 include($path_to_root . "/includes/db_pager.inc");
@@ -191,7 +191,7 @@ while ($data = db_fetch_assoc($result)) {
             );
         }
         else {
-            label_cell(_("Subject For Deletion"), "style='color: red'");
+            label_cell(_("Subject For ReEntry"), "style='color: red'");
         }
 
         $delivery_total += price_format($del_cost);
