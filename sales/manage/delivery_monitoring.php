@@ -121,9 +121,9 @@ start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 
-sql_type_list(_("Category: "), 'category', 
+sql_type_list(_("Select Category: "), 'category', 
 	get_category_list(), 'category_id', 'description', 
-	'label', null, true, _("Select Category: "), false, true
+	'', null, true, _("All Categories"), false, true
 );
 
 end_row();
