@@ -109,6 +109,7 @@ end_table(1); // outer table
 
 $result = get_customer_trans_details(ST_CUSTDELIVERY, $trans_id, 1);
 
+$unt_cost = 0;
 start_table(TABLESTYLE, "width='95%'");
 
 if (db_num_rows($result) > 0) {
@@ -150,6 +151,8 @@ if (db_num_rows($result) > 0) {
 		amount_cell($myrow2["discount2"]);
 		amount_cell($value);
 		end_row();
+
+		$unt_cost += $myrow2["quantity"] * $myrow2["standard_cost"];
 	} //end while there are line items to print out
 	// $display_sub_tot = price_format($sub_total);
 	// label_row(_("Sub-total"), $display_sub_tot, "colspan=6 align=right",
@@ -161,6 +164,11 @@ if ($myrow['ov_freight'] != 0.0) {
 	$display_freight = price_format($myrow["ov_freight"]);
 	label_row(_("Shipping"), $display_freight, "colspan=6 align=right", "nowrap align=right");
 }
+
+label_row(_("Unit Cost Total: "), price_format($unt_cost),
+	"align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+);
+
 
 // $tax_items = get_trans_tax_details(ST_CUSTDELIVERY, $trans_id);
 // display_customer_trans_tax_details($tax_items, 6);

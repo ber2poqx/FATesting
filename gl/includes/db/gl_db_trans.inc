@@ -658,18 +658,24 @@ function void_gl_trans($type, $trans_id, $nested = false) {
 
 //----------------------------------------------------------------------------------------
 
-function clear_gl_trans($type, $trans_id, $nested=false)
-{
-	if (!$nested)
+function clear_gl_trans($type, $trans_id, $nested = false) {
+	
+	set_global_connection();
+	
+	if (!$nested) {
 		begin_transaction();
+	}
 
-	$sql = "DELETE FROM ".TB_PREF."gl_trans WHERE type=".db_escape($type)
-	." AND type_no=".db_escape($trans_id);
+	$sql = "DELETE FROM ".TB_PREF."gl_trans WHERE type = ".db_escape($type)
+	." AND type_no = " .db_escape($trans_id);
 
 	db_query($sql, "could not clear gl transactions for type=$type and trans_no=$trans_id");
 
-	if (!$nested)
+	if (!$nested) {
 		commit_transaction();
+	}
+
+	return $trans_id;
 }
 
 function get_sql_for_journal_inquiry($filter, $from, $to, $ref='', $memo='', $alsoclosed=false,

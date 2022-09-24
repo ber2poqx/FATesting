@@ -983,8 +983,19 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 		}
 	}
 
-	$result = db_query($sql, "No SI details return! (spyrax10)");
+	$result = db_query($sql, "get_SI_by_reference($reference || $trans_no || $type || $debtor_no)");
 	return db_fetch($result);
+}
+
+function get_SI_details($trans_no) {
+
+	set_global_connection();
+
+	$sql = "SELECT * FROM " . TB_PREF . "debtor_trans_details 
+		WHERE quantity > 0 AND debtor_trans_type = " . ST_CUSTDELIVERY . " 
+			AND  debtor_trans_no = " .db_escape($trans_no);
+
+	return db_query($sql, "get_SI_details($trans_no)");
 }
 
 function get_SO_header($order_no) {

@@ -640,6 +640,28 @@ function smo_exists($trans_no, $trans_type) {
 	return $row[0];
 }
 
+function get_SMO_total($type = '', $trans_no = 0) {
+	set_global_connection();
+
+	$sql = " SELECT SUM(IFNULL(ABS(SMO.qty) * SMO.standard_cost, 0)) AS amt 
+		FROM " . TB_PREF . "stock_moves SMO WHERE SMO.trans_id > 0";
+	
+	if ($type != '') {
+		$sql .= " AND SMO.type = " .db_escape($type);
+	}
+
+	if ($trans_no > 0) {
+		$sql .= " AND SMO.trans_no = " .db_escape($trans_no);
+	}
+	
+	$sql .= " GROUP BY SMO.trans_no, SMO.type";
+
+	$res = db_query($sql, "get_SMO_total($type || $trans_no)");
+	$row = db_fetch_row($res);
+
+	return $row[0] != null ? $row[0] : 0;
+}
+
 function delete_smo($trans_no, $trans_type) {
 	set_global_connection();
 
