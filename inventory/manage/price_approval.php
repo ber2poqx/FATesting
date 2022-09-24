@@ -22,50 +22,14 @@ if (user_use_date_picker())
 $page_title ="Price Approval";
 page(_($help_context = $page_title), false, false, "", $js);
 
-$price_id = $_GET['price_id'];
-$price_code = $_GET['price_code'];
-$stock_id = $_GET['stock_id'];
-
-//-----------------------------------------------------------------------------
-function get_price_history($price_id, $price_code, $stock_id){
-	
-	$sql = "SELECT 
-				case when a.plcycashprice_id = b.id then b.scash_type
-					when a.plcyprice_id = c.id then c.sales_type
-					when a.plcycost_id = d.id then d.cost_type
-					when a.plcysrp_id = e.id then e.srp_type
-					else incen.module_type end as price_code,
-				a.*
-
-			FROM ".TB_PREF."price_cost_archive a
-			Left JOIN ".TB_PREF."sales_cash_type b on a.plcycashprice_id = b.id
-			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
-			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
-			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
-			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
-			Left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
-			where a.is_upload = 1 and a.stock_id =".db_escape($stock_id)." And a.id =".db_escape($price_id);
-
-	$sql.= " AND (b.scash_type like ".db_escape($price_code)."
-				OR c.sales_type like ".db_escape($price_code)."
-				OR d.cost_type like ".db_escape($price_code)." 
-				OR e.srp_type like ".db_escape($price_code)."
-				OR incen.module_type like ".db_escape($price_code).")";
-
-	$sql.= " order by a.date_defined desc, a.id desc";
-
-	return db_query($sql,"The Price History could not be retreived");
-
-}
-
-
+$reference = $_GET['Reference'];
 //-----------------------------------------------------------------------------
 
 if (isset($_POST['Approved']) ) { 
 
 	$status = 1;
 
-	price_status_update($status, $price_id);
+	price_status_update($status, $reference);
 	meta_forward($path_to_root . "/inventory/manage/price_history_list.php?");
 	
     
@@ -75,7 +39,7 @@ if (isset($_POST['Approved']) ) {
 if (isset($_POST['Disapproved']) ) {
 
 	$status = 2;
-	price_status_update($status, $price_id);
+	price_status_update($status, $reference);
 	meta_forward($path_to_root . "/inventory/manage/price_history_list.php?");
     
 }
@@ -84,11 +48,11 @@ if (isset($_POST['Disapproved']) ) {
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
-$loc_details = get_price_history($price_id, $price_code ,$stock_id);
+$loc_details = get_list_price_upload($reference);
 
 start_table(TABLESTYLE);
 
-$th = array(_("Item_code"), _("Price code"), _("Amount"), _("Created Date"), _("Effectivity date"));
+$th = array(_("Item_code"), _("Supplier"), _("Price code"), _("Amount"), _("Created Date"), _("Effectivity date"));
 
 table_header($th);
 $j = 1;
@@ -100,6 +64,7 @@ while ($myrow = db_fetch($loc_details))
 	alt_table_row_color($k);
 
 		label_cell($myrow["stock_id"]);
+		label_cell($myrow["supp_name"] != '' ? $myrow["supp_name"] : '' );
 		label_cell($myrow["price_code"]);
 		label_cell($myrow["amount"]);
 		label_cell($myrow["date_defined"]);

@@ -270,4 +270,14 @@ function get_existing_price_id($types,$stock_id){
         
         return $row[0];
 }
+
+function get_reference_price_upload(){
+    $sql = "SELECT reference FROM ".TB_PREF."list_of_price_upload order by reference desc LIMIT 1";
+    $result = db_query($sql, "check List of Price Upload failed");
+    $row =  db_fetch($result);
+
+return $row[0];
+
+}
+
 ?>

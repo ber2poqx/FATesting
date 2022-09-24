@@ -25,57 +25,26 @@ if (user_use_date_picker())
 $page_title ="Price Approval";
 page(_($help_context = $page_title), false, false, "", $js);
 
-if (isset($_GET['AddedID']) && isset($_GET['PriceCode'])) {
+if (isset($_GET['AddedID'])) {
 
-    $price_no = $_GET['AddedID'];
-    $price_code = $_GET['PriceCode'];
+    $reference = $_GET['AddedID'];
+    // $price_code = $_GET['PriceCode'];
 	$status = $_GET['Status'];
     if ($status == 'Add')
-        display_notification_centered(_("Price is successfuly added"). " #$price_code");
+        display_notification_centered(_("Price is successfuly added"). " #$reference");
     else
-        display_notification_centered(_("Price is successfuly updated") . " #$price_code");
+        display_notification_centered(_("Price is successfuly updated") . " #$reference");
 	
 	hyperlink_params("$path_to_root/inventory/manage/price_history_list.php", _("Back to List of Uploaded Price"), "", true);
     display_footer_exit();
 }
 
-$price_id = $_GET['price_id'];
-$price_code = $_GET['price_code'];
-$row = get_price_history_data($price_id);
+$reference = $_GET['reference'];
+
 
 //-----------------------------------------------------------------------------
-function get_price_history($price_id, $price_code, $stock_id){
-	
-	$sql = "SELECT 
-				case when a.plcycashprice_id = b.id then b.scash_type
-					when a.plcyprice_id = c.id then c.sales_type
-					when a.plcycost_id = d.id then d.cost_type
-					when a.plcysrp_id = e.id then e.srp_type
-					else incen.module_type end as price_code,
-				a.*
-
-			FROM ".TB_PREF."price_cost_archive a
-			Left JOIN ".TB_PREF."sales_cash_type b on a.plcycashprice_id = b.id
-			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
-			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
-			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
-			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
-			Left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
-			where a.is_upload = 1 and a.stock_id =".db_escape($stock_id)." And a.id =".db_escape($price_id);
-
-	$sql.= " AND (b.scash_type like ".db_escape($price_code)."
-				OR c.sales_type like ".db_escape($price_code)."
-				OR d.cost_type like ".db_escape($price_code)." 
-				OR e.srp_type like ".db_escape($price_code)."
-				OR incen.module_type like ".db_escape($price_code).")";
-
-	$sql.= " order by a.date_defined desc, a.id desc";
-
-return db_query($sql,"The Price History could not be retreived");
-
-}
-
-function post_price_data($row, $price_code, $price_id, $type)
+function post_price_data($id, $price_code, $type, $stock_id,
+$amount, $supplier_id, $date_epic, $supp_name, $prcecost_id)
 {
 
 	$cash_types = get_cash_price_types_id($price_code);
@@ -85,38 +54,38 @@ function post_price_data($row, $price_code, $price_id, $type)
 	$incentives_types = get_incentive_types_id($price_code);
 
 	if($type == 'Update'){
+		
 
 		if(get_cash_types($price_code) == $price_code){
 			
 			update_item_scashprice(
-				$row['prcecost_id'],
+				$prcecost_id,
 				$cash_types, 
 				'PHP', 
-				$row['amount'],
-				$row['date_epic']);
+				$amount,
+				$date_epic);
 			update_pricehistory(
-				$row['stock_id'], 
+				$stock_id, 
 				0, 
 				$cash_types, 
 				0, 
 				0, 
 				0, 
 				0, 
-				'CSHPRCPLCY');  //update inactive price
-			update_active_pricehistory($price_id, $row['prcecost_id']); 						//update active price
-
+				'CSHPRCPLCY');  //update inactive price	
+			add_pricehistory($stock_id, $amount, $prcecost_id , 0, $cash_types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 		}
 		else if(get_lcp_price_types($price_code) == $price_code){
 
 			update_item_price(
-				$row['prcecost_id'], 
+				$prcecost_id, 
 				$lcp_types, 
 				'PHP',
-				$row['amount'], 
-				$row['date_epic']);
+				$amount, 
+				$date_epic);
 
 			update_pricehistory(
-				$row['stock_id'], 
+				$stock_id, 
 				0, 
 				0, 
 				$lcp_types, 
@@ -124,46 +93,47 @@ function post_price_data($row, $price_code, $price_id, $type)
 				0, 
 				0, 
 				'PRCPLCY');  //update inactive price
-			update_active_pricehistory($price_id, $row['prcecost_id']); 						//update active price
+			add_pricehistory($stock_id, $amount, $prcecost_id , 0, 0, $lcp_types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
+
 
 		}
-		else if(get_system_cost_types($price_code) == $price_code && $row['supplier_id'] <> null){
+		else if(get_system_cost_types($price_code) == $price_code && $supplier_id <> null){
 				
 			update_item_supplrcost(
-				$row['prcecost_id'],
-				$row['stock_id'], 
-				$row['amount'],
+				$prcecost_id,
+				$stock_id, 
+				$amount,
 				'', 
 				1,
-				normalize_chars($row['supp_name']),
+				normalize_chars($supp_name),
 				$cost_types,
-				$row['date_epic']);
-			update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, $cost_types, 0, 0, 'CSTPLCY');  //update inactive price
-			update_active_pricehistory($price_id, $row['prcecost_id']); 						//update active price
+				$date_epic);
+			update_pricehistory($stock_id, $supplier_id, 0, 0, $cost_types, 0, 0, 'CSTPLCY');  //update inactive price
+			add_pricehistory($stock_id, $amount, $prcecost_id , $supplier_id, 0, 0, $cost_types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),$date_epic);
 		}
-		else if( get_srp_types($price_code)== $price_code && $row['supplier_id'] <> null)
+		else if( get_srp_types($price_code)== $price_code && $supplier_id <> null)
 		{	
 			update_item_stdcost(
-				$row['prcecost_id'], 
+				$prcecost_id, 
 				$srp_types, 
 				'PHP', 
-				$row['amount'], 
-				$row['supplier_id'], 
-				$row['date_epic']);
-			update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, 0, $srp_types, 0, 'SRPPLCY');
-			update_active_pricehistory($price_id, $row['prcecost_id']); 
+				$amount, 
+				$supplier_id, 
+				$date_epic);
+			update_pricehistory($stock_id, $supplier_id, 0, 0, 0, $srp_types, 0, 'SRPPLCY');
+			add_pricehistory($stock_id, $amount, $prcecost_id , $supplier_id, 0, 0, 0, $srp_types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
 		
 		}else{
 			if(get_incentive_types($price_code) == $price_code){
 
 				update_item_incentiveprice(
-					$row['prcecost_id'], 
+					$prcecost_id, 
 					$incentives_types, 
 					'PHP',
-					$row['amount']);
+					$amount);
 
-				update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, 0, $incentives_types, 0, 'SRPPLCY');
-				update_active_pricehistory($price_id, $row['prcecost_id']);
+				update_pricehistory($stock_id, $supplier_id, 0, 0, 0, $incentives_types, 0, 'SMIPLCY');
+				add_pricehistory($stock_id, $amount, $prcecost_id , 0, 0, 0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);
 
 			}
 
@@ -177,79 +147,64 @@ function post_price_data($row, $price_code, $price_id, $type)
 			if( get_cash_types($price_code)==$price_code){
 			
 				add_item_scashprice(
-					$row['stock_id'], 
+					$stock_id, 
 					$cash_types, 
 					'PHP', 
-					$row['amount'], 
-					$row['date_epic']);
-
-				$item_price_id = get_stock_scashprice_type_currency($row['stock_id'], $cash_types, 'PHP');
-				display_error( get_stock_scashprice_type_currency($row['stock_id'], $cash_types, 'PHP'));
-				// update_pricehistory($row['stock_id'], 0, $cash_types['id'], 0, 0, 0, 0, 'CSHPRCPLCY');  //update inactive price
-				update_active_pricehistory($price_id, $item_price_id['id']); 						//update active price
-
+					$amount, 
+					$date_epic);
+			add_pricehistory($stock_id, $amount, $Selected_id , 0, $cash_types, 0, 0, 0, 0, 'CSHPRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 			}
 			else if(get_lcp_price_types($price_code) == $price_code)
 			{
 
 				add_item_price(
-					$row['stock_id'],  
+					$stock_id,  
 					$lcp_types, 
 					'PHP', 
-					$row['amount'], 
-					$row['date_epic']);
+					$amount, 
+					$date_epic);
 				
-				$item_price_id = get_stock_price_type_currency($row['stock_id'], $lcp_types, 'PHP');
-				// update_pricehistory($row['stock_id'], 0, 0, $lcp_types,  0, 0, 0, 'PRCPLCY');  //update inactive price
-				update_active_pricehistory($price_id, $item_price_id['id']); 						//update active price
+				add_pricehistory($stock_id, $amount, $Selected_id , 0, 0, $lcp_types, 0, 0, 0, 'PRCPLCY', date("Y-m-d H:i:s"),$date_epic);
 
 			}
-			else if(get_system_cost_types($price_code) == $price_code && $row['supplier_id'] <> null)
+			else if(get_system_cost_types($price_code) == $price_code && $supplier_id <> null)
 			{
 
 				add_item_supplrcost(
-					$row['supplier_id'], 
-					$row['stock_id'], 
-					$row['amount'], 
+					$supplier_id, 
+					$stock_id, 
+					$amount, 
 					'', 
 					1, 
-					$row['suppname'], 
+					$supp_name, 
 					$cost_types,  
-					$row['date_epic']);
-				
-				$item_price_id = get_item_supplrcost($row['supplier_id'], $row['stock_id'], $cost_types);
-				
-				// update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, 0, $cost_types, 0, 0, 'CSTPLCY');  //update inactive price
-				update_active_pricehistory(
-					$price_id, 
-					$item_price_id['id']); 						//update active price
+					$date_epic);
 
-			}else if( get_srp_types($price_code)==$price_code && $row['supplier_id'] <> null){
+				add_pricehistory($stock_id, $amount, $Selected_id , $supplier_id, 0, 0, $cost_types, 0, 0, 'CSTPLCY', date("Y-m-d H:i:s"),$date_epic);
+
+			}
+			else if( get_srp_types($price_code)==$price_code && $supplier_id <> null){
 				
 				add_item_stdcost(
-					$row['stock_id'], 
-					$srp_types, 'PHP', 
-					$row['amount'], 
-					$row['supplier_id'], 
-					$row['date_epic']);
+					$stock_id, 
+					$srp_types, 
+					'PHP', 
+					$amount, 
+					$supplier_id, 
+					$date_epic);
 
-				$item_price_id = get_stock_stdcost_type_currency($row['stock_id'], $srp_types, 'PHP', $row['supplier_id']);
-				// update_pricehistory($row['stock_id'], $row['supplier_id'], 0, 0, 0, $srp_types, 0, 'SRPPLCY');
-				update_active_pricehistory(
-					$price_id, 
-					$item_price_id['id']); 
-			}else{
+				add_pricehistory($stock_id, $amount, $Selected_id , $supplier_id, 0, 0, 0, $srp_types, 0, 'SRPPLCY', date("Y-m-d H:i:s"),$date_epic);
+			}
+			else{
 				if(get_incentive_types($price_code) == $price_code){
 	
 					add_item_incentiveprice(
-						$row['stock_id'], 
+						$stock_id, 
 						$incentives_types, 
 						'PHP', 
-						$row['amount']);
-					$item_price_id = get_stock_incentive_currency($row['stock_id'], $incentives_types, 'PHP');
-	
-					update_active_pricehistory($price_id, $item_price_id['id']);
-	
+						$amount);
+
+						add_pricehistory($stock_id, $amount, $Selected_id , 0, 0, 0, 0, 0, $incentives_types, 'SMIPLCY', date("Y-m-d H:i:s"),$date_epic);	
 				}
 	
 	
@@ -262,17 +217,27 @@ function post_price_data($row, $price_code, $price_id, $type)
 //-----------------------------------------------------------------------------
 
 if (isset($_POST['PostPrice']) ) { 
-
-	if (check_price_already_exist( $price_code, $row['stock_id'], normalize_chars($row['supp_name']))){	
-		$type = 'Update';//updated
-	}else{
-		$type = 'Add';//Added
-	}
 	$status = 3; // close
-	post_price_data($row, $price_code, $price_id, $type);
 
-	price_status_update($status, $price_id);
-	meta_forward($_SERVER['PHP_SELF'],"AddedID=$price_id&PriceCode=$price_code&Status=$type");	
+	$price_data = get_list_price_upload($reference);
+    while ($data = db_fetch($price_data))
+    {
+
+		if (check_price_already_exist( $data['price_code'], $data['stock_id'], normalize_chars($data['supp_name']))){	
+			$type = 'Update';//updated
+		}else{
+			$type = 'Add';//Added
+		}
+
+				post_price_data($data['id'], $data['price_code'], $type, $data['stock_id'],
+				$data['amount'], $data['supplier_id'], $data['date_epic'], $data['supp_name'],
+				$data['prcecost_id']);
+
+		
+    }
+
+	price_status_update($status, $reference);
+	meta_forward($_SERVER['PHP_SELF'],"AddedID=$reference&Status=$type");	
     
 }
 
@@ -280,7 +245,7 @@ if (isset($_POST['PostPrice']) ) {
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
-$loc_details = get_price_history($price_id, $price_code ,$row['stock_id']);
+$loc_details = get_list_price_upload($reference);
 
 start_table(TABLESTYLE);
 

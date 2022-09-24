@@ -11,13 +11,6 @@
 ***********************************************************************/
 function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded,$date_epic = '0000-00-00', $status=0, $is_upload=0)  //date epic Added by Albert
 {
-	// for price import Add by Albert 09/16/2022
-	if($is_upload ==1){
-		$inactive = 1;
-	}else{
-		$inactive = 0;
-	}
-	//
 	$sql = "INSERT INTO ".TB_PREF."price_cost_archive (
 					stock_id 
 					,amount
@@ -32,8 +25,6 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,date_defined
 					,inactive
 					,date_epic
-					,status
-					,is_upload
 			) VALUES (
 			        ".db_escape($stock_id)."
 					,".db_escape($amount)."
@@ -46,10 +37,8 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,".db_escape($incentive_id)."
 				   	,".db_escape($module)."
 					,".db_escape($dateadded)."
-					,".db_escape($inactive)."
+					,0
 					,".db_escape($date_epic)."
-					,".db_escape($status)."
-					,".db_escape($is_upload)."
 			)";
 	
 	$ErrMsg = _('Could not insert the new price/cost history because ');
@@ -400,22 +389,14 @@ function Get_Previous_Policy_Cost($branchCode, $categoryID, $stockID, $supplierI
 	return $price;
 }
 /*----Added by Albert 09/16/2022 */
-function price_status_update($status,$price_id)
+function price_status_update($status,$reference)
 {
-	$sql = "UPDATE ".TB_PREF."price_cost_archive SET status = ".db_escape($status)."
-			WHERE id=".db_escape($price_id);
+	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET status = ".db_escape($status)."
+			WHERE reference =".db_escape($reference);
 
 	$result = db_query($sql,"an item cash price status could not be updated");
 	
 	return $result;
-}
-function get_price_history_data($price_id)
-{
-	$sql = "SELECT a.*, b.supp_name FROM ".TB_PREF."price_cost_archive a LEFT JOIN suppliers b ON a.supplier_id = b.supplier_id WHERE id=".db_escape($price_id);
-
-	$result = db_query($sql,"cash price could not be retreived");
-
-	return db_fetch($result);
 }
 function update_active_pricehistory($id, $price_id)
 {
@@ -423,6 +404,73 @@ function update_active_pricehistory($id, $price_id)
 		WHERE id = ".db_escape($id);
 	db_query($sql,"The price/cost history could not be updated");
 	
+}
+
+
+function add_price_list_upload($stock_id, $amount, $prcecost_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module, $dateadded, $reference, $date_epic = '0000-00-00', $status=0)  //date epic Added by Albert
+{
+	
+	$sql = "INSERT INTO ".TB_PREF."list_of_price_upload (
+					stock_id 
+					,amount
+					,prcecost_id
+					,supplier_id
+					,plcycashprice_id
+					,plcyprice_id
+					,plcycost_id
+					,plcysrp_id
+					,incentive_id
+					,module_type
+					,date_defined
+					,reference
+					,date_epic
+					,status
+			) VALUES (
+			        ".db_escape($stock_id)."
+					,".db_escape($amount)."
+				   	,".db_escape($prcecost_id)."
+				   	,".db_escape($supplier_id)."
+					,".db_escape($plcycashprc_id)." 
+				   	,".db_escape($plcyprice_id)."
+				   	,".db_escape($plcycost_id)."
+				   	,".db_escape($plcysrp_id)."
+					,".db_escape($incentive_id)."
+				   	,".db_escape($module)."
+					,".db_escape($dateadded)."
+					,".db_escape($reference)."
+					,".db_escape($date_epic)."
+					,".db_escape($status)."
+			)";
+	
+	$ErrMsg = _('Could not insert the new price/cost list of Upload because ');
+	db_query($sql, $ErrMsg);		
+}
+
+function get_list_price_upload($reference){
+	
+	$sql = "SELECT 
+				case when a.plcycashprice_id = b.id then b.scash_type
+					when a.plcyprice_id = c.id then c.sales_type
+					when a.plcycost_id = d.id then d.cost_type
+					when a.plcysrp_id = e.id then e.srp_type
+					else incen.module_type end as price_code 
+				,supp.supp_name
+				,a.*
+
+			FROM ".TB_PREF."list_of_price_upload a
+			Left JOIN ".TB_PREF."sales_cash_type b on a.plcycashprice_id = b.id
+			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
+			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
+			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
+			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
+			Left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
+
+			where a.reference =".db_escape($reference);
+
+	$sql.= " order by a.date_defined desc, a.id desc";
+
+	return db_query($sql,"The Price History could not be retreived");
+
 }
 
 

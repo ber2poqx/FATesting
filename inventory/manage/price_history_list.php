@@ -45,28 +45,23 @@ if (get_post('stock_loc')) {
 
 //---------------------------------------------------------------------------------------------
 
-function get_price_history_list($search_val= null){
+function get_price_history_list_upload($search_val= null){
 
-	$sql = "SELECT a.prcecost_id,
-				case when a.status = 0 then 'Draft'
-					when a.status = 1 then 'Approved'
-					when a.status = 1 then 'Disapproved' else 'Closed' end as status,
-				a.stock_id, supp.supp_name, a.date_defined, 
-				b.scash_type, c.sales_type, d.cost_type, e.srp_type, incen.module_type, a.amount, a.date_epic, a.id
+	$sql = "SELECT a.reference, 
+			case when a.status = 0 then 'Draft'
+			when a.status = 1 then 'Approved'
+			when a.status = 2 then 'Disapproved' 
+			else 'Closed' end as status
+			,a.date_defined, a.date_epic, a.date_epic as date_effect
 
-			FROM ".TB_PREF."price_cost_archive a
-			Left JOIN ".TB_PREF."sales_cash_type b on a.plcycashprice_id = b.id
-			Left JOIN ".TB_PREF."sales_types c on a.plcyprice_id = c.id
-			Left JOIN ".TB_PREF."supp_cost_types d on a.plcycost_id = d.id
-			Left JOIN ".TB_PREF."item_srp_area_types e on a.plcysrp_id = e.id
-			Left Join ".TB_PREF."suppliers supp on a.supplier_id = supp.supplier_id
-			left JOIN ".TB_PREF."sales_incentive_type incen on a.incentive_id = incen.id
-			where a.is_upload=1";
+			FROM ".TB_PREF."list_of_price_upload a 
+			where a.status is not null
+			group by a.reference";
 
 	if($search_val <> null){
-		$sql.=" And stock_id like".db_escape($search_val);
+		$sql.="AND stock_id like".db_escape($search_val);
 	}
-	$sql.= " order by a.date_defined desc";
+	$sql.= " order by a.reference desc";
 
 
 return $sql;
@@ -78,22 +73,10 @@ function update_price_status_link($row) {
 
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICE_UPDATE_STATUS')) {
 		
-		if($row["scash_type"] <> ''){
-			$price_code = $row["scash_type"];
-		}else if($row["sales_type"] <> ''){
-			$price_code = $row["sales_type"];
-		}else if($row["cost_type"] <> ''){
-			$price_code = $row["cost_type"];
-		}else if($row["srp_type"] <> ''){
-			$price_code = $row["srp_type"];
-		}else{
-			$price_code = $row["module_type"];
-		}
-		
 		$status_link = 
 		$row["status"] == "Draft" ? pager_link(
 			$row['status'],
-			"/inventory/manage/price_approval.php?price_id=" . $row["id"]."&&price_code=" .$price_code."&&stock_id=".$row["stock_id"],
+			"/inventory/manage/price_approval.php?Reference=" . $row["reference"],
 			false
 		) : $row["status"];
 	}
@@ -107,22 +90,10 @@ function update_price_status_link($row) {
 function post_price($row) {
 	global $page_nested;
 
-	if($row["scash_type"] <> ''){
-		$price_code = $row["scash_type"];
-	}else if($row["sales_type"] <> ''){
-		$price_code = $row["sales_type"];
-	}else if($row["cost_type"] <> ''){
-		$price_code = $row["cost_type"];
-	}else if($row["srp_type"] <> ''){
-		$price_code = $row["srp_type"];
-	}else{
-		$price_code = $row["module_type"];
-	}
-
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_POSTPRICE')) {
 		$price_link = $row["status"] == "Approved" ? pager_link(
 			'post',
-			"/inventory/manage/post_price.php?price_id=" . $row["id"]."&&price_code=" . $price_code."&&stock_id=".$row["stock_id"]."&&prcecost_id=".$row["prcecost_id"],
+			"/inventory/manage/post_price.php?reference=" . $row["reference"],
 			ICON_DOC
 		) : '';
 	}
@@ -159,20 +130,12 @@ $Ajax->activate('price_hstry_tbl');
 end_row();
 end_table(); 
 
-$sql = get_price_history_list(get_post('search_val'));
+$sql = get_price_history_list_upload(get_post('search_val'));
 
 $cols = array(
-	_("Price Id #"),
+	_("Reference #"),
 	_("Status") => array('insert' => true, 'fun' => 'update_price_status_link'),'dummy' => 'skip',
-	_("Stock Id"),
-	_("Supplier"),
 	_("Create Date"),
-	_("LCP"),
-	_("Cash"),
-	_("System Cost"),
-	_("SRP"),
-	_("Incentive"),
-	_("Price"), 
 	_("Date Effect"),
 	array('insert'=>true, 'fun'=>'post_price'), 
 );
