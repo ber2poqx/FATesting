@@ -517,6 +517,9 @@ class BoxReports
 				case 'FCATEGORIES':
 					return stock_categories_list($name, null, _("No Category Filter"), false, true);
 
+				case 'CATEGORIES_FOR_LCP':
+					return stock_categories_list($name, null, false, true); //Added by Robert 09/26/2022
+
 				//Added by Prog6=====================================================
 				case 'CATEGORY_LIST':
 					return category_list($name, null, _("All Categories"));
