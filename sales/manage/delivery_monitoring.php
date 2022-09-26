@@ -35,7 +35,7 @@ function get_transactions($trans_no = '', $category_id = '') {
     $sql = "SELECT DT.order_, DTT.debtor_trans_no AS dtt_no, DTT.debtor_trans_type AS dtt_type, 
 	    SUM(DTT.standard_cost * quantity) AS del_cost,
         DT.trans_no AS dt_no, DT.type AS dt_type, DT.debtor_no AS dt_debtor, DM.name,
-        DT.tran_date AS dt_date, SO.category_id
+        DT.tran_date AS dt_date, SO.category_id, IF(SO.months_term > 0, 'INSTALLMENT', 'CASH') AS pay_type
     FROM " . TB_PREF . "debtor_trans_details DTT
 	    LEFT JOIN " . TB_PREF . "debtor_trans DT ON DTT.debtor_trans_no = DT.trans_no 
 		    AND DTT.debtor_trans_type = DT.type
@@ -96,6 +96,13 @@ function fix_delivery_gl($trans_no) {
             );
         }
 
+        if (price_format(get_gl_total(ST_CUSTDELIVERY, $trans_no)) == 
+            price_format(get_SMO_total($data['dtt_type'], $data['dtt_no']))) {
+            add_audit_trail(ST_CUSTDELIVERY, $trans_no, sql2date(Today()), 
+			    _("GL Re Entry")
+		    );
+        }
+
         return $trans_no;
     }
 }
@@ -142,10 +149,11 @@ end_table();
 $result = get_transactions('', get_post('category'));
 
 div_start('del_tbl');
-start_table(TABLESTYLE, "width='70%'");
+start_table(TABLESTYLE, "width='75%'");
 
 $th = array(
     _("SO #"),
+    _("Payment Type"),
     _("Customer"),
     _("Delivery Date"),
     _("Category"),
@@ -169,8 +177,9 @@ while ($data = db_fetch_assoc($result)) {
     $invty_ = price_format(get_SMO_total($data['dtt_type'], $data['dtt_no']));
     $status = $del_cost == $gl_total ? 0 : 1;
 
-    if ($status == 1) {
+    if ($status == 1 || $del_cost != $invty_) {
         label_cell(get_customer_trans_view_str(ST_SALESORDER, $data['order_']));
+        label_cell($data['pay_type'], "align='center'");
         label_cell($data['name']);
         label_cell(phil_short_date($data['dt_date']), "nowrap align='center'; style='color: blue'");
         label_cell(get_category_name($data['category_id']), "align='center'");
@@ -201,15 +210,15 @@ while ($data = db_fetch_assoc($result)) {
 }
 
 label_row(_("Delivery Unit Cost Total: "), price_format($delivery_total),
-	"align=right colspan=5; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
-);
-
-label_row(_("Inventory Total: "), price_format($inty_total),
 	"align=right colspan=6; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
-label_row(_("GL Total: "), price_format($gl_), 
+label_row(_("Inventory Total: "), price_format($inty_total),
 	"align=right colspan=7; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+);
+
+label_row(_("GL Total: "), price_format($gl_), 
+	"align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table();
