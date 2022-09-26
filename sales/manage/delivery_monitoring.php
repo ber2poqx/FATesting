@@ -149,9 +149,10 @@ end_table();
 $result = get_transactions('', get_post('category'));
 
 div_start('del_tbl');
-start_table(TABLESTYLE, "width='75%'");
+start_table(TABLESTYLE, "width='80%'");
 
 $th = array(
+    _("#"),
     _("SO #"),
     _("Payment Type"),
     _("Customer"),
@@ -166,23 +167,26 @@ $th = array(
 
 table_header($th);
 
-$k = $gl_total = $del_cost = $invty_ = 0;
+$k = $gl_total = $del_cost = $invty_ = $count = 0;
 $delivery_total = $gl_ = $inty_total = 0;
 
 while ($data = db_fetch_assoc($result)) {
     alt_table_row_color($k);
-
+    
+    $void_row = get_voided_entry(ST_CUSTDELIVERY, $data['dtt_no']);
     $del_cost = price_format($data['del_cost']);
     $gl_total = price_format(get_gl_total($data['dtt_type'], $data['dtt_no']));
     $invty_ = price_format(get_SMO_total($data['dtt_type'], $data['dtt_no']));
     $status = $del_cost == $gl_total ? 0 : 1;
 
-    if ($status == 1 || $del_cost != $invty_) {
+    if (($status == 1 || $del_cost != $invty_) && $void_row['void_status'] != 'Voided') {
+        $count++;
+        label_cell($count);
         label_cell(get_customer_trans_view_str(ST_SALESORDER, $data['order_']));
-        label_cell($data['pay_type'], "align='center'");
-        label_cell($data['name']);
+        label_cell($data['pay_type'], "nowrap align='center'");
+        label_cell($data['name'], "nowrap align='left'");
         label_cell(phil_short_date($data['dt_date']), "nowrap align='center'; style='color: blue'");
-        label_cell(get_category_name($data['category_id']), "align='center'");
+        label_cell(get_category_name($data['category_id']), "nowrap align='center'");
         label_cell(get_trans_view_str($data['dtt_type'], $data['dtt_no']), "align='right'");
         label_cell($del_cost, "align='right'");
         label_cell($invty_, "align='right'");
@@ -210,15 +214,15 @@ while ($data = db_fetch_assoc($result)) {
 }
 
 label_row(_("Delivery Unit Cost Total: "), price_format($delivery_total),
-	"align=right colspan=6; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
-);
-
-label_row(_("Inventory Total: "), price_format($inty_total),
 	"align=right colspan=7; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
-label_row(_("GL Total: "), price_format($gl_), 
+label_row(_("Inventory Total: "), price_format($inty_total),
 	"align=right colspan=8; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+);
+
+label_row(_("GL Total: "), price_format($gl_), 
+	"align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
 
 end_table();
