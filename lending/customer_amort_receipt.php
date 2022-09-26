@@ -731,7 +731,6 @@ if(isset($_GET['get_DownPaymnt']))
                                     'debit_amount'=>$_GET['amount'],
                                     'credit_amount'=>0,
                                 );
-        
         }
         //customer deposit
         $company_prefs = get_company_prefs();
@@ -1035,7 +1034,7 @@ if(isset($_GET['submit']))
                                                 $_POST['tenderd_amount'], check_isempty($dp_discount), $_POST['remarks'], 0, 0, input_num('bank_amount', $_POST['tenderd_amount']),
                                                 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype'], $_POST['cashier'], $_POST['pay_type'],
                                                 $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null,
-                                                $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"]);
+                                                $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"], $_POST['transtype'], $_POST['paylocation']);
 
                 add_cust_allocation(($_POST['tenderd_amount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);

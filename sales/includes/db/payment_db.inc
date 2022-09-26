@@ -24,7 +24,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	$date_, $ref, $amount, $discount, $memo_, $rate=0, $charge=0, $bank_amount=0,
 	$penalty=0, $payment_type=null, $collection_type=null, $module_type=null, $cashier_id=0, $pay_type=null,
 	$check_date=null, $check_no=0, $bank_branch=null, $masterfile=null, $receipt_no=0, $prepared_by=null, $checked_by=null, $approved_by=null,
-	$discount1=0, $discount2=0, $trans_type=ST_SALESINVOICE)
+	$discount1=0, $discount2=0, $trans_type=ST_SALESINVOICE, $paylocation=null)
 {
 	global $Refs;
 
@@ -96,13 +96,14 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 			$debtors_account = $company_record["ar_reg_current_account"];
 		}
 	}
-
+	if($payment_type == "down"){
+		if($paylocation == 'Lending'){
+			$debtors_account = $company_record["ar_cash_sales_account"];
+		}
+	}
 	if (($discount + $amount) != 0)	{
 		/* Now Credit Debtors account with receipts + discounts */
-		$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_,
-			$debtors_account, 0, 0, -($discount + $amount), $customer_id,
-			"Cannot insert a GL transaction for the debtors account credit",
-			$rate, null, null, 0, $masterfile);
+		$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_, $debtors_account, 0, 0, -($discount + $amount), $customer_id, "Cannot insert a GL transaction for the debtors account credit", $rate, null, null, 0, $masterfile);
 	}
 	//added by jr 071621
 	if($payment_type == "down"){

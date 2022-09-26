@@ -1722,11 +1722,11 @@ Ext.onReady(function(){
 								}
 							}
 							
-							if(record.get('payment_loc') == 'Lending'){
+							/*if(record.get('payment_loc') == 'Lending'){
 								Ext.getCmp('showlending').setVisible(false);
 							}else{
 								Ext.getCmp('showlending').setVisible(true);
-							}
+							}*/
 						}
 					}
 				}
