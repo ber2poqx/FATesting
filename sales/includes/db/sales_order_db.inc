@@ -1290,3 +1290,120 @@ function Get_Previous_Policy_Installment_Price_last_date_updated($branchCode, $c
 	return $date_defined;
 }
 /*---END by Albert*/
+
+//Added by spyrax10 27 Sep 2022 
+
+function get_temp_discount($trans_id = '', $category = '') {
+
+    set_global_connection();
+
+    $sql = "SELECT * FROM " . TB_PREF . "temp_discount";
+
+    if ($trans_id != '') {
+        $sql .= " AND id = " .db_escape($trans_id);
+    }
+
+    if ($category != '') {
+        $sql .= " AND category = " .db_escape($category);
+    }
+
+    return db_query($sql, "get_temp_discount()");
+}
+
+function update_temp_discount_total($user_id = null, $so_ref = null, $date_created = null, $doc_total = 0) {
+	
+	set_global_connection();
+
+	$sql = "UPDATE temp_discount SET doc_total = " .db_escape(price_fromat($doc_total));
+
+	$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
+	" AND A.so_ref = " .db_escape($so_ref) . 
+	" AND date_created = " .db_escape(sql2date($date_created));
+
+	db_query($sql, "update_temp_discount_total()");
+
+	return $user_id;
+}
+
+function update_temp_discount_status($user_id = null, $so_ref = null, $date_created = null, 
+	$given_discount = 0, $status = null) {
+	
+	set_global_connection();
+
+	if ($status == "Approved") {
+		$sql = "UPDATE temp_discount SET given_discount = " .db_escape(price_fromat($given_discount)) . 
+			" AND status = " .db_escape($status);
+
+		$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
+			" AND A.so_ref = " .db_escape($so_ref) . 
+			" AND date_created = " .db_escape(sql2date($date_created));
+	}
+	else if ($status = "Disapproved") {
+		$sql = "UPDATE temp_discount SET status = " .db_escape($status);
+
+		$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
+			" AND A.so_ref = " .db_escape($so_ref) . 
+			" AND date_created = " .db_escape(sql2date($date_created));
+	}
+
+	db_query($sql, "update_temp_discount_status()");
+
+	return $user_id;
+}
+
+function temp_discount_exist($user_id = null, $so_ref = null, $date_created = null) {
+	
+	set_global_connection();
+
+	$sql = "SELECT COUNT(*) FROM ".TB_PREF."temp_discount A 
+		WHERE A.user_id = " .db_escape($user_id) . 
+            " AND A.so_ref = " .db_escape($so_ref) . 
+			" AND date_created = " .db_escape(sql2date($date_created));
+
+	$result = db_query($sql, "Cant get SMO count!");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
+function reset_temp_discount($user_id = 0, $so_ref = null, $date_created = null) {
+	
+	set_global_connection();
+
+	$sql = "UPDATE temp_discount SET doc_total = 0";
+
+	$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
+	" AND A.so_ref = " .db_escape($so_ref) . 
+	" AND date_created = " .db_escape(sql2date($date_created));
+
+	db_query($sql, "update_temp_discount_total()");
+
+}
+
+function add_temp_dicount($user_id = 0, $so_ref = null, $pay_type = null, $category = null, $item_code = '', $doc_total = 0,
+	$status = null, $given_dis = 0) {
+	
+	set_global_connection();
+
+	$setup_discount = Get_Sales_Discount1($item_code);
+
+	$sql = "INSERT INTO ".TB_PREF."temp_discount (so_ref, pay_type, date_created, user_id, category, item_code, 
+	doc_total, status, setup_discount, given_discount, aprroved_by, date_approved)";
+
+	$sql .= "VALUES (
+		". db_escape($so_ref) .", 
+		". db_escape($pay_type) .", 
+		". db_escape(Today()) .", 
+		". db_escape($user_id) .", 
+		". db_escape($category) .", 
+		". db_escape($item_code) .", 
+		". db_escape(price_format($doc_total)) .", 
+		". db_escape($status) .", 
+		". db_escape(price_format($setup_discount)) .", 
+		". db_escape(price_format($given_dis)) .", 
+		null, null
+	)";
+
+	db_query($sql, "add_temp_dicount");
+
+	return $user_id;
+}

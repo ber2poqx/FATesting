@@ -89,7 +89,7 @@ start_row();
 
 ref_cells(_("SO #:"), 'so_no', '', null, '', true);
 
-value_type_list(_("&nbsp; Payment Types"), 'pay_type', 
+value_type_list(_("&nbsp; Payment Type: "), 'pay_type', 
     array(
         "INSTALLMENT" => 'Installment',
         "CASH" => 'Cash'

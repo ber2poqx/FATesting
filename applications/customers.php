@@ -203,7 +203,11 @@ class customers_app extends application
 
 		//Added by spyrax10 23 Sep 2022
 		$this->add_lapp_function(2, _("Delivery Discrepancy Monitoring"),
-			"sales/manage/delivery_monitoring.php?", 'SA_SALESDELIVERY', MENU_MAINTENANCE
+			"sales/manage/delivery_monitoring.php?", 'SA_FIX_DEL', MENU_MAINTENANCE
+		);
+
+		$this->add_lapp_function(2, _("Pending Sales Order Discount"),
+			"sales/manage/pending_discount.php?", 'SA_SALESORDER', MENU_MAINTENANCE
 		);
 		//
 

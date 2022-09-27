@@ -732,6 +732,17 @@ function display_order_header(&$order, $editable, $date_text)
 	//
 	
 	end_outer_table(1); // outer table
+
+	if ($_POST['category_id'] == 14) {
+		start_table(TABLESTYLE_NOBORDER);
+		start_row();
+
+		submit_center('req_discount', _("Request for Manager's Discount"));
+
+		end_row();
+		end_table(); 
+	}
+	
 	div_end('order_head');
 
 	if ($change_prices != 0) {
