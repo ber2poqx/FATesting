@@ -31,51 +31,57 @@ print_price_listing();
 
 function fetch_items($category=0, $supplier)
 {
-		$def_coy = 0;
-		set_global_connection($def_coy);
+	global $def_coy;
+	//$def_coy = 0;
+	set_global_connection($def_coy);
 
-		$sql = "SELECT item.stock_id, item.description AS name,
-				item.material_cost AS Standardcost,
-				item.category_id, item.units, item.manufacturer,
-				category.description,
-				lcp.price AS LCP_PRICE
-			FROM ".TB_PREF."stock_master item,
-				".TB_PREF."stock_category category,
-				".TB_PREF."prices lcp
-			WHERE item.category_id = category.category_id";
-		if ($category != 0)
-			$sql .= " AND category.category_id = ".db_escape($category);
+	$sql = "SELECT item.stock_id, item.description AS name,
+			item.material_cost AS Standardcost,
+			item.category_id, item.units, item.manufacturer,
+			category.description,
+			lcp.price AS LCP_PRICE
+		FROM ".TB_PREF."stock_master item,
+			".TB_PREF."stock_category category,
+			".TB_PREF."prices lcp
+		WHERE item.category_id = category.category_id";
+	if ($category != 0)
+		$sql .= " AND category.category_id = ".db_escape($category);
 
-		if ($supplier != '')
-			$sql .= " AND item.manufacturer = ".db_escape($supplier);
+	if ($supplier != '')
+		$sql .= " AND item.manufacturer = ".db_escape($supplier);
 
-		$sql .= " AND item.mb_flag<> 'F' GROUP BY item.stock_id ORDER BY item.category_id,
-				item.stock_id";
+	$sql .= " AND item.mb_flag<> 'F' GROUP BY item.stock_id ORDER BY item.category_id,
+			item.stock_id";
 
     return db_query($sql,"No transactions were returned");
 }
 
 function fetch_array_header($category=0, $supplier)
 {
-		$def_coy = 0;
-		set_global_connection($def_coy);
+	global $def_coy;
+	//$def_coy = 0;
+	set_global_connection($def_coy);
 
-		$sql = "SELECT B.sales_type FROM  ".TB_PREF."policy_builder A
-					INNER  ".TB_PREF."JOIN sales_types B ON A.cstprctype_id = B.id
-				WHERE module_type = 'PRCPLCY'";
-		if ($category != 0)
-			$sql .= " AND A.category_id = ".db_escape($category);
+	$sql = "SELECT B.sales_type FROM  ".TB_PREF."policy_builder A
+				INNER  ".TB_PREF."JOIN sales_types B ON A.cstprctype_id = B.id
+			WHERE module_type = 'PRCPLCY'";
+	if ($category != 0)
+		$sql .= " AND A.category_id = ".db_escape($category);
 
-		if ($supplier != '')
-			$sql .= " AND A.supplier_id = ".db_escape($supplier);
+	if ($supplier != '')
+		$sql .= " AND A.supplier_id = ".db_escape($supplier);
 
-		$sql .= "GROUP BY A.cstprctype_id ORDER BY A.cstprctype_id ASC";
+	$sql .= "GROUP BY A.cstprctype_id ORDER BY A.cstprctype_id ASC";
 
     return db_query($sql,"No transactions were returned");
 }
 
 function get_sales_type_id_details($category, $supplier)
 {
+	global $def_coy;
+	//$def_coy = 0;
+	set_global_connection($def_coy);
+
     $sql = "SELECT A.cstprctype_id FROM  ".TB_PREF."policy_builder A
 				INNER  ".TB_PREF."JOIN sales_types B ON A.cstprctype_id = B.id
 			WHERE module_type = 'PRCPLCY'";
@@ -92,6 +98,10 @@ function get_sales_type_id_details($category, $supplier)
 
 function get_price_lcp($stock_id, $currency, $sales_type_id, $factor = null, $date = null)
 {
+	global $def_coy;
+	//$def_coy = 0;
+	set_global_connection($def_coy);
+	
 	if ($date == null)
 		$date = new_doc_date();
 

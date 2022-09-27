@@ -130,22 +130,21 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICEREP')) {
 
 	$reports->addReport(RC_CUSTOMER, 128, _('&Item Cash Price List Report'),
 		array(	
-			_('Inventory Category') => 'CATEGORIES',
-			_('Sales Price Code') => 'CASHTYPES',
+			_('Category') => 'CATEGORIES_FOR_LCP',
+			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
+			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
 
 	$reports->addReport(RC_CUSTOMER, 130, _('Item SRP List Report'),
 		array(	
-			_('Inventory Category') => 'CATEGORIES',
+			_('Category') => 'CATEGORIES_FOR_LCP',
 			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
-			_('Sales Price Code') => 'SRPTYPES',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
+			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
 }
@@ -153,12 +152,11 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICEREP')) {
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SYSCOST_REP')) {
 	$reports->addReport(RC_CUSTOMER, 129, _('Item System Cost List Report'),
 		array(	
-			_('Inventory Category') => 'CATEGORIES',
+			_('Category') => 'CATEGORIES_FOR_LCP',
 			_('Supplier') => 'SUPPLIERS_NO_FILTER_FOR_REPORT',
-			_('Sales Price Code') => 'SYSTEMTYPES',
 			_('Comments') => 'TEXTBOX',
 			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
+			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
 }
