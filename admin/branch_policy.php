@@ -136,7 +136,7 @@ if(isset($_GET['get_plcybranch'])){
 
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('code'=>$myrow['branch_code'],
-                    'name'=>$myrow['branch_code'].' ■ '.$myrow['branch_name']);
+                    'name'=>$myrow['branch_name']);
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
