@@ -1185,7 +1185,6 @@ function display_change_term_header(&$order, $editable, $date_text,
 		$old_gross_price = $old_gross_net_dp + $old_rebate_amount;
 		
 		$sales_adjustment_amount = $old_gross_price - $_POST['new_gross_price'];
-		display_warning($sales_adjustment_amount );
 		text_row_ex1(_("Rebate If Advance Payment:"), 'rebate_if_adv_pay', null, 15, 16);
 		label_row(_("Old Gross Selling Price:"), price_format($old_gross_price));
 
