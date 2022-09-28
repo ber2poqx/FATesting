@@ -420,6 +420,34 @@ if (get_post('category_id')) {
 	$Ajax->activate('order_head');
 }
 
+if (isset($_POST['req_discount'])) {
+
+	// if ($_POST['total_amount'] > 0) {
+	// 	foreach ($_SESSION['Items']->line_items as $items) {
+	// 		if ($_POST['category_id'] == get_stock_catID($items->stock_id)) {
+			
+	// 			$id = add_temp_dicount(
+	// 				$_SESSION["wa_current_user"]->user,
+	// 				$_POST['ref'],
+	// 				$_POST['customer_id'],
+	// 				"CASH",
+	// 				$_POST['category_id'],
+	// 				$_POST['stock_id'],
+	// 				price_format(get_post('total_amount')),
+	// 				"Pending"
+	// 			);
+	// 		}
+	// 	}
+
+	// 	if ($id) {
+	// 		display_notification_centered(_("Request Sent... Please continue to press to update discount..."));
+	// 	}
+	// }
+	// else {
+	// 	display_error(_("Gross Amount cannot be zero... Please pick an Item..."));
+	// }
+}
+
 //--------------------------------------------------------------------------------
 function can_process()
 {

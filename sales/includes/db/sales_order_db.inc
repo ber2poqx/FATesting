@@ -1379,20 +1379,21 @@ function reset_temp_discount($user_id = 0, $so_ref = null, $date_created = null)
 
 }
 
-function add_temp_dicount($user_id = 0, $so_ref = null, $pay_type = null, $category = null, $item_code = '', $doc_total = 0,
+function add_temp_dicount($user_id = 0, $so_ref = null, $debtor_no = 0, $pay_type = null, $category = null, $item_code = '', $doc_total = 0,
 	$status = null, $given_dis = 0) {
 	
 	set_global_connection();
 
 	$setup_discount = Get_Sales_Discount1($item_code);
 
-	$sql = "INSERT INTO ".TB_PREF."temp_discount (so_ref, pay_type, date_created, user_id, category, item_code, 
+	$sql = "INSERT INTO ".TB_PREF."temp_discount (so_ref, debtor_no, pay_type, date_created, user_id, category, item_code, 
 	doc_total, status, setup_discount, given_discount, aprroved_by, date_approved)";
 
 	$sql .= "VALUES (
-		". db_escape($so_ref) .", 
+		". db_escape($so_ref) .",
+		". db_escape($debtor_no) .", 
 		". db_escape($pay_type) .", 
-		". db_escape(Today()) .", 
+		". db_escape(date2sql(Today())) .", 
 		". db_escape($user_id) .", 
 		". db_escape($category) .", 
 		". db_escape($item_code) .", 

@@ -51,11 +51,12 @@ end_table();
 $result = get_temp_discount('', get_post('category'));
 
 div_start('del_tbl');
-start_table(TABLESTYLE, "width='90%'");
+start_table(TABLESTYLE, "width='95%'");
 
 $th = array(
     _("#"),
     _("SO Reference"),
+    _("Customer"),
     _("Payment Type"),
     _("Date Created"),
     _("Created By"),
@@ -77,6 +78,7 @@ $k = 0;
 while ($data = db_fetch_assoc($result)) {
     label_cell($data['id']);
     label_cell($data['so_ref']);
+    label_cell(get_customer_name($data['debtor_no']));
     label_cell($data['pay_type'], "nowrap align='center'");
     label_cell(phil_short_date($data['date_created']), "nowrap align='center'; style='color: blue'");
     label_cell(get_user_name($data['user_id']), "nowrap align='center'");
