@@ -1176,9 +1176,34 @@ function display_change_term_header(&$order, $editable, $date_text,
 	hidden('adj_rate');
 	label_row(_("Opportunity Cost:"), price_format(round($_POST['opportunity_cost'],0)));
 	hidden('opportunity_cost');
-	label_row(_("Amount to be Paid:"), price_format(round($_POST['amount_to_be_paid'],0)));
+
+	if(get_post('termmode_id') == 1 ){
+		$old_amount_finance = get_post('lcp_amount') - $_POST['down_pay'];
+		$old_financing_charge = $old_amount_finance * ($_POST['financing_rate']/100);
+		$old_gross_net_dp =  get_post('lcp_amount') + $old_financing_charge;
+		$old_rebate_amount = $policy_detail["rebate"] * $count_term_arr[0];
+		$old_gross_price = $old_gross_net_dp + $old_rebate_amount;
+		
+		$sales_adjustment_amount = $old_gross_price - $_POST['new_gross_price'];
+		display_warning($sales_adjustment_amount );
+		text_row_ex1(_("Rebate If Advance Payment:"), 'rebate_if_adv_pay', null, 15, 16);
+		label_row(_("Old Gross Selling Price:"), price_format($old_gross_price));
+
+		label_row(_("New Gross Selling Price:"), price_format($_POST['new_gross_price']));
+		hidden('new_gross_price');
+		label_row(_("Sales Adjustment:"), price_format($sales_adjustment_amount));
+		hidden('sales_adjustment', $sales_adjustment_amount);
+
+	}
+
+	label_row(_("Amount to be Paid:"), price_format(round(get_post('amount_to_be_paid'),0)));
+
 	hidden('amount_to_be_paid');
 
+	if(get_post('termmode_id') == 1 ){
+
+	submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);
+	}
 	end_outer_table(1); // outer table
 
 	hidden('Location');

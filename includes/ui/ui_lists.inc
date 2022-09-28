@@ -5234,7 +5234,7 @@ function termmode_type($label, $name, $selected = null, $submit_on_change = fals
 	echo "<tr><td class='label'>$label</td>";
 	echo "<td>\n";
 	$allocs = array( 
-		'0'=> _("New Payment term"),
+		'0'=> _("Change term"),
 		'1'=> _("Full Payment term")
 	);
 	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change),$design);

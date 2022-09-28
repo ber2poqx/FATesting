@@ -773,7 +773,9 @@ function add_debtor_term_modification(
 	$category_id, //Added by Albert
 	$profit_margin,
 	$term_mode_type,
-	$type
+	$type,
+	$rebate_if_adv_pay = 0,
+	$sales_adjustment = 0 //Added by Albert 09/27/2022
 
 ) {
 	if ($installmentplcy_id == 0) {
@@ -810,7 +812,9 @@ function add_debtor_term_modification(
 		category_id,
 		profit_margin,
 		term_mode_type,
-		type
+		type,
+		adv_payment_rebate,
+		sales_adjustment
 		) VALUES (
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
@@ -838,7 +842,9 @@ function add_debtor_term_modification(
 		$category_id,
 		$profit_margin,
 		" . db_escape($term_mode_type).",
-		$type)";
+		$type,
+		" .db_escape($rebate_if_adv_pay). ",
+		" .db_escape($sales_adjustment). ")";
 	db_query($sql, "The debtor loans record could not be inserted");
 }
 /* */

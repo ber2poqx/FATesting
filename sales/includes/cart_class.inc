@@ -150,6 +150,9 @@ class Cart
 	var $prev_months_term = 0;
 	var $prev_ar_balance = 0;
 	var $prev_ar_amount = 0;
+	var $rebate_if_adv_pay = 0;
+	var $new_gross_price = 0;
+	var $sales_adjustment = 0;
 
 	var $trans_no_ref = 0;
 	var $trans_type_ref;

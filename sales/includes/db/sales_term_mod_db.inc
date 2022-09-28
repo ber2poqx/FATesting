@@ -108,7 +108,9 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         $invoice->category_id, //Added by Albert
         $invoice->new_profit_margin,
         $term_mode_type,
-        ST_SITERMMOD
+        ST_SITERMMOD,
+        $invoice->rebate_if_adv_pay,
+        $invoice->sales_adjustment
     );
     // Down-payment 
     add_loan_schedule_ob(
