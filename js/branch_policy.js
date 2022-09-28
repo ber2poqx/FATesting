@@ -490,7 +490,7 @@ Ext.onReady(function(){
 	var BrnchcolModel = [
 		//new Ext.grid.RowNumberer(),
 		{header:'<b>code</b>',dataIndex:'code',hidden: true},
-		{header:'<b>Branch</b>', dataIndex:'name', sortable:true, width:204, tdCls: 'custom-column',
+		{header:'<b>Branch</b>', dataIndex:'name', sortable:true, width:403, tdCls: 'custom-column',
 			renderer : function renderTip(value, meta, rec, rowIndex, colIndex, store) {
 				meta.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -1389,7 +1389,7 @@ Ext.onReady(function(){
         renderTo: 'salesinstalplcy',
 		id: 'plcy_panel',
         frame: false,
-		width: 1095,
+		width: 1300,
         //labelAlign: 'left',
 		layout: 'column',
 		tbar: tbar,
@@ -1397,7 +1397,7 @@ Ext.onReady(function(){
 			xtype: 'grid',
 			id: 'Branchgrid',
 			name: 'Branchgrid',
-			columnWidth: 0.22,
+			columnWidth: 0.34,
 			//width: 250,
 			loadMask: true,
 			frame: true,
@@ -1458,7 +1458,7 @@ Ext.onReady(function(){
 			width: 2
 		},{
 			xtype: 'tabpanel',
-			columnWidth: 0.78, //0.8
+			columnWidth: 0.66, //0.8
 			scale: 'small',
 			items:[{
 				xtype:'gridpanel',

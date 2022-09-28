@@ -514,7 +514,9 @@ if(isset($_GET['submitAllocDP']))
             /* Bank account entry first */
             $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_prefs["downpaymnt_act"], 0, 0, '', $_POST['tenderd_amount'], null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
 
+            echo $_POST['paylocation'];
             if($_POST['paylocation'] =! "Lending"){
+                echo 'wala';
                 $result = get_amort_downpayment($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                 while ($myrow = db_fetch($result)) {
                     if($tenderd_amount > 0){
@@ -580,6 +582,7 @@ if(isset($_GET['submitAllocDP']))
                     }
                 }
             }
+            echo 'asd';
                 
             //allocate payment to trans number sales invoice
             //($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty))
