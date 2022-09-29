@@ -1174,22 +1174,23 @@ function display_change_term_header(&$order, $editable, $date_text,
 	hidden('amort_delay');
 	label_row(_("Adjustment Rate:"), price_format($_POST['adj_rate']) . "%");
 	hidden('adj_rate');
+	
+	if(get_post('termmode_id') == 1 ){
+	
+		label_row(_("New Gross Net DP:"), price_format($_POST['new_gross_net_dp']));
+		label_row(_("Rebate Amount:"), price_format($_POST['rebate_amount']));
+	}
 	label_row(_("Opportunity Cost:"), price_format(round($_POST['opportunity_cost'],0)));
 	hidden('opportunity_cost');
 
 	if(get_post('termmode_id') == 1 ){
-		$old_amount_finance = get_post('lcp_amount') - $_POST['down_pay'];
-		$old_financing_charge = $old_amount_finance * ($_POST['financing_rate']/100);
-		$old_gross_net_dp =  get_post('lcp_amount') + $old_financing_charge;
-		$old_rebate_amount = $policy_detail["rebate"] * $count_term_arr[0];
-		$old_gross_price = $old_gross_net_dp + $old_rebate_amount;
-		
-		$sales_adjustment_amount = $old_gross_price - $_POST['new_gross_price'];
+	
+		$sales_adjustment_amount = $all_ar_amount - $_POST['new_gross_price'];
+		label_row(_("total_amount_due:"), price_format($_POST['total_amount_due']));
+		label_row(_("Total Payment:"), price_format(get_post('alloc')));
 		text_row_ex1(_("Rebate If Advance Payment:"), 'rebate_if_adv_pay', null, 15, 16);
-		label_row(_("Old Gross Selling Price:"), price_format($old_gross_price));
-
 		label_row(_("New Gross Selling Price:"), price_format($_POST['new_gross_price']));
-		hidden('new_gross_price');
+		hidden('new_gross_price');	
 		label_row(_("Sales Adjustment:"), price_format($sales_adjustment_amount));
 		hidden('sales_adjustment', $sales_adjustment_amount);
 

@@ -1026,7 +1026,11 @@ function new_installment_computation()
 		$financing_charge = $amount_to_be_finance * $quotient_financing_rate;
 		$new_gross_net_dp = $_POST['new_lcp_amount'] + $financing_charge;
 		$rebate_amount = $rebate * $terms;
-		$total_amount_due = $new_gross_net_dp - $rebate_amount - $_POST['opportunity_cost'];
+		$total_amount_due = $new_gross_net_dp + $rebate_amount + $_POST['opportunity_cost'];
+
+		$_POST['new_gross_net_dp'] = $new_gross_net_dp;
+		$_POST['rebate_amount'] = $rebate_amount;
+		$_POST['total_amount_due'] = $total_amount_due;
 		$_POST['amount_to_be_paid'] = $total_amount_due - get_post('alloc') + get_post('rebate_if_adv_pay');
 		$_POST['new_gross_price'] = $new_gross_net_dp + $rebate_amount;
 		}
