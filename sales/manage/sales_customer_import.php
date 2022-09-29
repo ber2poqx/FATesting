@@ -128,7 +128,7 @@
 
 					if ($credit_limit == '') {					
 						display_error("Line $lines: The credit limit must not be empty");
-						//$CI++;
+						$CI++;
            				break;
 					} else if ($area == '') {
 						display_error("Line $lines: The area must not be empty");
