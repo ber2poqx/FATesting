@@ -52,7 +52,7 @@ function get_price_history_list_upload($search_val= null){
 			when a.status = 1 then 'Approved'
 			when a.status = 2 then 'Disapproved' 
 			else 'Closed' end as status
-			,a.date_defined, a.date_epic, a.date_epic as date_effect
+			,a.accounting_remarks ,a.date_defined, a.date_epic, a.date_epic as date_effect
 
 			FROM ".TB_PREF."list_of_price_upload a 
 			where a.status is not null
@@ -71,7 +71,7 @@ return $sql;
 function update_price_status_link($row) {
 	global $page_nested;
 
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICE_UPDATE_STATUS')) {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICE_UPDATE_STATUS') &&  $row["accounting_remarks"] != "") {
 		
 		$status_link = 
 		$row["status"] == "Draft" ? pager_link(
@@ -85,6 +85,23 @@ function update_price_status_link($row) {
 	}
 
 	return $status_link;
+}
+
+function accounting_approval_link($row) {
+	global $page_nested;
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_POSTPRICE') && $row["accounting_remarks"] == "") {
+		$price_link = $row["accounting_remarks"] == "" ? pager_link(
+			'Accounting Approval',
+			"/inventory/manage/price_accounting_approval.php?Reference=" . $row["reference"],
+			ICON_DOC
+		) : '';
+	}
+	else {
+		$price_link = '';
+	}
+
+	return $price_link;
 }
 //Added by Albert 09/15/2022
 function post_price($row) {
@@ -135,8 +152,10 @@ $sql = get_price_history_list_upload(get_post('search_val'));
 $cols = array(
 	_("Reference #"),
 	_("Status") => array('insert' => true, 'fun' => 'update_price_status_link'),'dummy' => 'skip',
+	_("Accounting Remarks"),
 	_("Create Date"),
 	_("Date Effect"),
+	array('insert'=>true, 'fun'=>'accounting_approval_link'), 
 	array('insert'=>true, 'fun'=>'post_price'), 
 );
 

@@ -35,7 +35,7 @@ if (isset($_GET['AddedID'])) {
     else
         display_notification_centered(_("Price is successfuly updated") . " #$reference");
 	
-	hyperlink_params("$path_to_root/inventory/manage/price_history_list.php", _("Back to List of Uploaded Price"), "", true);
+	hyperlink_params("$path_to_root/inventory/manage/price_history_list_upload.php", _("Back to List of Uploaded Price"), "", true);
     display_footer_exit();
 }
 
@@ -235,8 +235,9 @@ if (isset($_POST['PostPrice']) ) {
 
 		
     }
-
-	price_status_update($status, $reference);
+	$date = date("Y-m-d H:i:s");
+	$user = $_SESSION["wa_current_user"]->user;
+	price_post_status_update($reference, $user, $date);
 	meta_forward($_SERVER['PHP_SELF'],"AddedID=$reference&Status=$type");	
     
 }

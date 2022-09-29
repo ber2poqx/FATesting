@@ -188,6 +188,7 @@ $security_areas =array(
 	'SA_PRICE_UPDATE_STATUS' => array(SS_SALES_C|21, _("Price Approval")), //Added by Albert 09/15/2022
 	'SA_PRICE_HISTORY_LIST' => array(SS_SALES_C|22, _("List of Price Upload")), //Added by Albert 09/15/2022
 	'SA_POSTPRICE' => array(SS_SALES_C|23, _("Post Price")), //Added by Albert 09/15/2022
+	'SA_PRICE_ACCOUNTING_APPROVAL' => array(SS_SALES_C|24, _("Price Accounting Approval")), //Added by Albert 09/15/2022
 
 	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales Transactions View")),
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales Customer and Branches Changes")),

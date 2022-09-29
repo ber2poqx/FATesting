@@ -389,13 +389,31 @@ function Get_Previous_Policy_Cost($branchCode, $categoryID, $stockID, $supplierI
 	return $price;
 }
 /*----Added by Albert 09/16/2022 */
-function price_status_update($status,$reference)
+function price_status_update($status, $reference, $remarks = '',$user_id, $date)
 {
-	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET status = ".db_escape($status)."
+	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET status = ".db_escape($status).",
+	approval_remarks = ".db_escape($remarks).", user_id_approved = ".db_escape($user_id).", date_approved = ".db_escape($date)."
 			WHERE reference =".db_escape($reference);
 
 	$result = db_query($sql,"an item cash price status could not be updated");
-	
+
+	return $result;
+}
+
+function accounting_price_approval($reference, $remarks = '')
+{
+	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET accounting_remarks = ".db_escape($remarks)."
+			WHERE reference =".db_escape($reference);
+
+	$result = db_query($sql,"an item cash price status could not be updated");
+	return $result;
+}
+function price_post_status_update($reference,$user_id, $date)
+{
+	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET user_id_post = ".db_escape($user_id).", date_post = ".db_escape($date)."
+			WHERE reference =".db_escape($reference);
+
+	$result = db_query($sql,"an item cash price status could not be updated");
 	return $result;
 }
 function update_active_pricehistory($id, $price_id)

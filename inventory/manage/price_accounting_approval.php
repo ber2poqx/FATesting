@@ -3,7 +3,7 @@
  * Added by: Albert
  * Date Added: 15 Sep 2022
 */
-$page_security = 'SA_PRICE_UPDATE_STATUS';
+$page_security = 'SA_PRICE_ACCOUNTING_APPROVAL';
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");
@@ -25,23 +25,12 @@ page(_($help_context = $page_title), false, false, "", $js);
 $reference = $_GET['Reference'];
 //-----------------------------------------------------------------------------
 
-if (isset($_POST['Approved']) ) { 
+if (isset($_POST['Submit']) ) { 
 
-	$status = 1;
-	$date = date("Y-m-d H:i:s");
-	$user = $_SESSION["wa_current_user"]->user;
-	price_status_update($status, $reference, get_post('Comments'), $user, $date);
+    $user = $_SESSION["wa_current_user"]->user;
+	accounting_price_approval($reference, get_post('Comments'));
 	meta_forward($path_to_root . "/inventory/manage/price_history_list_upload.php?");
-	
-}
-
-
-if (isset($_POST['Disapproved']) ) {
-
-	$status = 2;
-	price_status_update($status, $reference);
-	meta_forward($path_to_root . "/inventory/manage/price_history_list_upload.php?");
-    
+	   
 }
 
 //-----------------------------------------------------------------------------
@@ -85,9 +74,7 @@ textarea_row(_("Remarks:"), 'Comments', null, 70, 4);
 
 end_table(1);
 
-    submit_center_first('Approved', _("Approved"), '', 'default');
-    submit_center_last('Disapproved', _("Disapproved"), '', 'default', ICON_DELETE);
-
+    submit_center_first('Submit', _("Submit"), '', 'default');
 br(2);
 
 end_form();
