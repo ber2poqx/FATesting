@@ -525,7 +525,7 @@ function gl_edit_item_controls(&$order, $dim, $sub_accounts, $Index = null, $ena
  		set_focus('amount');
 	} 
 	else {
-		submit_cells('AddItem', _("Add Item"), "colspan=2",
+		submit_cells('AddItem', _("Add Entry"), "colspan=2",
 		    _('Add new line to journal'), true
 		);
 

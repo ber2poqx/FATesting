@@ -560,7 +560,7 @@ function gl_edit_item_controls(&$order, $dim, $Index = null)
 	} else {
 		submit_cells(
 			'AddItem',
-			_("Add Item"),
+			_("Add Entry"),
 			"colspan=2",
 			_('Add new item to document'),
 			true
