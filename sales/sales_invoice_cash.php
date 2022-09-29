@@ -426,21 +426,35 @@ if (isset($_POST['req_discount'])) {
 	// 	foreach ($_SESSION['Items']->line_items as $items) {
 	// 		if ($_POST['category_id'] == get_stock_catID($items->stock_id)) {
 			
-	// 			$id = add_temp_dicount(
-	// 				$_SESSION["wa_current_user"]->user,
-	// 				$_POST['ref'],
-	// 				$_POST['customer_id'],
-	// 				"CASH",
-	// 				$_POST['category_id'],
-	// 				$_POST['stock_id'],
-	// 				price_format(get_post('total_amount')),
-	// 				"Pending"
-	// 			);
+	// 			if (temp_discount_exist($_SESSION["wa_current_user"]->user, $_POST['ref'], date2sql(Today()))) {
+	// 				$upd_id = update_temp_discount_total(
+	// 					$_SESSION["wa_current_user"]->user,
+	// 					$_POST['ref'],
+	// 					date2sql(Today()),
+	// 					remove_comma(get_post('total_amount')),
+	// 					$items->stock_id
+	// 				);
+	// 			}
+	// 			else {
+	// 				$id = add_temp_dicount(
+	// 					$_SESSION["wa_current_user"]->user,
+	// 					$_POST['ref'],
+	// 					$_POST['customer_id'],
+	// 					"CASH",
+	// 					$_POST['category_id'],
+	// 					$items->stock_id,
+	// 					remove_comma(get_post('total_amount')),
+	// 					"Pending"
+	// 				);
+	// 			}
 	// 		}
 	// 	}
 
-	// 	if ($id) {
-	// 		display_notification_centered(_("Request Sent... Please continue to press to update discount..."));
+	// 	if (isset($id)) {
+	// 		display_notification_centered(_("Request Sent... Please wait for manager's approval..."));
+	// 	}
+	// 	else if (isset($upd_id)) {
+	// 		display_notification_centered(_("Request Updated... Please wait for manager's approval..."));
 	// 	}
 	// }
 	// else {

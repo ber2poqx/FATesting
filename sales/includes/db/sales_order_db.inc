@@ -1310,15 +1310,17 @@ function get_temp_discount($trans_id = '', $category = '') {
     return db_query($sql, "get_temp_discount()");
 }
 
-function update_temp_discount_total($user_id = null, $so_ref = null, $date_created = null, $doc_total = 0) {
+function update_temp_discount_total($user_id = null, $so_ref = null, $date_created = null, $doc_total = 0, 
+	$stock_id = null) {
 	
 	set_global_connection();
 
-	$sql = "UPDATE temp_discount SET doc_total = " .db_escape(price_fromat($doc_total));
+	$sql = "UPDATE temp_discount SET item_code = " .db_escape($stock_id) .", 
+		doc_total = " .db_escape(remove_comma($doc_total));
 
-	$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
-	" AND A.so_ref = " .db_escape($so_ref) . 
-	" AND date_created = " .db_escape(sql2date($date_created));
+	$sql .= "WHERE user_id = " .db_escape($user_id) . 
+	" AND so_ref = " .db_escape($so_ref) . 
+	" AND date_created = " .db_escape($date_created);
 
 	db_query($sql, "update_temp_discount_total()");
 
@@ -1358,9 +1360,9 @@ function temp_discount_exist($user_id = null, $so_ref = null, $date_created = nu
 	$sql = "SELECT COUNT(*) FROM ".TB_PREF."temp_discount A 
 		WHERE A.user_id = " .db_escape($user_id) . 
             " AND A.so_ref = " .db_escape($so_ref) . 
-			" AND date_created = " .db_escape(sql2date($date_created));
+			" AND date_created = " .db_escape($date_created);
 
-	$result = db_query($sql, "Cant get SMO count!");
+	$result = db_query($sql, "temp_discount_exist()");
 	$row = db_fetch_row($result);
 	return $row[0];
 }
@@ -1384,7 +1386,7 @@ function add_temp_dicount($user_id = 0, $so_ref = null, $debtor_no = 0, $pay_typ
 	
 	set_global_connection();
 
-	$setup_discount = Get_Sales_Discount1($item_code);
+	$setup_discount = Get_Sales_Discount1($item_code) + Get_Sales_Discount2($item_code);
 
 	$sql = "INSERT INTO ".TB_PREF."temp_discount (so_ref, debtor_no, pay_type, date_created, user_id, category, item_code, 
 	doc_total, status, setup_discount, given_discount, aprroved_by, date_approved)";
@@ -1397,10 +1399,10 @@ function add_temp_dicount($user_id = 0, $so_ref = null, $debtor_no = 0, $pay_typ
 		". db_escape($user_id) .", 
 		". db_escape($category) .", 
 		". db_escape($item_code) .", 
-		". db_escape(price_format($doc_total)) .", 
+		". db_escape($doc_total) .", 
 		". db_escape($status) .", 
-		". db_escape(price_format($setup_discount)) .", 
-		". db_escape(price_format($given_dis)) .", 
+		". db_escape(remove_comma($setup_discount)) .", 
+		". db_escape(remove_comma($given_dis)) .", 
 		null, null
 	)";
 

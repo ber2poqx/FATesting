@@ -51,7 +51,7 @@ end_table();
 $result = get_temp_discount('', get_post('category'));
 
 div_start('del_tbl');
-start_table(TABLESTYLE, "width='95%'");
+start_table(TABLESTYLE, "width='98%'");
 
 $th = array(
     _("#"),
@@ -61,7 +61,7 @@ $th = array(
     _("Date Created"),
     _("Created By"),
     _("Category"),
-    _("Items"),
+    _("Item Code"),
     _("Document Total"),
     _("Status"),
     _("Setup Discount"),
@@ -87,9 +87,9 @@ while ($data = db_fetch_assoc($result)) {
     label_cell(price_format($data['doc_total']), "align='right'");
     label_cell($data['status']);
     label_cell(price_format($data['setup_discount']), "align='right'");
-    label_cell(price_format($data['given_discount']), "align='right'");
     label_cell(get_user_name($data['aprroved_by']), "nowrap align='center'");
     label_cell(phil_short_date($data['date_approved']), "nowrap align='center'; style='color: blue'");
+    label_cell(price_format($data['given_discount']), "align='right'");
 
     if ($data['status'] == "Pending") {
         text_cells(null, "dis[" . $data['id'] . "]", null, 5, 5);

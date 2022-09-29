@@ -1294,4 +1294,8 @@ function str_after_delimiter($string = '', $delimiter = '') {
 function str_contains_val($string = '', $value = '') {
 	return strpos($string, $value) !== false;
 }
+
+function remove_comma($string = '') {
+	return floatval(preg_replace('/[^\d\.\-]/', '', $string));
+}
 //
