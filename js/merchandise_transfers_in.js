@@ -492,7 +492,7 @@ Ext.onReady(function(){
 	                    // Determines at runtime whether to render the icon/link
 						//record.get('rrbrreference')==null
 						//record.data.rrbrreference
-						if(record.get('rrbrreference') === null) {
+						if(record.get('rrbrreference') == '') {
                 			return 'x-hidden-visibility';
             			}
 	                    /*return (record.get('rrbrreference') === null) ?
