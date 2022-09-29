@@ -104,7 +104,7 @@ if(!is_null($action) || !empty($action)){
                     }
                 } 
             }
-            display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
+            display_transfer_items_serial_compli_repo($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             exit;
             break;
         case 'updateData';
@@ -347,7 +347,7 @@ if(!is_null($action) || !empty($action)){
             $_SESSION['transfer_items']->remove_gl_line_item($line_item);
             //$_SESSION['transfer_items']->remove_from_cart_line($line_item);
             
-            display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
+            display_transfer_items_serial_compli_repo($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;
             break;
@@ -817,7 +817,7 @@ function display_gl_complimentaryitems_repo(&$order)
 {
     global $path_to_root;
     
-    foreach ($order->gl_items as $line => $item)
+    foreach ($order->gl_items as $line => $items)
     {
         foreach ($order->line_items as $line_item)
         {
@@ -828,24 +828,24 @@ function display_gl_complimentaryitems_repo(&$order)
 
         $debit=0;
         $credit=0;
-        if ($item->amount > 0)
+        if ($items->amount > 0)
         {
-            $debit=abs($item->amount);
+            $debit=abs($items->amount);
         }
         else
         {
-            $credit=abs($item->amount);
+            $credit=abs($items->amount);
         }
-        if($item->master_file_type==2){
+        if($items->master_file_type==2){
            $mastertype='Customer'; 
-        }elseif($item->master_file_type==3){
+        }elseif($items->master_file_type==3){
             $mastertype='Supplier';
-        }elseif($item->master_file_type==6){
+        }elseif($items->master_file_type==6){
             $mastertype='Employee';
         }
-        if($item->line_item == '') {
-            $code_name_gl = $item->code_id;
-            $description_name_gl = $item->description;
+        if($items->line_item == '') {
+            $code_name_gl = $items->code_id;
+            $description_name_gl = $items->description;
         }else{
             $code_name_gl = $stock_gl_mt_code["dflt_repo_invty_act"];
             $description_name_gl = $account_description_gl;
@@ -854,20 +854,20 @@ function display_gl_complimentaryitems_repo(&$order)
             'description'=>$description_name_gl,
             'line'=>$line,
             'class_id'=>'',
-            'branch_id'=>is_null($item->branch_id)?'':$item->branch_id,
-            'person_name'=>is_null($item->master_file)?'':$item->master_file,
-            'person_id'=>is_null($item->mcode)?'':$item->mcode,
-            'person_type_id'=>is_null($item->person_type_id)?'':$item->person_type_id,
-            'actualprice'=>$item->amount,
+            'branch_id'=>is_null($items->branch_id)?'':$items->branch_id,
+            'person_name'=>is_null($items->master_file)?'':$items->master_file,
+            'person_id'=>is_null($items->mcode)?'':$items->mcode,
+            'person_type_id'=>is_null($items->person_type_id)?'':$items->person_type_id,
+            'actualprice'=>$items->amount,
             'debit' => $debit,
             'credit' => $credit,
-            'mcode'=>is_null($item->mcode)?'':$item->mcode,
-            'master_file'=>is_null($item->master_file)?'':$item->master_file,
-            'memo'=> $item->reference,
+            'mcode'=>is_null($items->mcode)?'':$items->mcode,
+            'master_file'=>is_null($items->master_file)?'':$items->master_file,
+            'memo'=> $items->reference,
             'mastertype' => is_null($mastertype)?'':$mastertype,
-            'master_file_type'=>$item->master_file_type,
-            'line_item' => $item->line_item,
-            'trans_date' => $item->date
+            'master_file_type'=>$items->master_file_type,
+            'line_item' => $items->line_item,
+            'trans_date' => $items->date
         );    
     }
     

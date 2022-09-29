@@ -84,11 +84,19 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
         $st_reorder = array();
     }
     $total = 0;
+
+    $coy_target_branches_status_repo = get_coy_target_branch_repo($location_to);
+
     $mt_header_id_local = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id,
         $location_from);
     if(!empty($company_prefs["deployment_status"])){
         $mt_header_id_target = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id,
         $location_to);
+    }elseif($company_prefs["deployment_status"] == '') {
+        if($coy_target_branches_status_repo == '') {
+            $mt_header_id_target = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id, 
+            $location_to);
+        }
     }
     
     foreach ($Items as $line_item)
@@ -105,6 +113,10 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
             $originating = add_stock_mt_repo_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
             if(!empty($company_prefs["deployment_status"])){
                 add_stock_mt_repo_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+            }elseif($company_prefs["deployment_status"] == '') {
+                if($coy_target_branches_status_repo == '') {
+                    add_stock_mt_repo_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+                }
             }
             //Updating Repo Item Status
             update_repo_status($line_item->transno_out);
@@ -323,4 +335,19 @@ function add_complimentary_header_repo($transdate, $reference, $fromlocation, $c
 function add_stock_complimentary_item_repo($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out, $transno_out)
 {
     return add_stock_move(ST_COMPLIMENTARYITEMREPO, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out, 'repo'); 
+}
+
+//Added by Robert - 09/29/2022
+function get_coy_target_branch_repo($targetdb){
+
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
+    
+    $sql = "SELECT value FROM ".TB_PREF."sys_prefs WHERE name='deployment_status'";
+                
+    $result = db_query($sql, "The deployment status could not be retrieved");
+    $row =  db_fetch($result);
+
+    set_global_connection();        
+    return $row[0];
 }

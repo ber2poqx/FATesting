@@ -34,10 +34,16 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
         $st_reorder = array();
     }
     $total = 0;
+
+    $coy_target_branches_status = get_coy_target_branch($location_to);
     
     $mt_header_id_local = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_from);
     if(!empty($company_prefs["deployment_status"])){
         $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_to);
+    }elseif($company_prefs["deployment_status"] == '') {
+        if($coy_target_branches_status == '') {
+            $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_to);
+        }
     }
 
     foreach ($Items as $line_item)
@@ -57,28 +63,33 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
            // $get1 = db_query($sql1,"retreive stock gl code");
            // $stock_gl_mt_code = db_fetch($get1);
             set_global_connection();
-            $stock_gl_mt_code = get_stock_gl_code($line_item->stock_id);
-            
-            if (is_inventory_item($line_item->stock_id))
-            //if (is_inventory_item($stock_gl_code['stock_id']))
-            {
-                //$total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], $stock_gl_mt_code['dimension_id'], $stock_gl_mt_code['dimension2_id'],-($line_item->standard_cost), '', 0, $line_item->stock_id);
-                $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,-(str_replace(",","",$line_item->standard_cost)*$line_item->quantity), '', 0, $line_item->stock_id, $mcode,
-                 $master_file);
-                    /*update_average_material_cost($po->supplier_id, $order_line->stock_id, $order_line->price,
-                        $order_line->receive_qty, $date_);*/
-            }
-            
-            $loc = calculate_reorder_level($location_from, $line_item, $st_ids, $st_names, $st_num, $st_reorder);
-            
-            add_stock_merchandise_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
-            
-            $originating = 0;
-            $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
+            //if ($line_item->cart_type == 'mt_new') {
+                $stock_gl_mt_code = get_stock_gl_code($line_item->stock_id);
+                if (is_inventory_item($line_item->stock_id))
+                //if (is_inventory_item($stock_gl_code['stock_id']))
+                {
+                    //$total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], $stock_gl_mt_code['dimension_id'], $stock_gl_mt_code['dimension2_id'],-($line_item->standard_cost), '', 0, $line_item->stock_id);
+                    $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFER, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,-(str_replace(",","",$line_item->standard_cost)*$line_item->quantity), '', 0, $line_item->stock_id, $mcode,
+                     $master_file);
+                        /*update_average_material_cost($po->supplier_id, $order_line->stock_id, $order_line->price,
+                            $order_line->receive_qty, $date_);*/
+                }
+                
+                $loc = calculate_reorder_level($location_from, $line_item, $st_ids, $st_names, $st_num, $st_reorder);
+                
+                add_stock_merchandise_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
+                
+                $originating = 0;
+                $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
 
-            if(!empty($company_prefs["deployment_status"])){
-                add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
-            }
+                if(!empty($company_prefs["deployment_status"])){
+                    add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+                }elseif($company_prefs["deployment_status"] == '') {
+                    if($coy_target_branches_status == '') {
+                        add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+                    }
+                }
+            //}
             
             
             //Added by Herald - 02/06/2021
