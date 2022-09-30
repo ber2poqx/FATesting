@@ -26,6 +26,38 @@ if (user_use_date_picker()) {
 
 page(_($help_context = "Pending Sales Order Discount"), false, false, '', $js);
 //----------------------------------------------------------------------
+if (get_post('trans')) {
+    $count = 0;
+
+    foreach(get_post('trans') as $key => $val) {
+        if ($val != "Select Action") {
+
+            foreach(get_post('dis') as $key2 => $val2) {
+                if ($key == $key2) {
+                    if ($val == "Approved") {
+                        if ($val2 > 0) {
+                            if ($val2 > get_setup_discount($key)) {
+                                display_error(_("Given discount cannot be more than Setup discount..."));
+                            }
+                            else {
+                                display_notification_centered(_("Can Approved!!!"));
+                            }
+                        }
+                        else {
+                            display_error(_("Since you are aprroving this, given discount cannot be null or zero! Dumbass!!!"));
+                        }
+                    }
+                    else if ($val == "Disapproved") {
+                        display_notification_centered(_("Can Disapproved!!!"));
+                    }
+                }
+            }
+        }
+    }
+
+    $Ajax->activate('del_tbl');
+}
+//----------------------------------------------------------------------
 
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
@@ -83,9 +115,9 @@ while ($data = db_fetch_assoc($result)) {
     label_cell(phil_short_date($data['date_created']), "nowrap align='center'; style='color: blue'");
     label_cell(get_user_name($data['user_id']), "nowrap align='center'");
     label_cell(get_category_name($data['category']), "nowrap align='center'");
-    label_cell($data['item_code']);
+    label_cell($data['item_code'], "nowrap align='left'");
     label_cell(price_format($data['doc_total']), "align='right'");
-    label_cell($data['status']);
+    label_cell($data['status'], "nowrap align='center'");
     label_cell(price_format($data['setup_discount']), "align='right'");
     label_cell(get_user_name($data['aprroved_by']), "nowrap align='center'");
     label_cell(phil_short_date($data['date_approved']), "nowrap align='center'; style='color: blue'");
@@ -114,6 +146,10 @@ while ($data = db_fetch_assoc($result)) {
                 ), '', null, true
             )
         );
+    }
+    else if ($data['status'] == "Disapproved") {
+        label_cell(_("N/A"));
+        label_cell(_("N/A"));
     }
 }
 

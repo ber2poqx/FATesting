@@ -1310,6 +1310,18 @@ function get_temp_discount($trans_id = '', $category = '') {
     return db_query($sql, "get_temp_discount()");
 }
 
+function get_setup_discount($id = 0) {
+	set_global_connection();
+
+	$sql = "SELECT IFNULL(setup_discount, 0) FROM " . TB_PREF . "temp_discount ";
+	$sql .= " WHERE id = " .db_escape($id);
+
+	$result = db_query($sql, "get_setup_discount()");
+
+	$row = db_fetch_row($result);
+	return $row[0];
+}
+
 function update_temp_discount_total($user_id = null, $so_ref = null, $date_created = null, $doc_total = 0, 
 	$stock_id = null) {
 	
@@ -1406,7 +1418,12 @@ function add_temp_dicount($user_id = 0, $so_ref = null, $debtor_no = 0, $pay_typ
 		null, null
 	)";
 
-	db_query($sql, "add_temp_dicount");
+	if ($setup_discount > 0) {
+		db_query($sql, "add_temp_dicount()");
+	}
+	else {
+		display_error(_("Cannot Proceed! There is no discount setup for this Item: $item_code"));
+	}
 
 	return $user_id;
 }
