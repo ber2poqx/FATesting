@@ -408,9 +408,10 @@ function accounting_price_approval($reference, $remarks = '')
 	$result = db_query($sql,"an item cash price status could not be updated");
 	return $result;
 }
-function price_post_status_update($reference,$user_id, $date)
+function price_post_status_update($status, $reference, $user_id, $date)
 {
-	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET user_id_post = ".db_escape($user_id).", date_post = ".db_escape($date)."
+	$sql = "UPDATE ".TB_PREF."list_of_price_upload SET status = ".db_escape($status).",
+	user_id_post = ".db_escape($user_id).", date_post = ".db_escape($date)."
 			WHERE reference =".db_escape($reference);
 
 	$result = db_query($sql,"an item cash price status could not be updated");

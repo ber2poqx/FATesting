@@ -22,7 +22,7 @@ if ($SysPrefs->use_popup_windows)
 if (user_use_date_picker())
     $js .= get_js_date_picker();
 
-$page_title ="Price Approval";
+$page_title ="Post Price Upload";
 page(_($help_context = $page_title), false, false, "", $js);
 
 if (isset($_GET['AddedID'])) {
@@ -237,7 +237,7 @@ if (isset($_POST['PostPrice']) ) {
     }
 	$date = date("Y-m-d H:i:s");
 	$user = $_SESSION["wa_current_user"]->user;
-	price_post_status_update($reference, $user, $date);
+	price_post_status_update($status, $reference, $user, $date);
 	meta_forward($_SERVER['PHP_SELF'],"AddedID=$reference&Status=$type");	
     
 }

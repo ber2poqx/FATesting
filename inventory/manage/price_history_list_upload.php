@@ -86,11 +86,29 @@ function update_price_status_link($row) {
 
 	return $status_link;
 }
+function upload_view($row) {
+	global $page_nested;
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICE_UPLOAD_VIEW')) {
+		
+		$status_link = 
+		$row["reference"] <> "" ? pager_link(
+			$row['reference'],
+			"/inventory/view/price_upload_view.php?Reference=" . $row["reference"],
+			false
+		) : $row["reference"];
+	}
+	else {
+		$status_link = $row["reference"];
+	}
+
+	return $status_link;
+}
 
 function accounting_approval_link($row) {
 	global $page_nested;
 
-	if ($_SESSION["wa_current_user"]->can_access_page('SA_POSTPRICE') && $row["accounting_remarks"] == "") {
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_PRICE_ACCOUNTING_APPROVAL') && $row["accounting_remarks"] == "" && $row["status"] == "Draft") {
 		$price_link = $row["accounting_remarks"] == "" ? pager_link(
 			'Accounting Approval',
 			"/inventory/manage/price_accounting_approval.php?Reference=" . $row["reference"],
@@ -150,7 +168,7 @@ end_table();
 $sql = get_price_history_list_upload(get_post('search_val'));
 
 $cols = array(
-	_("Reference #"),
+	_("Reference #") => array('insert' => true, 'fun' => 'upload_view'),'dummy' => 'skip',
 	_("Status") => array('insert' => true, 'fun' => 'update_price_status_link'),'dummy' => 'skip',
 	_("Accounting Remarks"),
 	_("Create Date"),
