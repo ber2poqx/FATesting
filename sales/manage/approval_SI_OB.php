@@ -4,7 +4,7 @@
  */
 
 $path_to_root = "../..";
-$page_security = 'SA_SALES_RETURN_UPDATE_STATUS';
+$page_security = 'SA_SR_APPROVAL';
 
 include_once($path_to_root . "/sales/includes/cart_class.inc");
 include_once($path_to_root . "/includes/session.inc");

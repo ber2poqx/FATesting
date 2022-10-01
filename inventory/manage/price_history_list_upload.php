@@ -52,7 +52,10 @@ function get_price_history_list_upload($search_val= null){
 			when a.status = 1 then 'Approved'
 			when a.status = 2 then 'Disapproved' 
 			else 'Closed' end as status
-			,a.accounting_remarks ,a.date_defined, a.date_epic, a.date_epic as date_effect
+			,a.accounting_remarks ,a.date_defined
+			,case when a.date_approved = '0000-00-00' Then '' Else a.date_approved END 
+			,case when a.date_post = '0000-00-00' Then '' Else a.date_post END 
+			, a.date_epic
 
 			FROM ".TB_PREF."list_of_price_upload a 
 			where a.status is not null
@@ -168,10 +171,12 @@ end_table();
 $sql = get_price_history_list_upload(get_post('search_val'));
 
 $cols = array(
-	_("Reference #") => array('insert' => true, 'fun' => 'upload_view'),'dummy' => 'skip',
-	_("Status") => array('insert' => true, 'fun' => 'update_price_status_link'),'dummy' => 'skip',
+	_("Reference #") => array('insert' => false, 'fun' => 'upload_view'),
+	_("Status") => array('insert' => false, 'fun' => 'update_price_status_link'),
 	_("Accounting Remarks"),
 	_("Create Date"),
+	_("Approved Date"),
+	_("Posting Date"),
 	_("Date Effect"),
 	array('insert'=>true, 'fun'=>'accounting_approval_link'), 
 	array('insert'=>true, 'fun'=>'post_price'), 
