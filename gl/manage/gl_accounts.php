@@ -74,6 +74,7 @@ if (isset($_POST['add']) || isset($_POST['update']))
 	}
 	if ($input_error != 1)
 	{
+		$control = empty($_POST['control']) ? 0 : 1;
 		if ($SysPrefs->accounts_alpha() == 2)
 			$_POST['account_code'] = strtoupper($_POST['account_code']);
 
@@ -88,7 +89,7 @@ if (isset($_POST['add']) || isset($_POST['update']))
 				display_error(_("The account belongs to a bank account and cannot be inactivated."));
 			}
     		elseif (update_gl_account($_POST['account_code'], $_POST['account_name'], 
-    		    $_POST['account_type'], $_POST['account_code2'], check_value($_POST['control']), $_POST['normalbal'])
+    		    $_POST['account_type'], $_POST['account_code2'], $control, $_POST['normalbal'])
 			) {
 
 				update_record_status($_POST['account_code'], $_POST['inactive'], 'chart_master', 'account_code');
@@ -103,7 +104,7 @@ if (isset($_POST['add']) || isset($_POST['update']))
     	else 
 		{
     		if (add_gl_account($_POST['account_code'], $_POST['account_name'], 
-				$_POST['account_type'], $_POST['account_code2'], check_value('control'), $_POST['normalbal']))
+				$_POST['account_type'], $_POST['account_code2'], $control, $_POST['normalbal']))
 				{
 					add_tag_associations($_POST['account_code'], $_POST['account_tags']);
 					display_notification(_("New account has been added."));
