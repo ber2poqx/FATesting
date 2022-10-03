@@ -35,12 +35,21 @@ if (get_post('trans')) {
             foreach(get_post('dis') as $key2 => $val2) {
                 if ($key == $key2) {
                     if ($val == "Approved") {
+                        $discount_row = db_fetch(get_temp_discount($key));
+
                         if ($val2 > 0) {
                             if ($val2 > get_setup_discount($key)) {
                                 display_error(_("Given discount cannot be more than Setup discount..."));
                             }
                             else {
-                                display_notification_centered(_("Can Approved!!!"));
+                                $id = update_given_discount($key, 'Approved', remove_comma($val2), 
+                                    $_SESSION["wa_current_user"]->user,
+                                    date2sql(Today())
+                                );
+                               
+                                if ($id) {
+                                    display_notification_centered(_("Discount Request Approved..."));
+                                }
                             }
                         }
                         else {
@@ -48,7 +57,14 @@ if (get_post('trans')) {
                         }
                     }
                     else if ($val == "Disapproved") {
-                        display_notification_centered(_("Can Disapproved!!!"));
+                        $id = update_given_discount($key, 'Approved', 0, 
+                            $_SESSION["wa_current_user"]->user,
+                            date2sql(Today())
+                        );
+
+                        if ($id) {
+                            display_notification_centered(_("Discount Request Disapproved"));
+                        }
                     }
                 }
             }

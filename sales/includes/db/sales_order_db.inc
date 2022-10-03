@@ -1293,11 +1293,11 @@ function Get_Previous_Policy_Installment_Price_last_date_updated($branchCode, $c
 
 //Added by spyrax10 27 Sep 2022 
 
-function get_temp_discount($trans_id = '', $category = '') {
+function get_temp_discount($trans_id = '', $category = '', $user_id = '', $reference = '') {
 
     set_global_connection();
 
-    $sql = "SELECT * FROM " . TB_PREF . "temp_discount";
+    $sql = "SELECT * FROM " . TB_PREF . "temp_discount WHERE id > 0";
 
     if ($trans_id != '') {
         $sql .= " AND id = " .db_escape($trans_id);
@@ -1306,6 +1306,14 @@ function get_temp_discount($trans_id = '', $category = '') {
     if ($category != '') {
         $sql .= " AND category = " .db_escape($category);
     }
+
+	if ($user_id != '') {
+		$sql .= " AND user_id = " .db_escape($user_id);
+	}
+
+	if ($reference = '') {
+		$sql .= " AND so_ref = " .db_escape($reference);
+	}
 
     return db_query($sql, "get_temp_discount()");
 }
@@ -1339,30 +1347,19 @@ function update_temp_discount_total($user_id = null, $so_ref = null, $date_creat
 	return $user_id;
 }
 
-function update_temp_discount_status($user_id = null, $so_ref = null, $date_created = null, 
-	$given_discount = 0, $status = null) {
+function update_given_discount($id = '', $status = '', $given_discount = 0, $user_id = 0, $date_approved = null) {
 	
 	set_global_connection();
 
-	if ($status == "Approved") {
-		$sql = "UPDATE temp_discount SET given_discount = " .db_escape(price_fromat($given_discount)) . 
-			" AND status = " .db_escape($status);
+	$sql = "UPDATE temp_discount SET given_discount = " .db_escape($given_discount) . 
+		", status = " .db_escape($status) . ", aprroved_by = " .db_escape($user_id) . 
+		", date_approved = " .db_escape($date_approved);
 
-		$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
-			" AND A.so_ref = " .db_escape($so_ref) . 
-			" AND date_created = " .db_escape(sql2date($date_created));
-	}
-	else if ($status = "Disapproved") {
-		$sql = "UPDATE temp_discount SET status = " .db_escape($status);
-
-		$sql .= "WHERE A.user_id = " .db_escape($user_id) . 
-			" AND A.so_ref = " .db_escape($so_ref) . 
-			" AND date_created = " .db_escape(sql2date($date_created));
-	}
+	$sql .= "WHERE id = " .db_escape($id);
 
 	db_query($sql, "update_temp_discount_status()");
 
-	return $user_id;
+	return $id;
 }
 
 function temp_discount_exist($user_id = null, $so_ref = null, $date_created = null) {
