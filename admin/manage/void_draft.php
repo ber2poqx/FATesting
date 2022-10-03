@@ -107,7 +107,7 @@ function display_menu($trans_no, $type) {
         $display_sql = db_query(get_journal_transactions('', '', null, null, '', $trans_no));
     }
     else if ($sales_inv) {
-        $debtor_row = get_SI_by_reference($void_row['reference_from']);
+        $debtor_row = get_SI_by_reference('', $_GET['trans_no'], $_GET['type']);
         $display_sql = db_query(get_sales_invoices($trans_no, '', -1, -1, $debtor_row['opening_balances'], '', true));
     }
 
@@ -216,10 +216,8 @@ function display_menu($trans_no, $type) {
 function menu_rows($trans_no, $type, $debtor_no = '') {
     $display_sql = get_gl_trans($type, $trans_no);
 
-    if ($debtor_no != '') {
-        $cust_id = $debtor_no;
-        $cust_name = get_customer_name($debtor_no);
-    }
+    $cust_id = $debtor_no;
+    $cust_name = get_customer_name($debtor_no);
 
     div_start("menu_rows");
     start_table(TABLESTYLE, "width='75%'");
@@ -326,7 +324,7 @@ function can_proceed() {
         $payment_sql = get_customer_payments($debtor_row['trans_no'], $_GET['type'], $debtor_row['debtor_no']);
 
         while ($row = db_fetch($payment_sql)) {
-            $void_pay = get_voided_entry($row['trans_type_from'], $row['trans_no']);
+            $void_pay = get_voided_entry(ST_CUSTPAYMENT, $row['trans_no']);
 
             if ($void_pay['void_status'] != 'Voided') {
                 display_error(_("Can't Proceed! Payments are not fully voided..."));

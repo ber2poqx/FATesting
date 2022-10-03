@@ -70,7 +70,7 @@ function get_customer_payments($trans_no, $trans_type = ST_SALESINVOICE, $debtor
     set_global_connection();
 
     $sql = "SELECT * FROM " . TB_PREF . "debtor_loan_ledger DLL 
-        WHERE DLL.payment_trans_no <> " .db_escape($trans_no);
+        WHERE DLL.id > 0 ";
     
     $sql .= " AND DLL.trans_no = " .db_escape($trans_no) . 
         " AND DLL.debtor_no = " .db_escape($debtor_no);
