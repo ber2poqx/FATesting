@@ -290,6 +290,8 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 0
             );
 
+            update_returned_units($sales_return_no, db_insert_id()); //Added by Albert 10/04/2022
+
             add_stock_move(
                 ST_SALESRETURN,
                 $replace_items_line->stock_id,
@@ -730,5 +732,17 @@ function get_DT_details_by_serial($trans_no, $trans_type, $stock_id = '', $lot_n
 
     $result = db_query($sql, "Cant get debtor trans details!");
     return db_fetch($result);
+}
+//Added by Albert 10/04/2022
+function update_returned_units($return_no, $replace_id){
+
+		$sql = "UPDATE ".TB_PREF."returned_units SET
+	 	debtor_trans_details_replace_id = ".db_escape($replace_id)."
+        WHERE debtor_trans_details_replace_id = 0 and  debtor_trans_no = ".db_escape($return_no);
+
+        $sql.= "order by id asc limit 1 ";
+
+	db_query($sql,"an item unit could not be updated");
+
 }
 //
