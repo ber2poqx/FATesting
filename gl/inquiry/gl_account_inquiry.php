@@ -34,35 +34,43 @@ page(_($help_context = "General Ledger Inquiry"), false, false, '', $js);
 //----------------------------------------------------------------------------------------------------
 // Ajax updates
 //
-if (get_post('Show')) 
-{
+if (get_post('Show')) {
 	$Ajax->activate('trans_tbl');
 }
 
-if (isset($_GET["account"]))
+if (isset($_GET["account"])) {
 	$_POST["account"] = $_GET["account"];
-if (isset($_GET["TransFromDate"]))
+}
+if (isset($_GET["TransFromDate"])) {
 	$_POST["TransFromDate"] = $_GET["TransFromDate"];
-if (isset($_GET["TransToDate"]))
+}
+if (isset($_GET["TransToDate"])) {
 	$_POST["TransToDate"] = $_GET["TransToDate"];
-if (isset($_GET["Dimension"]))
+}
+if (isset($_GET["Dimension"])) {
 	$_POST["Dimension"] = $_GET["Dimension"];
-if (isset($_GET["Dimension2"]))
+}
+if (isset($_GET["Dimension2"])) {
 	$_POST["Dimension2"] = $_GET["Dimension2"];
-if (isset($_GET["amount_min"]))
+}
+if (isset($_GET["amount_min"])) {
 	$_POST["amount_min"] = $_GET["amount_min"];
-if (isset($_GET["amount_max"]))
+}
+if (isset($_GET["amount_max"])) {
 	$_POST["amount_max"] = $_GET["amount_max"];
+}
 
-if (!isset($_POST["amount_min"]))
+if (!isset($_POST["amount_min"])) {
 	$_POST["amount_min"] = price_format(0);
-if (!isset($_POST["amount_max"]))
+}
+if (!isset($_POST["amount_max"])) {
 	$_POST["amount_max"] = price_format(0);
+}
 
 //----------------------------------------------------------------------------------------------------
 
-function gl_inquiry_controls()
-{
+function gl_inquiry_controls() {
+
 	$dim = get_company_pref('use_dimension');
     start_form();
 
@@ -71,17 +79,19 @@ function gl_inquiry_controls()
     gl_all_accounts_list_cells(_("Account:"), 'account', null, false, false, _("All Accounts"), 
 		true //Added by spyrax10 10 Feb 2022
 	); 
-	date_cells(_("from:"), 'TransFromDate', '', null, -user_transaction_days());
-	date_cells(_("to:"), 'TransToDate');
+	date_cells(_("From:"), 'TransFromDate', '', null, -user_transaction_days());
+	date_cells(_("To:"), 'TransToDate');
     end_row();
 	end_table();
 
 	start_table(TABLESTYLE_NOBORDER);
 	start_row();
-	if ($dim >= 1)
+	if ($dim >= 1) {
 		dimensions_list_cells(_("Dimension")." 1:", 'Dimension', null, true, " ", false, 1);
-	if ($dim > 1)
+	}
+	if ($dim > 1) {
 		dimensions_list_cells(_("Dimension")." 2:", 'Dimension2', null, true, " ", false, 2);
+	}
 
 	ref_cells(_("Memo:"), 'Memo', '',null, _('Enter memo fragment or leave empty'));
 	small_amount_cells(_("Amount min:"), 'amount_min', null, " ");
@@ -96,66 +106,86 @@ function gl_inquiry_controls()
 
 //----------------------------------------------------------------------------------------------------
 
-function show_results()
-{
+function show_results() {
+
 	global $path_to_root, $systypes_array;
 
-	if (!isset($_POST["account"]))
+	if (!isset($_POST["account"])) {
 		$_POST["account"] = null;
+	}
 
 	$act_name = $_POST["account"] ? get_gl_account_name($_POST["account"]) : "";
 	$dim = get_company_pref('use_dimension');
 
     /*Now get the transactions  */
-    if (!isset($_POST['Dimension']))
-    	$_POST['Dimension'] = 0;
-    if (!isset($_POST['Dimension2']))
-    	$_POST['Dimension2'] = 0;
-	$result = get_gl_transactions($_POST['TransFromDate'], $_POST['TransToDate'], -1,
-    	$_POST["account"], $_POST['Dimension'], $_POST['Dimension2'], null,
-    	input_num('amount_min'), input_num('amount_max'), null, null, $_POST['Memo']);
+    if (!isset($_POST['Dimension'])) {
+		$_POST['Dimension'] = 0;
+	}
+    if (!isset($_POST['Dimension2'])) {
+		$_POST['Dimension2'] = 0;
+	}
+
+	$result = get_gl_transactions(
+		$_POST['TransFromDate'], 
+		$_POST['TransToDate'], -1,
+    	$_POST["account"], 
+		$_POST['Dimension'], 
+		$_POST['Dimension2'], null,
+    	input_num('amount_min'), 
+		input_num('amount_max'), null, null, 
+		$_POST['Memo']
+	);
 
 	$colspan = ($dim == 2 ? "7" : ($dim == 1 ? "10" : "9"));
 
-	if ($_POST["account"] != null)
+	if ($_POST["account"] != null) {
 		display_heading($_POST["account"]. "&nbsp;&nbsp;&nbsp;".$act_name);
+	}
 
 	// Only show balances if an account is specified AND we're not filtering by amounts
 	$show_balances = $_POST["account"] != null && 
-                     input_num("amount_min") == 0 && 
-                     input_num("amount_max") == 0;
+        input_num("amount_min") == 0 && 
+        input_num("amount_max") == 0;
 		
 	start_table(TABLESTYLE);
 	
 	$first_cols = array(_("Type"), _("#"), _("Reference"), _("Date"));
 	
-	if ($_POST["account"] == null)
-	    $account_col = array(_("Account"));
-	else
-	    $account_col = array();
+	if ($_POST["account"] == null) {
+		$account_col = array(_("Account"));
+	}
+	else {
+		$account_col = array();
+	}
 	
-	if ($dim == 2)
+	if ($dim == 2) {
 		$dim_cols = array(_("Dimension")." 1", _("Dimension")." 2");
-	elseif ($dim == 1)
+	}
+	elseif ($dim == 1) {
 		$dim_cols = array(_("Dimension"));
-	else
+	}
+	else {
 		$dim_cols = array();
+	}
 	
-	if ($show_balances)
-	    $remaining_cols = array(_("Person/Item"), _("MCode"), _("Masterfile"), _("Debit"), _("Credit"), _("Balance"), _("Memo"), "");
-	else
-	    $remaining_cols = array(_("Person/Item"), _("MCode"), _("Masterfile"), _("Debit"), _("Credit"), _("Memo"), "");
+	if ($show_balances) {
+		$remaining_cols = array(_("Person/Item"), _("MCode"), _("Masterfile"), _("Debit"), _("Credit"), _("Balance"), _("Memo"), "");
+	}
+	else {
+		$remaining_cols = array(_("Person/Item"), _("MCode"), _("Masterfile"), _("Debit"), _("Credit"), _("Memo"), "");
+	}
 	    
 	$th = array_merge($first_cols, $account_col, $dim_cols, $remaining_cols);
 			
 	table_header($th);
-	if ($_POST["account"] != null && is_account_balancesheet($_POST["account"]))
+	if ($_POST["account"] != null && is_account_balancesheet($_POST["account"])) {
 		$begin = "";
-	else
-	{
+	}
+	else {
 		$begin = get_fiscalyear_begin_for_date($_POST['TransFromDate']);
-		if (date1_greater_date2($begin, $_POST['TransFromDate']))
+		if (date1_greater_date2($begin, $_POST['TransFromDate'])) {
 			$begin = $_POST['TransFromDate'];
+		}
 		$begin = add_days($begin, -1);
 	}
 
@@ -174,8 +204,7 @@ function show_results()
 	$j = 1;
 	$k = 0; //row colour counter
 
-	while ($myrow = db_fetch($result))
-	{
+	while ($myrow = db_fetch($result)) {
 
     	alt_table_row_color($k);
 
@@ -305,21 +334,30 @@ function show_results()
 			}
 			//
 		}
+		
 		display_debit_or_credit_cells($myrow["amount"]);
-		if ($show_balances)
-		    amount_cell($running_total);
-		if ($myrow['memo_'] == "")
+
+		if ($show_balances) {
+			amount_cell($running_total);
+		}
+
+		if ($myrow['memo_'] == "") {
 			$myrow['memo_'] = get_comments_string($myrow['type'], $myrow['type_no']);
+		}
+
     	label_cell($myrow['memo_']);
-        if ($myrow["type"] == ST_JOURNAL)
-            echo "<td>" . trans_editor_link( $myrow["type"], $myrow["type_no"]) . "</td>";
-        else
-            label_cell("");
+        
+		// if ($myrow["type"] == ST_JOURNAL) {
+		// 	echo "<td>" . trans_editor_link( $myrow["type"], $myrow["type_no"]) . "</td>";
+		// }
+        // else {
+		// 	label_cell("");
+		// }
+
     	end_row();
 
     	$j++;
-    	if ($j == 12)
-    	{
+    	if ($j == 12) {
     		$j = 1;
     		table_header($th);
     	}
@@ -336,8 +374,9 @@ function show_results()
 	}
 
 	end_table(2);
-	if (db_num_rows($result) == 0)
+	if (db_num_rows($result) == 0) {
 		display_note(_("No general ledger transactions have been created for the specified criteria."), 0, 1);
+	}
 
 }
 
@@ -347,8 +386,9 @@ gl_inquiry_controls();
 
 div_start('trans_tbl');
 
-if (get_post('Show') || get_post('account'))
-    show_results();
+if (get_post('Show') || get_post('account')) {
+	show_results();
+}
 
 div_end();
 
