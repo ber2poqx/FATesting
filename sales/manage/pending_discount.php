@@ -57,13 +57,13 @@ if (get_post('trans')) {
                         }
                     }
                     else if ($val == "Disapproved") {
-                        $id = update_given_discount($key, 'Approved', 0, 
+                        $id = update_given_discount($key, 'Disapproved', 0, 
                             $_SESSION["wa_current_user"]->user,
                             date2sql(Today())
                         );
 
                         if ($id) {
-                            display_notification_centered(_("Discount Request Disapproved"));
+                            display_notification_centered(_("Discount Request Disapproved..."));
                         }
                     }
                 }

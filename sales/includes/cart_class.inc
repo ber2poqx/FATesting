@@ -164,6 +164,7 @@ class Cart
 	var $pdc_no = "";
 	var $pdc_discount = 0;
 	var $promo_only = 0;
+	var $discount_id = 0;
 	//
 	//-------------------------------------------------------------------------
 	//

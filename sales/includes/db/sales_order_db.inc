@@ -1293,15 +1293,18 @@ function Get_Previous_Policy_Installment_Price_last_date_updated($branchCode, $c
 
 //Added by spyrax10 27 Sep 2022 
 
-function get_temp_discount($trans_id = '', $category = '', $user_id = '', $reference = '') {
+function get_temp_discount($id = '', $category = '', $user_id = '', $reference = '') {
 
     set_global_connection();
 
-    $sql = "SELECT * FROM " . TB_PREF . "temp_discount WHERE id > 0";
+    $sql = "SELECT * FROM " . TB_PREF . "temp_discount";
 
-    if ($trans_id != '') {
-        $sql .= " AND id = " .db_escape($trans_id);
+    if ($id != '') {
+        $sql .= " WHERE id = " .db_escape($id);
     }
+	else {
+		$sql .= " WHERE id > 0";
+	}
 
     if ($category != '') {
         $sql .= " AND category = " .db_escape($category);
@@ -1412,7 +1415,7 @@ function add_temp_dicount($user_id = 0, $so_ref = null, $debtor_no = 0, $pay_typ
 		". db_escape($status) .", 
 		". db_escape(remove_comma($setup_discount)) .", 
 		". db_escape(remove_comma($given_dis)) .", 
-		null, null
+		0, null
 	)";
 
 	if ($setup_discount > 0) {
@@ -1422,5 +1425,5 @@ function add_temp_dicount($user_id = 0, $so_ref = null, $debtor_no = 0, $pay_typ
 		display_error(_("Cannot Proceed! There is no discount setup for this Item: $item_code"));
 	}
 
-	return $user_id;
+	return db_insert_id();
 }
