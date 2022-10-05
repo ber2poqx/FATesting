@@ -55,7 +55,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
                  AND (bt.person_id != '' AND !ISNULL(bt.person_id))
             LEFT JOIN ".TB_PREF."`suppliers` sup2 ON grn.supplier_id = sup2.supplier_id
-		    LEFT JOIN ".TB_PREF."`comments` c ON gl.type = c.type AND gl.type_no = c.id 
+		    ##LEFT JOIN ".TB_PREF."`comments` c ON gl.type = c.type AND gl.type_no = c.id 
 		    LEFT JOIN ".TB_PREF."`chart_master` cm ON gl.account = cm.account_code			
 		    LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
 		WHERE gl.`account` = '$gl_account' ";
