@@ -73,8 +73,9 @@ function print_trial_balance() {
     
 	$from = $_POST['PARAM_0'];
 	$to = $_POST['PARAM_1'];
-    $comments = $_POST['PARAM_2'];
-    $destination = $_POST['PARAM_3'];
+    $show_zero = $_POST['PARAM_2'];
+    $comments = $_POST['PARAM_3'];
+    $destination = $_POST['PARAM_4'];
 
     
 	if ($destination) {
@@ -144,24 +145,47 @@ function print_trial_balance() {
             $bal_credit = $total_forward + $total_period;
             $bal_debit = 0;
         }
+
+        if ($show_zero == 1) {
+            $rep->TextCol(0, 1, $data['account_code']);
+            $rep->TextCol(1, 2,	$data['account_name']);
     
-        $rep->TextCol(0, 1, $data['account_code']);
-		$rep->TextCol(1, 2,	$data['account_name']);
-
-        $rep->AmountCol(2, 3, $forward_debit, $dec);
-        $rep->AmountCol(3, 4, ABS($forward_credit), $dec);
-        $rep->AmountCol(4, 5, $period_debit, $dec);
-        $rep->AmountCol(5, 6, ABS($period_credit), $dec);
-        $rep->AmountCol(6, 7, $bal_debit, $dec);
-        $rep->AmountCol(7, 8, ABS($bal_credit), $dec);
-        $rep->NewLine(1);
-
-        $for_debit_tot += $forward_debit;
-        $for_credit_tot += ABS($forward_credit);
-        $per_debit_tot += $period_debit;
-        $per_credit_tot += ABS($period_credit);
-        $end_debit_tot += $bal_debit;
-        $end_credit_tot += ABS($bal_credit);
+            $rep->AmountCol(2, 3, $forward_debit, $dec);
+            $rep->AmountCol(3, 4, ABS($forward_credit), $dec);
+            $rep->AmountCol(4, 5, $period_debit, $dec);
+            $rep->AmountCol(5, 6, ABS($period_credit), $dec);
+            $rep->AmountCol(6, 7, $bal_debit, $dec);
+            $rep->AmountCol(7, 8, ABS($bal_credit), $dec);
+            $rep->NewLine(1);
+    
+            $for_debit_tot += $forward_debit;
+            $for_credit_tot += ABS($forward_credit);
+            $per_debit_tot += $period_debit;
+            $per_credit_tot += ABS($period_credit);
+            $end_debit_tot += $bal_debit;
+            $end_credit_tot += ABS($bal_credit);
+        }
+        else {
+            if ($bal_debit > 0 || $bal_credit > 0) {
+                $rep->TextCol(0, 1, $data['account_code']);
+                $rep->TextCol(1, 2,	$data['account_name']);
+        
+                $rep->AmountCol(2, 3, $forward_debit, $dec);
+                $rep->AmountCol(3, 4, ABS($forward_credit), $dec);
+                $rep->AmountCol(4, 5, $period_debit, $dec);
+                $rep->AmountCol(5, 6, ABS($period_credit), $dec);
+                $rep->AmountCol(6, 7, $bal_debit, $dec);
+                $rep->AmountCol(7, 8, ABS($bal_credit), $dec);
+                $rep->NewLine(1);
+        
+                $for_debit_tot += $forward_debit;
+                $for_credit_tot += ABS($forward_credit);
+                $per_debit_tot += $period_debit;
+                $per_credit_tot += ABS($period_credit);
+                $end_debit_tot += $bal_debit;
+                $end_credit_tot += ABS($bal_credit);
+            }
+        }
     }
 
     $rep->Line($rep->row  - 4);

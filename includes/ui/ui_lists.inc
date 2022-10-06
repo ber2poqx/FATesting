@@ -3592,12 +3592,16 @@ function record_item_status_list_row($label, $name) {
 	return item_status_list_row($label, $name, null, 	_('Current'), _('Phase out'));
 }
 
-function yesno_list($name, $selected_id=null, $name_yes="", $name_no="", $submit_on_change=false)
-{
+function yesno_list($name, $selected_id=null, $name_yes="", $name_no="", $submit_on_change=false, $reverse = false) {
 	$items = array();
-	$items['0'] = strlen($name_no) ? $name_no : _("No");
-	$items['1'] = strlen($name_yes) ? $name_yes : _("Yes");
-
+	if ($reverse) {
+		$items['1'] = strlen($name_yes) ? $name_yes : _("Yes");
+		$items['0'] = strlen($name_no) ? $name_no : _("No");
+	}
+	else {
+		$items['0'] = strlen($name_no) ? $name_no : _("No");
+		$items['1'] = strlen($name_yes) ? $name_yes : _("Yes");
+	}
 	return array_selector($name, $selected_id, $items, 
 		array( 
 			'select_submit'=> $submit_on_change,

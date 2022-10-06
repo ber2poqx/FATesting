@@ -229,6 +229,8 @@ class BoxReports
 				case 'YES_NO':
 					return yesno_list($name);
 				//Added by spyrax10
+				case 'YES_NO_REVERSE':
+					return yesno_list($name, null, "", "", false, true);
 				case 'BRANCH':
 					return company_list_row(null, $name, true, true, true, false, false, true);
 					

@@ -1131,6 +1131,7 @@ if ($dim == 2) {
 			array(	
 				_('Start Date') => 'DATEBEGINM',
 				_('End Date') => 'DATEENDM',
+				_('Include Zero Balance Account?') => 'YES_NO_REVERSE',
 				// _('Zero values') => 'YES_NO',
 				// _('Only balances') => 'YES_NO',
 				// _('Dimension')." 1" =>  'DIMENSIONS1',
@@ -1212,6 +1213,7 @@ elseif ($dim == 1) {
 			array(	
 				_('Start Date') => 'DATEBEGINM',
 				_('End Date') => 'DATEENDM',
+				_('Include Zero Balance Account?') => 'YES_NO_REVERSE',
 				// _('Zero values') => 'YES_NO',
 				// _('Only balances') => 'YES_NO',
 				// _('Dimension')." 1" =>  'DIMENSIONS1',
@@ -1290,6 +1292,7 @@ else {
 			array(	
 				_('Start Date') => 'DATEBEGINM',
 				_('End Date') => 'DATEENDM',
+				_('Include Zero Balance Account?') => 'YES_NO_REVERSE',
 				// _('Zero values') => 'YES_NO',
 				// _('Only balances') => 'YES_NO',
 				// _('Dimension')." 1" =>  'DIMENSIONS1',
