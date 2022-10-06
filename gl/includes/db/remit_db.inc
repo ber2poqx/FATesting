@@ -31,10 +31,6 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
     if ($report) {
         $sql .= " AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
     }
-    
-	if ($cashier != '') {
-		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
-	}
 
 	if ($report && $from_date != null) {
 		$sql .= " AND A.trans_date = '$from_date'";
@@ -48,8 +44,18 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
     }
 
+    if ($cashier != '') { 
+        if ($report) {
+            $sql .= " AND (A.cashier_user_id = ".db_escape($cashier) . " || 
+                A.remit_from = ".db_escape($cashier) . ")";
+        }
+        else {
+            $sql .= " AND A.cashier_user_id = ".db_escape($cashier);
+        }
+	}
+
     if ($report) {
-        $sql .= " AND A.remit_stat = 'Open'";
+        $sql .= " AND A.remit_stat <> 'Disapproved'";
     }
 
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no";
@@ -67,8 +73,13 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
     set_global_connection();
 
     if ($details) {
-        $sql = "SELECT RT.*
-            FROM ".TB_PREF."remittance RT";
+        $sql = "SELECT RT.*,
+        CASE 
+			WHEN RT.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt:'
+    		WHEN RT.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries:'
+		END AS 'receipt_type'
+            
+        FROM ".TB_PREF."remittance RT";
     }
     else {
         $sql = "SELECT RT.*, SUM(RT.amount) AS tot_amount
@@ -77,9 +88,13 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
 
     if ($details) {
         $sql .= " WHERE IFNULL(RT.remit_ref, '') <> ''";
+
+        if ($from_date != null) {
+            $sql .= " AND RT.trans_date = " .db_escape(date2sql($from_date));
+        }
     }
     else {
-        if ($from_date != null || $to_date != null) {
+        if ($from_date != null && $to_date != null) {
             $sql .= " WHERE RT.remit_date >= '" . date2sql($from_date) . "' 
                 AND RT.remit_date <= '" . date2sql($to_date) . "'";
         }

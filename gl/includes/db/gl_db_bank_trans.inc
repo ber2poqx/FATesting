@@ -161,7 +161,7 @@ function exists_bank_trans($type, $type_no)
 
 //----------------------------------------------------------------------------------------
 
-function get_bank_trans($type, $trans_no=null, $person_type_id=null, $person_id=null)
+function get_bank_trans($type, $trans_no=null, $person_type_id=null, $person_id=null, $reference = '')
 {
 	$sql = "SELECT bt.*, act.*,
 		IFNULL(abs(dt.ov_amount), IFNULL(ABS(st.ov_amount), bt.amount)) settled_amount,
@@ -175,14 +175,27 @@ function get_bank_trans($type, $trans_no=null, $person_type_id=null, $person_id=
 				 LEFT JOIN ".TB_PREF."suppliers supplier ON supplier.supplier_id = st.supplier_id,
 			 ".TB_PREF."bank_accounts act
 		WHERE act.id=bt.bank_act ";
-	if (isset($type))
-		$sql .= " AND bt.type=".db_escape($type);
-	if (isset($trans_no))
+
+	if (isset($type)) {
+		$sql .= " AND bt.type=".db_escape($type);	
+	}
+
+	if (isset($trans_no)) {
 		$sql .= " AND bt.trans_no = ".db_escape($trans_no);
-	if (isset($person_type_id))
+	}
+
+	if (isset($person_type_id)) {
 		$sql .= " AND bt.person_type_id = ".db_escape($person_type_id);
-	if (isset($person_id))
+	}
+
+	if (isset($person_id)) {
 		$sql .= " AND bt.person_id = ".db_escape($person_id);
+	}
+
+	if ($reference != '') {
+		$sql .= " AND bt.ref = " .db_escape($reference);
+	}
+	
 	$sql .= " ORDER BY trans_date, bt.id";
 
 	return db_query($sql, "query for bank transaction");
