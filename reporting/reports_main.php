@@ -1127,14 +1127,14 @@ if ($dim == 2) {
 	//Modified by spyrax10 31 Mar 2022
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 		
-		$reports->addReport(RC_GL, 708, _('Trial &Balance'),
+		$reports->addReport(RC_GL, 728, _('Trial &Balance'),
 			array(	
 				_('Start Date') => 'DATEBEGINM',
 				_('End Date') => 'DATEENDM',
-				_('Zero values') => 'YES_NO',
-				_('Only balances') => 'YES_NO',
-				_('Dimension')." 1" =>  'DIMENSIONS1',
-				_('Dimension')." 2" =>  'DIMENSIONS2',
+				// _('Zero values') => 'YES_NO',
+				// _('Only balances') => 'YES_NO',
+				// _('Dimension')." 1" =>  'DIMENSIONS1',
+				// _('Dimension')." 2" =>  'DIMENSIONS2',
 				_('Comments') => 'TEXTBOX',
 				//_('Orientation') => 'ORIENTATION',
 				_('Destination') => 'DESTINATION'
@@ -1208,13 +1208,14 @@ elseif ($dim == 1) {
 	//Modified by spyrax10 31 Mar 2022
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
-		$reports->addReport(RC_GL, 708, _('Trial &Balance'),
+		$reports->addReport(RC_GL, 728, _('Trial &Balance'),
 			array(	
 				_('Start Date') => 'DATEBEGINM',
 				_('End Date') => 'DATEENDM',
-				_('Zero values') => 'YES_NO',
-				_('Only balances') => 'YES_NO',
-				_('Dimension') => 'DIMENSIONS1',
+				// _('Zero values') => 'YES_NO',
+				// _('Only balances') => 'YES_NO',
+				// _('Dimension')." 1" =>  'DIMENSIONS1',
+				// _('Dimension')." 2" =>  'DIMENSIONS2',
 				_('Comments') => 'TEXTBOX',
 				//_('Orientation') => 'ORIENTATION',
 				_('Destination') => 'DESTINATION'
@@ -1285,12 +1286,14 @@ else {
 	//Modified by spyrax10 31 Mar 2022
 	if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 
-		$reports->addReport(RC_GL, 708, _('Trial &Balance'),
+		$reports->addReport(RC_GL, 728, _('Trial &Balance'),
 			array(	
 				_('Start Date') => 'DATEBEGINM',
 				_('End Date') => 'DATEENDM',
-				_('Zero values') => 'YES_NO',
-				_('Only balances') => 'YES_NO',
+				// _('Zero values') => 'YES_NO',
+				// _('Only balances') => 'YES_NO',
+				// _('Dimension')." 1" =>  'DIMENSIONS1',
+				// _('Dimension')." 2" =>  'DIMENSIONS2',
 				_('Comments') => 'TEXTBOX',
 				//_('Orientation') => 'ORIENTATION',
 				_('Destination') => 'DESTINATION'
