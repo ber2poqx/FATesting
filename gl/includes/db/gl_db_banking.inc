@@ -721,10 +721,10 @@ function write_bank_transaction(
 		$hoc_code = get_company_value(user_company(), 'branch_code');
 		$hoc_masterfile = get_company_value(user_company(), 'name');
 
-		if ($trans_type == ST_BANKPAYMENT && $is_bank_to && $interbranch == false) {
-			// we don't allow payments to go to a bank account. use transfer for this !
-			display_db_error("invalid payment entered. Cannot pay to another bank account", "");
-		}
+		// if ($trans_type == ST_BANKPAYMENT && $is_bank_to && $interbranch == false) {
+		// 	// we don't allow payments to go to a bank account. use transfer for this !
+		// 	display_db_error("invalid payment entered. Cannot pay to another bank account", "");
+		// }
 
 		$row = get_gl_account($gl_item->code_id);
 		$link_to_entry = $row['control'] == 1 && $gl_item->amount > 0 ? true : false;
