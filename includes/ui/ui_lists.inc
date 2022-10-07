@@ -3501,17 +3501,19 @@ function gl_all_accounts_list($name, $selected_id=null, $skip_bank_accounts=fals
 	$text = $all_text != '' ? $all_text : _("Use Item Sales Accounts");
 	//
 
-	if ($skip_bank_accounts) {
-		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM (".TB_PREF."chart_master AS chart,".TB_PREF."chart_types AS type) 
-				LEFT JOIN ".TB_PREF."bank_accounts acc ON chart.account_code = acc.account_code
-			WHERE acc.account_code IS NULL AND chart.account_type = type.id";
-	}	
-	else {
-		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM ".TB_PREF."chart_master AS chart,".TB_PREF."chart_types AS type
-			WHERE chart.account_type = type.id";
-	}
+	$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
+		FROM ".TB_PREF."chart_master AS chart,".TB_PREF."chart_types AS type
+		WHERE chart.account_type = type.id";
+
+	// if ($skip_bank_accounts) {
+	// 	$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
+	// 		FROM (".TB_PREF."chart_master AS chart,".TB_PREF."chart_types AS type) 
+	// 			LEFT JOIN ".TB_PREF."bank_accounts acc ON chart.account_code = acc.account_code
+	// 		WHERE acc.account_code IS NULL AND chart.account_type = type.id";
+	// }	
+	// else {
+		
+	// }
 		
 	if ($type_id ) $sql .= " AND chart.account_type=".db_escape($type_id);
 	$account = ($skip_bank_accounts ? "account2" : "account");

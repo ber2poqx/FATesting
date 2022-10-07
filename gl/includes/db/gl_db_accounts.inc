@@ -414,19 +414,21 @@ function get_chart_accounts_search($like, $skip = false) {
 		$limit = 10;
 	}
 
-	if ($skip) {
-		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM ".TB_PREF."chart_master AS chart 
-				INNER JOIN ".TB_PREF."chart_types AS type ON chart.account_type = type.id ". " 
-				LEFT JOIN ".TB_PREF."bank_accounts AS acc ON chart.account_code = acc.account_code
-			WHERE acc.account_code IS NULL";
-	}
-	else {
-		$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
-			FROM ".TB_PREF."chart_master AS chart 
-				INNER JOIN ".TB_PREF."chart_types AS type ON chart.account_type = type.id
-			WHERE chart.inactive = 0";
-	}	
+	$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
+		FROM ".TB_PREF."chart_master AS chart 
+			INNER JOIN ".TB_PREF."chart_types AS type ON chart.account_type = type.id
+		WHERE chart.inactive = 0";
+		
+	// if ($skip) {
+	// 	$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
+	// 		FROM ".TB_PREF."chart_master AS chart 
+	// 			INNER JOIN ".TB_PREF."chart_types AS type ON chart.account_type = type.id ". " 
+	// 			LEFT JOIN ".TB_PREF."bank_accounts AS acc ON chart.account_code = acc.account_code
+	// 		WHERE acc.account_code IS NULL";
+	// }
+	// else {
+		
+	// }	
 	
 	$sql .= " AND (
 		chart.account_name LIKE " . db_escape("%" . $like. "%") . " OR
