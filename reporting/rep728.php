@@ -199,6 +199,11 @@ function print_trial_balance() {
                 $end_credit_tot += ABS($bal_credit);
             }
         }
+
+        if ($rep->row < $rep->bottomMargin + $rep->lineHeight) {
+			$rep->Line($rep->row - 2);
+			$rep->NewPage();
+		}
     }
 
     $rep->Line($rep->row  - 4);
