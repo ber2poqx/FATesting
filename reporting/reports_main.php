@@ -1371,6 +1371,17 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 	//=================================================================
 }
 
+if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
+	$reports->addReport(RC_GL, 729, _('Unbalanced Entries Report'),
+		array(	
+			_('As of Date') => 'DATEENDM',
+			_('Display All Transaction?') => 'YES_NO',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'
+		)
+	);
+}
+
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 	//Modified by Prog6 (8-06-2021) =====================================
 	$reports->addReport(RC_GL, 723, _('SL Summary (Particulars)'),
