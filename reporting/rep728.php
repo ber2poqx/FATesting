@@ -135,7 +135,7 @@ function print_trial_balance() {
         $sub_forward_credit = get_trial_balace($from, $to, $data['account_code'], 'forward_credit');
         $sub_forward_total = $sub_forward_debit + $sub_forward_credit;
 
-        if ($sub_forward_debit > 0) {
+        if ($sub_forward_total > 0) {
             $forward_debit = $sub_forward_total;
             $forward_credit = 0;
         }
