@@ -264,8 +264,9 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	function DV_headers($trans_no)
 	{
 		$sql = "
-			SELECT bank.`masterfile`, dm.name, bank.`receipt_no`, bank.`receipt_no`, bank.`trans_date`, bank.`amount`, c.memo_
+			SELECT bank.`masterfile`, IFNULL(gl.master_file, dm.name) AS name, bank.`receipt_no`, bank.`trans_date`, bank.`amount`, c.memo_
 			FROM ".TB_PREF."`bank_trans` bank 
+				LEFT JOIN ".TB_PREF."`gl_trans` gl ON bank.type = gl.type AND bank.trans_no=gl.type_no
 				LEFT JOIN ".TB_PREF."`comments` c ON bank.type = c.type AND bank.trans_no = c.id 
 				LEFT JOIN ".TB_PREF."`debtors_master` dm ON bank.masterfile = dm.debtor_no
 			WHERE bank.`type` = '".ST_BANKPAYMENT."' AND `trans_no` = '$trans_no'";

@@ -39,7 +39,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 	
 		$sql = "		
 			SELECT gl.tran_date
-			, ref.reference			
+			, IFNULL(ref.reference, bt.ref)	AS reference			
             , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
 			##, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
 			, gl.memo_ AS memo_
