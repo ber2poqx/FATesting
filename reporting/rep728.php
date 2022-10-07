@@ -127,10 +127,23 @@ function print_trial_balance() {
     $per_debit_tot = $per_credit_tot = 0;
     $end_debit_tot = $end_credit_tot = 0;
 
+    $sub_forward_debit = $sub_forward_credit = $sub_forward_total = 0;
+
     while ($data = db_fetch($accounts)) {
 
-        $forward_debit = get_trial_balace($from, $to, $data['account_code'], 'forward_debit');
-        $forward_credit = get_trial_balace($from, $to, $data['account_code'], 'forward_credit');
+        $sub_forward_debit = get_trial_balace($from, $to, $data['account_code'], 'forward_debit');
+        $sub_forward_credit = get_trial_balace($from, $to, $data['account_code'], 'forward_credit');
+        $sub_forward_total = $sub_forward_debit + $sub_forward_credit;
+
+        if ($sub_forward_debit > 0) {
+            $forward_debit = $sub_forward_total;
+            $forward_credit = 0;
+        }
+        else {
+            $forward_credit = $sub_forward_total;
+            $forward_debit = 0;
+        }
+        
         $period_debit = get_trial_balace($from, $to, $data['account_code'], 'period_debit');
         $period_credit = get_trial_balace($from, $to, $data['account_code'], 'period_credit');
         
