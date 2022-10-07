@@ -179,7 +179,7 @@ function print_trial_balance() {
             $end_credit_tot += ABS($bal_credit);
         }
         else {
-            if ($bal_debit > 0 || $bal_credit > 0) {
+            if ($bal_debit > 0 || $bal_credit < 0) {
                 $rep->TextCol(0, 1, $data['account_code']);
                 $rep->TextCol(1, 2,	$data['account_name']);
         
