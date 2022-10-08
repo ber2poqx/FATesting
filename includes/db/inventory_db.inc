@@ -1879,3 +1879,47 @@ function get_available_item_for_sr(
 	$result = db_query($sql, "could not retreive the items");
 	return $result;
 }
+
+//added by robert 10/03/2022
+function add_stock_adjustment_complimentary($type, $stock_id, $trans_no, $location, $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = '', $chasis_no = '', $category = 0, $color_code = '', $type_out = 0, $transno_out = 0, $remarks = '', $item_type = "new", $adjustment_type = "OUT", $approver = '')
+
+{
+	$date = date2sql($date_);
+	set_global_connection();
+	if ($type_out == 0) {
+		$type_out = $type;
+	}
+	if ($transno_out == 0) {
+		$transno_out = $trans_no;
+	}
+
+	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment (trans_no, trans_no_out, trans_type_out, stock_id, type, item_type, color_code, loc_code,
+				tran_date, price, reference, qty, standard_cost, lot_no, chassis_no, category_id, adjustment_type, memo, approver, comments
+			) VALUES ("
+		. db_escape($trans_no) . ", " . db_escape($transno_out) . ", " . db_escape($type_out) . ", " . db_escape($stock_id) . ", "
+		. db_escape($type) . ", " . db_escape($item_type) . ", " . db_escape($color_code) . "," . db_escape($location) . ", '$date', "
+		. db_escape($price) . ", " . db_escape($reference) . ", " . db_escape($quantity) . ", " . db_escape($std_cost) . ", "
+		. db_escape($lot_no) . ", " . db_escape($chasis_no) . ", " . db_escape($category) . ", " . db_escape($adjustment_type) . ", " 
+		. db_escape($remarks) . ", " . db_escape($approver) . ", " . db_escape($remarks) . ")";
+
+	db_query($sql, "The stock adjustment complimentary record cannot be inserted");
+
+	return db_insert_id();
+}
+
+//added by robert 10/03/2022
+function add_adj_gl_complimentary($type, $trans_no, $account, $memo, $amount, $mcode = null, $masterfile = null, $reference = '', $stock_id = '', $color_code = '', 
+	$lot_no = '', $chasis_no = '', $gl_type = '', $item_type = "new")
+{
+	set_global_connection();
+
+	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment_gl (sa_trans_no, sa_adj_type, sa_adj_item, sa_reference, 
+			stock_id, color_code, lot_no, chassis_no, gl_type, account, amount, mcode, master_file, memo_) 
+		VALUES (
+		" . db_escape($trans_no) . ", " . db_escape($type) . ", " . db_escape($item_type) . ", 
+		" . db_escape($reference) . ", " . db_escape($stock_id) . ", " . db_escape($color_code) . ", " . db_escape($lot_no) . ", 
+		" . db_escape($chasis_no) . ", " . db_escape($gl_type) . ", " . db_escape($account) . ", " . db_escape($amount) . ", 
+		" . db_escape($mcode) . ", " . db_escape($masterfile) . ", " . db_escape($memo) . ")";
+
+	db_query($sql, "Cannot add adjustment gl");
+}

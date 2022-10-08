@@ -40,45 +40,87 @@ Ext.onReady(function(){
 			{name:'delivery_date',mapping:'delivery_date'}
 		]
 	});
+
+	Ext.define('Modelitemlisting',{
+		extend : 'Ext.data.Model',
+		fields  : [
+			{name:'trans_no',mapping:'trans_no'},
+			{name:'stock_id',mapping:'stock_id'},
+			{name:'lot_no',mapping:'lot_no'},
+			{name:'chasis_no',mapping:'chasis_no'},
+			{name:'color',mapping:'color'},
+			{name:'item_description',mapping:'item_description'},
+			{name:'qty',mapping:'qty'},
+			{name:'category_id',mapping:'category_id'},
+			{name:'reference',mapping:'reference'},
+			{name:'standard_cost',mapping:'standard_cost', type: 'float'}
+		]
+	});
+
+	Ext.define('GlEntryitemlisting',{
+		extend : 'Ext.data.Model',
+		fields  : [
+			{name:'trans_no',mapping:'trans_no'},
+			{name:'account_code_gl',mapping:'account_code_gl'},
+			{name:'account_name_gl',mapping:'account_name_gl'},
+			{name:'mcode_gl',mapping:'mcode_gl'},
+			{name:'masterfile_gl',mapping:'masterfile_gl'},
+			{name:'debit_gl',mapping:'debit_gl', type: 'float'},
+			{name:'credit_gl',mapping:'credit_gl', type: 'float'},
+			{name:'memo_gl',mapping:'memo_gl'},
+			{name:'reference',mapping:'reference'}
+		]
+	});
 	
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:25, hidden: true},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:90,
+		{header:'Reference', dataIndex:'reference', sortable:true, width:200,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:40,
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:95,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'From Location', dataIndex:'loc_name', sortable:true, width:150, hidden: false,
+		{header:'From Location', dataIndex:'loc_name', sortable:true, width:320, hidden: false,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Category', dataIndex:'category_name', sortable:true, width:50,
+		{header:'Category', dataIndex:'category_name', sortable:true, width:120,
  			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:45, align:'center',
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:100, align:'center',
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '00,000.00') + '</span>';
 			}
 		},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:150,
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:300,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
 		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50, hidden: true},
-		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
+		{header:'Approved', dataIndex:'statusmsg', sortable:true, width:120,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				if (value == "For Approval"){
+					return '<span style="color:red; font-weight:bold;">' + value + '</span>';
+				}else if(value == "Approved"){
+					return '<span style="color:green; font-weight:bold;">' + value + '</span>';
+				}else{
+					return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+				}
+			}
+		},
+		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:70,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
-					tooltip: 'Serial Items Detail',
+					tooltip: 'Items Details / Approved / Posting',
 					hidden: false,
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
@@ -86,7 +128,7 @@ Ext.onReady(function(){
                         reference = record.get('reference');
                         brcode = record.get('loc_code');
                         catcode = record.get('category_id');
-                        
+
 						if(!windowItemSerialList){
 							MTItemListingStore.proxy.extraParams = {
 								catcode: catcode, 
@@ -94,104 +136,179 @@ Ext.onReady(function(){
 								reference:reference,
 								trans_no:id
 							};
+							GlCompliEntyStore.proxy.extraParams = {
+								branchcode:brcode,
+								reference:reference
+							};
 							MTItemListingStore.load();	
-								
+							GlCompliEntyStore.load();
+							UserRoleIdStore.load();
+
+							var robert = UserRoleIdStore.getAt(0);
+							role_id = robert.get('role_id');
+
 							var windowItemSerialList = Ext.create('Ext.Window',{
-								title:'Item Listing',
+								title:'Item Details / Gl Entry Details',
 								id:'windowItemSSerialList',
 								modal: true,
 								width: 990,
 								height:450,
 								bodyPadding: 5,
 								layout:'fit',
+								dockedItems:[{
+									dock:'top',
+									xtype:'toolbar',
+									name:'postingdate',
+									hidden: false,
+									items:[{
+										xtype:'datefield',
+										fieldLabel:'Posting Date',
+										name:'trans_date',
+										id:'PostDate',
+    									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
+    									value: new Date(),
+    									readOnly: true
+									}]
+								}],
 								items:[
 									{
-										xtype:'panel',
+										xtype: 'tabpanel',
+										id: 'complitabpanel',
 										autoScroll: true,
-										frame:false,
+										activeTab: 0,
+										width: 860,
+										height: 270,
+										scale: 'small',
 										items:[{
-											xtype:'grid',
+											xtype:'gridpanel',
+											id: 'ItemSerialListingView',
 											forceFit: true,
-											//flex:1,
 											layout:'fit',
-											id:'ItemSerialListingView',
-											store: MTItemListingStore,
+											title: 'Item Details',
+											icon: '../js/ext4/examples/shared/icons/lorry_flatbed.png',
+											loadMask: true,
+											//height: 130,
+											store:	MTItemListingStore,
 											columns: columnItemSerialView,
-											/*dockedItems:[{
-												dock:'top',
-												xtype:'toolbar',
-												name:'searchSerialBar',
-												hidden: true,
-												items:[{
-													width	: 300,
-													hidden: true,
-													xtype	: 'textfield',
-													name 	: 'searchSerialItem',
-													id		:'searchSerialItemView',
-													fieldLabel: 'Item Description',
-													labelWidth: 120,
-													listeners : {
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-																var catcode = Ext.getCmp('category').getValue();
-																var brcode = Ext.getCmp('fromlocation').getValue();
-																MTItemListingStore.proxy.extraParams = { 
-																	query:this.getValue(), 
-																	catcode: catcode,
-																	branchcode: brcode
-																}
-																MTItemListingStore.load();									
-															}
-														}
-
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-																var class_type = Ext.getCmp('searchSerialItemView').getValue();
-																MTItemListingStore.proxy.extraParams = { 
-																	stock_description:this.getValue(), 
-																	class_type: class_type
-																}
-																MTItemListingStore.load();								
-															}
-														}									
-													}
-												},{
-													iconCls:'clear-search',
-													hidden: true
-												},{
-													xtype:'textfield',
-													name:'searchSerial',
-													id:'searchSerialView',
-													fieldLabel:'Serial/Engine No.',
-													labelWidth: 120,
-													hidden: true,
-													listeners: {
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-																var class_type = Ext.getCmp('searchSerialView').getValue();
-																MTItemListingStore.proxy.extraParams = { 
-																	lot_no:this.getValue(), 
-																	class_type: class_type
-																}
-																MTItemListingStore.load();								
-															}
-														}		
-													}
-												}]
-											}],*/
-											bbar : {
+											//selModel: smCheckAmortGrid,
+											columnLines: true,
+											features: [{ftype: 'summary'}],
+											/*bbar : {
 												xtype : 'pagingtoolbar',
 												store : MTItemListingStore,
 												displayInfo : true
+											},*/
+											viewConfig : {
+												listeners : {
+													cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
+														//alert( record.get("totalpayment") + ' ' + (rowIndex+1));
+														//Ext.getCmp("total_amount").setValue(record.get("totalpayment"));
+														//Ext.getCmp('tenderd_amount').setValue();
+														//Ext.getCmp('tenderd_amount').focus(false, 200);
+													}
+												}
+											}
+										},{
+											xtype:'gridpanel',
+											id: 'GlSerialView',
+											autoScroll: true,
+											forceFit: true,
+											layout:'fit',
+											title: 'GL Entry',
+											icon: '../js/ext4/examples/shared/icons/vcard.png',
+											loadMask: true,
+											//height: 250,
+											store:	GlCompliEntyStore,
+											columns: columnGlEntryView,
+											columnLines: true,
+											features: [{ftype: 'summary'}],
+											/*bbar : {
+												xtype : 'pagingtoolbar',
+												store : GlCompliEntyStore,
+												displayInfo : true
+											},*/
+											viewConfig : {
+												listeners : {
+													cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
+														//alert( record.get("penalty") + ' ' + (rowIndex+1));
+													}
+												}
 											}
 										}]
 									}
 								],
 								buttons:[
 									{
+										text:'Approved',
+										id: 'approved_btn',
+										icon: '../js/ext4/examples/shared/icons/add.png',
+										handler: function(grid, rowIndex, colIndex) {
+				                        
+						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Approved this record?', ApprovalFunction);
+						                    function ApprovalFunction(btn) {
+						                    	if(btn == 'yes') {
+							                        Ext.Ajax.request({
+														url : '?action=approval',
+														method: 'POST',
+														params:{
+															reference: reference,
+															value: btn
+														},
+														success: function (response){
+															Ext.Msg.alert('Success','Success Processing');
+															myInsurance.load();
+															windowItemSerialList.close();										
+														},	
+														failure: function (response){
+															Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+														}
+													});
+												}
+						                    };
+						                }
+									},{
+										text:'Post',
+										id: 'post_tran_btn',
+										icon: '../js/ext4/examples/shared/icons/add.png',
+										hidden: false,
+										handler: function() {
+
+											var PostDate = Ext.getCmp('PostDate').getValue();	
+
+											Ext.MessageBox.show({
+												msg: 'Saving Date, please wait...',
+												progressText: 'Saving...',
+												width:300,
+												wait:true,
+												waitConfig: {interval:200},
+												//icon:'ext-mb-download', //custom class in msg-box.html
+												iconHeight: 50
+											});
+												
+											Ext.Ajax.request({
+												url : '?action=posting_transaction',
+												method: 'POST',
+												params:{
+													reference:reference,
+													trans_no:id,
+													PostDate:PostDate
+												},
+												success: function(response){
+													var jsonData = Ext.JSON.decode(response.responseText);
+													var errmsg = jsonData.errmsg;
+													//Ext.getCmp('AdjDate').setValue(AdjDate);
+													if(errmsg!=''){
+														Ext.MessageBox.alert('Error',errmsg);
+													}else{
+														windowItemSerialList.close();
+														myInsurance.load();
+														Ext.MessageBox.alert('Success','Success Processing');
+													}	
+												} 
+											});
+											Ext.MessageBox.hide();
+										}
+									},{
 										text:'Close',
 										iconCls:'cancel-col',
 										handler: function(){
@@ -199,8 +316,37 @@ Ext.onReady(function(){
 										}
 									}
 								]
-							});	
-						}						
+							});
+						}
+
+						if(role_id !=19 && (role_id !=2)) {
+							Ext.getCmp('approved_btn').setVisible(false);
+							if(record.get('status') == 'Approved') {
+								Ext.getCmp('post_tran_btn').setVisible(true);
+							}else if(record.get('status') == 'For Approval') {
+								Ext.getCmp('post_tran_btn').setVisible(false);
+							}
+						}else if(role_id == 19) {
+							Ext.getCmp('post_tran_btn').setVisible(false);
+							if(record.get('status') == 'Approved') {
+								Ext.getCmp('approved_btn').setVisible(false);
+							}
+						}else if(role_id == 2) {
+							if(record.get('status') == 'Approved') {
+								Ext.getCmp('approved_btn').setVisible(false);
+							}else if(record.get('status') == 'For Approval') {
+								Ext.getCmp('post_tran_btn').setVisible(false);
+							}
+						}
+
+						if(record.get('status') == 'Closed') {
+							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('post_tran_btn').setVisible(false);
+							Ext.getCmp('PostDate').setVisible(false);
+						}else if(record.get('status') == 'For Approval') {
+							Ext.getCmp('PostDate').setVisible(false);
+						}
+
 						//var v = Ext.getCmp('category').getValue();
 						if(catcode=='14'){
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].show();
@@ -211,8 +357,7 @@ Ext.onReady(function(){
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].hide();
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="color"]')[0].hide();
 						}
-						windowItemSerialList.show();
-						
+						windowItemSerialList.show();	
 					}
 				},{
 					icon: '../js/ext4/examples/shared/icons/printer.png',
@@ -249,7 +394,13 @@ Ext.onReady(function(){
 						win.show();
 						Ext.DomHelper.insertFirst(win.body, iframe)
 						//window.open('../reports/merchandise_receipts.php?reference='+reference);
-					}
+					},
+					getClass : function(value, meta, record, rowIx, ColIx, store) {
+	                    if(record.get('status') != 'Closed') {
+                			return 'x-hidden-visibility';
+            			}
+	                    
+	                }
 				}
 			]
 		}
@@ -626,6 +777,7 @@ Ext.onReady(function(){
                 }
 			},
 			renderer : function(value, metaData, summaryData, dataIndex){
+				GetTotalBalance();
 				if (value==0) {
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
 				}else{
@@ -879,11 +1031,27 @@ Ext.onReady(function(){
 	}
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['trans_no', 'stock_id', 'lot_no', 'chasis_no', 'color', 'item_description', 'qty','category_id','reference'],
+		model: 'Modelitemlisting',
+		name: 'MTItemListingStore',
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
 			url	: '?action=MTserialitems',
+			reader:{
+				type : 'json',
+				root : 'result',
+				totalProperty : 'total'
+			}
+		}
+	});
+
+	var GlCompliEntyStore = Ext.create('Ext.data.Store', {
+		model: 'GlEntryitemlisting',
+		name: 'GlCompliEntyStore',
+		autoLoad: false,
+		proxy : {
+			type: 'ajax',
+			url	: '?action=GLEntryItems',
 			reader:{
 				type : 'json',
 				root : 'result',
@@ -907,6 +1075,21 @@ Ext.onReady(function(){
 		}
 	});
 
+	var UserRoleIdStore = Ext.create('Ext.data.Store', {
+		fields: ['role_id'],
+		autoLoad: false,
+		pageSize: itemsPerPage,
+		proxy : {
+			type: 'ajax',
+			url	: '?action=UserRoleId_apprv',
+			reader:{
+				type : 'json',
+				root : 'result',
+				totalProperty : 'total'
+			}
+		}
+	});
+
 	var columnItemSerialView = [
 		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, renderer: columnWrap,hidden: true},
 		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
@@ -914,11 +1097,62 @@ Ext.onReady(function(){
 		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:80, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
 
+	var columnGlEntryView = [
+		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, renderer: columnWrap,hidden: true},
+		{header:'Account Code', dataIndex:'account_code_gl', sortable:true, width:80, renderer: columnWrap,hidden: false, align:'center',
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Account Description', dataIndex:'account_name_gl', sortable:true, width:140, renderer: columnWrap,hidden: false},
+		{header:'Mcode', dataIndex:'mcode_gl', sortable:true, width:50, renderer: columnWrap,hidden: false, align:'center'},
+		{header:'Masterfile', dataIndex:'masterfile_gl', sortable:true, renderer: columnWrap,hidden: false, align:'center'},
+		{header:'Debit', dataIndex:'debit_gl', sortable:true, width:80, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
+		{header:'Credit', dataIndex:'credit_gl', sortable:true, width:80,renderer: columnWrap, hidden: false, align: 'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
+		{header:'Memo', dataIndex:'memo_gl', sortable:true, renderer: columnWrap,hidden: false}
+	]
 
 	var coalistingStore = Ext.create('Ext.data.Store', {
 		fields: ['account_code', 'account_name', 'name',{name:'class_id',type:'int'},'class_name'],
@@ -971,6 +1205,8 @@ Ext.onReady(function(){
 		id:'mtgrid',
 		anchor:'100%',
 		forceFit: true,
+		height: 270,
+		autoScroll:true,
 		//flex:1,
 		//autoScroll: true,
 		//height: 500,
@@ -1028,7 +1264,7 @@ Ext.onReady(function(){
 						var brcode = Ext.getCmp('fromlocation').getValue();
 						var AdjDate = Ext.getCmp('AdjDate').getValue();
 						ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate}
-						ItemListingStore.load();	
+						ItemListingStore.load();
 						var windowItemList = Ext.create('Ext.Window',{
 							title:'Item Listing',
 							id:'windowItemList',
@@ -1358,6 +1594,8 @@ Ext.onReady(function(){
 		forceFit: true,
 		store: GLItemsStore,
 		columns: columnJEModel,
+		height: 270,
+		autoScroll:true,
 		//plugins: [rowEditing],
 		//selModel: {selType: 'cellmodel'},
 		//plugins: [cellEditing],
@@ -1608,9 +1846,7 @@ Ext.onReady(function(){
 								}
 							]
 						});	
-					}						
-					
-					
+					}											
 					windowItemListje.show();
 				}	
 			}
@@ -1624,10 +1860,10 @@ Ext.onReady(function(){
 		layout: 'fit',
 		//height	: 550,
 		title	: 'Complimentary Items',
-		store	    :	myInsurance,
+		store	    : myInsurance,
 		id 		    : 'grid',
 		columns 	: columnModel,
-		forceFit 	: true,
+		forceFit 	: false,
 		frame		: false,
 		columnLines	: true,
 		sortableColumns :true,
@@ -1647,6 +1883,7 @@ Ext.onReady(function(){
 					icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
 					tooltip	: 'New Transaction',
 					text 	: 'New Transaction',
+					id: 'newtransaction',
 					hidden: false,
 					handler : function(){
 						if(!windowNewTransfer){
@@ -2067,6 +2304,28 @@ Ext.onReady(function(){
 			myInsurance.load();	
 			//Ext.MessageBox.alert('Success!',"Process complete"+branchcode+GridTitle);
 			//window.open('?action=downloadfile&pathfile='+pathfile);
+		},
+		failure: function (response){
+			Ext.MessageBox.hide();
+			var jsonData = Ext.JSON.decode(response.responseText);
+			Ext.MessageBox.alert('Error','Error Processing');
+		}
+	});
+
+	Ext.Ajax.request({
+		url : '?action=UserRoleId',
+		method: 'GET',
+		success: function (response){
+			Ext.MessageBox.hide();
+			var jsonData = Ext.JSON.decode(response.responseText);
+			var user_role = jsonData.user_role;
+			if(user_role == 19){
+				Ext.getCmp('newtransaction').setDisabled(true);
+			}else{
+				Ext.getCmp('newtransaction').setDisabled(false);
+			}
+
+			UserRoleIdStore.load();
 		},
 		failure: function (response){
 			Ext.MessageBox.hide();

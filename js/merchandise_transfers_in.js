@@ -299,12 +299,12 @@ Ext.onReady(function(){
 											//disabled: true,
 											fieldStyle: 'font-weight: bold; color: #003168;'
 										},{
-												xtype:'datefield',
-												fieldLabel:'Received Date',
-												name:'trans_date',
-												id:'AdjDate',/*,
-												value: new Date()*/
-												readOnly: true
+											xtype:'datefield',
+											fieldLabel:'Received Date',
+											name:'trans_date',
+											id:'AdjDate',/*,
+											value: new Date()*/
+											readOnly: true
 										},
 										{
 											xtype:'textfield',
@@ -436,7 +436,11 @@ Ext.onReady(function(){
 									}
 								]
 							});	
-						}						
+						}	
+
+						if(record.get('status_msg') == 'Received') {
+							Ext.getCmp('btnProcess').setVisible(false);
+						}					
 						//var v = Ext.getCmp('category').getValue();
 						if(catcode=='14'){
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].show();
@@ -1063,7 +1067,17 @@ Ext.onReady(function(){
 		{header:'Standard Cost', dataIndex:'standard_cost', hidden:false, width:80, hidden: false},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: true},
-		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false}
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:60,renderer: columnWrap, hidden: false,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				if (value == "Received"){
+					return '<span style="color:green; font-weight:bold;">' + value + '</span>';
+				}else if(value == "Partial"){
+					return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+				}
+			}
+		}
 	]
 	var columnItemNonSerial = [
 		{header:'id', dataIndex:'trans_id', sortable:true, width:60,hidden: true},

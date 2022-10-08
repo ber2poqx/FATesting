@@ -405,19 +405,16 @@ function add_stock_Complimentary_Items($Items, $location_from, $date_, $referenc
     $total = 0;
     //include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
     
-    $complintary_header_id = add_complimentary_header($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile);
+    $complintary_header_id = add_complimentary_header($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile, $memo_);
     
     foreach ($Items as $line_item)
     {
         
-        //$stock_gl_mt_code = get_stock_gl_code($line_item->stock_id);
-        //set_global_connection();
-        
-        //$total += add_gl_trans_mtbranch(ST_RRBRANCH, $transfer_id, $date_, $stock_gl_mt_code["inventory_account"], 0, 0,$line_item->standard_cost, '', 0, $line_item->stock_id);
-        
-        //$loc = calculate_reorder_level($location_from, $line_item, $st_ids, $st_names, $st_num, $st_reorder);
-        
-        $refline = add_stock_complimentary_item($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
+        //$refline = add_stock_complimentary_item($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
+
+         $refline = add_stock_compli_into_adjustment($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out, $memo_);
+
+
     }
 
     add_comments(ST_COMPLIMENTARYITEM, $transfer_id, $date_, $memo_);
@@ -618,12 +615,14 @@ function add_stock_mt_details_manual($header_id, $stock_id, $quantity=0, $std_co
 }
 
 //Added by Herald - 08/31/2021
-function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile=''){
+function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile='', $memo=''){
     set_global_connection();
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile) VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", ".db_escape($masterfile).")";
+    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, memo_) VALUES ('$trans_date', 
+    ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", ".db_escape($masterfile).", 
+    ".db_escape($memo).")";
     
     db_query($sql, "The complimentary Header record cannot be inserted");
     
@@ -695,6 +694,52 @@ function update_stock_mt_details($line_item,$quantity=0,$currentqty,$receivedqty
     set_global_connection();
     return true;
 }
+
+//Added by Robert 10/06/2022
+function update_stock_adjustment_status($reference, $type){
+    
+    $sql = "UPDATE ".TB_PREF."stock_adjustment SET status='Approved' WHERE reference= ".db_escape($reference)."
+    AND type=".db_escape($type);
+    
+    db_query($sql, "The Stock Adjusment Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
+
+//Added by Robert 10/06/2022
+function update_compli_item_status($reference){
+    
+    $sql = "UPDATE ".TB_PREF."complimentary_items SET status='Approved' WHERE reference= ".db_escape($reference);
+    
+    db_query($sql, "The Complimentary Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
+
+//Added by Robert 10/06/2022
+function update_stock_adjustment_status_post($reference, $type, $date){
+    
+    $sql = "UPDATE ".TB_PREF."stock_adjustment SET date_approved='".$date."', status='Closed' WHERE reference= ".db_escape($reference)."
+    AND type=".db_escape($type);
+    
+    db_query($sql, "The Stock Adjusment Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
+
+//Added by Robert 10/06/2022
+function update_compli_item_status_post($reference){
+    
+    $sql = "UPDATE ".TB_PREF."complimentary_items SET status='Closed' WHERE reference= ".db_escape($reference);
+    
+    db_query($sql, "The Complimentary Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
 //-------------------------------------------------------------------------------------------------------------
 
 // add 2 stock_moves entries for a stock transfer
@@ -738,6 +783,14 @@ function add_stock_complimentary_item($transfer_id, $stock_id, $location_from,	$
     //Removed by Herald 02/06/2021
     //add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, 0,0,$lot_no,$chasis_no, $category_id, $color_code);
     
+}
+
+//added by robert 10/03/2022
+function add_stock_compli_into_adjustment($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',
+    $standard_cost=0, $type_out, $transno_out, $remarks)
+{
+    return add_stock_adjustment_complimentary(ST_COMPLIMENTARYITEM, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity, $standard_cost, 0, $lot_no, 
+        $chasis_no, $category_id, $color_code, $type_out, $transno_out, $remarks);
 }
 
 //-------------------------------------------------------------------------------------------------------------

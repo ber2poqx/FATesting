@@ -240,12 +240,12 @@ function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',
 /*Added by robert 04/19/2022*/
 function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$all=false){
 
-    $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
-    loc.location_name as loc_name, comments.memo_ as remarks 
-    FROM ".TB_PREF."stock_moves smoves 
+    $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
+    loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status
+    FROM ".TB_PREF."stock_adjustment smoves 
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
-    LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id 
+    LEFT JOIN ".TB_PREF."complimentary_items compl ON smoves.reference=compl.reference 
     WHERE smoves.type='".ST_COMPLIMENTARYITEM."' AND smoves.loc_code='$branchcode'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 
@@ -296,6 +296,41 @@ function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode=''
     //echo $sql;
 
     return $result;
+}
+
+/*Added by robert 10/08/2022*/
+function get_transaction_from_stock_adjusment_check($type, $trans_no, $reference){
+
+    $sql = "SELECT * FROM ".TB_PREF."stock_adjustment 
+    WHERE type='".$type."' AND trans_no='".$trans_no."' AND reference='".$reference."'";
+
+    $result2 = db_query($sql, "could not get all complimentary item");
+
+    return $result2;
+}
+
+/*Added by robert 10/06/2022*/
+function get_transaction_from_stock_adjusment($type, $trans_no, $reference){
+
+    $sql = "SELECT * FROM ".TB_PREF."stock_adjustment 
+    WHERE type='".$type."' AND trans_no='".$trans_no."' AND reference='".$reference."'";
+
+    $result = db_query($sql, "could not get all complimentary item");
+
+    return $result;
+}
+
+/*Added by robert 10/06/2022*/
+function get_transaction_from_stock_adjusment_gl($type, $trans_no, $reference){
+
+    $sql = "SELECT gl.*, stock.tran_date FROM ".TB_PREF."stock_adjustment_gl gl
+    INNER JOIN stock_adjustment stock ON stock.type = gl.sa_adj_type AND stock.trans_no = gl.sa_trans_no
+    WHERE sa_adj_type='".$type."' AND sa_trans_no='".$trans_no."' AND sa_reference='".$reference."'
+    GROUP BY gl.id";
+
+    $result1 = db_query($sql, "could not get all complimentary item");
+
+    return $result1;
 }
 
 //added by Herald 09/22/2021 for Manual Entry MT
