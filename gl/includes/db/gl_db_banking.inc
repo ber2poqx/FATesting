@@ -802,43 +802,43 @@ function write_bank_transaction(
 		//
 
 		/* */
-		if ($is_bank_to) {
-			add_bank_trans(
-				$trans_type,
-				$trans_no,
-				$is_bank_to,
-				$ref,
-				$date_,
-				//$receipt_no,
-				$gl_item->amount,
-				$person_type_id,
-				$person_id,
-				$cashier_teller,
-				$typecollection,
-				$check_date,
-				$check_no,
-				$bank_branch,
-				$person_detail_id,
-				$receipt_no,
-				get_current_user_fullname(), //Prepared by 
-				null, //Checked by
-				null, //Approved by
-				null, //Module type
-				$currency,
-				"Cannot insert a destination bank transaction"
-			);
-			if ($do_exchange_variance) {
-				add_exchange_variation(
-					$trans_no1,
-					$date_,
-					$is_bank_to,
-					$gl_item->code_id,
-					$currency,
-					$person_type_id,
-					$person_id
-				);
-			}
-		}
+		// if ($is_bank_to) {
+		// 	add_bank_trans(
+		// 		$trans_type,
+		// 		$trans_no,
+		// 		$is_bank_to,
+		// 		$ref,
+		// 		$date_,
+		// 		//$receipt_no,
+		// 		$gl_item->amount,
+		// 		$person_type_id,
+		// 		$person_id,
+		// 		$cashier_teller,
+		// 		$typecollection,
+		// 		$check_date,
+		// 		$check_no,
+		// 		$bank_branch,
+		// 		$person_detail_id,
+		// 		$receipt_no,
+		// 		get_current_user_fullname(), //Prepared by 
+		// 		null, //Checked by
+		// 		null, //Approved by
+		// 		null, //Module type
+		// 		$currency,
+		// 		"Cannot insert a destination bank transaction"
+		// 	);
+		// 	if ($do_exchange_variance) {
+		// 		add_exchange_variation(
+		// 			$trans_no1,
+		// 			$date_,
+		// 			$is_bank_to,
+		// 			$gl_item->code_id,
+		// 			$currency,
+		// 			$person_type_id,
+		// 			$person_id
+		// 		);
+		// 	}
+		// }
 		// store tax details if the gl account is a tax account
 
 		$amount = $gl_item->amount;
