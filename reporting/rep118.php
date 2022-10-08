@@ -46,65 +46,92 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 	$to = date2sql($to);
 	$advanceDate = endCycle($to, 1);
 	
-	$sql ="SELECT A.tran_date, A.debtor_no, A.reference, A.ov_amount AS amt, A.ov_discount AS rebate, 
-			A.payment_type AS Type, A.collect_id, B.payment_applied AS payment, B.penalty, C.date_due, C.month_no,
-			D.invoice_date, D.category_id AS category, E.memo_, F.name, F.area, J.collectors_id, J.description AS AREA,
-			G.real_name AS Collector_Name, G.user_id, H.description, I.collection, L.account_name AS Coa_name,
-			N.id,
-			
-			A.ov_amount - IFNULL(B.penalty, 0) + A.ov_discount AS artotal,
-			A.ov_amount + A.ov_discount AS downtotal,
-			A.ov_amount - IFNULL(B.penalty, 0) + A.ov_discount AS advancetotal,
+	$sql ="SELECT A.masterfile, A.trans_date, A.ref, A.amount AS amt, B.ov_discount AS rebate,
+			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty,
+			F.month_no, I.collection, K.account_name AS Coa_name, M.description AS AREA,
+			O.real_name AS Collector_Name, P.memo_,
 
-			A.ov_amount - B.payment_applied + A.ov_discount - IFNULL(B.penalty, 0) AS advance
+			A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,
+			A.amount + B.ov_discount AS downtotal,
+			A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS advancetotal,
+			A.amount - E.payment_applied + B.ov_discount - IFNULL(E.penalty, 0) AS advance,
 
-			FROM debtor_trans A
-			INNER JOIN debtor_loan_ledger B ON B.payment_trans_no = A.trans_no 
-			AND B.trans_type_from = A.type
-			LEFT JOIN debtor_loan_schedule C ON C.id = B.loansched_id
-			LEFT JOIN debtor_loans D ON D.debtor_no = A.debtor_no
-			LEFT JOIN comments E ON E.id = A.trans_no AND E.type = A.type
-			LEFT JOIN debtors_master F ON F.debtor_no = A.debtor_no 
-			LEFT JOIN areas J ON J.area_code = F.area 
-			LEFT JOIN users G ON G.user_id = J.collectors_id
-			LEFT JOIN stock_category H ON H.category_id = D.category_id
-			LEFT JOIN collection_types I ON I.collect_id = A.collect_id
-            LEFT JOIN cust_branch K ON K.debtor_no = D.debtor_no
-            LEFT JOIN chart_master L ON L.account_code = K.receivables_account
-            LEFT JOIN bank_trans M ON A.reference = M.ref AND A.type = M.type
-            LEFT JOIN users N ON M.cashier_user_id = N.id
+			CASE 
+			    WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt'
+			    WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries'
+			END AS 'receipt_type'
 
-			WHERE A.type = 12 
-			AND A.tran_date>='$from'
-			AND A.tran_date<='$to'
-			AND A.module_type != 'CLTN-DPWOSI' 
-			AND A.module_type != 'CLTN-INTERB'";
+			FROM ".TB_PREF."bank_trans A
+			LEFT JOIN ".TB_PREF."debtor_trans B ON B.type = A.type AND B.trans_no = A.trans_no
+			LEFT JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.person_id 
+			LEFT JOIN ".TB_PREF."areas D ON D.area_code = C.area 
+			LEFT JOIN ".TB_PREF."debtor_loan_ledger E ON E.payment_trans_no = B.trans_no 
+			AND E.trans_type_from = B.type
+			LEFT JOIN ".TB_PREF."debtor_loan_schedule F ON F.id = E.loansched_id
+			LEFT JOIN ".TB_PREF."collection_types I ON I.collect_id = B.collect_id
+			LEFT JOIN ".TB_PREF."cust_branch J ON J.debtor_no = A.person_id
+			LEFT JOIN ".TB_PREF."chart_master K ON K.account_code = J.receivables_account
+			LEFT JOIN ".TB_PREF."users L ON A.cashier_user_id = L.id
+			LEFT JOIN ".TB_PREF."areas M ON M.area_code = C.area 
+			LEFT JOIN ".TB_PREF."users O ON O.user_id = M.collectors_id
+			LEFT JOIN ".TB_PREF."comments P ON P.id = A.trans_no AND P.type = A.type
+			WHERE A.trans_date>='$from'
+			AND A.trans_date<='$to'
+			AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
 
 			if ($cust_name != 'ALL') {
-            $sql .= " AND F.name =".db_escape($cust_name);              
+            $sql .= " AND C.name =".db_escape($cust_name);              
             }
 
 			if ($collector != '') {
-			$sql .= " AND G.user_id =".db_escape($collector);
+			$sql .= " AND O.user_id =".db_escape($collector);
 			}
 
 			if ($cashier != '') {
-			$sql .= " AND N.id =".db_escape($cashier);
+			$sql .= " AND L.id =".db_escape($cashier);
 			}
 
             if ($group == 1) {
-                $sql .= "GROUP BY A.reference, A.trans_no, Type";                
-                $sql .= " ORDER BY A.reference DESC";
+                $sql .= "GROUP BY A.ref, A.trans_no, Type";                
+                $sql .= " ORDER BY A.ref DESC";
             }
             else if ($group == 2) {
-                $sql .= "GROUP BY A.reference, A.trans_no, Type";                
-                $sql .= " ORDER BY A.reference DESC";
+                $sql .= "GROUP BY A.ref, A.trans_no, Type";                
+                $sql .= " ORDER BY A.ref DESC";
             } else {
-                $sql .= "GROUP BY A.reference, A.trans_no, Type";                
-                $sql .= " ORDER BY A.reference DESC";
+                $sql .= "GROUP BY A.ref, A.trans_no, Type";                
+                $sql .= " ORDER BY A.ref DESC";
             }
 
     return db_query($sql, "No transactions were returned");
+}
+
+function get_category_invoice_date($trans_no){
+
+    $sql = "SELECT A.invoice_date FROM debtor_loans A
+		LEFT JOIN stock_category B ON B.category_id = A.category_id
+		WHERE A.trans_no = '".$trans_no."'";
+
+    $result = db_query($sql, "QOH calculation failed");
+
+	$myrow = db_fetch_row($result);
+
+	$invcdate =  $myrow[0];
+	return $invcdate;
+}
+
+function get_category_descrpton($trans_no){
+
+    $sql = "SELECT B.description FROM debtor_loans A
+		LEFT JOIN stock_category B ON B.category_id = A.category_id
+		WHERE A.trans_no = '".$trans_no."'";
+
+   	$result = db_query($sql, "QOH calculation failed");
+
+	$myrow = db_fetch_row($result);
+
+	$category =  $myrow[0];
+	return $category;
 }
 
 function get_collector_name($id)
@@ -359,15 +386,6 @@ function print_PO_Report()
             }
         }
 
-
-		//$date_due = date('Y-m-d', strtotime($DSOC['date_due']));
-		//$tran_date = date('Y-m-d', strtotime($DSOC['tran_date']));
-		//if ($date_due > $tran_date) {
-			//$advnce_pymnts = $DSOC['advancetotal'];
-		//} else {
-			//$advnce_pymnts = 0;
-		//}
-
 		$month_no = $DSOC['month_no'];
 		if ($month_no == 0) {
 			$advance = 0;
@@ -379,20 +397,24 @@ function print_PO_Report()
 	    if ($Type == 'amort'){
 			$Ar = $DSOC['artotal'] - $DSOC['advance'];
 			$Dw = '';
-
-	    } else if($Type == 'down'){
+	    }elseif($Type == 'down'){
 			$Dw = $DSOC['downtotal'] - $DSOC['advance'];
 	   		$Ar = '';
-
-		} else if($Type == 'other'){
+		}elseif($Type == 'other'){
 			$Dw = $DSOC['downtotal'];
 	   		$Ar1 = 0;
 	   		$Ar2 = 0;
 	   		$Ar3 = 0;
 	   		$Ar4 = 0;
-
-		} else if ($Type == 'alloc') {
+		}elseif ($Type == 'alloc') {
 			$Dw = $DSOC['downtotal'] - $DSOC['advance'];
+	   		$Ar1 = 0;
+	   		$Ar2 = 0;
+	   		$Ar3 = 0;
+	   		$Ar4 = 0;
+	   		$Ar = 0;
+		}elseif($Type == '') {
+			$Dw = $DSOC['amt'];
 	   		$Ar1 = 0;
 	   		$Ar2 = 0;
 	   		$Ar3 = 0;
@@ -400,13 +422,17 @@ function print_PO_Report()
 	   		$Ar = 0;
 		} 
 
-		//if ($advnce_pymnts != 0) {
-			//$Ar = 0;
-			//$Dw = 0;
-		//}
+		if($DSOC['collection'] == '') {
+			$collection = $DSOC['receipt_type'];
+		}else{
+			$collection = $DSOC['collection'];
+		}
+
+		$category = get_category_descrpton($DSOC['masterfile']);
+		$invcdate = get_category_invoice_date($DSOC['masterfile']);
 
 
-		$invoice_date = $DSOC['invoice_date'];
+		$invoice_date = $invcdate;
 		if (date('Y', strtotime($invoice_date)) == $year1){
 			if(isset($Ar)){ $Ar1 = $Ar; $Ar2 = ''; $Ar3 = ''; $Ar4 = ''; }else{ $Ar1 = ''; $Ar2 = ''; $Ar3 = ''; $Ar4 = ''; }
 	    }else if (date('Y', strtotime($invoice_date)) == $year2){
@@ -428,24 +454,29 @@ function print_PO_Report()
 	    }
 
 		$amt = $DSOC['amt'];
-		//$al = $DSOC[''];
 		$rebate = $DSOC['rebate'];
 		$penalty = $DSOC['penalty'];
-		//$cr = $DSOC[''];
-		//$dr = $DSOC[''];
+
+		if($DSOC['collection'] == '') {
+			$category = '';
+			$invcdate = $DSOC['trans_date'];
+		}else{
+			$category = $category;
+			$invcdate = $invcdate;
+		}
 
 		$rep->NewLine();
-		$rep->TextCol(0, 1, sql2date($DSOC['tran_date']));
-		$rep->TextCol(1, 2, $DSOC['reference']);
+		$rep->TextCol(0, 1, sql2date($DSOC['trans_date']));
+		$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $DSOC['ref']));
 		$rep->NewLine(0.8);
         $rep->SetTextColor(0, 102, 0);
 		$rep->TextCol(0, 3, $DSOC['name']);
         $rep->SetTextColor(0, 0, 0);
 		$rep->TextCol(2, 3, $DSOC['memo_']);
-		$rep->TextCol(3, 4, $DSOC['collection']);
+		$rep->TextCol(3, 4, $collection);
 		$rep->TextCol(4, 5, $DSOC['Type']);
-		$rep->TextCol(5, 6, $DSOC['description']);
-		$rep->TextCol(6, 7, sql2date($DSOC['invoice_date']));
+		$rep->TextCol(5, 6, $category);
+		$rep->TextCol(6, 7, sql2date($invcdate));
 		$rep->AmountCol(7, 8, $amt);
 		$rep->AmountCol(8, 9, $advance);
 		$rep->AmountCol(9, 10, $Ar1);
