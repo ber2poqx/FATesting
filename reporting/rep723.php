@@ -39,7 +39,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 	
 		$sql = "		
 			SELECT gl.tran_date
-			, IFNULL(ref.reference, bt.ref)	AS reference			
+			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) AS reference			
             , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
 			, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
 			##, gl.memo_ AS memo_
@@ -59,6 +59,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 		    LEFT JOIN ".TB_PREF."`chart_master` cm ON gl.account = cm.account_code			
 		    LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
 			LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
+			LEFT JOIN  ".TB_PREF."`debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
 		WHERE gl.`account` = '$gl_account' ";
 
 
