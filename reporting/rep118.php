@@ -46,7 +46,7 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 	$to = date2sql($to);
 	$advanceDate = endCycle($to, 1);
 	
-	$sql ="SELECT A.masterfile, A.trans_date, A.ref, A.amount AS amt, B.ov_discount AS rebate,
+	$sql ="SELECT A.masterfile, A.trans_date, A.ref, abs(A.amount) AS amt, B.ov_discount AS rebate,
 			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty,
 			F.month_no, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
@@ -477,18 +477,18 @@ function print_PO_Report()
 		$rep->TextCol(4, 5, $DSOC['Type']);
 		$rep->TextCol(5, 6, $category);
 		$rep->TextCol(6, 7, sql2date($invcdate));
-		$rep->AmountCol(7, 8, $amt);
-		$rep->AmountCol(8, 9, $advance);
-		$rep->AmountCol(9, 10, $Ar1);
-		$rep->AmountCol(10, 11, $Ar2);
-		$rep->AmountCol(11, 12, $Ar3);
-		$rep->AmountCol(12, 13, $Ar4);
-		$rep->AmountCol(13, 14, $rebate);
+		$rep->AmountCol(7, 8, $amt, $dec);
+		$rep->AmountCol(8, 9, $advance, $dec);
+		$rep->AmountCol(9, 10, $Ar1, $dec);
+		$rep->AmountCol(10, 11, $Ar2, $dec);
+		$rep->AmountCol(11, 12, $Ar3, $dec);
+		$rep->AmountCol(12, 13, $Ar4, $dec);
+		$rep->AmountCol(13, 14, $rebate, $dec);
 		$rep->SetTextColor(255, 0, 0);
-		$rep->AmountCol(14, 15, $penalty);
+		$rep->AmountCol(14, 15, $penalty, $dec);
         $rep->SetTextColor(0, 0, 0);
-		$rep->AmountCol(15, 16, $Dw);
-		$rep->AmountCol(16, 17, $DSOC['']);
+		$rep->AmountCol(15, 16, $Dw, $dec);
+		$rep->AmountCol(16, 17, $DSOC[''], $dec);
         $rep->NewLine(0.5);
 
 
@@ -531,16 +531,16 @@ function print_PO_Report()
 				$rep->Font('bold');
 				$rep->Line($rep->row  - 4);
 				$rep->TextCol(0, 7, _('Total Per Collector'));
-				$rep->AmountCol(7, 8, $Tot_Val);
-				$rep->AmountCol(8, 9, $totaladvance);
-				$rep->AmountCol(9, 10, $ar1);
-				$rep->AmountCol(10, 11, $ar2);
-				$rep->AmountCol(11, 12, $ar3);
-				$rep->AmountCol(12, 13, $ar4);
-				$rep->AmountCol(13, 14, $rb);
-				$rep->AmountCol(14, 15, $pn);
-				$rep->AmountCol(15, 16, $cr);
-				$rep->AmountCol(16, 17, $dr);
+				$rep->AmountCol(7, 8, $Tot_Val, $dec);
+				$rep->AmountCol(8, 9, $totaladvance, $dec);
+				$rep->AmountCol(9, 10, $ar1, $dec);
+				$rep->AmountCol(10, 11, $ar2, $dec);
+				$rep->AmountCol(11, 12, $ar3, $dec);
+				$rep->AmountCol(12, 13, $ar4, $dec);
+				$rep->AmountCol(13, 14, $rb, $dec);
+				$rep->AmountCol(14, 15, $pn, $dec);
+				$rep->AmountCol(15, 16, $cr, $dec);
+				$rep->AmountCol(16, 17, $dr, $dec);
 				$rep->Line($rep->row  - 4);
 				$rep->Font();
 				$rep->NewLine(2);
@@ -572,16 +572,16 @@ function print_PO_Report()
 				$rep->Font('bold');
 				$rep->Line($rep->row  - 4);
 				$rep->TextCol(0, 7, _('Total Per Collector'));
-				$rep->AmountCol(7, 8, $Tot_Val);
-				$rep->AmountCol(8, 9, $totaladvance);
-				$rep->AmountCol(9, 10, $ar1);
-				$rep->AmountCol(10, 11, $ar2);
-				$rep->AmountCol(11, 12, $ar3);
-				$rep->AmountCol(12, 13, $ar4);
-				$rep->AmountCol(13, 14, $rb);
-				$rep->AmountCol(14, 15, $pn);
-				$rep->AmountCol(15, 16, $cr);
-				$rep->AmountCol(16, 17, $dr);
+				$rep->AmountCol(7, 8, $Tot_Val, $dec);
+				$rep->AmountCol(8, 9, $totaladvance, $dec);
+				$rep->AmountCol(9, 10, $ar1, $dec);
+				$rep->AmountCol(10, 11, $ar2, $dec);
+				$rep->AmountCol(11, 12, $ar3, $dec);
+				$rep->AmountCol(12, 13, $ar4, $dec);
+				$rep->AmountCol(13, 14, $rb, $dec);
+				$rep->AmountCol(14, 15, $pn, $dec);
+				$rep->AmountCol(15, 16, $cr, $dec);
+				$rep->AmountCol(16, 17, $dr, $dec);
 				$rep->Line($rep->row  - 4);
 				$rep->Font();
 				$rep->NewLine(2);
@@ -613,16 +613,16 @@ function print_PO_Report()
 				$rep->Font('bold');
 				$rep->Line($rep->row  - 4);
 				$rep->TextCol(0, 7, _('Total Per Collector'));
-				$rep->AmountCol(7, 8, $Tot_Val);
-				$rep->AmountCol(8, 9, $totaladvance);
-				$rep->AmountCol(9, 10, $ar1);
-				$rep->AmountCol(10, 11, $ar2);
-				$rep->AmountCol(11, 12, $ar3);
-				$rep->AmountCol(12, 13, $ar4);
-				$rep->AmountCol(13, 14, $rb);
-				$rep->AmountCol(14, 15, $pn);
-				$rep->AmountCol(15, 16, $cr);
-				$rep->AmountCol(16, 17, $dr);
+				$rep->AmountCol(7, 8, $Tot_Val, $dec);
+				$rep->AmountCol(8, 9, $totaladvance, $dec);
+				$rep->AmountCol(9, 10, $ar1, $dec);
+				$rep->AmountCol(10, 11, $ar2, $dec);
+				$rep->AmountCol(11, 12, $ar3, $dec);
+				$rep->AmountCol(12, 13, $ar4, $dec);
+				$rep->AmountCol(13, 14, $rb, $dec);
+				$rep->AmountCol(14, 15, $pn, $dec);
+				$rep->AmountCol(15, 16, $cr, $dec);
+				$rep->AmountCol(16, 17, $dr, $dec);
 				$rep->Line($rep->row  - 4);
 				$rep->Font();
 				$rep->NewLine(2);
@@ -654,16 +654,16 @@ function print_PO_Report()
 	$rep->Font('bold');
 	$rep->fontSize += 0;	
 	$rep->TextCol(0, 7, _('Grand Total'));
-	$rep->AmountCol(7, 8, $grandtotal);
-	$rep->AmountCol(8, 9, $grandtotaladvance);
-	$rep->AmountCol(9, 10, $grandar1);
-	$rep->AmountCol(10, 11, $grandar2);
-	$rep->AmountCol(11, 12, $grandar3);
-	$rep->AmountCol(12, 13, $grandar4);
-	$rep->AmountCol(13, 14, $grandrebate);
-	$rep->AmountCol(14, 15, $grandpenalty);
-	$rep->AmountCol(15, 16, $grandcr);
-	$rep->AmountCol(16, 17, $dr);
+	$rep->AmountCol(7, 8, $grandtotal, $dec);
+	$rep->AmountCol(8, 9, $grandtotaladvance, $dec);
+	$rep->AmountCol(9, 10, $grandar1, $dec);
+	$rep->AmountCol(10, 11, $grandar2, $dec);
+	$rep->AmountCol(11, 12, $grandar3, $dec);
+	$rep->AmountCol(12, 13, $grandar4, $dec);
+	$rep->AmountCol(13, 14, $grandrebate, $dec);
+	$rep->AmountCol(14, 15, $grandpenalty, $dec);
+	$rep->AmountCol(15, 16, $grandcr, $dec);
+	$rep->AmountCol(16, 17, $dr, $dec);
 	//$rep->SetFooterType('compFooter');
     $rep->End();
 }
