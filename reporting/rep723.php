@@ -41,8 +41,8 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			SELECT gl.tran_date
 			, IFNULL(ref.reference, bt.ref)	AS reference			
             , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
-			##, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
-			, gl.memo_ AS memo_
+			, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
+			##, gl.memo_ AS memo_
 			, cm.account_name
 			, gl.amount
 			, CASE WHEN gl.amount >= 0 THEN gl.amount ELSE 0 END AS `Debit`
@@ -55,7 +55,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
                  AND (bt.person_id != '' AND !ISNULL(bt.person_id))
             LEFT JOIN ".TB_PREF."`suppliers` sup2 ON grn.supplier_id = sup2.supplier_id
-		    ##LEFT JOIN ".TB_PREF."`comments` c ON gl.type = c.type AND gl.type_no = c.id 
+		    LEFT JOIN (SELECT `type`, `id`, `date_`, `memo_` FROM ".TB_PREF."`comments` GROUP BY `type`, `id`, `date_`, `memo_`) c ON gl.type = c.type AND gl.type_no = c.id 
 		    LEFT JOIN ".TB_PREF."`chart_master` cm ON gl.account = cm.account_code			
 		    LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
 			LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
