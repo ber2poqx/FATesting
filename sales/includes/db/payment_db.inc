@@ -24,7 +24,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	$date_, $ref, $amount, $discount, $memo_, $rate=0, $charge=0, $bank_amount=0,
 	$penalty=0, $payment_type=null, $collection_type=null, $module_type=null, $cashier_id=0, $pay_type=null,
 	$check_date=null, $check_no=0, $bank_branch=null, $masterfile=null, $receipt_no=0, $prepared_by=null, $checked_by=null, $approved_by=null,
-	$discount1=0, $discount2=0, $trans_type=ST_SALESINVOICE, $paylocation=null)
+	$discount1=0, $discount2=0, $trans_type=ST_SALESINVOICE, $paylocation=null, $otherentry_amount=0)
 {
 	global $Refs;
 
@@ -51,7 +51,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 			$rate = get_exchange_rate_from_to(get_customer_currency($customer_id),
 				$bank['bank_curr_code'], $date_ );
 
-		$bank_amount = $amount/$rate;
+		$bank_amount = ($amount + $otherentry_amount)/$rate;
 	}
 
 	// do not use $rate here: global rate stored in exrate table is always used
@@ -61,7 +61,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	$payment_no = write_customer_trans(ST_CUSTPAYMENT, $trans_no, $customer_id, $branch_id, 
 		$date_, $ref, $amount, $discount);
 	*/
-	$payment_no = write_customer_trans(ST_CUSTPAYMENT, $trans_no, $customer_id, $branch_id, $date_, $ref, $amount, $discount
+	$payment_no = write_customer_trans(ST_CUSTPAYMENT, $trans_no, $customer_id, $branch_id, $date_, $ref, ($amount + $otherentry_amount), $discount
 							,0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $payment_type, $collection_type, $module_type);
 
 

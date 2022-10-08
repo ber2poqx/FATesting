@@ -158,6 +158,18 @@ Ext.onReady(function() {
 			{name:'cash_discount',mapping:'cash_discount',type: 'float'}
 		]
 	});
+	Ext.define('OtherEntryModel',{
+		extend : 'Ext.data.Model',
+		fields  : [
+			{name:'id',mapping:'id'},
+			{name:'gl_code',mapping:'gl_code'},
+			{name:'gl_name',mapping:'gl_name'},
+			{name:'sl_code',mapping:'sl_code'},
+			{name:'sl_name',mapping:'sl_name'},
+			{name:'debtor_id',mapping:'debtor_id'},
+			{name:'debit_amount',mapping:'debit_amount',type:'float'}
+		]
+	});
 	
 	Ext.define('item_delailsModel',{
 		extend : 'Ext.data.Model',
@@ -193,7 +205,13 @@ Ext.onReady(function() {
 		mode: 'SINGLE'
 	});
 	var cellEditing = Ext.create('Ext.grid.plugin.CellEditing',{
-        clicksToEdit: 2
+        clicksToEdit: 2,
+        listeners: {
+            edit: function(){
+                // refresh summaries
+                grid.getView().refresh();
+            }
+        }
     });
 	var Branchstore = Ext.create('Ext.data.Store', {
 		name: 'Branchstore',
@@ -487,6 +505,21 @@ Ext.onReady(function() {
 		pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_Item_details=xx',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		}
+	});
+	var OtherEntryStore = Ext.create('Ext.data.Store', {
+		model: 'OtherEntryModel',
+		name : 'OtherEntryStore',
+		method : 'POST',
+		pageSize: itemsPerPage, // items per page
+		proxy: {
+			url: '?get_OtherEntryPay=xx',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -1049,6 +1082,44 @@ Ext.onReady(function() {
 			}
 		}
 	];
+	var OtherEntryHeader = [
+		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:90},
+		{header:'<b>Description</b>', dataIndex:'gl_name', width:235},
+		{header:'<b>SL Code</b>', dataIndex:'sl_code', width:90},
+		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:235},
+		{header:'<b>Debit</b>', dataIndex:'debit_amount', width:120, align:'right', summaryType: 'sum',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryRenderer: function(value, summaryData, dataIndex){
+				Ext.getCmp('total_otheramount').setValue(value);
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
+			editor: new Ext.form.TextField({
+				xtype:'textfield',
+				id: 'otheramnt',
+				name: 'otheramnt',
+				allowBlank: false,
+				listeners : {
+
+				}
+			})
+		},
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:70,
+			items:[{
+				icon: '../js/ext4/examples/shared/icons/delete.png',
+				tooltip: 'remove',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = OtherEntryStore.getAt(rowIndex);
+					loadOtherEntry('delete',records.get("id"));
+				}
+			}]
+		}
+	];
 
 	var columnAmort_view = 	[
 		{header:'<b>Id</b>',dataIndex:'loansched_id',hidden: true},
@@ -1214,6 +1285,8 @@ Ext.onReady(function() {
 			scheduleStore.load();
 			AllocationStore.proxy.extraParams = {transNo: 0, debtor_no: 0, transtype: 0, transdate: null };
 			AllocationStore.load();
+			OtherEntryStore.proxy.extraParams = {transNo: null};
+			OtherEntryStore.load();
 
 			var allocgrid = Ext.getCmp('AllocTabGrid');
 
@@ -1354,6 +1427,41 @@ Ext.onReady(function() {
 			hrefTarget : '_blank'
 		}]
 	}];
+	var minitbar = [{
+		xtype: 'textfield',
+		id: 'othrdebit_acct',
+		name: 'othrdebit_acct',
+		fieldLabel: 'othrdebit_acct',
+		hidden: true
+	},{
+		xtype: 'combobox',
+		id: 'otherintobankacct',
+		name: 'otherintobankacct',
+		allowBlank: false,
+		store : IntoBankAcctStore,
+		displayField: 'name',
+		valueField: 'id',
+		queryMode: 'local',
+		fieldLabel : 'Debit to ',
+		labelWidth: 100,
+		width: 300,
+		forceSelection: true,
+		selectOnFocus:true,
+		fieldStyle: 'font-weight: bold; color: #210a04;',
+		listeners: {
+			select: function(combo, record, index) {
+				Ext.getCmp('othrdebit_acct').setValue(record.get("type"));
+				loadOtherEntry('add',0);
+			}
+		}
+	},{
+		xtype: 'textfield',
+		id: 'total_otheramount',
+		name: 'total_otheramount',
+		fieldLabel: 'total_otheramount',
+		//allowBlank: false,
+		//hidden: true
+	}];
 
 	var submit_form = Ext.create('Ext.form.Panel', {
 		id: 'form_submit',
@@ -1452,6 +1560,8 @@ Ext.onReady(function() {
 							
 							ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), tag: "inst"};
 							ARInvoiceStore.load();
+							OtherEntryStore.proxy.extraParams = {transNo: null};
+							OtherEntryStore.load();
 
 							Ext.Ajax.request({
 								url : '?getReference=zHun',
@@ -1884,6 +1994,24 @@ Ext.onReady(function() {
 					}
 				},{
 					xtype:'gridpanel',
+					id: 'OtherEntriesGrid',
+					anchor:'100%',
+					layout:'fit',
+					tbar: minitbar,
+					selModel: 'cellmodel',
+					plugins: {
+						ptype: 'cellediting',
+						clicksToEdit: 1
+					},
+					title: 'Other Entry',
+					icon: '../js/ext4/examples/shared/icons/vcard.png',
+					loadMask: true,
+					store:	OtherEntryStore,
+					columns: OtherEntryHeader,
+					features: [{ftype: 'summary'}],
+					columnLines: true
+				},{
+					xtype:'gridpanel',
 					id: 'AmortSchedGrid',
 					anchor:'100%',
 					layout:'fit',
@@ -1967,11 +2095,31 @@ Ext.onReady(function() {
 							}
 						});
 					}
+					//other entries
+					if(Ext.getCmp('total_otheramount').getValue() != 0){
+						var gridOEData = OtherEntryStore.getRange();
+						var OEData = [];
+						
+						Ext.each(gridOEData, function(item) {
+							var ObjItem = {
+								id: item.get('id'),  
+								gl_code: item.get('gl_code'),
+								gl_name: item.get('gl_name'),
+								sl_code: item.get('sl_code'),
+								sl_name: item.get('sl_name'),
+								debtor_id: item.get('debtor_id'),
+								debit_amount: item.get('debit_amount')
+							};
+							OEData.push(ObjItem);
+						});
+					}
+
 					//console.log(Ext.decode(gridData));
 					form_submit.submit({
 						url: '?submit=payment',
 						params: {
-							DataOnGrid: Ext.encode(gridData)
+							DataOnGrid: Ext.encode(gridData),
+							DataOEGrid: Ext.encode(OEData)
 						},
 						waitMsg: 'Saving payment for Invoice No.' + Ext.getCmp('InvoiceNo').getRawValue() + '. please wait...',
 						method:'POST',
@@ -4449,4 +4597,36 @@ Ext.onReady(function() {
 		}
 		DPitemStore.load();
 	}
+	function loadOtherEntry($tag, $id=0){
+		var gridData = OtherEntryStore.getRange();
+		var OEData = [];
+		count = 0;
+		
+		Ext.each(gridData, function(item) {
+			var ObjItem = {
+				id: item.get('id'),  
+				gl_code: item.get('gl_code'),
+				gl_name: item.get('gl_name'),
+				sl_code: item.get('sl_code'),
+				sl_name: item.get('sl_name'),
+				debtor_id: item.get('debtor_id'),
+				debit_amount: item.get('debit_amount')
+			};
+			OEData.push(ObjItem);
+		});
+		if($tag == 'delete'){
+			OtherEntryStore.proxy.extraParams = {
+				DataOEGrid: Ext.encode(OEData),
+				delete_id: $id,
+			};
+		}else{
+			OtherEntryStore.proxy.extraParams = {
+				DataOEGrid: Ext.encode(OEData),
+				debtor_id: Ext.getCmp('customername').getValue(),
+				debitTo: Ext.getCmp('othrdebit_acct').getValue(),
+				//amount: Ext.getCmp('tenderd_amount_inb').getValue()
+			};
+		}
+		OtherEntryStore.load();
+	};
 });

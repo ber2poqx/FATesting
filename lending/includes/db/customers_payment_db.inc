@@ -829,3 +829,17 @@ function get_deferdBal($trans_no, $glcode)
 
 	return $row[0];
 }
+
+function get_islive($branch){
+
+    $db_coy = Get_db_coy($branch);
+    set_global_connection($db_coy);
+    
+    $sql = "SELECT value FROM ".TB_PREF."sys_prefs WHERE name='deployment_status'";
+                
+    $result = db_query($sql, "The deployment status could not be retrieved");
+    $row =  db_fetch($result);
+
+    set_global_connection();        
+    return $row[0];
+}

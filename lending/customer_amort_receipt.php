@@ -660,12 +660,13 @@ if(isset($_GET['get_interBPaymnt']))
         $gl_row = get_gl_account($_GET['debitTo']);
         $intoB_result = get_CPbank_accounts($_GET['debitTo']);
         $intoB_row = db_fetch($intoB_result);
-        //echo $intoB_row['account_code'];
+        $customer = get_customer($_GET['debtor_id']);
+
         $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
                                 'gl_code'=>$gl_row["account_code"],
                                 'gl_name'=>$gl_row["account_name"],
-                                'sl_code'=>$intoB_row['account_code'],
-                                'sl_name'=>$intoB_row['bank_account_name'],
+                                'sl_code'=>$customer["debtor_no"],
+                                'sl_name'=>$customer["name"],
                                 'debtor_id'=>$_GET['debtor_id'],
                                 'debit_amount'=>$_GET['amount'],
                                 'credit_amount'=>0,
@@ -837,6 +838,62 @@ if(isset($_GET['get_alocCash_view']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
+if(isset($_GET['get_OtherEntryPay']))
+{
+    if(isset($_GET['debitTo'])){
+        $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
+        $objDataGrid = json_decode($DataOnGrid, true);
+        
+        $gl_row = get_gl_account($_GET['debitTo']);
+        $intoB_result = get_CPbank_accounts($_GET['debitTo']);
+        $intoB_row = db_fetch($intoB_result);
+        $customer = get_customer($_GET['debtor_id']);
+
+        if (count($objDataGrid) != 0){
+            foreach($objDataGrid as $value=>$data) {
+                $status_array[] = array('id'=>$data['id'],
+                    'gl_code'=>$data["gl_code"],
+                    'gl_name'=>$data["gl_name"],
+                    'sl_code'=>$data['sl_code'],
+                    'sl_name'=>$data['sl_name'],
+                    'debtor_id'=>$data['debtor_id'],
+                    'debit_amount'=>$data['debit_amount']
+                );
+            }
+        }
+        
+        $status_array[] = array('id'=>(count($objDataGrid)+1),
+                                'gl_code'=>$gl_row["account_code"],
+                                'gl_name'=>$gl_row["account_name"],
+                                'sl_code'=>$customer["debtor_no"],
+                                'sl_name'=>$customer["name"],
+                                'debtor_id'=>$_GET['debtor_id'],
+                                'debit_amount'=>0
+                            );
+
+    }else{
+        if(isset($_GET['delete_id'])){
+            $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+
+            foreach($objDataGrid as $value=>$data) {
+                if($_GET['delete_id'] != $data['id']){
+                    $status_array[] = array('id'=>$data['id'],
+                        'gl_code'=>$data["gl_code"],
+                        'gl_name'=>$data["gl_name"],
+                        'sl_code'=>$data['sl_code'],
+                        'sl_name'=>$data['sl_name'],
+                        'debtor_id'=>$data['debtor_id'],
+                        'debit_amount'=>$data['debit_amount']
+                    );
+                }
+            }
+        }
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
 //----------------------------------------------------: insert, update, delete :-------------------------------------------
 //amortization type
 
@@ -957,6 +1014,9 @@ if(isset($_GET['submit']))
 
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
+
+    $DataOEGrid = stripslashes(html_entity_decode($_POST['DataOEGrid']));
+    $OtherEGrid = json_decode($DataOEGrid, true);
     
     //var_dump($objDataGrid);
     if (count($objDataGrid) == 0){
@@ -977,11 +1037,11 @@ if(isset($_GET['submit']))
     
     $pdvalue = check_transdate($maturity_date, $_GET['transdate']);
     if($pdvalue != 0){
-        if($_POST['total_amount']  < $_POST['tenderd_amount']){
-            if($ar_balance < $_POST['tenderd_amount']){
+        if($_POST['total_amount']  < ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
+            if($ar_balance < ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                 $InputError = 1;
                 $dsplymsg = _('Tendered amount must be lesser than or equal to A/R amount balance.');
-            }elseif(($ar_balance - $_POST['totalrebate']) < $_POST['tenderd_amount']){
+            }elseif(($ar_balance - $_POST['totalrebate']) < ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                 $InputError = 1;
                 $dsplymsg = _('Tendered amount must be lesser than or equal to A/R amount balance.');
             }
@@ -1016,9 +1076,9 @@ if(isset($_GET['submit']))
             $GPM = $data['grossPM'];
 
             //CHECK IF LAST PAYMENT
-            if(($ar_balance - $total_rebate) == $_POST['tenderd_amount']){
+            if(($ar_balance - $total_rebate) == ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                 $islastPay = 1;
-            }elseif(($ar_balance + $total_penalty) == $_POST['tenderd_amount']){
+            }elseif(($ar_balance + $total_penalty) == ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                 $islastPay = 1;
             }
 
@@ -1034,23 +1094,23 @@ if(isset($_GET['submit']))
                                                 $_POST['tenderd_amount'], check_isempty($dp_discount), $_POST['remarks'], 0, 0, input_num('bank_amount', $_POST['tenderd_amount']),
                                                 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype'], $_POST['cashier'], $_POST['pay_type'],
                                                 $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null,
-                                                $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"], $_POST['transtype'], $_POST['paylocation']);
+                                                $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"], $_POST['transtype'], $_POST['paylocation'], $_POST['total_otheramount']);
 
-                add_cust_allocation(($_POST['tenderd_amount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
 
                 if($_POST['paylocation'] =! "Lending"){
-                    if($_POST['total_amount'] == $_POST['tenderd_amount']){
-                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
+                    if($_POST['total_amount'] == ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
+                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
                         update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
     
                         $tenderd_amount = 0;
     
-                    }elseif($_POST['total_amount'] > $_POST['tenderd_amount']) {
-                        $nextDPBal = ($_POST['total_amount'] - $_POST['tenderd_amount']);
+                    }elseif($_POST['total_amount'] > ($_POST['tenderd_amount'] + $_POST['total_otheramount'])) {
+                        $nextDPBal = ($_POST['total_amount'] - ($_POST['tenderd_amount'] + $_POST['total_otheramount']));
     
-                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, $_POST['tenderd_amount'], 0, 0, 0, $trans_date, $payment_no);
+                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount'] + $_POST['total_otheramount']), 0, 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
                     }
                 }else{
@@ -1061,10 +1121,17 @@ if(isset($_GET['submit']))
                     $dgp_account = $company_record["dgp_account"];
                     $rgp_account = $company_record["rgp_account"];
 
-                    $DeferdAmt = ($_POST['tenderd_amount'] + $dp_discount) * $GPM;
+                    $DeferdAmt = ($_POST['tenderd_amount'] + $_POST['total_otheramount'] + $dp_discount) * $GPM;
 
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                }
+                //for other entry
+                if (count($OtherEGrid) != 0){
+                    $bank = get_bank_account($_POST['otherintobankacct']);
+                    foreach($OtherEGrid as $value=>$OTdata) {
+                        add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                    }
                 }
 
                 $dsplymsg = _("Down-payment has been successfully entered...");
@@ -1074,7 +1141,7 @@ if(isset($_GET['submit']))
                 $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = $RebateAmount = $pdlast_insrtd_id = 0;
 
                 $partialpay = $partialpayment;
-                $tenderd_amount = $_POST['tenderd_amount'];
+                $tenderd_amount = ($_POST['tenderd_amount'] + $_POST['total_otheramount']);
 
                 $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
                 $bank = get_bank_account($_POST['intobankacct']);
@@ -1090,15 +1157,23 @@ if(isset($_GET['submit']))
                 if($_POST['collectType'] == 5){
                     //term mode adjustment
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
-                                                $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
+                                                ($_POST['tenderd_amount'] + $_POST['total_otheramount']), 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
                     
-                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
+                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], ($_POST['tenderd_amount'] + $_POST['total_otheramount']), PT_CUSTOMER, $_POST['customername'],
                                         $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby']);
 
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
 
                     /* Bank account entry first */
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $bank_gl_account, 0, 0, '', $_POST['tenderd_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+
+                    //for other entry
+                    if (count($OtherEGrid) != 0){
+                        $bank = get_bank_account($_POST['otherintobankacct']);
+                        foreach($OtherEGrid as $value=>$OTdata) {
+                            add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                        }
+                    }
 
                     $result = get_loan_schedule($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                     $lastpayment_date = get_debtor_last_payment_date($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']);
@@ -1114,7 +1189,7 @@ if(isset($_GET['submit']))
 
                         break;
                     }
-                    
+
                     //allocate payment to trans number sales invoice
                     add_cust_allocation($termoderow["amort_delay"], ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                     update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
@@ -1151,9 +1226,9 @@ if(isset($_GET['submit']))
                 }else{
                     
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
-                                                $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
+                                                ($_POST['tenderd_amount'] + $_POST['total_otheramount']), 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
 
-                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
+                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], ($_POST['tenderd_amount'] + $_POST['total_otheramount']), PT_CUSTOMER, $_POST['customername'],
                                     $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby']);
                     
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
@@ -1520,6 +1595,14 @@ if(isset($_GET['submit']))
                         $variance_act = get_company_pref('exchange_diff_act');
                         add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'],	$variance_act, 0, 0, '', -$GLtotal, null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
+
+                    //for other entry
+                    if (count($OtherEGrid) != 0){
+                        $bank = get_bank_account($_POST['otherintobankacct']);
+                        foreach($OtherEGrid as $value=>$OTdata) {
+                            add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                        }
+                    }
     
                     if(check_schedule_status($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']) == 0){
                         update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "fully-paid");
@@ -1661,8 +1744,11 @@ if(isset($_GET['submitInterB']))
                 }else{
                     $amount = $data['debit_amount'];
                 }
-
-                add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $data['gl_code'], 0, 0, '', $amount, $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], '', 0, $data['sl_code'], '', 0, 0);
+                if($data['sl_code'] == $_POST['customername_inb']){
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $data['gl_code'], 0, 0, '', $amount, $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], '', 0, null, null, 0, 0);
+                }else{
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $data['gl_code'], 0, 0, '', $amount, $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], '', 0, $data['sl_code'], $data['sl_name'], 0, 0);
+                }
             }
         }
         //commit_transaction();
@@ -1670,7 +1756,7 @@ if(isset($_GET['submitInterB']))
         //send data to target branch
         $conn = $db_connections[user_company()];
         $interb_ref = get_debtor_interb_ref($_POST['customername_inb']);
-       
+
         if(!empty($company_prefs["deployment_status"])){
             interbranch_send_payment_add($_POST['branch_inb'], $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
                                             $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
@@ -1678,6 +1764,14 @@ if(isset($_GET['submitInterB']))
             //make a copy to HO database
             //interbranch_send_payment_add("HO", $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
             //            $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
+        }else{
+            $islive = get_islive($_POST['branch_inb']);
+
+            if(empty($company_prefs["deployment_status"]) == empty($islive)){
+                interbranch_send_payment_add($_POST['branch_inb'], $interb_ref, $_POST['name_inb'], $trans_date, $_POST['ref_no_inb'], $_POST['total_amount_inb'],
+                                            $_POST['remarks_inb'], $_POST['preparedby_inb'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $_POST['branch_inb']);
+
+            }
         }
         //auto allocate payment para dili na makita sa customer allocation
         auto_allocate_payment($payment_no, ST_CUSTPAYMENT, $_POST['total_amount_inb']);
