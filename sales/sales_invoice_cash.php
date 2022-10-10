@@ -420,66 +420,116 @@ if (get_post('category_id')) {
 	$Ajax->activate('order_head');
 }
 
-if (isset($_POST['req_discount'])) {
-	// global $Ajax;
-	
-	// if ($_POST['total_amount'] > 0) {
-	// 	foreach ($_SESSION['Items']->line_items as $items) {
-	// 		if ($_POST['category_id'] == get_stock_catID($items->stock_id)) {
+// function update_cart_discount($discount_id = 0) { 
+
+// 	if ($discount_id > 0) {
+// 		$discount_row = db_fetch(get_temp_discount($discount_id));
+
+// 		foreach ($_SESSION['Items']->get_items() as $line_no => $stock_item) {
+// 			if ($stock_item->stock_id == $discount_row['item_code']) {
+// 				$_SESSION['Items'][$line_no]->discount1 = $discount_row['given_discount'];
+// 			}
+// 		}
+
+// 		return $discount_id;
+// 	}
+// }
+
+// if (get_post('req_discount')) {
+// 	global $Ajax;
+
+// 	if (get_post('req_discount') == 'REQ') {
+// 		if ($_POST['total_amount'] > 0) {
+// 			if ($_SESSION['Items']->discount_id > 0) {
+// 				display_warning(_("Request has already been sent... Please Select 'Update Request' to update your Discount Request..."));
+// 			}
+// 			else {
+// 				foreach ($_SESSION['Items']->line_items as $items) {
+// 					if ($_POST['category_id'] == get_stock_catID($items->stock_id)) {
+// 						$id = add_temp_dicount(
+// 							$_SESSION["wa_current_user"]->user,
+// 							$_POST['ref'],
+// 							$_POST['customer_id'],
+// 							"CASH",
+// 							$_POST['category_id'],
+// 							$items->stock_id,
+// 							remove_comma(get_post('total_amount')),
+// 							"Pending"
+// 						);
+		
+// 						if ($id) {
+// 							$_SESSION['Items']->discount_id = $id;
+// 							display_notification_centered(_("Request Sent... Please wait for manager's approval..."));
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 		else {
+// 			display_error(_("Gross Amount cannot be zero... Please pick an Item..."));
+// 		}
+// 	}
+// 	else if (get_post('req_discount') == 'REREQ') {
+// 		if ($_SESSION['Items']->discount_id > 0) {
+
+// 			$discount_row = db_fetch(get_temp_discount($_SESSION['Items']->discount_id));
+
+// 			if ($discount_row['status'] == "Pending")  {
+// 				foreach ($_SESSION['Items']->line_items as $items) {
+// 					if ($_POST['category_id'] == get_stock_catID($items->stock_id)) {
+// 						$upd_id = update_temp_discount_total(
+// 							$_SESSION["wa_current_user"]->user,
+// 							$_POST['ref'],
+// 							date2sql(Today()),
+// 							remove_comma(get_post('total_amount')),
+// 							$items->stock_id
+// 						);
 			
-	// 			if ($_SESSION['Items']->discount_id > 0) {
-	// 				$discount_row = db_fetch(get_temp_discount($_SESSION['Items']->discount_id));
-	// 				$_POST['discount1'] = $discount_row['given_discount'];
-	// 			}
-	// 			else {
-	// 				if (temp_discount_exist($_SESSION["wa_current_user"]->user, $_POST['ref'], date2sql(Today()))) {
-	// 					$upd_id = update_temp_discount_total(
-	// 						$_SESSION["wa_current_user"]->user,
-	// 						$_POST['ref'],
-	// 						date2sql(Today()),
-	// 						remove_comma(get_post('total_amount')),
-	// 						$items->stock_id
-	// 					);
-	// 				}
-	// 				else {
-	// 					$id = add_temp_dicount(
-	// 						$_SESSION["wa_current_user"]->user,
-	// 						$_POST['ref'],
-	// 						$_POST['customer_id'],
-	// 						"CASH",
-	// 						$_POST['category_id'],
-	// 						$items->stock_id,
-	// 						remove_comma(get_post('total_amount')),
-	// 						"Pending"
-	// 					);
+// 						if ($upd_id) {
+// 							display_notification_centered(_("Request Updated... Please wait for Manager's approval..."));
+// 						}
+// 					}
+// 				}
+// 			}
+// 			else if ($discount_row['status'] == "Approved") {
+// 				display_error(_("Your Request has Already been Approved..."));
+// 			}
+// 			else if ($discount_row['status'] == "Disapproved") {
+// 				display_error(_("Your Request has been Disapproved... Wawang Bata..."));
+// 			}
+
+// 		}
+// 		else {
+// 			display_error(_("Request has not been made for this Transaction..."));
+// 		}
+// 	}
+// 	else if (get_post('req_discount') == 'FETCH') {
+// 		if ($_SESSION['Items']->discount_id > 0) {
+// 			$discount_row = db_fetch(get_temp_discount($_SESSION['Items']->discount_id));
+
+// 			if ($discount_row['status'] == "Pending") {
+// 				display_error(_("Your Request is still Pending... Please wait patiently..."));
+// 			}
+// 			else if ($discount_row['status'] == "Approved") {
+// 				$dis_id = update_cart_discount($_SESSION['Items']->discount_id);
+
+// 				if ($dis_id) {
+// 					display_notification_centered(_("Your Request has been Approved... Congratulations..."));
+// 				}
+// 			}
+// 			else if ($discount_row['status'] == "Disapproved") {
+// 				display_error(_("Your Request has been Disapproved... Wawang Bata..."));
+// 			}
+// 		}
+// 		else {
+// 			display_error(_("Request has not been made for this Transaction..."));
+// 		}
+// 	}
+
+// 	unset($_POST['req_discount']);
 	
-	// 					if ($id) {
-	// 						$_SESSION['Items']->discount_id = $id;
-	// 					}
-	// 				}
-	// 			}
-
-	// 		}
-	// 	}
-
-	// 	if ($_SESSION['Items']->discount_id > 0) {
-	// 		display_warning(_("Discount Already Approved... || " . $_POST['discount1']));
-	// 	}
-	// 	else {
-	// 		if (isset($id)) {
-	// 			display_notification_centered(_("Request Sent... Please wait for manager's approval..."));
-	// 		}
-	// 		else if (isset($upd_id)) {
-	// 			display_notification_centered(_("Request Updated... Please wait for manager's approval..."));
-	// 		}
-	// 	}
-	// }
-	// else {
-	// 	display_error(_("Gross Amount cannot be zero... Please pick an Item..."));
-	// }
-
-	// $Ajax->activate('_page_body');
-}
+// 	$Ajax->activate('_page_body');
+// }
 
 //--------------------------------------------------------------------------------
 function can_process()

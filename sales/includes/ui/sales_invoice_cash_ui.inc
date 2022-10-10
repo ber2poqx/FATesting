@@ -717,6 +717,16 @@ function display_order_header(&$order, $editable, $date_text)
 				);
 			}
 		}
+		else if ($_POST['category_id'] == 14) {
+			value_type_list(_("Request for Manager's Discount: &nbsp;"), 'req_discount', 
+				array(
+					"DEFAULT" => "Select Action",
+					"REQ" => 'Request', 
+					"REREQ" => 'Update Request',
+					"FETCH" => 'Reresh Request'
+				), 'label', null, true, '', true
+			);
+		}
 		else {
 			hidden('pdc_discount');
 			hidden('pdc_no');
@@ -732,26 +742,6 @@ function display_order_header(&$order, $editable, $date_text)
 	//
 	
 	end_outer_table(1); // outer table
-
-	if ($_POST['category_id'] == 14) {
-		$request_text = _("Request");
-
-		if ($_SESSION['Items']->discount_id > 0) {
-			$discount_row = db_fetch(get_temp_discount($_SESSION['Items']->discount_id));
-
-			if ($discount_row['status'] == "Approved") {
-				$request_text = _("Re-Request");
-			}
-		}
-
-		start_table(TABLESTYLE_NOBORDER);
-		start_row();
-
-		submit_center('req_discount', _("$request_text for Manager's Discount"));
-
-		end_row();
-		end_table(); 
-	}
 	
 	div_end('order_head');
 

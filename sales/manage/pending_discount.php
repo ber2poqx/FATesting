@@ -124,6 +124,8 @@ table_header($th);
 $k = 0;
 
 while ($data = db_fetch_assoc($result)) {
+    alt_table_row_color($k);
+    
     label_cell($data['id']);
     label_cell($data['so_ref']);
     label_cell(get_customer_name($data['debtor_no']));
