@@ -106,7 +106,7 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50, hidden: true},
-		{header:'Approved', dataIndex:'statusmsg', sortable:true, width:120,
+		{header:'Status', dataIndex:'statusmsg', sortable:true, width:120,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				if (value == "For Approval"){
 					return '<span style="color:red; font-weight:bold;">' + value + '</span>';
