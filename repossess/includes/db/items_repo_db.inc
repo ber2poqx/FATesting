@@ -246,15 +246,21 @@ function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcod
 }
 
 /*Added by robert 05/27/2022*/
-function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode='',$all=false){
+function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode='',$comp_stat='',$all=false)
+{
+    if($comp_stat!=''){
+        $str_status=" AND compl.status='".$comp_stat."'";
+    }else{
+        $str_status="";
+    }
 
-    $sql = "SELECT smoves.*,scat.description as category_name, SUM(smoves.qty) as total_item, 
-    loc.location_name as loc_name, comments.memo_ as remarks 
-    FROM ".TB_PREF."stock_moves smoves 
+    $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
+    loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status
+    FROM ".TB_PREF."stock_adjustment smoves 
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
-    LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id 
-    WHERE smoves.type='".ST_COMPLIMENTARYITEMREPO."' AND smoves.loc_code='$branchcode'
+    LEFT JOIN ".TB_PREF."complimentary_items compl ON smoves.reference=compl.reference 
+    WHERE smoves.type='".ST_COMPLIMENTARYITEMREPO."' AND smoves.loc_code='$branchcode' $str_status AND smoves.item_type = 'repo'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 
     /*Added by Robert */
@@ -293,14 +299,17 @@ function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $ref
     }
     $total = 0;
     
-    $complintary_header_id = add_complimentary_header_repo($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, 
-        $masterfile);
+    $complintary_header_id = add_complimentary_header_repo($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile, $memo_);
     
     foreach ($Items as $line_item)
     {
-        $refline = add_stock_complimentary_item_repo($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, 
+        /*$refline = add_stock_complimentary_item_repo($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, 
         $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, 
-        $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
+        $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);*/
+
+        $refline = add_stock_complimentary_item_repo($transfer_id, $line_item->stock_id, $location_from, $date_, $reference, $line_item->quantity, 
+            $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, 
+            $line_item->transno_out, $memo_);
     }
 
     add_comments(ST_COMPLIMENTARYITEMREPO, $transfer_id, $date_, $memo_);
@@ -316,12 +325,14 @@ function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $ref
 }
 
 //Added by Robert - 05/28/2022
-function add_complimentary_header_repo($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile=''){
+function add_complimentary_header_repo($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile='', $memo=''){
     set_global_connection();
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, item_type) VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", ".db_escape($masterfile).", 'repo')";
+    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, item_type, memo_) 
+    VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", 
+    ".db_escape($masterfile).", 'repo', ".db_escape($memo).")";
     
     db_query($sql, "The complimentary Header record cannot be inserted");
     
@@ -331,10 +342,13 @@ function add_complimentary_header_repo($transdate, $reference, $fromlocation, $c
     return $dbid;
 }
 
-//Added by Robert - 05/28/2022
-function add_stock_complimentary_item_repo($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out, $transno_out)
+//Added by Robert - 05/28/2022 - 10/10/2022
+function add_stock_complimentary_item_repo($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',
+    $standard_cost=0, $type_out, $transno_out, $remarks)
 {
-    return add_stock_move(ST_COMPLIMENTARYITEMREPO, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out, 'repo'); 
+    //return add_stock_move(ST_COMPLIMENTARYITEMREPO, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out, 'repo'); 
+    return add_stock_adjustment_complimentary(ST_COMPLIMENTARYITEMREPO, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity, $standard_cost, 0, 
+        $lot_no, $chasis_no, $category_id, $color_code, $type_out, $transno_out, $remarks, 'repo');
 }
 
 //Added by Robert - 09/29/2022

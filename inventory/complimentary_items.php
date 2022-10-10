@@ -538,7 +538,7 @@ if(!is_null($action) || !empty($action)){
             
             
             while ($myrow = db_fetch($result))
-            {        
+            {    
                 $group_array[] = array('trans_no' => $myrow["trans_no"],
                     'model' => $myrow["stock_id"],
                     'color' => $myrow["description"],
@@ -547,7 +547,9 @@ if(!is_null($action) || !empty($action)){
                     'category_id'=>$catcode,
                     'lot_no' => $myrow["lot_no"],
                     'chasis_no' => $myrow["chassis_no"],
-                    'standard_cost' => $myrow["standard_cost"]
+                    'standard_cost' => $myrow["standard_cost"],
+                    'subtotal_cost' => $myrow["standard_cost"] * -$myrow["qty"]
+
                 );
             }
             

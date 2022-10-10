@@ -53,7 +53,8 @@ Ext.onReady(function(){
 			{name:'qty',mapping:'qty'},
 			{name:'category_id',mapping:'category_id'},
 			{name:'reference',mapping:'reference'},
-			{name:'standard_cost',mapping:'standard_cost', type: 'float'}
+			{name:'standard_cost',mapping:'standard_cost', type: 'float'},
+			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'}
 		]
 	});
 
@@ -352,10 +353,14 @@ Ext.onReady(function(){
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].show();
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="item_description"]')[0].show();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="standard_cost"]')[0].show();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="subtotal_cost"]')[0].hide();
 						}else{
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].hide();
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="color"]')[0].hide();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="standard_cost"]')[0].hide();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="subtotal_cost"]')[0].show();
 						}
 						windowItemSerialList.show();	
 					}
@@ -498,6 +503,7 @@ Ext.onReady(function(){
 	});
 
 	var columnTransferModel = [
+		{xtype: 'rownumberer'},
 		{header:'line', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: true},
 		{header:'Trans', dataIndex:'transno_out', sortable:true, width:60, renderer: columnWrap, hidden: true},
 		{header:'Type', dataIndex:'type_out', sortable:true, width:60, renderer: columnWrap, hidden: true},
@@ -508,7 +514,7 @@ Ext.onReady(function(){
 		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:60, renderer: columnWrap, hidden: true},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:100, renderer: columnWrap, hidden: false, align:'right',
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:100, renderer: columnWrap, hidden: false, align:'right',
 			renderer: function(value, metadata, summaryData, record, rowIndex, colIndex, store) {
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -684,6 +690,7 @@ Ext.onReady(function(){
 	});
 		
 	var columnJEModel = [
+		{xtype: 'rownumberer'},
 		{header:'#', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: true},
 		{header:'#', dataIndex:'line', sortable:true, width:30, align:'center', hidden: true},
 		{header:'Account Code', dataIndex:'code_id', sortable:true, width:100, align:'center', hidden: false, 
@@ -1106,7 +1113,7 @@ Ext.onReady(function(){
 		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
-		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, width:80, hidden: false, align:'center',
+		{header:'Total Cost', dataIndex:'standard_cost', sortable:true, width:80, hidden: false, align:'center',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -1118,6 +1125,15 @@ Ext.onReady(function(){
 			summaryRenderer: function(value, summaryData, dataIndex){
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}
+		},
+		{header:'Total Cost', dataIndex:'subtotal_cost', sortable:true, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
 		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
@@ -1882,434 +1898,434 @@ Ext.onReady(function(){
             xtype	: 'toolbar',
 			name 	: 'search',
             items: [{
-					width	: 200,
-					xtype	: 'searchfield',
-					store	: myInsurance,
-					name 	: 'search',
-					fieldLabel: 'Search',
-					labelWidth: 50,
-					hidden: true
-				},Supplier_Filter,{
-					icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
-					tooltip	: 'New Transaction',
-					text 	: 'New Transaction',
-					id: 'newtransaction',
-					hidden: false,
-					handler : function(){
-						if(!windowNewTransfer){
-							var windowNewTransfer = Ext.create('Ext.Window',{
-								title:'Complimentary Items Entry',
-								modal: true,
-								width: 1100,
-								//height:500,
-								bodyPadding: 5,
-								layout:'anchor',
-								items:[{
-										xtype:'fieldset',
-										//title:'Complimentary Header',
-										layout:'anchor',
-										defaultType:'textfield',
-										fieldDefaults:{
-											labelAlign:'right'
-										},
-										items:[{
+				width	: 200,
+				xtype	: 'searchfield',
+				store	: myInsurance,
+				name 	: 'search',
+				fieldLabel: 'Search',
+				labelWidth: 50,
+				hidden: true
+			},Supplier_Filter,{
+				icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
+				tooltip	: 'New Transaction',
+				text 	: 'New Transaction',
+				id: 'newtransaction',
+				hidden: false,
+				handler : function(){
+					if(!windowNewTransfer){
+						var windowNewTransfer = Ext.create('Ext.Window',{
+							title:'Complimentary Items Entry',
+							modal: true,
+							width: 1100,
+							//height:500,
+							bodyPadding: 5,
+							layout:'anchor',
+							items:[{
+									xtype:'fieldset',
+									//title:'Complimentary Header',
+									layout:'anchor',
+									defaultType:'textfield',
+									fieldDefaults:{
+										labelAlign:'right'
+									},
+									items:[{
+											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[{
+												xtype:'combobox',
+												fieldLabel:'Location From',
+												name:'fromlocation',
+												id:'fromlocation',
+												queryMode:'local',
+												triggerAction : 'all',
+            									displayField  : 'location_name',
+            									valueField    : 'loc_code',
+            									editable      : true,
+            									forceSelection: true,
+                                                allowBlank: false,
+            									required: true,
+            									hiddenName: 'loc_code',
+            									typeAhead: true,
+            									width: 525,
+            									emptyText:'Select Location',
+            									fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+            									selectOnFocus:true,
+												store: Ext.create('Ext.data.Store',{
+            										fields: ['loc_code', 
+															'location_name', 
+															'delivery_address', 
+															'phone', 
+															'phone2'
+													],
+                                            		autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=fromlocation',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+                								})
+											},{
+												xtype:'combobox',
+												fieldLabel:'Category',
+												name:'category',
+												id:'category',
+												queryMode:'local',
+												triggerAction:'all',
+												displayField  : 'description',
+            									valueField    : 'category_id',
+            									editable      : true,
+            									forceSelection: true,
+                                                allowBlank: false,
+                                                labelWidth: 70,
+            									required: true,
+            									hiddenName: 'category_id',
+            									typeAhead: true,
+            									emptyText:'Select Category',
+            									fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+            									selectOnFocus:true,
+												store: Ext.create('Ext.data.Store',{
+            										fields: ['category_id', 'description'],
+                                            		autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=category',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+            									}),
+												listeners:{
+													select: function(cmb, rec, idx){
+														var v = this.getValue();
+														//var mtgridcol = Ext.getCmp('mtgrid');
+														if(v=='14'){
+															
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
+															
+														}else{
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
+														}
+														//Ext.Msg.alert('Category', v);
+														
+													}
+												}
+											},{
+												xtype:'datefield',
+												fieldLabel:'Trans Date',
+                                                labelWidth: 80,
+                                           		width: 230,
+												name:'trans_date',
+												id:'AdjDate',
+            									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
+												listeners:{
+													change: function(){
+														MerchandiseTransStore.load({
+															params:{view:1}
+														});
+													}
+												}
+											}													
+										]
+											},{
 												xtype:'fieldcontainer',
 												layout:'hbox',
 												margin: '2 0 2 5',
 												items:[{
-													xtype:'combobox',
-													fieldLabel:'Location From',
-													name:'fromlocation',
-													id:'fromlocation',
-													queryMode:'local',
-													triggerAction : 'all',
-                									displayField  : 'location_name',
-                									valueField    : 'loc_code',
-                									editable      : true,
-                									forceSelection: true,
-                                                    allowBlank: false,
-                									required: true,
-                									hiddenName: 'loc_code',
-                									typeAhead: true,
-                									width: 525,
-                									emptyText:'Select Location',
-                									fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
-                									selectOnFocus:true,
-													store: Ext.create('Ext.data.Store',{
-                										fields: ['loc_code', 
-																'location_name', 
-																'delivery_address', 
-																'phone', 
-																'phone2'
-														],
-                                                		autoLoad: true,
-														proxy: {
-															type:'ajax',
-															url: '?action=fromlocation',
-															reader:{
-																type : 'json',
-																root : 'result',
-																totalProperty : 'total'
-															}
-														}
-                    								})
+												xtype:'textfield',
+													fieldLabel:'Reference #',
+                                               		width: 350, 
+													name:'reference',
+													id:'reference',
+													layout:'anchor',
+													anchor:'100%',
+													fieldStyle: 'background-color: #F2F3F4; color: blue; font-weight: bold;',
+													readOnly: true
+													//flex:1
 												},{
-													xtype:'combobox',
-													fieldLabel:'Category',
-													name:'category',
-													id:'category',
-													queryMode:'local',
-													triggerAction:'all',
-													displayField  : 'description',
-                									valueField    : 'category_id',
-                									editable      : true,
-                									forceSelection: true,
-                                                    allowBlank: false,
-                                                    labelWidth: 70,
-                									required: true,
-                									hiddenName: 'category_id',
-                									typeAhead: true,
-                									emptyText:'Select Category',
-                									fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
-                									selectOnFocus:true,
-													store: Ext.create('Ext.data.Store',{
-                										fields: ['category_id', 'description'],
-                                                		autoLoad: true,
-														proxy: {
-															type:'ajax',
-															url: '?action=category',
-															reader:{
-																type : 'json',
-																root : 'result',
-																totalProperty : 'total'
-															}
-														}
-                									}),
-													listeners:{
-														select: function(cmb, rec, idx){
-															var v = this.getValue();
-															//var mtgridcol = Ext.getCmp('mtgrid');
-															if(v=='14'){
-																
-																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
-																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
-																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
-																
-															}else{
-																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
-																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
-																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
-															}
-															//Ext.Msg.alert('Category', v);
-															
-														}
-													}
-												},{
-													xtype:'datefield',
-													fieldLabel:'Trans Date',
-                                                    labelWidth: 80,
-                                               		width: 230,
-													name:'trans_date',
-													id:'AdjDate',
-                									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
-													listeners:{
-														change: function(){
-															MerchandiseTransStore.load({
-																params:{view:1}
-															});
-														}
-													}
-												}													
-											]
-												},{
-													xtype:'fieldcontainer',
-													layout:'hbox',
-													margin: '2 0 2 5',
-													items:[{
-													xtype:'textfield',
-														fieldLabel:'Reference #',
-                                                   		width: 350, 
-														name:'reference',
-														id:'reference',
-														layout:'anchor',
-														anchor:'100%',
-														fieldStyle: 'background-color: #F2F3F4; color: blue; font-weight: bold;',
-														readOnly: true
-														//flex:1
-													},{
-														xtype: 'combobox',
-														fieldLabel:'Sent To',
-														name:'masterfile_type_header',
-									                    id:'masterfile_type_header',
-									                    typeAhead: true,
-											            triggerAction: 'all',
-											            store: MasterfileTypeStore,
-														displayField  : 'namecaption',
-														valueField    : 'id',
-														editable      : false,
-														forceSelection: true,
-														required: true,
-														labelWidth: 60,
-														hiddenName: 'id',
-														fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',							
-														listeners: {
-															select: function(cmb, rec, idx) {
-															MasterfileModel=Ext.getCmp('masterfile_header');
-									                        MasterfileModel.clearValue();
-															if( this.getValue()===99){
-																MasterfileModel.store.load();
-															}else{
-																MasterfileModel.store.load({
-																	params: { 'masterfile_type': this.getValue()
-																	}
-																});
-															}								
-									                        MasterfileModel.enable();									
-														}
-													}
-												},{
-			                                        xtype:'combo',
-			                                        fieldLabel:'Masterfile',
-			                                        name:'masterfile_header',
-													id:'masterfile_header',
-			                                        anchor:'100%',
-			                                        typeAhead: true,
-                                                    labelWidth: 80,
-                                                    width: 415,
+													xtype: 'combobox',
+													fieldLabel:'Sent To',
+													name:'masterfile_type_header',
+								                    id:'masterfile_type_header',
+								                    typeAhead: true,
 										            triggerAction: 'all',
-										            store: MasterfileStore,
-													queryMode: 'local',
+										            store: MasterfileTypeStore,
 													displayField  : 'namecaption',
 													valueField    : 'id',
+													editable      : false,
+													forceSelection: true,
+													required: true,
+													labelWidth: 60,
 													hiddenName: 'id',
-													fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
-													//flex:1,
-													listeners:{
-														change: function(combo, value,index){
-															return decodeHtmlEntity(combo.getRawValue());
-														}
-													} 	
-			                                    }
-											]
-											},{
-												xtype:'fieldcontainer',
-												margin: '2 0 2 5',
-												width: 1000,
-												layout:'fit',
-												items:[{
-													xtype:'textareafield',
-													fieldLabel:'Memo',
-													name:'memo',
-													id:'memo',
-													grow: false,
-													anchor:'100%'
-												}]
-											}
-										]	
-									},{
-										xtype:'tabpanel',
-										items:[
-											{
-												xtype:'panel',
-												title:'Items',
-												frame: true,
-												padding:'5px',
-												border: false,
-												anchor:'100%',
-												layout:'fit',
-												id:'tabItemEntry',
-												items:[gridMT]
-											},{
-												xtype:'panel',
-												title:'Journal Entry',
-												frame: true,
-												padding:'5px',
-												border:false,
-												anchor:'100%',
-												layout:'fit',
-												id:'tabJEEntry',
-												items:[gridJE]
-											}
-										],
-										listeners: {
-								            'tabchange': function (tabPanel, tab) {
-								                //console.log(tabPanel.id + ' ' + tab.id);
-												if(tab.id=='tabJEEntry'){
-													GLItemsStore.load();
+													fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',							
+													listeners: {
+														select: function(cmb, rec, idx) {
+														MasterfileModel=Ext.getCmp('masterfile_header');
+								                        MasterfileModel.clearValue();
+														if( this.getValue()===99){
+															MasterfileModel.store.load();
+														}else{
+															MasterfileModel.store.load({
+																params: { 'masterfile_type': this.getValue()
+																}
+															});
+														}								
+								                        MasterfileModel.enable();									
+													}
 												}
-												if(tab.id=='tabItemEntry'){
-													/*MerchandiseTransStore.load({
-														params:{view:1}
-													});*/
-												}
-								            }
-								        }
-										
-									},{
-										xtype:'fieldcontainer',
-										layout:'hbox',
-										items:[
-											{
-												xtype:'textfield',
-												fieldLabel:'DEBIT:',
-												readOnly: true,
-												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
-												id:'totaldebit'
 											},{
-												xtype:'textfield',
-												fieldLabel:'CREDIT:',
-												readOnly: true,
-												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
-												id:'totalcredit'
-											},{
-												xtype:'textfield',
-												fieldLabel:'MODEL:',
-												readOnly: true,
-												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',								
-												id:'item_model',
-												hidden: true					      
-											}
+		                                        xtype:'combo',
+		                                        fieldLabel:'Masterfile',
+		                                        name:'masterfile_header',
+												id:'masterfile_header',
+		                                        anchor:'100%',
+		                                        typeAhead: true,
+                                                labelWidth: 80,
+                                                width: 415,
+									            triggerAction: 'all',
+									            store: MasterfileStore,
+												queryMode: 'local',
+												displayField  : 'namecaption',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+												//flex:1,
+												listeners:{
+													change: function(combo, value,index){
+														return decodeHtmlEntity(combo.getRawValue());
+													}
+												} 	
+		                                    }
 										]
-									}
-								],
-								buttons:[{
-									text:'Process',
-									id:'btnProcess',
-									disabled: true,
-									handler:function(){
-
-										var gridData = MerchandiseTransStore.getRange();
-										var gridRepoData = [];
-										count = 0;
-										Ext.each(gridData, function(item) {
-											var ObjItem = {							
-												qty: item.get('qty'),
-												currentqty:item.get('currentqty'),												
-												stock_id:item.get('stock_id')													
-											};
-											gridRepoData.push(ObjItem);
-										});
-
-										var AdjDate = Ext.getCmp('AdjDate').getValue();	
-										var catcode = Ext.getCmp('category').getValue();
-										var FromStockLocation = Ext.getCmp('fromlocation').getValue();
-										var memo_ = Ext.getCmp('memo').getValue();
-										var totaldebit = Ext.getCmp('totaldebit').getValue();
-										var totalcredit = Ext.getCmp('totalcredit').getValue();
-										var reference = Ext.getCmp('reference').getValue();
-										var person_id = Ext.getCmp('masterfile_header').getValue();
-										var masterfile = Ext.getCmp('masterfile_header').getRawValue();
-										
-										var person_type = Ext.getCmp('masterfile_type_header').getValue();
-
-										var item_models = Ext.getCmp('item_model').getValue();
-
-										Ext.MessageBox.show({
-											msg: 'Saving Date, please wait...',
-											progressText: 'Saving...',
-											width:300,
-											wait:true,
-											waitConfig: {interval:200},
-											//icon:'ext-mb-download', //custom class in msg-box.html
-											iconHeight: 50
-										});
-												
-											Ext.Ajax.request({
-											url : '?action=SaveTransfer',
-											method: 'POST',
-											params:{
-												AdjDate:AdjDate,
-												catcode:catcode,
-												FromStockLocation: FromStockLocation,
-												memo_: memo_,
-												totaldebit:totaldebit,
-												totalcredit: totalcredit,
-												ref: reference,
-												person_type: person_type,
-												person_id: person_id,
-												masterfile: masterfile,
-												item_models: item_models,
-												Dataongrid: Ext.encode(gridRepoData)
-											},
-												success: function(response){
-													var jsonData = Ext.JSON.decode(response.responseText);
-													var errmsg = jsonData.errmsg;
-													//Ext.getCmp('AdjDate').setValue(AdjDate);
-													if(errmsg!=''){
-														setButtonDisabled(false);
-														Ext.MessageBox.alert('Error',errmsg);
-													}else{
-														windowNewTransfer.close();
-														//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-														myInsurance.load();
-														Ext.MessageBox.alert('Success','Success Processing');
-													}	
-												} 
-											});
-											Ext.MessageBox.hide();
+										},{
+											xtype:'fieldcontainer',
+											margin: '2 0 2 5',
+											width: 1000,
+											layout:'fit',
+											items:[{
+												xtype:'textareafield',
+												fieldLabel:'Memo',
+												name:'memo',
+												id:'memo',
+												grow: false,
+												anchor:'100%'
+											}]
 										}
-									},{
-										text:'Close',
-										handler: function(){
-											windowNewTransfer.close();
+									]	
+								},{
+									xtype:'tabpanel',
+									items:[
+										{
+											xtype:'panel',
+											title:'Items',
+											frame: true,
+											padding:'5px',
+											border: false,
+											anchor:'100%',
+											layout:'fit',
+											id:'tabItemEntry',
+											items:[gridMT]
+										},{
+											xtype:'panel',
+											title:'Journal Entry',
+											frame: true,
+											padding:'5px',
+											border:false,
+											anchor:'100%',
+											layout:'fit',
+											id:'tabJEEntry',
+											items:[gridJE]
 										}
-									}
-								]
-							});
-						}
-						var AdjDate = Ext.getCmp('AdjDate').getValue();	
-						var FromStockLocation = Ext.getCmp('fromlocation').getValue();
+									],
+									listeners: {
+							            'tabchange': function (tabPanel, tab) {
+							                //console.log(tabPanel.id + ' ' + tab.id);
+											if(tab.id=='tabJEEntry'){
+												GLItemsStore.load();
+											}
+											if(tab.id=='tabItemEntry'){
+												/*MerchandiseTransStore.load({
+													params:{view:1}
+												});*/
+											}
+							            }
+							        }
+									
+								},{
+									xtype:'fieldcontainer',
+									layout:'hbox',
+									items:[
+										{
+											xtype:'textfield',
+											fieldLabel:'DEBIT:',
+											readOnly: true,
+											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+											id:'totaldebit'
+										},{
+											xtype:'textfield',
+											fieldLabel:'CREDIT:',
+											readOnly: true,
+											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+											id:'totalcredit'
+										},{
+											xtype:'textfield',
+											fieldLabel:'MODEL:',
+											readOnly: true,
+											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',								
+											id:'item_model',
+											hidden: true					      
+										}
+									]
+								}
+							],
+							buttons:[{
+								text:'Process',
+								id:'btnProcess',
+								disabled: true,
+								handler:function(){
+
+									var gridData = MerchandiseTransStore.getRange();
+									var gridRepoData = [];
+									count = 0;
+									Ext.each(gridData, function(item) {
+										var ObjItem = {							
+											qty: item.get('qty'),
+											currentqty:item.get('currentqty'),												
+											stock_id:item.get('stock_id')													
+										};
+										gridRepoData.push(ObjItem);
+									});
+
+									var AdjDate = Ext.getCmp('AdjDate').getValue();	
+									var catcode = Ext.getCmp('category').getValue();
+									var FromStockLocation = Ext.getCmp('fromlocation').getValue();
+									var memo_ = Ext.getCmp('memo').getValue();
+									var totaldebit = Ext.getCmp('totaldebit').getValue();
+									var totalcredit = Ext.getCmp('totalcredit').getValue();
+									var reference = Ext.getCmp('reference').getValue();
+									var person_id = Ext.getCmp('masterfile_header').getValue();
+									var masterfile = Ext.getCmp('masterfile_header').getRawValue();
+									
+									var person_type = Ext.getCmp('masterfile_type_header').getValue();
+
+									var item_models = Ext.getCmp('item_model').getValue();
+
+									Ext.MessageBox.show({
+										msg: 'Saving Date, please wait...',
+										progressText: 'Saving...',
+										width:300,
+										wait:true,
+										waitConfig: {interval:200},
+										//icon:'ext-mb-download', //custom class in msg-box.html
+										iconHeight: 50
+									});
 											
-						Ext.Ajax.request({
-							url : '?action=NewTransfer',
-							method: 'POST',
-							params:{
-								AdjDate:AdjDate,
-								FromStockLocation:FromStockLocation
-							},
-							success: function (response){
-								var jsonData = Ext.JSON.decode(response.responseText);
-								var AdjDate = jsonData.AdjDate;
-								var reference = jsonData.reference;
-								Ext.getCmp('AdjDate').setValue(AdjDate);
-								Ext.getCmp('reference').setValue(reference);
-								
-								MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-								MerchandiseTransStore.load();
-								GLItemsStore.load();
-								GetTotalBalance();
-						
-							}
+										Ext.Ajax.request({
+										url : '?action=SaveTransfer',
+										method: 'POST',
+										params:{
+											AdjDate:AdjDate,
+											catcode:catcode,
+											FromStockLocation: FromStockLocation,
+											memo_: memo_,
+											totaldebit:totaldebit,
+											totalcredit: totalcredit,
+											ref: reference,
+											person_type: person_type,
+											person_id: person_id,
+											masterfile: masterfile,
+											item_models: item_models,
+											Dataongrid: Ext.encode(gridRepoData)
+										},
+											success: function(response){
+												var jsonData = Ext.JSON.decode(response.responseText);
+												var errmsg = jsonData.errmsg;
+												//Ext.getCmp('AdjDate').setValue(AdjDate);
+												if(errmsg!=''){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error',errmsg);
+												}else{
+													windowNewTransfer.close();
+													//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+													myInsurance.load();
+													Ext.MessageBox.alert('Success','Success Processing');
+												}	
+											} 
+										});
+										Ext.MessageBox.hide();
+									}
+								},{
+									text:'Close',
+									handler: function(){
+										windowNewTransfer.close();
+									}
+								}
+							]
 						});
-						
-						windowNewTransfer.show();
-						
-					},
-					scale	: 'small'
-				},{
-					xtype: 'combobox',
-					fieldLabel:'Status:',
-					name:'compli_status',
-                    id:'compli_status',
-                    typeAhead: true,
-		            triggerAction: 'all',
-		            store: StatusFileStore,
-					displayField  : 'namecaption',
-					valueField    : 'stat_id',
-					editable      : false,
-					forceSelection: true,
-					required: true,
-					labelWidth: 60,
-					hiddenName: 'stat_id',
-					emptyText:'Select Status',
-					fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
-					listeners: {
-						select: function(combo, record, index) {
-							myInsurance.proxy.extraParams = {comp_stat: this.getValue()}
-							myInsurance.load();		
+					}
+					var AdjDate = Ext.getCmp('AdjDate').getValue();	
+					var FromStockLocation = Ext.getCmp('fromlocation').getValue();
+										
+					Ext.Ajax.request({
+						url : '?action=NewTransfer',
+						method: 'POST',
+						params:{
+							AdjDate:AdjDate,
+							FromStockLocation:FromStockLocation
+						},
+						success: function (response){
+							var jsonData = Ext.JSON.decode(response.responseText);
+							var AdjDate = jsonData.AdjDate;
+							var reference = jsonData.reference;
+							Ext.getCmp('AdjDate').setValue(AdjDate);
+							Ext.getCmp('reference').setValue(reference);
+							
+							MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+							MerchandiseTransStore.load();
+							GLItemsStore.load();
+							GetTotalBalance();
+					
 						}
-					}	
-				}]
+					});
+					
+					windowNewTransfer.show();
+					
+				},
+				scale	: 'small'
+			},{
+				xtype: 'combobox',
+				fieldLabel:'Status:',
+				name:'compli_status',
+                id:'compli_status',
+                typeAhead: true,
+	            triggerAction: 'all',
+	            store: StatusFileStore,
+				displayField  : 'namecaption',
+				valueField    : 'stat_id',
+				editable      : false,
+				forceSelection: true,
+				required: true,
+				labelWidth: 60,
+				hiddenName: 'stat_id',
+				emptyText:'Select Status',
+				fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+				listeners: {
+					select: function(combo, record, index) {
+						myInsurance.proxy.extraParams = {comp_stat: this.getValue()}
+						myInsurance.load();		
+					}
+				}	
+			}]
 		}],
 		bbar : {
 			xtype : 'pagingtoolbar',
