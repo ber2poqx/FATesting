@@ -238,7 +238,14 @@ function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',
 }
 
 /*Added by robert 04/19/2022*/
-function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$all=false){
+function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='', $comp_stat='', $all=false)
+{
+
+    if($comp_stat!=''){
+        $str_status=" AND compl.status='".$comp_stat."'";
+    }else{
+        $str_status="";
+    }
 
     $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
     loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status
@@ -246,7 +253,7 @@ function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='',$a
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
     LEFT JOIN ".TB_PREF."complimentary_items compl ON smoves.reference=compl.reference 
-    WHERE smoves.type='".ST_COMPLIMENTARYITEM."' AND smoves.loc_code='$branchcode'
+    WHERE smoves.type='".ST_COMPLIMENTARYITEM."' AND smoves.loc_code='$branchcode' $str_status AND smoves.item_type = 'new'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 
     /*Added by Robert */

@@ -670,11 +670,14 @@ if(!is_null($action) || !empty($action)){
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
-            $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
+            //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
+            $branchcode = $db_connections[user_company()]["branch_code"];
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
+
+            $comp_stat = (isset($_POST['comp_stat']) ? $_POST['comp_stat'] : $_GET['comp_stat']);
             
-            $result = get_all_complimentary_item($start,$limit,$querystr,$branchcode,false,'');
-            $total_result = get_all_complimentary_item($start,$limit,$querystr,$branchcode,true,'');
+            $result = get_all_complimentary_item($start,$limit,$querystr,$branchcode,$comp_stat,false,'');
+            $total_result = get_all_complimentary_item($start,$limit,$querystr,$branchcode,$comp_stat,true,'');
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))

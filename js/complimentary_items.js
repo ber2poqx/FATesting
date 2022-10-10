@@ -499,16 +499,16 @@ Ext.onReady(function(){
 
 	var columnTransferModel = [
 		{header:'line', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: true},
-		{header:'Trans', dataIndex:'transno_out', sortable:true, width:60, hidden: true},
-		{header:'Type', dataIndex:'type_out', sortable:true, width:60, hidden: true},
-		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, align:'center', hidden: false},
-		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', hidden: true},
+		{header:'Trans', dataIndex:'transno_out', sortable:true, width:60, renderer: columnWrap, hidden: true},
+		{header:'Type', dataIndex:'type_out', sortable:true, width:60, renderer: columnWrap, hidden: true},
+		{header:'RR Date', dataIndex:'rr_date', sortable:true, width:60, align:'center', renderer: columnWrap, hidden: false},
+		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', renderer: columnWrap, hidden: true},
 		{header:'Model', dataIndex:'stock_id', sortable:true, width:80, renderer: columnWrap,hidden: false},
 		{header:'Stock Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Location', dataIndex:'loc_code', sortable:true,width:60, hidden: true},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:100, hidden: false, align:'right',
+		{header:'Location', dataIndex:'loc_code', sortable:true,width:60, renderer: columnWrap, hidden: true},
+		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:100, renderer: columnWrap, hidden: false, align:'right',
 			renderer: function(value, metadata, summaryData, record, rowIndex, colIndex, store) {
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -517,8 +517,8 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, hidden: true, align:'center'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, align:'center',
+		{header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, renderer: columnWrap, hidden: true, align:'center'},
+		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, renderer: columnWrap, align:'center',
 			renderer: function(value, metadata, summaryData, record, rowIndex, colIndex, store) {
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -640,6 +640,15 @@ Ext.onReady(function(){
 				update: 'GET'
 			}
 		}
+	});
+
+	//Added on 10/10/2022
+	var StatusFileStore = new Ext.create ('Ext.data.Store',{
+		fields 	: 	['stat_id', 'namecaption'],
+		data 	: 	[{"stat_id":"Approved","namecaption":"Approved"},
+					{"stat_id":"Draft","namecaption":"For Approval"},
+                    {"stat_id":"Closed","namecaption":"Closed"}],
+        autoLoad: true
 	});
 	
     var MasterfileTypeStore = new Ext.create ('Ext.data.Store',{
@@ -1207,6 +1216,7 @@ Ext.onReady(function(){
 		forceFit: true,
 		height: 270,
 		autoScroll:true,
+        loadMask:true,
 		//flex:1,
 		//autoScroll: true,
 		//height: 500,
@@ -2091,7 +2101,7 @@ Ext.onReady(function(){
 													fieldLabel:'Memo',
 													name:'memo',
 													id:'memo',
-													grow: true,
+													grow: false,
 													anchor:'100%'
 												}]
 											}
@@ -2276,6 +2286,29 @@ Ext.onReady(function(){
 						
 					},
 					scale	: 'small'
+				},{
+					xtype: 'combobox',
+					fieldLabel:'Status:',
+					name:'compli_status',
+                    id:'compli_status',
+                    typeAhead: true,
+		            triggerAction: 'all',
+		            store: StatusFileStore,
+					displayField  : 'namecaption',
+					valueField    : 'stat_id',
+					editable      : false,
+					forceSelection: true,
+					required: true,
+					labelWidth: 60,
+					hiddenName: 'stat_id',
+					emptyText:'Select Status',
+					fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+					listeners: {
+						select: function(combo, record, index) {
+							myInsurance.proxy.extraParams = {comp_stat: this.getValue()}
+							myInsurance.load();		
+						}
+					}	
 				}]
 		}],
 		bbar : {
