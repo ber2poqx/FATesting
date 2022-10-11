@@ -227,10 +227,10 @@ function print_dailycash_sales()
 			if ($trans_type != $trans['receipt_type']) {
 			
 				if ($trans_type != '') {
-					$rep->NewLine(2);
-					$rep->Font('bold');
-					$rep->TextCol(0, 1, _('Sub Total'));
-					$rep->AmountCol(5, 6, $sub_total, $dec);
+					$rep->NewLine();
+					// $rep->Font('bold');
+					// $rep->TextCol(0, 1, _('Sub Total'));
+					// $rep->AmountCol(5, 6, $sub_total, $dec);
 					$rep->Line($rep->row  - 4);
 					$rep->NewLine(1.5);
 					$sub_total = 0.0;
@@ -295,10 +295,10 @@ function print_dailycash_sales()
 				if ($trans_type != $trans['receipt_type']) {
 			
 					if ($trans_type != '') {
-						$rep->NewLine(2);
-						$rep->Font('bold');
-						$rep->TextCol(0, 1, _('Sub Total'));
-						$rep->AmountCol(5, 6, $sub_total, $dec);
+						$rep->NewLine();
+						// $rep->Font('bold');
+						// $rep->TextCol(0, 1, _('Sub Total'));
+						// $rep->AmountCol(5, 6, $sub_total, $dec);
 						$rep->Line($rep->row  - 4);
 						$rep->NewLine(1.5);
 						$sub_total = 0.0;
@@ -371,6 +371,110 @@ function print_dailycash_sales()
 		$rep->NewLine(1.5);
 	}
 
+	//Remittance Entry
+	$rep->NewLine(2);
+	$rep->fontSize += 1;
+	$rep->Font('bold');
+	$rep->SetTextColor(0, 0, 255);
+	$rep->TextCol(0, 4, _('REMITTANCE ENTRIES:'));
+	$rep->SetTextColor(0, 0, 0);
+	$rep->fontSize -= 1;
+	$rep->Font();
+	$rep->NewLine(1);
+
+	while ($remit_transT = db_fetch($remit_resT)) {
+
+		$bank_row = db_fetch(get_bank_trans($remit_transT['type'], null, null, null, $remit_transT['remit_ref']));
+		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_transT['id']); 
+
+		$rep->NewLine(1.2);
+		$rep->TextCol(0, 1, sql2date($remit_transT['trans_date']));
+		$rep->TextCol(1, 2,	get_user_name($remit_transT['remit_from']));
+		$rep->TextCol(2, 3, $remit_transT['remit_memo']);
+
+		$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_transT['remit_ref']));
+		$rep->TextCol(4, 5, '');
+
+		$rep->AmountCol(5, 6, $remit_transT['total_amt'], $dec);
+
+		$Tpre_subR += $remit_transT['total_amt'];
+		$Trtotal += $remit_transT['total_amt'];
+
+		$Tsub_rtotal = $Tpre_subR - $void_remit;
+		$Tsum_remit = $Trtotal - $void_remit;
+	}
+
+	while ($remit_trans = db_fetch($remit_res)) {
+
+		$bank_row = db_fetch(get_bank_trans($remit_trans['type'], null, null, null, $remit_trans['remit_ref']));
+		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_trans['id']); 
+
+		$rep->NewLine(1.2);
+		$rep->TextCol(0, 1, sql2date($remit_trans['trans_date']));
+		$rep->TextCol(1, 2,	get_user_name($remit_trans['remit_from']));
+		$rep->TextCol(2, 3, $remit_trans['remit_memo']);
+
+		$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_trans['remit_ref']));
+		$rep->TextCol(4, 5, '');
+
+		$rep->SetTextColor(255, 0, 0);
+		$rep->TextCol(5, 6, "(" . price_format($remit_trans['total_amt']) . ")");
+		$rep->SetTextColor(0, 0, 0);
+
+		$pre_subR += -$remit_trans['total_amt'];
+		$rtotal += -$remit_trans['total_amt'];
+
+		$sub_rtotal = $pre_subR - $void_remit;
+		$sum_remit = $rtotal - $void_remit;
+	}
+
+	$rep->NewLine(2);
+	$rep->Font('bold');
+	$rep->TextCol(0, 1, _('Sub Total'));
+	if (($Tsub_rtotal + $sub_rtotal) > 0) {
+		$rep->AmountCol(5, 6, $Tsub_rtotal + $sub_rtotal, $dec);
+	}
+	else {
+		$rep->SetTextColor(255, 0, 0);
+		$rep->TextCol(5, 6, "(" . price_format($Tsub_rtotal + ABS($sub_rtotal)) . ")");
+		$rep->SetTextColor(0, 0, 0);
+	}
+	$rep->Line($rep->row  - 4);
+	$rep->NewLine(1.5);
+	
+
+	//End Remittance Entry
+
+	$rep->NewLine(1);
+	$rep->fontSize += 2;
+	$rep->Font('bold');
+	$rep->SetTextColor(0, 0, 255);
+	$rep->TextCol(0, 4, _('Collection Breakdown:'));
+	$rep->SetTextColor(0, 0, 0);
+	$rep->fontSize -= 2;
+	$rep->Font();
+	$rep->NewLine(1.5);
+
+	$rep->fontSize += 1;
+	$rep->TextCol(1, 3, _("Opening Balance"));
+	$rep->AmountCol(5, 6, $prev_balance, $dec);
+	$rep->NewLine(1.2);
+	$rep->TextCol(1, 3, _("Collection Receipts"));
+	$rep->AmountCol(5, 6, $sum_receipt, $dec);
+	$rep->NewLine(1.2);
+	$rep->TextCol(1, 3, _("Remittance"));
+	$rep->AmountCol(5, 6, ($Tsum_remit + $sum_remit), $dec);
+	$rep->NewLine(2);
+	$rep->fontSize -= 1;
+	$rep->Font('bold');
+	$rep->fontSize += 2;
+	$rep->TextCol(1, 3, _('Total Collection: '));
+	$rep->AmountCol(5, 6, $prev_balance + $sum_receipt + ($Tsum_remit + $sum_remit), $dec);
+	$rep->fontSize -= 2;
+	$rep->NewLine(.5);
+	$rep->Line($rep->row  - 1);
+
+	$rep->NewLine(2);
 	//Disbursement Entry
 
 	$rep->NewLine(1);
@@ -472,82 +576,8 @@ function print_dailycash_sales()
 
 	//End Disburesement Entry
 
-	//Remittance Entry
-	$rep->NewLine(2);
-	$rep->fontSize += 1;
-	$rep->Font('bold');
-	$rep->SetTextColor(0, 0, 255);
-	$rep->TextCol(0, 4, _('REMITTANCE ENTRIES:'));
-	$rep->SetTextColor(0, 0, 0);
-	$rep->fontSize -= 1;
-	$rep->Font();
-	$rep->NewLine(1);
-
-	while ($remit_transT = db_fetch($remit_resT)) {
-
-		$bank_row = db_fetch(get_bank_trans($remit_transT['type'], null, null, null, $remit_transT['remit_ref']));
-		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_transT['id']); 
-
-		$rep->NewLine(1.2);
-		$rep->TextCol(0, 1, sql2date($remit_transT['trans_date']));
-		$rep->TextCol(1, 2,	get_user_name($remit_transT['remit_from']));
-		$rep->TextCol(2, 3, $remit_transT['remit_memo']);
-
-		$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_transT['remit_ref']));
-		$rep->TextCol(4, 5, '');
-
-		$rep->AmountCol(5, 6, $remit_transT['total_amt'], $dec);
-
-		$Tpre_subR += $remit_transT['total_amt'];
-		$Trtotal += $remit_transT['total_amt'];
-
-		$Tsub_rtotal = $Tpre_subR - $void_remit;
-		$Tsum_remit = $Trtotal - $void_remit;
-	}
-
-	while ($remit_trans = db_fetch($remit_res)) {
-
-		$bank_row = db_fetch(get_bank_trans($remit_trans['type'], null, null, null, $remit_trans['remit_ref']));
-		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_trans['id']); 
-
-		$rep->NewLine(1.2);
-		$rep->TextCol(0, 1, sql2date($remit_trans['trans_date']));
-		$rep->TextCol(1, 2,	get_user_name($remit_trans['remit_from']));
-		$rep->TextCol(2, 3, $remit_trans['remit_memo']);
-
-		$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_trans['remit_ref']));
-		$rep->TextCol(4, 5, '');
-
-		$rep->SetTextColor(255, 0, 0);
-		$rep->TextCol(5, 6, "(" . price_format($remit_trans['total_amt']) . ")");
-		$rep->SetTextColor(0, 0, 0);
-
-		$pre_subR += -$remit_trans['total_amt'];
-		$rtotal += -$remit_trans['total_amt'];
-
-		$sub_rtotal = $pre_subR - $void_remit;
-		$sum_remit = $rtotal - $void_remit;
-	}
-
-	$rep->NewLine(2);
-	$rep->Font('bold');
-	$rep->TextCol(0, 1, _('Sub Total'));
-	if (($Tsub_rtotal + $sub_rtotal) > 0) {
-		$rep->AmountCol(5, 6, $Tsub_rtotal + $sub_rtotal, $dec);
-	}
-	else {
-		$rep->SetTextColor(255, 0, 0);
-		$rep->TextCol(5, 6, "(" . price_format($Tsub_rtotal + ABS($sub_rtotal)) . ")");
-		$rep->SetTextColor(0, 0, 0);
-	}
-	$rep->Line($rep->row  - 4);
-	$rep->NewLine(1.5);
-	
-
-	//End Remittance Entry
-
 	$rep->fontSize += 1.5;
-	$rep->NewLine(1.5);
+	$rep->NewLine(2.5);
 	$rep->Font('bold');
 	$rep->TextCol(0, 4, _('ENDING BALANCE: '));
 	$rep->AmountCol(5, 6, $prev_balance + $sum_receipt + $Tsum_remit + $sum_remit - $sum_dis, $dec);
