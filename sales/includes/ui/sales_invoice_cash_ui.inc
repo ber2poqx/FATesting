@@ -636,14 +636,13 @@ function display_order_header(&$order, $editable, $date_text)
 		hidden('StockLocation');
 	}
 
-	$category_disabled = false;
 	//Modified by spyrax10 5 Feb 2022
 	if ((isset($_POST['category_id']) && $order->trans_type != ST_SALESORDER) || $order->promo_only == 1) {
 		label_row(_("Category:"), get_category_name($order->category_id));
 		hidden('category_id', $_POST['category_id']);
 	}
 	else {
-		stock_categories_list_row(_("Category:"), 'category_id', $_POST['category_id'], "Select", true, false, $category_disabled);
+		stock_categories_list_row(_("Category:"), 'category_id', $_POST['category_id'], "Select", true, false, false);
 	}
 	//
 
@@ -733,11 +732,13 @@ function display_order_header(&$order, $editable, $date_text)
 		}
 	}
 	else {
-		label_row(_("Customer's PDC Number: &nbsp;"), $pdc_no);
-		label_row(_("Apply PDC Discount?: &nbsp;"), $so_head['pdc_discount'] == 1 ? 'Yes' : 'No');
-		hidden('pdc_chk', $so_head['pdc_no'] != '' ? 1 : 0);
-		hidden('pdc_no', $so_head['pdc_no']);
-		hidden('pdc_discount', $so_head['pdc_discount']);
+		if ($order->category_id == 18 || $order->category_id == 23) {
+			label_row(_("Customer's PDC Number: &nbsp;"), $pdc_no);
+			label_row(_("Apply PDC Discount?: &nbsp;"), $so_head['pdc_discount'] == 1 ? 'Yes' : 'No');
+			hidden('pdc_chk', $so_head['pdc_no'] != '' ? 1 : 0);
+			hidden('pdc_no', $so_head['pdc_no']);
+			hidden('pdc_discount', $so_head['pdc_discount']);
+		}
 	}
 	//
 	

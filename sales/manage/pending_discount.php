@@ -153,21 +153,21 @@ while ($data = db_fetch_assoc($result)) {
             )
         );
     }
-    else if ($data['status'] == "Approved") {
-        text_cells(null, "upd_dis[" . $data['id'] . "]", null, 5, 5);
-        label_cell(
-            value_type_list(null, "upd_trans[" . $data['id'] . "]", 
-                array(
-                    "DEFAULT" => "Select Action",
-                    1 => "Update Discount",
-                    2 => "Reset Discount"
-                ), '', null, true
-            )
-        );
-    }
-    else if ($data['status'] == "Disapproved") {
-        label_cell(_("N/A"));
-        label_cell(_("N/A"));
+    // else if ($data['status'] == "Approved") {
+    //     text_cells(null, "upd_dis[" . $data['id'] . "]", null, 5, 5);
+    //     label_cell(
+    //         value_type_list(null, "upd_trans[" . $data['id'] . "]", 
+    //             array(
+    //                 "DEFAULT" => "Select Action",
+    //                 1 => "Update Discount",
+    //                 2 => "Reset Discount"
+    //             ), '', null, true
+    //         )
+    //     );
+    // }
+    else {
+        label_cell("");
+        label_cell("");
     }
 }
 

@@ -122,7 +122,7 @@ end_table();
 
 //Added by spyrax10 5 Sep 2022
 $so_head = get_SO_header($_GET['trans_no']);
-if ($so_head['pdc_no'] != '') {
+if ($so_head['pdc_no'] != '' && ($so_head['category_id'] == 23 || $so_head['category_id'] == 18)) {
 	br();
 	start_table(TABLESTYLE, "width='90%'");
 	
