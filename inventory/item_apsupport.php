@@ -56,12 +56,13 @@ if(isset($_GET['getItem'])){
     return;
 }
 if(isset($_GET['get_brand'])){
-    $result = get_item_brand($_GET['category']);
+    //$result = get_item_brand($_GET['category']);
+    $result = get_supplierAP();
     $total = DB_num_rows($result);
 
     while ($myrow = db_fetch($result)) {
-        $status_array[] = array('id'=>$myrow['id'],
-                    'name'=>$myrow['name']);
+        $status_array[] = array('id'=>$myrow['supplier_id'],
+                    'name'=>$myrow['supp_name']);
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
@@ -112,8 +113,8 @@ if(isset($_GET['get_itemapsupp_price']))
     $total = DB_num_rows($total_result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('id'=>$myrow["id"],
-                               'stock_id'=>$myrow["stock_id"],
-                               'stock_name'=>$myrow["description"],
+                               'stock_id'=>$myrow["supplier_id"],
+                               'stock_name'=>$myrow["supp_name"],
                                'apsupp_type_id'=>$myrow["apsupport_type_id"],
                                'apsupp_type_name'=>$myrow["ap_support_type"],
                                'category_id'=>$myrow["category_id"],
@@ -208,7 +209,7 @@ if(isset($_GET['submitype'])){
         $InputError = 1;
         $dsplymsg = _('Category must not be empty.');
     }
-    if (empty($_POST['item'])) {
+    if (empty($_POST['brand'])) {
         $InputError = 1;
         $dsplymsg = _('Item must not be empty.');
     }
@@ -223,7 +224,7 @@ if(isset($_GET['submitype'])){
 
     //check stock id if exist
     if (empty($_GET['syspk']) && empty($_POST['syspk'])) {
-        if(check_apsupp_price($_POST['item'], $_POST['apsupp_type'])){
+        if(check_apsupp_price($_POST['brand'], $_POST['apsupp_type'], $_POST['category'])){
             $InputError = 1;
             $dsplymsg = _("AP support price already exists.");
         }
@@ -231,7 +232,7 @@ if(isset($_GET['submitype'])){
 
     if (isset($syspk) AND $InputError !=1) {
         //update info
-        update_item_apsupport_price($syspk, $_POST['item'], $_POST['apsupp_type'], $_POST['amount']);
+        update_item_apsupport_price($syspk, $_POST['brand'], $_POST['apsupp_type'], $_POST['amount'], $_POST['category']);
         
         $dsplymsg = _('Item AP support price has been updated');
 
@@ -240,7 +241,7 @@ if(isset($_GET['submitype'])){
 
     }elseif ($InputError != 1) {
         //add info
-        add_item_apsupport_price($_POST['item'], $_POST['apsupp_type'], $_POST['amount']);
+        add_item_apsupport_price($_POST['category'], $_POST['brand'], $_POST['apsupp_type'], $_POST['amount']);
 
         $dsplymsg = _('Item AP support price has been added.');
 

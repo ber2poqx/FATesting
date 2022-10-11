@@ -271,12 +271,13 @@ function Get_DP_Discount2($stockID){
     return $discount;
 }
 
-function Get_AP_Support_Price($stockID, $apsupptype_id){
+function Get_AP_Support_Price($stockID, $apsupptype_id, $category_id){
     set_global_connection();
     $sql = "SELECT A.price 
 			FROM ".TB_PREF."item_apsupport_price A 
-			WHERE A.stock_id = ".db_escape($stockID)."
-				AND A.apsupport_type_id = ".db_escape($apsupptype_id);
+			WHERE A.supplier_id = ".db_escape($stockID)."
+				AND A.apsupport_type_id = ".db_escape($apsupptype_id)."
+				AND A.category_id = ".db_escape($category_id);
     
     $result = db_query($sql, "The ap support price for the selected item could not be retrieved");
     $row = db_fetch_row($result);

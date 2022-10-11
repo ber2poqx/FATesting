@@ -58,20 +58,21 @@ function get_itemapsupp_type($start, $limit, $search, $showall=false)
 
 //---------------------------------------------------------------------------------------------------
 
-function add_item_apsupport_price($stock_id, $apsupport_type_id, $price=0)
+function add_item_apsupport_price($category_id, $stock_id, $apsupport_type_id, $price=0)
 {
-	$sql = "INSERT INTO ".TB_PREF."item_apsupport_price (stock_id, apsupport_type_id, price) 
-					VALUES (".db_escape($stock_id).", ".db_escape($apsupport_type_id).", ".db_escape($price).")";
+	$sql = "INSERT INTO ".TB_PREF."item_apsupport_price (category_id, supplier_id, apsupport_type_id, price) 
+					VALUES (".db_escape($category_id).",".db_escape($stock_id).", ".db_escape($apsupport_type_id).", ".db_escape($price).")";
 
 	db_query($sql,"an item ap support price could not be added");
 }
 
-function update_item_apsupport_price($sys_id, $stock_id, $apsupport_type_id, $price=0)
+function update_item_apsupport_price($sys_id, $stock_id, $apsupport_type_id, $price=0, $category_id)
 {
 	$sql = "UPDATE ".TB_PREF."item_apsupport_price 
-				SET stock_id=".db_escape($stock_id).", 
+				SET supplier_id=".db_escape($stock_id).", 
 					apsupport_type_id =".db_escape($apsupport_type_id).",
-					price =".db_escape($price)."
+					price =".db_escape($price).",
+					category_id =".db_escape($category_id)."
 			WHERE id = ".db_escape($sys_id);
 
 	db_query($sql,"an item discount could not be updated");
@@ -87,7 +88,7 @@ function delete_item_apsupport_price($sys_id)
 
 function get_itemapsupp_price($category, $start, $limit, $search, $showall=false)
 {
-	if($search != ''){
+	/*if($search != ''){
 		$sWhere .= " AND (B.ap_support_type LIKE '%".$search."%' OR C.description LIKE '%".$search."%' OR D.name LIKE '%".$search."%') ";
 	}
 	$sql = "SELECT A.id, A.stock_id, A.apsupport_type_id, A.price, B.ap_support_type, B.distribution, C.description, C.category_id, D.id brand_id, D.name brand_name
@@ -97,8 +98,19 @@ function get_itemapsupp_price($category, $start, $limit, $search, $showall=false
 				INNER JOIN ".TB_PREF."item_brand D ON D.id = C.brand
 			WHERE C.category_id = ".db_escape($category)."
 			".$sWhere."
-			ORDER BY A.stock_id ASC";
-	
+			ORDER BY A.stock_id ASC";*/
+
+	if($search != ''){
+		$sWhere .= " AND (B.ap_support_type LIKE '%".$search."%' OR D.supp_name LIKE '%".$search."%') ";
+	}
+	$sql = "SELECT A.id, A.price, B.id apsupport_type_id, B.ap_support_type, B.distribution, C.category_id, C.description, D.supplier_id, D.supp_name 
+			FROM ".TB_PREF."item_apsupport_price A 
+				INNER JOIN ".TB_PREF."item_apsupport_type B ON B.id = A.apsupport_type_id 
+				INNER JOIN ".TB_PREF."stock_category C ON C.category_id = A.category_id 
+				INNER JOIN ".TB_PREF."suppliers D ON D.supplier_id = A.supplier_id 
+			WHERE A.category_id = ".db_escape($category)."
+				".$sWhere."
+			ORDER BY A.id ASC ";
 	$sqllimit = $sql ." limit $start, $limit";
 
 	if($showall){
@@ -154,12 +166,13 @@ function check_apsupp_type($apsupp_type)
 	return $count[0];
 }
 
-function check_apsupp_price($apsupp_item, $apsupp_type)
+function check_apsupp_price($apsupp_item, $apsupp_type, $category_id)
 {
 	$sql = "SELECT COUNT(*) 
 			FROM ".TB_PREF."item_apsupport_price A
-			WHERE A.stock_id = ".db_escape($apsupp_item)."
-				AND A.apsupport_type_id = ".db_escape($apsupp_type);
+			WHERE A.supplier_id = ".db_escape($apsupp_item)."
+				AND A.apsupport_type_id = ".db_escape($apsupp_type)."
+				AND A.category_id = ".db_escape($category_id);
 
 	$result = db_query($sql, "check ap support price failed.");
 	$count =  db_fetch($result);
@@ -175,4 +188,11 @@ function get_item_brand($category_id){
 			ORDER BY A.name ASC ";
 
 	return db_query($sql, "could not get stock items");
+}
+
+function get_supplierAP()
+{
+	$sql = "SELECT A.supplier_id, A.supp_name FROM ".TB_PREF."suppliers A ORDER BY A.supp_name ASC ";
+
+	return db_query($sql, "could not get suppliers");
 }

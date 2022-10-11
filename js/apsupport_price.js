@@ -176,20 +176,20 @@ Ext.onReady(function(){
 				select: function(combo, record, index) {
 					//storeItem.proxy.extraParams = {category: combo.getValue()};
 					//storeItem.load();
-					storebrand.proxy.extraParams = {category: combo.getValue()};
-					storebrand.load();
+					//storebrand.proxy.extraParams = {category: combo.getValue()};
+					//storebrand.load();
 				}
 			}
 		},{
 			xtype: 'combobox',
 			id: 'brand',
 			name: 'brand',
-			fieldLabel: '<b>Brand </b>',
+			fieldLabel: '<b>Supplier </b>',
 			store: storebrand,
 			displayField: 'name',
 			valueField: 'id',
 			queryMode: 'local',
-			emptyText:'Select brand',
+			emptyText:'Select supplier',
 			margin: '2 0 2 0',
 			labelWidth: 115,
 			forceSelection: true,
@@ -198,11 +198,11 @@ Ext.onReady(function(){
 			fieldStyle : 'font-weight: bold; color: #210a04;',
 			listeners: {
 				select: function(combo, record, index) {
-					storeItem.proxy.extraParams = {brand: combo.getValue(), category: Ext.getCmp('category').getValue()};
-					storeItem.load();
+					//storeItem.proxy.extraParams = {brand: combo.getValue(), category: Ext.getCmp('category').getValue()};
+					//storeItem.load();
 				}
 			}
-		},{
+		/*},{
 			xtype: 'combobox',
 			id: 'item',
 			name: 'item',
@@ -217,7 +217,7 @@ Ext.onReady(function(){
 			forceSelection: true,
 			selectOnFocus:true,
 			allowBlank:false,
-			fieldStyle : 'font-weight: bold; color: #210a04;'
+			fieldStyle : 'font-weight: bold; color: #210a04;'*/
 		},{
 			xtype: 'combobox',
 			id: 'apsupp_type',
@@ -321,20 +321,13 @@ Ext.onReady(function(){
 
 	var main_view = [
 		new Ext.grid.RowNumberer(),
-		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120},
-		{header:'<b>Item Description</b>', dataIndex:'stock_name', width:220,
+		{header:'<b>Supplier</b>', dataIndex:'stock_name', width:390,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
 		},
-		{header:'<b>Brand</b>', dataIndex:'brand_name', width:180,
-			renderer : function(value, metaData, summaryData, dataIndex){
-				metaData.tdAttr = 'data-qtip="' + value + '"';
-				return value;
-			}
-		},
-		{header:'<b>AP Support Type</b>', dataIndex:'apsupp_type_name', width:190,
+		{header:'<b>AP Support Type</b>', dataIndex:'apsupp_type_name', width:230,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -360,15 +353,15 @@ Ext.onReady(function(){
 
 					storebrand.proxy.extraParams = {category: records.get('category_id')};
 					storebrand.load();
-					storeItem.proxy.extraParams = {stock_id: records.get('stock_id')};
-					storeItem.load();
+					//storeItem.proxy.extraParams = {stock_id: records.get('stock_id')};
+					//storeItem.load();
 
 					submit_form.getForm().reset();
 
 					Ext.getCmp('syspk').setValue(records.get('id'));
 					Ext.getCmp('category').setValue(records.get('category_id'));
-					Ext.getCmp('brand').setValue(records.get('brand_id'));
-					Ext.getCmp('item').setValue(records.get('stock_id'));
+					Ext.getCmp('brand').setValue(records.get('stock_id'));
+					//Ext.getCmp('item').setValue(records.get('stock_id'));
 					Ext.getCmp('apsupp_type').setValue(records.get('apsupp_type_id'));
 					Ext.getCmp('amount').setValue(records.get('price'));
 
@@ -381,7 +374,7 @@ Ext.onReady(function(){
 				tooltip : 'Delete',
 				handler : function(grid, rowIndex, colIndex){
 					var records = itmapsupprc_store.getAt(rowIndex);
-					var MsgConfirm = Ext.MessageBox.confirm('Confirm', 'Category: <b>' + Ext.getCmp('fcategory').getRawValue() + '</b><br\> Item: <b>' + records.get('stock_name') + '</b><br\> Are you sure you want to delete this record? ', function (btn, text) {
+					var MsgConfirm = Ext.MessageBox.confirm('Confirm', 'Category: <b>' + Ext.getCmp('fcategory').getRawValue() + '</b><br\> Supplier: <b>' + records.get('stock_name') + '</b><br\> AP Support Type: <b>' + records.get('apsupp_type_name') + '</b><br\> Are you sure you want to delete this record? ', function (btn, text) {
 						if (btn == 'yes') {
 							Ext.Ajax.request({
 								method: 'POST',
@@ -490,7 +483,7 @@ Ext.onReady(function(){
         renderTo: 'ext-form',
 		id: 'builder_panel',
         frame: false,
-		width: 975,
+		width: 890,
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
