@@ -103,13 +103,13 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 
 	$date = date2sql($from);
 
-	$sql = "SELECT SUM(ABS(A.amount)), A.cashier_user_id
+	$sql = "SELECT SUM(A.amount), A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
 				AND C.void_status = 'Voided' 
 
-		WHERE A.type <> 0 AND A.opening_balance = 0 AND ISNULL(C.void_id)";
+		WHERE A.type <> 0 AND ISNULL(C.void_id)";
 
 	if ($bank_id != '') {
 		$sql .= " AND A.bank_act = " .db_escape($bank_id);
