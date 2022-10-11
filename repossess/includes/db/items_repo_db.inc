@@ -220,7 +220,7 @@ function add_stock_mt_repo_details($header_id, $stock_id, $quantity=0, $std_cost
 }
 
 /*Added by robert 04/26/2022*/
-function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcode='',$all=false){
+function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcode='',$search_ref='',$all=false){
     //global $def_coy;
     set_global_connection();
 
@@ -229,7 +229,8 @@ function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcod
     FROM ".TB_PREF."mt_header mh 
     LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
     LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
-    WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='repo' 
+    WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='repo'
+    AND mh.mt_header_reference LIKE '%".$search_ref."%' 
     GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
 
     /*Added by Robert */
@@ -246,7 +247,7 @@ function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcod
 }
 
 /*Added by robert 05/27/2022*/
-function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode='',$comp_stat='',$all=false)
+function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode='',$comp_stat='',$search_ref='',$all=false)
 {
     if($comp_stat!=''){
         $str_status=" AND compl.status='".$comp_stat."'";
@@ -261,6 +262,7 @@ function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode=
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
     LEFT JOIN ".TB_PREF."complimentary_items compl ON smoves.reference=compl.reference 
     WHERE smoves.type='".ST_COMPLIMENTARYITEMREPO."' AND smoves.loc_code='$branchcode' $str_status AND smoves.item_type = 'repo'
+    AND compl.reference LIKE '%".$search_ref."%'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 
     /*Added by Robert */

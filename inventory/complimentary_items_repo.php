@@ -538,9 +538,10 @@ if(!is_null($action) || !empty($action)){
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
 
             $comp_stat = (isset($_POST['comp_stat']) ? $_POST['comp_stat'] : $_GET['comp_stat']);
+            $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
             
-            $result = get_all_complimentary_item_repo($start,$limit,$querystr,$branchcode,$comp_stat,false,'');
-            $total_result = get_all_complimentary_item_repo($start,$limit,$querystr,$branchcode,$comp_stat,true,'');
+            $result = get_all_complimentary_item_repo($start,$limit,$querystr,$branchcode,$comp_stat,$search_ref,false,'');
+            $total_result = get_all_complimentary_item_repo($start,$limit,$querystr,$branchcode,$comp_stat,$search_ref,true,'');
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))

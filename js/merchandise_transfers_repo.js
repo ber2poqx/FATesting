@@ -1194,7 +1194,7 @@ Ext.onReady(function(){
 								var AdjDate = jsonData.AdjDate;
 								Ext.getCmp('AdjDate').setValue(AdjDate);
 
-								MerchandiseTransStore.proxy.extraParams = {action: 'view'}
+								MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
 								MerchandiseTransStore.load({
 									scope: this,
 									callback: function(records, operation, success){
@@ -1219,6 +1219,23 @@ Ext.onReady(function(){
 						GetUserLogin();		
 					},
 					scale	: 'small'
+				},{
+					xtype: 'searchfield',
+					id:'search_ref',
+					name:'search_ref',
+					fieldLabel: '<b>Search</b>',
+					labelWidth: 50,
+					width: 290,
+					emptyText: "Search by reference",
+					scale: 'small',
+                    fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+					store: myInsurance,
+					listeners: {
+						change: function(field) {
+							myInsurance.proxy.extraParams = {search_ref: field.getValue()};
+							myInsurance.load();
+						}
+					}
 				}]
 		}],
 		bbar : {

@@ -103,19 +103,21 @@ if(!is_null($action) || !empty($action)){
                 if($lot_no == ''){
                     $qty = 0;
                 }
-                $line_item_header = rand();
-                if($serialised) {
-                    $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
-                    $line_item = count($_SESSION['transfer_items']->line_items);
-                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header,
-                        null, null, null, null, $currentqty);
-                }else{
-                    $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
-                    $line_item = count($_SESSION['transfer_items']->line_items);
-                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header,
-                        null, null, null, null, $currentqty);
-                } 
+                if(!isset($_REQUEST['view'])){
+                    $line_item_header = rand();
+                    if($serialised) {
+                        $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                        $line_item = count($_SESSION['transfer_items']->line_items);
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                            '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header,
+                            null, null, null, null, $currentqty);
+                    }else{
+                        $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                        $line_item = count($_SESSION['transfer_items']->line_items);
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header,
+                            null, null, null, null, $currentqty);
+                    } 
+                }
             }
             display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
             exit;
@@ -822,26 +824,14 @@ if(!is_null($action) || !empty($action)){
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
-            $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
+            //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
+            $branchcode = $db_connections[user_company()]["branch_code"];
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
-            
-            //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
-            
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            //$sql = "SELECT *,count(sm.qty) as totalqty, sc.description as category FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id WHERE sm.loc_code<>'$branchcode' and sm.type='".ST_MERCHANDISETRANSFER."' GROUP BY sm.reference order by trans_id desc,tran_date desc";
-                       
-            /*$sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,
-            sum(md.mt_details_recvd_qty) as totalreceived, sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total 
-            FROM ".TB_PREF."mt_header mh 
-            LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
-            LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
-            WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='new' 
-            GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";*/
-            
-            //$result = db_query($sql, "could not get all Serial Items");
 
-            $result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,false,'');
-            $total_result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,true,'');
+            $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
+
+            $result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,$search_ref,false,'');
+            $total_result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,$search_ref,true,'');
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
 

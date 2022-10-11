@@ -2339,10 +2339,27 @@ Ext.onReady(function(){
 				fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
 				listeners: {
 					select: function(combo, record, index) {
-						myInsurance.proxy.extraParams = {comp_stat: this.getValue()}
+						myInsurance.proxy.extraParams = {comp_stat: this.getValue(), search_ref: Ext.getCmp('search_ref').getValue()}
 						myInsurance.load();		
 					}
 				}	
+			},{
+				xtype: 'searchfield',
+				id:'search_ref',
+				name:'search_ref',
+				fieldLabel: '<b>Search</b>',
+				labelWidth: 50,
+				width: 290,
+				emptyText: "Search by reference",
+				scale: 'small',
+                fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+				store: myInsurance,
+				listeners: {
+					change: function(field) {
+						myInsurance.proxy.extraParams = {comp_stat: Ext.getCmp('compli_status').getValue(), search_ref: field.getValue()};
+						myInsurance.load();
+					}
+				}
 			}]
 		}],
 		bbar : {
