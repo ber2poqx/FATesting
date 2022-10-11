@@ -189,7 +189,7 @@ Ext.onReady(function(){
 				}
 
 			},'-',{
-				icon: '../../js/ext4/examples/shared/icons/print-preview-icon.png',
+				icon: '../../js/ext4/examples/shared/icons/printer.png',
 				tooltip: 'view proof of cash report',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = ProofCashDetailsStore.getAt(rowIndex);
