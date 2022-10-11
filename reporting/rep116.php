@@ -83,12 +83,13 @@ function disbursement_transactions($from, $cashier = '') {
 function opening_balance($from, $cashier = '') {
 	$date = date2sql($from);
 
-	$sql = "SELECT SUM(A.amount), A.cashier_user_id, B.real_name, B.user_id 
-		FROM ".TB_PREF."bank_trans A 
-			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
-			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
-				AND C.void_status = 'Voided' 
-		WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
+	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)),
+		A.cashier_user_id, B.real_name, B.user_id 
+	FROM ".TB_PREF."bank_trans A 
+		LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
+		LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
+			AND C.void_status = 'Voided' 
+	WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
 
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
