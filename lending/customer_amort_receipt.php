@@ -840,10 +840,11 @@ if(isset($_GET['get_alocCash_view']))
 }
 if(isset($_GET['get_OtherEntryPay']))
 {
-    if(isset($_GET['debitTo'])){
-        $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
-        $objDataGrid = json_decode($DataOnGrid, true);
-        
+    $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
+    $counter = 0;
+
+    if(isset($_GET['debitTo'])){       
         $gl_row = get_gl_account($_GET['debitTo']);
         $intoB_result = get_CPbank_accounts($_GET['debitTo']);
         $intoB_row = db_fetch($intoB_result);
@@ -851,14 +852,15 @@ if(isset($_GET['get_OtherEntryPay']))
 
         if (count($objDataGrid) != 0){
             foreach($objDataGrid as $value=>$data) {
-                $status_array[] = array('id'=>$data['id'],
-                    'gl_code'=>$data["gl_code"],
-                    'gl_name'=>$data["gl_name"],
-                    'sl_code'=>$data['sl_code'],
-                    'sl_name'=>$data['sl_name'],
-                    'debtor_id'=>$data['debtor_id'],
-                    'debit_amount'=>$data['debit_amount']
-                );
+                $counter++;
+                $status_array[] = array('id'=>$counter,
+                                'gl_code'=>$data["gl_code"],
+                                'gl_name'=>$data["gl_name"],
+                                'sl_code'=>$data['sl_code'],
+                                'sl_name'=>$data['sl_name'],
+                                'debtor_id'=>$data['debtor_id'],
+                                'debit_amount'=>$data['debit_amount']
+                            );
             }
         }
         
@@ -873,12 +875,10 @@ if(isset($_GET['get_OtherEntryPay']))
 
     }else{
         if(isset($_GET['delete_id'])){
-            $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
-            $objDataGrid = json_decode($DataOnGrid, true);
-
             foreach($objDataGrid as $value=>$data) {
+                $counter++;
                 if($_GET['delete_id'] != $data['id']){
-                    $status_array[] = array('id'=>$data['id'],
+                    $status_array[] = array('id'=>$counter,
                         'gl_code'=>$data["gl_code"],
                         'gl_name'=>$data["gl_name"],
                         'sl_code'=>$data['sl_code'],

@@ -1084,10 +1084,10 @@ Ext.onReady(function() {
 	];
 	var OtherEntryHeader = [
 		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:90},
-		{header:'<b>Description</b>', dataIndex:'gl_name', width:235},
+		{header:'<b>Description</b>', dataIndex:'gl_name', width:230},
 		{header:'<b>SL Code</b>', dataIndex:'sl_code', width:90},
-		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:235},
-		{header:'<b>Debit</b>', dataIndex:'debit_amount', width:120, align:'right', summaryType: 'sum',
+		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:230},
+		{header:'<b>Amount</b>', dataIndex:'debit_amount', width:115, align:'right', summaryType: 'sum',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
 					return Ext.util.Format.number(value, '0,000.00');
@@ -1115,7 +1115,7 @@ Ext.onReady(function() {
 				tooltip: 'remove',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = OtherEntryStore.getAt(rowIndex);
-					loadOtherEntry('delete',records.get("id"));
+					loadOtherEntry('delete',records.get("id"), 'amort');
 				}
 			}]
 		}
@@ -1451,7 +1451,7 @@ Ext.onReady(function() {
 		listeners: {
 			select: function(combo, record, index) {
 				Ext.getCmp('othrdebit_acct').setValue(record.get("type"));
-				loadOtherEntry('add',0);
+				loadOtherEntry('add',0, 'amort');
 			}
 		}
 	},{
@@ -1460,9 +1460,43 @@ Ext.onReady(function() {
 		name: 'total_otheramount',
 		fieldLabel: 'total_otheramount',
 		//allowBlank: false,
-		//hidden: true
+		hidden: true
 	}];
-
+	var interBtbar = [{
+		xtype: 'textfield',
+		id: 'interBothrdebit_acct',
+		name: 'interBothrdebit_acct',
+		fieldLabel: 'othrdebit_acct',
+		hidden: true
+	},{
+		xtype: 'combobox',
+		id: 'interBotherintobankacct',
+		name: 'interBotherintobankacct',
+		allowBlank: false,
+		store : IntoBankAcctStore,
+		displayField: 'name',
+		valueField: 'id',
+		queryMode: 'local',
+		fieldLabel : 'Debit to ',
+		labelWidth: 100,
+		width: 300,
+		forceSelection: true,
+		selectOnFocus:true,
+		fieldStyle: 'font-weight: bold; color: #210a04;',
+		listeners: {
+			select: function(combo, record, index) {
+				Ext.getCmp('interBothrdebit_acct').setValue(record.get("type"));
+				loadOtherEntry('add',0, 'interb');
+			}
+		}
+	},{
+		xtype: 'textfield',
+		id: 'interBtotal_otheramount',
+		name: 'interBtotal_otheramount',
+		fieldLabel: 'total_otheramount',
+		//allowBlank: false,
+		hidden: true
+	}];
 	var submit_form = Ext.create('Ext.form.Panel', {
 		id: 'form_submit',
 		model: 'AllocationModel',
@@ -2004,7 +2038,7 @@ Ext.onReady(function() {
 						clicksToEdit: 1
 					},
 					title: 'Other Entry',
-					icon: '../js/ext4/examples/shared/icons/vcard.png',
+					icon: '../js/ext4/examples/shared/icons/page_add.png',
 					loadMask: true,
 					store:	OtherEntryStore,
 					columns: OtherEntryHeader,
@@ -2527,6 +2561,24 @@ Ext.onReady(function() {
 					loadMask: true,
 					store:	InterBStore,
 					columns: InterBGLHeader,
+					features: [{ftype: 'summary'}],
+					columnLines: true
+				},{
+					xtype:'gridpanel',
+					id: 'interBOtherEntriesGrid',
+					anchor:'100%',
+					layout:'fit',
+					tbar: interBtbar,
+					selModel: 'cellmodel',
+					plugins: {
+						ptype: 'cellediting',
+						clicksToEdit: 1
+					},
+					title: 'Other Entry',
+					icon: '../js/ext4/examples/shared/icons/page_add.png',
+					loadMask: true,
+					store:	OtherEntryStore,
+					columns: OtherEntryHeader,
 					features: [{ftype: 'summary'}],
 					columnLines: true
 				}]
@@ -4597,10 +4649,18 @@ Ext.onReady(function() {
 		}
 		DPitemStore.load();
 	}
-	function loadOtherEntry($tag, $id=0){
+	function loadOtherEntry($tag, $id=0, $mode){
 		var gridData = OtherEntryStore.getRange();
 		var OEData = [];
 		count = 0;
+
+		if($mode == 'amort'){
+			$debitTo = Ext.getCmp('othrdebit_acct').getValue();
+			$customername = Ext.getCmp('customername').getValue();
+		}else if($mode == 'interb'){
+			$debitTo = Ext.getCmp('interBothrdebit_acct').getValue();
+			$customername = Ext.getCmp('customername_inb').getValue();
+		}
 		
 		Ext.each(gridData, function(item) {
 			var ObjItem = {
@@ -4622,9 +4682,8 @@ Ext.onReady(function() {
 		}else{
 			OtherEntryStore.proxy.extraParams = {
 				DataOEGrid: Ext.encode(OEData),
-				debtor_id: Ext.getCmp('customername').getValue(),
-				debitTo: Ext.getCmp('othrdebit_acct').getValue(),
-				//amount: Ext.getCmp('tenderd_amount_inb').getValue()
+				debtor_id: $customername,
+				debitTo: $debitTo
 			};
 		}
 		OtherEntryStore.load();
