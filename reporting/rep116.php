@@ -215,7 +215,7 @@ function print_dailycash_sales()
 
 	$Tpre_subR = $Trtotal = $Tsub_rtotal = $Tsum_remit = 0;
 
-	$remitF = 0;
+	$remitF = $receipts = 0;
 
 	$rep->fontSize -= 1;
 
@@ -282,6 +282,10 @@ function print_dailycash_sales()
 				$rep->SetTextColor(255, 0, 0);
 				$rep->TextCol(5, 6, "(" . price_format(ABS($entry_amt)) . ")");
 				$rep->SetTextColor(0, 0, 0);
+			}
+
+			if ($trans['receipt_type'] == 'Receipt Entries:') {
+				$receipts += ABS($entry_amt);
 			}
 	
 			$pre_subB += ABS($entry_amt);
@@ -350,6 +354,10 @@ function print_dailycash_sales()
 					$rep->SetTextColor(255, 0, 0);
 					$rep->TextCol(5, 6, "(" . price_format(ABS($entry_amt)) . ")");
 					$rep->SetTextColor(0, 0, 0);
+				}
+
+				if ($trans['receipt_type'] == 'Receipt Entries:') {
+					$receipts += ABS($entry_amt);
 				}
 		
 				$pre_subB += ABS($entry_amt);
@@ -459,8 +467,11 @@ function print_dailycash_sales()
 	$rep->TextCol(1, 3, _("Opening Balance"));
 	$rep->AmountCol(5, 6, $prev_balance, $dec);
 	$rep->NewLine(1.2);
+	$rep->TextCol(1, 3, _("Receipts Entries"));
+	$rep->AmountCol(5, 6, $receipts, $dec);
+	$rep->NewLine(1.2);
 	$rep->TextCol(1, 3, _("Collection Receipts"));
-	$rep->AmountCol(5, 6, $sum_receipt, $dec);
+	$rep->AmountCol(5, 6, $sum_receipt - $receipts, $dec);
 	$rep->NewLine(1.2);
 	$rep->TextCol(1, 3, _("Remittance"));
 	$rep->AmountCol(5, 6, ($Tsum_remit + $sum_remit), $dec);
