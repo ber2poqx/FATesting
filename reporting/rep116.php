@@ -454,38 +454,15 @@ function print_dailycash_sales()
 	//End Remittance Entry
 
 	$rep->NewLine(1);
-	$rep->fontSize += 2;
 	$rep->Font('bold');
-	$rep->SetTextColor(0, 0, 255);
-	$rep->TextCol(0, 4, _('Collection Breakdown:'));
-	$rep->SetTextColor(0, 0, 0);
-	$rep->fontSize -= 2;
-	$rep->Font();
-	$rep->NewLine(1.5);
-
-	$rep->fontSize += 1;
-	$rep->TextCol(1, 3, _("Opening Balance"));
-	$rep->AmountCol(5, 6, $prev_balance, $dec);
-	$rep->NewLine(1.2);
-	$rep->TextCol(1, 3, _("Receipts Entries"));
-	$rep->AmountCol(5, 6, $receipts, $dec);
-	$rep->NewLine(1.2);
-	$rep->TextCol(1, 3, _("Collection Receipts"));
-	$rep->AmountCol(5, 6, $sum_receipt - $receipts, $dec);
-	$rep->NewLine(1.2);
-	$rep->TextCol(1, 3, _("Remittance"));
-	$rep->AmountCol(5, 6, ($Tsum_remit + $sum_remit), $dec);
-	$rep->NewLine(2);
-	$rep->fontSize -= 1;
-	$rep->Font('bold');
-	$rep->fontSize += 2;
-	$rep->TextCol(1, 3, _('Total Collection: '));
+	$rep->fontSize += 3;
+	$rep->TextCol(0, 3, _('Total Collection: '));
 	$rep->AmountCol(5, 6, $prev_balance + $sum_receipt + ($Tsum_remit + $sum_remit), $dec);
-	$rep->fontSize -= 2;
+	$rep->fontSize -= 3;
 	$rep->NewLine(.5);
 	$rep->Line($rep->row  - 1);
-
-	$rep->NewLine(2);
+	
+	$rep->NewLine(1.5);
 	//Disbursement Entry
 
 	$rep->NewLine(1);
