@@ -46,7 +46,7 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 	$to = date2sql($to);
 	$advanceDate = endCycle($to, 1);
 	
-	$sql ="SELECT A.masterfile, A.trans_date, A.ref, abs(A.amount) AS amt, B.ov_discount AS rebate,
+	$sql ="SELECT A.masterfile, A.trans_date, A.ref, A.receipt_no, abs(A.amount) AS amt, B.ov_discount AS rebate,
 			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty,
 			F.month_no, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
@@ -467,7 +467,8 @@ function print_PO_Report()
 
 		$rep->NewLine();
 		$rep->TextCol(0, 1, sql2date($DSOC['trans_date']));
-		$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $DSOC['ref']));
+		//$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $DSOC['ref'])); 
+		$rep->TextCol(1, 2, $DSOC['receipt_no']);
 		$rep->NewLine(0.8);
         $rep->SetTextColor(0, 102, 0);
 		$rep->TextCol(0, 3, $DSOC['name']);
