@@ -106,14 +106,15 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
     return db_query($sql, "No transactions were returned");
 }
 
-function remittance_transactions_for_collection($from, $fcashier = '', $tcashier = '') {
+function remittance_transactions_for_collection($from, $to, $fcashier = '', $tcashier = '') {
 	
 	$from = date2sql($from);
+	$to = date2sql($to);
 
 	$sql = "SELECT RT.*, SUM(RT.amount) AS total_amt
 		FROM ".TB_PREF."remittance RT";
 
-	$sql .= " WHERE RT.trans_date = '$from'";
+	$sql .= " WHERE RT.trans_date>='$from' AND RT.trans_date<='$to'";
 
 	if ($fcashier != '') {
 		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
@@ -230,7 +231,7 @@ function print_PO_Report()
 
 	$params = array(0 => $comments,
 		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
-		2 => array('text' => _('Customer'), 'from' => $cust, 'to' => ''),
+		2 => array('text' => _('Customer'), 'from' => htmlentities($cust), 'to' => ''),
 		3 => array('text' => _('Collector'), 'from' => $collector_collection, 'to' => ''),
 		4 => array('text' => _('Cashier'), 'from' => $cashier_collection, 'to' => '')
 	);
@@ -283,7 +284,7 @@ function print_PO_Report()
 	$remit_total = $grandtotalall = $grandcrall = 0.0;
 
 	$res = getTransactions($from, $to, $cust, $collector, $cashier, $Type, $group);
-	$remit_result = remittance_transactions_for_collection($from, '', $cashier);
+	$remit_result = remittance_transactions_for_collection($from, $to, '', $cashier);
     $Collector_Name = $Coa_name = '';
 
 	while ($DSOC = db_fetch($res))
@@ -711,33 +712,36 @@ function print_PO_Report()
 		$remit_cr += $cr_remittance;
 	}
 
-	$rep->NewLine(2);
-	$rep->Font('bold');
-	$rep->Line($rep->row  - 4);
-	$rep->TextCol(0, 7, _('Total Per Collector'));
-	$rep->AmountCol(7, 8, $remit_total, $dec);
-	$rep->AmountCol(8, 9, $remit1, $dec);
-	$rep->AmountCol(9, 10, $remit2, $dec);
-	$rep->AmountCol(10, 11, $remit3, $dec);
-	$rep->AmountCol(11, 12, $remit4, $dec);
-	$rep->AmountCol(12, 13, $remit5, $dec);
-	$rep->AmountCol(13, 14, $remit6, $dec);
-	$rep->AmountCol(14, 15, $remit7, $dec);
-	$rep->AmountCol(15, 16, $remit_cr, $dec);
-	$rep->AmountCol(16, 17, $remit8, $dec);
-	$rep->Line($rep->row  - 4);
-	$rep->Font();
-	$rep->NewLine(2);
-	//$remit_total = 0.0;
-	//$remit_cr = 0.0;
-	//$remit1 = 0.0;
-	//$remit2 = 0.0;
-	//$remit3 = 0.0;
-	//$remit4 = 0.0;
-	//$remit5 = 0.0;
-	//$remit6 = 0.0;
-	//$remit7 = 0.0;
-	//$remit8 = 0.0;
+	$total = db_num_rows($remit_result);
+	if($total !=0) {
+		$rep->NewLine(2);
+		$rep->Font('bold');
+		$rep->Line($rep->row  - 4);
+		$rep->TextCol(0, 7, _('Total Per Collector'));
+		$rep->AmountCol(7, 8, $remit_total, $dec);
+		$rep->AmountCol(8, 9, $remit1, $dec);
+		$rep->AmountCol(9, 10, $remit2, $dec);
+		$rep->AmountCol(10, 11, $remit3, $dec);
+		$rep->AmountCol(11, 12, $remit4, $dec);
+		$rep->AmountCol(12, 13, $remit5, $dec);
+		$rep->AmountCol(13, 14, $remit6, $dec);
+		$rep->AmountCol(14, 15, $remit7, $dec);
+		$rep->AmountCol(15, 16, $remit_cr, $dec);
+		$rep->AmountCol(16, 17, $remit8, $dec);
+		$rep->Line($rep->row  - 4);
+		$rep->Font();
+		$rep->NewLine(2);
+		//$remit_total = 0.0;
+		//$remit_cr = 0.0;
+		//$remit1 = 0.0;
+		//$remit2 = 0.0;
+		//$remit3 = 0.0;
+		//$remit4 = 0.0;
+		//$remit5 = 0.0;
+		//$remit6 = 0.0;
+		//$remit7 = 0.0;
+		//$remit8 = 0.0;
+	}
 
 	$grandtotalall = $grandtotal + $remit_total;
 	$grandcrall = $grandcr + $remit_cr;
