@@ -498,7 +498,7 @@ function print_PO_Report()
 		$rep->TextCol(1, 2, $DSOC['receipt_no']);
 		$rep->NewLine(0.8);
         $rep->SetTextColor(0, 102, 0);
-		$rep->TextCol(0, 3, utf8_encode($DSOC['name']));
+		$rep->TextCol(0, 3, $DSOC['name']);
         $rep->SetTextColor(0, 0, 0);
 		$rep->TextCol(2, 3, $DSOC['memo_']);
 		$rep->TextCol(3, 4, $collection);
