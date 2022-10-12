@@ -1097,6 +1097,7 @@ Ext.onReady(function() {
 			},
 			summaryRenderer: function(value, summaryData, dataIndex){
 				Ext.getCmp('total_otheramount').setValue(value);
+				Ext.getCmp('interBtotal_otheramount').setValue(value);
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			},
 			editor: new Ext.form.TextField({
@@ -1268,6 +1269,8 @@ Ext.onReady(function() {
 
 			//CollectionTypeStore.proxy.extraParams = {type: "amort"};
 			//CollectionTypeStore.load();
+			Ext.getCmp('total_otheramount').setValue('');
+			Ext.getCmp('interBtotal_otheramount').setValue('');
 
 			//Ext.getCmp('intobankacct').setValue(3);
 			Ext.getCmp('debit_acct').setValue("1050");
@@ -1357,7 +1360,8 @@ Ext.onReady(function() {
 			});*/
 			//CollectionTypeStore.proxy.extraParams = {type: "interb"};
 			//CollectionTypeStore.load();
-
+			Ext.getCmp('total_otheramount').setValue('');
+			Ext.getCmp('interBtotal_otheramount').setValue('');
 			//Ext.getCmp('intobankacct_inb').setValue(3);
 			Ext.getCmp('debit_acct_inb').setValue("1050");
 			Ext.getCmp('paymentType_inb').setValue('other');
@@ -1437,7 +1441,7 @@ Ext.onReady(function() {
 		xtype: 'combobox',
 		id: 'otherintobankacct',
 		name: 'otherintobankacct',
-		allowBlank: false,
+		//allowBlank: false,
 		store : IntoBankAcctStore,
 		displayField: 'name',
 		valueField: 'id',
@@ -1472,7 +1476,7 @@ Ext.onReady(function() {
 		xtype: 'combobox',
 		id: 'interBotherintobankacct',
 		name: 'interBotherintobankacct',
-		allowBlank: false,
+		//allowBlank: false,
 		store : IntoBankAcctStore,
 		displayField: 'name',
 		valueField: 'id',
@@ -1495,7 +1499,16 @@ Ext.onReady(function() {
 		name: 'interBtotal_otheramount',
 		fieldLabel: 'total_otheramount',
 		//allowBlank: false,
-		hidden: true
+		hidden: true,
+		listeners: {
+			change: function(object, value) {
+				var otheramnt = Math.floor(parseFloat(Ext.getCmp('tenderd_amount_inb').getValue()));
+				var totalamnt = (otheramnt + value);
+			alert(otheramnt);
+				Ext.getCmp('total_amount_inb').setValue(totalamnt);
+				loadInterBranch();
+			}
+		}
 	}];
 	var submit_form = Ext.create('Ext.form.Panel', {
 		id: 'form_submit',
@@ -2549,7 +2562,7 @@ Ext.onReady(function() {
 				id: 'InterBPanel',
 				activeTab: 0,
 				width: 860,
-				height: 200,
+				height: 240,
 				scale: 'small',
 				items:[{
 					xtype:'gridpanel',
@@ -4627,7 +4640,7 @@ Ext.onReady(function() {
 			gl_account: sbranch_gl,
 			date_issue: Ext.getCmp('trans_date_inb').getValue(),
 			debitTo: Ext.getCmp('debit_acct_inb').getValue(),
-			amount: Ext.getCmp('tenderd_amount_inb').getValue()
+			amount: Ext.getCmp('total_amount_inb').getValue()
 		};
 		InterBStore.load();
 	};
