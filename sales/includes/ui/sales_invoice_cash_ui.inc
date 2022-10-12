@@ -739,6 +739,30 @@ function display_order_header(&$order, $editable, $date_text)
 			hidden('pdc_no', $so_head['pdc_no']);
 			hidden('pdc_discount', $so_head['pdc_discount']);
 		}
+		else if ($order->category_id == 14) {
+			$order->discount_id = $pdc_no;
+			$discount_row = db_fetch(get_temp_discount($pdc_no));
+			
+			if ($discount_row['status'] == 'Pending') {
+				if ($order->trans_type != ST_SALESINVOICE) {
+					value_type_list(_("Request for Manager's Discount: &nbsp;"), 'req_discount', 
+						array(
+							"DEFAULT" => "Select Action",
+							"REREQ" => 'Update Request',
+							"FETCH" => 'Reresh Request'
+						), 'label', null, true, '', true
+					);
+				}
+				else {
+					value_type_list(_("Request for Manager's Discount: &nbsp;"), 'req_discount', 
+						array(
+							"DEFAULT" => "Select Action",
+							"FETCH" => 'Reresh Request'
+						), 'label', null, true, '', true
+					);
+				}		
+			}	
+		}
 	}
 	//
 	
@@ -868,10 +892,21 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 			}
 		}
 		else {
-			$discount1 = Get_Sales_Discount1($_POST['stock_id']);
+			if ($_POST['category_id'] == 14) {
+				$discount1 = 0;
+			}
+			else {
+				Get_Sales_Discount1($_POST['stock_id']);
+			}
 		}
 
-		$discount2 = Get_Sales_Discount2($_POST['stock_id']);		
+		if ($_POST['category_id'] == 14) {
+			$discount2 = 0;
+		}
+		else {
+			Get_Sales_Discount2($_POST['stock_id']);
+		}
+
 		$_POST['lcp_price'] = price_format($lcp_price); //Added by spyrax10
 		$_POST['price'] = price_format($price);
 		// default to the customer's discount %

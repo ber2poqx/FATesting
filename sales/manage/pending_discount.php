@@ -107,7 +107,7 @@ $th = array(
     _("Customer"),
     _("Payment Type"),
     _("Date Created"),
-    _("Created By"),
+    _("Prepared By"),
     _("Category"),
     _("Item Code"),
     _("Document Total"),

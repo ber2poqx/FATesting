@@ -1321,6 +1321,19 @@ function get_temp_discount($id = '', $category = '', $user_id = '', $reference =
     return db_query($sql, "get_temp_discount()");
 }
 
+function update_so_discount($order_no = 0, $stock_id = '', $discount = 0) {
+	set_global_connection();
+
+	$sql = "UPDATE sales_order_details SET discount1 = " .db_escape(remove_comma($discount));
+
+	$sql .= " WHERE order_no = " .db_escape($order_no) 
+	. " AND stk_code = " .db_escape($stock_id);
+
+	db_query($sql, "update_so_discount()");
+
+	return $order_no;
+}
+
 function get_setup_discount($id = 0) {
 	set_global_connection();
 
