@@ -92,18 +92,42 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 			}
 
             if ($group == 1) {
-                $sql .= "GROUP BY A.ref, A.trans_no, Type";                
+                $sql .= "GROUP BY A.ref, A.trans_no, K.account_name, Type";                
                 $sql .= " ORDER BY A.ref DESC";
             }
             else if ($group == 2) {
-                $sql .= "GROUP BY A.ref, A.trans_no, Type";                
-                $sql .= " ORDER BY A.ref DESC";
+                $sql .= "GROUP BY A.ref, A.trans_no, O.real_name, Type";                
+                $sql .= " ORDER BY O.real_name DESC, A.ref DESC";
             } else {
-                $sql .= "GROUP BY A.ref, A.trans_no, Type";                
-                $sql .= " ORDER BY A.ref DESC";
+                $sql .= "GROUP BY A.ref, A.trans_no, M.description, Type";                
+                $sql .= " ORDER BY M.description DESC, A.ref DESC";
             }
 
     return db_query($sql, "No transactions were returned");
+}
+
+function remittance_transactions_for_collection($from, $fcashier = '', $tcashier = '') {
+	
+	$from = date2sql($from);
+
+	$sql = "SELECT RT.*, SUM(RT.amount) AS total_amt
+		FROM ".TB_PREF."remittance RT";
+
+	$sql .= " WHERE RT.trans_date = '$from'";
+
+	if ($fcashier != '') {
+		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
+	}
+
+	if ($tcashier != '') {
+		$sql .= " AND RT.remit_to = ".db_escape($tcashier);
+	} 
+
+	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
+
+	$sql .= " GROUP BY RT.remit_ref";
+
+	return db_query($sql, "No transactions were returned");
 }
 
 function get_category_invoice_date($trans_no){
@@ -252,11 +276,14 @@ function print_PO_Report()
     }
 	$rep->NewPage();
 
-	$Tot_Val = $totaladvance = $ar1 = $ar2 = $ar3 = $ar4 = $rb = $pn = $cr = $dr = 0.0;
-	$Ar1 = $Ar2 = $Ar3 = $Ar4 = 0.0;
-	$grandtotal = $grandtotaladvance = $grandar1 = $grandar2 = $grandar3 = $grandar4 = $grandrebate = $grandpenalty = $grandcr = 0.0;
+	$Tot_Val = $totaladvance = $ar1 = $ar2 = $ar3 = $ar4 = $rb = $pn = $cr = $dr = 0.0;  
+	$Ar1 = $Ar2 = $Ar3 = $Ar4 = $cr_remittance = $remit1 = $remit2 = $remit3 = $remit4 = $remit5 = $remit6 = $remit7 = $remit8 = 0.0;
+
+	$grandtotal = $grandtotaladvance = $grandar1 = $grandar2 = $grandar3 = $grandar4 = $grandrebate = $grandpenalty = $grandcr = 
+	$remit_total = $grandtotalall = $grandcrall = 0.0;
 
 	$res = getTransactions($from, $to, $cust, $collector, $cashier, $Type, $group);
+	$remit_result = remittance_transactions_for_collection($from, '', $cashier);
     $Collector_Name = $Coa_name = '';
 
 	while ($DSOC = db_fetch($res))
@@ -521,7 +548,6 @@ function print_PO_Report()
 		$grandcr += $Dw;
 	}
 
-
 	$rep->NewLine(0);
 
 	if ($group == 1) {
@@ -649,13 +675,79 @@ function print_PO_Report()
         }
     }
 
+    while ($remitdsoc = db_fetch($remit_result)) {
+
+		$bank_row = db_fetch(get_bank_trans($remit_transT['type'], null, null, null, $remit_transT['remit_ref']));
+		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_transT['id']); 
+
+		$cr_remittance = $remitdsoc['total_amt'];
+
+
+		$rep->NewLine();
+		$rep->TextCol(0, 1, sql2date($remitdsoc['trans_date']));
+		$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $remitdsoc['remit_ref']));
+		$rep->NewLine(0.8);
+        $rep->SetTextColor(0, 102, 0);
+		$rep->TextCol(0, 3,	get_user_name($remitdsoc['remit_from']));
+        $rep->SetTextColor(0, 0, 0);
+		$rep->TextCol(2, 3, $remitdsoc['remit_memo']);
+		$rep->TextCol(3, 4, _('REMITTANCE ENTRIES'));
+		$rep->TextCol(6, 7, sql2date($remitdsoc['trans_date']));
+		$rep->AmountCol(7, 8, $remitdsoc['total_amt'], $dec);
+		$rep->AmountCol(8, 9, $remitdsoc[''], $dec);
+		$rep->AmountCol(9, 10, $remitdsoc[''], $dec);
+		$rep->AmountCol(10, 11, $remitdsoc[''], $dec);
+		$rep->AmountCol(11, 12, $remitdsoc[''], $dec);
+		$rep->AmountCol(12, 13, $remitdsoc[''], $dec);
+		$rep->AmountCol(13, 14, $remitdsoc[''], $dec);
+		$rep->SetTextColor(255, 0, 0);
+		$rep->AmountCol(14, 15, $remitdsoc[''], $dec);
+        $rep->SetTextColor(0, 0, 0);
+		$rep->AmountCol(15, 16, $cr_remittance, $dec);
+		$rep->AmountCol(16, 17, $remitdsoc[''], $dec);
+        $rep->NewLine(0.5);
+
+		$remit_total += $remitdsoc['total_amt'];
+		$remit_cr += $cr_remittance;
+	}
+
+	$rep->NewLine(2);
+	$rep->Font('bold');
+	$rep->Line($rep->row  - 4);
+	$rep->TextCol(0, 7, _('Total Per Collector'));
+	$rep->AmountCol(7, 8, $remit_total, $dec);
+	$rep->AmountCol(8, 9, $remit1, $dec);
+	$rep->AmountCol(9, 10, $remit2, $dec);
+	$rep->AmountCol(10, 11, $remit3, $dec);
+	$rep->AmountCol(11, 12, $remit4, $dec);
+	$rep->AmountCol(12, 13, $remit5, $dec);
+	$rep->AmountCol(13, 14, $remit6, $dec);
+	$rep->AmountCol(14, 15, $remit7, $dec);
+	$rep->AmountCol(15, 16, $remit_cr, $dec);
+	$rep->AmountCol(16, 17, $remit8, $dec);
+	$rep->Line($rep->row  - 4);
+	$rep->Font();
+	$rep->NewLine(2);
+	//$remit_total = 0.0;
+	//$remit_cr = 0.0;
+	//$remit1 = 0.0;
+	//$remit2 = 0.0;
+	//$remit3 = 0.0;
+	//$remit4 = 0.0;
+	//$remit5 = 0.0;
+	//$remit6 = 0.0;
+	//$remit7 = 0.0;
+	//$remit8 = 0.0;
+
+	$grandtotalall = $grandtotal + $remit_total;
+	$grandcrall = $grandcr + $remit_cr;
 	
 	$rep->NewLine(2);
 	$rep->Line($rep->row - 2);
 	$rep->Font('bold');
 	$rep->fontSize += 0;	
 	$rep->TextCol(0, 7, _('Grand Total'));
-	$rep->AmountCol(7, 8, $grandtotal, $dec);
+	$rep->AmountCol(7, 8, $grandtotalall, $dec);
 	$rep->AmountCol(8, 9, $grandtotaladvance, $dec);
 	$rep->AmountCol(9, 10, $grandar1, $dec);
 	$rep->AmountCol(10, 11, $grandar2, $dec);
@@ -663,7 +755,7 @@ function print_PO_Report()
 	$rep->AmountCol(12, 13, $grandar4, $dec);
 	$rep->AmountCol(13, 14, $grandrebate, $dec);
 	$rep->AmountCol(14, 15, $grandpenalty, $dec);
-	$rep->AmountCol(15, 16, $grandcr, $dec);
+	$rep->AmountCol(15, 16, $grandcrall, $dec);
 	$rep->AmountCol(16, 17, $dr, $dec);
 	//$rep->SetFooterType('compFooter');
     $rep->End();
