@@ -4,7 +4,7 @@
  * Date Added: 27 Sep 2022
 */
 
-$page_security = 'SA_FIX_DEL';
+$page_security = 'SA_SO_DISCOUNT';
 $path_to_root = "../..";
 
 include($path_to_root . "/includes/db_pager.inc");

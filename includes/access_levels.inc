@@ -195,6 +195,7 @@ $security_areas =array(
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales Customer and Branches Changes")),
 	'SA_SALESQUOTE' => array(SS_SALES|10, _("Sales Quotations")),
 	'SA_SALESORDER' => array(SS_SALES|3, _("Sales Orders Edition")),
+	'SA_SO_DISCOUNT' => array(SS_SALES|44, _("Sales Order Discount Approval")), 
 	'SA_SALESDELIVERY' => array(SS_SALES|4, _("Sales Deliveries Edition")),
 	'SA_FIX_DEL' => array(SS_SALES|43, _("Fix Delivery Discrepancy")), 
 	'SA_SALESINVOICE' => array(SS_SALES|5, _("Sales Invoices Edition")),
