@@ -892,20 +892,23 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 			}
 		}
 		else {
-			if ($_POST['category_id'] == 14) {
-				$discount1 = 0;
-			}
-			else {
-				Get_Sales_Discount1($_POST['stock_id']);
-			}
+			// if ($_POST['category_id'] == 14) {
+			// 	$discount1 = 0;
+			// }
+			// else {
+				
+			// }
+			$discount1 = Get_Sales_Discount1($_POST['stock_id']);
 		}
 
-		if ($_POST['category_id'] == 14) {
-			$discount2 = 0;
-		}
-		else {
-			Get_Sales_Discount2($_POST['stock_id']);
-		}
+		// if ($_POST['category_id'] == 14) {
+		// 	$discount2 = 0;
+		// }
+		// else {
+			
+		// }
+
+		$discount2 = Get_Sales_Discount2($_POST['stock_id']);
 
 		$_POST['lcp_price'] = price_format($lcp_price); //Added by spyrax10
 		$_POST['price'] = price_format($price);
