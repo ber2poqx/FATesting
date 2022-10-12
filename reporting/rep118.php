@@ -231,7 +231,7 @@ function print_PO_Report()
 
 	$params = array(0 => $comments,
 		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
-		2 => array('text' => _('Customer'), 'from' => $cust, 'to' => ''),
+		2 => array('text' => _('Customer'), 'from' => htmlentities($cust), 'to' => ''),
 		3 => array('text' => _('Collector'), 'from' => $collector_collection, 'to' => ''),
 		4 => array('text' => _('Cashier'), 'from' => $cashier_collection, 'to' => '')
 	);
