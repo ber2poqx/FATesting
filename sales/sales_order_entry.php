@@ -195,7 +195,7 @@ if (get_post('co_maker')) {
 
 // 		foreach ($_SESSION['Items']->line_items as $line_no => $stock_item) {
 // 			if ($stock_item->stock_id == $discount_row['item_code']) {
-// 				$_SESSION['Items']->line_items[$line_no]->discount1 = $discount_row['given_discount'];
+// 				$_POST['discount_dp_amount'] = $discount_row['given_discount'];
 // 			}
 // 		}
 
@@ -299,7 +299,6 @@ if (get_post('co_maker')) {
 // 				}
 
 // 				if ($dis_id) {
-// 					update_header();
 // 					display_notification_centered(_("Your Request has been Approved..."));
 // 				}
 // 			}
@@ -316,7 +315,7 @@ if (get_post('co_maker')) {
 	
 // 	$Ajax->activate('_page_body');
 // }
-//
+
 
 //-----------------------------------------------------------------------------
 
