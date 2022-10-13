@@ -1229,8 +1229,14 @@ function display_change_term_header(&$order, $editable, $date_text,
 	label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
 	label_row(_("Amort Difference:"), price_format($_POST['amort_diff']));
 	hidden('amort_diff');
-	label_row(_("No of Months Paid:"), $_POST['months_paid']);
-	hidden('months_paid');
+	//modified by albert 10/13/2022
+	if(get_post('termmode_id') == 1 ){
+		text_row_ex1(_("No of Months Paid:"), 'months_paid', null, 15, 16);
+	}else{
+		label_row(_("No of Months Paid:"), $_POST['months_paid']);
+		hidden('months_paid');
+	}
+	//
 	label_row(_("Amortization Delay:"), price_format($_POST['amort_delay']));
 	hidden('amort_delay');
 	label_row(_("Adjustment Rate:"), price_format($_POST['adj_rate']) . "%");

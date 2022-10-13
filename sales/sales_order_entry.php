@@ -1122,8 +1122,13 @@ function new_installment_computation()
 	$_POST['amort_diff'] = $_POST['new_due_amort'] >= $_POST['due_amort']
 		? $_POST['new_due_amort'] - $_POST['due_amort']
 		: $_POST['due_amort'] - $_POST['new_due_amort'];
-
-	$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+	
+	//modified by albert 10/13/2022
+	if(get_post('termmode_id') == 1){	
+		$_POST['months_paid'] = get_post('months_paid');
+	}else{
+		$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+	}
 
 	$_POST['amort_delay'] = $_POST['new_due_amort'] > $_POST['due_amort']
 		? $_POST['amort_diff'] * $_POST['months_paid']
