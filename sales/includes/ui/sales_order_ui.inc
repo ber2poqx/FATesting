@@ -1231,7 +1231,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 	hidden('amort_diff');
 	//modified by albert 10/13/2022
 	if(get_post('termmode_id') == 1 ){
-		text_row_ex1(_("No of Months Paid:"), 'months_paid', null, 15, 16);
+		text_row_ex1(_("No of Months Due:"), 'months_paid', null, 15, 16);
 	}else{
 		label_row(_("No of Months Paid:"), $_POST['months_paid']);
 		hidden('months_paid');

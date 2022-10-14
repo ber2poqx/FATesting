@@ -664,15 +664,26 @@ function display_order_header(&$order, $editable, $date_text)
 			
 			/*Modified by Albert 04/27/2022*/
 			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			
-			if ( date2sql(get_post('OrderDate')) < $date_epic){
-				$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$date_epic_installment = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 
-				$line->price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id, $last_date_updated);
-			}else{
-		
-				$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			}
+				if (date2sql(get_post('OrderDate')) < $date_epic && $_POST['category_id'] == 14 ){
+					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id,$last_date_updated);
+
+				    $line->price = $previous_price;
+
+				}else if ( date2sql(get_post('OrderDate')) < $date_epic_installment){
+					$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+	
+					$line->price  = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id, $last_date_updated);
+				}else{
+					if($_POST['category_id'] == 14){ 
+						$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+					}
+					else{
+						$line->price  = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+					}				
+				}
 			/*End by Albert*/			
 		}
 		$Ajax->activate('items_table');
@@ -776,16 +787,28 @@ function display_order_header(&$order, $editable, $date_text)
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
 			
 			/*Modified by Albert 04/27/2022*/
-			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);			
+			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$date_epic_installment = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 
-			if ( date2sql(get_post('OrderDate')) < $date_epic){
-				$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+				if (date2sql(get_post('OrderDate')) < $date_epic && $_POST['category_id'] == 14 ){
+					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id,$last_date_updated);
 
-				$line->price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id, $last_date_updated);
-			}else{
+				    $line->price = $previous_price;
+
+				}else if ( date2sql(get_post('OrderDate')) < $date_epic_installment){
+					$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+	
+					$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id, $last_date_updated);
+				}else{
+					if($_POST['category_id'] == 14){ 
 		
-				$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			}
+						$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+					}
+					else{
+						$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+					}
+				}
 			/*End by Albert*/			}
 		$Ajax->activate('items_table');
 	}
@@ -868,15 +891,25 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 		} else {
 			/*modified by Albert 04/23/2022*/
 			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
-			
-				if (date2sql(get_post('OrderDate')) < $date_epic){
+			$date_epic_installment = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+
+				if (date2sql(get_post('OrderDate')) < $date_epic && $_POST['category_id'] == 14 ){
 					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
 					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'],$last_date_updated);
 
 				    $price = $previous_price;
 
+				}else if ( date2sql(get_post('OrderDate')) < $date_epic_installment){
+					$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+	
+					$price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id'], $last_date_updated);
 				}else{
-					$price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
+					if($_POST['category_id'] == 14){ 
+						$price  = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']); //Modified by spyrax10
+					}
+					else{
+						$price  = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $_POST['stock_id']);
+					}				
 				}
 			/*end Albert*/
 		}
