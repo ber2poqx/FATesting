@@ -602,15 +602,18 @@ function delete_adjGL($trans_no, $line_id = '') {
 }
 
 
-function adjGL_line_exists($trans_no, $line_id) {
+function adjGL_line_exists($trans_no, $line_id = 0) {
 
 	set_global_connection();
 
 	$sql = "SELECT COUNT(*) 
 		FROM ".TB_PREF."stock_adjustment_gl 
-		WHERE gl_type = 'DEFAULT' AND sa_trans_no = ".db_escape($trans_no) . " 
-			AND sa_line_id = ".db_escape($line_id);
-
+		WHERE gl_type = 'DEFAULT' AND sa_trans_no = ".db_escape($trans_no);
+	
+	if ($line_id != 0) {
+		$sql .= " AND sa_line_id = ".db_escape($line_id);
+	}
+	
 	$result = db_query($sql, "Adjustment GL default account can't be retrived! (spyrax10)");
 
 	$row = db_fetch_row($result);

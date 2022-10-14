@@ -127,6 +127,7 @@ if (get_post('adj_type') == 2 && list_updated('stock_id')) {
 					$row['color_code'] != '' ? $row['color_code'] : '', 
 					$row['reference']
 				); 
+				//add_default_gl();
 			}
 		}
 	}
@@ -336,6 +337,38 @@ function handle_delete_item($id) {
 }
 
 //-----------------------------------------------------------------------------------------------
+# adjustment GL Functions
+
+function add_default_gl() {
+
+	$trans_no = get_next_adjID();
+	$stock_gl_codes = get_stock_gl_code($_POST['stock_id']);
+	$amount = get_post('adj_type') == 1 ? input_num('qty') * input_num('std_cost') :
+		-input_num('qty') * input_num('std_cost');
+	$person_id = get_sup_id_by_stock($_POST['stock_id']);
+	$masterfile = get_sup_name_by_sup(get_sup_id_by_stock($_POST['stock_id']));
+
+	if (!adjGL_line_exists($trans_no)) {
+		add_adj_gl (
+			$trans_no, 
+			1, 
+			get_post('adj_type'), 
+			$_POST['ref'], 
+			$_POST['stock_id'], 
+			get_post('color') != '' ? $_POST['color'] : '', 
+			get_post("lot_no") != '' ? $_POST['lot_no'] : '', 
+			get_post("chasis_no") != '' ? $_POST['chasis_no'] : '', 
+			$amount, 
+			$person_id, 
+			$masterfile,
+			get_item_type() == 'repo' ? $stock_gl_codes['wip_account'] : 
+				$stock_gl_codes['inventory_account'], 
+			'DEFAULT', get_item_type()
+		);
+	}
+}
+
+//-----------------------------------------------------------------------------------------------
 
 function handle_new_item() {
 	add_to_order($_SESSION['adj_items'], 
@@ -350,6 +383,8 @@ function handle_new_item() {
 		get_post('stock_ref')	
 	); 
 
+	//add_default_gl();
+	
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
 		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
 	);
@@ -408,13 +443,10 @@ else {
 
 display_order_header($_SESSION['adj_items'], 1);
 
-start_outer_table(TABLESTYLE, "width='95%'", 10);
 $trans_no = get_next_adjID();
 
 display_adjustment_items($items_title, $_SESSION['adj_items'], 1, $trans_no, get_item_type());
 adjustment_options_controls();
-
-end_outer_table(1, false);
 
 submit_center_first('Update', _("Update"), '', null);
 submit_center_last('Process', $button_title, '', 'default');
