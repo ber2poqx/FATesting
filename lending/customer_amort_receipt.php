@@ -668,7 +668,7 @@ if(isset($_GET['get_interBPaymnt']))
                                 'sl_code'=>$customer["debtor_no"],
                                 'sl_name'=>$customer["name"],
                                 'debtor_id'=>$_GET['debtor_id'],
-                                'debit_amount'=>$_GET['amount'],
+                                'debit_amount'=>$_GET['amounttenderd'],
                                 'credit_amount'=>0,
                             );
     }
@@ -682,7 +682,7 @@ if(isset($_GET['get_interBPaymnt']))
                                 'sl_name'=>$_GET['branch_name'],
                                 'debtor_id'=>$_GET['debtor_id'],
                                 'debit_amount'=>0,
-                                'credit_amount'=>$_GET['amount']
+                                'credit_amount'=>$_GET['amounttotal']
                             );
     }
 
@@ -1707,6 +1707,9 @@ if(isset($_GET['submitInterB']))
     $DataOnGrid = stripslashes(html_entity_decode($_POST['InterBDataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
     
+    $DataOEGrid = stripslashes(html_entity_decode($_POST['DataOEGrid']));
+    $OtherEGrid = json_decode($DataOEGrid, true);
+
     //var_dump($objDataGrid);
     if (count($objDataGrid) == 0){
         $InputError = 1;
@@ -1727,22 +1730,30 @@ if(isset($_GET['submitInterB']))
         $bank = get_bank_account($_POST['intobankacct_inb']);
 
         $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername_inb'], check_isempty($BranchNo['branch_code']), $_POST['trans_date_inb'], $_POST['ref_no_inb'],
-                                    $_POST['tenderd_amount_inb'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType_inb'], $_POST['collectType_inb'], $_POST['moduletype_inb']);
+                                    $_POST['total_amount_inb'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType_inb'], $_POST['collectType_inb'], $_POST['moduletype_inb']);
 
-        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct_inb'], $_POST['ref_no_inb'], $_POST['trans_date_inb'], $_POST['tenderd_amount_inb'], PT_CUSTOMER, $_POST['customername_inb'],
+        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct_inb'], $_POST['ref_no_inb'], $_POST['trans_date_inb'], $_POST['total_amount_inb'], PT_CUSTOMER, $_POST['customername_inb'],
                         $_POST['cashier_inb'], $_POST['pay_type_inb'], $_POST['check_date_inb'], $_POST['check_no_inb'], $_POST['bank_branch_inb'], $_POST['branch_inb'], $_POST['receipt_no_inb'], $_POST['preparedby_inb']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $_POST['remarks_inb']);
 
         //gl entries
+        //for other entry
+        if (count($OtherEGrid) != 0){
+            $bank = get_bank_account($_POST['interBotherintobankacct']);
+            foreach($OtherEGrid as $value=>$OTdata) {
+                add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], "", 0, null, null, 0, 0);
+            }
+        }
+        //gl------
         foreach($objDataGrid as $value=>$data) {
             /* Now credit bank account with penalty */
             $company_prefs = get_company_prefs();
             if(!empty($data['gl_code'])){
                 if($data['credit_amount'] != 0){
-                    $amount = -$data['credit_amount'];
+                    $amount = -$_POST['total_amount_inb']; //-$data['credit_amount'];
                 }else{
-                    $amount = $data['debit_amount'];
+                    $amount = $_POST['tenderd_amount_inb']; //$data['debit_amount'];
                 }
                 if($data['sl_code'] == $_POST['customername_inb']){
                     add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $data['gl_code'], 0, 0, '', $amount, $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], '', 0, null, null, 0, 0);

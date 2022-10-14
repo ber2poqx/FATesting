@@ -820,7 +820,7 @@ Ext.onReady(function() {
 				allowBlank: false,
 				listeners : {
 					change: function(editor, e){
-						Ext.getCmp('tenderd_amount').setValue(e);
+						//Ext.getCmp('tenderd_amount').setValue(e);
 						var GridSModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
 						var GridRecords = GridSModel.getLastSelected();																																		 
 						var newGPM = (e * GridRecords.get('grossPM'));
@@ -1269,8 +1269,8 @@ Ext.onReady(function() {
 
 			//CollectionTypeStore.proxy.extraParams = {type: "amort"};
 			//CollectionTypeStore.load();
-			Ext.getCmp('total_otheramount').setValue('');
-			Ext.getCmp('interBtotal_otheramount').setValue('');
+			//Ext.getCmp('total_otheramount').setValue('');
+			//Ext.getCmp('interBtotal_otheramount').setValue('');
 
 			//Ext.getCmp('intobankacct').setValue(3);
 			Ext.getCmp('debit_acct').setValue("1050");
@@ -1360,8 +1360,8 @@ Ext.onReady(function() {
 			});*/
 			//CollectionTypeStore.proxy.extraParams = {type: "interb"};
 			//CollectionTypeStore.load();
-			Ext.getCmp('total_otheramount').setValue('');
-			Ext.getCmp('interBtotal_otheramount').setValue('');
+			//Ext.getCmp('total_otheramount').setValue('');
+			//Ext.getCmp('interBtotal_otheramount').setValue('');
 			//Ext.getCmp('intobankacct_inb').setValue(3);
 			Ext.getCmp('debit_acct_inb').setValue("1050");
 			Ext.getCmp('paymentType_inb').setValue('other');
@@ -1464,7 +1464,7 @@ Ext.onReady(function() {
 		name: 'total_otheramount',
 		fieldLabel: 'total_otheramount',
 		//allowBlank: false,
-		hidden: true
+		//hidden: true
 	}];
 	var interBtbar = [{
 		xtype: 'textfield',
@@ -1497,14 +1497,14 @@ Ext.onReady(function() {
 		xtype: 'textfield',
 		id: 'interBtotal_otheramount',
 		name: 'interBtotal_otheramount',
-		fieldLabel: 'total_otheramount',
+		fieldLabel: 'total otheramount',
 		//allowBlank: false,
-		hidden: true,
+		//hidden: true,
 		listeners: {
 			change: function(object, value) {
-				var otheramnt = Math.floor(parseFloat(Ext.getCmp('tenderd_amount_inb').getValue()));
-				var totalamnt = (otheramnt + value);
-			alert(otheramnt);
+				var otheramnt = Math.floor(Ext.getCmp('tenderd_amount_inb').getValue());
+				var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
+
 				Ext.getCmp('total_amount_inb').setValue(totalamnt);
 				loadInterBranch();
 			}
@@ -2512,7 +2512,10 @@ Ext.onReady(function() {
 							field.focus(true);
 						},
 						change: function(object, value) {
-							Ext.getCmp('total_amount_inb').setValue(value);
+							var otheramnt = Math.floor(Ext.getCmp('interBtotal_otheramount').getValue());
+							var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
+
+							Ext.getCmp('total_amount_inb').setValue(totalamnt);
 
 							loadInterBranch();
 						}
@@ -2610,8 +2613,9 @@ Ext.onReady(function() {
 			text: '<b>Save</b>',
 			tooltip: 'Save customer payment',
 			icon: '../js/ext4/examples/shared/icons/add.png',
-			single : true,				
+			single : true,
 			handler:function(){
+				Ext.getCmp('total_otheramount').setValue('');
 				var form_submit_InterB = Ext.getCmp('submit_form_InterB').getForm();
 				if(form_submit_InterB.isValid()) {
 					var gridData = InterBStore.getRange();
@@ -2629,11 +2633,30 @@ Ext.onReady(function() {
 						};
 						girdInterBData.push(ObjInterB);
 					});
+					//other entries
+					if(Ext.getCmp('interBtotal_otheramount').getValue() != 0){
+						var gridOEData = OtherEntryStore.getRange();
+						var OEData = [];
+						
+						Ext.each(gridOEData, function(item) {
+							var ObjItem = {
+								id: item.get('id'),  
+								gl_code: item.get('gl_code'),
+								gl_name: item.get('gl_name'),
+								sl_code: item.get('sl_code'),
+								sl_name: item.get('sl_name'),
+								debtor_id: item.get('debtor_id'),
+								debit_amount: item.get('debit_amount')
+							};
+							OEData.push(ObjItem);
+						});
+					}
 					//console.log(Ext.decode(gridData));
 					form_submit_InterB.submit({
 						url: '?submitInterB=payment',
 						params: {
-							InterBDataOnGrid: Ext.encode(girdInterBData)
+							InterBDataOnGrid: Ext.encode(girdInterBData),
+							DataOEGrid: Ext.encode(OEData)
 						},
 						waitMsg: 'Saving payment. please wait...',
 						method:'POST',
@@ -2998,7 +3021,7 @@ Ext.onReady(function() {
 				id: 'DPPanel',
 				activeTab: 0,
 				width: 860,
-				height: 200,
+				height: 250,
 				scale: 'small',
 				items:[{
 					xtype:'gridpanel',
@@ -3010,6 +3033,24 @@ Ext.onReady(function() {
 					loadMask: true,
 					store:	DPitemStore,
 					columns: DPGLHeader,
+					features: [{ftype: 'summary'}],
+					columnLines: true
+				},{
+					xtype:'gridpanel',
+					id: 'interBOtherEntriesGrid',
+					anchor:'100%',
+					layout:'fit',
+					tbar: interBtbar,
+					selModel: 'cellmodel',
+					plugins: {
+						ptype: 'cellediting',
+						clicksToEdit: 1
+					},
+					title: 'Other Entry',
+					icon: '../js/ext4/examples/shared/icons/page_add.png',
+					loadMask: true,
+					store:	OtherEntryStore,
+					columns: OtherEntryHeader,
 					features: [{ftype: 'summary'}],
 					columnLines: true
 				}]
@@ -4640,7 +4681,8 @@ Ext.onReady(function() {
 			gl_account: sbranch_gl,
 			date_issue: Ext.getCmp('trans_date_inb').getValue(),
 			debitTo: Ext.getCmp('debit_acct_inb').getValue(),
-			amount: Ext.getCmp('total_amount_inb').getValue()
+			amounttotal: Ext.getCmp('total_amount_inb').getValue(),
+			amounttenderd: Ext.getCmp('tenderd_amount_inb').getValue()
 		};
 		InterBStore.load();
 	};
