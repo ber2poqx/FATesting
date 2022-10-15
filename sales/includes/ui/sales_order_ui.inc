@@ -993,7 +993,10 @@ function display_change_term_header(&$order, $editable, $date_text,
 	label_row(_("Co-maker:"), $_POST['co_maker']);
 	hidden('co_maker');
 	termmode_type(_("Term Mode Type:"),'termmode_id', null	, true, 'label');
+
+	if(get_post('termmode_id') == 0 ){
 	table_section(2);
+	}
 
 	start_row();
 	if (($order->pos['cash_sale'] || $order->pos['credit_sale'])
@@ -1230,20 +1233,16 @@ function display_change_term_header(&$order, $editable, $date_text,
 	label_row(_("Amort Difference:"), price_format($_POST['amort_diff']));
 	hidden('amort_diff');
 	//modified by albert 10/13/2022
-	if(get_post('termmode_id') == 1 ){
-		text_row_ex1(_("No of Months Due:"), 'months_paid', null, 15, 16);
-	}else{
-		label_row(_("No of Months Paid:"), $_POST['months_paid']);
-		hidden('months_paid');
-	}
+	label_row(_("No of Months Paid:"), $_POST['months_paid']);
+	hidden('months_paid');
 	//
 	label_row(_("Amortization Delay:"), price_format($_POST['amort_delay']));
 	hidden('amort_delay');
 	label_row(_("Adjustment Rate:"), price_format($_POST['adj_rate']) . "%");
 	hidden('adj_rate');
-	
+		
 	if(get_post('termmode_id') == 1 ){
-	
+		label_row(_("Opportunity Cost:"), price_format(round($_POST['opportunity_cost'],0)));
 		label_row(_("New Gross Net DP:"), price_format($_POST['new_gross_net_dp']));
 		label_row(_("Rebate Amount:"), price_format($_POST['rebate_amount']));
 	}
@@ -1256,17 +1255,21 @@ function display_change_term_header(&$order, $editable, $date_text,
 		label_row(_("total_amount_due:"), price_format($_POST['total_amount_due']));
 		label_row(_("Total Payment:"), price_format(get_post('alloc')));
 		text_row_ex1(_("Rebate If Advance Payment:"), 'rebate_if_adv_pay', null, 15, 16);
+		label_row(_("Amount Due:"), price_format(round(get_post('amount_to_be_paid'),0)));
+		hidden('amount_to_be_paid');
+
+		table_section(6);
+		table_section_title("Adjustment On Sales");
+		label_row(_("Old Gross:"), price_format($all_ar_amount));
 		label_row(_("New Gross Selling Price:"), price_format($_POST['new_gross_price']));
 		hidden('new_gross_price');	
 		label_row(_("Sales Adjustment:"), price_format($sales_adjustment_amount));
 		hidden('sales_adjustment', $sales_adjustment_amount);
 
+	}else{
+		label_row(_("Amount to be Paid:"), price_format(round(get_post('amount_to_be_paid'),0)));
+		hidden('amount_to_be_paid');
 	}
-
-	label_row(_("Amount to be Paid:"), price_format(round(get_post('amount_to_be_paid'),0)));
-
-	hidden('amount_to_be_paid');
-
 	if(get_post('termmode_id') == 1 ){
 
 	submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);

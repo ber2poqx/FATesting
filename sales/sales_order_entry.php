@@ -915,7 +915,7 @@ function can_process()
 		}
 	}
 
-	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 &&
 		(total_current_payment($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')))
 		+ get_post('amount_to_be_paid')) > get_post('new_ar_amount')) {
 		display_error(_("Cant proceed! amortization paid greater than new Gross!"));
@@ -1100,7 +1100,12 @@ function new_installment_computation()
 
 	$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $terms;
 
-	$amort = round($amort_wo_rebate + $rebate);
+	//modified by Albert 10/15/2022
+	if(get_post('termmode_id') == 0){
+		$amort = round($amort_wo_rebate + $rebate);
+	}else{
+		$amort = $amort_wo_rebate + $rebate;
+	}
 
 	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
 	$_POST['new_due_amort'] = $amort;
@@ -1124,8 +1129,15 @@ function new_installment_computation()
 		: $_POST['due_amort'] - $_POST['new_due_amort'];
 	
 	//modified by albert 10/13/2022
-	if(get_post('termmode_id') == 1){	
-		$_POST['months_paid'] = get_post('months_paid');
+	if(get_post('termmode_id') == 1 ){	
+		$months_due_date = get_loan_schedule_months_due($_POST['document_ref'],date("Y-m-d", strtotime(get_post('OrderDate'))));
+		if(date('Y-m-d', strtotime($months_due_date. ' + 15 days')) < date("Y-m-d", strtotime(get_post('OrderDate')))){
+
+			$_POST['months_paid'] = count_months_paid($_POST['document_ref'])+1;
+		}else{
+			$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+		}
+
 	}else{
 		$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
 	}

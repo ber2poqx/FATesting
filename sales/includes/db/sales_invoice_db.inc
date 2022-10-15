@@ -894,6 +894,18 @@ function count_months_paid($debtor_trans_ref)
 	return $row[0];
 }
 /* */
+/*Added by Albert 10/15/2022*/
+function get_loan_schedule_months_due($debtor_trans_ref, $date)
+{
+	$sql = "SELECT a.date_due FROM " . TB_PREF . "debtor_loan_schedule a 
+		INNER JOIN debtor_trans b ON b.trans_no = a.trans_no
+		WHERE a.trans_type=" . ST_SALESINVOICE . " 
+		AND b.reference=" . db_escape($debtor_trans_ref) . "AND a.date_due <=" . db_escape($date) . " AND a.month_no > 0 order by a.date_due desc limit 1";
+	$result = db_query($sql, "not read sales invoice count months paid");
+	$row = db_fetch($result);
+	return $row[0];
+}
+/**/
 
 /* Added by Ronelle 8/20/2021 */
 function closed_sales_invoice_status($invoice, $trans_no, $ref)
