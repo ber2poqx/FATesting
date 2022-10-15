@@ -711,13 +711,13 @@ if(!is_null($action) || !empty($action)){
                     //$serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
                     //$tandard_cost = Get_StandardCost_Plcy($branchcode,$catcode,$myrow["model"]);
 
-                    if($myrow["mt_details_status"]==0){
+                    /*if($myrow["mt_details_status"]==0){
                         $status_msg='In-transit';
                     }elseif($myrow["mt_details_status"]==1){
                         $status_msg='Partial';
                     }elseif($myrow["mt_details_status"]==2){
                         $status_msg='Received';
-                    }
+                    }*/
                     
                     $group_array[] = array('serialise_id'=>$serialise_id,
                         'color' => $myrow["serialise_item_code"],
@@ -730,7 +730,7 @@ if(!is_null($action) || !empty($action)){
                         'lot_no' => $myrow["mt_details_serial_no"],
                         'chasis_no' => $myrow["mt_details_chasis_no"],
                         'serialise_loc_code'=>$myrow["serialise_loc_code"],
-                        'status_msg'=>$status_msg
+                        'status_msg'=>$myrow["mt_details_status"]
                     );
                 //}
                 
@@ -779,13 +779,13 @@ if(!is_null($action) || !empty($action)){
                     $balance = number_format($myrow["balance_total"],2);
                 }
 
-                if($myrow["mt_details_status"]==0){
+                /*if($myrow["mt_details_status"]==0){
                     $status_msg='In-transit';
                 }elseif($myrow["mt_details_status"]==1){
                     $status_msg='Partial';
                 }elseif($myrow["mt_details_status"]==2){
                     $status_msg='Received';
-                }
+                }*/
                 
                 $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
                     'line_item' => $myrow["mt_details_id"],
@@ -804,8 +804,7 @@ if(!is_null($action) || !empty($action)){
                     'standard_cost' => number_format2($myrow["mt_details_st_cost"],2),
                     'stock_description' => $myrow["stock_description"],
                     'item_description' => $myrow["item_description"],
-                    'status_msg'=>$status_msg,
-                    'status'=>$myrow["mt_details_status"],
+                    'status_msg'=>$myrow["mt_details_status"],
                     'status'=>$myrow["mt_details_status"],
                     'originating_id'=>$myrow["originating_id"]
                 );
@@ -908,11 +907,11 @@ if(!is_null($action) || !empty($action)){
                     $status_msg='In-transit';
                 }
 
-                if($myrow["mt_type"] == 0) {
+                /*if($myrow["mt_type"] == 0) {
                     $manual_type = 'NO';
                 }else{
                     $manual_type = 'YES';
-                }
+                }*/
                 $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
                     'reference' => $myrow["mt_header_reference"],
                     'rrbrreference' => is_null($myrow["mt_header_rrbranch_reference"])?'':$myrow["mt_header_rrbranch_reference"],
@@ -929,7 +928,7 @@ if(!is_null($action) || !empty($action)){
                     'remarks' => $myrow["mt_header_comments"],
                     'status_msg'=>$status_msg,
                     'status'=>$myrow["mt_header_status"],
-                    'type_rr'=>$manual_type
+                    'type_rr'=>$myrow["mt_type"]
                 );                
             }
             

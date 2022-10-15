@@ -462,13 +462,13 @@ if(!is_null($action) || !empty($action)){
             
             while ($myrow = db_fetch($result))
             {
-                if($myrow["mt_details_status"]==0){
+                /*if($myrow["mt_details_status"]==0){
                     $status_msg='In-transit';
                 }elseif($myrow["mt_details_status"]==1){
                     $status_msg='Partial';
                 }elseif($myrow["mt_details_status"]==2){
                     $status_msg='Received';
-                }
+                }*/
 
                 $group_array[] = array('serialise_id'=>$serialise_id,
                     'color' => $myrow["serialise_item_code"],
@@ -481,7 +481,7 @@ if(!is_null($action) || !empty($action)){
                     'lot_no' => $myrow["mt_details_serial_no"],
                     'chasis_no' => $myrow["mt_details_chasis_no"],
                     'serialise_loc_code'=>$myrow["serialise_loc_code"],
-                    'status_msg'=>$status_msg
+                    'status_msg'=>$myrow["mt_details_status"]
 
                 );
                 

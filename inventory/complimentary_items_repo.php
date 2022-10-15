@@ -546,13 +546,13 @@ if(!is_null($action) || !empty($action)){
             $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))
             {
-                if($myrow["compli_status"]== "Draft"){
+                /*if($myrow["compli_status"]== "Draft"){
                     $status_msg='For Approval';
                 }elseif($myrow["compli_status"]== "Approved") {
                     $status_msg='Approved';
                 }else{
                     $status_msg='Closed';
-                }
+                }*/
 
                 if($myrow["date_approved"] == '0000-00-00') {
                     $trandate = sql2date($myrow["tran_date"]);
@@ -568,7 +568,7 @@ if(!is_null($action) || !empty($action)){
                     'category_id' => $myrow["category_id"],
                     'category_name' => $myrow["category_name"],
                     'qty' => number_format(abs($myrow["total_item"]),2),
-                    'status' => $status_msg
+                    'status' => $myrow["compli_status"]
                 );    
             }
             

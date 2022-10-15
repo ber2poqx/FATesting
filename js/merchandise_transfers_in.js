@@ -96,6 +96,26 @@ Ext.onReady(function(){
 		]
 	});
 
+	function Manual(val) {
+		if(val == '0'){
+			return '<span style="color:black;font-weight: bold;">NO</span>';
+		}else{
+            return '<span style="color:green;font-weight: bold;">YES</span>';
+        }
+        return val;
+    }
+
+    function Status(val) {
+		if(val == '0'){
+			return '<span style="color:black;font-weight: bold">In-transit</span>';
+		}else if(val == '1'){
+            return '<span style="color:blue;font-weight: bold;">Partial</span>';
+        }else if(val == '2'){
+            return '<span style="color:green;font-weight: bold;">Received</span>';
+        }
+        return val;
+    }
+
 	var columnModel =[
 		{header:'ID', dataIndex:'id', sortable:true, width:20,hidden: true},
 		{header:'MT Ref#', dataIndex:'reference', sortable:true, width:75, hidden: false,
@@ -125,15 +145,7 @@ Ext.onReady(function(){
 				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value) +'</span>';
 			}
 		},
-		{header:'Manual', dataIndex:'type_rr', sortable:true, width:33, align:'center',
-			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-				if (value == "YES"){
-					return '<span style="color:green; font-weight:bold;">' + value + '</span>';
-				}else{
-					return '<span style="color:black; font-weight:bold;">' + value + '</span>';
-				}
-			}
-		},
+		{header:'Manual', dataIndex:'type_rr', sortable:true, width:33, align:'center', renderer: Manual},
 		{header:'Total Items', dataIndex:'total_qty', sortable:true, width:50, align:'center',
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
@@ -1067,17 +1079,7 @@ Ext.onReady(function(){
 		{header:'Standard Cost', dataIndex:'standard_cost', hidden:false, width:80, hidden: false},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: true},
-		{header:'Status', dataIndex:'status_msg', sortable:true, width:60,renderer: columnWrap, hidden: false,
-			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-				if (value == "Received"){
-					return '<span style="color:green; font-weight:bold;">' + value + '</span>';
-				}else if(value == "Partial"){
-					return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
-				}else{
-					return '<span style="color:black; font-weight:bold;">' + value + '</span>';
-				}
-			}
-		}
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:60,renderer: columnWrap, hidden: false, renderer: Status}
 	]
 	var columnItemNonSerial = [
 		{header:'id', dataIndex:'trans_id', sortable:true, width:60,hidden: true},

@@ -72,6 +72,17 @@ Ext.onReady(function(){
 			{name:'reference',mapping:'reference'}
 		]
 	});
+
+	function Status(val) {
+		if(val == 'Draft'){
+			return '<span style="color:red;font-weight:bold;">For Approval</span>';
+		}else if(val == 'Approved'){
+            return '<span style="color:green;font-weight: bold;">Approved</span>';
+        }else{
+            return '<span style="color:blue;font-weight: bold;">Closed</span>';
+        }
+        return val;
+    }
 	
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:25, hidden: true},
@@ -106,17 +117,7 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50, hidden: true},
-		{header:'Status', dataIndex:'statusmsg', sortable:true, width:120,
-			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-				if (value == "For Approval"){
-					return '<span style="color:red; font-weight:bold;">' + value + '</span>';
-				}else if(value == "Approved"){
-					return '<span style="color:green; font-weight:bold;">' + value + '</span>';
-				}else{
-					return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
-				}
-			}
-		},
+		{header:'Status', dataIndex:'statusmsg', sortable:true, width:120, renderer: Status},
 		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:70,
 			items:[
 				{
@@ -324,7 +325,7 @@ Ext.onReady(function(){
 							Ext.getCmp('approved_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('post_tran_btn').setVisible(true);
-							}else if(record.get('status') == 'For Approval') {
+							}else if(record.get('status') == 'Draft') {
 								Ext.getCmp('post_tran_btn').setVisible(false);
 							}
 						}else if(role_id == 19) {
@@ -335,7 +336,7 @@ Ext.onReady(function(){
 						}else if(role_id == 2) {
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('approved_btn').setVisible(false);
-							}else if(record.get('status') == 'For Approval') {
+							}else if(record.get('status') == 'Draft') {
 								Ext.getCmp('post_tran_btn').setVisible(false);
 							}
 						}
@@ -344,7 +345,7 @@ Ext.onReady(function(){
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
-						}else if(record.get('status') == 'For Approval') {
+						}else if(record.get('status') == 'Draft') {
 							Ext.getCmp('PostDate').setVisible(false);
 						}					
 						//var v = Ext.getCmp('category').getValue();

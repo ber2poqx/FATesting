@@ -66,6 +66,17 @@ Ext.onReady(function(){
 		]
 	});
 
+	function Status(val) {
+		if(val == '0'){
+			return '<span style="color:black;">In-transit</span>';
+		}else if(val == '1'){
+            return '<span style="color:blue;font-weight: bold;">Partial</span>';
+        }else if(val == '2'){
+            return '<span style="color:green;font-weight: bold;">Received</span>';
+        }
+        return val;
+    }
+
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:20, hidden: true},
 		{header:'Reference', dataIndex:'reference', sortable:true, width:90,
@@ -564,7 +575,7 @@ Ext.onReady(function(){
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false},
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false, renderer: Status},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
 		
