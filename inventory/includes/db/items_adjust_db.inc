@@ -620,6 +620,16 @@ function adjGL_line_exists($trans_no, $line_id = 0) {
 	return $row[0];
 }
 
+function update_adjGL_amount($trans_no, $total_amount = 0) {
+	set_global_connection();
+
+	$sql = "UPDATE ".TB_PREF."stock_adjustment_gl SET amount = " .db_escape($total_amount);
+
+	$sql .= " WHERE gl_type = 'DEFAULT' AND sa_trans_no = " .db_escape($trans_no);
+
+	db_query($sql, 'update_adjGL_amount()');
+}
+
 function get_adjGL_max_line($trans_no) {
 
 	set_global_connection();

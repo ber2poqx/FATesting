@@ -91,6 +91,16 @@ class items_cart
 	}
 
 	//Added by spyrax10
+
+	function get_items_total() {
+		$total = 0;
+
+		foreach($this->line_items as $line_no => $line) {
+			$total += round($line->quantity * $line->standard_cost, user_price_dec());
+		}
+		return $total;
+	}
+
 	function find_SI_gl($si_gl) {
 		foreach ($this->gl_items as $line_no => $line) {
 			if ($line->code_id == $si_gl) {

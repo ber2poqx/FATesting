@@ -83,6 +83,10 @@ if (get_post('StockLocation')) {
 	$Ajax->activate("stock_id");
 }
 
+// if (adjGL_line_exists(get_next_adjID()) && count($adj->line_items) <= 0)  {
+// 	delete_stock_adjust_gl(get_next_adjID());
+// }
+
 //-----------------------------------------------------------------------------------------------
 
 function handle_new_order() {
@@ -118,7 +122,7 @@ if (get_post('adj_type') == 2 && list_updated('stock_id')) {
 			while ($row = db_fetch($res)) {
 				add_to_order($_SESSION['adj_items'], 
 					$row['stock_id'], 
-					is_Serialized($row['stock_id']) == 0 ? 0 : $row['qty'], 
+					1, 
 					$row['standard_cost'], 
 					'', 
 					'', 
@@ -127,7 +131,8 @@ if (get_post('adj_type') == 2 && list_updated('stock_id')) {
 					$row['color_code'] != '' ? $row['color_code'] : '', 
 					$row['reference']
 				); 
-				//add_default_gl();
+
+				//add_default_gl($row['stock_id'], $row['color_code'], $row['lot_no'], $row['chassis_no']);
 			}
 		}
 	}
@@ -316,6 +321,8 @@ function handle_update_item() {
 		get_post("chasis_no") != '' ? $_POST['chasis_no'] : '',  
 		get_post('color') != '' ? $_POST['color'] : ''
 	); 
+
+	//add_default_gl($_POST['stock_id'], $_POST['color'], $_POST['lot_no'], $_POST['chasis_no']);
 	
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
 		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
@@ -328,6 +335,8 @@ function handle_update_item() {
 
 function handle_delete_item($id) {
 	$_SESSION['adj_items']->remove_from_cart($id);
+
+	//add_default_gl($_POST['stock_id'], $_POST['color'], $_POST['lot_no'], $_POST['chasis_no']);
 	
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
 		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
@@ -339,14 +348,14 @@ function handle_delete_item($id) {
 //-----------------------------------------------------------------------------------------------
 # adjustment GL Functions
 
-function add_default_gl() {
+function add_default_gl($stock_id = '', $color = '', $lot_no = '', $chassis = '') {
 
 	$trans_no = get_next_adjID();
-	$stock_gl_codes = get_stock_gl_code($_POST['stock_id']);
-	$amount = get_post('adj_type') == 1 ? input_num('qty') * input_num('std_cost') :
-		-input_num('qty') * input_num('std_cost');
-	$person_id = get_sup_id_by_stock($_POST['stock_id']);
-	$masterfile = get_sup_name_by_sup(get_sup_id_by_stock($_POST['stock_id']));
+	$stock_gl_codes = get_stock_gl_code($stock_id);
+	$amount = get_post('adj_type') == 1 ? $_SESSION['adj_items']->get_items_total() : 
+		-$_SESSION['adj_items']->get_items_total();
+	$person_id = get_sup_id_by_stock($stock_id);
+	$masterfile = get_sup_name_by_sup(get_sup_id_by_stock($stock_id));
 
 	if (!adjGL_line_exists($trans_no)) {
 		add_adj_gl (
@@ -354,10 +363,10 @@ function add_default_gl() {
 			1, 
 			get_post('adj_type'), 
 			$_POST['ref'], 
-			$_POST['stock_id'], 
-			get_post('color') != '' ? $_POST['color'] : '', 
-			get_post("lot_no") != '' ? $_POST['lot_no'] : '', 
-			get_post("chasis_no") != '' ? $_POST['chasis_no'] : '', 
+			$stock_id, 
+			$color, 
+			$lot_no, 
+			$chassis, 
 			$amount, 
 			$person_id, 
 			$masterfile,
@@ -365,6 +374,9 @@ function add_default_gl() {
 				$stock_gl_codes['inventory_account'], 
 			'DEFAULT', get_item_type()
 		);
+	}
+	else {
+		update_adjGL_amount($trans_no, $amount);
 	}
 }
 
@@ -383,7 +395,7 @@ function handle_new_item() {
 		get_post('stock_ref')	
 	); 
 
-	//add_default_gl();
+	//add_default_gl($_POST['stock_id'], get_post('color'), get_post("lot_no"), get_post("chasis_no"));
 	
 	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
 		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
