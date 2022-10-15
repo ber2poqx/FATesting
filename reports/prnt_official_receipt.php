@@ -188,18 +188,18 @@ function convert_number($number)
 	
 	// $myrow=db_fetch($or_result);
 
-	$amount = "5648";
-	$lessVAT = "10.71";
-	$noVAT = "89.29";
-	$date = "09/23/2021";
-	$name = "RENEGADO, MELCHORA C.";
-	$TIN = "736473";
-	$address = "POB. CORTES, BOHOL";
-	$business_style = "Appliance Dealer";
-	$payment_for = "DELIVERY CHARGE";
-	$cashier = "AMPOLOQUIO, LORRAINE F.";
+	$amount = "";
+	$lessVAT = "";
+	$noVAT = "";
+	$date = "";
+	$name = "";
+	$TIN = "";
+	$address = "";
+	$business_style = "";
+	$payment_for = "";
+	$cashier = "";
 	//$amount_in_words = "One Hundred Only";
-	$taxable = "Y";
+	$taxable = "";
 
 
 	$whole = intval($amount); /* check for centavo amount */
@@ -242,14 +242,12 @@ function convert_number($number)
 				echo '		<div class="line1" style="width: 2cm; text-align: right;">'.price_format($amount).'</div>';// field width
 				echo '</div>';
 
-
 				echo '';  // less VAT newline
 				echo '<div>
 							<div class="line1" style="width: 0px; height: 0.25cm"></div>
 							<div class="line1" style="width: 2.55cm;"></div>'; // less VAT left indent
 				echo '		<div class="line1" style="width: 2cm; text-align: right;">'.price_format($lessVAT).'</div>';// field width
 				echo '</div>';
-
 
 				echo '';  // no VAT newline
 				echo '<div>
@@ -258,14 +256,12 @@ function convert_number($number)
 				echo '		<div class="line1" style="width: 2cm; text-align: right;">'.price_format($noVAT).'</div>';// field width
 				echo '</div>';
 
-
 				echo '';  // date newline
 				echo '<div>
 							<div class="line1" style="width: 0px; height: 0.7cm"></div>
 							<div class="line1" style="width: 12.65cm;"></div>'; // date left indent
 				echo '		<div class="line1" style="width: 2.8cm; text-align: center;">'.$date.'</div>';// field width
 				echo '</div>';
-
 
 				echo '';  // name newline
 				echo '<div>
@@ -277,7 +273,6 @@ function convert_number($number)
 				// echo '		<div class="line1" style="width: 1.8cm; text-align: left;">'.$TIN.'</div>';// field width
 				echo '</div>';
 
-
 				echo '';  // amount due and address newline
 				echo '<div>
 							<div class="line1" style="width: 0px; height: 0.45cm"></div>
@@ -288,7 +283,6 @@ function convert_number($number)
 				echo '		<div class="line1" style="width: 5.9cm; text-align: left;">'.$address.'</div>';// field width
 				echo '</div>';
 
-
 				echo '';  // business style newline
 				echo '<div>
 							<div class="line1" style="width: 0px; height: 0.5cm"></div>
@@ -296,14 +290,12 @@ function convert_number($number)
 				echo '		<div class="line1" style="width: 6.2cm; text-align: left;">'.$business_style.'</div>';// field width
 				echo '</div>';
 
-
 				echo '';  // amount in words newline
 				echo '<div>
 							<div class="line1" style="width: 0px; height: 0.5cm"></div>
 							<div class="line1" style="width: 4.85cm;"></div>'; // amount in words left indent
 				echo '		<div class="line1" style="width: 9.5cm; text-align: left;">'.$amnt_in_words.'</div>';// field width
 				echo '</div>';
-
 
 				//echo '<div class="line1" style="height: 0.2cm"></div>';  // amount_in_digit and payment_for newline
 				echo '<div>
@@ -313,7 +305,6 @@ function convert_number($number)
 				echo '		<div class="line1" style="width: 3.8cm;"></div>'; // payment_for left indent
 				echo '		<div class="line1" style="width: 4cm; text-align: left;">'.$payment_for.'</div>';// field width
 				echo '</div>';
-
 
 				echo '';  // cashier in words newline
 				echo '<div>
