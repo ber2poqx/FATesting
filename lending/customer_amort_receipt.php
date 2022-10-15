@@ -844,7 +844,7 @@ if(isset($_GET['get_OtherEntryPay']))
     $objDataGrid = json_decode($DataOnGrid, true);
     $counter = 0;
 
-    if(isset($_GET['debitTo'])){       
+    if(isset($_GET['debitTo'])){
         $gl_row = get_gl_account($_GET['debitTo']);
         $intoB_result = get_CPbank_accounts($_GET['debitTo']);
         $intoB_row = db_fetch($intoB_result);
@@ -890,6 +890,7 @@ if(isset($_GET['get_OtherEntryPay']))
             }
         }
     }
+
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
