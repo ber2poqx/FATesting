@@ -66,6 +66,23 @@ Ext.onReady(function(){
 		]
 	});
 
+	Ext.define('mymtitemlist',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'serialise_id', mapping:'serialise_id'},
+			{name:'model', mapping:'model'},
+			{name:'lot_no', mapping:'lot_no'},
+			{name:'chasis_no', mapping:'chasis_no'},
+			{name:'color', mapping:'color'},
+			{name:'item_description', mapping:'item_description'},
+			{name:'stock_description', mapping:'stock_description'},
+			{name:'qty', mapping:'qty', type: 'float'},
+			{name:'category_id', mapping:'category_id'},
+			{name:'reference', mapping:'reference'},
+			{name:'status_msg', mapping:'status_msg'}
+		]
+	});
+
 	function Status(val) {
 		if(val == '0'){
 			return '<span style="color:black;">In-transit</span>';
@@ -480,7 +497,9 @@ Ext.onReady(function(){
 		return '<div style="white-space:normal !important;">'+ val +'</div>';
 	}
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty','category_id','reference', 'status_msg'],
+		//fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty','category_id','reference', 'status_msg'],
+		model: mymtitemlist,
+		name: 'MTItemListingStore',
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -572,7 +591,19 @@ Ext.onReady(function(){
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: true, align:'right'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
+		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false, renderer: Status},

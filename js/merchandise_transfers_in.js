@@ -2091,7 +2091,7 @@ Ext.onReady(function(){
 								
 								MerchandiseTransStore.proxy.extraParams = {action: 'ManualAddItem'}
 								//MerchandiseTransStore.load();
-								MerchandiseTransStore.proxy.extraParams = {action: 'view'}
+								//MerchandiseTransStore.proxy.extraParams = {action: 'view'}
 								MerchandiseTransStore.load({
 									params:{view:1},
 									scope: this,

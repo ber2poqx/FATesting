@@ -85,7 +85,7 @@ if(!is_null($action) || !empty($action)){
                        $line_item = count($_SESSION['transfer_items']->line_items);
 
                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', 
+                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', '', '', '',
                         $line_item_header);
 
                        $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
@@ -95,7 +95,7 @@ if(!is_null($action) || !empty($action)){
                         $line_item = count($_SESSION['transfer_items']->line_items);
 
                         $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                        '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', 
+                        '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', '', '', '',
                         $line_item_header);
 
                         $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
@@ -153,7 +153,7 @@ if(!is_null($action) || !empty($action)){
             $id=$_REQUEST['line_id'];
             $line_item=$_REQUEST['line_item'];
             $_SESSION['transfer_items']->remove_gl_item($id);
-            //$_SESSION['transfer_items']->remove_from_cart_line($line_item);
+            $_SESSION['transfer_items']->remove_from_cart_line($line_item);
             //$array_rec = removeElementWithValue($_SESSION['transfer_items']->line_item, "line_item", $line_item);
             display_gl_complimentaryitems($_SESSION['transfer_items']);
             exit;
@@ -417,9 +417,9 @@ if(!is_null($action) || !empty($action)){
             $brcode = $db_connections[user_company()]["branch_code"];
             //echo "ID:".$serialise_id;
             //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
-            $_SESSION['transfer_items']->remove_from_cart($id);
+            $_SESSION['transfer_items']->remove_from_cart($line_item);
             $_SESSION['transfer_items']->remove_gl_line_item($line_item);
-            //$_SESSION['transfer_items']->remove_from_cart_line($line_item);
+            $_SESSION['transfer_items']->remove_from_cart_line($line_item);
             
             display_transfer_items_serial_compli($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
