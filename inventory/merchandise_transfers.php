@@ -109,13 +109,13 @@ if(!is_null($action) || !empty($action)){
                         $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                         $line_item = count($_SESSION['transfer_items']->line_items);
                         $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                            '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header,
-                            null, null, null, null, $currentqty);
+                            '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out, '', 'new', '', '', '',
+                            $line_item_header, null, $currentqty);
                     }else{
                         $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                         $line_item = count($_SESSION['transfer_items']->line_items);
-                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header,
-                            null, null, null, null, $currentqty);
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00', null, null, $color, 
+                            $item_code, null, $type_out, $transno_out, '', 'new', '', '', '', $line_item_header, null, $currentqty);
                     } 
                 }
             }

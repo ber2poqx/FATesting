@@ -527,6 +527,7 @@ Ext.onReady(function(){
 		{header:'Current Qty', dataIndex:'currentqty', sortable:false, width:40, renderer: columnWrap, hidden: true, align:'center'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, renderer: columnWrap, align:'center',
 			renderer: function(value, metadata, summaryData, record, rowIndex, colIndex, store) {
+				GetTotalBalance();
 				if(value == 0){
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
 				}else{
@@ -542,11 +543,13 @@ Ext.onReady(function(){
 					decimalPrecision: 2,
 					listeners : {
 					    keyup: function(grid, rowIndex, colIndex) {
-						
+							GetTotalBalance();
+							GLItemsStore.load();
                     	},
 						specialkey: function(f,e){
 							if (e.getKey() == e.ENTER) {
-								
+								GLItemsStore.load();
+								GetTotalBalance();
 							}
 						}
 					}

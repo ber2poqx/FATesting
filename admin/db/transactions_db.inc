@@ -223,7 +223,7 @@ function get_systype_db_info($type)
         case     ST_MERCHANDISETRANSFER  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_MERCHANDISETRANSFERREPO  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_COMPLIMENTARYITEM  : return array(TB_PREF."stock_adjustment", "type", "trans_no", "reference", "tran_date");
-        case     ST_COMPLIMENTARYITEMREPO  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_COMPLIMENTARYITEMREPO  : return array(TB_PREF."stock_adjustment", "type", "trans_no", "reference", "tran_date");
         case     ST_RRBRANCH     : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_INVADJUST    : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_PURCHREQUEST : return array(TB_PREF."purch_request", null, "pr_no", "reference", "pr_date");

@@ -86,7 +86,7 @@ if(!is_null($action) || !empty($action)){
                        $line_item = count($_SESSION['transfer_items']->line_items);
 
                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'repo', 
+                        '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out, '', 'repo', '', '', '',
                         $line_item_header);
 
                        $_SESSION['transfer_items']->add_gl_item($dflt_repo_invty_act, '', '', -($standard_cost * $qty), 
@@ -96,7 +96,7 @@ if(!is_null($action) || !empty($action)){
                         $line_item = count($_SESSION['transfer_items']->line_items);
 
                         $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                        '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'repo', 
+                        '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'repo', '', '', '',
                         $line_item_header);
 
                         $_SESSION['transfer_items']->add_gl_item($dflt_repo_invty_act, '', '', -($standard_cost * $qty), 

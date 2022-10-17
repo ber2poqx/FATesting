@@ -96,7 +96,8 @@ function add_to_mt_order(&$order, $model, $new_item, $serialised, $type_out=0, $
     //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
 }
 //Added by Herald for MT order 11/27/2021 
-function add_to_merchandise_transfer_order(&$order, $model, $new_item, $serialised, $type_out=0, $transno_out=0, $item_type='new',$qty=1,$rr_date=null, $trans_date=null)
+function add_to_merchandise_transfer_order(&$order, $model, $new_item, $serialised, $type_out=0, $transno_out=0, $item_type='new',$qty=1,$rr_date=null, $currentqty,
+     $trans_date=null)
 {
     //set_global_connection();
     $line_item_header = rand();
@@ -112,7 +113,9 @@ function add_to_merchandise_transfer_order(&$order, $model, $new_item, $serialis
                 
                 $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                 $line_item = count($order->line_items);
-                $order->add_to_cart($line_item, $model, $qty, $standard_cost, $item['sdescription'], $rr_date, '0000-00-00', $item['serialise_lot_no'], $item['serialise_chasis_no'], $item['idescription'], $item['item_code'], $item['mt_details_id'], $type_out, $transno_out,'', $item_type, $line_item_header);
+                $order->add_to_cart($line_item, $model, $qty, $standard_cost, $item['sdescription'], $rr_date, '0000-00-00', $item['serialise_lot_no'], 
+                    $item['serialise_chasis_no'], $item['idescription'], $item['item_code'], $item['mt_details_id'], $type_out, $transno_out, '', 
+                    $item_type, '', '', '', $line_item_header, null, $currentqty);
                 //$order->add_gl_item($item['inventory_account'], '', '', -($standard_cost * $qty), $item['sdescription'].' '.$item['idescription'], '', '', $trans_date, null, null, 0,null,null, 99, $line_item_header);
             }
             
@@ -133,7 +136,8 @@ function add_to_merchandise_transfer_order(&$order, $model, $new_item, $serialis
                 $qoaqty-=$demand_qty;
                 $line_item = count($order->line_items);
                 
-                $order->add_to_cart($line_item, $model, $qty, $standard_cost, $item['sdescription'], $rr_date, '0000-00-00',null,null,$item['idescription'],$item['item_code'],0, $type_out, $transno_out, '',$item_type, $line_item_header);
+                $order->add_to_cart($line_item, $model, $qty, $standard_cost, $item['sdescription'], $rr_date, '0000-00-00', null, null, $item['idescription'], 
+                    $item['item_code'], 0, $type_out, $transno_out, '', $item_type, '', '', '', $line_item_header, null, $currentqty);
                 //$order->add_gl_item($item['inventory_account'],'','', -($standard_cost * $qty), $item['sdescription'].' '.$item['idescription'], '', '', $trans_date, null, null, 0, 99, $line_item_header);
             }
         }

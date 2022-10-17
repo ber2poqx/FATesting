@@ -85,7 +85,7 @@ Ext.onReady(function(){
 
 	function Status(val) {
 		if(val == '0'){
-			return '<span style="color:black;">In-transit</span>';
+			return '<span style="color:black;font-weight: bold">In-transit</span>';
 		}else if(val == '1'){
             return '<span style="color:blue;font-weight: bold;">Partial</span>';
         }else if(val == '2'){
@@ -175,6 +175,9 @@ Ext.onReady(function(){
 											id:'ItemSerialListingView',
 											store: MTItemListingStore,
 											columns: columnItemSerialView,
+											features: [{
+												ftype: 'summary'
+											}],
 											/*dockedItems:[{
 												dock:'top',
 												xtype:'toolbar',
@@ -215,12 +218,12 @@ Ext.onReady(function(){
 													labelWidth: 120,
 													hidden: true
 												}]
-											}],*/
+											}],
 											bbar : {
 												xtype : 'pagingtoolbar',
 												store : MTItemListingStore,
 												displayInfo : true
-											}
+											}*/
 										}]
 									}
 								],

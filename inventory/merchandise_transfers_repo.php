@@ -74,6 +74,7 @@ if(!is_null($action) || !empty($action)){
                 $serialised = $data['serialised'];
                 $rr_date = $data['rr_date'];
                 $qty = $data['qty'];
+                $currentqty = $data['qty'];
                 $repo_id = $data['repo_id'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
@@ -83,7 +84,7 @@ if(!is_null($action) || !empty($action)){
                 }
                 if(!isset($_REQUEST['view'])){
                     add_to_merchandise_transfer_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, 
-                        $transno_out,'repo',$qty, $rr_date);  
+                        $transno_out,'repo',$qty, $rr_date, $currentqty);  
                 } 
             }
             display_transfer_items_serial_repo($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id, $repo_id);
@@ -403,22 +404,17 @@ if(!is_null($action) || !empty($action)){
             $total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {
-                
-             
-                    $group_array[] = array(
-                        'item_code' => $myrow["item_code"],
-                        'stock_description' => $myrow["stock_description"],
-                        'item_description' => $myrow["item_description"],
-                        'color' => $myrow["color"],
-                        'model' => $myrow["model"],
-                        'category_id'=>$catcode,
-                        'serialised'=>$myrow["serialised"],
-                        'brand_name' => $myrow["brand_name"],
-                        'brand_id' => $myrow["brand_id"]
-                    );
-                
-                
-                
+                $group_array[] = array(
+                    'item_code' => $myrow["item_code"],
+                    'stock_description' => $myrow["stock_description"],
+                    'item_description' => $myrow["item_description"],
+                    'color' => $myrow["color"],
+                    'model' => $myrow["model"],
+                    'category_id'=>$catcode,
+                    'serialised'=>$myrow["serialised"],
+                    'brand_name' => $myrow["brand_name"],
+                    'brand_id' => $myrow["brand_id"]
+                );
             }
             
             $jsonresult = json_encode($group_array);
@@ -512,13 +508,13 @@ if(!is_null($action) || !empty($action)){
             $result = db_query($sql, "could not get all Serial Items");
             while ($myrow = db_fetch($result))
             {
-                if($myrow["mt_details_status"]==0){
+                /*if($myrow["mt_details_status"]==0){
                     $status_msg='In-transit';
                 }elseif($myrow["mt_details_status"]==1){
                     $status_msg='Partial';
                 }elseif($myrow["mt_details_status"]==2){
                     $status_msg='Received';
-                }
+                }*/
                 $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
                     'line_item' => $myrow["mt_details_id"],
                     'reference' => $myrow["mt_header_reference"],
