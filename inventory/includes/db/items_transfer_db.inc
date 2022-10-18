@@ -740,6 +740,29 @@ function update_compli_item_status_post($reference){
     set_global_connection();
     return true;
 }
+
+//Added by Robert 10/18/2022
+function update_stock_adjustment_status_disaaproved($reference, $type){
+    
+    $sql = "UPDATE ".TB_PREF."stock_adjustment SET status='Disapproved' WHERE reference= ".db_escape($reference)."
+    AND type=".db_escape($type);
+    
+    db_query($sql, "The Stock Adjusment Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
+
+//Added by Robert 10/18/2022
+function update_compli_item_status_disaaproved($reference){
+    
+    $sql = "UPDATE ".TB_PREF."complimentary_items SET status='Disapproved' WHERE reference= ".db_escape($reference);
+    
+    db_query($sql, "The Complimentary Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
 //-------------------------------------------------------------------------------------------------------------
 
 // add 2 stock_moves entries for a stock transfer

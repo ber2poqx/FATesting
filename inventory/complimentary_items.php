@@ -944,59 +944,81 @@ if(!is_null($action) || !empty($action)){
             echo '({"total":"'.$total.'","ApprovalStatus":"'.$approval_value.'"})';
             exit;
             break;
+        case 'disapproval':
+            $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
+            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
+            $total=0;
+            if($approval_value=='yes'){
+                $sql = "SELECT trans_no, type, reference FROM ".TB_PREF."stock_adjustment
+                WHERE type='".ST_COMPLIMENTARYITEM."' AND reference=".db_escape($reference);
+                 
+                $result=db_query($sql, "could not get all Items");
+                
+                $total = db_num_rows($result);
+
+                while ($myrow = db_fetch($result))
+                {
+                    update_stock_adjustment_status_disaaproved($myrow["reference"], $myrow["type"]);
+                    update_compli_item_status_disaaproved($myrow["reference"]);
+                }
+            }
+            echo '({"total":"'.$total.'","ApprovalStatus":"'.$approval_value.'"})';
+            exit;
+            break;
         case 'posting_transaction':
             
             $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
             $trans_no = (integer) (isset($_POST['trans_no']) ? $_POST['trans_no'] : $_GET['trans_no']);
+            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
 
-            $PostDate = sql2date($_POST['PostDate']);
-            $PostDated = date('Y-m-d', strtotime($_POST['PostDate']));
-            
-            $result = get_transaction_from_stock_adjusment(ST_COMPLIMENTARYITEM, $trans_no, $reference);
-            $result2 = get_transaction_from_stock_adjusment_check(ST_COMPLIMENTARYITEM, $trans_no, $reference);
+            if($approval_value=='yes'){
+                $PostDate = sql2date($_POST['PostDate']);
+                $PostDated = date('Y-m-d', strtotime($_POST['PostDate']));
+                
+                $result = get_transaction_from_stock_adjusment(ST_COMPLIMENTARYITEM, $trans_no, $reference);
+                $result2 = get_transaction_from_stock_adjusment_check(ST_COMPLIMENTARYITEM, $trans_no, $reference);
 
-            $errmsg="";
-            $isError = 0;
-            while ($myrow01 = db_fetch($result2))
-            {
-                $stock_id = $myrow01['stock_id'];
-                $lot_no = $myrow01['lot_no'];
+                $errmsg="";
+                $isError = 0;
+                while ($myrow01 = db_fetch($result2))
+                {
+                    $stock_id = $myrow01['stock_id'];
+                    $lot_no = $myrow01['lot_no'];
 
-                $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
-                    $myrow01['lot_no']);
+                    $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
+                        $myrow01['lot_no']);
 
-                if($qoh == 0) {
-                    $isError = 1;
-                    $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$stock_id."  and Serial #: ".$lot_no."";
-                    break;
+                    if($qoh == 0) {
+                        $isError = 1;
+                        $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$stock_id."  and Serial #: ".$lot_no."";
+                        break;
+                    }
+                }
+
+                if($isError != 1){
+                    $totalitem = db_num_rows($result);
+                    while ($myrow = db_fetch($result))
+                    {
+                        //$date = sql2date($myrow["tran_date"]);
+                        add_stock_move(ST_COMPLIMENTARYITEM, $myrow["stock_id"], $myrow["trans_no"], $myrow["loc_code"], $PostDate, $myrow["reference"], $myrow["qty"],
+                            $myrow["standard_cost"], 0, $myrow["lot_no"], $myrow["chassis_no"], $myrow["category_id"], $myrow["color_code"], $myrow["trans_type_out"],
+                            $myrow["trans_no_out"]);
+
+                        update_stock_adjustment_status_post($myrow["reference"], ST_COMPLIMENTARYITEM, $PostDated);
+                        update_compli_item_status_post($myrow["reference"]);
+                    }
+
+                    $result1 = get_transaction_from_stock_adjusment_gl(ST_COMPLIMENTARYITEM, $trans_no, $reference);
+
+                    $totalgl = db_num_rows($result1);
+                    while ($myrow1 = db_fetch($result1))
+                    {
+                        //$date = sql2date($myrow1["tran_date"]);
+                        add_gl_trans(ST_COMPLIMENTARYITEM, $myrow1["sa_trans_no"], $PostDate, $myrow1["account"], '', '', $myrow1["memo_"], $myrow1["amount"], null, null, 
+                            null, '', 0, $myrow1["mcode"], $myrow1["master_file"]);
+                    }
                 }
             }
-
-            if($isError != 1){
-                $totalitem = db_num_rows($result);
-                while ($myrow = db_fetch($result))
-                {
-                    //$date = sql2date($myrow["tran_date"]);
-                    add_stock_move(ST_COMPLIMENTARYITEM, $myrow["stock_id"], $myrow["trans_no"], $myrow["loc_code"], $PostDate, $myrow["reference"], $myrow["qty"],
-                        $myrow["standard_cost"], 0, $myrow["lot_no"], $myrow["chassis_no"], $myrow["category_id"], $myrow["color_code"], $myrow["trans_type_out"],
-                        $myrow["trans_no_out"]);
-
-                    update_stock_adjustment_status_post($myrow["reference"], ST_COMPLIMENTARYITEM, $PostDated);
-                    update_compli_item_status_post($myrow["reference"]);
-                }
-
-                $result1 = get_transaction_from_stock_adjusment_gl(ST_COMPLIMENTARYITEM, $trans_no, $reference);
-
-                $totalgl = db_num_rows($result1);
-                while ($myrow1 = db_fetch($result1))
-                {
-                    //$date = sql2date($myrow1["tran_date"]);
-                    add_gl_trans(ST_COMPLIMENTARYITEM, $myrow1["sa_trans_no"], $PostDate, $myrow1["account"], '', '', $myrow1["memo_"], $myrow1["amount"], null, null, 
-                        null, '', 0, $myrow1["mcode"], $myrow1["master_file"]);
-                }
-            }
-            //$jsonresult = json_encode($group_array);
-            //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             echo '({"success":true,"totalItem":"'.$totalitem.'","totalGL":"'.$totalgl.'","reference":"'.$reference.'","trans_no":"'.$trans_no.'",
                 "errmsg":"'.$errmsg.'"})';
         exit;

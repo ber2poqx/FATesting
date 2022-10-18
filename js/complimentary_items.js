@@ -78,8 +78,10 @@ Ext.onReady(function(){
 			return '<span style="color:red;font-weight:bold;">For Approval</span>';
 		}else if(val == 'Approved'){
             return '<span style="color:green;font-weight: bold;">Approved</span>';
-        }else{
+        }else if(val == 'Closed'){
             return '<span style="color:blue;font-weight: bold;">Closed</span>';
+        }else{
+        	return '<span style="color:black;font-weight: bold;">Disapproved</span>';
         }
         return val;
     }
@@ -243,7 +245,7 @@ Ext.onReady(function(){
 									{
 										text:'Approved',
 										id: 'approved_btn',
-										icon: '../js/ext4/examples/shared/icons/add.png',
+										icon: '../js/ext4/examples/shared/icons/accept.png',
 										handler: function(grid, rowIndex, colIndex) {
 				                        
 						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Approved this record?', ApprovalFunction);
@@ -274,42 +276,75 @@ Ext.onReady(function(){
 										icon: '../js/ext4/examples/shared/icons/add.png',
 										hidden: false,
 										handler: function() {
+											Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Post this record?', ApprovalFunction);
+						                    function ApprovalFunction(btn) {
+						                    	if(btn == 'yes') {
+													var PostDate = Ext.getCmp('PostDate').getValue();	
 
-											var PostDate = Ext.getCmp('PostDate').getValue();	
-
-											Ext.MessageBox.show({
-												msg: 'Saving Date, please wait...',
-												progressText: 'Saving...',
-												width:300,
-												wait:true,
-												waitConfig: {interval:200},
-												//icon:'ext-mb-download', //custom class in msg-box.html
-												iconHeight: 50
-											});
-												
-											Ext.Ajax.request({
-												url : '?action=posting_transaction',
-												method: 'POST',
-												params:{
-													reference:reference,
-													trans_no:id,
-													PostDate:PostDate
-												},
-												success: function(response){
-													var jsonData = Ext.JSON.decode(response.responseText);
-													var errmsg = jsonData.errmsg;
-													//Ext.getCmp('AdjDate').setValue(AdjDate);
-													if(errmsg!=''){
-														Ext.MessageBox.alert('Error',errmsg);
-													}else{
-														windowItemSerialList.close();
-														myInsurance.load();
-														Ext.MessageBox.alert('Success','Success Processing');
-													}	
-												} 
-											});
-											Ext.MessageBox.hide();
+													Ext.MessageBox.show({
+														msg: 'Saving Date, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
+														
+													Ext.Ajax.request({
+														url : '?action=posting_transaction',
+														method: 'POST',
+														params:{
+															reference:reference,
+															trans_no:id,
+															PostDate:PostDate,
+															value:btn
+														},
+														success: function(response){
+															var jsonData = Ext.JSON.decode(response.responseText);
+															var errmsg = jsonData.errmsg;
+															//Ext.getCmp('AdjDate').setValue(AdjDate);
+															if(errmsg!=''){
+																Ext.MessageBox.alert('Error',errmsg);
+															}else{
+																windowItemSerialList.close();
+																myInsurance.load();
+																Ext.MessageBox.alert('Success','Success Processing');
+															}	
+														} 
+													});
+													Ext.MessageBox.hide();
+												}
+											};
 										}
+									},{
+										text:'Disapproved',
+										id: 'disapproved_btn',
+										icon: '../js/ext4/examples/shared/icons/fam/cross.gif',
+										handler: function(grid, rowIndex, colIndex) {
+				                        
+						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Disapproved this record?', ApprovalFunction);
+						                    function ApprovalFunction(btn) {
+						                    	if(btn == 'yes') {
+							                        Ext.Ajax.request({
+														url : '?action=disapproval',
+														method: 'POST',
+														params:{
+															reference: reference,
+															value: btn
+														},
+														success: function (response){
+															Ext.Msg.alert('Success','Success Processing');
+															myInsurance.load();
+															windowItemSerialList.close();										
+														},	
+														failure: function (response){
+															Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+														}
+													});
+												}
+						                    };
+						                }
 									},{
 										text:'Close',
 										iconCls:'cancel-col',
@@ -323,6 +358,7 @@ Ext.onReady(function(){
 
 						if(role_id !=19 && (role_id !=2)) {
 							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('disapproved_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('post_tran_btn').setVisible(true);
 							}else if(record.get('status') == 'Draft') {
@@ -342,10 +378,16 @@ Ext.onReady(function(){
 						}
 
 						if(record.get('status') == 'Closed') {
+							Ext.getCmp('disapproved_btn').setVisible(false);
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
 						}else if(record.get('status') == 'Draft') {
+							Ext.getCmp('PostDate').setVisible(false);
+						}else if(record.get('status') == 'Disapproved') {
+							Ext.getCmp('disapproved_btn').setVisible(false);
+							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
 						}
 
