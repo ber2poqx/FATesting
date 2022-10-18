@@ -89,7 +89,7 @@ function display_adjustment_items($title, &$order, $adj_id = 0, $trans_no, $item
 
 	display_heading($title);	
     div_start('items_table2');
-	start_table(TABLESTYLE, "width='100%'");
+	start_table(TABLESTYLE, "width='98%'");
 	
 	if (get_post("category") == 14) {
 		if ($order->fixed_asset) {
@@ -201,10 +201,12 @@ function display_adjustment_items($title, &$order, $adj_id = 0, $trans_no, $item
 	if ($id == -1)
 		adjustment_edit_item_controls($order, -1, $item_type, $ob);
 
-	$col = count($th) - 3;
+	$col = get_post('adj_type') == 1 ? count($th) - 3 : count($th) - 4;
 
 	label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-				"align=right colspan='$col'; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0);
+		"align=right colspan='$col'; style='font-weight:bold';", 
+		"style='font-weight:bold'; align=right", 0
+	);
 
     end_table();
 

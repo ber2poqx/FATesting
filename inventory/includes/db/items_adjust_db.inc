@@ -173,111 +173,38 @@ function add_stock_adjustment_item($id, $type = 1,
 			$gl_id = 0;
 			$stock_gl_codes = get_stock_gl_code($stock_id);
 
-			//If no defined Child Entry
-			if (child_adjGL_total($adj_id, $line_no) == 0) {
+			while ($row2 = db_fetch($resGL)) {
+				$gl_id2 = $row2['id'];
+				$amount2 = $row2['amount'];
+				$account2 = $row2['account'];
+				$mcode2 = $row2['mcode'];
+				$masterfile2 = $row2['master_file'];
+					
 				//Child GL Entry
-				add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, getCompDet('default_adj_act'),
-					$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-					$type == 1 ? -default_adjGL_total($adj_id, $line_no) : default_adjGL_total($adj_id, $line_no)
-				);
-
-				add_gl_masterfile(ST_INVADJUST, $adj_id, getCompDet('default_adj_act'), 
-					$type == 1 ? -default_adjGL_total($adj_id, $line_no) : default_adjGL_total($adj_id, $line_no), 
-					get_default_adjGL_mcode($adj_id, $line_no), get_default_adjGL_masterfile($adj_id, $line_no), false
-				);
-
-				//Insert Entry to stock_adjustment_gl
-				add_adj_gl ($adj_id, $line_no, $type, $reference, 
-					$stock_id, $color, $lot_no, $chasis_no, 
-					$type == 1 ? -default_adjGL_total($adj_id, $line_no) : default_adjGL_total($adj_id, $line_no), 
-					get_default_adjGL_mcode($adj_id, $line_no), get_default_adjGL_masterfile($adj_id, $line_no),
-					5040, 'CHILD', $item_type
-				);
-	
-			}
-			//If Account is Balance
-			if (default_adjGL_total($adj_id, $line_no) == child_adjGL_total($adj_id, $line_no)) {
-
-				while ($row2 = db_fetch($resGL)) {
-					$gl_id2 = $row2['id'];
-					$amount2 = $row2['amount'];
-					$account2 = $row2['account'];
-					$mcode2 = $row2['mcode'];
-					$masterfile2 = $row2['master_file'];
 						
-					//Child GL Entry
-							
-					add_gl_trans_std_cost(ST_INVADJUST, $row2['sa_trans_no'], $date_, $account2, 
-						$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-						$amount2
-					);
-
-					add_gl_masterfile(ST_INVADJUST, $row2['sa_trans_no'], $account2, $amount2, 
-						$mcode2, $masterfile2, false
-					);
-
-				} //End of while loop
-	
-			}
-			//If Account is not Balance
-			if (default_adjGL_total($adj_id, $line_no) != child_adjGL_total($adj_id, $line_no)) {
-				
-				$diff_total = default_adjGL_total($adj_id, $line_no) - child_adjGL_total($adj_id, $line_no);
-
-				while ($row = db_fetch($resGL)) {
-					$gl_id = $row['id'];
-					$amount = $row['amount'];
-					$account = $row['account'];
-					$mcode = $row['mcode'];
-					$masterfile = $row['master_file'];
-					$stock_gl_codes = get_stock_gl_code($row['stock_id']);
-
-					//Child GL Entry
-					add_gl_trans_std_cost(ST_INVADJUST, $row['sa_trans_no'], $date_, $account,
-						$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-						$amount
-					);
-
-					add_gl_masterfile(ST_INVADJUST, 
-						$row['sa_trans_no'], $account, $amount, $mcode, $masterfile, false
-					);	
-
-				} //End of while loop
-
-				//Child GL Entry
-				add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, getCompDet('default_adj_act'), 
+				add_gl_trans_std_cost(ST_INVADJUST, $row2['sa_trans_no'], $date_, $account2, 
 					$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-					$type == 1 ? -$diff_total : $diff_total
+					$amount2
 				);
 
-				add_gl_masterfile(ST_INVADJUST, $adj_id, getCompDet('default_adj_act'), 
-					$type == 1 ? -$diff_total : $diff_total, 
-					get_default_adjGL_mcode($adj_id, $line_no), 
-					get_default_adjGL_masterfile($adj_id, $line_no), false
-				);	
-
-				//Insert Entry to stock_adjustment_gl
-				add_adj_gl ($adj_id, $line_no, $type, $reference, 
-					$stock_id, $color, $lot_no, $chasis_no, 
-					$type == 1 ? -$diff_total : $diff_total, 
-					get_default_adjGL_mcode($adj_id, $line_no), 
-					get_default_adjGL_masterfile($adj_id, $line_no),
-					5040, 'CHILD', $item_type
+				add_gl_masterfile(ST_INVADJUST, $row2['sa_trans_no'], $account2, $amount2, 
+					$mcode2, $masterfile2, false
 				);
 
-			}
+			} //End of while loop
+
 			//Default GL Entry
 			add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, 
 				$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id, $line_no), 
 				$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-				$type == 1 ? default_adjGL_total($adj_id, $line_no) : 
-				-default_adjGL_total($adj_id, $line_no)
+				$type == 1 ? get_adjGL_total($adj_id, $line_no) : 
+				-get_adjGL_total($adj_id, $line_no)
 			);
 
 			add_gl_masterfile(ST_INVADJUST, $adj_id, 
 				$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id, $line_no), 
-				$type == 1 ? default_adjGL_total($adj_id, $line_no) : 
-				-default_adjGL_total($adj_id, $line_no), 
+				$type == 1 ? get_adjGL_total($adj_id, $line_no) : 
+				-get_adjGL_total($adj_id, $line_no), 
 				get_default_adjGL_mcode($adj_id, $line_no), 
 				get_default_adjGL_masterfile($adj_id, $line_no), false
 			);
@@ -494,36 +421,25 @@ function get_default_adjGL_masterfile($trans_no, $line_no) {
 	return $row[0];
 }
 
-function child_adjGL_total($trans_no, $line_no) {
-    
+function get_adjGL_total($trans_no = 0, $line_no = 0, $gl_type = "DEFAULT") {
+
 	set_global_connection();
 
-    $sql = "SELECT SUM(abs(A.amount)) AS amount 
-        FROM ".TB_PREF."stock_adjustment_gl A 
-        WHERE A.gl_type = 'CHILD' AND A.sa_trans_no = " .db_escape($trans_no) . " 
-        AND A.sa_line_id = " .db_escape($line_no) . " GROUP BY A.sa_line_id";
-    
-    $result = db_query($sql, "Can't get total amount in stock_adjustment_gl! (spyrax10)");
-	$row = db_fetch_row($result);
+	$sql = "SELECT SUM(abs(A.amount)) AS amount 
+		FROM ".TB_PREF."stock_adjustment_gl A 
+	WHERE A.gl_type = " .db_escape($gl_type);
 
-	if (db_num_rows($result) > 0) {
-		return $row[0];
+	if ($trans_no != 0) {
+		$sql .= " AND A.sa_trans_no = " .db_escape($trans_no);
 	}
-	else {
-		return 0;
+
+	if ($line_no != 0) {
+		$sql .= " A.sa_line_id = ".db_escape($line_no);
 	}
-}
 
-function default_adjGL_total($trans_no, $line_no) {
-    
-	set_global_connection();
+	$sql .= " GROUP BY A.sa_trans_no";
 
-    $sql = "SELECT SUM(abs(A.amount)) AS amount 
-        FROM ".TB_PREF."stock_adjustment_gl A 
-        WHERE A.gl_type = 'DEFAULT' AND A.sa_trans_no = " .db_escape($trans_no) . " 
-        AND A.sa_line_id = " .db_escape($line_no) . " GROUP BY A.sa_line_id";
-    
-    $result = db_query($sql, "Can't get total amount in stock_adjustment_gl! (spyrax10)");
+	$result = db_query($sql, "get_adjGL_total()");
 	$row = db_fetch_row($result);
 	return $row[0];
 }
@@ -601,7 +517,6 @@ function delete_adjGL($trans_no, $line_id = '') {
 	db_query($sql, "Can't delete adjustment GL! (spyrax10)");
 }
 
-
 function adjGL_line_exists($trans_no, $line_id = 0) {
 
 	set_global_connection();
@@ -628,6 +543,27 @@ function update_adjGL_amount($trans_no, $total_amount = 0) {
 	$sql .= " WHERE gl_type = 'DEFAULT' AND sa_trans_no = " .db_escape($trans_no);
 
 	db_query($sql, 'update_adjGL_amount()');
+}
+
+function get_adjGL_details($trans_no, $line_no = 0, $gl_type = "") {
+	
+    set_global_connection();
+
+	$sql = "SELECT A.*
+        FROM " . TB_PREF . "stock_adjustment_gl A 
+        WHERE A.sa_trans_no = " .db_escape($trans_no);
+    
+    if ($line_no > 0) {
+        $sql .= " AND A.sa_line_id = " .db_escape($line_no);
+    }
+
+	if ($gl_type != "") {
+		$sql .= " AND A.gl_type = ".db_escape($gl_type);
+	}
+
+    $sql .= " ORDER BY A.id DESC";
+
+    return db_query($sql, "get_adjGL_details()");
 }
 
 function get_adjGL_max_line($trans_no) {

@@ -83,30 +83,8 @@ if (get_post('StockLocation')) {
 	$Ajax->activate("stock_id");
 }
 
-// if (adjGL_line_exists(get_next_adjID()) && count($adj->line_items) <= 0)  {
-// 	delete_stock_adjust_gl(get_next_adjID());
-// }
-
-//-----------------------------------------------------------------------------------------------
-
-function handle_new_order() {
-	global $Refs;
-
-	if (isset($_SESSION['adj_items'])) {
-		$_SESSION['adj_items']->clear_items();
-		unset ($_SESSION['adj_items']);
-	}
-
-    $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
-    $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
-	$_POST['AdjDate'] = new_doc_date();
-
-	if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
-		$_POST['AdjDate'] = end_fiscalyear();
-	}
-
-	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
-	$_SESSION['adj_items']->reference = $Refs->get_next(ST_INVADJUST, null, array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate')));
+if (adjGL_line_exists(get_next_adjID()) && count($adj->line_items) == 0)  {
+	delete_stock_adjust_gl(get_next_adjID());
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -132,7 +110,7 @@ if (get_post('adj_type') == 2 && list_updated('stock_id')) {
 					$row['reference']
 				); 
 
-				//add_default_gl($row['stock_id'], $row['color_code'], $row['lot_no'], $row['chassis_no']);
+				add_default_gl($row['stock_id'], $row['color_code'], $row['lot_no'], $row['chassis_no']);
 			}
 		}
 	}
@@ -142,101 +120,122 @@ if (get_post('adj_type') == 2 && list_updated('stock_id')) {
 	$Ajax->activate('items_table2');
 }
 
-function can_process() {
+function handle_new_order() {
+	global $Refs;
 
-	global $SysPrefs;
-
-	$adj = &$_SESSION['adj_items'];
-
-	if (count($adj->line_items) == 0) {
-		display_error(_("You must enter at least one non empty item line."));
-		set_focus('stock_id');
-		return false;
+	if (isset($_SESSION['adj_items'])) {
+		$_SESSION['adj_items']->clear_items();
+		unset ($_SESSION['adj_items']);
 	}
 
-	foreach ($_SESSION['adj_items']->line_items as $items) {
-		if ($items->quantity == 0) {
-			display_error(_("Can't Proceed! Some Lines have 0 qty!"));
-			return false;
+    $_SESSION['adj_items'] = new items_cart(ST_INVADJUST);
+    $_SESSION['adj_items']->fixed_asset = isset($_GET['FixedAsset']);
+	$_POST['AdjDate'] = new_doc_date();
+
+	if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
+		$_POST['AdjDate'] = end_fiscalyear();
+	}
+
+	$_SESSION['adj_items']->tran_date = $_POST['AdjDate'];	
+	$_SESSION['adj_items']->reference = $Refs->get_next(ST_INVADJUST, null, array('location'=>get_post('StockLocation'), 'date'=>get_post('AdjDate')));
+}
+//-----------------------------------------------------------------------------------------------
+# adjustment GL Functions
+
+function add_default_gl($stock_id = '', $color = '', $lot_no = '', $chassis = '') {
+	global $Ajax;
+
+	$trans_no = get_next_adjID();
+	$stock_gl_codes = get_stock_gl_code($stock_id);
+	$amount = get_post('adj_type') == 1 ? $_SESSION['adj_items']->get_items_total() : 
+		-$_SESSION['adj_items']->get_items_total();
+	$person_id = get_sup_id_by_stock($stock_id);
+	$masterfile = get_sup_name_by_sup(get_sup_id_by_stock($stock_id));
+
+	if ($_SESSION['adj_items']->get_items_total() == 0) {
+		delete_stock_adjust_gl(get_next_adjID());
+	}
+	else {
+		if (!adjGL_line_exists($trans_no)) {
+			add_adj_gl (
+				$trans_no, 
+				1, 
+				get_post('adj_type'), 
+				$_POST['ref'], 
+				$stock_id, 
+				$color, 
+				$lot_no, 
+				$chassis, 
+				$amount, 
+				$person_id, 
+				$masterfile,
+				get_item_type() == 'repo' ? $stock_gl_codes['wip_account'] : 
+					$stock_gl_codes['inventory_account'], 
+				'DEFAULT', get_item_type()
+			);
+		}
+		else {
+			update_adjGL_amount($trans_no, $amount);
 		}
 	}
 
-	if (!check_reference($_POST['ref'], ST_INVADJUST)) {
-		set_focus('ref');
-		return false;
-	}
-
-	if (!is_date($_POST['AdjDate'])) {
-		display_error(_("The entered date for the adjustment is invalid."));
-		set_focus('AdjDate');
-		return false;
-	} 
-	else if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
-		display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
-		set_focus('AdjDate');
-		return false;
-	}
-	else if (!allowed_posting_date($_POST['AdjDate'])) {
-		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
-		set_focus('AdjDate');
-		return false;
-	}
-	
-	if (!$SysPrefs->allow_negative_stock()) {
-		$low_stock = $adj->check_qoh($_POST['StockLocation'], $_POST['AdjDate']);
-
-		if ($low_stock) {
-    		display_error(_("The adjustment cannot be processed because it would cause negative inventory balance for marked items as of document date or later."));
-			unset($_POST['Process']);
-			return false;
-		}
-	}
-	return true;
+	$Ajax->activate('adj_gl');
 }
 
-//-------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 
-if (isset($_POST['Process']) && can_process()) {
+function handle_new_item() {
+	add_to_order($_SESSION['adj_items'], 
+		$_POST['stock_id'], 
+		input_num('qty'), 
+		input_num('std_cost'), 
+		$_POST['manufacture_date'], 
+		$_POST['expire_date'], 
+		get_post("lot_no") != '' ? $_POST['lot_no'] : '',
+		get_post("chasis_no") != '' ? $_POST['chasis_no'] : '', 
+		get_post('color') != '' ? $_POST['color'] : '',
+		get_post('stock_ref')	
+	); 
 
-  	$fixed_asset = $_SESSION['adj_items']->fixed_asset; 
+	add_default_gl($_POST['stock_id'], get_post('color'), get_post("lot_no"), get_post("chasis_no"));
+	
+	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
+		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
+	);
+	line_start_focus();
+}
 
-	$adj_id = get_next_adjID();
-	$adj_type = get_post('adj_type') == 2 ? "OUT" : "IN";
-	$count = $trans_no_out = $trans_type_no = 0;
-	$trans_type = get_item_type() == "repo" ? ST_RRREPO : ST_INVADJUST;
+function handle_update_item() {
+	$id = $_POST['LineNo'];
+	$_SESSION['adj_items']->update_cart_item($id, input_num('qty'), 
+		input_num('std_cost'), 
+		$_POST['manufacture_date'], 
+		$_POST['expire_date'],
+		get_post("lot_no") != '' ? $_POST['lot_no'] : '',
+		get_post("chasis_no") != '' ? $_POST['chasis_no'] : '',  
+		get_post('color') != '' ? $_POST['color'] : ''
+	); 
 
-	foreach ($_SESSION['adj_items']->line_items as $items) {
+	//add_default_gl($_POST['stock_id'], $_POST['color'], $_POST['lot_no'], $_POST['chasis_no']);
+	
+	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
+		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
+	);
 
-		$count++;
-		$stock_id = $items->stock_id;
-		$row = get_smo_details($items->stock_ref, $stock_id, $items->lot_no);
+	line_start_focus();
+}
 
-		$trans_no_out = $adj_type == "OUT" ? $row['transno_out'] : $adj_id;
-		$trans_type_out = $adj_type == "OUT" ? $row['type_out'] : $trans_type;
+function handle_delete_item($id) {
+	$_SESSION['adj_items']->remove_from_cart($id);
 
-		$line_id = $count;
+	add_default_gl($_POST['stock_id'], $_POST['color'], $_POST['lot_no'], $_POST['chasis_no']);
+	
+	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
+		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
+	); 
 
-		add_stock_adjust(ST_INVADJUST, $items->stock_id, $adj_id, $line_id, $_POST['StockLocation'],
-			$_POST['AdjDate'], $_POST['ref'], $items->quantity, $items->standard_cost, 
-			0, $items->lot_no, $items->chasis_no, $items->category_id,
-			$items->color, $adj_type, 'Draft', $_POST['memo_'], '', '0000-00-00', '', 
-			$trans_no_out, $trans_type_out, get_item_type()
-		); 
-	}
-
-	new_doc_date($_POST['AdjDate']);
-	$_SESSION['adj_items']->clear_items();
-	unset($_SESSION['adj_items']);
-
-	if (get_item_type() == "new") {
-		meta_forward($path_to_root . "/inventory/inquiry/adjustment_view.php?");
-	}
-	else if (get_item_type() == "repo") {
-		meta_forward($path_to_root . "/inventory/inquiry/adjustment_repo_view.php?");
-	}
-
-} /*end of process credit note */
-
+	line_start_focus();
+}
 //-----------------------------------------------------------------------------------------------
 
 function check_item_data() {
@@ -309,99 +308,152 @@ function check_item_data() {
    	return true;
 }
 
-//-----------------------------------------------------------------------------------------------
-
-function handle_update_item() {
-	$id = $_POST['LineNo'];
-	$_SESSION['adj_items']->update_cart_item($id, input_num('qty'), 
-		input_num('std_cost'), 
-		$_POST['manufacture_date'], 
-		$_POST['expire_date'],
-		get_post("lot_no") != '' ? $_POST['lot_no'] : '',
-		get_post("chasis_no") != '' ? $_POST['chasis_no'] : '',  
-		get_post('color') != '' ? $_POST['color'] : ''
-	); 
-
-	//add_default_gl($_POST['stock_id'], $_POST['color'], $_POST['lot_no'], $_POST['chasis_no']);
-	
-	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
-		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
-	);
-
-	line_start_focus();
-}
-
-//-----------------------------------------------------------------------------------------------
-
-function handle_delete_item($id) {
-	$_SESSION['adj_items']->remove_from_cart($id);
-
-	//add_default_gl($_POST['stock_id'], $_POST['color'], $_POST['lot_no'], $_POST['chasis_no']);
-	
-	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
-		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
-	); 
-
-	line_start_focus();
-}
-
-//-----------------------------------------------------------------------------------------------
-# adjustment GL Functions
-
-function add_default_gl($stock_id = '', $color = '', $lot_no = '', $chassis = '') {
-
+function can_add_child() {
 	$trans_no = get_next_adjID();
-	$stock_gl_codes = get_stock_gl_code($stock_id);
-	$amount = get_post('adj_type') == 1 ? $_SESSION['adj_items']->get_items_total() : 
-		-$_SESSION['adj_items']->get_items_total();
-	$person_id = get_sup_id_by_stock($stock_id);
-	$masterfile = get_sup_name_by_sup(get_sup_id_by_stock($stock_id));
 
-	if (!adjGL_line_exists($trans_no)) {
-		add_adj_gl (
-			$trans_no, 
-			1, 
-			get_post('adj_type'), 
-			$_POST['ref'], 
-			$stock_id, 
-			$color, 
-			$lot_no, 
-			$chassis, 
-			$amount, 
-			$person_id, 
-			$masterfile,
-			get_item_type() == 'repo' ? $stock_gl_codes['wip_account'] : 
-				$stock_gl_codes['inventory_account'], 
-			'DEFAULT', get_item_type()
-		);
+	if (!input_num('debit_') || input_num('debit_') == 0) {
+		display_error(_("Invalid Amount..."));
+		return false;
 	}
-	else {
-		update_adjGL_amount($trans_no, $amount);
+
+	if (!get_post('code_id')) {
+		display_error(_("Please Select Account Code..."));
+		return false;
 	}
+
+	if (!get_post('mcode')) {
+		display_error(_("Please Select Masterfile..."));
+		return false;
+	}
+
+	if (input_num('debit_') > get_adjGL_total($trans_no)) {
+		display_error(_("Can't proceed! Entered amount is greater than default amount!"));
+		return false;
+	}
+
+	return true;
 }
 
-//-----------------------------------------------------------------------------------------------
+function can_process() {
 
-function handle_new_item() {
-	add_to_order($_SESSION['adj_items'], 
-		$_POST['stock_id'], 
-		input_num('qty'), 
-		input_num('std_cost'), 
-		$_POST['manufacture_date'], 
-		$_POST['expire_date'], 
-		get_post("lot_no") != '' ? $_POST['lot_no'] : '',
-		get_post("chasis_no") != '' ? $_POST['chasis_no'] : '', 
-		get_post('color') != '' ? $_POST['color'] : '',
-		get_post('stock_ref')	
-	); 
+	global $SysPrefs;
 
-	//add_default_gl($_POST['stock_id'], get_post('color'), get_post("lot_no"), get_post("chasis_no"));
+	$adj = &$_SESSION['adj_items'];
+	$trans_no = get_next_adjID();
+
+	if (count($adj->line_items) == 0) {
+		display_error(_("You must enter at least one non empty item line."));
+		set_focus('stock_id');
+		return false;
+	}
+
+	foreach ($_SESSION['adj_items']->line_items as $items) {
+		if ($items->quantity == 0) {
+			display_error(_("Can't Proceed! Some Lines have 0 qty!"));
+			return false;
+		}
+	}
+
+	if (!check_reference($_POST['ref'], ST_INVADJUST)) {
+		set_focus('ref');
+		return false;
+	}
+
+	if (!is_date($_POST['AdjDate'])) {
+		display_error(_("The entered date for the adjustment is invalid."));
+		set_focus('AdjDate');
+		return false;
+	} 
+	else if (!is_date_in_fiscalyear($_POST['AdjDate'])) {
+		display_error(_("The Entered Date is OUT of FISCAL YEAR or is CLOSED for further data entry!"));
+		set_focus('AdjDate');
+		return false;
+	}
+	else if (!allowed_posting_date($_POST['AdjDate'])) {
+		display_error(_("The Entered Date is currently LOCKED for further data entry!"));
+		set_focus('AdjDate');
+		return false;
+	}
 	
-	unset($_POST['_stock_id_edit'], $_POST['stock_id'], $_POST['qty'], $_POST['std_cost'], 
-		$_POST['lot_no'], $_POST['chasis_no'], $_POST['color']
-	);
-	line_start_focus();
+	if (!$SysPrefs->allow_negative_stock()) {
+		$low_stock = $adj->check_qoh($_POST['StockLocation'], $_POST['AdjDate']);
+
+		if ($low_stock) {
+    		display_error(_("The adjustment cannot be processed because it would cause negative inventory balance for marked items as of document date or later."));
+			unset($_POST['Process']);
+			return false;
+		}
+	}
+
+	if (get_adjGL_total($trans_no) != get_adjGL_total($trans_no, 0, "CHILD")) {
+		display_error(_("Can't Proceed! GL Account in some entries ARE NOT BALANCE!"));
+		return false;
+	}
+
+	return true;
 }
+
+if (isset($_POST['AddChild']) && can_add_child()) {
+	$trans_no = get_next_adjID();
+	$def_gl = db_fetch(get_adjGL_details($trans_no, 0, "DEFAULT"));
+
+	add_adj_gl (
+		$trans_no, 
+		1, 
+		get_post('adj_type'), 
+		$def_gl['sa_reference'], 
+		$def_gl['stock_id'], 
+		$def_gl['color_code'], 
+		$def_gl['lot_no'], 
+		$def_gl['chassis_no'], 
+		$_POST['debit_'], 
+		$_POST['mcode'], 
+		get_masterfile($_POST['mcode']),
+		$_POST['code_id'], 
+		'CHILD', get_item_type()
+	);
+}
+
+if (isset($_POST['Process']) && can_process()) {
+
+  	$fixed_asset = $_SESSION['adj_items']->fixed_asset; 
+
+	$adj_id = get_next_adjID();
+	$adj_type = get_post('adj_type') == 2 ? "OUT" : "IN";
+	$count = $trans_no_out = $trans_type_no = 0;
+	$trans_type = get_item_type() == "repo" ? ST_RRREPO : ST_INVADJUST;
+
+	foreach ($_SESSION['adj_items']->line_items as $items) {
+
+		$count++;
+		$stock_id = $items->stock_id;
+		$row = get_smo_details($items->stock_ref, $stock_id, $items->lot_no);
+
+		$trans_no_out = $adj_type == "OUT" ? $row['transno_out'] : $adj_id;
+		$trans_type_out = $adj_type == "OUT" ? $row['type_out'] : $trans_type;
+
+		$line_id = $count;
+
+		add_stock_adjust(ST_INVADJUST, $items->stock_id, $adj_id, $line_id, $_POST['StockLocation'],
+			$_POST['AdjDate'], $_POST['ref'], $items->quantity, $items->standard_cost, 
+			0, $items->lot_no, $items->chasis_no, $items->category_id,
+			$items->color, $adj_type, 'Draft', $_POST['memo_'], '', '0000-00-00', '', 
+			$trans_no_out, $trans_type_out, get_item_type()
+		); 
+	}
+
+	new_doc_date($_POST['AdjDate']);
+	$_SESSION['adj_items']->clear_items();
+	unset($_SESSION['adj_items']);
+
+	if (get_item_type() == "new") {
+		meta_forward($path_to_root . "/inventory/inquiry/adjustment_view.php?");
+	}
+	else if (get_item_type() == "repo") {
+		meta_forward($path_to_root . "/inventory/inquiry/adjustment_repo_view.php?");
+	}
+
+} /*end of process credit note */
 
 //-----------------------------------------------------------------------------------------------
 
@@ -438,6 +490,7 @@ if (isset($_GET['NewAdjustment']) || !isset($_SESSION['adj_items'])) {
 
 //-----------------------------------------------------------------------------------------------
 start_form();
+$trans_no = get_next_adjID();
 
 if ($_SESSION['adj_items']->fixed_asset) {
 	$items_title = _("Disposal Items");
@@ -454,15 +507,113 @@ else {
 }
 
 display_order_header($_SESSION['adj_items'], 1);
-
-$trans_no = get_next_adjID();
-
 display_adjustment_items($items_title, $_SESSION['adj_items'], 1, $trans_no, get_item_type());
+
+div_start('adj_gl');
+
+display_heading("General Ledger Entries");
+
+start_table(TABLESTYLE, "width='60%'");
+
+$result = get_adjGL_details($trans_no);
+
+$th = array(
+    _("ID"),
+    _("Account Code"),
+    _("Account Name"),
+    _("Mcode"),
+    _("Masterfile"),
+    _("Debit"),
+    _("Credit"), _("")
+);
+
+table_header($th);
+$total = 0;
+$k = $debit_tot = $credit_tot = 0;
+
+while ($row = db_fetch($result)) {
+	alt_table_row_color($k);
+
+	$debit_row = $row['amount'] > 0 ? $row['amount'] : 0;
+	$credit_row = $row['amount'] < 0 ? $row['amount'] : 0;
+	$debit_tot += $debit_row;
+	$credit_tot += $credit_row;
+
+	label_cell($row['id'], "", 'gl_Id');
+	label_cell($row['account'], "", 'gl_account');
+	label_cell(get_gl_account_name($row['account']), "nowrap");
+	label_cell($row['mcode'], "align='center'");
+	label_cell($row['master_file'], "nowrap");
+	label_cell(price_format(abs($debit_row)), "nowrap align='right'");
+	label_cell(price_format(abs($credit_row)), "nowrap align='right'");
+
+	if ($row['gl_type'] == "DEFAULT") {
+		label_cell(
+			value_type_list(null, "gl[" . $row['id'] . "]", 
+				array(
+					"DEFAULT" => "Select Action",
+					"ADDGL" => "Add Entry"
+				), '', null, true
+			)
+		);
+	}
+	else {
+		label_cell(
+			value_type_list(null, "gl[" . $row['id'] . "]", 
+				array(
+					"DEFAULT" => "Select Action",
+					"EDITGL" => "Edit Entry",
+					"DELGL" => "Delete Entry"
+				), '', null, true
+			)
+		);
+	}
+}
+
+if (get_post('gl')) {
+	global $Ajax;
+
+	foreach(get_post('gl') as $key => $val) {
+		if ($val != "Select Action") {
+			start_row();
+			if ($val == 'Add Entry') {
+				if (get_adjGL_total($trans_no) == get_adjGL_total($trans_no, 0, "CHILD")) {
+					display_warning(_("GL already balanced..."));
+				}
+				else {
+					label_cell(
+						gl_all_accounts_list('code_id', null, true, true, true, false, false, false, _("Select Account Code"))
+					);
+		
+					sl_list_gl_cells(null, 'mcode', null, _("Select Masterfile"), false);
+					text_cells('', 'debit_', $_POST['debit_'], 9, 9);
+		
+					submit_cells('AddChild', _("Add Entry"), "colspan=2",
+						_('Add New Entry'), true
+					);
+				}
+			}
+
+			end_row();
+		}
+	}
+	$Ajax->activate('adj_gl');
+}
+
+start_row("class='inquirybg' style='font-weight:bold'");
+label_cell(_("Total"), "colspan=5");
+label_cell(price_format(abs($debit_tot)), "align='right'", 'debit_tot');
+label_cell(price_format(abs($credit_tot)), "align='right'", 'credit_tot');
+end_row();
+
+end_table();
+div_end();
+
 adjustment_options_controls();
 
 submit_center_first('Update', _("Update"), '', null);
 submit_center_last('Process', $button_title, '', 'default');
-
+hidden('class_name');
 end_form();
 end_page();
 

@@ -68,20 +68,7 @@ function _adjGL_head_item($trans_no, $line_no) {
     return db_fetch($result);
 }
 
-function get_adjGL_details($trans_no, $line_no) {
-	
-    set_global_connection();
-
-	$sql = "SELECT A.*
-        FROM " . TB_PREF . "stock_adjustment_gl A 
-        WHERE A.sa_trans_no = " .db_escape($trans_no). " AND A.sa_line_id = " .db_escape($line_no);
-    
-    $sql .= " ORDER BY A.id DESC";
-
-    return db_query($sql, "No Items return for stock_adjustments GL Items! (spyrax10)");
-}
-
-function get_adjGL_val($trans_id) {
+function get_adjGL_val($trans_id = 0) {
     set_global_connection();
 
 	$sql = "SELECT A.*
