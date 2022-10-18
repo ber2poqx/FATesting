@@ -158,47 +158,50 @@ if(!is_null($action) || !empty($action)){
 
             $qty = stripslashes(html_entity_decode($_POST['qty']));
             $objDataGrid = json_decode($qty, true);
+            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
 
-            $message="";
-            $AdjDate = sql2date($_POST['AdjDate']);
-
-            $counteritem=$_SESSION['transfer_items']->count_items();
-            $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
-            
-            $isError = 0;
-            foreach($objDataGrid as $value=>$data) 
-            {
-                $stock_qty = $data['qty'];
-                $currentqty = $data['currentqty'];
-
-                if($total_rrdate>0){
-                    $isError = 1;
-                    $message="This document cannot be processed because there is insufficient quantity for items marked.";
-                    break;
-                }elseif($counteritem<=0){
-                    $isError = 1;
-                    //echo '({"success":"false","message":"No Item Selected"})';
-                    $message="No Item Selected";                     
-                    break;
-                }elseif($stock_qty == 0) {
-                    $isError = 1;
-                    $message="Quantity must not be zero.";
-                    break;
-                }elseif($stock_qty > $currentqty) {
-                    $isError = 1;
-                    $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
-                    break;
-                }
-            }
-
-            if($isError != 1){
+            if($approval_value=='yes'){
+                $message="";
                 $AdjDate = sql2date($_POST['AdjDate']);
-                $catcode = $_POST['catcode'];
-                $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                $trans_no = add_stock_merchandise_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $_POST['rsdno'],$_POST['servedby']);
-                //new_doc_date($AdjDate);
-                //$_SESSION['transfer_items']->clear_items();
-                //unset($_SESSION['transfer_items']);
+
+                $counteritem=$_SESSION['transfer_items']->count_items();
+                $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
+                
+                $isError = 0;
+                foreach($objDataGrid as $value=>$data) 
+                {
+                    $stock_qty = $data['qty'];
+                    $currentqty = $data['currentqty'];
+
+                    if($total_rrdate>0){
+                        $isError = 1;
+                        $message="This document cannot be processed because there is insufficient quantity for items marked.";
+                        break;
+                    }elseif($counteritem<=0){
+                        $isError = 1;
+                        //echo '({"success":"false","message":"No Item Selected"})';
+                        $message="No Item Selected";                     
+                        break;
+                    }elseif($stock_qty == 0) {
+                        $isError = 1;
+                        $message="Quantity must not be zero.";
+                        break;
+                    }elseif($stock_qty > $currentqty) {
+                        $isError = 1;
+                        $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                        break;
+                    }
+                }
+
+                if($isError != 1){
+                    $AdjDate = sql2date($_POST['AdjDate']);
+                    $catcode = $_POST['catcode'];
+                    $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
+                    $trans_no = add_stock_merchandise_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $_POST['rsdno'],$_POST['servedby']);
+                    //new_doc_date($AdjDate);
+                    //$_SESSION['transfer_items']->clear_items();
+                    //unset($_SESSION['transfer_items']);
+                }
             }
             echo '({"success":"true","reference":"'.$_POST['ref'].'","message":"'.$message.'"})';
             exit;
