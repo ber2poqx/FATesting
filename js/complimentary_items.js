@@ -2235,80 +2235,98 @@ Ext.onReady(function(){
 								}
 							],
 							buttons:[{
-								text:'Process',
-								id:'btnProcess',
-								disabled: true,
-								handler:function(){
+									text:'Process',
+									id:'btnProcess',
+									disabled: true,
+									handler:function(){
 
-									var gridData = MerchandiseTransStore.getRange();
-									var gridRepoData = [];
-									count = 0;
-									Ext.each(gridData, function(item) {
-										var ObjItem = {							
-											qty: item.get('qty'),
-											currentqty:item.get('currentqty'),												
-											stock_id:item.get('stock_id')													
-										};
-										gridRepoData.push(ObjItem);
-									});
-
-									var AdjDate = Ext.getCmp('AdjDate').getValue();	
-									var catcode = Ext.getCmp('category').getValue();
-									var FromStockLocation = Ext.getCmp('fromlocation').getValue();
-									var memo_ = Ext.getCmp('memo').getValue();
-									var totaldebit = Ext.getCmp('totaldebit').getValue();
-									var totalcredit = Ext.getCmp('totalcredit').getValue();
-									var reference = Ext.getCmp('reference').getValue();
-									var person_id = Ext.getCmp('masterfile_header').getValue();
-									var masterfile = Ext.getCmp('masterfile_header').getRawValue();
-									
-									var person_type = Ext.getCmp('masterfile_type_header').getValue();
-
-									var item_models = Ext.getCmp('item_model').getValue();
-
-									Ext.MessageBox.show({
-										msg: 'Saving Date, please wait...',
-										progressText: 'Saving...',
-										width:300,
-										wait:true,
-										waitConfig: {interval:200},
-										//icon:'ext-mb-download', //custom class in msg-box.html
-										iconHeight: 50
-									});
-											
-										Ext.Ajax.request({
-										url : '?action=SaveTransfer',
-										method: 'POST',
-										params:{
-											AdjDate:AdjDate,
-											catcode:catcode,
-											FromStockLocation: FromStockLocation,
-											memo_: memo_,
-											totaldebit:totaldebit,
-											totalcredit: totalcredit,
-											ref: reference,
-											person_type: person_type,
-											person_id: person_id,
-											masterfile: masterfile,
-											item_models: item_models,
-											Dataongrid: Ext.encode(gridRepoData)
-										},
-											success: function(response){
-												var jsonData = Ext.JSON.decode(response.responseText);
-												var errmsg = jsonData.errmsg;
-												//Ext.getCmp('AdjDate').setValue(AdjDate);
-												if(errmsg!=''){
-													setButtonDisabled(false);
-													Ext.MessageBox.alert('Error',errmsg);
-												}else{
-													windowNewTransfer.close();
-													//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-													myInsurance.load();
-													Ext.MessageBox.alert('Success','Success Processing');
-												}	
-											} 
+										var gridData = MerchandiseTransStore.getRange();
+										var gridRepoData = [];
+										count = 0;
+										Ext.each(gridData, function(item) {
+											var ObjItem = {							
+												qty: item.get('qty'),
+												currentqty:item.get('currentqty'),												
+												stock_id:item.get('stock_id')													
+											};
+											gridRepoData.push(ObjItem);
 										});
-										Ext.MessageBox.hide();
+
+										var AdjDate = Ext.getCmp('AdjDate').getValue();	
+										var catcode = Ext.getCmp('category').getValue();
+										var FromStockLocation = Ext.getCmp('fromlocation').getValue();
+										var memo_ = Ext.getCmp('memo').getValue();
+										var totaldebit = Ext.getCmp('totaldebit').getValue();
+										var totalcredit = Ext.getCmp('totalcredit').getValue();
+										var reference = Ext.getCmp('reference').getValue();
+										var person_id = Ext.getCmp('masterfile_header').getValue();
+										var masterfile = Ext.getCmp('masterfile_header').getRawValue();
+										
+										var person_type = Ext.getCmp('masterfile_type_header').getValue();
+
+										var item_models = Ext.getCmp('item_model').getValue();
+
+										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
+											if (btn == 'yes') {
+												if(FromStockLocation==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Select Branch FromLocation');
+													return false;
+												}
+												if(catcode==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Select Category Item');
+													return false;
+												}
+												if(person_id==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Please select masterfile');
+													return false;
+												}
+												Ext.MessageBox.show({
+													msg: 'Saving Date, please wait...',
+													progressText: 'Saving...',
+													width:300,
+													wait:true,
+													waitConfig: {interval:200},
+													//icon:'ext-mb-download', //custom class in msg-box.html
+													iconHeight: 50
+												});
+												Ext.Ajax.request({
+												url : '?action=SaveTransfer',
+												method: 'POST',
+												params:{
+													AdjDate:AdjDate,
+													catcode:catcode,
+													FromStockLocation: FromStockLocation,
+													memo_: memo_,
+													totaldebit:totaldebit,
+													totalcredit: totalcredit,
+													ref: reference,
+													person_type: person_type,
+													person_id: person_id,
+													masterfile: masterfile,
+													item_models: item_models,
+													Dataongrid: Ext.encode(gridRepoData)
+												},
+													success: function(response){
+														var jsonData = Ext.JSON.decode(response.responseText);
+														var errmsg = jsonData.errmsg;
+														//Ext.getCmp('AdjDate').setValue(AdjDate);
+														if(errmsg!=''){
+															setButtonDisabled(false);
+															Ext.MessageBox.alert('Error',errmsg);
+														}else{
+															windowNewTransfer.close();
+															//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+															myInsurance.load();
+															Ext.MessageBox.alert('Success','Success Processing');
+														}	
+													} 
+												});
+												Ext.MessageBox.hide();
+											}
+										});
 									}
 								},{
 									text:'Close',

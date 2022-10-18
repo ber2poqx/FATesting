@@ -1959,8 +1959,7 @@ Ext.onReady(function(){
 											}
 										]
 									}
-								],buttons:[
-									{
+								],buttons:[{
 										text:'Process Manual Transfer',
 										id:'btnManualProcess',
 										handler:function(){									
@@ -2004,78 +2003,84 @@ Ext.onReady(function(){
 											var mt_reference = Ext.getCmp('mtreferencemanual').getValue();
 											var remarks = Ext.getCmp('memo').getValue();
 
-											if(FromStockLocation==null || FromStockLocation==''){
-												Ext.MessageBox.alert('Error','From Branches field should not be empty.');
-												return false;
-											}
-											if(mt_reference==null || mt_reference==''){
-												Ext.MessageBox.alert('Error','MT Reference field should not be empty.');
-												return false;
-											}
-										
-											Ext.MessageBox.show({
-												msg: 'Saving Date, please wait...',
-												progressText: 'Saving...',
-												width:300,
-												wait:true,
-												waitConfig: {interval:200},
-												//icon:'ext-mb-download', //custom class in msg-box.html
-												iconHeight: 50
-											});
-														
-											Ext.Ajax.request({
-												url : '?action=SaveManualTransfer',
-												method: 'POST',
-												params:{
-													AdjDate:AdjDate,
-													catcode:catcode,
-													FromStockLocation: FromStockLocation,
-													ToStockLocation: ToStockLocation,
-													remarks: remarks,
-													br_reference: br_reference,
-													mt_reference: mt_reference,
-													DataOnGrid: Ext.encode(gridRepoData) 
-												},
-												/*success: function (response){
-													var jsonData = Ext.JSON.decode(response.responseText);
-													var AdjDate = jsonData.AdjDate;
-													Ext.getCmp('AdjDate').setValue(AdjDate);
-													windowNewTransfer.close();
-													//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-													myInsurance.load();
-												},
-												failure: function (response){
-													//Ext.MessageBox.hide();
-													//var jsonData = Ext.JSON.decode(response.responseText);
-													//Ext.MessageBox.alert('Error','Error Processing');
-												}*/
-												success: function(response){
-													var jsonData = Ext.JSON.decode(response.responseText);
-													var errmsg = jsonData.message;
-													//Ext.getCmp('AdjDate').setValue(AdjDate);
-													if(errmsg!=''){
-														setButtonDisabled(false);
-														Ext.MessageBox.alert('Error',errmsg);
-													}else{
-														windowNewTransfer.close();
-														//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-														myInsurance.load();
-														Ext.MessageBox.alert('Success','Success Processing');
-													}													
-												} 
-											});
-											Ext.MessageBox.hide();
-											this.setDisabled(true);											
+											Ext.MessageBox.confirm('Confirm', 'Do you want to Process?', function (btn, text) {
+												if (btn == 'yes') {
+													if(FromStockLocation==null || FromStockLocation==''){
+														Ext.MessageBox.alert('Error','From Branches field should not be empty.');
+														return false;
+													}
+													if(mt_reference==null || mt_reference==''){
+														Ext.MessageBox.alert('Error','MT Reference field should not be empty.');
+														return false;
+													}
+													if(catcode==null || catcode==''){
+														Ext.MessageBox.alert('Error','Category field should not be empty.');
+														return false;
+													}
+												
+													Ext.MessageBox.show({
+														msg: 'Saving Date, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
+																
+													Ext.Ajax.request({
+														url : '?action=SaveManualTransfer',
+														method: 'POST',
+														params:{
+															AdjDate:AdjDate,
+															catcode:catcode,
+															FromStockLocation: FromStockLocation,
+															ToStockLocation: ToStockLocation,
+															remarks: remarks,
+															br_reference: br_reference,
+															mt_reference: mt_reference,
+															DataOnGrid: Ext.encode(gridRepoData) 
+														},
+														/*success: function (response){
+															var jsonData = Ext.JSON.decode(response.responseText);
+															var AdjDate = jsonData.AdjDate;
+															Ext.getCmp('AdjDate').setValue(AdjDate);
+															windowNewTransfer.close();
+															//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+															myInsurance.load();
+														},
+														failure: function (response){
+															//Ext.MessageBox.hide();
+															//var jsonData = Ext.JSON.decode(response.responseText);
+															//Ext.MessageBox.alert('Error','Error Processing');
+														}*/
+														success: function(response){
+															var jsonData = Ext.JSON.decode(response.responseText);
+															var errmsg = jsonData.message;
+															//Ext.getCmp('AdjDate').setValue(AdjDate);
+															if(errmsg!=''){
+																setButtonDisabled(false);
+																Ext.MessageBox.alert('Error',errmsg);
+															}else{
+																windowNewTransfer.close();
+																//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+																myInsurance.load();
+																Ext.MessageBox.alert('Success','Success Processing');
+															}													
+														} 
+													});
+													Ext.MessageBox.hide();
+													this.setDisabled(true);	
+												}
+											});										
 										}
-									},
-									{
+									},{
 										text:'Close',
 										handler: function(){
 											windowNewTransfer.close();
 										}
 									}
 								]
-								
 							});
 						}
 						//var AdjDate = Ext.getCmp('AdjDate').getValue();	
