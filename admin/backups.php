@@ -146,7 +146,10 @@ if (get_post('creat')) {
 
 if (get_post('restore')) {
 	if ($backup_name) {
-		if (db_import($backup_path, $conn, true, false, check_value('protected')))
+		//modify by jr on 10-19-22
+		//These radio buttons has name protect. But in db_import function it was called check_value('protected');
+		//if (db_import($backup_path, $conn, true, false, check_value('protected')))
+		if (db_import($backup_path, $conn, true, false, check_value('protect')))
 			display_notification(_("Restore backup completed."));
 		$SysPrefs->refresh(); // re-read system setup
 	} else
