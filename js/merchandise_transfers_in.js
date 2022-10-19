@@ -402,7 +402,7 @@ Ext.onReady(function(){
 
 											//Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
 											
-											Ext.MessageBox.confirm('Confirm', 'Do you want to Process?', function (btn, text) {
+											Ext.MessageBox.confirm('Confirm', 'Do you want to Process this record?', function (btn, text) {
 												if (btn == 'yes') {
 													//Ext.getCmp('btnProcess').setDisabled(true);
 													Ext.Ajax.request({
@@ -2003,7 +2003,7 @@ Ext.onReady(function(){
 											var mt_reference = Ext.getCmp('mtreferencemanual').getValue();
 											var remarks = Ext.getCmp('memo').getValue();
 
-											Ext.MessageBox.confirm('Confirm', 'Do you want to Process?', function (btn, text) {
+											Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
 												if (btn == 'yes') {
 													if(FromStockLocation==null || FromStockLocation==''){
 														Ext.MessageBox.alert('Error','From Branches field should not be empty.');
