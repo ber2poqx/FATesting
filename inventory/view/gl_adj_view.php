@@ -79,17 +79,6 @@ function get_adjGL_val($trans_id = 0) {
     return db_fetch($result);
 }
 
-function delete_adjustmentGL($trans_id) {
-    global $Ajax;
-    set_global_connection();
-
-    $sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl 
-        WHERE id = '$trans_id'";
-
-    db_query($sql, "Cannot delete stock_adjustment GL! (spyrax10)");
-    $Ajax->activate('_page_body');
-    display_notification(_("Transaction ID #" . $trans_id . " sucessfully deleted!"));
-}
 
 function update_adjustmetGL($trans_id, $account, $amount, $mcode, $masterfile) {
     global $Ajax;

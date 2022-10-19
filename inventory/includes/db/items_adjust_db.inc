@@ -311,13 +311,22 @@ function revert_stock_adjustment($trans_no) {
 	);
 }
 
-function delete_stock_adjust_gl($trans_no) {
-
-	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl 
-        WHERE sa_trans_no = " .db_escape($trans_no);
+function delete_stock_adjust_gl($trans_no = 0, $trans_id = 0) {
 
 	set_global_connection();
-    db_query($sql, "Cannot delete stock_adjustment transaction from gl! (spyrax10)");
+	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl";
+       
+	if ($trans_no != 0) {
+		$sql .= " WHERE sa_trans_no = " .db_escape($trans_no);
+	}
+
+	if ($trans_id != 0) {
+		$sql .= " WHERE id = " .db_escape($trans_id);
+	}
+
+    db_query($sql, "delete_stock_adjust_gl()");
+
+	return 1;
 }
 
 function delete_stock_adjust_gl_trans($trans_no) {

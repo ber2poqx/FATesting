@@ -84,7 +84,9 @@ if (get_post('StockLocation')) {
 }
 
 if (adjGL_line_exists(get_next_adjID()) && count($adj->line_items) == 0)  {
+	global $Ajax;
 	delete_stock_adjust_gl(get_next_adjID());
+	$Ajax->activate("_page_body");
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -414,6 +416,16 @@ if (isset($_POST['AddChild']) && can_add_child()) {
 	);
 }
 
+if (isset($_POST['DELGL'])) {
+	foreach(get_post('DELGL') as $key => $val) {
+		$del_id = delete_stock_adjust_gl(0, $key);
+		if ($del_id) {
+			$Ajax->activate("adj_gl");
+			display_notification(_("Entry Deleted..."));
+		}
+	}
+}
+
 if (isset($_POST['Process']) && can_process()) {
 
   	$fixed_asset = $_SESSION['adj_items']->fixed_asset; 
@@ -491,7 +503,6 @@ if (isset($_GET['NewAdjustment']) || !isset($_SESSION['adj_items'])) {
 //-----------------------------------------------------------------------------------------------
 start_form();
 $trans_no = get_next_adjID();
-
 if ($_SESSION['adj_items']->fixed_asset) {
 	$items_title = _("Disposal Items");
 	$button_title = _("Process Disposal");
@@ -513,7 +524,7 @@ div_start('adj_gl');
 
 display_heading("General Ledger Entries");
 
-start_table(TABLESTYLE, "width='60%'");
+start_table(TABLESTYLE, "width='70%'");
 
 $result = get_adjGL_details($trans_no);
 
@@ -524,7 +535,7 @@ $th = array(
     _("Mcode"),
     _("Masterfile"),
     _("Debit"),
-    _("Credit"), _("")
+    _("Credit"), _(""), _(""), _("")
 );
 
 table_header($th);
@@ -559,19 +570,33 @@ while ($row = db_fetch($result)) {
 	}
 	else {
 		label_cell(
-			value_type_list(null, "gl[" . $row['id'] . "]", 
-				array(
-					"DEFAULT" => "Select Action",
-					"EDITGL" => "Edit Entry",
-					"DELGL" => "Delete Entry"
-				), '', null, true
-			)
+			submit_cells("EDITGL[" . $row['id'] . "]", _("Edit Entry"), "",
+				_('Edit Entry'), true
+			), "nowrap"
 		);
+
+		label_cell (
+			submit_cells("DELGL[" . $row['id'] . "]", _("Delete Entry"), "",
+				_('Delete Entry'), true
+			), "nowrap"
+		);
+		
+		// label_cell(
+		// 	value_type_list(null, "gl[" . $row['id'] . "]", 
+		// 		array(
+		// 			"DEFAULT" => "Select Action",
+		// 			"EDITGL" => "Edit Entry",
+		// 			"DELGL" => "Delete Entry"
+		// 		), '', null, true
+		// 	)
+		// );
 	}
 }
 
+
 if (get_post('gl')) {
 	global $Ajax;
+	$trans_no = get_next_adjID();
 
 	foreach(get_post('gl') as $key => $val) {
 		if ($val != "Select Action") {
@@ -586,7 +611,7 @@ if (get_post('gl')) {
 					);
 		
 					sl_list_gl_cells(null, 'mcode', null, _("Select Masterfile"), false);
-					text_cells('', 'debit_', $_POST['debit_'], 9, 9);
+					text_cells('', 'debit_', null, 10, 10);
 		
 					submit_cells('AddChild', _("Add Entry"), "colspan=2",
 						_('Add New Entry'), true
@@ -597,7 +622,7 @@ if (get_post('gl')) {
 			end_row();
 		}
 	}
-	$Ajax->activate('adj_gl');
+	$Ajax->activate("adj_gl");
 }
 
 start_row("class='inquirybg' style='font-weight:bold'");
