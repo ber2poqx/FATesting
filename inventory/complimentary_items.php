@@ -517,7 +517,7 @@ if(!is_null($action) || !empty($action)){
             LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
             LEFT JOIN ".TB_PREF."complimentary_items items ON items.reference = move.reference
             LEFT JOIN ".TB_PREF."stock_master master ON master.stock_id = move.stock_id
-            WHERE move.reference = '$reference'";
+            WHERE move.reference = ".db_escape($reference);
 
             if($catcode!=0){
                 $sql.=" AND move.category_id = $catcode";
@@ -532,10 +532,8 @@ if(!is_null($action) || !empty($action)){
                 //$sql.=" LIMIT $start,$end";
             }
     
-            $result=db_query($sql, "could not get all Serial Items");
-            
+            $result=db_query($sql, "could not get all Serial Items");            
             $total = db_num_rows($result);
-            
             
             while ($myrow = db_fetch($result))
             {    
@@ -549,10 +547,8 @@ if(!is_null($action) || !empty($action)){
                     'chasis_no' => $myrow["chassis_no"],
                     'standard_cost' => $myrow["standard_cost"],
                     'subtotal_cost' => $myrow["standard_cost"] * -$myrow["qty"]
-
                 );
             }
-            
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;

@@ -124,7 +124,7 @@ Ext.onReady(function(){
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
-					tooltip: 'Items Details / Approved / Posting',
+					tooltip: 'Items Details / Approved / Disapproved / Posting',
 					hidden: false,
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
@@ -699,7 +699,8 @@ Ext.onReady(function(){
 		fields 	: 	['stat_id', 'namecaption'],
 		data 	: 	[{"stat_id":"Approved","namecaption":"Approved"},
 					{"stat_id":"Draft","namecaption":"For Approval"},
-                    {"stat_id":"Closed","namecaption":"Closed"}],
+                    {"stat_id":"Closed","namecaption":"Closed"},
+                    {"stat_id":"Disapproved","namecaption":"Disapproved"}],
         autoLoad: true
 	});
 	

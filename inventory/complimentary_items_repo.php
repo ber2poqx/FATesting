@@ -433,7 +433,7 @@ if(!is_null($action) || !empty($action)){
             LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
             LEFT JOIN ".TB_PREF."complimentary_items items ON items.reference = move.reference
             LEFT JOIN ".TB_PREF."stock_master master ON master.stock_id = move.stock_id
-            WHERE move.reference = '$reference'";
+            WHERE move.reference = ".db_escape($reference);
 
             if($catcode!=0){
                 $sql.=" AND move.category_id = $catcode";
