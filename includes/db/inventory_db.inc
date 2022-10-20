@@ -692,37 +692,6 @@ function update_smo_serial($trans_id, $trans_no, $type, $lot_no, $chassis_no)
 	db_query($sql, "The stock movement serial details can't be updated! (spyrax10)");
 }
 
-function add_adj_gl(
-	$trans_no,
-	$line_id,
-	$adj_type,
-	$reference,
-	$stock_id,
-	$color_code = '',
-	$lot_no = '',
-	$chasis_no = '',
-	$amount,
-	$mcode = '',
-	$masterfile = '',
-	$account = null,
-	$gl_type = '',
-	$item_type = "new"
-) {
-	set_global_connection();
-
-	//$mcode = sprintf(' %05d', $mcode);
-
-	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment_gl (sa_trans_no, sa_line_id, sa_adj_type, sa_reference, 
-		stock_id, color_code, lot_no, chassis_no, gl_type, account, amount, mcode, master_file, sa_adj_item) VALUES (
-			" . db_escape($trans_no) . ", " . db_escape($line_id) . ", " . db_escape($adj_type) . ", " . db_escape($reference) . ", 
-			" . db_escape($stock_id) . ", " . db_escape($color_code) . ", " . db_escape($lot_no) . ", " . db_escape($chasis_no) . ", 
-			" . db_escape($gl_type) . ", " . db_escape($account) . ", " . db_escape($amount) . ", " . db_escape($mcode) . ", 
-			" . db_escape($masterfile) . ", " . db_escape($item_type) . "
-		)";
-
-	db_query($sql, "Cannot add adjustment gl! (spyrax10)");
-}
-
 //
 
 function update_stock_move($type, $trans_no, $stock_id, $cost)

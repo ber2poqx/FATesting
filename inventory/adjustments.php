@@ -310,7 +310,7 @@ function check_item_data() {
    	return true;
 }
 
-function can_add_child() {
+function can_add_child($add = true, $id = 0) {
 	$trans_no = get_next_adjID();
 
 	if (!input_num('debit_') || input_num('debit_') == 0) {
@@ -328,10 +328,19 @@ function can_add_child() {
 		return false;
 	}
 
-	if (input_num('debit_') > get_adjGL_total($trans_no)) {
-		display_error(_("Can't proceed! Entered amount is greater than default amount!"));
-		return false;
+	if ($add) {
+		if (get_adjGL_total($trans_no, 0, "CHILD") + input_num('debit_') > get_adjGL_total($trans_no)) {
+			display_error(_("Can't proceed! Entered amount is greater than default amount!"));
+			return false;
+		}
 	}
+	else {
+		if ((get_adjGL_total($trans_no, 0, "CHILD") - input_num('debit_')) 
+			> get_adjGL_total($trans_no)) {
+			
+		}
+	}
+	
 
 	return true;
 }
@@ -408,7 +417,7 @@ if (isset($_POST['AddChild']) && can_add_child()) {
 		$def_gl['color_code'], 
 		$def_gl['lot_no'], 
 		$def_gl['chassis_no'], 
-		$_POST['debit_'], 
+		input_num("debit_"), 
 		$_POST['mcode'], 
 		get_masterfile($_POST['mcode']),
 		$_POST['code_id'], 
@@ -422,6 +431,19 @@ if (isset($_POST['DELGL'])) {
 		if ($del_id) {
 			$Ajax->activate("adj_gl");
 			display_notification(_("Entry Deleted..."));
+		}
+	}
+}
+
+if (isset($_POST['UpdChild']) && can_add_child(false)) {
+	foreach(get_post('UpdChild') as $key => $val) {
+		$upd_id = update_adjustmetGL($key, 
+			$_POST['code_id'], input_num("debit_"), 
+			$_POST['mcode'], get_masterfile($_POST['mcode'])
+		);
+
+		if ($upd_id) {
+			display_notification(_("Entry Updated..."));
 		}
 	}
 }
@@ -524,7 +546,7 @@ div_start('adj_gl');
 
 display_heading("General Ledger Entries");
 
-start_table(TABLESTYLE, "width='70%'");
+start_table(TABLESTYLE, "width='75%'");
 
 $result = get_adjGL_details($trans_no);
 
@@ -580,48 +602,66 @@ while ($row = db_fetch($result)) {
 				_('Delete Entry'), true
 			), "nowrap"
 		);
-		
-		// label_cell(
-		// 	value_type_list(null, "gl[" . $row['id'] . "]", 
-		// 		array(
-		// 			"DEFAULT" => "Select Action",
-		// 			"EDITGL" => "Edit Entry",
-		// 			"DELGL" => "Delete Entry"
-		// 		), '', null, true
-		// 	)
-		// );
 	}
 }
 
 
 if (get_post('gl')) {
 	global $Ajax;
-	$trans_no = get_next_adjID();
-
+	
 	foreach(get_post('gl') as $key => $val) {
 		if ($val != "Select Action") {
-			start_row();
+
 			if ($val == 'Add Entry') {
 				if (get_adjGL_total($trans_no) == get_adjGL_total($trans_no, 0, "CHILD")) {
 					display_warning(_("GL already balanced..."));
 				}
 				else {
+					start_row();
 					label_cell(
 						gl_all_accounts_list('code_id', null, true, true, true, false, false, false, _("Select Account Code"))
 					);
 		
 					sl_list_gl_cells(null, 'mcode', null, _("Select Masterfile"), false);
-					text_cells('', 'debit_', null, 10, 10);
+					amount_cells_ex("", 'debit_', 10, 10, price_format(0));
 		
 					submit_cells('AddChild', _("Add Entry"), "colspan=2",
 						_('Add New Entry'), true
 					);
+					end_row();
 				}
 			}
-
-			end_row();
 		}
 	}
+	$Ajax->activate("adj_gl");
+}
+
+if (get_post('EDITGL')) {
+	foreach(get_post('EDITGL') as $key => $val) {
+
+		$child_row = db_fetch(get_adjGL_details($trans_no, $key, "CHILD"));
+		$_POST['code_id'] = $child_row['account'];
+
+		start_row();
+		label_cell(
+			gl_all_accounts_list('code_id', null, true, true, true, false, false, false, _("Select Account Code"))
+		);
+
+		sl_list_gl_cells(null, 'mcode', $child_row['mcode'], _("Select Masterfile"), false);
+		
+		amount_cells_ex("", 'debit_', 10, 10, price_format(ABS($child_row['amount'])));
+
+		label_cell(price_format(0), "nowrap align='right'");
+
+		submit_cells("UpdChild[" . $key . "]", _("Update Entry"), "colspan=2",
+			_('Update Entry'), true
+		);
+
+		button_cell('Cancel', _("Cancel"), _('Cancel Changes'), ICON_CANCEL);
+
+		end_row();
+	}
+
 	$Ajax->activate("adj_gl");
 }
 

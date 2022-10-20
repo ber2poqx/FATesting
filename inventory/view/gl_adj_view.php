@@ -80,19 +80,7 @@ function get_adjGL_val($trans_id = 0) {
 }
 
 
-function update_adjustmetGL($trans_id, $account, $amount, $mcode, $masterfile) {
-    global $Ajax;
-    set_global_connection();
 
-    $sql = "UPDATE ".TB_PREF."stock_adjustment_gl 
-            SET account = '$account', amount = '$amount', mcode = '$mcode', master_file = '$masterfile' 
-        WHERE id = ".db_escape($trans_id);
-
-    db_query($sql, "Cannot update stock_adjustment GL! (spyrax10)");
-
-    $Ajax->activate('_page_body');
-    display_notification(_("Transaction ID #" . $trans_id . " sucessfully updated!"));
-}
 
 //----------------------------------------------------------------------------------------------------
 

@@ -221,6 +221,39 @@ function add_stock_adjustment_item($id, $type = 1,
 
 //added by spyrax10
 
+function add_adj_gl($trans_no, $line_id, $adj_type, $reference, $stock_id, $color_code = '', 
+	$lot_no = '', $chasis_no = '', $amount, $mcode = '', $masterfile = '', $account = null,
+	$gl_type = '', $item_type = "new"
+) {
+	set_global_connection();
+
+	//$mcode = sprintf(' %05d', $mcode);
+
+	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment_gl (sa_trans_no, sa_line_id, sa_adj_type, sa_reference, 
+		stock_id, color_code, lot_no, chassis_no, gl_type, account, amount, mcode, master_file, sa_adj_item) VALUES (
+			" . db_escape($trans_no) . ", " . db_escape($line_id) . ", " . db_escape($adj_type) . ", " . db_escape($reference) . ", 
+			" . db_escape($stock_id) . ", " . db_escape($color_code) . ", " . db_escape($lot_no) . ", " . db_escape($chasis_no) . ", 
+			" . db_escape($gl_type) . ", " . db_escape($account) . ", " . db_escape($amount) . ", " . db_escape($mcode) . ", 
+			" . db_escape($masterfile) . ", " . db_escape($item_type) . "
+		)";
+
+	db_query($sql, "add_adj_gl()");
+}
+
+function update_adjustmetGL($trans_id, $account, $amount, $mcode, $masterfile) {
+    set_global_connection();
+
+    $sql = "UPDATE ".TB_PREF."stock_adjustment_gl 
+            SET account = " . db_escape($account) . ", amount = " . db_escape($amount) . ", 
+				mcode = " . db_escape($mcode) . ", master_file = " . db_escape($masterfile);
+    
+	$sql .= "WHERE id = ".db_escape($trans_id);
+
+    db_query($sql, "update_adjustmetGL()");
+
+	return 1;
+}
+
 function is_invty_open_bal($trans_no = '', $reference = '') {
 	
 	set_global_connection();
@@ -450,7 +483,7 @@ function get_adjGL_total($trans_no = 0, $line_no = 0, $gl_type = "DEFAULT") {
 
 	$result = db_query($sql, "get_adjGL_total()");
 	$row = db_fetch_row($result);
-	return $row[0];
+	return ABS($row[0]);
 }
 
 function child_adjGL_details($trans_no, $line_no) {
@@ -554,7 +587,7 @@ function update_adjGL_amount($trans_no, $total_amount = 0) {
 	db_query($sql, 'update_adjGL_amount()');
 }
 
-function get_adjGL_details($trans_no, $line_no = 0, $gl_type = "") {
+function get_adjGL_details($trans_no, $id = 0, $gl_type = "") {
 	
     set_global_connection();
 
@@ -562,8 +595,8 @@ function get_adjGL_details($trans_no, $line_no = 0, $gl_type = "") {
         FROM " . TB_PREF . "stock_adjustment_gl A 
         WHERE A.sa_trans_no = " .db_escape($trans_no);
     
-    if ($line_no > 0) {
-        $sql .= " AND A.sa_line_id = " .db_escape($line_no);
+    if ($id > 0) {
+        $sql .= " AND A.id = " .db_escape($id);
     }
 
 	if ($gl_type != "") {
@@ -660,11 +693,9 @@ function get_max_smo() {
 
 	set_global_connection();
 
-	$type = ST_INVADJUST;
-
 	$sql = "SELECT MAX(A.trans_no) 
 		FROM ".TB_PREF."stock_moves A 
-		WHERE A.type = $type GROUP BY A.type";
+		WHERE A.type = " . ST_INVADJUST . " GROUP BY A.type";
 
 	$result = db_query($sql, "Can't get max SMO trans_no! (spyrax10)");
 	$row = db_fetch_row($result);
