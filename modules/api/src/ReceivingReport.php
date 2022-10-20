@@ -263,28 +263,33 @@ class ReceivingReport
             commit_transaction();
             $response = "Success";
         }
-            
+
         api_success_response($response);
     }
      //Added by Albert  apsupport 7/29/2022 
-    public function get_apsupport($rest){
-        $sql = "SELECT
+    public function get_apsupport($rest, $supplier_id, $category_name){
+
+        $sql = "SELECT Distinct 
                     a.ap_support_type,
                     a.distribution,
                     'APSUPPORT' as ItemCode,
                     b.price
                 FROM
                     item_apsupport_type a
-                    Inner Join item_apsupport_price b on  a.id = b.apsupport_type_id
-                WHERE  a.inactive = '0'
-                ORDER by 2";
+                Inner Join 
+                    item_apsupport_price b on  a.id = b.apsupport_type_id
+                INNER JOIN
+                    stock_category c on c.category_id = b.category_id
+                WHERE  a.inactive = '0' And b.supplier_id = " . db_escape($supplier_id) . "
+                AND c.description = ".db_escape($category_name)."
+                order by 2";
         $query = db_query($sql, "error");
         $info = array();
 
         while ($data = db_fetch($query, "error")) {
             $info[] = array(
                 'ap_support_fa' => $data['ap_support_type'],
-                'aps_desc_fa' => $data['distribution'],
+                'aps_distribution' => $data['distribution'],
                 'aps_ItemCode_fa' => $data['ItemCode'],
                 'aps_price_fa' => $data['price']
                );
