@@ -230,7 +230,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Serial # Already Registered in the System! " . "(Serial: " . $lot_no . ")");
 		}
-		else if (is_Serialized($stock_id) == 1 && $chassis_count > 0) {
+		else if (get_stock_catID($stock_id) == 14 && $chassis_count > 0) {
 			$line_cnt++;
 			$err_arr[$line_cnt] = _("Chassis # Already Registered in the System! " . "(Chassis: " . $chassis_no . ")");
 		}
