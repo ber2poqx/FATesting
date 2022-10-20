@@ -765,16 +765,17 @@ if(!is_null($action) || !empty($action)){
                 $errmsg="";
                 $isError = 0;
                 while ($myrow01 = db_fetch($result2))
-                {
-                    $stock_id = $myrow01['stock_id'];
-                    $lot_no = $myrow01['lot_no'];
-
+                {                    
                     $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
                         $myrow01['lot_no']);
 
                     if($qoh == 0) {
                         $isError = 1;
-                        $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$stock_id."  and Serial #: ".$lot_no."";
+                        $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$myrow01['stock_id']."  and Serial #: ".$myrow01['lot_no']."  and - Remaining QOH: ".$qoh."";
+                        break;
+                    }elseif($qoh < -$myrow01['qty']) {
+                        $isError = 1;
+                        $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$myrow01['stock_id']."  and Serial#: ".$myrow01['lot_no']." and - Remaining QOH: ".$qoh."";
                         break;
                     }
                 }
