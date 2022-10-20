@@ -13,6 +13,7 @@ $page_security = 'SA_LCUSTAMORT';
 $path_to_root = "..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/lending/includes/lending_cfunction.inc");
+//header('Content-Type: text/html; charset=utf-8');
 
 //----------------------------------------------------------------------------------------------------
 
@@ -864,7 +865,7 @@ if(isset($_GET['get_OtherEntryPay']))
             }
         }
         
-        $status_array[] = array('id'=>(count($objDataGrid)+1),
+        $status_array[] = array('id'=>$counter+1, //array('id'=>(count($objDataGrid)+1),
                                 'gl_code'=>$gl_row["account_code"],
                                 'gl_name'=>$gl_row["account_name"],
                                 'sl_code'=>$customer["debtor_no"],
@@ -2041,6 +2042,9 @@ if(isset($_GET['submitSICash']))
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
     
+    $DataOEGrid = stripslashes(html_entity_decode($_POST['DataOEGrid']));
+    $OtherEGrid = json_decode($DataOEGrid, true);
+
     //var_dump($objDataGrid);
     if (count($objDataGrid) == 0){
         $InputError = 1;
@@ -2073,7 +2077,8 @@ if(isset($_GET['submitSICash']))
             $payment_no = write_customer_payment(0, $_POST['customername_cash'], check_isempty($BranchNo['branch_code']), $_POST['intobankacct_cash'], $_POST['trans_date_cash'], $_POST['ref_no_cash'],
                                             $_POST['tenderd_amount_cash'], 0, $_POST['remarks_cash'], 0, 0, input_num('bank_amount', $_POST['tenderd_amount_cash']),
                                             0, $_POST['paymentType_cash'], $_POST['collectType_cash'], $_POST['moduletype_cash'], $_POST['cashier_cash'], $_POST['pay_type_cash'],
-                                            $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash']);
+                                            $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'],
+                                            null, null, 0,0, null, null, $_POST['total_otheramount_cashpay']);
 
             add_cust_allocation($_POST['tenderd_amount_cash'], ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);
             update_debtor_trans_allocation($_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash']);
