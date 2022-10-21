@@ -37,7 +37,8 @@ Ext.onReady(function(){
 			{name:'qty',mapping:'qty'},
 			{name:'statusmsg',mapping:'status'},
 			{name:'serialise_total_qty',mapping:'serialise_total_qty'},
-			{name:'delivery_date',mapping:'delivery_date'}
+			{name:'delivery_date',mapping:'delivery_date'},
+			{name:'postdate',mapping:'postdate'}
 		]
 	});
 
@@ -94,6 +95,11 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:95,
+			renderer: function(value, metaData, summarydata, dataIndex){
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Post Date', dataIndex:'postdate', sortable:true, width:95,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
@@ -171,7 +177,7 @@ Ext.onReady(function(){
 										id:'PostDate',
     									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
     									value: new Date(),
-    									readOnly: true
+    									readOnly: false
 									}]
 								}],
 								items:[
@@ -1939,7 +1945,7 @@ Ext.onReady(function(){
 		store	    : myInsurance,
 		id 		    : 'grid',
 		columns 	: columnModel,
-		forceFit 	: false,
+		forceFit 	: true,
 		frame		: false,
 		columnLines	: true,
 		sortableColumns :true,

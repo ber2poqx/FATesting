@@ -680,30 +680,23 @@ if(!is_null($action) || !empty($action)){
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))
-            {
-                /*if($myrow["compli_status"]== "Draft"){
-                    $status_msg='For Approval';
-                }elseif($myrow["compli_status"]== "Approved") {
-                    $status_msg='Approved';
-                }else{
-                    $status_msg='Closed';
-                }*/
-
+            {                
                 if($myrow["date_approved"] == '0000-00-00') {
-                    $trandate = sql2date($myrow["tran_date"]);
+                    $postdate = '';
                 }else{
-                    $trandate = sql2date($myrow["date_approved"]);
+                    $postdate = sql2date($myrow["date_approved"]);
                 }
                 $group_array[] = array('trans_no'=>$myrow["trans_no"],
                     'reference' => $myrow["reference"],
-                    'tran_date' => $trandate,
+                    'tran_date' => sql2date($myrow["tran_date"]),
                     'remarks' => $myrow["remarks"],
                     'loc_code' => $myrow["loc_code"],
                     'loc_name' => $myrow["loc_name"],
                     'category_id' => $myrow["category_id"],
                     'category_name' => $myrow["category_name"],
                     'qty' => number_format(abs($myrow["total_item"]),2),
-                    'status' => $myrow["compli_status"]
+                    'status' => $myrow["compli_status"],
+                    'postdate' => $postdate
                 );    
             }
             
