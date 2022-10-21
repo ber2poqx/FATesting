@@ -177,7 +177,7 @@ function add_stock_adjustment_item($id, $type = 1,
 				$gl_id2 = $row2['id'];
 				$amount2 = $row2['amount'];
 				$account2 = $row2['account'];
-				$mcode2 = $row2['mcode'];
+				$mcode2 = get_person_id(PT_CUSTOMER, $row2['mcode']);
 				$masterfile2 = $row2['master_file'];
 					
 				//Child GL Entry
@@ -191,23 +191,22 @@ function add_stock_adjustment_item($id, $type = 1,
 					$mcode2, $masterfile2, false
 				);
 
+				//Default GL Entry
+				add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, 
+					$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id), 
+					$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
+					$type == 1 ? $amount2 : -$amount2
+				);
+
+				add_gl_masterfile(ST_INVADJUST, $adj_id, 
+					$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id), 
+					$type == 1 ? $amount2 : -$amount2, 
+					get_default_adjGL_mcode($adj_id), 
+					get_default_adjGL_masterfile($adj_id), false
+				);
+
 			} //End of while loop
 
-			//Default GL Entry
-			add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, 
-				$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id, $line_no), 
-				$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-				$type == 1 ? get_adjGL_total($adj_id, $line_no) : 
-				-get_adjGL_total($adj_id, $line_no)
-			);
-
-			add_gl_masterfile(ST_INVADJUST, $adj_id, 
-				$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id, $line_no), 
-				$type == 1 ? get_adjGL_total($adj_id, $line_no) : 
-				-get_adjGL_total($adj_id, $line_no), 
-				get_default_adjGL_mcode($adj_id, $line_no), 
-				get_default_adjGL_masterfile($adj_id, $line_no), false
-			);
 		}
 	}
 
@@ -424,39 +423,39 @@ function is_adj_repo($trans_no) {
     }
 }
 
-function get_default_adjGL_account($trans_no, $line_no) {
+function get_default_adjGL_account($trans_no) {
 	set_global_connection();
 
 	$sql = "SELECT A.account 
 		FROM ".TB_PREF."stock_adjustment_gl A 
 		WHERE A.gl_type = 'DEFAULT' AND 
-		A.sa_trans_no = " .db_escape($trans_no) . " AND A.sa_line_id = " .db_escape($line_no);
+		A.sa_trans_no = " .db_escape($trans_no);
 
 	$result = db_query($sql, "Can't get default account! (spyrax10)");
 	$row = db_fetch_row($result);
 	return $row[0];
 }
 
-function get_default_adjGL_mcode($trans_no, $line_no) {
+function get_default_adjGL_mcode($trans_no) {
 
 	set_global_connection();
 
 	$sql = "SELECT A.mcode 
 		FROM ".TB_PREF."stock_adjustment_gl A 
-		WHERE A.sa_trans_no = " .db_escape($trans_no) . " AND A.sa_line_id = " .db_escape($line_no);
+		WHERE A.gl_type = 'DEFAULT' AND A.sa_trans_no = " .db_escape($trans_no);
 
 	$result = db_query($sql, "Can't get default mcode! (spyrax10)");
 	$row = db_fetch_row($result);
 	return $row[0];
 }
 
-function get_default_adjGL_masterfile($trans_no, $line_no) {
+function get_default_adjGL_masterfile($trans_no) {
 
 	set_global_connection();
 
 	$sql = "SELECT A.master_file 
 		FROM ".TB_PREF."stock_adjustment_gl A 
-		WHERE A.sa_trans_no = " .db_escape($trans_no) . " AND A.sa_line_id = " .db_escape($line_no);
+		WHERE A.gl_type = 'DEFAULT' AND A.sa_trans_no = " .db_escape($trans_no);
 
 	$result = db_query($sql, "Can't get default mcode! (spyrax10)");
 	$row = db_fetch_row($result);
@@ -476,7 +475,7 @@ function get_adjGL_total($trans_no = 0, $line_no = 0, $gl_type = "DEFAULT") {
 	}
 
 	if ($line_no != 0) {
-		$sql .= " A.sa_line_id = ".db_escape($line_no);
+		$sql .= " AND A.sa_line_id = ".db_escape($line_no);
 	}
 
 	$sql .= " GROUP BY A.sa_trans_no";
@@ -748,21 +747,39 @@ function get_mcode($mcode) {
 }
 
 function get_masterfile($mcode) {
-    
-    set_global_connection();
+	global $db_connections;
 
-    $sql = "SELECT name as id_no FROM ".TB_PREF."debtors_master WHERE debtor_ref = " . db_escape($mcode) . "
-        UNION
-        SELECT supp_name as id_no FROM ".TB_PREF."suppliers WHERE supplier_id = " . db_escape($mcode) . "
-		UNION
-		SELECT real_name as id_no FROM ".TB_PREF."users WHERE role_id NOT IN(2,10) AND user_id = " .db_escape($mcode) ."
-		UNION
-		SELECT account_name as id_no FROM chart_master WHERE account_name LIKE '%Branch Current%' AND account_code = " .db_escape($mcode);
+	set_global_connection();
+	
+	$sql = "
+	SELECT x1.sl_name
+		FROM (
+			SELECT debtor_ref as ref, name as sl_name FROM " . TB_PREF . "debtors_master
+			UNION
+			SELECT supplier_id as ref, supp_name as sl_name FROM " . TB_PREF . "suppliers ";
+	
+	for ($i = 0; $i < count($db_connections); $i++) {
+		
+		$ho_mcode = get_company_value($i, 'branch_code');
+		$hoc_masterfile = get_company_value($i, 'name');
 
-    $result = db_query($sql, "Can't get masterfile! (spyrax10)");
-    $row = db_fetch_row($result);
+		$sql .= "UNION ";
+		$sql .= "SELECT '$ho_mcode' as ref, '$hoc_masterfile' as sl_name ";
 
-    return $row[0] != null ? $row[0] : '';
+		if ($i == count($db_connections)) {
+			$sql = substr(rtrim($sql), 0, -5);
+		}
+	}
+
+	
+	$sql .= ") x1 WHERE x1.ref = " . db_escape($mcode) . " ";
+
+	$result = db_query($sql, 'cannot retrieve sl name');
+	if (db_num_rows($result)) {
+		$row = db_fetch($result);
+		return $row['sl_name'];
+	}
+	return '';
 }
 
 function get_orig_mcode($masterfile) {

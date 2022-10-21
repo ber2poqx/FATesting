@@ -407,6 +407,8 @@ function can_process() {
 if (isset($_POST['AddChild']) && can_add_child()) {
 	$trans_no = get_next_adjID();
 	$def_gl = db_fetch(get_adjGL_details($trans_no, 0, "DEFAULT"));
+	$amount = get_post('adj_type') == 1 ? -input_num("debit_") : 
+		input_num("debit_");
 
 	add_adj_gl (
 		$trans_no, 
@@ -417,7 +419,7 @@ if (isset($_POST['AddChild']) && can_add_child()) {
 		$def_gl['color_code'], 
 		$def_gl['lot_no'], 
 		$def_gl['chassis_no'], 
-		input_num("debit_"), 
+		$amount, 
 		$_POST['mcode'], 
 		get_masterfile($_POST['mcode']),
 		$_POST['code_id'], 
@@ -436,9 +438,12 @@ if (isset($_POST['DELGL'])) {
 }
 
 if (isset($_POST['UpdChild']) && can_add_child(false)) {
+	$amount = get_post('adj_type') == 1 ? -input_num("debit_") : 
+		input_num("debit_");
+
 	foreach(get_post('UpdChild') as $key => $val) {
 		$upd_id = update_adjustmetGL($key, 
-			$_POST['code_id'], input_num("debit_"), 
+			$_POST['code_id'], $amount, 
 			$_POST['mcode'], get_masterfile($_POST['mcode'])
 		);
 
@@ -623,7 +628,14 @@ if (get_post('gl')) {
 					);
 		
 					sl_list_gl_cells(null, 'mcode', null, _("Select Masterfile"), false);
-					amount_cells_ex("", 'debit_', 10, 10, price_format(0));
+					if (get_post('adj_type') == 1) {
+						label_cell(price_format(0), "nowrap align='right'");
+						amount_cells_ex("", 'debit_', 10, 10, price_format(0));
+					}
+					else {
+						amount_cells_ex("", 'debit_', 10, 10, price_format(0));
+						label_cell(price_format(0), "nowrap align='right'");
+					}
 		
 					submit_cells('AddChild', _("Add Entry"), "colspan=2",
 						_('Add New Entry'), true
@@ -649,9 +661,14 @@ if (get_post('EDITGL')) {
 
 		sl_list_gl_cells(null, 'mcode', $child_row['mcode'], _("Select Masterfile"), false);
 		
-		amount_cells_ex("", 'debit_', 10, 10, price_format(ABS($child_row['amount'])));
-
-		label_cell(price_format(0), "nowrap align='right'");
+		if (get_post('adj_type') == 1) {
+			label_cell(price_format(0), "nowrap align='right'");
+			amount_cells_ex("", 'debit_', 10, 10, price_format(ABS($child_row['amount'])));
+		}
+		else {
+			amount_cells_ex("", 'debit_', 10, 10, price_format(ABS($child_row['amount'])));
+			label_cell(price_format(0), "nowrap align='right'");
+		}
 
 		submit_cells("UpdChild[" . $key . "]", _("Update Entry"), "colspan=2",
 			_('Update Entry'), true

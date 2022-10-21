@@ -239,6 +239,8 @@ function add_smo($trans_no, $remarks = '', $approve_stat = 1, $status = 0) {
         $Refs->save(ST_INVADJUST, $trans_no, $reference);
         add_audit_trail(ST_INVADJUST, $trans_no, $trans_date, "Posted Inventory Adjustment");
     }
+
+    return 1;
 }
 
 function check_status_adj($trans_no) {
@@ -310,7 +312,7 @@ function display_adjustment_items($trans_no)
 
     $th = array(
         _('ID'),
-        $_GET['status'] == 1 ? _("GL") : '',
+        //$_GET['status'] == 1 ? _("GL") : '',
         _("Item Code"), 
         _("Item Description"), 
         _("Color"), 
@@ -336,12 +338,12 @@ function display_adjustment_items($trans_no)
 
         label_cell($row['trans_id'], "align='center'");
         
-        if ($sub_total > 0 && $_GET['status'] == 1) {
-            view_JE_adj_cell($trans_no, $row['line_id'], $_GET['status']);
-        }
-        else {
-            label_cell('');
-        }
+        // if ($sub_total > 0 && $_GET['status'] == 1) {
+        //     view_JE_adj_cell($trans_no, $row['line_id'], $_GET['status']);
+        // }
+        // else {
+        //     label_cell('');
+        // }
         
         view_stock_status_cell($row['stock_id']);
         label_cell($row['description']);
@@ -352,39 +354,10 @@ function display_adjustment_items($trans_no)
         label_cell($row['chassis_no']);
         amount_cell($row['standard_cost']);
         amount_cell($sub_total);
-
-        if ($sub_total > 0) {
-            $person_id = get_sup_id_by_stock($row['stock_id']);
-		    $masterfile = get_sup_name_by_sup(get_sup_id_by_stock($row['stock_id']));
-
-		    $stock_gl_codes = get_stock_gl_code($row['stock_id']);
-		    $amount = $adj_type == 1 ? $row['qty'] * $row['standard_cost'] :
-			    -$row['qty'] * $row['standard_cost'];
-
-            if (adjGL_line_exists($trans_no, $row['line_id']) == 0) {
-                add_adj_gl (
-                    $trans_no, 
-                    $row['line_id'], 
-                    $adj_type, 
-                    $row['reference'], 
-                    $row['stock_id'], 
-                    $row['color_code'], 
-                    $row['lot_no'], 
-                    $row['chassis_no'], 
-                    $amount, 
-                    $person_id, 
-                    $masterfile,
-                    $row['item_type'] == 'repo' ? $stock_gl_codes['wip_account'] : 
-                        $stock_gl_codes['inventory_account'], 
-                    'DEFAULT', $row['item_type']
-                );
-            }
-            
-        }
     }
 
     label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
-        "align=right colspan=10; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
+        "align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
     );
 
     end_table();
@@ -432,7 +405,7 @@ function can_post() {
             $stock_id = $row['stock_id'];
             $qoh = get_qoh_on_date_new($row['trans_type_out'], $row['trans_no_out'], $stock_id, $row['loc_code'], $trans_date, $row['lot_no']);
     
-            if (default_adjGL_total($_GET['trans_no'], $line_id) != child_adjGL_total($_GET['trans_no'], $line_id) 
+            if (get_adjGL_total($_GET['trans_no']) != get_adjGL_total($_GET['trans_no'], 0, "CHILD")
                 && $row['standard_cost'] > 0) {
                 display_error(_("Can't Proceed! GL Account in some entries ARE NOT BALANCE!"));
                 return false;
@@ -467,8 +440,11 @@ if (isset($_POST['Approved']) && can_proceed(1)) {
 }
 
 if (isset($_POST['POST_SMO']) && can_post()) { 
-    add_smo($trans_no, '', 1, 1);
-    meta_forward($_SERVER['PHP_SELF'], "trans_no=$trans_no" ."&status=0");
+    $post_id = add_smo($trans_no, '', 1, 1);
+
+    if ($post_id) {
+        meta_forward($_SERVER['PHP_SELF'], "trans_no=$trans_no" ."&status=0");
+    }
 }
 
 
