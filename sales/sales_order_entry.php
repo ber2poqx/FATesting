@@ -942,10 +942,15 @@ function can_process()
 			return false;
 		}
 	}
-	//23 Aug 2022
+
 	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && get_post('dr_ref') == '') {
 		display_error(_("Delivery Reference cannot be empty!"));
 		set_focus('dr_ref');
+		return false;
+	}
+
+	if (!check_reference($_POST['ref'], $_SESSION['Items']->trans_type)) {
+		set_focus('ref');
 		return false;
 	}
 	//

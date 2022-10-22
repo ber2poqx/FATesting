@@ -690,6 +690,11 @@ function can_process()
 	}
 
 	//Added by spyrax10 26 Jul 2022
+	if (!check_reference($_POST['ref'], $_SESSION['Items']->trans_type)) {
+		set_focus('ref');
+		return false;
+	}
+
 	if (get_post('pdc_chk') == 1 && get_post('pdc_no') == '') {
 		display_error(_("With PDC is selected! Please Input Customer's PDC Number.."));
 		return false;
