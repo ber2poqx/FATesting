@@ -341,7 +341,6 @@ function can_add_child($add = true, $id = 0) {
 		}
 	}
 	
-
 	return true;
 }
 
@@ -609,7 +608,6 @@ while ($row = db_fetch($result)) {
 		);
 	}
 }
-
 
 if (get_post('gl')) {
 	global $Ajax;

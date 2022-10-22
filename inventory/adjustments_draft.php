@@ -244,11 +244,13 @@ function add_smo($trans_no, $remarks = '', $approve_stat = 1, $status = 0) {
 }
 
 function check_status_adj($trans_no) {
+    set_global_connection();
     $sql = "SELECT A.status FROM " . TB_PREF . "stock_adjustment A 
 		WHERE A.trans_no=" . db_escape($trans_no);
 
-	$result = db_query($sql, "Cant get adjustment status! (spyrax10)");
-    set_global_connection();
+    $sql .= " GROUP BY A.trans_no";
+	$result = db_query($sql, "check_status_adj()");
+   
 	$row = db_fetch_row($result);
 	return $row[0];
 }
@@ -380,6 +382,13 @@ function can_proceed($approve_stat = 0) {
         display_error(_('Remarks needed for disapproval!'));
         return false;
     }
+
+    if ($approve_stat == 1) {
+        if (get_adjGL_total($_GET['trans_no']) != get_adjGL_total($_GET['trans_no'], 0, "CHILD")) {
+            display_error(_("Can't Proceed! GL Account in some entries ARE NOT BALANCE!"));
+            return false;
+        }
+    }
     
     return true;
 }
@@ -461,31 +470,269 @@ if (isset($_POST['Disapproved']) && can_proceed(2)) {
 
 //-----------------------------------------------------------------------------
 
+function can_add_child($add = true, $id = 0) {
+	$trans_no = $_GET['trans_no'];
+
+	if (!input_num('debit_') || input_num('debit_') == 0) {
+		display_error(_("Invalid Amount..."));
+		return false;
+	}
+
+	if (!get_post('code_id')) {
+		display_error(_("Please Select Account Code..."));
+		return false;
+	}
+
+	if (!get_post('mcode')) {
+		display_error(_("Please Select Masterfile..."));
+		return false;
+	}
+
+	if ($add) {
+		if (get_adjGL_total($trans_no, 0, "CHILD") + input_num('debit_') > get_adjGL_total($trans_no)) {
+			display_error(_("Can't proceed! Entered amount is greater than default amount!"));
+			return false;
+		}
+	}
+	else {
+		if ((get_adjGL_total($trans_no, 0, "CHILD") - input_num('debit_')) 
+			> get_adjGL_total($trans_no)) {
+			
+		}
+	}
+	
+	return true;
+}
+
+if (isset($_POST['AddChild']) && can_add_child()) {
+	$trans_no = $_GET['trans_no'];
+
+	$def_gl = db_fetch(get_adjGL_details($trans_no, 0, "DEFAULT"));
+	$amount = $def_gl['sa_adj_type'] == 1 ? -input_num("debit_") : 
+		input_num("debit_");
+
+	add_adj_gl (
+		$trans_no, 
+		1, 
+		$def_gl['sa_adj_type'], 
+		$def_gl['sa_reference'], 
+		$def_gl['stock_id'], 
+		$def_gl['color_code'], 
+		$def_gl['lot_no'], 
+		$def_gl['chassis_no'], 
+		$amount, 
+		$_POST['mcode'], 
+		get_masterfile($_POST['mcode']),
+		$_POST['code_id'], 
+		'CHILD', $def_gl['sa_adj_item']
+	);
+}
+
+if (isset($_POST['DELGL'])) {
+	foreach(get_post('DELGL') as $key => $val) {
+		$del_id = delete_stock_adjust_gl(0, $key);
+		if ($del_id) {
+			$Ajax->activate("adj_gl");
+			display_notification(_("Entry Deleted..."));
+		}
+	}
+}
+
+if (isset($_POST['UpdChild']) && can_add_child(false)) {
+    $trans_no = $_GET['trans_no'];
+    $def_gl = db_fetch(get_adjGL_details($trans_no, 0, "DEFAULT"));
+
+	$amount = $def_gl['sa_adj_type'] == 1 ? -input_num("debit_") : 
+		input_num("debit_");
+
+	foreach(get_post('UpdChild') as $key => $val) {
+		$upd_id = update_adjustmetGL($key, 
+			$_POST['code_id'], $amount, 
+			$_POST['mcode'], get_masterfile($_POST['mcode'])
+		);
+
+		if ($upd_id) {
+			display_notification(_("Entry Updated..."));
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+
 start_form(false, false, $_SERVER['PHP_SELF'] . "?" . $_SERVER['QUERY_STRING']);
 
 display_adjustment_header($trans_no);
 display_adjustment_items($trans_no);
 
+
+div_start('adj_gl');
+
+display_heading("General Ledger Entries");
+
+start_table(TABLESTYLE, "width='75%'");
+
+$result = get_adjGL_details($trans_no);
+
+$th = array(
+    _("ID"),
+    _("Account Code"),
+    _("Account Name"),
+    _("Mcode"),
+    _("Masterfile"),
+    _("Debit"),
+    _("Credit"), _(""), _(""), _("")
+);
+
+table_header($th);
+$total = 0;
+$k = $debit_tot = $credit_tot = 0;
+
+while ($row = db_fetch($result)) {
+	alt_table_row_color($k);
+
+	$debit_row = $row['amount'] > 0 ? $row['amount'] : 0;
+	$credit_row = $row['amount'] < 0 ? $row['amount'] : 0;
+	$debit_tot += $debit_row;
+	$credit_tot += $credit_row;
+
+	label_cell($row['id'], "", 'gl_Id');
+	label_cell($row['account'], "", 'gl_account');
+	label_cell(get_gl_account_name($row['account']), "nowrap");
+	label_cell($row['mcode'], "align='center'");
+	label_cell($row['master_file'], "nowrap");
+	label_cell(price_format(abs($debit_row)), "nowrap align='right'");
+	label_cell(price_format(abs($credit_row)), "nowrap align='right'");
+
+	if ($row['gl_type'] == "DEFAULT") {
+		label_cell(
+			value_type_list(null, "gl[" . $row['id'] . "]", 
+				array(
+					"DEFAULT" => "Select Action",
+					"ADDGL" => "Add Entry"
+				), '', null, true
+			)
+		);
+	}
+	else {
+		label_cell(
+			submit_cells("EDITGL[" . $row['id'] . "]", _("Edit Entry"), "",
+				_('Edit Entry'), true
+			), "nowrap"
+		);
+
+		label_cell (
+			submit_cells("DELGL[" . $row['id'] . "]", _("Delete Entry"), "",
+				_('Delete Entry'), true
+			), "nowrap"
+		);
+	}
+}
+
+if (get_post('gl')) {
+	global $Ajax;
+    $trans_no = $_GET['trans_no'];
+    $def_gl = db_fetch(get_adjGL_details($trans_no, 0, "DEFAULT"));
+	
+	foreach(get_post('gl') as $key => $val) {
+		if ($val != "Select Action") {
+
+			if ($val == 'Add Entry') {
+				if (get_adjGL_total($trans_no) == get_adjGL_total($trans_no, 0, "CHILD")) {
+					display_warning(_("GL already balanced..."));
+				}
+				else {
+					start_row();
+					label_cell(
+						gl_all_accounts_list('code_id', null, true, true, true, false, false, false, _("Select Account Code"))
+					);
+		
+					sl_list_gl_cells(null, 'mcode', null, _("Select Masterfile"), false);
+					if ($def_gl['sa_adj_type'] == 1) {
+						label_cell(price_format(0), "nowrap align='right'");
+						amount_cells_ex("", 'debit_', 10, 10, price_format(0));
+					}
+					else {
+						amount_cells_ex("", 'debit_', 10, 10, price_format(0));
+						label_cell(price_format(0), "nowrap align='right'");
+					}
+		
+					submit_cells('AddChild', _("Add Entry"), "colspan=2",
+						_('Add New Entry'), true
+					);
+					end_row();
+				}
+			}
+		}
+	}
+	$Ajax->activate("adj_gl");
+}
+
+if (get_post('EDITGL')) {
+    $trans_no = $_GET['trans_no'];
+    $def_gl = db_fetch(get_adjGL_details($trans_no, 0, "DEFAULT"));
+	
+	foreach(get_post('EDITGL') as $key => $val) {
+
+		$child_row = db_fetch(get_adjGL_details($trans_no, $key, "CHILD"));
+		$_POST['code_id'] = $child_row['account'];
+
+		start_row();
+		label_cell(
+			gl_all_accounts_list('code_id', null, true, true, true, false, false, false, _("Select Account Code"))
+		);
+
+		sl_list_gl_cells(null, 'mcode', $child_row['mcode'], _("Select Masterfile"), false);
+		
+		if ($def_gl['sa_adj_type'] == 1) {
+			label_cell(price_format(0), "nowrap align='right'");
+			amount_cells_ex("", 'debit_', 10, 10, price_format(ABS($child_row['amount'])));
+		}
+		else {
+			amount_cells_ex("", 'debit_', 10, 10, price_format(ABS($child_row['amount'])));
+			label_cell(price_format(0), "nowrap align='right'");
+		}
+
+		submit_cells("UpdChild[" . $key . "]", _("Update Entry"), "colspan=2",
+			_('Update Entry'), true
+		);
+
+		button_cell('Cancel', _("Cancel"), _('Cancel Changes'), ICON_CANCEL);
+
+		end_row();
+	}
+
+	$Ajax->activate("adj_gl");
+}
+
+start_row("class='inquirybg' style='font-weight:bold'");
+label_cell(_("Total"), "colspan=5");
+label_cell(price_format(abs($debit_tot)), "align='right'", 'debit_tot');
+label_cell(price_format(abs($credit_tot)), "align='right'", 'credit_tot');
+end_row();
+
+end_table();
+
 start_table(TABLESTYLE2);
-echo "<br> <br>";
+echo "<br>";
 
 if ($status != 1) {
-    textarea_row(_("Remarks:"), 'Comments', null, 70, 4);
+    textarea_row(_("Remarks: &nbsp;"), 'Comments', null, 70, 4);
 }
 
 end_table(1);
 
-if (check_status_adj($trans_no) == "Draft") {
+if (check_status_adj($_GET['trans_no']) == "Draft") {
     submit_center_first('Approved', _("Approved"), '', 'default');
     submit_center_last('Disapproved', _("Disapproved"), '', 'default', ICON_DELETE);
 }
-else if (check_status_adj($trans_no) == "Approved") {
+else if (check_status_adj($_GET['trans_no']) == "Approved") {
     if ($status == 1) {
         submit_center_first('POST_SMO', _("Post This Transaction"), '', 'default');
     }
 }
 
 br(2);
-
+hidden('class_name');
+div_end();
 end_form();
 end_page();
