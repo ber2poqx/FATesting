@@ -36,8 +36,7 @@ function getTransactions($from, $to, $gl_account)
 		$from = date2sql($from);
 	
 	$to = date2sql($to);
-
-	
+	/*
 	$sql = "		
 		SELECT `name`, `debtor_ref`, SUM(Debit) AS `Debit`, SUM(Credit) AS `Credit`, SUM(amount) AS `Balance`
 		FROM
@@ -48,6 +47,31 @@ function getTransactions($from, $to, $gl_account)
 		FROM ".TB_PREF."`gl_trans` gl
 			LEFT JOIN ".TB_PREF."`debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 		    LEFT JOIN ".TB_PREF."`debtors_master` dm ON dt.debtor_no = dm.debtor_no
+		WHERE gl.account = '$gl_account' ";
+	*/
+
+	
+	$sql = "		
+		SELECT `name`, `debtor_ref`, SUM(Debit) AS `Debit`, SUM(Credit) AS `Credit`, SUM(amount) AS `Balance`
+		FROM
+		(SELECT dt.debtor_no, IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as `name`
+			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) as `debtor_ref`
+			, CASE WHEN gl.amount >= 0 THEN gl.amount ELSE 0 END AS `Debit`
+		    , CASE WHEN gl.amount < 0 THEN -gl.amount ELSE 0 END AS `Credit`
+		    , gl.*
+		FROM ".TB_PREF."`gl_trans` gl
+			LEFT JOIN ".TB_PREF."`refs` ref ON gl.type = ref.type AND gl.type_no = ref.id
+		    LEFT JOIN ".TB_PREF."`debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no			
+            LEFT JOIN ".TB_PREF."`grn_batch` grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE."
+		    LEFT JOIN ".TB_PREF."`debtors_master` debt ON dt.debtor_no = debt.debtor_no
+			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
+                 AND (bt.person_id != '' AND !ISNULL(bt.person_id))
+            LEFT JOIN ".TB_PREF."`suppliers` sup2 ON grn.supplier_id = sup2.supplier_id
+		    LEFT JOIN (SELECT `type`, `id`, `date_`, `memo_` FROM ".TB_PREF."`comments` GROUP BY `type`, `id`, `date_`, `memo_`) c ON gl.type = c.type AND gl.type_no = c.id 
+		    LEFT JOIN ".TB_PREF."`chart_master` cm ON gl.account = cm.account_code			
+		    LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
+			LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
+			LEFT JOIN  ".TB_PREF."`debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
 		WHERE gl.account = '$gl_account' ";
 
 	if ($from == 0)	
@@ -132,7 +156,7 @@ function print_SL_summary_per_customer()
 
 	$headers = array(
 		_('Name / Entries'), 
-		_('MC Code'),
+		_('MCode'),
 		_('Debits'), 
 		_('Credits'),
 		_('Balance')
