@@ -1223,7 +1223,8 @@ Ext.onReady(function(){
 													Ext.each(gridData, function(item) {
 														var ObjItem = {							
 															qty: item.get('qty'),
-															currentqty:item.get('currentqty')													
+															currentqty:item.get('currentqty'),
+															standard_cost:item.get('standard_cost')													
 														};
 														gridRepoData.push(ObjItem);
 													});
