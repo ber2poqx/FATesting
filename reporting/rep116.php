@@ -173,8 +173,8 @@ function print_dailycash_sales()
 
     $params =  array( 
 		0 => $comments,
-    	1 => array('text' => _('Transaction Date'),'from' => $from),
-    	2 => array('text' => _('Cashier'), 'from' => $cashier_display)
+    	1 => array('text' => _('Transaction Date'),'from' => $from, 'to' => ''),
+    	2 => array('text' => _('Cashier'), 'from' => $cashier_display, 'to' => '')
 	);
 
     $rep = new FrontReport(_('Daily Cash Position Report'), "DCPR", "LETTER", 9, $orientation);
