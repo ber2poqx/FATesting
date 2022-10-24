@@ -247,7 +247,7 @@ function get_all_merchandise_repo_transfer($start,$limit,$querystr='',$branchcod
 }
 
 /*Added by robert 05/27/2022*/
-function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode='',$comp_stat='',$search_ref='',$all=false)
+function get_all_complimentary_item_repo($start,$limit,$querystr='',$comp_stat='',$search_ref='',$all=false)
 {
     if($comp_stat!=''){
         $str_status=" AND compl.status='".$comp_stat."'";
@@ -261,7 +261,7 @@ function get_all_complimentary_item_repo($start,$limit,$querystr='',$branchcode=
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
     LEFT JOIN ".TB_PREF."complimentary_items compl ON smoves.reference=compl.reference 
-    WHERE smoves.type='".ST_COMPLIMENTARYITEMREPO."' AND smoves.loc_code='$branchcode' $str_status AND smoves.item_type = 'repo'
+    WHERE smoves.type='".ST_COMPLIMENTARYITEMREPO."' AND smoves.item_type = 'repo' $str_status
     AND compl.reference LIKE '%".$search_ref."%'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 

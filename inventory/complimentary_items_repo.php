@@ -264,6 +264,7 @@ if(!is_null($action) || !empty($action)){
                     $stock_qty = $data['qty'];
                     $currentqty = $data['currentqty'];
                     $stock_id = $data['stock_id'];
+                    $standard_cost = $data['standard_cost'];
 
                     if($stock_qty == 0) {
                         $isError = 1;
@@ -272,6 +273,10 @@ if(!is_null($action) || !empty($action)){
                     }elseif($stock_qty > $currentqty) {
                         $isError = 1;
                         $errmsg = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                        break;
+                    }elseif($standard_cost == 0) {
+                        $isError = 1;
+                        $errmsg="Unit Cost must not be zero.";
                         break;
                     }
                 }
@@ -534,14 +539,14 @@ if(!is_null($action) || !empty($action)){
             $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
-            $branchcode = $db_connections[user_company()]["branch_code"];
+            //$branchcode = $db_connections[user_company()]["branch_code"];
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
 
             $comp_stat = (isset($_POST['comp_stat']) ? $_POST['comp_stat'] : $_GET['comp_stat']);
             $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
             
-            $result = get_all_complimentary_item_repo($start,$limit,$querystr,$branchcode,$comp_stat,$search_ref,false,'');
-            $total_result = get_all_complimentary_item_repo($start,$limit,$querystr,$branchcode,$comp_stat,$search_ref,true,'');
+            $result = get_all_complimentary_item_repo($start,$limit,$querystr,$comp_stat,$search_ref,false,'');
+            $total_result = get_all_complimentary_item_repo($start,$limit,$querystr,$comp_stat,$search_ref,true,'');
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))

@@ -239,7 +239,7 @@ function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',
 }
 
 /*Added by robert 04/19/2022*/
-function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='', $comp_stat='',$search_ref='', $all=false)
+function get_all_complimentary_item($start,$limit,$querystr='',$comp_stat='',$search_ref='', $all=false)
 {
 
     if($comp_stat!=''){
@@ -254,7 +254,7 @@ function get_all_complimentary_item($start,$limit,$querystr='',$branchcode='', $
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
     LEFT JOIN ".TB_PREF."complimentary_items compl ON smoves.reference=compl.reference 
-    WHERE smoves.type='".ST_COMPLIMENTARYITEM."' AND smoves.loc_code='$branchcode' $str_status AND smoves.item_type = 'new'
+    WHERE smoves.type='".ST_COMPLIMENTARYITEM."' AND smoves.item_type = 'new' $str_status
     AND compl.reference LIKE '%".$search_ref."%'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 
@@ -318,6 +318,18 @@ function get_transaction_from_stock_adjusment_check($type, $trans_no, $reference
     return $result2;
 }
 
+/*Added by robert 10/20/2022*/
+function get_transaction_from_stock_adjusment_transfer_check($type, $trans_no, $reference){
+
+    $sql = "SELECT * FROM ".TB_PREF."stock_adjustment 
+    WHERE type='".$type."' AND trans_no='".$trans_no."' AND reference='".$reference."'
+    AND (qty<0)";
+
+    $result2 = db_query($sql, "could not get all complimentary item");
+
+    return $result2;
+}
+
 /*Added by robert 10/06/2022*/
 function get_transaction_from_stock_adjusment($type, $trans_no, $reference){
 
@@ -340,6 +352,35 @@ function get_transaction_from_stock_adjusment_gl($type, $trans_no, $reference){
     $result1 = db_query($sql, "could not get all complimentary item");
 
     return $result1;
+}
+
+/*Added by robert 10/19/2022*/
+function get_all_location_transfer_item($start,$limit,$querystr='',$all=false)
+{
+
+    $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
+    loc.location_name AS loc_name,
+    (SELECT adjloc.location_name FROM ".TB_PREF."stock_adjustment adj 
+    LEFT JOIN ".TB_PREF."locations adjloc ON adj.loc_code = adjloc.loc_code
+    WHERE adj.type='".ST_LOCTRANSFER."' AND adj.reference=smoves.reference 
+    AND (adj.qty<0) GROUP BY adj.reference) AS from_name
+    FROM ".TB_PREF."stock_adjustment smoves 
+    INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
+    INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
+    WHERE smoves.type='".ST_LOCTRANSFER."' AND smoves.item_type = 'new' AND (smoves.qty>0)
+    GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all complimentary item");
+    }else{
+        $result = db_query($sqllimit, "could not get all complimentary item");
+    }
+    //echo $sql;
+
+    return $result;
 }
 
 //added by Herald 09/22/2021 for Manual Entry MT
