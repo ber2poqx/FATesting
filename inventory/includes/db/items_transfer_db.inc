@@ -492,7 +492,7 @@ function add_stock_transfer($Items, $location_from, $location_to, $date_, $refer
 }
 
 //Added by Herald 03/27/2021 for New Item Transfer Location
-function add_item_location_transfer($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0)
+function add_item_location_transfer($Items, $location_from, $location_to, $date_, $reference, $memo_, $catcode=0)
 {
     global $SysPrefs, $path_to_root, $Refs;
     
@@ -517,11 +517,13 @@ function add_item_location_transfer($Items, $location_from, $location_to, $date_
     {
         set_global_connection();
         if ($SysPrefs->loc_notification() == 1)
-            $loc = calculate_reorder_level($location_from, $line_item, $st_ids, $st_names, $st_num, $st_reorder);
-            add_stock_transfer_item_location($transfer_id, $line_item->stock_id, $location_from,
-                $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out, $line_item->item_type, $line_item->remarks);
-    }
-    
+        $loc = calculate_reorder_level($location_from, $line_item, $st_ids, $st_names, $st_num, $st_reorder);
+        /*add_stock_transfer_item_location($transfer_id, $line_item->stock_id, $location_from,
+            $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out, $line_item->item_type, $line_item->remarks);*/
+        add_location_transfer_into_adjustment($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, 
+            $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, 
+            $line_item->transno_out, $memo_);
+    }   
     add_comments(ST_LOCTRANSFER, $transfer_id, $date_, $memo_);
     
     $Refs->save(ST_LOCTRANSFER, $transfer_id, $reference);
@@ -534,8 +536,7 @@ function add_item_location_transfer($Items, $location_from, $location_to, $date_
     
     if ($SysPrefs->loc_notification() == 1 && count($st_ids) > 0)
         send_reorder_email($loc, $st_ids, $st_names, $st_num, $st_reorder);
-        
-        return $transfer_id;
+    return $transfer_id;
 }
 //Added by Herald - 02/03/2021
 function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $targetdb){
@@ -777,13 +778,14 @@ function add_stock_transfer_item($transfer_id, $stock_id, $location_from, $locat
     //add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, 0,0,$lot_no,$chasis_no, $category_id, $color_code);
 
 }
+//Update 10/19/2022 enable by robert due to not used anymore
 //Added by Herald 03/27/2021 for new Item Transfer Location    
-function add_stock_transfer_item_location($transfer_id, $stock_id, $location_from, $location_to,	$date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out=0, $transno_out=0, $item_type='new', $remarks=null)
+/*function add_stock_transfer_item_location($transfer_id, $stock_id, $location_from, $location_to,	$date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out=0, $transno_out=0, $item_type='new', $remarks=null)
 {
     add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_from,	$date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out, $item_type, $remarks);
     add_stock_move_transfer_approval(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, $standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, 0, 0, $item_type, $remarks);
     
-}
+}*/
 function add_stock_merchandise_transfer_item($transfer_id, $stock_id, $location_from, $location_to,	$date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out=0, $transno_out=0)
 {
     add_stock_move(ST_MERCHANDISETRANSFER, $stock_id, $transfer_id, $location_from,	$date_, $reference, -$quantity,str_replace(",","",$standard_cost),0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out);
@@ -799,7 +801,6 @@ function add_stock_rrbranch_item($transfer_id, $stock_id, $location_from, $branc
     //add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, 0,0,$lot_no,$chasis_no, $category_id, $color_code);
     
 }
-
 function add_stock_complimentary_item($transfer_id, $stock_id, $location_from,	$date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',$standard_cost=0, $type_out, $transno_out)
 {
     return add_stock_move(ST_COMPLIMENTARYITEM, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity,$standard_cost,0,$lot_no,$chasis_no, $category_id, $color_code, $type_out, $transno_out);
@@ -807,15 +808,23 @@ function add_stock_complimentary_item($transfer_id, $stock_id, $location_from,	$
     //add_stock_move(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, 0,0,$lot_no,$chasis_no, $category_id, $color_code);
     
 }
-
 //added by robert 10/03/2022
 function add_stock_compli_into_adjustment($transfer_id, $stock_id, $location_from,  $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, $color_code='',
     $standard_cost=0, $type_out, $transno_out, $remarks)
 {
-    return add_stock_adjustment_complimentary(ST_COMPLIMENTARYITEM, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity, $standard_cost, 0, $lot_no, 
-        $chasis_no, $category_id, $color_code, $type_out, $transno_out, $remarks);
+    return add_stock_adjustment_complimentary(ST_COMPLIMENTARYITEM, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity, $standard_cost, 0, $lot_no, $chasis_no, $category_id, $color_code, $type_out, $transno_out, $remarks);
 }
 
+//added by robert 10/19/2022
+function add_location_transfer_into_adjustment($transfer_id, $stock_id, $location_from, $location_to, $date_, $reference, $quantity,$lot_no,$chasis_no, $category_id, 
+    $color_code='', $standard_cost=0, $type_out, $transno_out, $remarks)
+{
+    add_stock_adjustment_complimentary(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_from, $date_, $reference, -$quantity, $standard_cost, 0, $lot_no, $chasis_no, 
+        $category_id, $color_code, $type_out, $transno_out, $remarks);
+
+    add_stock_adjustment_location_transfer(ST_LOCTRANSFER, $stock_id, $transfer_id, $location_to, $date_, $reference, $quantity, $standard_cost, 0, $lot_no, $chasis_no,
+        $category_id, $color_code, 0, 0, $remarks);
+}
 //-------------------------------------------------------------------------------------------------------------
 //
 //	Get inventory transfer common data (currently this is still stored in stock_moves table).

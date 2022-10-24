@@ -47,52 +47,90 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'AddItem';
-            $category_id = $_REQUEST['category'];
-            $serialise_id = $_REQUEST['serialise_id'];
-            //$AdjDate = $_POST['AdjDate'];
-            $AdjDate = date("m/d/Y",strtotime($_REQUEST['AdjDate']));
-            
-            $model = $_REQUEST['model'];
-            $lot_no = $_REQUEST['lot_no'];
-            $type_out = $_REQUEST['type_out'];
-            $transno_out = $_REQUEST['transno_out'];
-            $item_type = $_REQUEST['item_type'];
-            $serialised = $_REQUEST['serialised'];
-            $brcode = $db_connections[user_company()]["branch_code"];
-            $qty = $_REQUEST['qty'];
-            $rr_date = $_REQUEST['rr_date'];
-            
-            $_SESSION['transfer_items']->from_loc=$brcode;
-            //echo "ID:".$serialise_id;
-            //if($category_id==23){
-            //    add_to_mt_order($_SESSION['transfer_items'], $model, $model);
-                
-            //}else
-            if(!isset($_REQUEST['view'])){
-                add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out, $item_type, $qty, $rr_date, $AdjDate);
+            $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+            foreach($objDataGrid as $value=>$data) 
+            {
+                $serialise_id = $data['serialise_id'];
+                $category_id = $data['category'];
+                $AdjDate = $data['AdjDate'];
+                $model = $data['model'];
+                $item_code = $data['item_code'];
+                $sdescription = $data['sdescription'];
+                $color = $data['color'];
+                $lot_no = $data['lot_no'];
+                $chasis_no = $data['chasis_no'];
+                $type_out = $data['type_out'];
+                $transno_out = $data['transno_out'];
+                $serialised = $data['serialised'];
+                $rr_date = $data['rr_date'];
+                $qty = $data['qty'];
+                $currentqty = $data['qty'];
+                $brcode = $db_connections[user_company()]["branch_code"];
+                $_SESSION['transfer_items']->from_loc=$brcode;
+
+
+                if($lot_no == ''){
+                    $qty = 0;
+                }
+
+                if(!isset($_REQUEST['view'])){
+                    $line_item_header = rand();
+                    if($serialised) {
+                        $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                        $line_item = count($_SESSION['transfer_items']->line_items);
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
+                            '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header,
+                            null, null, null, null, $currentqty);
+                    }else{
+                        $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                        $line_item = count($_SESSION['transfer_items']->line_items);
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header,
+                            null, null, null, null, $currentqty);
+                    } 
+                }
+                /*if(!isset($_REQUEST['view'])){
+                    add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out, $item_type, $qty, $rr_date, $AdjDate);
+                }*/
             }
-            //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
-            display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
-            //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            display_transfer_items_serial($_SESSION['transfer_items'], $brcode, $AdjDate, $serialise_id);
             exit;
             break;
         case 'SaveTransfer';
-            //$serialise_id = $_REQUEST['serialise_id'];
             set_global_connection();
-            $AdjDate = sql2date($_POST['AdjDate']);
-            //$model = $_REQUEST['model'];
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            //echo "ID:".$serialise_id;
-            //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
-            //display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
-            $catcode = $_POST['catcode'];
-            $_POST['ref']=$Refs->get_next(ST_LOCTRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-            $trans_no = add_item_location_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode);
-            new_doc_date($AdjDate);
-            $_SESSION['transfer_items']->clear_items();
-            unset($_SESSION['transfer_items']);
+
+            $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
+            $objDataGrid = json_decode($DataOnGrid, true);
+
+            $message="";
+            $isError = 0;
+            foreach($objDataGrid as $value=>$data) 
+            {
+                $stock_qty = $data['qty'];
+                $currentqty = $data['currentqty'];
+
+                if($stock_qty == 0) {
+                    $isError = 1;
+                    $message="Quantity must not be zero.";
+                    break;
+                }elseif($stock_qty > $currentqty) {
+                    $isError = 1;
+                    $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
+                    break;
+                }
+            }
             
-            echo '({"total":"'.$AdjDate.'","reference":"'.$_POST['ref'].'"})';
+            if($isError != 1){
+                $AdjDate = sql2date($_POST['AdjDate']);
+                $catcode = $_POST['catcode'];
+                $_POST['ref']=$Refs->get_next(ST_LOCTRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
+                $trans_no = add_item_location_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, 
+                    $_POST['ref'], $_POST['memo_'], $catcode);
+                //new_doc_date($AdjDate);
+                //$_SESSION['transfer_items']->clear_items();
+                //unset($_SESSION['transfer_items']);
+            }
+            echo '({"success":"true","reference":"'.$_POST['ref'].'","message":"'.$message.'"})';
             exit;
             break;
         case 'readData';
@@ -254,7 +292,7 @@ if(!is_null($action) || !empty($action)){
                             'transno_out' => $myrow["transno_out"],
                             'reference' => $myrow["reference"],
                             'tran_date' => $myrow["tran_date"],
-                            'color' => $myrow["serialise_item_code"],
+                            'item_code' => $myrow["serialise_item_code"],
                             'stock_description' => $myrow["stock_description"],
                             'item_description' => $myrow["item_description"],
                             'model' => $myrow["model"],
@@ -269,10 +307,7 @@ if(!is_null($action) || !empty($action)){
                         );
                     }
                 }
-                
-                
-            }
-            
+            }          
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;
@@ -292,47 +327,39 @@ if(!is_null($action) || !empty($action)){
             
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
-            $sql = "SELECT sm.*,sm.qty as totalqty, sc.description as category, smaster.description as stock_description, icode.description as item_description, loc.location_name, sm.qty_approval FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id
-            LEFT JOIN ".TB_PREF."locations loc ON sm.loc_code=loc.loc_code 
-            LEFT JOIN ".TB_PREF."stock_master smaster ON sm.stock_id=smaster.stock_id 
-            LEFT JOIN ".TB_PREF."item_codes icode ON sm.color_code=icode.item_code 
-            WHERE sm.type='".ST_LOCTRANSFER."' and (sm.qty>0 or sm.qty_approval>0) and sm.reference=".db_escape($reference);
+            $sql = "SELECT move.trans_no, move.stock_id, move.reference, move.lot_no, move.chassis_no, move.qty, 
+            move.category_id, move.standard_cost, code.description, master.description AS description_item, loc.location_name AS loc_name
+            FROM ".TB_PREF."stock_adjustment move 
+            LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
+            LEFT JOIN ".TB_PREF."stock_master master ON master.stock_id = move.stock_id
+            INNER JOIN locations loc ON move.loc_code = loc.loc_code
+            WHERE (move.qty>0) AND move.reference = ".db_escape($reference);
             
-            $sql.=" order by trans_id desc,tran_date desc";
-            
-            
-            $result=db_query($sql, "could not get all Serial Items");
-            
-            $total = db_num_rows($result);
-            
-            
-            while ($myrow = db_fetch($result))
-            {
-                //if($myrow["serialise_qty"]>0){
-                    //$serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
-                    //$tandard_cost = Get_StandardCost_Plcy($branchcode,$catcode,$myrow["model"]);
-                    
-                    $group_array[] = array('serialise_id'=>$serialise_id,
-                        'stock_moves_id' => $myrow["trans_id"],
-                        'color' => $myrow["item_code"],
-                        'stock_description' => $myrow["stock_description"],
-                        'item_description' => $myrow["item_description"],
-                        'model' => $myrow["stock_id"],
-                        'standard_cost' => number_format($myrow["standard_cost"],2),
-                        'qty' => number_format($myrow["totalqty"]==0?$myrow["qty_approval"]:$myrow["totalqty"],2),
-                        'category_id'=>$catcode,
-                        'lot_no' => $myrow["lot_no"],
-                        'chasis_no' => $myrow["chassis_no"],
-                        'tolocation'=> $myrow["location_name"],
-                        'item_type' => $myrow["item_type"],
-                        'remarks' => $myrow["remarks"],
-                        'approval' => $myrow["qty_approval"]
-                    );
-                //}
-                
+           if($catcode!=0){
+                $sql.=" AND move.category_id = $catcode";
+            }
+            if($reference!=''){
+                $sql.=" AND move.reference = '".$reference."'";
                 
             }
             
+            $result=db_query($sql, "could not get all Serial Items");
+            $total = db_num_rows($result);
+            
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('trans_no' => $myrow["trans_no"],
+                    'model' => $myrow["stock_id"],
+                    'color' => $myrow["description"],
+                    'item_description' => $myrow["description_item"],
+                    'qty' => price_format(abs($myrow["qty"])),
+                    'category_id'=>$catcode,
+                    'lot_no' => $myrow["lot_no"],
+                    'chasis_no' => $myrow["chassis_no"],
+                    'standard_cost' => $myrow["standard_cost"],
+                    'tolocation'=> $myrow["loc_name"]
+                );
+            }
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;
@@ -394,50 +421,38 @@ if(!is_null($action) || !empty($action)){
         case 'view':
             //global $def_coy;
             //set_global_connection($def_coy);
-            
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-            $end = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+            $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
+
+            $loc_stat = (isset($_POST['loc_stat']) ? $_POST['loc_stat'] : $_GET['loc_stat']);
+            $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
             
-            if($start < 1)	$start = 0;	if($end < 1) $end = 25;
-            
-            //$brcode = $db_connections[user_company()]["branch_code"];
-            $sql = "SELECT *,sum(sm.qty) as totalqty, sum(sm.qty_approval) as approval, sc.description as category,(SELECT loci.location_name FROM ".TB_PREF."stock_moves smi LEFT JOIN locations loci ON smi.loc_code=loci.loc_code WHERE smi.type='".ST_LOCTRANSFER."' and (smi.qty<0 or smi.qty_approval>0)  AND smi.reference=sm.reference GROUP BY smi.reference) as fromloc FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id 
-            LEFT JOIN locations loc ON sm.loc_code=loc.loc_code WHERE sm.type='".ST_LOCTRANSFER."' and (sm.qty>0 or sm.qty_approval>0)";
-            if(isset($branchcode) && $branchcode!=''){
-                //$sql.=" and sm.loc_code<>'$branchcode'";
-            }
-                       
-            $sql.=" group by sm.reference, sm.category_id order by trans_id desc,tran_date desc";
-                
-            //$sql = "SELECT *, sc.description as category, sum(md.mt_details_total_qty) as totalqty,sum(md.mt_details_total_qty)-sum(md.mt_details_recvd_qty) as balance_total FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id WHERE mh.mt_header_fromlocation='$branchcode' GROUP BY mh.mt_header_id desc";
-            
-            $result = db_query($sql, "could not get all Serial Items");
-            //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
-            //$total = db_num_rows($total_result);
+            $result = get_all_location_transfer_item($start,$limit,$querystr,$loc_stat,$search_ref,false,'');
+            $total_result = get_all_location_transfer_item($start,$limit,$querystr,$loc_stat,$search_ref,true,'');
+            $total = DB_num_rows($result);
             while ($myrow = db_fetch($result))
             {
-                $remarks = get_comments($myrow["type"],$myrow["trans_no"]);
-                $remrow = db_fetch($remarks);
-                $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
-                    'stock_moves_id' => $myrow["trans_id"],
+                if($myrow["date_approved"] == '0000-00-00') {
+                    $postdate = '';
+                }else{
+                    $postdate = sql2date($myrow["date_approved"]);
+                }
+                $group_array[] = array('trans_no'=>$myrow["trans_no"],
                     'reference' => $myrow["reference"],
                     'tran_date' => sql2date($myrow["tran_date"]),
                     'loc_code' => $myrow["loc_code"],
-                    'loc_name' => $myrow["location_name"],
-                    'fromloc' => $myrow["fromloc"],
-                    'remarks' => $remrow["memo_"],
+                    'loc_name' => $myrow["loc_name"],
+                    'from_name' => $myrow["from_name"],
+                    'remarks' => $myrow["memo"],
                     'category_id' => $myrow["category_id"],
-                    'category' => $myrow["category"],
-                    'qty' => number_format(($myrow["totalqty"]==0?$myrow["approval"]:$myrow["totalqty"]),2),
-                    'lot_no' => $myrow["serialise_lot_no"],
-                    'chasis_no' => $myrow["serialise_chasis_no"],
-                    'serialise_loc_code'=>$myrow["serialise_loc_code"],
-                    'approval' => $myrow["approval"]
+                    'category_name' => $myrow["category_name"],
+                    'qty' => number_format(abs($myrow["total_item"]),2),
+                    'status' => $myrow["status"],
+                    'postdate' => $postdate
                 );
-                
             }
             
             $jsonresult = json_encode($group_array);
@@ -593,54 +608,110 @@ if(!is_null($action) || !empty($action)){
             
             exit;
             break;
+        case 'UserRoleId':
+            
+            $user_role = check_user_role($_SESSION["wa_current_user"]->username);
+            $user_name = $_SESSION["wa_current_user"]->name;
+
+            echo '({"user_name":"'.$user_name.'","user_role":"'.$user_role.'"})';
+            exit;
+            break;
+        case 'UserRoleId_apprv':
+            
+            $user_role = check_user_role($_SESSION["wa_current_user"]->username);
+            $user_name = $_SESSION["wa_current_user"]->username;
+
+            $sql = "SELECT role_id FROM ".TB_PREF."users WHERE user_id = '$user_name'";
+            
+            $result = db_query($sql, "could not get all Serial Items");
+
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('role_id'=>$myrow["role_id"]); 
+            }
+
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            exit;
+            break;
         case 'approval':
             $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
-            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
             $total=0;
-            if($approval_value=='yes'){
-                $sql = "SELECT sm.trans_id, sm.qty as totalqty, sm.qty_approval FROM ".TB_PREF."stock_moves sm LEFT JOIN stock_category sc ON sm.category_id=sc.category_id
-            WHERE sm.type='".ST_LOCTRANSFER."' and (sm.qty_approval>0) and sm.reference=".db_escape($reference);
-                
-                
-                $result=db_query($sql, "could not get all Serial Items");
-                
-                $total = db_num_rows($result);
-                
-                
-                while ($myrow = db_fetch($result))
-                {
-                    $sql_inner = "UPDATE ".TB_PREF."stock_moves SET qty=".db_escape($myrow["qty_approval"]).", qty_approval='0' WHERE trans_id=".$myrow["trans_id"];
-                    db_query($sql_inner, "could not execure Update to Stock Moves Qty");
-                }
-                
+            $sql = "SELECT trans_no, type, reference FROM ".TB_PREF."stock_adjustment
+            WHERE type='".ST_LOCTRANSFER."' AND reference=".db_escape($reference);
+             
+            $result=db_query($sql, "could not get all Items");
+            
+            $total = db_num_rows($result);
+
+            while ($myrow = db_fetch($result))
+            {
+                update_stock_adjustment_status($myrow["reference"], $myrow["type"]);
             }
-            /*else{
-                $sql_inner = "DELETE FROM ".TB_PREF."stock_moves WHERE reference=".db_escape($reference);
-                db_query($sql_inner, "could not execure Update to Stock Moves Qty");
-            }*/
-            
-            echo '({"ApprovalStatus":"'.$approval_value.'"})';
-            
+            echo '({"total":"'.$total.'","success":true})';
             exit;
             break;
         case 'disapproval':
             $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
-            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
             $total=0;
-            if($approval_value=='yes'){
-                $sql_inner = "DELETE FROM ".TB_PREF."stock_moves WHERE reference=".db_escape($reference);
-                db_query($sql_inner, "could not execure Update to Stock Moves Qty");
-                
-            }
-            /*else{
-                $sql_inner = "DELETE FROM ".TB_PREF."stock_moves WHERE reference=".db_escape($reference);
-                db_query($sql_inner, "could not execure Update to Stock Moves Qty");
-            }*/
+            $sql = "SELECT trans_no, type, reference FROM ".TB_PREF."stock_adjustment
+            WHERE type='".ST_LOCTRANSFER."' AND reference=".db_escape($reference);
+             
+            $result=db_query($sql, "could not get all Items");
             
-            echo '({"ApprovalStatus":"'.$approval_value.'"})';
-            
+            $total = db_num_rows($result);
+
+            while ($myrow = db_fetch($result))
+            {
+                update_stock_adjustment_status_disaaproved($myrow["reference"], $myrow["type"]);
+            }            
+            echo '({"total":"'.$total.'","success":true})';
             exit;
             break;
+         case 'posting_transaction':
+            
+            $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
+            $trans_no = (integer) (isset($_POST['trans_no']) ? $_POST['trans_no'] : $_GET['trans_no']);
+           
+            $PostDate = sql2date($_POST['PostDate']);
+            $PostDated = date('Y-m-d', strtotime($_POST['PostDate']));
+            
+            $result = get_transaction_from_stock_adjusment(ST_LOCTRANSFER, $trans_no, $reference);
+            $result2 = get_transaction_from_stock_adjusment_transfer_check(ST_LOCTRANSFER, $trans_no, $reference);
+
+            $errmsg="";
+            $isError = 0;
+            while ($myrow01 = db_fetch($result2))
+            {
+                $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
+                    $myrow01['lot_no']);
+
+                if($qoh == 0) {
+                    $isError = 1;
+                    $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$myrow01['stock_id']."  and Serial #: ".$myrow01['lot_no']." and - Remaining QOH: ".$qoh."";
+                    break;
+                }elseif($qoh < -$myrow01['qty']) {
+                    $isError = 1;
+                    $errmsg="Sorry, Can't Proceed! There is not enough quantity in stock for Stock ID: ".$myrow01['stock_id']."  and Serial #: ".$myrow01['lot_no']." and - Remaining QOH: ".$qoh."";
+                    break;
+                }
+            }
+
+            if($isError != 1){
+                $totalitem = db_num_rows($result);
+                while ($myrow = db_fetch($result))
+                {
+                    add_stock_move(ST_LOCTRANSFER, $myrow["stock_id"], $myrow["trans_no"], $myrow["loc_code"], $PostDate, $myrow["reference"], $myrow["qty"],
+                        $myrow["standard_cost"], 0, $myrow["lot_no"], $myrow["chassis_no"], $myrow["category_id"], $myrow["color_code"], $myrow["trans_type_out"],
+                        $myrow["trans_no_out"]);
+
+                    update_stock_adjustment_status_post($myrow["reference"], ST_LOCTRANSFER, $PostDated);
+                }
+            }
+            echo '({"success":true,"totalItem":"'.$totalitem.'","reference":"'.$reference.'","trans_no":"'.$trans_no.'",
+                "errmsg":"'.$errmsg.'"})';
+        exit;
+        break;
     }
 }
 
@@ -857,9 +928,9 @@ if (isset($_GET['NewTransfer']) || !isset($_SESSION['transfer_items']))
 //-----------------------------------------------------------------------------------------------
 
 
-/*echo "<div id='merchandisetransfer-grid' style='padding:15px'></div>";
+echo "<div id='merchandisetransfer-grid' style='padding:15px'></div>";
 
-start_form();
+/*start_form();
 
 display_order_header($_SESSION['transfer_items']);
 
@@ -875,9 +946,9 @@ end_table(1);
 submit_center_first('Update', _("Update"), '', null);
 submit_center_last('Process', _("Process Transfer"), '',  'default');
 
-end_form();
-end_page(false,true);*/
-start_table(TABLESTYLE, "width='100%'");
+end_form();*/
+end_page(false,true);
+/*start_table(TABLESTYLE, "width='100%'");
    echo "<div id='merchandisetransfer-grid' style='padding:15px'></div>";
    echo "<style type='text/css' media='screen'>
             .x-form-text-default.x-form-textarea {
@@ -888,5 +959,5 @@ start_table(TABLESTYLE, "width='100%'");
 end_table();
 
 //end_form();
-end_page();
+end_page();*/
 

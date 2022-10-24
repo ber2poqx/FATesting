@@ -704,7 +704,8 @@ Ext.onReady(function(){
 	//Added on 10/10/2022
 	var StatusFileStore = new Ext.create ('Ext.data.Store',{
 		fields 	: 	['stat_id', 'namecaption'],
-		data 	: 	[{"stat_id":"Approved","namecaption":"Approved"},
+		data 	: 	[{"stat_id":"","namecaption":"All"},
+					{"stat_id":"Approved","namecaption":"Approved"},
 					{"stat_id":"Draft","namecaption":"For Approval"},
                     {"stat_id":"Closed","namecaption":"Closed"},
                     {"stat_id":"Disapproved","namecaption":"Disapproved"}],

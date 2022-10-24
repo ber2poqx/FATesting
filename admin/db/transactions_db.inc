@@ -219,7 +219,7 @@ function get_systype_db_info($type)
         case     ST_CUSTCREDIT   : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_CUSTPAYMENT  : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
         case     ST_CUSTDELIVERY : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
-        case     ST_LOCTRANSFER  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
+        case     ST_LOCTRANSFER  : return array(TB_PREF."stock_adjustment", "type", "trans_no", "reference", "tran_date");
         case     ST_MERCHANDISETRANSFER  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_MERCHANDISETRANSFERREPO  : return array(TB_PREF."stock_moves", "type", "trans_no", "reference", "tran_date");
         case     ST_COMPLIMENTARYITEM  : return array(TB_PREF."stock_adjustment", "type", "trans_no", "reference", "tran_date");

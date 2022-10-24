@@ -355,8 +355,13 @@ function get_transaction_from_stock_adjusment_gl($type, $trans_no, $reference){
 }
 
 /*Added by robert 10/19/2022*/
-function get_all_location_transfer_item($start,$limit,$querystr='',$all=false)
+function get_all_location_transfer_item($start,$limit,$querystr='',$loc_stat='',$search_ref='',$all=false)
 {
+    if($loc_stat!=''){
+        $str_status=" AND smoves.status='".$loc_stat."'";
+    }else{
+        $str_status="";
+    }
 
     $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
     loc.location_name AS loc_name,
@@ -367,16 +372,17 @@ function get_all_location_transfer_item($start,$limit,$querystr='',$all=false)
     FROM ".TB_PREF."stock_adjustment smoves 
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
-    WHERE smoves.type='".ST_LOCTRANSFER."' AND smoves.item_type = 'new' AND (smoves.qty>0)
+    WHERE smoves.type='".ST_LOCTRANSFER."' AND smoves.item_type = 'new' AND (smoves.qty>0) $str_status
+    AND smoves.reference LIKE '%".$search_ref."%'
     GROUP BY smoves.trans_no ORDER BY smoves.tran_date DESC, smoves.trans_id DESC";
 
     /*Added by Robert */
     $sqllimit = $sql ." limit $start, $limit";
 
     if ($all) {
-        $result = db_query($sql, "could not get all complimentary item");
+        $result = db_query($sql, "could not get all location transfer item");
     }else{
-        $result = db_query($sqllimit, "could not get all complimentary item");
+        $result = db_query($sqllimit, "could not get all location transfer item");
     }
     //echo $sql;
 

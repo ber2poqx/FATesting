@@ -15,86 +15,172 @@ Ext.require(['Ext.toolbar.Paging',
 
 Ext.onReady(function(){
 	Ext.QuickTips.init();
+	var itemsPerPage = 20;   // set the number of items you want per page on grid.
+	var all = false;
 	var global_master_id;
-
 	const queryString = window.location.search;
 	//console.log(queryString);
 	const urlParams = new URLSearchParams(queryString);
 	var BrCode = urlParams.get('BRCODE')
+	var totalitem=0;
 
-	
-
-	
  	Ext.define('insurance', {
 		extend : 'Ext.data.Model',
 		fields  : [
-			{name:'trans_id',mapping:'trans_id'},
+			{name:'trans_no',mapping:'trans_no'},
 			{name:'reference',mapping:'reference'},
 			{name:'tran_date',mapping:'tran_date'},
 			{name:'loc_code',mapping:'loc_code'},
 			{name:'loc_name',mapping:'loc_name'},
-			{name:'fromloc',mapping:'fromloc'},
-			{name:'category',mapping:'category'},
+			{name:'from_name',mapping:'from_name'},
+			{name:'category_name',mapping:'category_name'},
 			{name:'category_id',mapping:'category_id'},
 			{name:'remarks',mapping:'remarks'},
 			{name:'qty',mapping:'qty'},
-			{name:'serialise_total_qty',mapping:'serialise_total_qty'},
-			{name:'delivery_date',mapping:'delivery_date'},
-			{name:'approval',mapping:'approval'}
+			{name:'status',mapping:'status'},
+			{name:'postdate',mapping:'postdate'}
 		]
 	});
 
-	 function Approval(val) {
-		if(val == '0'){
-			return '<span style="color:black;">Approved</span>';
-		}
-		else{
-            return '<span style="color:red;font-weight: bold;">For Approval</span>';
+	Ext.define('mymerchandiselocationtransfer',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'stock_id', mapping:'stock_id'},
+			{name:'stock_description', mapping:'stock_description'},
+			{name:'trans_date', mapping:'trans_date'},
+			{name:'price', mapping:'price'},
+			{name:'reference', mapping:'reference'},
+			{name:'currentqty', mapping:'currentqty'},
+			{name:'qty', mapping:'qty', type: 'float'},
+			{name:'standard_cost', mapping:'standard_cost', type: 'float'},
+			{name:'lot_no', mapping:'lot_no'},
+			{name:'chasis_no', mapping:'chasis_no'},
+			{name:'category_id', mapping:'category_id'},
+			{name:'serialise_id', mapping:'serialise_id'},
+			{name:'color', mapping:'color'},
+			{name:'type_out', mapping:'type_out'},
+			{name:'transno_out', mapping:'transno_out'},
+			{name:'rr_date', mapping:'rr_date'},
+			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'},
+			{name:'remarks', mapping:'remarks'}
+		]
+	});
+
+	Ext.define('myltitemlist',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'trans_no', mapping:'trans_no'},
+			{name:'model', mapping:'model'},
+			{name:'color', mapping:'color'},
+			{name:'item_description', mapping:'item_description'},
+			{name:'qty', mapping:'qty', type: 'float'},
+			{name:'category_id', mapping:'category_id'},
+			{name:'lot_no', mapping:'lot_no'},
+			{name:'chasis_no', mapping:'chasis_no'},
+			{name:'standard_cost', mapping:'standard_cost'},
+			{name:'tolocation', mapping:'tolocation'}
+		]
+	});
+
+	function Status(val) {
+		if(val == 'Draft'){
+			return '<span style="color:red;font-weight:bold;">For Approval</span>';
+		}else if(val == 'Approved'){
+            return '<span style="color:green;font-weight: bold;">Approved</span>';
+        }else if(val == 'Closed'){
+            return '<span style="color:blue;font-weight: bold;">Closed</span>';
+        }else{
+        	return '<span style="color:black;font-weight: bold;">Disapproved</span>';
         }
         return val;
     }
+
 	var columnModel =[
-		{header:'ID', dataIndex:'stock_moves_id', sortable:true, width:60, hidden: false},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:150},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:120},
-		{header:'From Location', dataIndex:'fromloc', sortable:true, width:160},
-		{header:'To Location', dataIndex:'loc_name', sortable:true, width:150},
-		{header:'Category', dataIndex:'category', sortable:true, width:110},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:90, align:'center', hidden: false},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:243, align:'center'},
-		{header:'Approval', dataIndex:'approval', sortable:false, width:100, align:'center', hidden: false, renderer: Approval},
-		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:86,
+		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, hidden: true},
+		{header:'Reference', dataIndex:'reference', sortable:true, width:170,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:100,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
+		},
+		{header:'Post Date', dataIndex:'postdate', sortable:true, width:100,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
+		},
+		{header:'From Location', dataIndex:'from_name', sortable:true, width:300,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
+		},
+		{header:'To Location', dataIndex:'loc_name', sortable:true, width:140,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
+		},
+		{header:'Category', dataIndex:'category_name', sortable:true, width:100,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:95, align:'center', hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
+			}
+		},
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:243,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'Status', dataIndex:'status', sortable:false, width:100, hidden: false, renderer: Status},
+		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:85,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
-					tooltip: 'Serial Items Detail',
+					tooltip: 'Items Details / Approved / Disapproved / Posting',
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
-						id = record.get('trans_id');
+						id = record.get('trans_no');
                         reference = record.get('reference');
                         brcode = record.get('loc_code');
                         catcode = record.get('category_id');
-                        approval = record.get('approval');
                         
-                        //Ext.getCmp('status').setValue(status);
-                        //edit_insurance_win.show();
-						//window.location.replace('serial_details.php?serialid='+id);
-						
-						
 						if(!windowItemSerialList){
-							//var catcode = Ext.getCmp('category').getValue();
-							//var brcode = Ext.getCmp('fromlocation').getValue();
-							MTItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode,reference:reference,trans_id:id, approval:approval}
-							MTItemListingStore.load();	
+							MTItemListingStore.proxy.extraParams = {catcode:catcode, branchcode:brcode, reference:reference, trans_no:id}
+							MTItemListingStore.load();
+							UserRoleIdStore.load();
+
+							var robert = UserRoleIdStore.getAt(0);
+							role_id = robert.get('role_id');	
 								
 							var windowItemSerialList = Ext.create('Ext.Window',{
 								title:'Item Listing',
 								id:'windowItemSSerialList',
 								modal: true,
-								width: 1200,
-								height:600,
+								width: 900,
+								height:400,
 								bodyPadding: 5,
 								layout:'fit',
+								dockedItems:[{
+									dock:'top',
+									xtype:'toolbar',
+									name:'postingdate',
+									hidden: false,
+									items:[{
+										xtype:'datefield',
+										fieldLabel:'Posting Date',
+										name:'trans_date',
+										id:'PostDate',
+    									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
+    									value: new Date(),
+    									readOnly: false
+									}]
+								}],
 								items:[
 									{
 										xtype:'panel',
@@ -108,57 +194,112 @@ Ext.onReady(function(){
 											id:'ItemSerialListingView',
 											store: MTItemListingStore,
 											columns: columnItemSerialView,
-											/*dockedItems:[{
-												dock:'top',
-												xtype:'toolbar',
-												name:'searchSerialBar',
-												hidden: true,
-												items:[{
-													width	: 300,
-													hidden: true,
-													xtype	: 'textfield',
-													name 	: 'searchSerialItem',
-													id		:'searchSerialItemView',
-													fieldLabel: 'Item Description',
-													labelWidth: 120,
-													listeners : {
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-	
-																var catcode = Ext.getCmp('category').getValue();
-																var brcode = Ext.getCmp('fromlocation').getValue();
-																MTItemListingStore.proxy.extraParams = { 
-																	query:this.getValue(), 
-																	catcode: catcode,
-																	branchcode: brcode
-																}
-																MTItemListingStore.load();									
-															}
-														}						
-													}
-												},{
-													iconCls:'clear-search',
-													hidden: true
-												},{
-													xtype:'textfield',
-													name:'searchSerial',
-													id:'searchSerialView',
-													fieldLabel:'Serial/Engine No.',
-													labelWidth: 120,
-													hidden: true
-												}]
-											}],*/
-											bbar : {
-												xtype : 'pagingtoolbar',
-												store : MTItemListingStore,
-												displayInfo : true
-											}
+											features: [{
+												ftype: 'summary'
+											}],
 										}]
 									}
 								],
 								buttons:[
 									{
+										text:'Approved',
+										id: 'approved_btn',
+										icon: '../js/ext4/examples/shared/icons/accept.png',
+										handler: function(grid, rowIndex, colIndex) {
+				                        
+											Ext.MessageBox.confirm('Confirm', 'Do you want to Approved this record?', function (btn, text) {
+						                    	if(btn == 'yes') {
+							                        Ext.Ajax.request({
+														url : '?action=approval',
+														method: 'POST',
+														params:{
+															reference: reference
+														},
+														success: function (response){
+															Ext.Msg.alert('Success','Success Processing');
+															myInsurance.load();
+															windowItemSerialList.close();										
+														},	
+														failure: function (response){
+															Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+														}
+													});
+												}
+						                    });
+						                }
+						            },{
+						            	text:'Post',
+										id: 'post_tran_btn',
+										icon: '../js/ext4/examples/shared/icons/add.png',
+										hidden: false,
+										handler: function() {
+											Ext.MessageBox.confirm('Confirm', 'Do you want to Post this record?', function (btn, text) {
+						                    	if(btn == 'yes') {
+													var PostDate = Ext.getCmp('PostDate').getValue();	
+
+													Ext.MessageBox.show({
+														msg: 'Saving Date, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
+														
+													Ext.Ajax.request({
+														url : '?action=posting_transaction',
+														method: 'POST',
+														params:{
+															reference:reference,
+															trans_no:id,
+															PostDate:PostDate
+														},
+														success: function(response){
+															var jsonData = Ext.JSON.decode(response.responseText);
+															var errmsg = jsonData.errmsg;
+															//Ext.getCmp('AdjDate').setValue(AdjDate);
+															if(errmsg!=''){
+																Ext.MessageBox.alert('Error',errmsg);
+															}else{
+																windowItemSerialList.close();
+																myInsurance.load();
+																Ext.MessageBox.alert('Success','Success Processing');
+															}	
+														} 
+													});
+													Ext.MessageBox.hide();
+												}
+											});
+										}
+						            },{
+						            	text:'Disapproved',
+										id: 'disapproved_btn',
+										icon: '../js/ext4/examples/shared/icons/fam/cross.gif',
+										handler: function(grid, rowIndex, colIndex) {
+				                        
+						                    Ext.MessageBox.confirm('Confirm', 'Do you want to Disapproved this record?', function (btn, text) {
+						                    	if(btn == 'yes') {
+							                        Ext.Ajax.request({
+														url : '?action=disapproval',
+														method: 'POST',
+														params:{
+															reference: reference,
+															value: btn
+														},
+														success: function (response){
+															Ext.Msg.alert('Success','Success Processing');
+															myInsurance.load();
+															windowItemSerialList.close();										
+														},	
+														failure: function (response){
+															Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+														}
+													});
+												}
+						                    });
+						                }
+						           	},{
 										text:'Close',
 										iconCls:'cancel-col',
 										handler: function(){
@@ -167,86 +308,56 @@ Ext.onReady(function(){
 									}
 								]
 							});	
-						}						
+						}
+
+						if(role_id !=19 && (role_id !=2)) {
+							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('disapproved_btn').setVisible(false);
+							if(record.get('status') == 'Approved') {
+								Ext.getCmp('post_tran_btn').setVisible(true);
+							}else if(record.get('status') == 'Draft') {
+								Ext.getCmp('post_tran_btn').setVisible(false);
+							}
+						}else if(role_id == 19) {
+							Ext.getCmp('post_tran_btn').setVisible(false);
+							if(record.get('status') == 'Approved') {
+								Ext.getCmp('approved_btn').setVisible(false);
+							}
+						}else if(role_id == 2) {
+							if(record.get('status') == 'Approved') {
+								Ext.getCmp('approved_btn').setVisible(false);
+							}else if(record.get('status') == 'Draft') {
+								Ext.getCmp('post_tran_btn').setVisible(false);
+							}
+						}
+
+						if(record.get('status') == 'Closed') {
+							Ext.getCmp('disapproved_btn').setVisible(false);
+							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('post_tran_btn').setVisible(false);
+							Ext.getCmp('PostDate').setVisible(false);
+						}else if(record.get('status') == 'Draft') {
+							Ext.getCmp('PostDate').setVisible(false);
+						}else if(record.get('status') == 'Disapproved') {
+							Ext.getCmp('disapproved_btn').setVisible(false);
+							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('post_tran_btn').setVisible(false);
+							Ext.getCmp('PostDate').setVisible(false);
+						}
+												
 						//var v = Ext.getCmp('category').getValue();
 						if(catcode=='14'){
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].show();
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
-							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="item_description"]')[0].show();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="color"]')[0].show();
 						}else{
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].hide();
-							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="item_description"]')[0].hide();
+							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="color"]')[0].hide();
 						}
 						windowItemSerialList.show();
 						
 					}
-				},{
-					icon:'../js/ext4/examples/shared/icons/application_lightning.png',
-					tooltip: 'Approved',
-					hidden: false,
-					handler: function(grid, rowIndex, colIndex) {
-						var record = myInsurance.getAt(rowIndex);
-						reference = record.get('reference');
-                        
-	                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Approved this record?', ApprovalFunction);
-	                    function ApprovalFunction(btn) {
-	                        Ext.Ajax.request({
-								url : '?action=approval',
-								method: 'POST',
-								params:{
-									reference: reference,
-									value: btn
-								},
-								success: function (response){
-									myInsurance.load();
-									//windowItemSerialList.close();										
-								},	
-								failure: function (response){
-									Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
-								}
-							});
-	                    };
-	                },
-	                getClass : function(value, meta, record, rowIx, ColIx, store) {
-	                    if(record.get('approval') == 0 ) {
-                			return 'x-hidden-visibility';
-            			}
-	                    
-	                }
-				},{
-					icon:'../js/ext4/examples/shared/icons/application_lightning.png',
-					tooltip: 'Disapproved',
-					hidden: false,
-					handler: function(grid, rowIndex, colIndex) {
-						var record = myInsurance.getAt(rowIndex);
-						reference = record.get('reference');
-                        
-	                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Disapproved this record?', ApprovalFunction);
-	                    function ApprovalFunction(btn) {
-	                        Ext.Ajax.request({
-								url : '?action=disapproval',
-								method: 'POST',
-								params:{
-									reference: reference,
-									value: btn
-								},
-								success: function (response){
-									myInsurance.load();
-									//windowItemSerialList.close();										
-								},	
-								failure: function (response){
-									Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
-								}
-							});
-	                    };
-	                },
-	                getClass : function(value, meta, record, rowIx, ColIx, store) {
-	                    if(record.get('approval') == 0 ) {
-                			return 'x-hidden-visibility';
-            			}
-	                    
-	                }
 				},{
 					icon: '../js/ext4/examples/shared/icons/printer.png',
 					tooltip: 'View Report',
@@ -268,9 +379,7 @@ Ext.onReady(function(){
 							title:'Preview Print',
 							modal: true
 						})
-						
 						var iframeid = win.getId() + '_iframe';
-
 
 				        var iframe = {
 				            id:iframeid,
@@ -285,10 +394,9 @@ Ext.onReady(function(){
 						//window.open('../reports/merchandise_receipts.php?reference='+reference);
 					},
 					getClass : function(value, meta, record, rowIx, ColIx, store) {
-	                    if(record.get('approval') > 0 ) {
+	                    if(record.get('status') != 'Closed' ) {
                 			return 'x-hidden-visibility';
             			}
-	                    
 	                }
 				}
 			]
@@ -299,6 +407,7 @@ Ext.onReady(function(){
 		model : 'insurance',
 		name : 'myInsurance',
 		method : 'POST',
+		pageSize: itemsPerPage,
 		proxy : {
 			type: 'ajax',
 			url	: '?action=view',
@@ -361,7 +470,8 @@ Ext.onReady(function(){
     });
 	
 	var MerchandiseTransStore = Ext.create('Ext.data.Store', {
-		fields: ['type_out','transno_out','stock_id','stock_description','trans_date','price','reference','currentqty','qty','standard_cost', 'lot_no', 'chasis_no', 'category_id','serialise_id','color','remarks'],
+		model: mymerchandiselocationtransfer,
+		name: 'MerchandiseTransStore',
 		autoLoad: false,
 		autoSync: true,
 		proxy : {
@@ -391,42 +501,73 @@ Ext.onReady(function(){
 	});
 	
 	var columnTransferModel = [
+		{xtype: 'rownumberer'},
 		{header:'#', dataIndex:'id', sortable:true, width:50, align:'center', hidden: true},
 		{header:'Type Out', dataIndex:'type_out', sortable:true, width:60, renderer: columnWrap,hidden: true},
 		{header:'TransOut', dataIndex:'transno_out', sortable:true, width:60, renderer: columnWrap,hidden: true},
-		{header:'Model', dataIndex:'stock_id', sortable:true, width:60, renderer: columnWrap,hidden: false},
-		{header:'Stock Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
-		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'stock_id', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Stock Description', dataIndex:'stock_description', sortable:true, width:150, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Location', dataIndex:'loc_code', sortable:true,width:100, hidden: true},
-		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:65, hidden: false, align:'right',
-			renderer: Ext.util.Format.numberRenderer('0,000.00')
+		{header:'Unit Cost', dataIndex:'standard_cost', sortable:true, hidden: false,
+			renderer: function(value, metadata, record, rowIndex, colIndex, store) {
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
 		},
 		{header:'Current Qty', dataIndex:'currentqty', align:'center', sortable:true, width:40, hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
-			editor:{
-				completeOnEnter: true,
-				field:{
-					xtype:'numberfield',
-					allowBlank: false,
-					minValue:0,
-					listeners : {
-					    keyup: function(grid, rowIndex, colIndex) {
-						//var record = GRNItemsStore.getAt(rowIndex);
-                        //console.log('Keup Logs');
-
-                    },
-						specialkey: function(f,e){
-							if (e.getKey() == e.ENTER) {
-								//alert('Hello World'+f.value());
-							}
-						}
-					}
+		{header:'Qty', dataIndex:'qty', sortable:true, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 				}
-			}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
+			editor:{
+				field:{
+					xtype:'textfield',
+					name:'qty',
+					id: 'qty',
+					anchor:'100%',
+					allowBlank:false,
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModel = Ext.getCmp('mtgrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('standard_cost'));
+							GridRecords.set("subtotal_cost",(newcost));
+						}
+					}	
+				}
+			}	
 		},
-		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
+		{header:'Total', dataIndex:'subtotal_cost', sortable:true, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}	
+		},
+		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false},
+		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:150,renderer: columnWrap, hidden: false},
 		{header:'Remarks', dataIndex:'remarks', sortable:true, width:100,renderer: columnWrap, hidden: true,
 			editor:{
 				completeOnEnter:true,
@@ -437,7 +578,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Action',xtype:'actioncolumn', align:'center', width:40,
+		{header:'Action',xtype:'actioncolumn', align:'center',
 			items:[
 				{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
@@ -478,7 +619,8 @@ Ext.onReady(function(){
 		return '<div style="white-space:normal !important;">'+ val +'</div>';
 	}
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'currentqty','qty','category_id','reference','tolocation','item_type','remarks','approval','stock_moves_id'],
+		model: myltitemlist,
+		name: 'MTItemListingStore',
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -492,8 +634,9 @@ Ext.onReady(function(){
 	});
 	
 	var ItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost','color', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','item_type'],
+		fields: ['serialise_id', 'model', 'lot_no', 'chasis_no', 'standard_cost', 'item_code', 'item_description', 'stock_description', 'qty','category_id','type_out','transno_out','item_type'],
 		autoLoad: false,
+		pageSize: itemsPerPage, // items per page
 		proxy : {
 			type: 'ajax',
 			url	: '?action=serial_items',
@@ -503,6 +646,32 @@ Ext.onReady(function(){
 				totalProperty : 'total'
 			}
 		}
+	});
+
+	var UserRoleIdStore = Ext.create('Ext.data.Store', {
+		fields: ['role_id'],
+		autoLoad: false,
+		pageSize: itemsPerPage,
+		proxy : {
+			type: 'ajax',
+			url	: '?action=UserRoleId_apprv',
+			reader:{
+				type : 'json',
+				root : 'result',
+				totalProperty : 'total'
+			}
+		}
+	});
+
+	//Added on 10/24/2022
+	var StatusFileStore = new Ext.create ('Ext.data.Store',{
+		fields 	: 	['stat_id', 'namecaption'],
+		data 	: 	[{"stat_id":"","namecaption":"All"},
+					{"stat_id":"Approved","namecaption":"Approved"},
+					{"stat_id":"Draft","namecaption":"For Approval"},
+                    {"stat_id":"Closed","namecaption":"Closed"},
+                    {"stat_id":"Disapproved","namecaption":"Disapproved"}],
+        autoLoad: true
 	});
 	
 	var columnItemSerial = [
@@ -520,8 +689,8 @@ Ext.onReady(function(){
 		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: true, align:'right'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: false,
+		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false}
+		/*{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: false,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/accept.png',
@@ -561,40 +730,56 @@ Ext.onReady(function(){
 					}
 				}
 			]
-		}
+		}*/
 	]
 
 	var columnItemSerialView = [
-		{header:'id', dataIndex:'serialise_id', sortable:true, width:60,hidden: true},
-		{header:'SM ID', dataIndex:'stock_moves_id', sortable:true, width:60,hidden: false},
-		{header:'To Location', dataIndex:'tolocation', sortable:true, width:60, renderer: columnWrap,hidden: false},
+		{header:'id', dataIndex:'trans_no', sortable:true, width:60,hidden: true},
+		{header:'To Location', dataIndex:'tolocation', sortable:true, width:70, renderer: columnWrap,hidden: false},
 		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
-		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
-		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Item Description', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
+		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: true, align:'right'},
-		{header:'Current Qty', dataIndex:'currentqty', sortable:true, width:40, hidden: true, align:'center'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
+		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Item Type', dataIndex:'item_type', sortable:true, width:100,renderer: columnWrap, hidden: true},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
 		
 	var gridMT = {
 		xtype:'grid',
 		id:'mtgrid',
+		loadMask:true,
 		anchor:'100%',
-		forceFit: true,
-		//flex:1,
-		//autoScroll: true,
-		//height: 500,
+		//forceFit: true,
 		store: MerchandiseTransStore,
 		columns: columnTransferModel,
-		selModel: {selType: 'cellmodel'},
-		plugins: [cellEditing],
-		//padding: '5px',
+		columnLines: true,
+		height: 270,
+		width: 700,
+		autoScroll:true,
+		layout:'fit',
+		selModel: 'cellmodel',
+	    plugins: {
+	        ptype: 'cellediting',
+	        clicksToEdit: 1
+	    },
+		features: [{
+			ftype: 'summary'
+		}],
 		border: false,
 		frame:false,
 		viewConfig:{
@@ -630,7 +815,11 @@ Ext.onReady(function(){
 				tooltip	: 'Select Item',
 				text 	: 'Select Item',
 				handler: function(){
-					
+					var categoryheader = Ext.getCmp('category').getValue();
+					if(categoryheader==null){
+						Ext.Msg.alert('Warning','Please select category');
+						return false;	
+					}	
 					if(!windowItemList){
 						var catcode = Ext.getCmp('category').getValue();
 						var brcode = Ext.getCmp('fromStockLocation').getValue();
@@ -643,8 +832,8 @@ Ext.onReady(function(){
 							title:'Item Listing',
 							id:'windowItemList',
 							modal: true,
-							width: 1200,
-							height:600,
+							width: 1000,
+							height:470,
 							bodyPadding: 5,
 							layout:'fit',
 							items:[
@@ -660,6 +849,12 @@ Ext.onReady(function(){
 										id:'ItemSerialListing',
 										store: ItemListingStore,
 										columns: columnItemSerial,
+										selModel: {
+											selType: 'checkboxmodel',
+											id: 'checkidbox',
+											checkOnly: true,
+											mode: 'Multi'			
+										},	
 										dockedItems:[{
 											dock:'top',
 											xtype:'toolbar',
@@ -686,19 +881,15 @@ Ext.onReady(function(){
 														}
 													}*/
 
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-															
-															var class_type = Ext.getCmp('searchSerialItem').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																query:this.getValue()
-															}
-															ItemListingStore.load();								
+													change: function(field) {
+														var class_type = Ext.getCmp('searchSerialItem').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:field.getValue(), serialquery:Ext.getCmp('searchSerial').getValue(), catcode:Ext.getCmp('category').getValue()
 														}
+														ItemListingStore.load();								
+														
 													}								
 												}
-											},{
-												iconCls:'clear-search'
 											},{
 												xtype:'textfield',
 												name:'searchSerial',
@@ -719,15 +910,14 @@ Ext.onReady(function(){
 														}
 													}*/
 
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
+													change: function(field) {
 															
-															var class_type = Ext.getCmp('searchSerial').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																serialquery:this.getValue()														
-															}
-															ItemListingStore.load();								
+														var class_type = Ext.getCmp('searchSerial').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:Ext.getCmp('searchSerialItem').getValue(), serialquery:field.getValue(), catcode:Ext.getCmp('category').getValue()													
 														}
+														ItemListingStore.load();								
+														
 													}								
 												}
 											}]
@@ -740,8 +930,91 @@ Ext.onReady(function(){
 									}]
 								}
 							],
-							buttons:[
-								{
+							buttons:[{
+									text:'Add Item',
+									disabled: false,
+									id:'btnAddItem',			
+									handler: function(grid, rowIndex, colIndex) {
+										var grid = Ext.getCmp('ItemSerialListing');
+										var selected = grid.getSelectionModel().getSelection();
+										for (i = 0; i < selected.length; i++) {
+											var record = selected[i];
+
+											var serialise_id = record.get('serialise_id');	
+											var model = record.get('model');	
+											var item_code = record.get('item_code');	
+											var sdescription = record.get('stock_description');	
+											var color = record.get('item_description');	
+											var category = record.get('category_id');	
+											var qty = record.get('qty');	
+											var lot_no = record.get('lot_no');	
+											var chasis_no = record.get('chasis_no');	
+											var AdjDate = Ext.getCmp('AdjDate').getValue();	
+											var type_out = record.get('type_out');	
+											var transno_out = record.get('transno_out');	
+											var standard_cost = record.get('standard_cost');	
+											var serialised = record.get('serialised');	
+											var item_type = record.get('item_type');	
+											var rr_date = record.get('tran_date');	
+
+											Ext.toast({
+												icon   	: '../js/ext4/examples/shared/icons/accept.png',
+											    html: '<b>' + 'Model:' + record.get('model') + ' <br><br/> ' + 'Serial #:' + record.get('lot_no') + '<b/>',
+											    title: 'Selected Item',
+											    width: 250,
+											    bodyPadding: 10,
+											    align: 'tr'
+											});	
+										}
+
+										var grid = Ext.getCmp('ItemSerialListing');
+										var selected = grid.getSelectionModel().getSelection();
+										var gridLTData = [];
+										count = 0;
+										Ext.each(selected, function(record) {
+											var ObjItem = {
+												serialise_id: record.get('serialise_id'),	
+												model: record.get('model'),	
+												item_code: record.get('item_code'),	
+											    sdescription: record.get('stock_description'),	
+												color: record.get('item_description'),	
+												category: record.get('category_id'),	
+												qty: record.get('qty'),	
+												lot_no: record.get('lot_no'),	
+												chasis_no: record.get('chasis_no'),	
+												AdjDate: Ext.getCmp('AdjDate').getValue(),	
+												type_out: record.get('type_out'),	
+												transno_out: record.get('transno_out'),
+												standard_cost: record.get('standard_cost'),	
+												serialised: record.get('serialised'),
+												rr_date: record.get('tran_date'), 
+												subtotal_cost: record.get('subtotal_cost')
+											};
+											gridLTData.push(ObjItem);
+										});
+
+										if (gridLTData == "") {
+											Ext.MessageBox.alert('Error','Please Select Item..');
+											return false;
+										}else{
+											MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridLTData)};
+										}
+
+										MerchandiseTransStore.load({
+											scope: this,
+											callback: function(records, operation, success){
+												var countrec = MerchandiseTransStore.getCount();
+												if(countrec>0){
+													setButtonDisabled(false);
+												}else{
+													setButtonDisabled(true);
+												}								
+											}	
+
+										});											
+										ItemListingStore.load();									
+									}
+								},{
 									text:'Close',
 									iconCls:'cancel-col',
 									handler: function(){
@@ -795,13 +1068,11 @@ Ext.onReady(function(){
 		id: 'grid',
 		columns: columnModel,
 		layout: 'fit',
-
-		//forceFit 	: true,
+		forceFit: true,
 		frame: false,
-		width: 1275,
-		frame: true,
 		columnLines: true,
 		sortableColumns :true,
+		autoScroll: true,
 		dockedItems: [{
             dock	: 'top',
             xtype	: 'toolbar',
@@ -820,7 +1091,7 @@ Ext.onReady(function(){
 					fieldLabel:'Transfer From',
 					name:'fromStockLocation',
 					id:'fromStockLocation',
-					queryModel:'local',
+					queryMode:'local',
 					triggerAction : 'all',
 					displayField  : 'location_name',
 					valueField    : 'loc_code',
@@ -828,9 +1099,11 @@ Ext.onReady(function(){
 					forceSelection: true,
                     allowBlank: false,
 					required: true,
+                    width:500,
 					hiddenName: 'loc_code',
 					typeAhead: true,
-					emptyText:'--Select--',
+					emptyText:'Select Transfer From Location',
+                    fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
 					selectOnFocus:true,
 					store: Ext.create('Ext.data.Store',{
 						fields: ['loc_code', 
@@ -850,12 +1123,11 @@ Ext.onReady(function(){
 							}
 						}
 					})
-				},
-				
-				{
+				},{
 					icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
 					tooltip	: 'New Item Transfer',
 					text 	: 'New Item Transfer',
+					id: 'newtransaction',
 					hidden: false,
 					handler : function(){
 						
@@ -868,14 +1140,14 @@ Ext.onReady(function(){
 							var windowNewTransfer = Ext.create('Ext.Window',{
 								title:'Merchandise Transfer Location Entry',
 								modal: true,
-								width: 1200,
+								width: 980,
 								//height:500,
 								bodyPadding: 5,
 								layout:'anchor',
 								items:[
 									{
 										xtype:'fieldset',
-										title:'Merchandise Transfer Location Header',
+										//title:'Merchandise Transfer Location Header',
 										layout:'anchor',
 										defaultType:'textfield',
 										//frame: false,
@@ -889,8 +1161,8 @@ Ext.onReady(function(){
 											{
 												xtype:'fieldcontainer',
 												layout:'hbox',
-												items:[
-													{
+												margin: '2 0 2 5',
+												items:[{
 														xtype:'combobox',
 														fieldLabel:'Transfer To',
 														name:'ToStockLocation',
@@ -903,9 +1175,11 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
+                    									width:785,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
-                    									emptyText:'--Select--',
+                    									emptyText:'Select Transder Location',
+                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
                     									selectOnFocus:true,
 														store: Ext.create('Ext.data.Store',{
                     										fields: ['loc_code', 
@@ -925,75 +1199,83 @@ Ext.onReady(function(){
 																}
 															}
                     									})
-													},{
-														xtype:'combobox',
-														fieldLabel:'Category',
-														name:'category',
-														id:'category',
-														queryModel:'local',
-														triggerAction:'all',
-														displayField  : 'description',
-                    									valueField    : 'category_id',
-                    									editable      : true,
-                    									forceSelection: true,
-                                                        allowBlank: false,
-                    									required: true,
-                    									hiddenName: 'category_id',
-                    									typeAhead: true,
-                    									emptyText:'--Select--',
-                    									selectOnFocus:true,
-														store: Ext.create('Ext.data.Store',{
-                    										fields: ['category_id', 'description'],
-                                                    		autoLoad: true,
-															proxy: {
-																type:'ajax',
-																url: '?action=category',
-																reader:{
-																	type : 'json',
-																	root : 'result',
-																	totalProperty : 'total'
-																}
-															}
-                    									}),
-														listeners:{
-															select: function(cmb, rec, idx){
-																var v = this.getValue();
-																//var mtgridcol = Ext.getCmp('mtgrid');
-																if(v=='14'){
-																	
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
-																	
-																}else{
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
-																	Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
-																}
-																//Ext.Msg.alert('Category', v);
-																
-															}
-														}
-													},{
-														xtype:'datefield',
-														fieldLabel:'Trans Date',
-														name:'trans_date',
-														id:'AdjDate'/*,
-														value: new Date()*/
-														,
-														listeners:{
-															change: function(){
-																MerchandiseTransStore.load({
-																	params:{view:1}
-																});
-															}
-														}
-													}
+                    								}	
 												]
 											},{
 												xtype:'fieldcontainer',
-												//width:1200,
+												layout:'hbox',
+												margin: '2 0 2 5',
+												items:[{
+													xtype:'combobox',
+													fieldLabel:'Category',
+													name:'category',
+													id:'category',
+													queryModel:'local',
+													triggerAction:'all',
+													displayField  : 'description',
+	            									valueField    : 'category_id',
+	            									editable      : true,
+	            									forceSelection: true,
+	                                                allowBlank: false,
+	            									required: true,
+	            									hiddenName: 'category_id',
+	            									typeAhead: true,
+	            									emptyText:'Select Category',
+	            									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;', 
+	            									selectOnFocus:true,
+													store: Ext.create('Ext.data.Store',{
+	            										fields: ['category_id', 'description'],
+	                                            		autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=category',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+	            									}),
+													listeners:{
+														select: function(cmb, rec, idx){
+															var v = this.getValue();
+															//var mtgridcol = Ext.getCmp('mtgrid');
+															if(v=='14'){
+																
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].show();
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Engine No.');
+																//Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].show();
+																
+															}else{
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="lot_no"]')[0].setText('Serial No.');
+																Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="chasis_no"]')[0].hide();
+																//Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="color"]')[0].hide();
+															}
+															//Ext.Msg.alert('Category', v);
+															
+														}
+													}
+												},{
+													xtype:'datefield',
+													fieldLabel:'Trans Date',
+													name:'trans_date',
+													id:'AdjDate',
+													fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'/*,
+													value: new Date()*/
+													,
+													listeners:{
+														change: function(){
+															MerchandiseTransStore.load({
+																params:{view:1}
+															});
+														}
+													}
+												}]
+											},{
+												xtype:'fieldcontainer',
+												width:785,
 												layout:'fit',
+												margin: '2 0 2 5',
 												items:[{
 													xtype:'textareafield',
 													fieldLabel:'Memo',
@@ -1008,9 +1290,10 @@ Ext.onReady(function(){
 									{
 										xtype:'panel',
 										title:'Items',
-										frame: false,
+										frame: true,
+										anchor:'100%',
 										//autoScroll: true,
-										//layout:'fit',
+										layout:'fit',
 										padding:'5px',
 										border: false,
 										items:[gridMT]
@@ -1020,69 +1303,88 @@ Ext.onReady(function(){
 										text:'Process Transfer',
 										id:'btnProcess',
 										handler:function(){
-											setButtonDisabled(true);
+											var gridData = MerchandiseTransStore.getRange();
+											var gridLocationData = [];
+
+											Ext.each(gridData, function(item) {
+												var ObjItem = {							
+													qty: item.get('qty'),
+													currentqty:item.get('currentqty')													
+												};
+												gridLocationData.push(ObjItem);
+											});
+
 											var AdjDate = Ext.getCmp('AdjDate').getValue();	
 											var catcode = Ext.getCmp('category').getValue();
 											var FromStockLocation = Ext.getCmp('fromStockLocation').getValue();
 											var ToStockLocation = Ext.getCmp('ToStockLocation').getValue();
 											var memo_ = Ext.getCmp('memo').getValue();
-											if(ToStockLocation=='' || ToStockLocation==null){
-												setButtonDisabled(false);
-												Ext.MessageBox.alert('Error','Select Transfer to Location');
-												return false;
-											}
-											if(catcode=='' || catcode==null){
-												setButtonDisabled(false);
-												Ext.MessageBox.alert('Error','Select Category');
-												return false;
-											}
-											
-											if(countitem()>0){
-												setButtonDisabled(false);
-												Ext.MessageBox.alert('Error','Select Item'+countitem());
-												return false;
-												
-											}
-											
+
+											Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
+												if (btn == 'yes') {
+													setButtonDisabled(true);
+													if(ToStockLocation=='' || ToStockLocation==null){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','Select Transfer to Location');
+														return false;
+													}
+													if(catcode=='' || catcode==null){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','Select Category');
+														return false;
+													}													
+													/*if(countitem()>0){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','Select Item'+countitem());
+														return false;
 														
-											Ext.Ajax.request({
-												url : '?action=SaveTransfer',
-												method: 'POST',
-												params:{
-													AdjDate:AdjDate,
-													catcode:catcode,
-													FromStockLocation: FromStockLocation,
-													ToStockLocation: ToStockLocation,
-													memo_: memo_
-												},
-												success: function (response){
-													var jsonData = Ext.JSON.decode(response.responseText);
-													var AdjDate = jsonData.AdjDate;
-													Ext.getCmp('AdjDate').setValue(AdjDate);
-													MerchandiseTransStore.load();
-													myInsurance.load();
-													windowNewTransfer.close();
-													//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-												},
-												failure: function (response){
-													setButtonDisabled(false);
-													//Ext.MessageBox.hide();
-													//var jsonData = Ext.JSON.decode(response.responseText);
-													Ext.MessageBox.alert('Error','Error Saving Process');
+													}*/
+													Ext.MessageBox.show({
+														msg: 'Saving Date, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});		
+													Ext.Ajax.request({
+														url : '?action=SaveTransfer',
+														method: 'POST',
+														params:{
+															AdjDate:AdjDate,
+															catcode:catcode,
+															FromStockLocation: FromStockLocation,
+															ToStockLocation: ToStockLocation,
+															memo_: memo_,
+															DataOnGrid: Ext.encode(gridLocationData)
+														},							
+														success: function(response){
+															var jsonData = Ext.JSON.decode(response.responseText);
+															var errmsg = jsonData.message;
+															//Ext.getCmp('AdjDate').setValue(AdjDate);
+															if(errmsg!=''){
+																setButtonDisabled(false);
+																Ext.MessageBox.alert('Error',errmsg);
+															}else{
+																windowNewTransfer.close();
+																myInsurance.load();
+																Ext.MessageBox.alert('Success','Success Processing');
+															}													
+														} 
+													});
+													Ext.MessageBox.hide();
+													this.setDisabled(true);
 												}
 											});
-											
-											
 										}
-									},
-									{
+									},{
 										text:'Close',
 										handler: function(){
 											windowNewTransfer.close();
 										}
 									}
 								]
-								
 							});
 						}
 						//var AdjDate = Ext.getCmp('AdjDate').getValue();	
@@ -1094,7 +1396,7 @@ Ext.onReady(function(){
 								var AdjDate = jsonData.AdjDate;
 								Ext.getCmp('AdjDate').setValue(AdjDate);
 								
-								//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+								MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
 								MerchandiseTransStore.load({
 									scope: this,
 									callback: function(records, operation, success){
@@ -1114,16 +1416,55 @@ Ext.onReady(function(){
 								//Ext.MessageBox.alert('Error','Error Processing');
 							}
 						});
-						
-						windowNewTransfer.show();
-						
+						windowNewTransfer.show();	
 					},
 					scale	: 'small'
+				},{
+					xtype: 'combobox',
+					fieldLabel:'Status:',
+					name:'location_status',
+	                id:'location_status',
+	                typeAhead: true,
+		            triggerAction: 'all',
+		            store: StatusFileStore,
+					displayField  : 'namecaption',
+					valueField    : 'stat_id',
+					editable      : false,
+					forceSelection: true,
+					required: true,
+					labelWidth: 60,
+					hiddenName: 'stat_id',
+					emptyText:'Select Status',
+					fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+					listeners: {
+						select: function(combo, record, index) {
+							myInsurance.proxy.extraParams = {loc_stat: this.getValue(), search_ref: Ext.getCmp('search_ref').getValue()}
+							myInsurance.load();		
+						}
+					}	
+				},{
+					xtype: 'searchfield',
+					id:'search_ref',
+					name:'search_ref',
+					fieldLabel: '<b>Search</b>',
+					labelWidth: 50,
+					width: 290,
+					emptyText: "Search by reference",
+					scale: 'small',
+	                fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+					store: myInsurance,
+					listeners: {
+						change: function(field) {
+							myInsurance.proxy.extraParams = {loc_stat: Ext.getCmp('location_status').getValue(), search_ref: field.getValue()};
+							myInsurance.load();
+						}
+					}
 				}]
 		}],
 		bbar : {
 			xtype : 'pagingtoolbar',
 			store : myInsurance,
+			pageSize: itemsPerPage,
 			displayInfo : true
 		}
 
@@ -1146,6 +1487,28 @@ Ext.onReady(function(){
 			myInsurance.load();	
 			//Ext.MessageBox.alert('Success!',"Process complete"+branchcode+GridTitle);
 			//window.open('?action=downloadfile&pathfile='+pathfile);
+		},
+		failure: function (response){
+			Ext.MessageBox.hide();
+			var jsonData = Ext.JSON.decode(response.responseText);
+			Ext.MessageBox.alert('Error','Error Processing');
+		}
+	});
+
+	Ext.Ajax.request({
+		url : '?action=UserRoleId',
+		method: 'GET',
+		success: function (response){
+			Ext.MessageBox.hide();
+			var jsonData = Ext.JSON.decode(response.responseText);
+			var user_role = jsonData.user_role;
+			if(user_role == 19){
+				Ext.getCmp('newtransaction').setDisabled(true);
+			}else{
+				Ext.getCmp('newtransaction').setDisabled(false);
+			}
+
+			UserRoleIdStore.load();
 		},
 		failure: function (response){
 			Ext.MessageBox.hide();

@@ -616,8 +616,9 @@ function add_stock_move($type, $stock_id, $trans_no, $location, $date_, $referen
 
 	return db_insert_id();
 }
+//Update 10/19/2022 enable by robert due to not used anymore
 //Added by Herald 12/06/2021 - for Location Transfer approval
-function add_stock_move_transfer_approval($type, $stock_id, $trans_no, $location, $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = '', $chasis_no = '', $category = 0, $color_code = '', $type_out = 0, $transno_out = 0, $item_type = "new", $remarks = null)
+/*function add_stock_move_transfer_approval($type, $stock_id, $trans_no, $location, $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = '', $chasis_no = '', $category = 0, $color_code = '', $type_out = 0, $transno_out = 0, $item_type = "new", $remarks = null)
 
 {
 	$date = date2sql($date_);
@@ -633,7 +634,7 @@ function add_stock_move_transfer_approval($type, $stock_id, $trans_no, $location
 	db_query($sql, "The stock movement record cannot be inserted");
 
 	return db_insert_id();
-}
+}*/
 
 //Added by spyrax10
 function add_stock_adjust(
@@ -1891,4 +1892,31 @@ function add_adj_gl_complimentary($type, $trans_no, $account, $memo, $amount, $m
 		" . db_escape($mcode) . ", " . db_escape($masterfile) . ", " . db_escape($memo) . ")";
 
 	db_query($sql, "Cannot add adjustment gl");
+}
+
+//added by robert 10/19/2022
+function add_stock_adjustment_location_transfer($type, $stock_id, $trans_no, $location, $date_, $reference, $quantity, $std_cost, $price = 0, $lot_no = '', $chasis_no = '', $category = 0, $color_code = '', $type_out = 0, $transno_out = 0, $remarks = '', $item_type = "new", $adjustment_type = "OUT", $approver = '')
+
+{
+	$date = date2sql($date_);
+	set_global_connection();
+	if ($type_out == 0) {
+		$type_out = $type;
+	}
+	if ($transno_out == 0) {
+		$transno_out = $trans_no;
+	}
+
+	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment (trans_no, trans_no_out, trans_type_out, stock_id, type, item_type, color_code, loc_code,
+				tran_date, price, reference, qty, standard_cost, lot_no, chassis_no, category_id, adjustment_type, memo, approver, comments
+			) VALUES ("
+		. db_escape($trans_no) . ", " . db_escape($transno_out) . ", " . db_escape($type_out) . ", " . db_escape($stock_id) . ", "
+		. db_escape($type) . ", " . db_escape($item_type) . ", " . db_escape($color_code) . "," . db_escape($location) . ", '$date', "
+		. db_escape($price) . ", " . db_escape($reference) . ", " . db_escape($quantity) . ", " . db_escape($std_cost) . ", "
+		. db_escape($lot_no) . ", " . db_escape($chasis_no) . ", " . db_escape($category) . ", " . db_escape($adjustment_type) . ", " 
+		. db_escape($remarks) . ", " . db_escape($approver) . ", " . db_escape($remarks) . ")";
+
+	db_query($sql, "The stock adjustment complimentary record cannot be inserted");
+
+	return db_insert_id();
 }
