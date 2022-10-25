@@ -829,6 +829,7 @@ function get_inventory_movement($category = 0, $supplier = "ALL", $location = "A
 
 			SUM(SMO.qty) as QoH, 
 			SMO.standard_cost AS UnitCost,
+			SUM(SMO.qty) * SMO.standard_cost AS total_,
 			SMO.category_id, SC.description AS cat_description,
 			SMO.tran_date, SM.units,
 			SMO.trans_id, SMO.trans_no, SMO.reference, SMO.type, 

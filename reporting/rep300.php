@@ -185,7 +185,7 @@ function print_transaction() {
         	
         	$dec2 = 0; 
 			$rep->AmountCol2(11, 12, $trans['UnitCost'], $dec2);
-			$rep->AmountCol2(12, 13, $qoh * $trans['UnitCost'], $dec);
+			$rep->AmountCol2(12, 13, $trans['total_'], $dec);
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(13, 14, $loc_code);
 			$rep->SetTextColor(0, 0, 0);
@@ -194,11 +194,11 @@ function print_transaction() {
 		
 			$qty += $qoh;
 			$unt_cst += $trans['UnitCost'];
-			$itm_tot += $qoh * $trans['UnitCost'];
+			$itm_tot += $trans['total_'];
 		
 			$qtyTot += $qoh;
 			$total += $trans['UnitCost'];
-			$grandtotal += $qoh * $trans['UnitCost'];
+			$grandtotal += $trans['total_'];
 		}
 	} //END while
 
