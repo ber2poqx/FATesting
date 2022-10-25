@@ -564,51 +564,10 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, width:80, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, width:70, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100,hidden: true},
-		{header:'Cost', dataIndex:'standard_cost', sortable:true, width:50, hidden: false, align:'right'},
+		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false, align:'right'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false}
-		/*{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: false,
-			items:[
-				{	
-					icon: '../js/ext4/examples/shared/icons/check1.png',
-					tooltip: 'Accept',
-					handler: function(grid, rowIndex, colIndex){
-						var record = ItemListingStore.getAt(rowIndex);
-						var serialise_id = record.get('serialise_id');	
-						var model = record.get('model');	
-						var sdescription = record.get('stock_description');	
-						var color = record.get('item_description');	
-						var category = record.get('category_id');	
-						var qty = record.get('qty');	
-						var lot_no = record.get('lot_no');	
-						var chasis_no = record.get('chasis_no');	
-						var AdjDate = Ext.getCmp('AdjDate').getValue();	
-						var type_out = record.get('type_out');	
-						var transno_out = record.get('transno_out');	
-						var standard_cost = record.get('standard_cost');	
-						var serialised = record.get('serialised');	
-						var rr_date = record.get('tran_date');
-						MerchandiseTransStore.proxy.extraParams = {view:1,serialise_id: serialise_id, AdjDate:AdjDate, model:model, sdescription:sdescription, color:color, category:category, qty:qty, lot_no:lot_no, chasis_no:chasis_no, type_out:type_out, transno_out:transno_out, standard_cost:standard_cost,serialised:serialised,rr_date:rr_date};
-						
-						MerchandiseTransStore.load({
-							scope: this,
-							callback: function(records, operation, success){
-								var countrec = MerchandiseTransStore.getCount();
-								if(countrec>0){
-									setButtonDisabled(false);
-								}else{
-									setButtonDisabled(true);
-								}
-							}
-						});
-						
-						ItemListingStore.load();
-
-					}
-				}
-			]
-		}*/
 	]
 /*params:{serialise_id: serialise_id, AdjDate:AdjDate, model:model, sdescription:sdescription, color:color, category:category, qty:qty, lot_no:lot_no, chasis_no:chasis_no, type_out:type_out, transno_out:transno_out, standard_cost:standard_cost,serialised:serialised,rr_date:rr_date},*/
 	var columnItemSerialView = [
@@ -736,28 +695,13 @@ Ext.onReady(function(){
 												id			:'searchSerialItem',
 												fieldLabel	: 'Item Description',
 												labelWidth	: 120,
-												listeners 	: {
-													/*specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-														    var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('fromlocation').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																query:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
-															}
-															ItemListingStore.load();									
+												listeners 	: {													
+													change: function(field) {
+														var class_type = Ext.getCmp('searchSerialItem').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:field.getValue(), serialquery:Ext.getCmp('searchSerial').getValue(), catcode:Ext.getCmp('category').getValue()
 														}
-													}*/
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-															
-															var class_type = Ext.getCmp('searchSerialItem').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																query:this.getValue()
-															}
-															ItemListingStore.load();								
-														}
+														ItemListingStore.load();								
 													}								
 												}
 											},{
@@ -766,43 +710,16 @@ Ext.onReady(function(){
 												id:'searchSerial',
 												fieldLabel:'Serial/Engine No.',
 												labelWidth: 120,
-												listeners : {
-													/*specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-														    var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('fromlocation').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																serialquery:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
-															}
-															ItemListingStore.load();									
-														}
-													}*/
-
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
+												listeners : {											
+													change: function(field) {
 															
-															var class_type = Ext.getCmp('searchSerial').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																serialquery:this.getValue()														
-															}
-															ItemListingStore.load();								
+														var class_type = Ext.getCmp('searchSerial').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:Ext.getCmp('searchSerialItem').getValue(), serialquery:field.getValue(), catcode:Ext.getCmp('category').getValue()													
 														}
+														ItemListingStore.load();								
 													}								
-												}
-												/*},{
-													iconCls:'clear-search',
-													handler: function(){
-														var catcode = Ext.getCmp('category').getValue();
-														var brcode = Ext.getCmp('fromlocation').getValue();
-														ItemListingStore.proxy.extraParams = { 
-															query:'', 
-															catcode: catcode,
-															branchcode: brcode
-														}
-														ItemListingStore.load();
-													}*/
+												}					
 											}]
 										}],
 										bbar : {

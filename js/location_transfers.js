@@ -686,7 +686,7 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: true, align:'right'},
+		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false}
@@ -866,21 +866,7 @@ Ext.onReady(function(){
 												id		:'searchSerialItem',
 												fieldLabel: 'Item Description',
 												labelWidth: 120,
-												listeners : {
-													/*specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-
-															var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('fromStockLocation').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																query:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
-															}
-															ItemListingStore.load();									
-														}
-													}*/
-
+												listeners : {													
 													change: function(field) {
 														var class_type = Ext.getCmp('searchSerialItem').getValue();
 														ItemListingStore.proxy.extraParams = { 											 
@@ -896,20 +882,7 @@ Ext.onReady(function(){
 												id:'searchSerial',
 												fieldLabel:'Serial/Engine No.',
 												labelWidth: 120,
-												listeners : {
-													/*specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-														    var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('fromlocation').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																serialquery:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
-															}
-															ItemListingStore.load();									
-														}
-													}*/
-
+												listeners : {													
 													change: function(field) {
 															
 														var class_type = Ext.getCmp('searchSerial').getValue();
@@ -917,7 +890,6 @@ Ext.onReady(function(){
 															query:Ext.getCmp('searchSerialItem').getValue(), serialquery:field.getValue(), catcode:Ext.getCmp('category').getValue()													
 														}
 														ItemListingStore.load();								
-														
 													}								
 												}
 											}]

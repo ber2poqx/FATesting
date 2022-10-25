@@ -936,7 +936,8 @@ if(!is_null($action) || !empty($action)){
                     'remarks' => $myrow["mt_header_comments"],
                     'status_msg'=>$status_msg,
                     'status'=>$myrow["mt_header_status"],
-                    'type_rr'=>$myrow["mt_type"]
+                    'type_rr'=>$myrow["mt_type"],
+                    'post_date' => sql2date($myrow["post_date"])
                 );                
             }
             

@@ -1476,53 +1476,28 @@ Ext.onReady(function(){
 												id		:'searchSerialItem',
 												fieldLabel: 'Item Description',
 												labelWidth: 120,
-												listeners : {
-													/*specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-															
-
-															var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('fromlocation').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																query:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
-															}
-															ItemListingStore.load();	
-																
-								
+												listeners : {									
+													change: function(field){		
+														var class_type = Ext.getCmp('searchSerialItem').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:field.getValue(), serialquery: Ext.getCmp('searchSerial').getValue(), catcode: Ext.getCmp('category').getValue()
 														}
-													}*/
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-															
-															var class_type = Ext.getCmp('searchSerialItem').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																query:this.getValue()
-															}
-															ItemListingStore.load();								
-														}
+														ItemListingStore.load();								
 													}						
 												}
-											/*},{
-												iconCls:'clear-search'
-											*/
 											},{
 												xtype:'textfield',
 												name:'searchSerial',
 												id:'searchSerial',
 												fieldLabel:'Serial/Engine No.',
 												labelWidth: 120,
-												listeners: {
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-															
-															var class_type = Ext.getCmp('searchSerial').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																serialquery:this.getValue()														
-															}
-															ItemListingStore.load();																	
-														}		
+												listeners: {	
+													change: function(field){		
+														var class_type = Ext.getCmp('searchSerial').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query: Ext.getCmp('searchSerialItem').getValue(), serialquery:field.getValue(), catcode: Ext.getCmp('category').getValue()														
+														}
+														ItemListingStore.load();																															
 													}		
 												}
 											}]

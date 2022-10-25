@@ -208,6 +208,8 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
 
     $mcode = $location_from;
     $master_file = get_db_location_name($location_from);
+
+    $Postdate = date('Y-m-d', strtotime($date_));
     
     if ($SysPrefs->loc_notification() == 1)
     {
@@ -221,8 +223,8 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
     include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
     add_js_ufile($path_to_root.'/js/merchandise_transfers_in.js');
 
-    update_mt_header($reference,$mtreference,$branch_code);
-    update_mt_header($reference,$mtreference,$location_from);
+    update_mt_header($reference,$mtreference,$Postdate,$branch_code);
+    update_mt_header($reference,$mtreference,$Postdate,$location_from);
 
     $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
@@ -580,7 +582,8 @@ function add_mt_header_manual($transdate, $mt_reference, $br_reference, $fromloc
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby, mt_type) VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($servedby).", '1')";
+    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby, mt_type, post_date) VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($servedby).", '1', 
+        '$trans_date')";
                 
     db_query($sql, "The MT Header record cannot be inserted");
                 
@@ -633,11 +636,12 @@ function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id
     return $dbid;
 }
 //Added by Herald - 03/18/2021 - to update the MT header for the RR Reference
-function update_mt_header($reference, $mtreference, $targetdb){
+function update_mt_header($reference, $mtreference, $postdate, $targetdb){
     $db_coy = Get_db_coy($targetdb);
     set_global_connection($db_coy);
     
-    $sql = "UPDATE ".TB_PREF."mt_header SET mt_header_rrbranch_reference=".db_escape($reference)." WHERE mt_header_reference= ".db_escape($mtreference);
+    $sql = "UPDATE ".TB_PREF."mt_header SET mt_header_rrbranch_reference=".db_escape($reference).", post_date=".db_escape($postdate)."
+    WHERE mt_header_reference= ".db_escape($mtreference);
     
     db_query($sql, "The MT Header record cannot be inserted");
     

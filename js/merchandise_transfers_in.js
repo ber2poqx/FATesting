@@ -67,7 +67,8 @@ Ext.onReady(function(){
 			{name:'remarks',mapping:'remarks'},
 			{name:'status',mapping:'status'},
 			{name:'delivery_date',mapping:'delivery_date'},
-			{name:'type_rr',mapping:'type_rr'}
+			{name:'type_rr',mapping:'type_rr'},
+			{name:'post_date',mapping:'post_date'}
 		]
 	});
 
@@ -183,6 +184,8 @@ Ext.onReady(function(){
                         catcode = record.get('category_id');
                         category = record.get('category');
 						rrbrreference = record.get('rrbrreference');
+						post_date = record.get('post_date');
+						status_msg = record.get('status_msg');
 						//var RRBRReference;			
                         
 						if(!windowItemSerialList){
@@ -215,8 +218,12 @@ Ext.onReady(function(){
 									transdate = jsonData.AdjDate;
 									RRBRReference = jsonData.RRBRReference;
 									MTreference = jsonData.MTreference;
+									if(status_msg == 'Received') {
+										Ext.getCmp('AdjDate').setValue(post_date);
+									}else{
+										Ext.getCmp('AdjDate').setValue(transdate);
+									}
 									Ext.getCmp('RRBranchReference').setValue(reference);
-									Ext.getCmp('AdjDate').setValue(transdate);
 									Ext.getCmp('RRBRCategory').setValue(category);
 						
 									//Ext.MessageBox.alert('Success!',"Process complete"+branchcode);
@@ -272,86 +279,86 @@ Ext.onReady(function(){
 							});
 
 							var grid1 = Ext.create('Ext.grid.Panel',{
-									xtype:'grid',
-									forceFit: true,
-									layout:'fit',
-									//selModel:selModel1,
-									selModel: {
-										selType: 'checkboxmodel',
-										id: 'checkidbox',
-										checkOnly: true,
-										mode: 'Multi'			
-									},	
-									plugins: {
-								        ptype: 'cellediting',
-								        clicksToEdit: 1
-								    },
-									id:'ItemSerialListingView',
-									store: MTItemListingStore,
-									columns: columnItemSerial,
-									//selModel: 'cellmodel',
-								    //plugins: [cellEditing],
-									dockedItems:[{
-										dock:'top',
-										xtype:'toolbar',
-										name:'searchSerialBar',
-										hidden: false,
-										items:[{
-											xtype:'textfield',
-											fieldLabel:'MT Reference',
-											id:'RRBranchReference',
-											readOnly: true,
-											//disabled: true,
-											fieldStyle: 'font-weight: bold; color: #003168;'
-										},{
-											xtype:'textfield',
-											id:'RRBRCategory',
-											fieldLabel:'Category',
-											readOnly: true,
-											//disabled: true,
-											fieldStyle: 'font-weight: bold; color: #003168;'
-										},{
-											xtype:'datefield',
-											fieldLabel:'Received Date',
-											name:'trans_date',
-											id:'AdjDate',/*,
-											value: new Date()*/
-											readOnly: true
-										},
-										{
-											xtype:'textfield',
-											fieldLabel:'FROM Location Code',
-											id:'from_loc_code',
-											readOnly: true,
-											//disabled: true,
-											fieldStyle: 'font-weight: bold; color: #003168;',
-											value: from_loc_code,
-											hidden: true
-										},{
-											iconCls:'clear-search',
-											hidden: true
-										},{
-											xtype:'textfield',
-											name:'searchSerial',
-											id:'searchSerialView',
-											fieldLabel:'Serial/Engine No.',
-											labelWidth: 120,
-											hidden: true
-										}]
-									}],
-									bbar : {
-										xtype : 'pagingtoolbar',
-										store : MTItemListingStore,
-										displayInfo : true
+								xtype:'grid',
+								forceFit: true,
+								layout:'fit',
+								//selModel:selModel1,
+								selModel: {
+									selType: 'checkboxmodel',
+									id: 'checkidbox1',
+									checkOnly: true,
+									mode: 'Multi'			
+								},	
+								plugins: {
+							        ptype: 'cellediting',
+							        clicksToEdit: 1
+							    },
+								id:'ItemSerialListingView',
+								store: MTItemListingStore,
+								columns: columnItemSerial,
+								//selModel: 'cellmodel',
+							    //plugins: [cellEditing],
+								dockedItems:[{
+									dock:'top',
+									xtype:'toolbar',
+									name:'searchSerialBar',
+									hidden: false,
+									items:[{
+										xtype:'textfield',
+										fieldLabel:'MT Reference',
+										id:'RRBranchReference',
+										readOnly: true,
+										//disabled: true,
+										fieldStyle: 'font-weight: bold; color: #003168;'
+									},{
+										xtype:'textfield',
+										id:'RRBRCategory',
+										fieldLabel:'Category',
+										readOnly: true,
+										//disabled: true,
+										fieldStyle: 'font-weight: bold; color: #003168;'
+									},{
+										xtype:'datefield',
+										fieldLabel:'Received Date',
+										name:'trans_date',
+										id:'AdjDate',/*,
+										value: new Date()*/
+										readOnly: true
 									},
-									viewConfig: {
-										getRowClass: function (record, rowIndex) {
-									      	var pfix = Ext.baseCSSPrefix;
-										  	var disabledClass =  pfix + 'item-disabled ' + pfix + 'btn-disabled ' + pfix + 'btn-plain-toolbar-small';
-											return record.get('status') === '2' ? disabledClass : '';
-									    }
-									}
-								//}]								
+									{
+										xtype:'textfield',
+										fieldLabel:'FROM Location Code',
+										id:'from_loc_code',
+										readOnly: true,
+										//disabled: true,
+										fieldStyle: 'font-weight: bold; color: #003168;',
+										value: from_loc_code,
+										hidden: true
+									},{
+										iconCls:'clear-search',
+										hidden: true
+									},{
+										xtype:'textfield',
+										name:'searchSerial',
+										id:'searchSerialView',
+										fieldLabel:'Serial/Engine No.',
+										labelWidth: 120,
+										hidden: true
+									}]
+								}],
+								bbar : {
+									xtype : 'pagingtoolbar',
+									store : MTItemListingStore,
+									displayInfo : true
+								},
+								viewConfig: {
+									getRowClass: function (record, rowIndex) {
+								      	var pfix = Ext.baseCSSPrefix;
+									  	var disabledClass =  pfix + 'item-disabled ' + pfix + 'btn-disabled ' + pfix + 'btn-plain-toolbar-small';
+										return record.get('status_msg') === '2' ? disabledClass : '';
+								    }
+								}
+							//}]								
 							});	
 							
 							var windowItemSerialList = Ext.create('Ext.Window',{
@@ -438,8 +445,7 @@ Ext.onReady(function(){
 											});
 											
 										}
-									},
-									{
+									},{
 										text:'Close',
 										iconCls:'cancel-col',
 										handler: function(){
@@ -2070,7 +2076,7 @@ Ext.onReady(function(){
 														} 
 													});
 													Ext.MessageBox.hide();
-													this.setDisabled(true);	
+													//this.setDisabled(true);	
 												}
 											});										
 										}
