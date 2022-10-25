@@ -103,7 +103,11 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	}
 	if (($discount + $amount) != 0)	{
 		/* Now Credit Debtors account with receipts + discounts */
-		$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_, $debtors_account, 0, 0, -($discount + $amount), $customer_id, "Cannot insert a GL transaction for the debtors account credit", $rate, null, null, 0, $masterfile);
+		$total += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $date_, $debtors_account, 0, 0, -($discount + $amount + $otherentry_amount), $customer_id, "Cannot insert a GL transaction for the debtors account credit", $rate, null, null, 0, $masterfile);
+
+		if($otherentry_amount != 0){
+			$total += $otherentry_amount;
+		}
 	}
 	//added by jr 071621
 	if($payment_type == "down"){

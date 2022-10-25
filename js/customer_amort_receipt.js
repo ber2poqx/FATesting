@@ -1177,8 +1177,8 @@ Ext.onReady(function() {
 			},
 			editor: new Ext.form.TextField({
 				xtype:'textfield',
-				id: 'otheramnt_inb',
-				name: 'otheramnt_inb',
+				id: 'otheramnt_cashpay',
+				name: 'otheramnt_cashpay',
 				allowBlank: false,
 				listeners : {
 					
@@ -1192,6 +1192,44 @@ Ext.onReady(function() {
 				handler: function(grid, rowIndex, colIndex) {
 					var records = OtherEntryStore.getAt(rowIndex);
 					loadOtherEntry('delete',records.get("id"), 'amort');
+				}
+			}]
+		}
+	];
+	var DPwoSiOtherEntryHeader = [
+		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:90},
+		{header:'<b>Description</b>', dataIndex:'gl_name', width:230},
+		{header:'<b>SL Code</b>', dataIndex:'sl_code', width:90},
+		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:230},
+		{header:'<b>Amount</b>', dataIndex:'debit_amount', width:115, align:'right', summaryType: 'sum',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryRenderer: function(value, summaryData, dataIndex){
+				Ext.getCmp('total_otheramount_dp').setValue(value);
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+			},
+			editor: new Ext.form.TextField({
+				xtype:'textfield',
+				id: 'otheramnt_dp',
+				name: 'otheramnt_dp',
+				allowBlank: false,
+				listeners : {
+					
+				}
+			})
+		},
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:70,
+			items:[{
+				icon: '../js/ext4/examples/shared/icons/delete.png',
+				tooltip: 'remove',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = OtherEntryStore.getAt(rowIndex);
+					loadOtherEntry('delete',records.get("id"), 'dpwosi');
 				}
 			}]
 		}
@@ -1395,6 +1433,8 @@ Ext.onReady(function() {
 			PaymentTypeStore.load();
 			ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
 			ARInvoiceStore.load();
+			OtherEntryStore.proxy.extraParams = {transNo: null};
+			OtherEntryStore.load();
 			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier_cash').setValue(records[i].get('id'));
@@ -1402,6 +1442,7 @@ Ext.onReady(function() {
 			});*/
 
 			//Ext.getCmp('intobankacct_cash').setValue(3);
+			Ext.getCmp('total_otheramount_cashpay').setValue(0);
 			Ext.getCmp('debit_acct_cash').setValue("1050");
 			Ext.getCmp('paymentType_cash').setValue('other');
 			Ext.getCmp('collectType_cash').setValue(1);//'office'
@@ -1466,6 +1507,8 @@ Ext.onReady(function() {
 			CustomerStore.load();
 			PaymentTypeStore.proxy.extraParams = {type: "downp"};
 			PaymentTypeStore.load();
+			OtherEntryStore.proxy.extraParams = {transNo: null};
+			OtherEntryStore.load();
 			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier_dp').setValue(records[i].get('id'));
@@ -1651,6 +1694,54 @@ Ext.onReady(function() {
 			}
 		}
 	}];
+	var dpwositbar = [{
+		xtype: 'textfield',
+		id: 'othrdebit_acct_dp',
+		name: 'othrdebit_acct_dp',
+		fieldLabel: 'othrdebit_acct_dp',
+		hidden: true
+	},{
+		xtype: 'combobox',
+		id: 'otherintobankacct_dp',
+		name: 'otherintobankacct_dp',
+		//allowBlank: false,
+		store : IntoBankAcctStore,
+		displayField: 'name',
+		valueField: 'id',
+		queryMode: 'local',
+		fieldLabel : 'Debit to ',
+		labelWidth: 100,
+		width: 300,
+		forceSelection: true,
+		selectOnFocus:true,
+		fieldStyle: 'font-weight: bold; color: #210a04;',
+		listeners: {
+			select: function(combo, record, index) {
+				Ext.getCmp('othrdebit_acct_dp').setValue(record.get("type"));
+				loadOtherEntry('add',0, 'dpwosi');
+			}
+		}
+	},{
+		xtype: 'textfield',
+		id: 'total_otheramount_dp',
+		name: 'total_otheramount_dp',
+		fieldLabel: 'Other Entry Total ',
+		//allowBlank: false,
+		//hidden: true,
+		labelWidth: 123,
+		readOnly: true,
+		fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+		listeners: {
+			change: function(object, value) {
+				var otheramnt = Math.floor(Ext.getCmp('tenderd_amount_dp').getValue());
+				var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
+				
+				Ext.getCmp('total_amount_dp').setValue(totalamnt);
+				loadGLDP();
+			}
+		}
+	}];
+
 	var submit_form = Ext.create('Ext.form.Panel', {
 		id: 'form_submit',
 		model: 'AllocationModel',
@@ -3124,8 +3215,10 @@ Ext.onReady(function() {
 							field.focus(true);
 						},
 						change: function(object, value) {
-							Ext.getCmp('total_amount_dp').setValue(value);
-
+							var otheramnt = Math.floor(Ext.getCmp('total_otheramount_dp').getValue());
+							var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
+							Ext.getCmp('total_amount_dp').setValue(totalamnt);
+							
 							loadGLDP();
 						}
 					}
@@ -3188,6 +3281,24 @@ Ext.onReady(function() {
 					columns: DPGLHeader,
 					features: [{ftype: 'summary'}],
 					columnLines: true
+				},{
+					xtype:'gridpanel',
+					id: 'DPwoSIOtherEntriesGrid',
+					anchor:'100%',
+					layout:'fit',
+					tbar: dpwositbar,
+					selModel: 'cellmodel',
+					plugins: {
+						ptype: 'cellediting',
+						clicksToEdit: 1
+					},
+					title: 'Other Entry',
+					icon: '../js/ext4/examples/shared/icons/page_add.png',
+					loadMask: true,
+					store:	OtherEntryStore,
+					columns: DPwoSiOtherEntryHeader,
+					features: [{ftype: 'summary'}],
+					columnLines: true
 				}]
 			}]
 	});
@@ -3224,11 +3335,30 @@ Ext.onReady(function() {
 						};
 						girdDPData.push(ObjDP);
 					});
+					//other entries
+					if(Ext.getCmp('total_otheramount_dp').getValue() != 0){
+						var gridOEData = OtherEntryStore.getRange();
+						var OEData = [];
+						
+						Ext.each(gridOEData, function(item) {
+							var ObjItem = {
+								id: item.get('id'),  
+								gl_code: item.get('gl_code'),
+								gl_name: item.get('gl_name'),
+								sl_code: item.get('sl_code'),
+								sl_name: item.get('sl_name'),
+								debtor_id: item.get('debtor_id'),
+								debit_amount: item.get('debit_amount')
+							};
+							OEData.push(ObjItem);
+						});
+					}
 					//console.log(Ext.decode(gridData));
 					form_submit_DP.submit({
 						url: '?submitDPnoAmort=payment',
 						params: {
-							DPDataOnGrid: Ext.encode(girdDPData)
+							DPDataOnGrid: Ext.encode(girdDPData),
+							DataOEGrid: Ext.encode(OEData)
 						},
 						waitMsg: 'Saving downpayment. please wait...',
 						method:'POST',
@@ -4884,7 +5014,9 @@ Ext.onReady(function() {
 				debtor_id: Ext.getCmp('customername_dp').getValue(),
 				date_issue: Ext.getCmp('trans_date_dp').getValue(),
 				debitTo: Ext.getCmp('debit_acct_dp').getValue(),
-				amount: Ext.getCmp('tenderd_amount_dp').getValue(),
+				//amount: Ext.getCmp('tenderd_amount_dp').getValue(),
+				amounttotal: Ext.getCmp('total_amount_dp').getValue(),
+				amounttenderd: Ext.getCmp('tenderd_amount_dp').getValue(),
 				branch_code: Ext.getCmp('customercode_dp').getValue(),
 				branch_name: Ext.getCmp('customername_dp').getRawValue()
 			};
@@ -4905,6 +5037,9 @@ Ext.onReady(function() {
 		}else if($mode == 'cashpay'){
 			$debitTo = Ext.getCmp('othrdebit_acct_cashpay').getValue();
 			$customername = Ext.getCmp('customername_cash').getValue();
+		}else if($mode == 'dpwosi'){
+			$debitTo = Ext.getCmp('othrdebit_acct_dp').getValue();
+			$customername = Ext.getCmp('customername_dp').getValue();
 		}
 		
 		Ext.each(gridData, function(item) {
