@@ -184,8 +184,8 @@ function print_transaction() {
         	$rep->TextCol(10, 11, $trans['units']);      
         	
         	$dec2 = 0; 
-			$rep->AmountCol(11, 12, $trans['UnitCost']);
-			$rep->AmountCol(12, 13, $trans['total_']);
+			$rep->AmountCol(11, 12, $trans['UnitCost'], $dec);
+			$rep->AmountCol(12, 13, $trans['total_'], $dec);
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(13, 14, $loc_code);
 			$rep->SetTextColor(0, 0, 0);
