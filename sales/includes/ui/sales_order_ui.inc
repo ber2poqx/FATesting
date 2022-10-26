@@ -810,7 +810,8 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 			submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);
 		}
 	}
-
+	
+	//Ucomment this to resolve Mantis Issue #968
 	// $pdc_no = '';
 	// if (isset($order->order_no)) {
 	// 	$so_head = get_SO_header($order->order_no);

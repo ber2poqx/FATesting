@@ -187,7 +187,7 @@ if (get_post('co_maker')) {
 	$Ajax->activate('co_maker');
 }
 
-
+//Ucomment this to resolve Mantis Issue #968
 // function update_cart_discount($discount_id = 0) { 
 
 // 	if ($discount_id > 0) {

@@ -750,6 +750,7 @@ function display_order_header(&$order, $editable, $date_text)
 			hidden('pdc_no', $so_head['pdc_no']);
 			hidden('pdc_discount', $so_head['pdc_discount']);
 		}
+		//Ucomment this to resolve Mantis Issue #968
 		// else if ($order->category_id == 14) {
 		// 	$order->discount_id = $pdc_no;
 		// 	$discount_row = db_fetch(get_temp_discount($pdc_no));

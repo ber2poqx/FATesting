@@ -423,6 +423,7 @@ if (get_post('category_id')) {
 	$Ajax->activate('order_head');
 }
 
+//Ucomment this to resolve Mantis Issue #968
 // function update_cart_discount($discount_id = 0) { 
 
 // 	if ($discount_id > 0) {
