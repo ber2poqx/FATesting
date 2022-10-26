@@ -20,7 +20,10 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 			CASE 
 				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Collection Receipt:'
     			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries:'
-			END AS 'receipt_type'
+			END AS 'receipt_type',
+            CASE 
+                WHEN A.bank_act = 1 OR A.bank_act = 2 THEN 0 ELSE A.amount
+            END AS 'non_cash'
 
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id

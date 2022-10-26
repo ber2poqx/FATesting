@@ -60,7 +60,10 @@ function disbursement_transactions($from, $cashier = '') {
 	$from = date2sql($from);
 
 	$sql = "SELECT A.ref, A.type, A.trans_date, abs(A.amount) AS amt, A.person_id, A.cashier_user_id, B.name, 
-			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile, A.receipt_no, A.trans_no, A.bank_act
+			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile, A.receipt_no, A.trans_no, A.bank_act,
+			CASE 
+                WHEN A.bank_act = 1 || A.bank_act = 2 THEN 0 ELSE A.amount
+            END AS 'non_cash'
 			
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
@@ -158,18 +161,19 @@ function print_dailycash_sales()
 		$cashier_name = '';
 	}
 
-	$cols = array(0, 45, 170, 420, 480, 530, 0);
-
 	$headers = array(
 		_('Date'), 
 		_('Customer'), 
 		_('Remarks'),
 		_('Reference'), 
-		_('Receipt Number'), 
+		_('Receipt #'), 
+		_('Non-Cash'),
 		_('Amount')
 	);
 
-	$aligns = array('left', 'left', 'left', 'center', 'center', 'right');
+	$aligns = array('left', 'left', 'left', 'center', 'center', 'right', 'right');
+	$cols = array(0, 45, 150, 370, 420, 470, 510, 575, 0);
+
 
     $params =  array( 
 		0 => $comments,
@@ -196,7 +200,7 @@ function print_dailycash_sales()
 	$rep->NewLine(.5);
 	$rep->Font('bold');
 	$rep->TextCol(2, 3, _('OPENING BALANCE PREVIOUS DAY:'));
-	$rep->AmountCol(5, 6, $prev_balance, $dec);
+	$rep->AmountCol(6, 7, $prev_balance, $dec);
 	//$rep->Line($rep->row - 2);
 	$rep->Font();
 	$rep->NewLine(.5);
@@ -267,7 +271,8 @@ function print_dailycash_sales()
 			$rep->SetTextColor(0, 0, 255);
 			$rep->TextCol(4, 5, $trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
-			$rep->AmountCol(5, 6, ABS($entry_amt), $dec);
+			$rep->AmountCol(5, 6, ABS($trans['non_cash']), $dec);
+			$rep->AmountCol(6, 7, ABS($entry_amt), $dec);
 	
 	
 			if ($void_entry['void_status'] == 'Voided') {
@@ -280,8 +285,9 @@ function print_dailycash_sales()
 				$rep->SetTextColor(0, 0, 255);
 				$rep->TextCol(4, 5, $trans['receipt_no']);
 				$rep->SetTextColor(0, 0, 0);
+				$rep->AmountCol(5, 6, 0, $dec);
 				$rep->SetTextColor(255, 0, 0);
-				$rep->TextCol(5, 6, "(" . price_format(ABS($entry_amt)) . ")");
+				$rep->TextCol(6, 7, "(" . price_format(ABS($entry_amt)) . ")");
 				$rep->SetTextColor(0, 0, 0);
 			}
 
@@ -339,7 +345,8 @@ function print_dailycash_sales()
 				$rep->SetTextColor(0, 0, 255);
 				$rep->TextCol(4, 5, $trans['receipt_no']);
 				$rep->SetTextColor(0, 0, 0);
-				$rep->AmountCol(5, 6, ABS($entry_amt), $dec);
+				$rep->AmountCol(5, 6, ABS($trans['non_cash']), $dec);
+				$rep->AmountCol(6, 7, ABS($entry_amt), $dec);
 		
 		
 				if ($void_entry['void_status'] == 'Voided') {
@@ -352,8 +359,9 @@ function print_dailycash_sales()
 					$rep->SetTextColor(0, 0, 255);
 					$rep->TextCol(4, 5, $trans['receipt_no']);
 					$rep->SetTextColor(0, 0, 0);
+					$rep->AmountCol(5, 6, 0, $dec);
 					$rep->SetTextColor(255, 0, 0);
-					$rep->TextCol(5, 6, "(" . price_format(ABS($entry_amt)) . ")");
+					$rep->TextCol(6, 7, "(" . price_format(ABS($entry_amt)) . ")");
 					$rep->SetTextColor(0, 0, 0);
 				}
 
@@ -375,7 +383,7 @@ function print_dailycash_sales()
 		$rep->NewLine(2);
 		$rep->Font('bold');
 		$rep->TextCol(0, 1, _('Sub Total'));
-		$rep->AmountCol(5, 6, $sub_total, $dec);
+		$rep->AmountCol(6, 7, $sub_total, $dec);
 		$rep->Line($rep->row  - 4);
 		$rep->NewLine(1.5);
 	}
@@ -403,8 +411,8 @@ function print_dailycash_sales()
 
 		$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_transT['remit_ref']));
 		$rep->TextCol(4, 5, '');
-
-		$rep->AmountCol(5, 6, $remit_transT['total_amt'], $dec);
+		$rep->AmountCol(5, 6, 0, $dec);
+		$rep->AmountCol(6, 7, $remit_transT['total_amt'], $dec);
 
 		$Tpre_subR += $remit_transT['total_amt'];
 		$Trtotal += $remit_transT['total_amt'];
@@ -426,8 +434,9 @@ function print_dailycash_sales()
 		$rep->TextCol(3, 4, str_replace(getCompDet('branch_code') . "-", "", $remit_trans['remit_ref']));
 		$rep->TextCol(4, 5, '');
 
+		$rep->AmountCol(5, 6, 0, $dec);
 		$rep->SetTextColor(255, 0, 0);
-		$rep->TextCol(5, 6, "(" . price_format($remit_trans['total_amt']) . ")");
+		$rep->TextCol(6, 7, "(" . price_format($remit_trans['total_amt']) . ")");
 		$rep->SetTextColor(0, 0, 0);
 
 		$pre_subR += -$remit_trans['total_amt'];
@@ -441,11 +450,11 @@ function print_dailycash_sales()
 	$rep->Font('bold');
 	$rep->TextCol(0, 1, _('Sub Total'));
 	if (($Tsub_rtotal + $sub_rtotal) > 0) {
-		$rep->AmountCol(5, 6, $Tsub_rtotal + $sub_rtotal, $dec);
+		$rep->AmountCol(6, 7, $Tsub_rtotal + $sub_rtotal, $dec);
 	}
 	else {
 		$rep->SetTextColor(255, 0, 0);
-		$rep->TextCol(5, 6, "(" . price_format($Tsub_rtotal + ABS($sub_rtotal)) . ")");
+		$rep->TextCol(6, 7, "(" . price_format($Tsub_rtotal + ABS($sub_rtotal)) . ")");
 		$rep->SetTextColor(0, 0, 0);
 	}
 	$rep->Line($rep->row  - 4);
@@ -456,10 +465,10 @@ function print_dailycash_sales()
 
 	$rep->NewLine(1);
 	$rep->Font('bold');
-	$rep->fontSize += 3;
+	$rep->fontSize += 2;
 	$rep->TextCol(0, 3, _('Total Collection: '));
-	$rep->AmountCol(5, 6, $prev_balance + $sum_receipt + ($Tsum_remit + $sum_remit), $dec);
-	$rep->fontSize -= 3;
+	$rep->AmountCol(6, 7, $prev_balance + $sum_receipt + ($Tsum_remit + $sum_remit), $dec);
+	$rep->fontSize -= 2;
 	$rep->NewLine(.5);
 	$rep->Line($rep->row  - 1);
 	
@@ -497,7 +506,8 @@ function print_dailycash_sales()
 			$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
 			$rep->SetTextColor(255, 0, 0);
-			$rep->AmountCol(5, 6, $entry_amt, $dec);
+			$rep->AmountCol(5, 6, $dis_trans['non_cash'], $dec);
+			$rep->AmountCol(6, 7, $entry_amt, $dec);
 	
 			if ($void_entry['void_status'] == 'Voided') {
 				$rep->NewLine(1.2);
@@ -508,7 +518,8 @@ function print_dailycash_sales()
 				$rep->SetTextColor(0, 0, 255);
 				$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 				$rep->SetTextColor(0, 0, 0);
-				$rep->TextCol(5, 6, "(" . price_format($entry_amt) . ")", $dec);
+				$rep->AmountCol(5, 6, 0, $dec);
+				$rep->TextCol(6, 7, "(" . price_format($entry_amt) . ")", $dec);
 				$void_dis += $entry_amt;
 			}
 			$rep->SetTextColor(0, 0, 0);
@@ -533,7 +544,8 @@ function print_dailycash_sales()
 			$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 			$rep->SetTextColor(0, 0, 0);
 			$rep->SetTextColor(255, 0, 0);
-			$rep->AmountCol(5, 6, $entry_amt, $dec);
+			$rep->AmountCol(5, 6, $dis_trans['non_cash'], $dec);
+			$rep->AmountCol(6, 7, $entry_amt, $dec);
 	
 			if ($void_entry['void_status'] == 'Voided') {
 				$rep->NewLine(1.2);
@@ -544,7 +556,8 @@ function print_dailycash_sales()
 				$rep->SetTextColor(0, 0, 255);
 				$rep->TextCol(4, 5, $dis_trans['receipt_no']);
 				$rep->SetTextColor(0, 0, 0);
-				$rep->TextCol(5, 6, "(" . price_format($entry_amt) . ")", $dec);
+				$rep->AmountCol(5, 6, 0, $dec);
+				$rep->TextCol(6, 7, "(" . price_format($entry_amt) . ")", $dec);
 				$void_dis += $entry_amt;
 			}
 			$rep->SetTextColor(0, 0, 0);
@@ -558,20 +571,20 @@ function print_dailycash_sales()
 	$rep->Font('bold');
 	$rep->SetTextColor(255, 0, 0);
 	$rep->TextCol(0, 1, _('Sub Total'));
-	$rep->AmountCol(5, 6, $sum_dis, $dec);
+	$rep->AmountCol(6, 7, $sum_dis, $dec);
 	$rep->SetTextColor(0, 0, 0);
 	$rep->Line($rep->row  - 4);
 	$rep->NewLine(.5);
 
 	//End Disburesement Entry
 
-	$rep->fontSize += 1.5;
+	$rep->fontSize += 2;
 	$rep->NewLine(2.5);
 	$rep->Font('bold');
 	$rep->TextCol(0, 4, _('ENDING BALANCE: '));
-	$rep->AmountCol(5, 6, $prev_balance + $sum_receipt + $Tsum_remit + $sum_remit - $sum_dis, $dec);
+	$rep->AmountCol(6, 7, $prev_balance + $sum_receipt + $Tsum_remit + $sum_remit - $sum_dis, $dec);
 	$rep->NewLine(.5);
-	$rep->fontSize -= 1.5;
+	$rep->fontSize -= 2;
 
 	$rep->Line($rep->row  - 1);
 	$rep->NewLine(2);
@@ -582,23 +595,74 @@ function print_dailycash_sales()
 	$rep->Font();
 
 	$bank_sql = get_bank_accounts();
-	$bank_ = 0;
+	$bank_ = $non_cash = $cash = 0;
 
 	while ($bank_row = db_fetch($bank_sql)) {
 
 		$bank_total = get_breakdown_balance($bank_row['id'], $from, $cashier);
+		if ($bank_row['id'] == 1 || $bank_row['id'] == 2) {
+			$cash += $bank_total;
+		}
+		else {
+			$non_cash += $bank_total;
+		}
+
 		$rep->NewLine(1.2);
-		$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
-		$rep->AmountCol(5, 6, $bank_total, $dec);
+		if ($bank_row['id'] == 2) {
+			$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
+			$rep->AmountCol(6, 7, $bank_total, $dec);
+			// $rep->LineTo($rep->leftMargin + 45, $rep->bottomMargin + 255, 
+			// 	590, $rep->bottomMargin + 255
+			// );
+			$rep->NewLine(.5);
+			$rep->Line($rep->row - 1);
+			$rep->NewLine(1.2);
+			$rep->Font('bold');
+			$rep->TextCol(4, 6, 'Cash Sub Total: ');
+			$rep->AmountCol(6, 7, $cash, $dec);
+			$rep->NewLine(.5);
+			$rep->Line($rep->row - 1);
+			$rep->Font();
+			// $rep->LineTo($rep->leftMargin + 45, $rep->bottomMargin + 240, 
+			// 	590, $rep->bottomMargin + 240
+			// );
+			$rep->NewLine(.8);
+		}
+		else {
+			$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
+			$rep->AmountCol(6, 7, $bank_total, $dec);
+		}
+
 		$bank_ += $bank_total;
 	}
+
+	// $rep->LineTo($rep->leftMargin + 45, $rep->bottomMargin + 170, 
+	// 	590, $rep->bottomMargin + 170
+	// );
+	$rep->NewLine(.5);
+	$rep->Line($rep->row - 1);
+	$rep->NewLine(1.5);
 	
+	$rep->Font('bold');
+	
+	$rep->TextCol(4, 6, 'Non Cash Sub Total: ');
+	$rep->AmountCol(6, 7, $non_cash, $dec);
+	$rep->NewLine(.5);
+	$rep->Line($rep->row - 1);
+	$rep->Font();
+	
+	// $rep->LineTo($rep->leftMargin + 45, $rep->bottomMargin + 155, 
+	// 	590, $rep->bottomMargin + 155
+	// );
+
+	$rep->fontSize -= 1;
 	$rep->NewLine(2);
 	$rep->Font('bold');
+	$rep->fontSize += 2;
 	$rep->TextCol(1, 3, _('Total Ending Balance: '));
-	$rep->AmountCol(5, 6, $bank_, $dec);
+	$rep->AmountCol(6, 7, $bank_, $dec);
 	$rep->Font();
-	$rep->fontSize -= 1;
+	$rep->fontSize -= 2;
 
     $rep->End();
 }
