@@ -643,12 +643,12 @@ if(!is_null($action) || !empty($action)){
             $brand = (integer) (isset($_POST['brand']) ? $_POST['brand'] : $_GET['brand']);
             $branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $trans_date = (isset($_POST['trans_date']) ? $_POST['trans_date'] : $_GET['trans_date']);
-            $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
+            $querystr = (isset($_POST['querystr']) ? $_POST['querystr'] : $_GET['querystr']);
             $querystrserial = (isset($_POST['serialquery']) ? $_POST['serialquery'] : $_GET['serialquery']);
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
-            $result = get_all_items_listing($start,$end,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial, $brand);
-            $total_result = get_all_items_listing($start,$end,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial, $brand);
+            $result = get_all_items_listing($start,$end,$brand,$querystr,$catcode,false);
+            $total_result = get_all_items_listing($start,$end,$brand,$querystr,$catcode,true);
             $total = db_num_rows($total_result);
             while ($myrow = db_fetch($result))
             {

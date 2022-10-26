@@ -287,7 +287,15 @@ Ext.onReady(function(){
 									selType: 'checkboxmodel',
 									id: 'checkidbox1',
 									checkOnly: true,
-									mode: 'Multi'			
+									mode: 'Multi',
+									disabled: false,
+									listeners: {
+						                beforeselect: function(grid, records) {
+						                    if (records.get('status_msg') == '2') {
+						                        return false;
+						                    }
+						                }
+						            }			
 								},	
 								plugins: {
 							        ptype: 'cellediting',
@@ -351,13 +359,20 @@ Ext.onReady(function(){
 									store : MTItemListingStore,
 									displayInfo : true
 								},
-								viewConfig: {
-									getRowClass: function (record, rowIndex) {
-								      	var pfix = Ext.baseCSSPrefix;
-									  	var disabledClass =  pfix + 'item-disabled ' + pfix + 'btn-disabled ' + pfix + 'btn-plain-toolbar-small';
-										return record.get('status_msg') === '2' ? disabledClass : '';
+								/*viewConfig: {
+									getRowClass: function (records, rowIndex) {
+								      	//var pfix = Ext.baseCSSPrefix;
+									  	//var disabledClass =  pfix + 'item-disabled ' + pfix + 'btn-disabled ' + pfix + 'btn-plain-toolbar-small';
+										//return record.get('status_msg') === '2' ? disabledClass : '';
+										var records = MTItemListingStore.getAt(rowIndex);
+										if(records.get('status_msg') === '2') {
+											Ext.getCmp('checkidbox1').setDisabled(true);
+										}else{
+											alert('panget');
+										}
 								    }
-								}
+								}*/
+
 							//}]								
 							});	
 							
@@ -1159,6 +1174,8 @@ Ext.onReady(function(){
 						var catcode = Ext.getCmp('category').getValue();
 						var brcode = Ext.getCmp('currentbranch').getValue();
 						var AdjDate = Ext.getCmp('AdjDate').getValue();
+						ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate}
+						ItemListingStore.load();
 
 
 						var Brand_Filter = Ext.create('Ext.form.ComboBox', 
@@ -1196,20 +1213,17 @@ Ext.onReady(function(){
 						    	}),
 						          listeners: {
 						  			select: function(cmb, rec, idx) {
-						  				var brand = this.getValue();
+		
 						                var catcode = Ext.getCmp('category').getValue();
 										var brcode = Ext.getCmp('currentbranch').getValue();
 										var AdjDate = Ext.getCmp('AdjDate').getValue();
-										ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate, brand: brand}
+										ItemListingStore.proxy.extraParams = {brand:this.getValue(), querystr:Ext.getCmp('searchSerialItem1').getValue(), catcode:Ext.getCmp('category').getValue()}
 										ItemListingStore.load();	
 						  			}
 						  		}
 						
 						    }
 						);
-							
-						ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate}
-						ItemListingStore.load();	
 							
 						var windowItemListSerial = Ext.create('Ext.Window',{
 							title:'Stock Master Listing',
@@ -1228,61 +1242,55 @@ Ext.onReady(function(){
 									xtype:'panel',
 									layout:'hbox',
 									items:[Brand_Filter,{
-													xtype	: 'textfield',
-													width	: 300,
-													hidden: false,
-													name 	: 'searchSerialItem1',
-													id		:'searchSerialItem1',
-													fieldLabel: 'Item Description',
-													labelWidth: 120,
-													listeners : {
-														specialkey: function(f,e){							
-															if (e.getKey() == e.ENTER) {
-																
-	
-																var catcode = Ext.getCmp('category').getValue();
-																var brcode = Ext.getCmp('currentbranch').getValue();
-																ItemListingStore.proxy.extraParams = { 
-																	query:this.getValue(), 
-																	catcode: catcode,
-																	branchcode: brcode
-																}
-																ItemListingStore.load();									
-															}
-														}						
+										xtype	: 'textfield',
+										width	: 300,
+										hidden: false,
+										name 	: 'searchSerialItem1',
+										id		:'searchSerialItem1',
+										fieldLabel: 'Item Description',
+										labelWidth: 120,
+										listeners : {
+											specialkey: function(f,e){							
+												if (e.getKey() == e.ENTER) {
+													var catcode = Ext.getCmp('category').getValue();
+													var brcode = Ext.getCmp('currentbranch').getValue();
+													ItemListingStore.proxy.extraParams = {
+														brand:Ext.getCmp('serialise_brand').getValue(), querystr:this.getValue(), catcode:Ext.getCmp('category').getValue()
 													}
-												}]
-								},
-										{
-											xtype:'grid',
-											forceFit: true,
-											//flex:1,
-											layout:'fit',
-											id:'ItemSerialListing',
-											store: ItemListingStore,
-											selModel: {
-											selType: 'checkboxmodel',
-											id: 'checkidbox',
-											checkOnly: true,
-											mode: 'Multi'			
-											},	
-											columns: [
-												{header:'Brand', dataIndex:'brand_name', sortable:true, width:20, renderer: columnWrap,hidden: false},
-												{header:'Model', dataIndex:'model', sortable:true, width:30, renderer: columnWrap,hidden: false},
-												{header:'Item Code', dataIndex:'item_code', sortable:true, width:30, renderer: columnWrap,hidden: false},
-												{header:'Item Description', dataIndex:'stock_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
-												{header:'Color', dataIndex:'item_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
-												{header:'Category', dataIndex:'category_id', sortable:true, width:50, renderer: columnWrap,hidden: true,
-																					
-												}
-											],						
-											bbar : {
-												xtype : 'pagingtoolbar',
-												store : ItemListingStore,
-												displayInfo : true
-											}
+													ItemListingStore.load();
+												}									
+											}						
 										}
-									]
+									}]
+								},{
+									xtype:'grid',
+									forceFit: true,
+									//flex:1,
+									layout:'fit',
+									id:'ItemSerialListing',
+									store: ItemListingStore,
+									selModel: {
+										selType: 'checkboxmodel',
+										id: 'checkidbox',
+										checkOnly: true,
+										mode: 'Multi'			
+									},	
+										columns: [
+											{header:'Brand', dataIndex:'brand_name', sortable:true, width:20, renderer: columnWrap,hidden: false},
+											{header:'Model', dataIndex:'model', sortable:true, width:30, renderer: columnWrap,hidden: false},
+											{header:'Item Code', dataIndex:'item_code', sortable:true, width:30, renderer: columnWrap,hidden: false},
+											{header:'Item Description', dataIndex:'stock_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
+											{header:'Color', dataIndex:'item_description', sortable:true, width:50, renderer: columnWrap,hidden: false},
+											{header:'Category', dataIndex:'category_id', sortable:true, width:50, renderer: columnWrap,hidden: true,
+																				
+											}
+										],						
+										bbar : {
+											xtype : 'pagingtoolbar',
+											store : ItemListingStore,
+											displayInfo : true
+										}
+									}]
 								}
 							],
 							buttons:[
@@ -1452,7 +1460,7 @@ Ext.onReady(function(){
 						                var catcode = Ext.getCmp('category').getValue();
 										var brcode = Ext.getCmp('currentbranch').getValue();
 										var AdjDate = Ext.getCmp('AdjDate').getValue();
-										ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate, brand: brand}
+										ItemListingStore.proxy.extraParams = {brand:this.getValue(), querystr:Ext.getCmp('searchNonSerialItem').getValue(), catcode:Ext.getCmp('category').getValue()}
 										ItemListingStore.load();	
 						  			}
 						  		}
@@ -1491,43 +1499,6 @@ Ext.onReady(function(){
 											{header:'Model', dataIndex:'model', sortable:true, width:20, renderer: columnWrap,hidden: false},
 											{header:'Item Description', dataIndex:'stock_description', sortable:true, width:20, renderer: columnWrap,hidden: false},
 											{header:'Category', dataIndex:'category_id', sortable:true, width:5, renderer: columnWrap,hidden: true,
-											/*{header	:'Action',	xtype:'actioncolumn', align:'center', width:20,
-											items:[
-												{
-													icon: '../js/ext4/examples/shared/icons/accept.png',
-													tooltip: 'Select',
-													handler: function(grid, rowIndex, colIndex) {
-														var record = ItemListingStore.getAt(rowIndex);
-														var item_code = record.get('item_code');
-														var model = record.get('model');
-														var stock_description = record.get('stock_description');
-														var item_description = record.get('item_description');
-														var color = record.get('color');
-														var category = record.get('category_id');
-														var serialised = record.get('serialised');
-														MerchandiseTransStore.load({
-															params:{item_code: item_code, AdjDate:AdjDate, model:model, stock_description:stock_description, item_description:item_description, color:color, category:category, serialised:serialised},
-															scope: this,
-															callback: function(records, operation, success){
-																var countrec = MerchandiseTransStore.getCount();
-															
-																if(countrec>0){
-																	setButtonDisabled(false);
-																}else{
-																	setButtonDisabled(true);
-																	
-																}
-																
-															}
-																
-														});
-
-														windowItemListnon.close();
-													}
-													
-												}
-											]*/
-											
 											}
 										],
 										dockedItems:[{
@@ -1544,21 +1515,15 @@ Ext.onReady(function(){
 												listeners : {
 													specialkey: function(f,e){							
 														if (e.getKey() == e.ENTER) {
-															
-
 															var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('from_location').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																query:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
+															var brcode = Ext.getCmp('currentbranch').getValue();
+															ItemListingStore.proxy.extraParams = {
+																brand:Ext.getCmp('nonserialise_brand').getValue(), querystr:this.getValue(), catcode:Ext.getCmp('category').getValue()
 															}
-															ItemListingStore.load();									
+															ItemListingStore.load();							
 														}
 													}						
 												}
-											},{
-												iconCls:'clear-search'
 											},{
 												xtype:'textfield',
 												name:'searchSerial',
