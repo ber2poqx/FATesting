@@ -222,7 +222,7 @@ function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',
     LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
     LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
     WHERE mh.mt_header_fromlocation='$branchcode' AND mh.mt_header_item_type='new'
-    AND mh.mt_header_reference LIKE '%".$search_ref."%'
+    AND mh.mt_header_reference LIKE '%".$search_ref."%' 
     GROUP BY mh.mt_header_id ORDER BY mh.mt_header_id DESC";
 
     /*Added by Robert */
@@ -272,7 +272,7 @@ function get_all_complimentary_item($start,$limit,$querystr='',$comp_stat='',$se
 }
 
 /*Added by robert 04/28/2022*/
-function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode='',$fromlocation='',$catcode='',$all=false){
+function get_all_receiving_item_branch($start,$limit,$branchcode='',$fromlocation='',$catcode='',$search_ref='',$all=false){
 
     if($fromlocation!=''){
         $str_fromlocation=" AND mh.mt_header_fromlocation='".$fromlocation."'";
@@ -292,6 +292,7 @@ function get_all_receiving_item_branch($start,$limit,$querystr='',$branchcode=''
     LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id 
     LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
     WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation $str_category AND mh.mt_header_item_type = 'new'
+    AND (mh.mt_header_reference LIKE '%".$search_ref."%' OR mh.mt_header_rrbranch_reference LIKE '%".$search_ref."%')
     GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
 
     /*Added by Robert */

@@ -564,7 +564,7 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, width:80, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, width:70, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100,hidden: true},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false, align:'right'},
+		{header:'Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false, align:'right'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false}

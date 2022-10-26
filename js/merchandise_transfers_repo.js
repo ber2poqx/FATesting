@@ -542,7 +542,7 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, width:80, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, width:70, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100,hidden: true},
-		{header:'Cost', dataIndex:'standard_cost', sortable:true, width:50, hidden: false, align:'right'},
+		{header:'Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false, align:'right'},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false}
@@ -706,28 +706,13 @@ Ext.onReady(function(){
 												fieldLabel	: 'Item Description',
 												labelWidth	: 120,
 												listeners 	: {
-													/*specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-														    var catcode = Ext.getCmp('category').getValue();
-															var brcode = Ext.getCmp('fromlocation').getValue();
-															ItemListingStore.proxy.extraParams = { 
-																query:this.getValue(), 
-																catcode: catcode,
-																branchcode: brcode
-															}
-															ItemListingStore.load();									
+													change: function(field) {
+														var class_type = Ext.getCmp('searchSerialItem').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:field.getValue(), serialquery:Ext.getCmp('searchSerial').getValue(), catcode:Ext.getCmp('category').getValue()
 														}
-													}*/
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
-															
-															var class_type = Ext.getCmp('searchSerialItem').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																query:this.getValue()
-															}
-															ItemListingStore.load();								
-														}
-													}								
+														ItemListingStore.load();								
+													}					
 												}
 											},{
 												xtype:'textfield',
@@ -736,29 +721,15 @@ Ext.onReady(function(){
 												fieldLabel:'Serial/Engine No.',
 												labelWidth: 120,
 												listeners : {
-													specialkey: function(f,e){							
-														if (e.getKey() == e.ENTER) {
+													change: function(field) {
 															
-															var class_type = Ext.getCmp('searchSerial').getValue();
-															ItemListingStore.proxy.extraParams = { 											 
-																serialquery:this.getValue()														
-															}
-															ItemListingStore.load();								
+														var class_type = Ext.getCmp('searchSerial').getValue();
+														ItemListingStore.proxy.extraParams = { 											 
+															query:Ext.getCmp('searchSerialItem').getValue(), serialquery:field.getValue(), catcode:Ext.getCmp('category').getValue()													
 														}
+														ItemListingStore.load();								
 													}					
 												}
-												/*},{
-													iconCls:'clear-search',
-													handler: function(){
-														var catcode = Ext.getCmp('category').getValue();
-														var brcode = Ext.getCmp('fromlocation').getValue();
-														ItemListingStore.proxy.extraParams = { 
-															query:'', 
-															catcode: catcode,
-															branchcode: brcode
-														}
-														ItemListingStore.load();
-													}*/
 											}]
 										}],
 										bbar : {

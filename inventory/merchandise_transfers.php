@@ -880,7 +880,7 @@ if(!is_null($action) || !empty($action)){
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
             //$branchcode = (isset($_POST['branchcode']) ? $_POST['branchcode'] : $_GET['branchcode']);
             $fromlocation = (isset($_POST['fromlocation']) ? $_POST['fromlocation'] : $_GET['fromlocation']);
-            $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
+            $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
             $branchcode = $db_connections[user_company()]["branch_code"];
             
             //if($start < 1)  $start = 0; if($end < 1) $end = 25;
@@ -900,8 +900,8 @@ if(!is_null($action) || !empty($action)){
             
             //$result = db_query($sql, "could not get all Serial Items");
 
-            $result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,$catcode,false);
-            $total_result = get_all_receiving_item_branch($start,$limit,$querystr,$branchcode,$fromlocation,$catcode,true);
+            $result = get_all_receiving_item_branch($start,$limit,$branchcode,$fromlocation,$catcode,$search_ref,false);
+            $total_result = get_all_receiving_item_branch($start,$limit,$branchcode,$fromlocation,$catcode,$search_ref,true);
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
 

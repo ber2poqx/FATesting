@@ -97,27 +97,27 @@ Ext.onReady(function(){
 
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, hidden: true},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:170,
+		{header:'Reference', dataIndex:'reference', sortable:true, width:150,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:100,
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:80,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}	
 		},
-		{header:'Post Date', dataIndex:'postdate', sortable:true, width:100,
+		{header:'Post Date', dataIndex:'postdate', sortable:true, width:80,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}	
 		},
-		{header:'From Location', dataIndex:'from_name', sortable:true, width:300,
+		{header:'From Location', dataIndex:'from_name', sortable:true, width:235,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}	
 		},
-		{header:'To Location', dataIndex:'loc_name', sortable:true, width:140,
+		{header:'To Location', dataIndex:'loc_name', sortable:true, width:120,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}	
@@ -127,18 +127,18 @@ Ext.onReady(function(){
 				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:95, align:'center', hidden: false,
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:85, align:'center', hidden: false,
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			}
 		},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:243,
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:160,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Status', dataIndex:'status', sortable:false, width:100, hidden: false, renderer: Status},
-		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:85,
+		{header:'Status', dataIndex:'status', sortable:false, width:90, hidden: false, renderer: Status},
+		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
@@ -1405,6 +1405,7 @@ Ext.onReady(function(){
 					forceSelection: true,
 					required: true,
 					labelWidth: 60,
+					width: 210,
 					hiddenName: 'stat_id',
 					emptyText:'Select Status',
 					fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
@@ -1420,7 +1421,7 @@ Ext.onReady(function(){
 					name:'search_ref',
 					fieldLabel: '<b>Search</b>',
 					labelWidth: 50,
-					width: 290,
+					width: 240,
 					emptyText: "Search by reference",
 					scale: 'small',
 	                fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',

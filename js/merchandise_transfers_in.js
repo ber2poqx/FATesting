@@ -608,7 +608,7 @@ Ext.onReady(function(){
     	hidden: false,
     	fieldLabel:'From Branches',
 		labelWidth: 100,
-		width:630,
+		width:500,
     	name:'from_location',
     	id:'from_location',
     	queryMode: 'local',
@@ -1682,54 +1682,6 @@ Ext.onReady(function(){
 							}
 						}						
 					}
-				},{
-					xtype:'fieldcontainer',
-					layout:'hbox',
-					//margin: '2 0 2 5',
-						items:[{
-							xtype:'combobox',
-							fieldLabel:'Category',
-							name:'categoryS',
-							id:'categoryS',
-							queryModel:'local',
-							triggerAction:'all',
-							displayField  : 'description',
-							valueField    : 'category_id',
-							editable      : true,
-							forceSelection: true,
-	                        allowBlank: false,
-	                        labelWidth: 60,
-							required: true,
-							hiddenName: 'category_id',
-							typeAhead: true,
-							emptyText:'Select Category',
-							selectOnFocus:true,
-							fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-							store: Ext.create('Ext.data.Store',{
-								fields: ['category_id', 'description'],
-	                    		autoLoad: true,
-								proxy: {
-									type:'ajax',
-									url: '?action=category',
-									reader:{
-										type : 'json',
-										root : 'result',
-										totalProperty : 'total'
-									}
-								}
-							}),
-					  		listeners: {
-								select: function(combo, record, index) {
-									//var catcode = Ext.getCmp('categoryS').getValue();
-									//var brcode = Ext.getCmp('from_location').getValue();
-									myInsurance.proxy.extraParams = {fromlocation:Ext.getCmp('from_location').getValue(), catcode: this.getValue()}
-									myInsurance.load();		
-								}
-							}	
-						}]
-					},{
-					iconCls:'clear-search',
-					hidden: true
 				},Supplier_Filter,{
 					icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
 					tooltip	: 'Manual RR Branch',
@@ -2091,8 +2043,71 @@ Ext.onReady(function(){
 						//Ext.getCmp('btnManualProcess').setDisabled(true);
 						windowNewTransfer.show();
 					}
+				},{
+					xtype:'fieldcontainer',
+					layout:'hbox',
+					//margin: '2 0 2 5',
+						items:[{
+							xtype:'combobox',
+							fieldLabel:'Category',
+							name:'categoryS',
+							id:'categoryS',
+							queryMode:'local',
+							triggerAction:'all',
+							displayField  : 'description',
+							valueField    : 'category_id',
+							editable      : true,
+							forceSelection: true,
+	                        allowBlank: false,
+	                        labelWidth: 60,
+	                        width: 220,
+							required: true,
+							hiddenName: 'category_id',
+							typeAhead: true,
+							emptyText:'Select Category',
+							selectOnFocus:true,
+							fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+							store: Ext.create('Ext.data.Store',{
+								fields: ['category_id', 'description'],
+	                    		autoLoad: true,
+								proxy: {
+									type:'ajax',
+									url: '?action=category',
+									reader:{
+										type : 'json',
+										root : 'result',
+										totalProperty : 'total'
+									}
+								}
+							}),
+					  		listeners: {
+								select: function(combo, record, index) {
+									//var catcode = Ext.getCmp('categoryS').getValue();
+									//var brcode = Ext.getCmp('from_location').getValue();
+									myInsurance.proxy.extraParams = {fromlocation:Ext.getCmp('from_location').getValue(), catcode: this.getValue(), search_ref:Ext.getCmp('search_ref').getValue()}
+									myInsurance.load();		
+								}
+							}	
+						}]
+					},{
+					xtype: 'searchfield',
+					id:'search_ref',
+					name:'search_ref',
+					fieldLabel: '<b>Search</b>',
+					labelWidth: 50,
+					width: 240,
+					emptyText: "Search by reference",
+					scale: 'small',
+	                fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+					store: myInsurance,
+					listeners: {
+						change: function(field) {
+							myInsurance.proxy.extraParams = {fromlocation: Ext.getCmp('from_location').getValue(), catcode:Ext.getCmp('categoryS').getValue(), search_ref: field.getValue()};
+							myInsurance.load();
+						}
+					}
 				}
-				]
+			]
 		}],
 		bbar : {
 			xtype : 'pagingtoolbar',

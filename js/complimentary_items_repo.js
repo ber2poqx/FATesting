@@ -89,44 +89,43 @@ Ext.onReady(function(){
 	
 	var columnModel =[
 		{header:'ID', dataIndex:'trans_id', sortable:true, width:25, hidden: true},
-		{header:'Reference', dataIndex:'reference', sortable:true, width:210,
+		{header:'Reference', dataIndex:'reference', sortable:true, width:150,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:95,
+		{header:'Trans Date', dataIndex:'tran_date', sortable:true, width:75,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Post Date', dataIndex:'postdate', sortable:true, width:95,
+		{header:'Post Date', dataIndex:'postdate', sortable:true, width:75,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'From Location', dataIndex:'loc_name', sortable:true, width:320, hidden: false,
+		{header:'From Location', dataIndex:'loc_name', sortable:true, width:235, hidden: false,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Category', dataIndex:'category_name', sortable:true, width:120,
+		{header:'Category', dataIndex:'category_name', sortable:true, width:80,
  			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Total Items', dataIndex:'qty', sortable:true, width:100, align:'center',
+		{header:'Total Items', dataIndex:'qty', sortable:true, width:70, align:'center',
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '00,000.00') + '</span>';
 			}
 		},
-		{header:'Remarks', dataIndex:'remarks', sortable:true, width:300,
+		{header:'Remarks', dataIndex:'remarks', sortable:true, width:160,
 			renderer: function(value, metaData, summarydata, dataIndex){
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'Status', dataIndex:'statusmsg', sortable:true, width:50, hidden: true},
-		{header:'Status', dataIndex:'statusmsg', sortable:true, width:120, renderer: Status},
-		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:70,
+		{header:'Status', dataIndex:'statusmsg', sortable:true, width:80, renderer: Status},
+		{header	: 'Action',	xtype:'actioncolumn', align:'center', width:40,
 			items:[
 				{
 					icon: '../js/ext4/examples/shared/icons/application_view_columns.png',
