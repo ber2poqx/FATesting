@@ -1515,6 +1515,7 @@ Ext.onReady(function() {
 				}
 			});*/
 
+			Ext.getCmp('total_otheramount_dp').setValue(0);
 			//Ext.getCmp('intobankacct_dp').setValue(3);
 			Ext.getCmp('debit_acct_dp').setValue("1050");
 			Ext.getCmp('paymentType_dp').setValue('down');

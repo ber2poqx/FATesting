@@ -586,16 +586,16 @@ function get_AllocDP_customer()
 
 function get_invoice_per_adjustment($debtor_no)
 {
-	$sql = "SELECT A.trans_no, A.type, A.debtor_no, A.reference, A.status, B.total_receivable, C.payment_location, D.category_id, D.description category, F.stock_id, F.description itemdesc
-			FROM ".TB_PREF."debtor_trans A
-				INNER JOIN ".TB_PREF."sales_return_replacement B ON B.trans_no = A.trans_no
-				INNER JOIN ".TB_PREF."sales_return_replacement_details E ON B.trans_no = E.sales_return_replacement_no
-				LEFT JOIN ".TB_PREF."debtor_loans C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
-				INNER JOIN ".TB_PREF."stock_master F ON F.stock_id = E.replace_stock_id
-				INNER JOIN ".TB_PREF."stock_category D ON D.category_id = F.category_id
+	$sql = "SELECT A.trans_no, A.type, A.debtor_no, A.reference, A.status, D.total_receivable, E.payment_location, F.category_id, F.description category, B.stock_id, B.description itemdesc
+			FROM ".TB_PREF."debtor_trans A 
+				INNER JOIN ".TB_PREF."debtor_trans_details B ON B.debtor_trans_no = A.trans_no AND B.debtor_trans_type = A.type
+				INNER JOIN ".TB_PREF."returned_units C ON C.debtor_trans_details_replace_id = B.id
+				INNER JOIN ".TB_PREF."sales_return_replacement D ON D.trans_no = A.trans_no
+				LEFT JOIN ".TB_PREF."debtor_loans E ON E.trans_no = D.trans_no_ref AND E.invoice_ref_no = D.trans_ref
+				INNER JOIN ".TB_PREF."stock_category F ON F.category_id = D.category_id
 			WHERE A.type = ".ST_SALESRETURN." 
-				AND B.total_receivable != 0
-				AND A.alloc < B.total_receivable
+				AND D.total_receivable != 0
+				AND A.alloc < D.total_receivable
 				AND (A.status != 'fully-paid' AND A.status != 'Closed')
 				AND A.debtor_no = ".db_escape($debtor_no)."
 			ORDER BY A.tran_date ASC";
