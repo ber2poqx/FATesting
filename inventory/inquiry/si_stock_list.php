@@ -103,9 +103,11 @@ if ($_POST['promo_cb'] == 1 || $_POST['serialized'] == 0) {
 		_("Units"),
 		_("Item Code"),
 		_("Description"),
+		_("Classification"),
 		_("Avail Qty"),
 		_("Category"),
 		_("Brand"),
+		_("Old Code")
 	);
 }
 table_header($th);
@@ -152,6 +154,9 @@ while ($myrow = db_fetch_assoc($result)) {
 	label_cell($myrow["units"]);
 	label_cell($myrow["stock_id"]);
 	label_cell($myrow["description"]);
+	if ($_POST['serialized'] == 0) {
+		label_cell(strtoupper($myrow["imp_name"]));
+	}
 
 	if (get_post('promo_cb') == 0 && get_post('serialized') == 1) {
 		label_cell(get_color_description($myrow["color_code"], $myrow["stock_id"]));
@@ -168,6 +173,9 @@ while ($myrow = db_fetch_assoc($result)) {
 	label_cell($myrow["brand"]);
 	if (get_post('promo_cb') == 0 && get_post('serialized') == 1) {
 		label_cell($myrow["qoh"]);
+	}
+	if ($_POST['serialized'] == 0) {
+		label_cell($myrow["old_code"], "style='color: blue'");
 	}
 	end_row();
 }

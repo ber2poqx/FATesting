@@ -1089,11 +1089,14 @@ function get_available_item_for_si(
 					a.stock_id,
 					a.description,
 					b.description as category,
-					c.name as brand
+					c.name as brand,
+					IMP.name AS imp_name,
+					a.old_code
 				FROM " . TB_PREF . "stock_master a
 				
 				INNER JOIN " . TB_PREF . "stock_category b ON b.category_id = a.category_id
 				LEFT JOIN " . TB_PREF . "item_brand c ON c.id = a.brand
+				LEFT JOIN ".TB_PREF."item_importer IMP ON a.importer = IMP.id	
 
 				WHERE a.serialised = 0 AND
 					a.category_id =" . db_escape($category_id);
@@ -1101,8 +1104,10 @@ function get_available_item_for_si(
 
 		if ($search_value != "") {
 			$sql .= " AND (
-				a.stock_id LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
-				a.description LIKE " . db_escape('%' . trim($search_value) . '%') . ")"; //modified by spyrax10
+			a.stock_id LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
+			a.description LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
+			a.old_code LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
+			IMP.name LIKE " . db_escape('%' . trim($search_value) . '%') . " )"; //modified by spyrax10
 		}
 
 		$sql .= " GROUP BY a.stock_id";
@@ -1173,10 +1178,9 @@ function get_available_item_for_si(
 					stock_category c
 				ON
 					c.category_id = b.category_id
-				LEFT JOIN
-					item_brand d
-				ON
-					d.id = b.brand
+				
+				LEFT JOIN item_brand d ON d.id = b.brand
+
 				WHERE
 					a.qty > 0
 				AND
@@ -1194,10 +1198,10 @@ function get_available_item_for_si(
 
 		if ($search_value != "") {
 			$sql .= " AND (
-						x1.lot_no LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
-						x1.chassis_no LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
-						x1.stock_id LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
-						x1.description LIKE " . db_escape('%' . trim($search_value) . '%') . ")";
+			x1.lot_no LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
+			x1.chassis_no LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
+			x1.stock_id LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
+			x1.description LIKE " . db_escape('%' . trim($search_value) . '%') . " )";
 		}
 		$sql .= " GROUP BY x1.trans_id";
 		/* */
