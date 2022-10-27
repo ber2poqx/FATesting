@@ -3981,8 +3981,35 @@ Ext.onReady(function() {
 				emptyMsg: "No records to display",
 				doRefresh : function(){
 					PaymentStore.load();
-					
-				}
+				},
+				items:[ '->',{
+						xtype: 'combobox',
+						id: 'fltr_cashier',
+						name: 'fltr_cashier',
+						fieldLabel: 'View by cashier/Teller ',
+						store: cashierStore,
+						displayField: 'name',
+						valueField: 'id',
+						queryMode: 'local',
+						labelWidth: 145,
+						width: 350,
+						forceSelection: true,
+						selectOnFocus:true,
+						enableKeyEvents: true,
+						fieldStyle: 'font-weight: bold; color: #210a04;',
+						listeners: {
+							select: function(combo, record, index) {
+								PaymentStore.proxy.extraParams = {query: Ext.getCmp('search').getValue(), cashier: record.get('id')};
+								PaymentStore.load();
+							},
+							keydown: function(obj, e) {
+								if (e.getCharCode() == e.BACKSPACE) {
+									PaymentStore.proxy.extraParams = {query: Ext.getCmp('search').getValue(), cashier: null};
+									PaymentStore.load();
+								}
+							}
+						}
+					}]
 			}
 		}]
 	});

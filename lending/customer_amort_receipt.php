@@ -513,9 +513,9 @@ if(isset($_GET['get_custPayment']))
     $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
-    $result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query']);
+    $result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], 0, true, 0, $_GET['cashier']);
      //for pagination
-    $total_result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], 0, true);
+    $total_result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], 0, true, 0, $_GET['cashier']);
 
     while ($myrow = db_fetch($result)) {
         $trans_typeTo = get_Trans_Type($myrow["trans_no"]);

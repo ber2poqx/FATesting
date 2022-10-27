@@ -1389,7 +1389,7 @@ Ext.onReady(function(){
 		},
 		{header:'<b>Category</b>', dataIndex:'category_desc', sortable:true, width:110},
 		{header:'<b>Term</b>', dataIndex:'months_term', sortable:true, width:59},
-		{header:'<b>Maturity Date</b>', dataIndex:'maturity_date', sortable:true, width:120, renderer: Ext.util.Format.dateRenderer('m-d-Y')},
+		{header:'<b>Maturity</b>', dataIndex:'maturity_date', sortable:true, width:90, renderer: Ext.util.Format.dateRenderer('m-d-Y')},
 		{header:'<b>AR Amount</b>', dataIndex:'ar_amount', sortable:true, width:100,
 			renderer: Ext.util.Format.Currency = function(value){
 				return Ext.util.Format.number(value, '0,000.00');
@@ -1422,10 +1422,10 @@ Ext.onReady(function(){
 				return "<b>" + value + "</b>";
 			}
 		},
-		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:77,
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:107,
 			items:[{
 				icon: '../../js/ext4/examples/shared/icons/table_go.png',
-				tooltip: 'view details',
+				tooltip: 'View details',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = ARInstallQstore.getAt(rowIndex);
 					
@@ -1512,7 +1512,7 @@ Ext.onReady(function(){
 				}
 			},'-',{
 				icon: '../../js/ext4/examples/shared/icons/print-preview-icon.png',
-				tooltip: 'view installment ledger report',
+				tooltip: 'Installment ledger report',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = ARInstallQstore.getAt(rowIndex);
 					//window.open('../../reports/installment_inquiry.php?&trans_no=' + records.get('trans_no') + '&trans_type='+records.get('type'));
@@ -1547,6 +1547,13 @@ Ext.onReady(function(){
 					win.show();
 					Ext.DomHelper.insertFirst(win.body, iframe)
 					//---//
+				}
+			},'-',{
+				icon: '../../js/ext4/examples/shared/icons/book_next.png',
+				tooltip: 'Change term',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = ARInstallQstore.getAt(rowIndex);
+					window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + records.get('trans_no'));
 				}
 			}],
 			renderer:function(value,metaData){

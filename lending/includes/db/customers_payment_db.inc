@@ -319,7 +319,7 @@ function get_debtor_alloc($trans_no, $debtor_no, $type)
 	return db_fetch($result);
 }
 
-function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $tagtrans=0, $showall=false, $beg=0)
+function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $tagtrans=0, $showall=false, $beg=0, $cashier='')
 {
 	if($search != ''){
 		$sWhere .= " AND (B.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%' OR C.receipt_no LIKE '%".$search."%') ";
@@ -331,6 +331,10 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 		$sWhere .= " AND A.opening_balances = 1 ";
 	}else{
 		$sWhere .= " AND A.opening_balances != 1 ";
+	}
+	
+	if($cashier != ''){
+		$sWhere .= " AND C.cashier_user_id = ".db_escape($cashier);
 	}
 	
 	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name
