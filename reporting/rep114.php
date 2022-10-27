@@ -90,7 +90,9 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    ,CASE
 		    	WHEN so8.salesman_id IS NULL OR so8.salesman_id = 0 THEN 'Office Sales'
 		        WHEN so8.salesman_id = 0 THEN 'Office Sales'
-		        ELSE sn9.salesman_name END AS `SalesAgent`		    
+		        ELSE sn9.salesman_name END AS `SalesAgent`	
+			,sod.discount1
+			,sod.discount2
 		FROM ".TB_PREF."debtor_trans_details dtd4
 		    INNER JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
 			LEFT JOIN ".TB_PREF."debtor_loans dl2 on dtd4.debtor_trans_no = dl2.trans_no
@@ -98,9 +100,10 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    LEFT JOIN ".TB_PREF."stock_master sm5 on sm5.stock_id = dtd4.stock_id
 		    LEFT JOIN ".TB_PREF."item_brand ib6 on sm5.brand = ib6.id
 		    LEFT JOIN ".TB_PREF."item_importer ii7 on sm5.importer = ii7.id
-		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.trans_no = so8.order_no
+		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.order_ = so8.order_no AND dt1.type = ".ST_SALESINVOICE."
 		    LEFT JOIN ".TB_PREF."salesman sn9 on so8.salesman_id = sn9.salesman_code
 		    LEFT JOIN ".TB_PREF."stock_category sc10 on dl2.category_id = sc10.category_id
+			LEFT JOIN  ".TB_PREF."sales_order_details sod on so8.order_no = sod.order_no and sod.trans_type = '30'
 		WHERE dt1.type = ".ST_SALESINVOICE."
 			AND dtd4.standard_cost <> 0
 			AND dt1.tran_date <= '$to'
@@ -210,8 +213,8 @@ function print_sales_summary_report()
 	//       name     model     serial     chassis    type       term       qty
 		230,      290,       350,       410,       460,     490,     515,   
 
-	//      LCP     Cost     gross     discount     Agent
-		530,    570,     610,      655,        685,     0);
+	//      LCP     Cost     gross     discount1  discount2    Agent
+		530,    570,     610,      655,        685,         710,     0);
 
 	$headers = array(
 		_('Brand'), 
@@ -229,12 +232,13 @@ function print_sales_summary_report()
 		_('LCP'),
 		_('Unit Cost'),
 		_('Gross Amount'),
-		_('Discount'),
+		_('Dscount1'),
+		_('Dscount2'),
 		_('Sales Agent'),
 		);
 
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'left');
+	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'left');
 
 	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
 
@@ -251,7 +255,8 @@ function print_sales_summary_report()
 	$Tot_lcp=0;
 	$Tot_ucost = 0;
 	$Tot_gross = 0;
-	$Tot_discount = 0;
+	$Tot_discount1 = 0;	
+	$Tot_discount2 = 0;
 	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
 
 	While ($GRNs = db_fetch($res))
@@ -275,8 +280,9 @@ function print_sales_summary_report()
 		$rep->AmountCol2(12, 13, $GRNs['LCP']);
 		$rep->AmountCol2(13, 14, $GRNs['UnitCost']);
 		$rep->AmountCol2(14, 15, $GRNs['grossAmnt']);
-		$rep->AmountCol2(15, 16, $GRNs['discountdp']);
-		$rep->TextCol(16, 17, $GRNs['SalesAgent']);
+		$rep->AmountCol2(15, 16, $GRNs['discount1']);
+		$rep->AmountCol2(16, 17, $GRNs['discount2']);
+		$rep->TextCol(17, 18, $GRNs['SalesAgent']);
 
 		$qty = $GRNs['Qty'];
 		$Tot_qty += $qty;
@@ -290,8 +296,10 @@ function print_sales_summary_report()
 		$grossAmnt = $GRNs['grossAmnt'];
 		$Tot_gross += $grossAmnt;
 
-		$discount = $GRNs['discountdp'];
-		$Tot_discount += $discount;
+		$discount1 = $GRNs['discount1'];
+		$Tot_discount1 += $discount1;
+		$discount2 = $GRNs['discount2'];
+		$Tot_discount2 += $discount2;
 
 		$rep->NewLine(0, 1);
 	}
@@ -307,7 +315,8 @@ function print_sales_summary_report()
 	$rep->AmountCol(12, 13, $Tot_lcp, $dec);
 	$rep->AmountCol(13, 14, $Tot_ucost, $dec);
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
-	$rep->AmountCol(15, 16, $Tot_discount, $dec);
+	$rep->AmountCol(15, 16, $Tot_discount1, $dec);
+	$rep->AmountCol(16, 17, $Tot_discount1, $dec);
 
 	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
