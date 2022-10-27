@@ -209,6 +209,15 @@ Ext.onReady(function(){
 				                        
 											Ext.MessageBox.confirm('Confirm', 'Do you want to Approved this record?', function (btn, text) {
 						                    	if(btn == 'yes') {
+						                    		Ext.MessageBox.show({
+														msg: 'Approved Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
 							                        Ext.Ajax.request({
 														url : '?action=approval',
 														method: 'POST',
@@ -238,7 +247,7 @@ Ext.onReady(function(){
 													var PostDate = Ext.getCmp('PostDate').getValue();	
 
 													Ext.MessageBox.show({
-														msg: 'Saving Date, please wait...',
+														msg: 'Saving Transaction, please wait...',
 														progressText: 'Saving...',
 														width:300,
 														wait:true,
@@ -268,7 +277,7 @@ Ext.onReady(function(){
 															}	
 														} 
 													});
-													Ext.MessageBox.hide();
+													//Ext.MessageBox.hide();
 												}
 											});
 										}
@@ -280,6 +289,15 @@ Ext.onReady(function(){
 				                        
 						                    Ext.MessageBox.confirm('Confirm', 'Do you want to Disapproved this record?', function (btn, text) {
 						                    	if(btn == 'yes') {
+						                    		Ext.MessageBox.show({
+														msg: 'Disapproved Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
 							                        Ext.Ajax.request({
 														url : '?action=disapproval',
 														method: 'POST',
@@ -686,7 +704,7 @@ Ext.onReady(function(){
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Standard Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false},
+		{header:'Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: false},
 		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center'},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false}
@@ -1012,7 +1030,7 @@ Ext.onReady(function(){
 			}
 			]	
 		}],
-        listeners:{
+        /*listeners:{
             validateedit: function(editor, e){
                 var record = MerchandiseTransStore.getAt(e.record.id);
 			    var id = record.get('id');
@@ -1021,15 +1039,15 @@ Ext.onReady(function(){
                 var stock_id = record.get('stock_id');
                 var serial_no = record.get('lot_no');
 
-                /*if(currentqty < qty){
+                if(currentqty < qty){
                     alert('Sorry, Quantity '+qty+' is Greater than Available Quantity On Hand: '+currentqty);
                     return false;
                 }else return true;
-				*/
+				
 
                 //return true;
             }
-        }
+        }*/
 	}
 
 	Ext.create('Ext.grid.Panel', {
@@ -1273,6 +1291,7 @@ Ext.onReady(function(){
 								],buttons:[
 									{
 										text:'Process Transfer',
+										disabled: true,
 										id:'btnProcess',
 										handler:function(){
 											var gridData = MerchandiseTransStore.getRange();
@@ -1312,14 +1331,14 @@ Ext.onReady(function(){
 														
 													}*/
 													Ext.MessageBox.show({
-														msg: 'Saving Date, please wait...',
+														msg: 'Saving Transaction, please wait...',
 														progressText: 'Saving...',
 														width:300,
 														wait:true,
 														waitConfig: {interval:200},
 														//icon:'ext-mb-download', //custom class in msg-box.html
 														iconHeight: 50
-													});		
+													});	
 													Ext.Ajax.request({
 														url : '?action=SaveTransfer',
 														method: 'POST',
@@ -1332,6 +1351,7 @@ Ext.onReady(function(){
 															DataOnGrid: Ext.encode(gridLocationData)
 														},							
 														success: function(response){
+															Ext.MessageBox.hide();
 															var jsonData = Ext.JSON.decode(response.responseText);
 															var errmsg = jsonData.message;
 															//Ext.getCmp('AdjDate').setValue(AdjDate);
@@ -1345,8 +1365,8 @@ Ext.onReady(function(){
 															}													
 														} 
 													});
-													Ext.MessageBox.hide();
-													this.setDisabled(true);
+													//Ext.MessageBox.hide();
+													//this.setDisabled(true);
 												}
 											});
 										}

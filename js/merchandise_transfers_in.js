@@ -426,6 +426,17 @@ Ext.onReady(function(){
 											
 											Ext.MessageBox.confirm('Confirm', 'Do you want to Process this record?', function (btn, text) {
 												if (btn == 'yes') {
+
+													Ext.MessageBox.show({
+														msg: 'Saving Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
+
 													//Ext.getCmp('btnProcess').setDisabled(true);
 													Ext.Ajax.request({
 														url : '?action=save_rrbr',
@@ -443,6 +454,7 @@ Ext.onReady(function(){
 															Ext.MessageBox.alert('Error', 'Processing ' + records.get('id'));
 														}*/
 														success: function(response){
+															Ext.MessageBox.hide();
 															var jsonData = Ext.JSON.decode(response.responseText);
 															var errmsg = jsonData.message;
 															//Ext.getCmp('AdjDate').setValue(AdjDate);
@@ -452,7 +464,7 @@ Ext.onReady(function(){
 																//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
 																myInsurance.load();
 																windowItemSerialList.close();										
-																//Ext.MessageBox.alert('Success','Success Processing');
+																Ext.MessageBox.alert('Success','Success Processing');
 															}
 														}
 													});
@@ -1942,7 +1954,7 @@ Ext.onReady(function(){
 													}
 												
 													Ext.MessageBox.show({
-														msg: 'Saving Date, please wait...',
+														msg: 'Saving Transaction, please wait...',
 														progressText: 'Saving...',
 														width:300,
 														wait:true,
@@ -1964,20 +1976,8 @@ Ext.onReady(function(){
 															mt_reference: mt_reference,
 															DataOnGrid: Ext.encode(gridRepoData) 
 														},
-														/*success: function (response){
-															var jsonData = Ext.JSON.decode(response.responseText);
-															var AdjDate = jsonData.AdjDate;
-															Ext.getCmp('AdjDate').setValue(AdjDate);
-															windowNewTransfer.close();
-															//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-															myInsurance.load();
-														},
-														failure: function (response){
-															//Ext.MessageBox.hide();
-															//var jsonData = Ext.JSON.decode(response.responseText);
-															//Ext.MessageBox.alert('Error','Error Processing');
-														}*/
 														success: function(response){
+															Ext.MessageBox.hide();
 															var jsonData = Ext.JSON.decode(response.responseText);
 															var errmsg = jsonData.message;
 															//Ext.getCmp('AdjDate').setValue(AdjDate);
@@ -1992,7 +1992,7 @@ Ext.onReady(function(){
 															}													
 														} 
 													});
-													Ext.MessageBox.hide();
+													//Ext.MessageBox.hide();
 													//this.setDisabled(true);	
 												}
 											});										

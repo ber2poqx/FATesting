@@ -1171,7 +1171,7 @@ Ext.onReady(function(){
 													}*/
 													
 													Ext.MessageBox.show({
-														msg: 'Saving Date, please wait...',
+														msg: 'Saving Transaction, please wait...',
 														progressText: 'Saving...',
 														width:300,
 														wait:true,
@@ -1195,6 +1195,7 @@ Ext.onReady(function(){
 															value:btn
 														},
 														success: function(response){
+															Ext.MessageBox.hide();
 															var jsonData = Ext.JSON.decode(response.responseText);
 															var errmsg = jsonData.message;
 															//Ext.getCmp('AdjDate').setValue(AdjDate);
@@ -1209,8 +1210,8 @@ Ext.onReady(function(){
 															}													
 														} 
 													});
-													Ext.MessageBox.hide();
-													this.setDisabled(true);
+													//Ext.MessageBox.hide();
+													//this.setDisabled(true);
 												}
 											}
 										}

@@ -80,13 +80,13 @@ if(!is_null($action) || !empty($action)){
                         $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                         $line_item = count($_SESSION['transfer_items']->line_items);
                         $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
-                            '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', $line_item_header,
-                            null, null, null, null, $currentqty);
+                            '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out, '', 'new', '', '', '',
+                            $line_item_header, null, $currentqty);
                     }else{
                         $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                         $line_item = count($_SESSION['transfer_items']->line_items);
-                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', $line_item_header,
-                            null, null, null, null, $currentqty);
+                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, '0000-00-00',null, null, $color, 
+                            $item_code, null, $type_out, $transno_out, '', 'new', '', '', '', $line_item_header, null, $currentqty);
                     } 
                 }
                 /*if(!isset($_REQUEST['view'])){
@@ -273,20 +273,21 @@ if(!is_null($action) || !empty($action)){
             //$brcode = $db_connections[user_company()]["branch_code"];
             $result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
             $total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
-            $total = db_num_rows($total_result);
+            $total = DB_num_rows($total_result);
             while ($myrow = db_fetch($result))
-            {
-                if($myrow["serialise_qty"]>0){
-                    if($myrow["serialised"]){
-                        $qty=$myrow["qty_serialise"];
-                    }else{
-                        $demand_qty = get_demand_qty($myrow["model"], $branchcode);
-                        $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
-                        $qty=get_qoh_on_date_new($myrow["type_out"],$myrow["transno_out"],$myrow["model"],$branchcode, sql2date($trans_date));
-                        $qty-=$demand_qty;
-                    }
-                    if($qty>0){
-                        $serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
+            {            
+                if($myrow["serialised"]){
+                    $qty=$myrow["qty_serialise"];
+                }else{
+                    $demand_qty = get_demand_qty($myrow["model"], $branchcode);
+                    $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
+                    $qty=get_qoh_on_date_new($myrow["type_out"],$myrow["transno_out"],$myrow["model"],$branchcode, sql2date($trans_date));
+                    $qty-=$demand_qty;
+                }
+                if($qty>0){
+                    $serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
+                    $counteritem=$_SESSION['transfer_items']->find_cart_item_new($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
+                    if(!$counteritem){
                         $group_array[] = array('serialise_id'=>$serialise_id,
                             'type_out' => $myrow["type_out"],
                             'transno_out' => $myrow["transno_out"],
@@ -306,10 +307,10 @@ if(!is_null($action) || !empty($action)){
                             'item_type'=>$myrow["item_type"]
                         );
                     }
-                }
+                }                
             }          
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
             exit;
             break;
         case 'MTserialitems':

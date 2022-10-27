@@ -256,6 +256,15 @@ Ext.onReady(function(){
 						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Approved this record?', ApprovalFunction);
 						                    function ApprovalFunction(btn) {
 						                    	if(btn == 'yes') {
+						                    		Ext.MessageBox.show({
+														msg: 'Approved Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
 							                        Ext.Ajax.request({
 														url : '?action=approval',
 														method: 'POST',
@@ -287,7 +296,7 @@ Ext.onReady(function(){
 													var PostDate = Ext.getCmp('PostDate').getValue();	
 
 													Ext.MessageBox.show({
-														msg: 'Saving Date, please wait...',
+														msg: 'Saving Transaction, please wait...',
 														progressText: 'Saving...',
 														width:300,
 														wait:true,
@@ -318,7 +327,7 @@ Ext.onReady(function(){
 															}	
 														} 
 													});
-													Ext.MessageBox.hide();
+													//Ext.MessageBox.hide();
 												}
 											}
 										}
@@ -331,6 +340,15 @@ Ext.onReady(function(){
 						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Disapproved this record?', ApprovalFunction);
 						                    function ApprovalFunction(btn) {
 						                    	if(btn == 'yes') {
+						                    		Ext.MessageBox.show({
+														msg: 'Disapproved Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
 							                        Ext.Ajax.request({
 														url : '?action=disapproval',
 														method: 'POST',
@@ -2282,14 +2300,14 @@ Ext.onReady(function(){
 													return false;
 												}
 												Ext.MessageBox.show({
-													msg: 'Saving Date, please wait...',
+													msg: 'Saving Transaction, please wait...',
 													progressText: 'Saving...',
 													width:300,
 													wait:true,
 													waitConfig: {interval:200},
 													//icon:'ext-mb-download', //custom class in msg-box.html
 													iconHeight: 50
-												});													
+												});												
 												Ext.Ajax.request({
 													url : '?action=SaveTransfer',
 													method: 'POST',
@@ -2308,6 +2326,7 @@ Ext.onReady(function(){
 														Dataongrid: Ext.encode(gridRepoData)
 													},
 													success: function(response){
+														Ext.MessageBox.hide();
 														var jsonData = Ext.JSON.decode(response.responseText);
 														var errmsg = jsonData.errmsg;
 														//Ext.getCmp('AdjDate').setValue(AdjDate);
@@ -2320,10 +2339,9 @@ Ext.onReady(function(){
 															myInsurance.load();
 															Ext.MessageBox.alert('Success','Success Processing');
 														}
-														
 													} 
 												});
-												Ext.MessageBox.hide();
+												//Ext.MessageBox.hide();
 											}
 										});
 									}

@@ -239,8 +239,12 @@ if(!is_null($action) || !empty($action)){
             set_global_connection();
             $AdjDate = sql2date($_POST['AdjDate']);
             $catcode = $_POST['catcode'];
+
             $totaldebit = $_POST['totaldebit'];
             $totalcredit = $_POST['totalcredit'];
+            $totalDebit=$_SESSION['transfer_items']->gl_items_total_debit();
+            $totalCredit=abs($_SESSION['transfer_items']->gl_items_total_credit());
+
             $person_type = $_POST['person_type'];
             $person_id_header = $_POST['person_id'];
             $masterfile = $_POST['masterfile'];
@@ -299,13 +303,15 @@ if(!is_null($action) || !empty($action)){
                 $result = db_query($sql, 'cannot retrieve counterparty name');
                 $rowresult = db_fetch($result);
 
-                if(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
+                if($totalDebit!=$totalCredit) {
+                    $errmsg = "Sorry, Debit you entered '".$totalDebit."' is not equal on Credit you entered: '".$totalCredit."'";
+                }elseif(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
                     $errmsg="Select Location";
                 }elseif(empty($catcode) || $catcode==''){
                     $errmsg="Select Category";
                 }elseif($total_rrdate>0){
                     $errmsg="This document cannot be processed because there is insufficient quantity for items marked.";                    
-                }elseif($totaldebit==$totalcredit && ($totaldebit!=0 || $totalcredit!=0) && $isError != 1){
+                }elseif($totalDebit==$totalCredit && ($totaldebit!=0 || $totalcredit!=0) && $isError != 1){
                     $trans_no = add_stock_Complimentary_Items_repo($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
                     
                     $totalline=count($objDataGrid);
