@@ -38,6 +38,7 @@ class ReceivingReport
                     a.suppl_served_by,
                     a.grn_remarks,
                     a.category_id,
+                    a.apinvoice_no_and_poack_no,
                     CASE
                     	WHEN 
                         	SUM(b.qty_recd) > SUM(d.qty_invoiced)
@@ -83,7 +84,8 @@ class ReceivingReport
                 'suppl_served_by' => $data['suppl_served_by'],
                 'grn_remarks' => $data['grn_remarks'],
                 'category' => get_category_name($data['category_id']),
-                'status' => $data['status']
+                'status' => $data['status'],
+                'ap_ref_no' => $data['apinvoice_no_and_poack_no']
             );
         }
 
@@ -232,7 +234,12 @@ class ReceivingReport
 
         $po_details = $info['po_details'];
         $serials = $info['serials'];
-        $result = 0;
+
+         $doc_no = (string) $info['doc_entry'];
+         $rr_ref_no = $info['rr_ref_no'];
+         $poack_no = (string) $info['sup_inv'];
+
+        $result = 0;    
         foreach ($po_details as $detail) {
             $invoice_qty = $detail['selected_quantity'];
             $item_code = $detail['item_code'];
@@ -257,14 +264,22 @@ class ReceivingReport
                         serialise_id = $serial_id";
             $result +=db_query($sql2, "The item serialize could not be updated");
         }
-        
+        //Added by Albert 10/22/2022
+            $sql3 = "UPDATE
+                    grn_batch a
+                SET
+                    a.apinvoice_no_and_poack_no = CONCAT($doc_no, ' || ', $poack_no)
+                WHERE
+                    a.reference = ".db_escape($rr_ref_no);
+            $result =db_query($sql3, "The grn_batch could not be updated");
+        /**/ 
         $response = "Failed";
-        if($result == (count($po_details) + count($serials))){
+        if($result == (count($po_details) + count($serials))+ 1){ //Added 1 for updating grn_batch
             commit_transaction();
             $response = "Success";
         }
-
-        api_success_response($response);
+        
+        api_success_response($response); 
     }
      //Added by Albert  apsupport 7/29/2022 
     public function get_apsupport($rest, $supplier_id, $category_name){

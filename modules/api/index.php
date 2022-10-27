@@ -555,10 +555,10 @@ $rest->group('/receivingreport', function () use ($rest) {
     // Get Branch
     $rest->get('/', function () use ($rest) {
         $rest->receivingreport->get($rest);
-    });
+    });  
     // Get Specific Receiving Report
-    $rest->get('/search', function () use ($rest) {
-        $supplier = $rest->request->get('supplier');
+    $rest->get('/search/:supplier', function ($supplier) use ($rest) {
+        //$supplier = $rest->request->get('supplier');
         $search = $rest->request->get('search');
         
         $rest->receivingreport->getBySupplierId($rest, $supplier, $search);
