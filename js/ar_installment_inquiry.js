@@ -1550,10 +1550,21 @@ Ext.onReady(function(){
 				}
 			},'-',{
 				icon: '../../js/ext4/examples/shared/icons/book_next.png',
+				id: 'changeterm',
+				//hidden: true,
 				tooltip: 'Change term',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = ARInstallQstore.getAt(rowIndex);
-					window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + records.get('trans_no'));
+					window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + records.get('trans_no') + '&opening_balance=1&paytype=' + records.get('payment_loc'));
+				},
+				isDisabled: function(view, rowIndex, colIndex, item, record) {
+				//hidden : function(view, record) {
+					// Returns true if 'editable' is false (, null, or undefined)
+					if(record.get('payment_loc') == 'Lending'){
+						return false;
+					}else{
+						return true;
+					}
 				}
 			}],
 			renderer:function(value,metaData){
@@ -1728,12 +1739,15 @@ Ext.onReady(function(){
 									Ext.fly(cells[j]).setStyle('background-color', "#f7b86d");
 								}
 							}
-							
-							/*if(record.get('payment_loc') == 'Lending'){
-								Ext.getCmp('showlending').setVisible(false);
+							//Ext.getCmp('changeterm');
+							//Ext.getCmp('changeterm').isDisabled(true);
+							if(record.get('payment_loc') == 'Lending'){
+								//Ext.getCmp('changeterm').iconCls= 'btnchangetrm';
+								//Ext.getCmp('showlending').setVisible(false);
 							}else{
-								Ext.getCmp('showlending').setVisible(true);
-							}*/
+								//Ext.getCmp('showlending').setVisible(true);
+
+							}
 						}
 					}
 				}
