@@ -154,7 +154,7 @@ if(!is_null($action) || !empty($action)){
             $id=$_REQUEST['line_id'];
             $line_item=$_REQUEST['line_item'];
             $_SESSION['transfer_items']->remove_gl_item($id);
-            //$_SESSION['transfer_items']->remove_from_cart_line($line_item);
+            $_SESSION['transfer_items']->remove_from_cart_line($line_item);
             //$array_rec = removeElementWithValue($_SESSION['transfer_items']->line_item, "line_item", $line_item);
             display_gl_complimentaryitems_repo($_SESSION['transfer_items']);
             exit;
@@ -359,7 +359,7 @@ if(!is_null($action) || !empty($action)){
             //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
             $_SESSION['transfer_items']->remove_from_cart($id);
             $_SESSION['transfer_items']->remove_gl_line_item($line_item);
-            //$_SESSION['transfer_items']->remove_from_cart_line($line_item);
+            $_SESSION['transfer_items']->remove_from_cart_line($line_item);
             
             display_transfer_items_serial_compli_repo($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
