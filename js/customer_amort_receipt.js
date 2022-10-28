@@ -3110,7 +3110,12 @@ Ext.onReady(function() {
 					width: 255,
 					forceSelection: true,
 					selectOnFocus:true,
-					editable: false
+					editable: false,
+					listeners: {
+						select: function(combo, record, index) {
+							loadGLDP();
+						}
+					}
 				}]
 			},{
 				xtype: 'fieldcontainer',
@@ -5046,7 +5051,8 @@ Ext.onReady(function() {
 				amounttotal: Ext.getCmp('total_amount_dp').getValue(),
 				amounttenderd: Ext.getCmp('tenderd_amount_dp').getValue(),
 				branch_code: Ext.getCmp('customercode_dp').getValue(),
-				branch_name: Ext.getCmp('customername_dp').getRawValue()
+				branch_name: Ext.getCmp('customername_dp').getRawValue(),
+				paytype: Ext.getCmp('paymentType_dp').getValue()
 			};
 		}
 		DPitemStore.load();

@@ -736,9 +736,9 @@ if(isset($_GET['get_DownPaymnt']))
         }
         //customer deposit
         $company_prefs = get_company_prefs();
-
-        if(!empty($company_prefs["downpaymnt_act"])){
-            $gl_row = get_gl_account($company_prefs["downpaymnt_act"]);
+        //echo "asda-".$_GET['paytype'];
+        if($_GET['paytype'] == "other"){
+            $gl_row = get_gl_account($company_prefs["ap_customer_account"]);
             $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
                                     'gl_code'=>$gl_row["account_code"],
                                     'gl_name'=>$gl_row["account_name"],
@@ -748,6 +748,19 @@ if(isset($_GET['get_DownPaymnt']))
                                     'debit_amount'=>0,
                                     'credit_amount'=>$_GET['amounttotal']
                                 );
+        }else{
+            if(!empty($company_prefs["downpaymnt_act"])){
+                $gl_row = get_gl_account($company_prefs["downpaymnt_act"]);
+                $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                        'gl_code'=>$gl_row["account_code"],
+                                        'gl_name'=>$gl_row["account_name"],
+                                        'sl_code'=>$_GET['branch_code'],
+                                        'sl_name'=>$_GET['branch_name'],
+                                        'debtor_id'=>$_GET['debtor_id'],
+                                        'debit_amount'=>0,
+                                        'credit_amount'=>$_GET['amounttotal']
+                                    );
+            }
         }
     }
 
