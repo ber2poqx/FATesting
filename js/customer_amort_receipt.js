@@ -1354,7 +1354,7 @@ Ext.onReady(function() {
 		store: PaymentStore,
 		listeners: {
 			change: function(field) {
-				PaymentStore.proxy.extraParams = {query: field.getValue()};
+				PaymentStore.proxy.extraParams = {query: field.getValue(), cashier: Ext.getCmp('fltr_cashier').getValue()};
 				PaymentStore.load();
 			}
 		}

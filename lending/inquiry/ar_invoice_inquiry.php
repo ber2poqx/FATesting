@@ -367,7 +367,6 @@ if(isset($_GET['submit']))
             interbranch_send_payment_add($_POST['branch_code'], $_POST['descustcode'], $_POST['descustname'], date("Y-m-d", strtotime($approved_date)), $reference, $ap_capital,
             $_POST['comments'], $_SESSION["wa_current_user"]->name, $conn['branch_code'], $trans_no, ST_ARINVCINSTLITM, $_POST['branch_code'], 1);
 
-
             $Refs->save(ST_ARINVCINSTLITM, $trans_no, $reference, null);
             Update_debtor_trans_status(ST_ARINVCINSTLITM, $trans_no, "unpaid", null);
             Update_debtor_trans_status(ST_SALESINVOICE, $_POST['id'], "Approved", $_POST['branch_code']);
