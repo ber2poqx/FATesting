@@ -4014,7 +4014,8 @@ Ext.onReady(function() {
 								}
 							}
 						}
-					}]
+					}
+				]
 			}
 		}]
 	});

@@ -23,8 +23,8 @@ class lending_app extends application
 
 		$this->add_rapp_function(0, _("Office &Collection Receipt"),
 			"lending/customer_amort_receipt.php?", 'SA_LCUSTAMORT', MENU_TRANSACTION);
-		$this->add_rapp_function(0, _("Interbranch &Collection Receipt"),
-			"lending/interbranch_receipt.php?", 'SA_LINTERBRANCH', MENU_TRANSACTION);
+		$this->add_rapp_function(0, _("Inter-branch (From Not FA)"),
+		"lending/inquiry/interbranch_payments_inquiry.php?", 'SA_INTRBPAYINQ', MENU_TRANSACTION);
 
 		$this->add_module(_("Inquiries and Reports"));
 		$this->add_lapp_function(1, _("Payment Allocation"),

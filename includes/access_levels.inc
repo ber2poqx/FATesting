@@ -523,7 +523,7 @@ $security_areas =array(
 //
 	'SA_ARINVCINSTL' => array(SS_LEND|1, _("A/R Installment")),
 	'SA_LCUSTAMORT'=> array(SS_LEND|2, _("Office &Collection Receipt")),
-	'SA_LINTERBRANCH'=> array(SS_LEND|3, _("Interbranch &Collection Receipt")),
+	'SA_INTRBPAYINQ'=> array(SS_LEND|3, _("Inter-branch (From Not FA)")),
 	'SA_APCUSTDPOPEN'=> array(SS_LEND|4, _("AP Customer Deposit Opening")),
 
 	//'SA_LENDING_A' => array(SS_LEND_A|1, _("Lending analytics")),

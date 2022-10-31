@@ -21,7 +21,11 @@ simple_page_mode(true);
 //----------------------------------------------------------------------------------------------------
 
 add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
-add_js_ufile($path_to_root ."/js/interbranch_payments_inquiry.js");
+if($_GET['type']=='aloneinb'){
+    add_js_ufile($path_to_root ."/js/interbranch_paysalone.js");
+}else{
+    add_js_ufile($path_to_root ."/js/interbranch_payments_inquiry.js");
+}
 
 //----------------------------------------------: for store js :---------------------------------------
 if(isset($_GET['getReference'])){
@@ -712,7 +716,46 @@ if(isset($_GET['submit']))
     return;
 }
 
-page(_($help_context = "Incoming Inter-branch Payments Inquiry"));
+//------------------------------------------alone with you :> ------------------------------------
+
+if(isset($_GET['getFrbranch'])){
+    global $db_connections;
+    $conn = $db_connections;
+    $total = count($conn);
+
+	for ($i = 0; $i < $total; $i++)
+	{
+        $status_array[] = array('id'=>$conn[$i]['branch_code'],
+                                'name'=>$conn[$i]['name'],
+                                'area'=>$conn[$i]['branch_area'],
+                                'gl_account'=>$conn[$i]['gl_account']);
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+
+}
+if(isset($_GET['get_aloneCustomer']))
+{
+    $result = get_all_customer();
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+        $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
+                               'debtor_ref'=>$myrow["debtor_ref"],
+                               'name'=>htmlentities($myrow["name"])
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
+
+
+if($_GET['type']=='aloneinb'){
+    page(_($help_context = "Inter-branch (From Not FA)"));
+}else{
+    page(_($help_context = "Incoming Inter-branch Payments Inquiry"));
+}
 
 start_table(TABLESTYLE, "width='100%'");
    echo "<div id='ext-form'></div>";
