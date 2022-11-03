@@ -162,3 +162,42 @@ function get_interB_transNo_from($id)
 	$result = db_query($sql, "could not get Inter-branch transNo from branch");
 	return db_fetch($result);
 }
+
+function get_notfa_interb($branch=null, $query=null)
+{
+	if(!empty($branch)){
+		$sWhere .= " AND A.branch_code_from = ".db_escape($branch);
+	}
+	if(!empty($query)){
+		$sWhere .= " AND (A.branch_code_from LIKE '%".$query."%' 
+							OR A.debtor_name LIKE '%".$query."%' 
+							OR A.ref_no LIKE '%".$query."%')";
+	}
+
+	$sql = "SELECT A.*, B.debtor_no, B.debtor_ref, B.name, C.receipt_no
+		FROM ".TB_PREF."interbranch_trans A 
+				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_ref = A.debtor_ref
+				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.transno_to_branch
+		WHERE A.type = 3 ".$sWhere;
+
+	return db_query($sql, "could not get inter-branch payment");
+}
+
+function interbranch_notfa_add($branch_code_from, $branch_code_to, $debtor_ref, $name, $trans_date, $ref_no, $amount, $remarks, $prepared_by,
+		$status, $approved, $transno_to, $transno_type, $type=0)
+{
+	set_global_connection();
+
+	$sql = "INSERT INTO ".TB_PREF."interbranch_trans (
+					branch_code_from, branch_code_to, debtor_ref, debtor_name, trans_date, ref_no, amount, remarks, prepared_by,
+					status, approved_by, transno_to_branch, trantype_to_branch, type
+			) VALUES (
+			        ".db_escape($branch_code_from).", ".db_escape($branch_code_to).", ".db_escape($debtor_ref).", ".db_escape($name)."
+					,".db_escape($trans_date).", ".db_escape($ref_no)." , ".db_escape($amount)." ,".db_escape($remarks)."
+					,".db_escape($prepared_by).", ".db_escape($status).", ".db_escape($approved).", ".db_escape($transno_to)."
+					, ".db_escape($transno_type).", ".db_escape($type)."
+			)";
+	
+	$ErrMsg = _('Could not insert data because  ');
+	db_query($sql, $ErrMsg);
+}

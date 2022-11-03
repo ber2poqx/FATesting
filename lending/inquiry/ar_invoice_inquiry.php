@@ -296,7 +296,7 @@ if(isset($_GET['submit']))
         $conn = $db_connections[user_company()];
 
         $trans_no = write_customer_trans(ST_ARINVCINSTLITM, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), date("m/d/Y", strtotime($approved_date)), $reference, 
-                            check_isempty($_POST['total_amount']), 0, 0, 0, 0, 0, check_isempty($_POST['id']), 0, date("m/d/Y", strtotime($approved_date)), 0, 0, 0, 0, $loansrow["payment_terms"], 0, 0);
+                            check_isempty($_POST['total_amount']), $loansrow["tpe"], 0, 0, 0, 0, check_isempty($_POST['id']), 0, date("m/d/Y", strtotime($approved_date)), 0, 0, 0, 0, $loansrow["payment_terms"], 0, 0);
 
         //detailed A/R info
         if(isset($trans_no)){

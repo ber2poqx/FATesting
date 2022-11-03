@@ -38,7 +38,7 @@ Ext.onReady(function(){
 			{name:'amount', mapping:'amount'},
 			{name:'remarks', mapping:'remarks'},
 			{name:'prepared_by', mapping:'prepared_by'},
-			{name:'status', mapping:'status'},
+			{name:'or_ref_no', mapping:'or_ref_no'},
 			{name:'approved_by', mapping:'approved_by'},
 			{name:'type', mapping:'type'}
 		]
@@ -167,7 +167,7 @@ Ext.onReady(function(){
 		autoLoad : true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
-			url: '?get_incoming_interb=xx',
+			url: '?get_notfa_interb=xx',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -375,11 +375,7 @@ Ext.onReady(function(){
 		},
 		{header:'<b>Customer Name</b>', dataIndex:'debtor_name', sortable:true, width:210},
 		{header:'<b>Reference No.</b>', dataIndex:'ref_no', sortable:true, width:120},
-		{header:'<b>Amount</b>', dataIndex:'amount', sortable:true, width:87,
-			renderer: Ext.util.Format.Currency = function(value){
-				return '<span style="color:green;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
-			}
-		},
+		{header:'<b>OR Ref No.</b>', dataIndex:'or_ref_no', sortable:true, width:120},
 		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:170,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
@@ -392,18 +388,9 @@ Ext.onReady(function(){
 				return value;
 			}
 		},
-		{header:'<b>Status</b>', dataIndex:'status', sortable:true, width:88,
-			renderer:function(value,metaData){
-				metaData.tdAttr = 'data-qtip="' + value + '"';
-				if (value === 'draft'){
-					metaData.style="color: #2980b9";
-				}else if(value === 'Approved'){
-					metaData.style="color:#409a2e ";
-					//'<a href="../lending/ar_installment.php?">'+value+'</a>';
-				}else {
-					metaData.style="color:#f00a2a ";
-				}
-				return "<b>" + value + "</b>";
+		{header:'<b>Amount</b>', dataIndex:'amount', sortable:true, width:87,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 			}
 		},
 		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:95,
@@ -468,9 +455,9 @@ Ext.onReady(function(){
 			hidden: true
 		},{
 			xtype: 'textfield',
-			id: 'branchgl',
-			name: 'branchgl',
-			fieldLabel: 'branchgl',
+			id: 'debit_acct',
+			name: 'debit_acct',
+			fieldLabel: 'debit_acct',
 			allowBlank: false,
 			hidden: true
 		},{
@@ -485,6 +472,20 @@ Ext.onReady(function(){
 			id: 'ref_no',
 			name: 'ref_no',
 			fieldLabel: 'ref_no',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'paymentType',
+			name: 'paymentType',
+			fieldLabel: 'paymentType',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'custname',
+			name: 'custname',
+			fieldLabel: 'custname',
 			allowBlank: false,
 			hidden: true
 		},{
@@ -508,7 +509,7 @@ Ext.onReady(function(){
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
 					select: function(combo, record, index) {
-						Ext.getCmp('branchgl').setValue(record.get('gl_account'));
+						Ext.getCmp('debit_acct').setValue(record.get('gl_account'));
 					}
 				}
 			},{
@@ -563,7 +564,8 @@ Ext.onReady(function(){
 				listeners: {
 					select: function(combo, record, index) {
 						Ext.getCmp('customercode').setValue(record.get('debtor_ref'));
-						
+						Ext.getCmp('custname').setValue(combo.getRawValue());
+
 						ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no')};
 						ARInvoiceStore.load();
 
@@ -571,14 +573,16 @@ Ext.onReady(function(){
 				}
 			},{
 				xtype: 'textfield',
-				fieldLabel: 'Prepared By ',
-				id: 'preparedby',
-				name: 'preparedby',
+				fieldLabel: 'OR Ref. #',
+				id: 'receipt_no',
+				name: 'receipt_no',
+				margin: '2 0 0 0',
 				allowBlank: false,
-				readOnly: true,
+				enforceMaxLength: true,
 				labelWidth: 100,
 				width: 255,
-				margin: '0 280 0 0',
+				maxLength : 7,
+				maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			}]
 		},{
@@ -612,19 +616,16 @@ Ext.onReady(function(){
 					}
 				}
 			},{
-				xtype: 'numericfield',
-				id: 'total_amount',
-				name: 'total_amount',
-				fieldLabel: 'Total Amount ',
-				allowBlank:false,
-				useThousandSeparator: true,
+				xtype: 'textfield',
+				fieldLabel: 'Prepared By ',
+				id: 'preparedby',
+				name: 'preparedby',
+				allowBlank: false,
 				readOnly: true,
 				labelWidth: 100,
 				width: 255,
-				margin: '0 0 2 0',
-				thousandSeparator: ',',
-				minValue: 0,
-				fieldStyle: 'font-weight: bold;color: red; text-align: right;'
+				margin: '0 280 0 0',
+				fieldStyle: 'font-weight: bold; color: #210a04;'
 			}]
 		},{
 			xtype: 'fieldcontainer',
@@ -643,19 +644,52 @@ Ext.onReady(function(){
 				hidden: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
-				xtype: 'numericfield',
-				id: 'tenderd_amount',
-				name: 'tenderd_amount',
-				fieldLabel: 'Tenderd Amount ',
-				allowBlank:false,
-				useThousandSeparator: true,
-				//readOnly: true,
-				labelWidth: 115,
-				width: 255,
-				margin: '0 0 2 0',
-				thousandSeparator: ',',
-				minValue: 0,
-				fieldStyle: 'font-weight: bold;color: red; text-align: right; background-color: #F2F4F4;'
+				xtype: 'fieldcontainer',
+				layout: 'vbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'numericfield',
+					id: 'total_amount',
+					name: 'total_amount',
+					fieldLabel: 'Total Amount ',
+					allowBlank:false,
+					useThousandSeparator: true,
+					readOnly: true,
+					labelWidth: 100,
+					width: 255,
+					margin: '0 0 2 0',
+					thousandSeparator: ',',
+					minValue: 0,
+					fieldStyle: 'font-weight: bold;color: red; text-align: right;'
+				},{
+					xtype: 'numericfield',
+					id: 'tenderd_amount',
+					name: 'tenderd_amount',
+					fieldLabel: 'Tenderd Amount ',
+					allowBlank:false,
+					useThousandSeparator: true,
+					//readOnly: true,
+					labelWidth: 115,
+					width: 255,
+					margin: '0 0 2 0',
+					thousandSeparator: ',',
+					minValue: 0,
+					fieldStyle: 'font-weight: bold;color: red; text-align: right; background-color: #F2F4F4;',
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(object, value) {
+							
+							if(Ext.getCmp('InvoiceNo').getValue() != null){
+								var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
+								var GridRecords = ItemModel.getLastSelected();
+
+								GridRecords.set("alloc_amount",value);
+							}
+						}
+					}
+				}]
 			}]
 		},{
 			xtype: 'tabpanel',
@@ -681,6 +715,7 @@ Ext.onReady(function(){
 					listeners : {
 						cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
 							Ext.getCmp("total_amount").setValue(record.get("totalpayment"));
+							Ext.getCmp('tenderd_amount').focus(false, 200);
 						},
 						rowclick: function(sm, rowIdx, r) {
 							var GridRecords = Ext.getCmp('AllocTabGrid').getSelectionModel().getLastSelected();
@@ -737,7 +772,7 @@ Ext.onReady(function(){
 						});
 					}
 					form_submit.submit({
-						url: '?submit=payment',
+						url: '?submit_inbpaysalone=payment',
 						params: {
 							DataOnGrid: Ext.encode(gridData)
 						},
@@ -748,7 +783,6 @@ Ext.onReady(function(){
 							qqinterb_store.load()
 							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
 							submit_window.close();
-							window.open('../allocation_payment.php?transno='+ action.result.payno);
 						},
 						failure: function(form_submit, action) {
 							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
@@ -825,8 +859,10 @@ Ext.onReady(function(){
 		handler: function(){
 			submit_form.getForm().reset();
 
-			Ext.getCmp('moduletype').setValue('INTERBNFA');
-			
+			Ext.getCmp('moduletype').setValue('NOTFA-INTERB');
+			Ext.getCmp('paymentType').setValue('alloc')
+			GetCashierPrep();
+
 			submit_window.show();
 			submit_window.setTitle('Inter-Branch Entry - Add');
 			submit_window.setPosition(320,23);
