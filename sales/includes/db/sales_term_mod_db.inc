@@ -355,7 +355,7 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         closed_sales_invoice_status_repo($invoice, $change_term_no, $invoice->document_ref);
     }else{
     // Added by spyrax10
-        closed_sales_invoice_status($invoice, $change_term_no, $invoice->document_ref);
+        closed_sales_invoice_status($invoice, $change_term_no, $invoice->document_ref, $invoice->payment_location);
     }
     $si_trans_no = $row['trans_no'];
     $allocatedAmount = $loans['ar_amount']- $row['alloc'];

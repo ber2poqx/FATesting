@@ -908,19 +908,25 @@ function get_loan_schedule_months_due($debtor_trans_ref, $date)
 /**/
 
 /* Added by Ronelle 8/20/2021 */
-function closed_sales_invoice_status($invoice, $trans_no, $ref)
+function closed_sales_invoice_status($invoice, $trans_no, $ref, $payment_location)
 {
 	//Added by spyrax10
 	$row = get_SI_by_reference($ref);
 	$si_trans_no = $row['trans_no'];
-	//
+	/*Added by Albert 11/03/2022*/
+	if($payment_location == 'Lending'){
+		$type = 70;
+	}else{
+		$type =  ST_SALESINVOICE;
+	}
+	/**/
 
 	begin_transaction();
-	hook_db_prewrite($invoice, ST_SALESINVOICE);
+	hook_db_prewrite($invoice, $type);
 
 	/*Update the sales order draft status */
 	$sql = "UPDATE " . TB_PREF . "debtor_trans SET status='Closed' ";
-	$sql .= " WHERE trans_no = $si_trans_no AND type = " . ST_SALESINVOICE;
+	$sql .= " WHERE trans_no = $si_trans_no AND type = " . db_escape($type);
 	db_query($sql, "The sales order could not be updated");
 
 	add_audit_trail(ST_SALESINVOICE, $si_trans_no, Today(), _("Update Status."));
@@ -1044,12 +1050,22 @@ function void_payments_thru_JE($reference = '', $trans_no = '', $is_alloc = fals
 
 /*Added by Albert*/
 function get_ar_amount($reference) {
-
+	set_global_connection();
 	$sql = "SELECT * FROM " . TB_PREF . "debtor_loans 
 		WHERE invoice_ref_no = " .db_escape($reference);
 
 	$result = db_query($sql, "No loans details return! (Albert)");
+
+	return db_fetch($result);
+}
+/*Added by Albert*/
+function get_loan_data($reference) {
 	set_global_connection();
+	$sql = "SELECT * FROM " . TB_PREF . "debtor_loans 
+		WHERE reference = " .db_escape($reference);
+
+	$result = db_query($sql, "No loans details return! (Albert)");
+
 	return db_fetch($result);
 }
 function get_ob_standard_cost($invoice_no) {

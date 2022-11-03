@@ -900,7 +900,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 }
 
 function display_change_term_header(&$order, $editable, $date_text, 
-	$opening_balance = 0) //Added by spyrax10
+	$opening_balance = 0, $payment_location = "Branch") //Added by spyrax10
 {
 	global $Ajax, $SysPrefs;
 
@@ -1055,7 +1055,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 		if ($opening_balance == 1) {
 			$total_unit_cost = $order->line_items[0]->standard_cost;
 			/*Added by Albert */
-			$loans_data = get_ar_amount($_POST['document_ref']);
+			$loans_data = get_loan_data($_POST['document_ref']);
 			$all_ar_amount = $loans_data['ar_amount'];
 			$amort = $loans_data['amortization_amount'];
 			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
@@ -1079,15 +1079,22 @@ function display_change_term_header(&$order, $editable, $date_text,
 			/* */
 		}
 		//
-		$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
+		$deferred_gross_profit =  price_format(get_post('new_ar_amount') - $total_unit_cost);
 		$half = 0.5 / pow(10, 2); //Added by Albert
-		$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
+		$profit_margin = floatval(round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN));//modified by Albert
 		label_row(_("Total LCP Amount:"), price_format(get_post('lcp_amount')));
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
 		// label_row(_("Deferred Gross Profit:"), price_format($deferred_gross_profit));
 		// label_row(_("Profit Margin:"), price_format($profit_margin));
-		$payment_location_id = get_company_pref('payment_location');
-		label_row(_("Payment Location:"), $payment_location_id ? "Lending" : "Branch");
+		// $payment_location_id = get_company_pref('payment_location');
+
+		/*modified by Albert 10/03/2022*/
+		if($order->payment_location == "Lending")
+			label_row(_("Payment Location:"), $order->payment_location);
+		else
+			label_row(_("Payment Location:"),  $order->payment_location);
+		hidden('payment_location');
+		/**/
 		hidden('new_deferred_gross_profit', $deferred_gross_profit);
 		hidden('new_profit_margin', $profit_margin);
 	}
@@ -1216,6 +1223,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 	$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
 	$new_total_dgp = get_post('alloc') * $profit_margin;
 	$new_dgp_bal = $deferred_gross_profit - $new_total_dgp;
+	display_warning(get_post('alloc'));
 
 	// label_row(_("LCP Amount:"), price_format(get_post('new_lcp_amount')));
 	label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
@@ -1270,6 +1278,9 @@ function display_change_term_header(&$order, $editable, $date_text,
 	}else{
 		label_row(_("Amount to be Paid:"), price_format(round(get_post('amount_to_be_paid'),0)));
 		hidden('amount_to_be_paid');
+		hidden('rebate_if_adv_pay', 0);
+		hidden('new_gross_price', 0);
+		hidden('sales_adjustment', 0);
 	}
 	if(get_post('termmode_id') == 1 ){
 
@@ -1458,7 +1469,7 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 		if ($opening_balance == 1){
 			$total_unit_cost = $order->line_items[0]->standard_cost;
 				/*Added by Albert */
-				$loans_data = get_ar_amount($_POST['document_ref']);
+				$loans_data = get_loan_data($_POST['document_ref']);
 				$all_ar_amount = $loans_data['ar_amount'];
 				$amort = $loans_data['amortization_amount'];
 				$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
@@ -1937,7 +1948,7 @@ function display_delivery_details(&$order)
 		table_section(1);
 		hidden('Location');
 		if ($_POST['Location'] != "HO" && $_POST['Location'] != 'DESIHOFC') {
-			label_row(_("Deliver from Location: "), get_location_name($_POST['Location']));
+			label_row(_("Deliver from Location: "), get_location_name(get_post('Location')));
 		}else if ($_POST['Location'] != "HO" && $_POST['Location'] == 'DESIHOFC') {
 			label_row(_("Deliver from Location: "), get_location_name($_POST['StockLocation']));
 		}  

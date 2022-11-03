@@ -301,7 +301,7 @@ class Cart
 	{
 
 		global $SysPrefs, $Refs;
-
+		
 		if (!is_array($trans_no)) $trans_no = array($trans_no);
 		if ($trans_no[0]) { // read old transaction
 			if ($type == ST_SALESORDER || $type == ST_SALESQUOTE) { // sales order || sales quotation
@@ -310,7 +310,7 @@ class Cart
 				read_sales_trans($type, $trans_no, $this);
 				$this->prepayments = get_payments_for($trans_no[0], $type, $this->customer_id);
 				$this->update_payments();
-				if ($this->order_no) { // free hand credit notes have no order_no
+				if ($this->order_no && $type != 70) { // free hand credit notes have no order_no
 					$sodata = get_sales_order_header($this->order_no, ST_SALESORDER);
 					$this->cust_ref = $sodata["customer_ref"];
 					// currently currency is hard linked to debtor account
@@ -392,7 +392,8 @@ class Cart
 		}
 		if (count($this->src_docs) == 0 && (
 			($this->trans_type == ST_SALESINVOICE || $this->trans_type == ST_CUSTDELIVERY) ||
-			($this->trans_type == ST_SALESINVOICEREPO || $this->trans_type == ST_CUSTDELIVERY)
+			($this->trans_type == ST_SALESINVOICEREPO || $this->trans_type == ST_CUSTDELIVERY ||
+			$this->trans_type == 70)
 			) && !$this->is_prepaid() && $opening_balances == 0) {
 			// this is direct document - first add parent
 			$ref = $this->reference;

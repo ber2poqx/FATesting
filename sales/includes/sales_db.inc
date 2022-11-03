@@ -490,7 +490,7 @@ function read_sales_trans($doc_type, $trans_no, &$cart)
 		$cart->dimension2_id = $myrow['dimension2_id'];
 		$cart->Comments = '';
 		$cart->alloc = $myrow["alloc"];
-		if ($doc_type == ST_SALESINVOICE || $doc_type == ST_SALESINVOICEREPO) {
+		if ($doc_type == ST_SALESINVOICE || $doc_type == ST_SALESINVOICEREPO  || $doc_type == 70) { // modified by albert doc_type = 70 is for Lending 
 			$debtor_loans = get_debtor_loans($trans_no[0], $doc_type == ST_SALESINVOICEREPO ? "repo" : "new");
 			$cart->warranty_code = $debtor_loans["warranty_code"];
 			$cart->fsc_series = $debtor_loans["fsc_series"];

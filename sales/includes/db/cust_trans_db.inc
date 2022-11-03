@@ -213,7 +213,7 @@ function get_customer_trans($trans_id, $trans_type, $customer_id = null)
 			" . TB_PREF . "bank_trans.amount as bank_amount";
 	}
 
-	if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO || $trans_type == ST_CUSTCREDIT || $trans_type == ST_CUSTDELIVERY) {
+	if ($trans_type == 70 || $trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO || $trans_type == ST_CUSTCREDIT || $trans_type == ST_CUSTDELIVERY) {
 		// it's an invoice so also get the shipper and salestype
 		$sql .= ", " . TB_PREF . "shippers.shipper_name, "
 			. TB_PREF . "sales_types.sales_type, "
@@ -238,7 +238,7 @@ function get_customer_trans($trans_id, $trans_type, $customer_id = null)
 		$sql .= ", " . TB_PREF . "bank_trans, " . TB_PREF . "bank_accounts";
 	}
 
-	if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO || $trans_type == ST_CUSTCREDIT || $trans_type == ST_CUSTDELIVERY) {
+	if ($trans_type == 70 || $trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO || $trans_type == ST_CUSTCREDIT || $trans_type == ST_CUSTDELIVERY) {
 		// it's an invoice so also get the shipper, salestypes
 		$sql .= ", " . TB_PREF . "sales_types, "
 			. TB_PREF . "cust_branch branch, "
@@ -263,7 +263,7 @@ function get_customer_trans($trans_id, $trans_type, $customer_id = null)
 			AND " . TB_PREF . "bank_trans.amount != 0
 			AND " . TB_PREF . "bank_accounts.id=" . TB_PREF . "bank_trans.bank_act ";
 	}
-	if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO || $trans_type == ST_CUSTCREDIT || $trans_type == ST_CUSTDELIVERY) {
+	if ($trans_type == 70 || $trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO || $trans_type == ST_CUSTCREDIT || $trans_type == ST_CUSTDELIVERY) {
 		// it's an invoice so also get the shipper
 		$sql .= " AND " . TB_PREF . "sales_types.id = trans.tpe
 			AND branch.branch_code = trans.branch_code

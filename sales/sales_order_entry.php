@@ -122,8 +122,10 @@ elseif (isset($_GET['NewChangeTerm']) && is_numeric($_GET['NewChangeTerm'])) {
 
 	$_SESSION['page_title'] = $_GET['opening_balance'] == 1 ? _($help_context = "Sales Invoice - OB Term Modification") : 
 		_($help_context = "Sales Invoice Term Modification");
+	/*modified by Albert 11/03/2022*/
+	$pay_type = $_GET['paytype']=='Lending' ? 'Lending' : 'Branch';
 
-	create_cart(ST_SITERMMOD, $_GET['NewChangeTerm']);
+	create_cart(ST_SITERMMOD, $_GET['NewChangeTerm'],$pay_type);
 
 }
 //
@@ -604,6 +606,7 @@ function copy_to_cart()
 		$cart->amount_to_be_paid = $_POST['amount_to_be_paid'];
 		$cart->outstanding_ar_amount = $_POST['outstanding_ar_amount'];
 
+		$cart->payment_location = $_POST['payment_location'];
 		/*full payment term added by albert 09/27/2022*/
 		$cart->rebate_if_adv_pay = $_POST['rebate_if_adv_pay'];
 		$cart->new_gross_price = $_POST['new_gross_price'];
@@ -683,6 +686,7 @@ function copy_from_cart()
 		$_POST['adj_rate'] = $cart->adj_rate;
 		$_POST['opportunity_cost'] = $cart->opportunity_cost;
 		$_POST['amount_to_be_paid'] = $cart->amount_to_be_paid;
+		$_POST['payment_location'] = $cart->payment_location;
 		//Restructured 
 		if($cart->calculation_id <> 1){
 		$_POST['alloc'] = $cart->alloc;
@@ -986,7 +990,7 @@ if (isset($_POST['ProcessOrder']) && can_process()) {
 	$modified = ($_SESSION['Items']->trans_no != 0);
 	$so_type = $_SESSION['Items']->so_type;
 
-	if ($_SESSION['Items']->payment_policy != 0) {
+	if ($_SESSION['Items']->payment_policy != 0 && ($_SESSION['Items']->trans_type == ST_SALESORDER || $_SESSION['Items']->trans_type == ST_SALESINVOICE) ) {
 		$_SESSION['Items']->payment_location = get_payment_location_by_category(get_post('category_id')) ? "Lending" : "Branch";
 	}									//Modified by spyrax10
 	$ret = $_SESSION['Items']->write(1, 0, get_OB_status(), get_post('waranty_code'), get_post('fsc_series'));
@@ -1506,7 +1510,7 @@ function calculate_dp_discount()
 }
 //--------------------------------------------------------------------------------
 
-function create_cart($type, $trans_no)
+function create_cart($type, $trans_no, $pay_type="Branch")
 {
 	global $Refs, $SysPrefs;
 
@@ -1520,7 +1524,21 @@ function create_cart($type, $trans_no)
 		$doc->Comments = _("Sales Quotation") . " # " . $trans_no;
 		$_SESSION['Items'] = $doc;
 	} elseif ($type != ST_SALESORDER && $type != ST_SALESQUOTE && $trans_no != 0) { // this is template
-		$doc = new Cart($type == ST_SALESINVOICE ? ST_SALESORDER : ST_SALESINVOICE, array($trans_no), false, true);
+
+		/*modified by Albert 11/03/2022 for Lending database only*/
+		if($pay_type =='Lending'){
+			$company = get_company_prefs();
+			$doc = new Cart(70, array($trans_no));
+			$loans_data = get_loan_data($doc->reference);
+			$doc->document_ref = $loans_data['reference'];
+			$doc->Location = $company["branch_code"];
+			$doc->payment_location = $pay_type;		
+		
+		}else{
+			$doc = new Cart($type == ST_SALESINVOICE ? ST_SALESORDER : ST_SALESINVOICE, array($trans_no), false, true);
+		}
+		/**/
+
 		$doc->trans_type = $type;
 		$doc->trans_no = 0;
 		$doc->document_date = new_doc_date();
@@ -1619,7 +1637,7 @@ hidden('cart_id');
 //modified by albert
 if($_SESSION['Items']->trans_type == ST_SITERMMOD){
 	$customer_error = display_change_term_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, 
-						get_OB_status()); // Added by spyrax10
+	 					get_OB_status(), $_SESSION['Items']->payment_location); // Added by spyrax10
 }else{
 	$customer_error =$_SESSION['Items']->trans_type == ST_RESTRUCTURED
 		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, get_OB_status())
