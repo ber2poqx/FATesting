@@ -392,8 +392,7 @@ class Cart
 		}
 		if (count($this->src_docs) == 0 && (
 			($this->trans_type == ST_SALESINVOICE || $this->trans_type == ST_CUSTDELIVERY) ||
-			($this->trans_type == ST_SALESINVOICEREPO || $this->trans_type == ST_CUSTDELIVERY ||
-			$this->trans_type == 70)
+			($this->trans_type == ST_SALESINVOICEREPO || $this->trans_type == ST_CUSTDELIVERY )
 			) && !$this->is_prepaid() && $opening_balances == 0) {
 			// this is direct document - first add parent
 			$ref = $this->reference;

@@ -1089,10 +1089,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 		// $payment_location_id = get_company_pref('payment_location');
 
 		/*modified by Albert 10/03/2022*/
-		if($order->payment_location == "Lending")
-			label_row(_("Payment Location:"), $order->payment_location);
-		else
-			label_row(_("Payment Location:"),  $order->payment_location);
+		label_row(_("Payment Location:"), $order->payment_location);
 		hidden('payment_location');
 		/**/
 		hidden('new_deferred_gross_profit', $deferred_gross_profit);
@@ -1223,7 +1220,6 @@ function display_change_term_header(&$order, $editable, $date_text,
 	$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
 	$new_total_dgp = get_post('alloc') * $profit_margin;
 	$new_dgp_bal = $deferred_gross_profit - $new_total_dgp;
-	display_warning(get_post('alloc'));
 
 	// label_row(_("LCP Amount:"), price_format(get_post('new_lcp_amount')));
 	label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
