@@ -29,9 +29,12 @@ if($_GET['type']=='aloneinb'){
 
 //----------------------------------------------: for store js :---------------------------------------
 if(isset($_GET['getReference'])){
-    $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('ALCN'), array('date' => Today()), true, ST_CUSTPAYMENT);
+    if($_GET['getReference'] == 'paysalone'){
+        $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('NTFA'), array('date' => Today()), true, ST_CUSTPAYMENT);
+    }else{
+        $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('ALCN'), array('date' => Today()), true, ST_CUSTPAYMENT);
+    }
     echo '({"success":"true","reference":"'.$reference.'"})';
-    //echo $_POST['debtor_id'];
     return;
 }
 if(isset($_GET['getbranch'])){

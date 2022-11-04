@@ -165,7 +165,7 @@ function get_interB_transNo_from($id)
 
 function get_notfa_interb($branch=null, $query=null)
 {
-	if(!empty($branch)){
+	if(!empty($branch) && $branch != "zHun"){
 		$sWhere .= " AND A.branch_code_from = ".db_escape($branch);
 	}
 	if(!empty($query)){

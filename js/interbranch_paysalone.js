@@ -374,9 +374,9 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'<b>Customer Name</b>', dataIndex:'debtor_name', sortable:true, width:210},
-		{header:'<b>Reference No.</b>', dataIndex:'ref_no', sortable:true, width:120},
-		{header:'<b>OR Ref No.</b>', dataIndex:'or_ref_no', sortable:true, width:120},
-		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:170,
+		{header:'<b>Doc. Ref. No.</b>', dataIndex:'ref_no', sortable:true, width:120},
+		{header:'<b>OR Ref. No.</b>', dataIndex:'or_ref_no', sortable:true, width:120},
+		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -388,52 +388,52 @@ Ext.onReady(function(){
 				return value;
 			}
 		},
-		{header:'<b>Amount</b>', dataIndex:'amount', sortable:true, width:87,
+		{header:'<b>Amount</b>', dataIndex:'amount', sortable:true, width:90,
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:green;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 			}
 		},
-		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:95,
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:100,
 			items:[{
 				icon: '../../js/ext4/examples/shared/icons/layout_content.png',
 				tooltip: 'view details',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = qqinterb_store.getAt(rowIndex);
+					submit_form.getForm().reset();
 
 					CustomerStore.proxy.extraParams = {debtor_id: records.get('debtor_id'), name: records.get('debtor_name')};
 					CustomerStore.load();
 					ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_id')};
 					ARInvoiceStore.load();
 
-					AllocationStore.proxy.extraParams = {transNo: 0};
-					AllocationStore.load();
-
-					submit_form.getForm().reset();
-					
-					cashierStore.load({
-						callback: function(records) {                 
-							Ext.getCmp('cashier').setValue(records[i].get('id'));
-						}
-					});
-					
-					Ext.getCmp('syspk').setValue(records.get('id'));
-					Ext.getCmp('moduletype').setValue('ALCN-INTERB');
-					Ext.getCmp('pay_type').setValue('alloc');
+					//Ext.getCmp('syspk').setValue(records.get('id'));
+					Ext.getCmp('moduletype').setValue('NOTFA-INTERB');
+					Ext.getCmp('branch_inb').setValue(records.get('branch_code_from'));
 					Ext.getCmp('customercode').setValue(records.get('debtor_ref'));
 					Ext.getCmp('customername').setValue(records.get('debtor_id'));
+					//Ext.getCmp('InvoiceNo').setValue(records.get('branch_code_from'));
 					Ext.getCmp('debit_acct').setValue(records.get('branch_gl_code'));
 					Ext.getCmp('paymentType').setValue('alloc')
-					Ext.getCmp('collectType').setValue(0)
 					Ext.getCmp('tenderd_amount').setValue(records.get('amount'));
 					Ext.getCmp('trans_date').setValue(records.get('trans_date'));
-					Ext.getCmp('islending').setValue(records.get('type'));
-					Ext.getCmp('remarks').setValue("Inter branch payment from " + records.get('branch_name') + " with reference number " + records.get('ref_no'));
+					Ext.getCmp('receipt_no').setValue(records.get('or_ref_no'));
+					Ext.getCmp('preparedby').setValue(records.get('prepared_by'));
+					Ext.getCmp('total_amount').setValue(records.get('amount'));
+					Ext.getCmp('remarks').setValue(records.get('remarks'));
 					
-					GetCashierPrep();
+					//GetCashierPrep();
+					Ext.getCmp('btnsave').setDisabled(true);
 
 					submit_window.setTitle('Inter-Branch Payment Details');
 					submit_window.show();
 					submit_window.setPosition(320,50);
+				}
+			},'-',{
+				icon   : '../../js/ext4/examples/shared/icons/chart_line.png',
+				tooltip : 'Entries',
+				handler : function(grid, rowIndex, colIndex){
+					var records = qqinterb_store.getAt(rowIndex);
+					window.open('../../gl/view/gl_trans_view.php?type_id=12&trans_no='+ records.get('id'));
 				}
 			}]
 		}
@@ -748,6 +748,7 @@ Ext.onReady(function(){
 		items:[submit_form],
 		buttons:[{
 			text: '<b>Process</b>',
+			id: 'btnsave',
 			tooltip: 'Allocate customer payment',
 			icon: '../../js/ext4/examples/shared/icons/add.png',
 			single : true,				
@@ -828,7 +829,7 @@ Ext.onReady(function(){
 		fieldStyle : 'text-transform: capitalize; background-color: #F2F3F4; color:green; ',
 		listeners: {
 			select: function(combo, record, index) {
-				qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: combo.getValue(), query: Ext.getCmp('search').getValue(), islending: Ext.getCmp("fromlending").getValue()};
+				qqinterb_store.proxy.extraParams = {branch: combo.getValue(), query: Ext.getCmp('search').getValue()};
 				qqinterb_store.load();
 			},
 			afterrender: function() {
@@ -847,7 +848,7 @@ Ext.onReady(function(){
 		store: qqinterb_store,
 		listeners: {
 			change: function(field) {
-				qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: field.getValue(), islending: Ext.getCmp("fromlending").getValue()};
+				qqinterb_store.proxy.extraParams = {branch: Ext.getCmp('branchcode').getValue(), query: field.getValue()};
 				qqinterb_store.load();
 			}
 		}
@@ -885,7 +886,7 @@ Ext.onReady(function(){
         renderTo: 'ext-form',
 		id: 'builder_panel',
         frame: false,
-		width: 1200,
+		width: 1250,
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
@@ -906,40 +907,14 @@ Ext.onReady(function(){
 				emptyMsg: "No records to display",
 				doRefresh : function(){
 					qqinterb_store.load();
-				},
-				items:[{
-					xtype: 'checkbox',
-					id: 'fromlending',
-					name: 'fromlending',
-					boxLabel: 'Show from lending',
-					listeners: {
-						change: function(field) {
-							//alert(field.getValue());
-							if(field.getValue()){
-								Ext.getCmp('branchcode').setDisabled(true);
-							}else{
-								Ext.getCmp('branchcode').setDisabled(false);
-							}
-							
-							qqinterb_store.proxy.extraParams = {status: Ext.getCmp('fstatus').getValue(), branch: Ext.getCmp('branchcode').getValue(), query: Ext.getCmp('search').getValue(), islending: field.getValue()};
-							qqinterb_store.load();
-						}
-					}
-					/*xtype: 'combobox',
-					id: 'showl',
-					name: 'showl',
-					store : FromStore,
-					displayField: 'name',
-					valueField: 'id',
-					queryMode: 'local'*/
-				}]
+				}
 			}
 		}]
 	});
 
 	function Getreference(){
 		Ext.Ajax.request({
-			url : '?getReference=zHun',
+			url : '?getReference=paysalone',
 			async:false,
 			success: function (response){
 				var result = Ext.JSON.decode(response.responseText);
