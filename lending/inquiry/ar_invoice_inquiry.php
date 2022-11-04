@@ -294,8 +294,8 @@ if(isset($_GET['submit']))
         $invoice_date = date("Y-m-d", strtotime($_POST['invoice_date']));
 
         $conn = $db_connections[user_company()];
-
-        $trans_no = write_customer_trans(ST_ARINVCINSTLITM, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), date("m/d/Y", strtotime($approved_date)), $reference, 
+        //$reference - tanggal ug replace sa original invoice ref no kay nag term mode as requested by albert
+        $trans_no = write_customer_trans(ST_ARINVCINSTLITM, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), date("m/d/Y", strtotime($approved_date)), $_POST['invoice_no'], 
                             check_isempty($_POST['total_amount']), $loansrow["tpe"], 0, 0, 0, 0, check_isempty($_POST['id']), 0, date("m/d/Y", strtotime($approved_date)), 0, 0, 0, 0, $loansrow["payment_terms"], 0, 0);
 
         //detailed A/R info
