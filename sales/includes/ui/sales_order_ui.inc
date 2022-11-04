@@ -1311,7 +1311,8 @@ function display_change_term_header(&$order, $editable, $date_text,
 }
 
 /*Added by Albert*/
-function display_restructured_header(&$order, $editable, $date_text, $opening_balance = 0)
+function display_restructured_header(&$order, $editable, $date_text, $opening_balance = 0,
+ $payment_location = "Branch")//modified by Albert 11/04/2022
 {
 	global $Ajax, $SysPrefs;
 
@@ -1405,7 +1406,7 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 	sales_persons_list_row(_("Sales Person:"), 'salesman_id', $_POST['salesman_id']);
 	saleorder_types_row(_("Sale Type:"), 'stype_id', $_POST['stype_id'], true);
 	hidden('sales_type', 2);
-	label_row(_("Co-maker:"), $_POST['co_maker']);
+	//label_row(_("Co-maker:"), $_POST['co_maker']);
 	hidden('co_maker');
 	table_section(2);
 
@@ -1494,8 +1495,9 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
 		// label_row(_("Deferred Gross Profit:"), price_format($deferred_gross_profit));
 		// label_row(_("Profit Margin:"), price_format($profit_margin));
-		$payment_location_id = get_company_pref('payment_location');
-		label_row(_("Payment Location:"), $payment_location_id ? "Lending" : "Branch");
+		//$payment_location_id = get_company_pref('payment_location');
+		label_row(_("Payment Location:"), $order->payment_location);
+		hidden('payment_location');
 		hidden('new_deferred_gross_profit', $deferred_gross_profit);
 		hidden('new_profit_margin', $profit_margin);
 	}

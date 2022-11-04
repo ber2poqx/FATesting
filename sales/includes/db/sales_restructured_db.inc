@@ -335,7 +335,7 @@ function write_restructured(&$invoice, $opening_balances=0)
         closed_sales_invoice_status_repo($invoice, $restructured_no, $invoice->document_ref);
     }else{
     // Added by spyrax10
-        closed_sales_invoice_status($invoice, $restructured_no, $invoice->document_ref);
+        closed_sales_invoice_status($invoice, $restructured_no, $invoice->document_ref, $invoice->payment_location);
     }
     $row = get_SI_by_reference($invoice->document_ref);
     $si_trans_no = $row['trans_no'];
