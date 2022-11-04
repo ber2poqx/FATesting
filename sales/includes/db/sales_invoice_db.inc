@@ -929,8 +929,8 @@ function closed_sales_invoice_status($invoice, $trans_no, $ref, $payment_locatio
 	$sql .= " WHERE trans_no = $si_trans_no AND type = " . db_escape($type);
 	db_query($sql, "The sales order could not be updated");
 
-	add_audit_trail(ST_SALESINVOICE, $si_trans_no, Today(), _("Update Status."));
-	hook_db_postwrite($invoice, ST_SALESINVOICE);
+	add_audit_trail($type, $si_trans_no, Today(), _("Update Status."));
+	hook_db_postwrite($invoice, $type);
 	commit_transaction();
 }
 

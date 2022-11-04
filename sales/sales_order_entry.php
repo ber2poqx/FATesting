@@ -131,9 +131,12 @@ elseif (isset($_GET['NewChangeTerm']) && is_numeric($_GET['NewChangeTerm'])) {
 //
 elseif (isset($_GET['NewRestructured']) && is_numeric($_GET['NewRestructured'])) {
 
-	create_cart(ST_RESTRUCTURED, $_GET['NewRestructured']);
 	$_SESSION['page_title'] = $_GET['opening_balance'] == 1 && $_GET['NewRestructured'] ? _($help_context = "Sales Invoice - OB Restructured")
 	: _($help_context = "Sales Invoice Restructured");
+
+	/*modified by Albert 11/03/2022*/
+	$pay_type = $_GET['paytype']=='Lending' ? 'Lending' : 'Branch';
+	create_cart(ST_RESTRUCTURED, $_GET['NewRestructured'],$pay_type);
 
 } elseif (isset($_GET['ModifyOrderNumber']) && is_numeric($_GET['ModifyOrderNumber'])) {
 
@@ -473,10 +476,11 @@ if (isset($_GET['AddedID'])) {
 	display_footer_exit();
 } elseif (isset($_GET['AddedRE'])) {
 	$invoice = $_GET['AddedRE'];
+	$pay_type = $_GET['Pay_type'];
 
 	display_notification_centered(sprintf(_("Invoice Restructured # %d has been entered."), $invoice));
 
-	submenu_view(_("&View This Invoice Restructured"), ST_RESTRUCTURED, $invoice);
+	submenu_view(_("&View This Invoice Restructured"), ST_RESTRUCTURED, $invoice,$pay_type);
 
 	// submenu_print(_("&Print Sales Invoice CT"), ST_SITERMMOD, $invoice . "-" . ST_SITERMMOD, 'prtopt');
 	// submenu_print(_("&Email Sales Invoice CT"), ST_SITERMMOD, $invoice . "-" . ST_SITERMMOD, null, 1);
@@ -608,9 +612,11 @@ function copy_to_cart()
 
 		$cart->payment_location = $_POST['payment_location'];
 		/*full payment term added by albert 09/27/2022*/
-		$cart->rebate_if_adv_pay = $_POST['rebate_if_adv_pay'];
-		$cart->new_gross_price = $_POST['new_gross_price'];
-		$cart->sales_adjustment = $_POST['sales_adjustment'];
+		if ($cart->trans_type == ST_SITERMMOD){
+			$cart->rebate_if_adv_pay = $_POST['rebate_if_adv_pay'];
+			$cart->new_gross_price = $_POST['new_gross_price'];
+			$cart->sales_adjustment = $_POST['sales_adjustment'];
+		}
 		//
 		$cart->prev_months_term = $_POST['count_term'];
 		$cart->prev_ar_balance = $_POST['ar_amount'] - $_POST['alloc'];
@@ -926,10 +932,10 @@ function can_process()
 		return false;
 	}	
 			
-	if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && get_post('alloc') < get_post('down_pay') ) {
-		display_error(_("Cant proceed! down payment is not yet paid!"));
-		return false;
-	}
+	// if (($_SESSION['Items']->trans_type == ST_SITERMMOD || $_SESSION['Items']->trans_type == ST_RESTRUCTURED) && get_post('alloc') < get_post('down_pay') ) {
+	// 	display_error(_("Cant proceed! down payment is not yet paid!"));
+	// 	return false;
+	// }
 
 	if ($_SESSION['Items']->trans_type == ST_RESTRUCTURED && get_post('ar_genarate_by_amort') <> get_post('new_ar_amount') && get_post('calculation_id') == 1 ) {
 		display_error(_("Cant proceed! ar_balance not equal to ar_amount genarated by amortazation!".get_post('ar_genarate_by_amort')));
@@ -1010,6 +1016,8 @@ if (isset($_POST['ProcessOrder']) && can_process()) {
 		unset($_POST['customer_id']);
 		$trans_no = key($_SESSION['Items']->trans_no);
 		$trans_type = $_SESSION['Items']->trans_type;
+		$pay_type = $_SESSION['Items']->payment_location; // Added by Albert for lending database only
+
 		new_doc_date($_SESSION['Items']->document_date);
 		processing_end();
 		if ($modified) {
@@ -1024,9 +1032,9 @@ if (isset($_POST['ProcessOrder']) && can_process()) {
 		} elseif ($trans_type == ST_SALESINVOICE) {
 			meta_forward($_SERVER['PHP_SELF'], "AddedDI=$trans_no&Type=$so_type");
 		} elseif ($trans_type == ST_SITERMMOD) {
-			meta_forward($_SERVER['PHP_SELF'], "AddedCT=$ret&Type=$trans_type");
+			meta_forward($_SERVER['PHP_SELF'], "AddedCT=$ret&Type=$trans_type&Pay_type=$pay_type");
 		} elseif ($trans_type == ST_RESTRUCTURED) {
-			meta_forward($_SERVER['PHP_SELF'], "AddedRE=$ret&Type=$trans_type");
+			meta_forward($_SERVER['PHP_SELF'], "AddedRE=$ret&Type=$trans_type&Pay_type=$pay_type");
 		} else {
 			meta_forward($_SERVER['PHP_SELF'], "AddedDN=$trans_no&Type=$so_type");
 		}
@@ -1532,7 +1540,7 @@ function create_cart($type, $trans_no, $pay_type="Branch")
 			$loans_data = get_loan_data($doc->reference);
 			$doc->document_ref = $loans_data['reference'];
 			$doc->Location = $company["branch_code"];
-			$doc->payment_location = $pay_type;		
+			$doc->payment_location = $pay_type;
 		
 		}else{
 			$doc = new Cart($type == ST_SALESINVOICE ? ST_SALESORDER : ST_SALESINVOICE, array($trans_no), false, true);
@@ -1640,7 +1648,7 @@ if($_SESSION['Items']->trans_type == ST_SITERMMOD){
 	 					get_OB_status(), $_SESSION['Items']->payment_location); // Added by spyrax10
 }else{
 	$customer_error =$_SESSION['Items']->trans_type == ST_RESTRUCTURED
-		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, get_OB_status())
+		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, get_OB_status(), $_SESSION['Items']->payment_location)
 		: display_order_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, $_SESSION['page_title']);	
 }
 if ($customer_error == "") {
