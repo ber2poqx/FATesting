@@ -1066,9 +1066,9 @@ function installment_computation()
 
 	$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $terms;
 
-	$amort = round($amort_wo_rebate + $rebate);
+		$amort = round($amort_wo_rebate + $rebate);
 
-	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
+		$total_amount = $amort * $terms + floatval($_POST['down_pay']);
 	$_POST['total_amount'] = $total_amount;
 	$_POST['ar_amount'] = $total_amount;
 	$_POST['due_amort'] = $amort;
@@ -1129,13 +1129,19 @@ function new_installment_computation()
 
 	//modified by spyrax10
 	$mature_date = add_months($_POST['first_due_date'], $terms);
-	if ($terms > 1) {
-		$_POST['maturity_date'] = add_months($mature_date, -1);
+	//modified by Albert 11/04/2022
+	if(get_post('termmode_id') == 0 || get_post('termmode_id') == 1){
+		$_POST['new_maturity_date'] = add_months($mature_date, -1);
+	}else{
+		if ($terms > 1) {
+			$_POST['maturity_date'] = add_months($mature_date, -1);
+		}
+		else {
+			$_POST['maturity_date'] = add_days($mature_date, 15);
+		}
+		
 	}
-	else {
-		$_POST['maturity_date'] = add_days($mature_date, 15);
-	}
-	//
+	/**/
 
 	$_POST['new_rebate'] = $rebate;
 	$_POST['new_financing_rate'] = $financing_rate;
