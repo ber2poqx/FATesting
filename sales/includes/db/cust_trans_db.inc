@@ -776,7 +776,7 @@ function add_debtor_term_modification(
 	$type,
 	$rebate_if_adv_pay = 0,
 	$sales_adjustment = 0,
-	$termode_full_payment //Added by Albert 11/05/2022
+	$termode_full_payment= 0 //Added by Albert 11/05/2022
 
 ) {
 	if ($installmentplcy_id == 0) {
