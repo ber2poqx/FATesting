@@ -157,6 +157,7 @@ class Cart
 	var $trans_no_ref = 0;
 	var $trans_type_ref;
 	var $repo_type = "new";
+	var $termode_full_payment = 0; //Added by Albert 11/05/2022
 	/* */
 	var $calculation_id = 0;//Restructured Added by Albert 03/10/2022
 

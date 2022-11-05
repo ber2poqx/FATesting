@@ -110,7 +110,8 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         $term_mode_type,
         ST_SITERMMOD,
         $invoice->rebate_if_adv_pay,
-        $invoice->sales_adjustment
+        $invoice->sales_adjustment,
+        $invoice->termode_full_payment
     );
     // Down-payment 
     add_loan_schedule_ob(
@@ -159,192 +160,195 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
     $mcode = null;
     $masterfile = null;
     //
+    /*Added by Albert 11/05/2022 Address mantis #1038*/
+    if($invoice->termode_full_payment != 1){
 
-    $ar_account = $branch_data["receivables_account"];
-    if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
-        $ar_account = $company_data["ar_reg_current_account"];
-    $total += add_gl_trans_customer(
-        ST_SITERMMOD,
-        $change_term_no,
-        $date_,
-        $ar_account,
-        0,
-        0,
-        $invoice->outstanding_ar_amount,
-        $invoice->customer_id,
-        "The total debtor GL posting could not be inserted"
-    );
-    /* */
-
-    /* ------------ */
-    $category_gl_code = get_gl_code_from_category($invoice->category_id);
-    if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
-        $sales_account = $category_gl_code['dflt_regular_sales_act'];
-    if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id))
-        $sales_account = $category_gl_code['dflt_installment_sales_act'];
-    if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){//Added by Albert 
-        $sales_account = $sales_account = $company_data['default_sales_act'];
-        $mcode = $hoc_code;
-        $masterfile = $hoc_masterfile;
-    }
-    $total += add_gl_trans_customer(
-        ST_SITERMMOD,
-        $change_term_no,
-        $date_,
-        $sales_account,
-        0,
-        0,
-        -1 * abs($invoice->outstanding_ar_amount),
-        $invoice->customer_id,
-        "The sales price GL posting could not be inserted",
-        0,
-        $mcode,
-        $masterfile
-
-    );
-    /* */
-
-    /* ----------- */
-    if (!check_employee_customer($invoice->customer_id)) {
-        /*modified by Albert*/
-        $deferred_gross_profit = $invoice->ar_amount - $ov_amount;
-       $new_total_dgp =  $row['alloc'] * $invoice->new_profit_margin;
-       $new_dgp_balance = $deferred_gross_profit - $new_total_dgp;
-        if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){
-            $company_data_account = $company_data['default_sales_act'];
-            $mcode = $hoc_code;
-            $masterfile = $hoc_masterfile;
-        }else{
-            $company_data_account = $company_data["isd_account"];
-        }
+        $ar_account = $branch_data["receivables_account"];
+        if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
+            $ar_account = $company_data["ar_reg_current_account"];
         $total += add_gl_trans_customer(
             ST_SITERMMOD,
             $change_term_no,
             $date_,
-            $company_data_account,//modified by Albert
+            $ar_account,
             0,
             0,
-            $new_dgp_balance,
-            $invoice->customer_id,
-            "The total debtor GL posting could not be inserted",
-            0,
-            $mcode,
-            $masterfile
-        );
-        $total += add_gl_trans_customer(
-            ST_SITERMMOD,
-            $change_term_no,
-            $date_,
-            $company_data["dgp_account"],//modified by Albert
-            0,
-            0,
-            -1 * abs($new_dgp_balance),
+            $invoice->outstanding_ar_amount,
             $invoice->customer_id,
             "The total debtor GL posting could not be inserted"
         );
-    }
-    /* */
+        /* */
 
-    /* ------------- */
-
-
-    if ($invoice->prev_months_term >= 1 && $invoice->prev_months_term <= 3 && !check_employee_customer($invoice->customer_id))
-        $sales_account = $category_gl_code['dflt_regular_sales_act'];
-    if ($invoice->prev_months_term >= 4 && !check_employee_customer($invoice->customer_id))
-        $sales_account = $category_gl_code['dflt_installment_sales_act'];
-    if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){//Added by Albert
-        $sales_account = $sales_account = $company_data['default_sales_act'];
-        $mcode = $hoc_code;
-        $masterfile = $hoc_masterfile;
-    }
-    $total += add_gl_trans_customer(
-        ST_SITERMMOD,
-        $change_term_no,
-        $date_,
-        $sales_account,
-        0,
-        0,
-        $previous_ar_balance,
-        $invoice->customer_id,
-        "The sales price GL posting could not be inserted",
-        0,
-        $mcode,
-        $masterfile,
-        0,
-        $row['trans_no']
-    );
-
-
-    $ar_account = $branch_data["receivables_account"];
-    if ($invoice->prev_months_term >= 1 && $invoice->prev_months_term <= 3 && !check_employee_customer($invoice->customer_id))
-        $ar_account = $company_data["ar_reg_current_account"];
-    $total += add_gl_trans_customer(
-        ST_SITERMMOD,
-        $change_term_no,
-        $date_,
-        $ar_account,
-        0,
-        0,
-        -1 * abs($previous_ar_balance),
-        $invoice->customer_id,
-        "The total debtor GL posting could not be inserted",
-        0,
-        '',
-        '',
-        0,
-        $row['trans_no']
-    );
-    /* */
-
-    /* ----------- */
-    if (!check_employee_customer($invoice->customer_id)) {
-         /*modified by Albert*/
-        $deferred_gross_profit = $previous_ar_amount - $ov_amount;
-        $total_dgp =  $row['alloc'] * $loans['profit_margin'];
-        $old_dgp_balance = $deferred_gross_profit - $total_dgp;
-
+        /* ------------ */
+        $category_gl_code = get_gl_code_from_category($invoice->category_id);
+        if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
+            $sales_account = $category_gl_code['dflt_regular_sales_act'];
+        if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id))
+            $sales_account = $category_gl_code['dflt_installment_sales_act'];
+        if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){//Added by Albert 
+            $sales_account = $sales_account = $company_data['default_sales_act'];
+            $mcode = $hoc_code;
+            $masterfile = $hoc_masterfile;
+        }
         $total += add_gl_trans_customer(
             ST_SITERMMOD,
             $change_term_no,
             $date_,
-            $company_data["dgp_account"],
+            $sales_account,
             0,
             0,
-            $old_dgp_balance,
+            -1 * abs($invoice->outstanding_ar_amount),
             $invoice->customer_id,
-            "The total debtor GL posting could not be inserted",
+            "The sales price GL posting could not be inserted",
             0,
-            '',
-            '',
-            0,
-            $row['trans_no']
-
+            $mcode,
+            $masterfile
 
         );
-        //Added by Albert
-        if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){
-            $company_data_account = $company_data['default_sales_act'];
+        /* */
+
+        /* ----------- */
+        if (!check_employee_customer($invoice->customer_id)) {
+            /*modified by Albert*/
+            $deferred_gross_profit = $invoice->ar_amount - $ov_amount;
+        $new_total_dgp =  $row['alloc'] * $invoice->new_profit_margin;
+        $new_dgp_balance = $deferred_gross_profit - $new_total_dgp;
+            if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){
+                $company_data_account = $company_data['default_sales_act'];
+                $mcode = $hoc_code;
+                $masterfile = $hoc_masterfile;
+            }else{
+                $company_data_account = $company_data["isd_account"];
+            }
+            $total += add_gl_trans_customer(
+                ST_SITERMMOD,
+                $change_term_no,
+                $date_,
+                $company_data_account,//modified by Albert
+                0,
+                0,
+                $new_dgp_balance,
+                $invoice->customer_id,
+                "The total debtor GL posting could not be inserted",
+                0,
+                $mcode,
+                $masterfile
+            );
+            $total += add_gl_trans_customer(
+                ST_SITERMMOD,
+                $change_term_no,
+                $date_,
+                $company_data["dgp_account"],//modified by Albert
+                0,
+                0,
+                -1 * abs($new_dgp_balance),
+                $invoice->customer_id,
+                "The total debtor GL posting could not be inserted"
+            );
+        }
+        /* */
+
+        /* ------------- */
+
+
+        if ($invoice->prev_months_term >= 1 && $invoice->prev_months_term <= 3 && !check_employee_customer($invoice->customer_id))
+            $sales_account = $category_gl_code['dflt_regular_sales_act'];
+        if ($invoice->prev_months_term >= 4 && !check_employee_customer($invoice->customer_id))
+            $sales_account = $category_gl_code['dflt_installment_sales_act'];
+        if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){//Added by Albert
+            $sales_account = $sales_account = $company_data['default_sales_act'];
             $mcode = $hoc_code;
             $masterfile = $hoc_masterfile;
-        }else{
-            $company_data_account = $company_data["isd_account"];
         }
         $total += add_gl_trans_customer(
             ST_SITERMMOD,
-            $change_term_no,  
+            $change_term_no,
             $date_,
-            $company_data_account,//modified by Albert
+            $sales_account,
             0,
             0,
-            -1 * abs($old_dgp_balance),
+            $previous_ar_balance,
             $invoice->customer_id,
-            "The total debtor GL posting could not be inserted",
+            "The sales price GL posting could not be inserted",
             0,
             $mcode,
             $masterfile,
             0,
             $row['trans_no']
         );
+
+
+        $ar_account = $branch_data["receivables_account"];
+        if ($invoice->prev_months_term >= 1 && $invoice->prev_months_term <= 3 && !check_employee_customer($invoice->customer_id))
+            $ar_account = $company_data["ar_reg_current_account"];
+        $total += add_gl_trans_customer(
+            ST_SITERMMOD,
+            $change_term_no,
+            $date_,
+            $ar_account,
+            0,
+            0,
+            -1 * abs($previous_ar_balance),
+            $invoice->customer_id,
+            "The total debtor GL posting could not be inserted",
+            0,
+            '',
+            '',
+            0,
+            $row['trans_no']
+        );
+        /* */
+
+        /* ----------- */
+        if (!check_employee_customer($invoice->customer_id)) {
+            /*modified by Albert*/
+            $deferred_gross_profit = $previous_ar_amount - $ov_amount;
+            $total_dgp =  $row['alloc'] * $loans['profit_margin'];
+            $old_dgp_balance = $deferred_gross_profit - $total_dgp;
+
+            $total += add_gl_trans_customer(
+                ST_SITERMMOD,
+                $change_term_no,
+                $date_,
+                $company_data["dgp_account"],
+                0,
+                0,
+                $old_dgp_balance,
+                $invoice->customer_id,
+                "The total debtor GL posting could not be inserted",
+                0,
+                '',
+                '',
+                0,
+                $row['trans_no']
+
+
+            );
+            //Added by Albert
+            if (date("Y", strtotime($date_)) > date("Y", strtotime($row['tran_date']))){
+                $company_data_account = $company_data['default_sales_act'];
+                $mcode = $hoc_code;
+                $masterfile = $hoc_masterfile;
+            }else{
+                $company_data_account = $company_data["isd_account"];
+            }
+            $total += add_gl_trans_customer(
+                ST_SITERMMOD,
+                $change_term_no,  
+                $date_,
+                $company_data_account,//modified by Albert
+                0,
+                0,
+                -1 * abs($old_dgp_balance),
+                $invoice->customer_id,
+                "The total debtor GL posting could not be inserted",
+                0,
+                $mcode,
+                $masterfile,
+                0,
+                $row['trans_no']
+            );
+        }
     }
     /* */
 
