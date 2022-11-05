@@ -1061,17 +1061,29 @@ function installment_computation()
 
 	$amount_to_be_finance = floatval($_POST['lcp_amount']) - floatval($_POST['down_pay']);
 	$interest_charge = $quotient_financing_rate * $amount_to_be_finance;
-
 	$sum_of_interest_charge_and_atbf = $interest_charge + $amount_to_be_finance;
 
 	$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $terms;
 
+	//modified by Albert 10/29/2022 address mantis #1024
+	if ($terms < 1 && $terms > 0) {
+
+		$amort = round(floatval($amount_to_be_finance));
+		$total_amount = floatval($_POST['lcp_amount']);
+	
+		$_POST['total_amount'] = $total_amount;
+		$_POST['ar_amount'] = $total_amount;
+		$_POST['due_amort'] = $amort;
+
+	}else{
 		$amort = round($amort_wo_rebate + $rebate);
 
 		$total_amount = $amort * $terms + floatval($_POST['down_pay']);
-	$_POST['total_amount'] = $total_amount;
-	$_POST['ar_amount'] = $total_amount;
-	$_POST['due_amort'] = $amort;
+		$_POST['total_amount'] = $total_amount;
+		$_POST['ar_amount'] = $total_amount;
+		$_POST['due_amort'] = $amort;
+	}
+	/**/
 
 	//modified by spyrax10
 	$mature_date = add_months($_POST['first_due_date'], $terms);
@@ -1146,6 +1158,7 @@ function new_installment_computation()
 	$_POST['new_rebate'] = $rebate;
 	$_POST['new_financing_rate'] = $financing_rate;
 	$_POST['new_count_term'] = $terms;
+	//display_warning($_POST['new_count_term']);
 
 	$_POST['amort_diff'] = $_POST['new_due_amort'] >= $_POST['due_amort']
 		? $_POST['new_due_amort'] - $_POST['due_amort']

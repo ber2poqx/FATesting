@@ -776,9 +776,20 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 
 			label_row(_("Payment Term:"), $plcy_row['plcydtl_code']);
 			hidden('installment_policy_id', $_POST['installment_policy_id']);
+			//Added by Albert Address mantis # 1023
+			if($order->trans_type == ST_SALESORDER || $order->trans_type == ST_SALESINVOICE){
+				$change_prices=1;
+			}
+			/**/
 		}
 		else {
 			installment_policy_list_row(_("Payment Term:"), 'installment_policy_id', $_POST['category_id'], get_post('installment_policy_id'), "Select", true);
+			
+			//Added by Albert Address mantis # 1023
+			if($order->trans_type == ST_SALESORDER || $order->trans_type == ST_SALESINVOICE){
+				$change_prices=1;
+			}
+			/**/
 		}
 		//
 
@@ -799,13 +810,11 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 
 
 		$_POST['count_term'] = $count_term_arr[0];
+		
 		$_POST['rebate'] = $policy_detail["rebate"];
 		$_POST['financing_rate'] = $policy_detail["financing_rate"];
-
-
 		label_row(_("Due/Amortization:"), price_format(get_post('due_amort')));
 		label_row(_("A/R Amount:"), price_format(get_post('ar_amount')));
-
 		if ($order->promo_only != 1) {
 			submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);
 		}
@@ -880,17 +889,35 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 			$line = &$order->line_items[$line_no];
 			//$line->price = get_kit_price($line->stock_id, $order->customer_currency, $order->sales_type, $order->price_factor, get_post('OrderDate'));
 			/*Modified by Albert 04/27/2022*/
-			$date_epic = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
-			$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$date_epic = Get_Policy_CashPrice_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+			$date_epic_installment = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 			
+			/*modified by Albert 11/04/2022 if months term less than 1 price is equal to cash*/
+			if(get_post('count_term') < 1 && get_post('count_term') > 0){
+				if (date2sql(get_post('OrderDate')) < $date_epic ){
+					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id,$last_date_updated);
 
-			if ( date2sql(get_post('OrderDate')) < $date_epic){
+				    $line->price = $previous_price;
 
-				$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
-			}else{
-		
-				$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+				}else{
+	
+					$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+				}
+				$Ajax->activate('amount');
+			}else{	
+				$last_date_updated = Get_Previous_Policy_Installment_Price_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+	
+				if ( date2sql(get_post('OrderDate')) < $date_epic_installment){
+
+					$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+				}else{
+			
+					$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+				}
 			}
+
+
 			/*End by Albert*/
 		}
 		$Ajax->activate('items_table');

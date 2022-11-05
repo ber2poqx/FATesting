@@ -198,23 +198,45 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		// Monthly Payment
 		$sched_due_date = $invoice->first_due_date;
 		$principal_run_bal = $entry_amount - $invoice->dp_amount;
-		for ($i = 1; $i <= $invoice->months_term; $i++) {
+
+		//Added by Albert 11/05/2022 Address mantis #1024
+		if($invoice->months_term < 1 && $invoice->months_term > 0){
+				
 			$principal_run_bal = $principal_run_bal - $invoice->amortization;
-			add_loan_schedule_ob(
-				ST_SALESINVOICE,
-				$invoice_no,
-				$invoice->customer_id,
-				$i,
-				$sched_due_date,
-				date('D', strtotime($sched_due_date)),
-				$invoice->amortization,
-				$principal_run_bal,
-				$invoice->amortization,
-				$principal_run_bal,
-				0,
-				0
-			);
-			$sched_due_date = date("m/d/Y", strtotime("+1 month", strtotime($sched_due_date)));
+				add_loan_schedule_ob(
+					ST_SALESINVOICE,
+					$invoice_no,
+					$invoice->customer_id,
+					$invoice->months_term,
+					$sched_due_date,
+					date('D', strtotime($sched_due_date)),
+					$invoice->amortization,
+					$principal_run_bal,
+					$invoice->amortization,
+					$principal_run_bal,
+					0,
+					0
+				);
+		/**/	
+		}else{
+			for ($i = 1; $i <= $invoice->months_term; $i++) {
+				$principal_run_bal = $principal_run_bal - $invoice->amortization;
+				add_loan_schedule_ob(
+					ST_SALESINVOICE,
+					$invoice_no,
+					$invoice->customer_id,
+					$i,
+					$sched_due_date,
+					date('D', strtotime($sched_due_date)),
+					$invoice->amortization,
+					$principal_run_bal,
+					$invoice->amortization,
+					$principal_run_bal,
+					0,
+					0
+				);
+				$sched_due_date = date("m/d/Y", strtotime("+1 month", strtotime($sched_due_date)));
+			}
 		}
 	}
 
