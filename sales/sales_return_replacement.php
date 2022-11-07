@@ -123,7 +123,7 @@ function return_defective($row)
 {
 return $row['remarks'] <> 'defective unit' ? '' : pager_link(
     _("Complimentary"),
-    "/inventory/complimentary_items.php?",
+    "/inventory/complimentary_items.php?NewSalesReturn=" . $row["trans_no"] . "&&Filter_type=" . ST_SALESRETURN."&&Category=".$row["category_id"],
     ICON_DOC
 );
 }
