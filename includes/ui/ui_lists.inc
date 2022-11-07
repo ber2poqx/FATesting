@@ -5290,4 +5290,18 @@ function manual_ar_amount_cells_ex($label, $name, $size, $max = null, $init = nu
 	$Ajax->addUpdate($name, $name, $_POST[$name]);
 	$Ajax->addAssign($name, $name, 'dec', $dec);
 }
+//Added by Albert 11/7/2022
+function full_payment_type($label, $name, $selected = null, $submit_on_change = false) {
+	
+	if ($label != null)
+		label_cell($label);
+	echo "<td>\n";
+	$allocs = array( 
+		'-1'=>_("All Change term"),
+		'0'=> _("Regular Change Term"),
+		'1'=> _("Full Payment Change Term")
+	);
+	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change));
+	echo "</td>\n";
+}
 /*End by Albert*/

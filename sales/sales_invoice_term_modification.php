@@ -33,6 +33,8 @@ start_table(TABLESTYLE_NOBORDER);
 start_row();
 
 ref_cells(_("#:"), 'search_val', '', null, '', true);
+full_payment_type(_("Pay Type:"), 'pay_type_id', null	, true, 'label');
+
 submit_cells('Search', _("Search"), '', _('Select documents'), 'default');
 
 end_row();
@@ -152,7 +154,7 @@ function category_name($row)
 }
 
 //figure out the sql required from the inputs available
-$sql = get_sales_invoices_ct($_POST['search_val']);
+$sql = get_sales_invoices_ct($_POST['pay_type_id'], $_POST['pay_type_id']);
 
 /*show a table of the Request returned by the sql */
 $cols = array(

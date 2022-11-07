@@ -549,7 +549,8 @@ function get_sales_invoice_ct_header($invoice_no)
 }
 
 /* Added by Ronelle 8/20/2021 Retrieving Sales Invoices CT */
-function get_sales_invoices_ct($trans_no = 0)
+/*modified by Albert 11/07/2022*/
+function get_sales_invoices_ct($trans_no = 0, $pay_type_id = -1)
 {
     $sql = "SELECT 
                 a.trans_no,
@@ -564,7 +565,9 @@ function get_sales_invoices_ct($trans_no = 0)
                 a.lcp_amount,
                 a.downpayment_amount,
                 a.amortization_amount,
-                a.outstanding_ar_amount
+                a.outstanding_ar_amount,
+                a.term_mode_fullpayment,
+                c.payment_status
             FROM
                 debtor_term_modification a
             INNER JOIN
@@ -580,9 +583,14 @@ function get_sales_invoices_ct($trans_no = 0)
             ON
                 d.debtor_no = b.debtor_no
             WHERE
-                b.type = " . ST_SITERMMOD . "
-            ORDER BY
-                a.trans_no DESC";
+                b.type = " . ST_SITERMMOD;
+
+    if($pay_type_id != -1){
+        $sql.= " And a.term_mode_fullpayment =".db_escape($pay_type_id);
+        
+    } 
+    $sql.=" ORDER BY a.trans_no DESC";       
+        
     return $sql;
 }
 /* */
