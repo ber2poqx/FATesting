@@ -567,7 +567,8 @@ function get_sales_invoices_ct($trans_no = 0, $pay_type_id = -1)
                 a.amortization_amount,
                 a.outstanding_ar_amount,
                 a.term_mode_fullpayment,
-                c.payment_status
+                c.payment_status,
+                a.type
             FROM
                 debtor_term_modification a
             INNER JOIN
@@ -590,7 +591,7 @@ function get_sales_invoices_ct($trans_no = 0, $pay_type_id = -1)
         $sql.= " And a.trans_no =".db_escape($trans_no);       
     } 
     if($pay_type_id != -1){
-        
+
         $sql.= " And a.term_mode_fullpayment =".db_escape($pay_type_id);  
     } 
     $sql.=" ORDER BY a.trans_no DESC";       

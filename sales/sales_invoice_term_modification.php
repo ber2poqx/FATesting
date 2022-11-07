@@ -127,18 +127,18 @@ function print_sales_invoice_receipt($row)
 		}
 	}
 }
-
-function change_term_link($row)
+/*Added by Albert 11/07/2022*/
+function payment_allocate_link($row)
 {
-	if ($row['payment_type'] == "INSTALLMENT" && $row['status'] != "Closed") {
+	if ($row['term_mode_fullpayment'] == 1 && $row['payment_status'] != "fully-paid") {
 		return pager_link(
-			_("Change Term"),
-			"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"],
+			_("Payment Allocate"),
+			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"],
 			ICON_RECEIVE
 		);
 	}
 }
-
+/**/
 function cancel_link($row)
 {
 	return pager_link(
@@ -171,7 +171,8 @@ $cols = array(
 	_("DP") => array('align' => 'right', 'fun' => 'dp_amount'),
 	_("Amortiztion") => array('align' => 'right', 'fun' => 'amortization_amount'),
 	_("A/R Balance") => array('align' => 'right', 'fun' => 'ar_balance'),
-	array('insert' => true, 'fun' => 'gl_view')
+	array('insert' => true, 'fun' => 'gl_view'),
+	array('insert' => true, 'fun' => 'payment_allocate_link')
 	// array('insert' => true, 'fun' => 'print_sales_invoice_receipt') //Added by Prog6
 );
 
