@@ -1557,8 +1557,6 @@ function create_cart($type, $trans_no, $pay_type="Branch")
 		if($pay_type =='Lending'){
 			$company = get_company_prefs();
 			$doc = new Cart(70, array($trans_no));
-			$loans_data = get_loan_data($doc->reference);
-			$doc->document_ref = $loans_data['reference'];
 			$doc->Location = $company["branch_code"];
 			$doc->payment_location = $pay_type;
 		

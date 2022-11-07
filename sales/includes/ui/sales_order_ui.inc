@@ -1082,7 +1082,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 		if ($opening_balance == 1) {
 			$total_unit_cost = $order->line_items[0]->standard_cost;
 			/*Added by Albert */
-			$loans_data = get_loan_data($_POST['document_ref']);
+			$loans_data = get_ar_amount($_POST['document_ref']);
 			$all_ar_amount = $loans_data['ar_amount'];
 			$amort = $loans_data['amortization_amount'];
 			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
@@ -1493,7 +1493,7 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 		if ($opening_balance == 1){
 			$total_unit_cost = $order->line_items[0]->standard_cost;
 				/*Added by Albert */
-				$loans_data = get_loan_data($_POST['document_ref']);
+				$loans_data = get_ar_amount($_POST['document_ref']);
 				$all_ar_amount = $loans_data['ar_amount'];
 				$amort = $loans_data['amortization_amount'];
 				$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;

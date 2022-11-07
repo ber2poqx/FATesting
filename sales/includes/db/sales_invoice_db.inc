@@ -1006,7 +1006,7 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 	$sql = "SELECT DT.*$months_term FROM " . TB_PREF . "debtor_trans DT ";
 
 	if ($reference == '') {
-		$sql .= " INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.reference";
+		$sql .= " INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.invoice_ref_no";
 	}
 
 	$sql .= " WHERE IFNULL(DT.trans_no, '') <> ''";
@@ -1075,16 +1075,6 @@ function get_ar_amount($reference) {
 	set_global_connection();
 	$sql = "SELECT * FROM " . TB_PREF . "debtor_loans 
 		WHERE invoice_ref_no = " .db_escape($reference);
-
-	$result = db_query($sql, "No loans details return! (Albert)");
-
-	return db_fetch($result);
-}
-/*Added by Albert*/
-function get_loan_data($reference) {
-	set_global_connection();
-	$sql = "SELECT * FROM " . TB_PREF . "debtor_loans 
-		WHERE reference = " .db_escape($reference);
 
 	$result = db_query($sql, "No loans details return! (Albert)");
 
