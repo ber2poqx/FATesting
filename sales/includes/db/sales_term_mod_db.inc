@@ -585,9 +585,13 @@ function get_sales_invoices_ct($trans_no = 0, $pay_type_id = -1)
             WHERE
                 b.type = " . ST_SITERMMOD;
 
+    if($trans_no != 0){
+
+        $sql.= " And a.trans_no =".db_escape($trans_no);       
+    } 
     if($pay_type_id != -1){
-        $sql.= " And a.term_mode_fullpayment =".db_escape($pay_type_id);
         
+        $sql.= " And a.term_mode_fullpayment =".db_escape($pay_type_id);  
     } 
     $sql.=" ORDER BY a.trans_no DESC";       
         

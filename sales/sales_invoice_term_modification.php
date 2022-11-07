@@ -154,7 +154,7 @@ function category_name($row)
 }
 
 //figure out the sql required from the inputs available
-$sql = get_sales_invoices_ct($_POST['pay_type_id'], $_POST['pay_type_id']);
+$sql = get_sales_invoices_ct($_POST['search_val'], $_POST['pay_type_id']);
 
 /*show a table of the Request returned by the sql */
 $cols = array(
