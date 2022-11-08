@@ -211,6 +211,91 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
     return $result;
 }
 
+//Added by Robert 11/07/2022//
+function get_all_stockmoves_compli($start,$limit,$querystr='',$category=0,$branchcode='',$all=false,$reference='', $trans_date=null,$sales_return='',
+    $filter_type='',$serialquery=null){
+
+
+    $sql = "SELECT SUM(serial.qty) as serialise_qty, serial.stock_id as model, serial.color_code as serialise_item_code, 
+    serial.lot_no as serialise_lot_no, serial.chassis_no as serialise_chasis_no, serial.loc_code as serialise_loc_code, 
+    smaster.description as stock_description, icode.description as item_description, smaster.serialised, smaster.inventory_account, 
+    serial.type_out, serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,
+    categstock.dflt_inventory_act, IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
+    IFNULL(SPGEN.QTY, NULL) /*Added by Robert */
+    FROM ".TB_PREF."stock_moves serial 
+    LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
+    INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code
+    INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id
+    INNER JOIN ".TB_PREF."stock_category categstock ON serial.category_id=categstock.category_id  
+
+    LEFT JOIN (
+    SELECT robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no, SUM(robert.qty) AS QTY
+    FROM stock_moves robert
+    GROUP BY robert.type_out, robert.transno_out, robert.stock_id, robert.lot_no
+    )QTYOUT ON QTYOUT.type_out = serial.type_out AND QTYOUT.transno_out =  QTYOUT.transno_out 
+     AND QTYOUT.stock_id = serial.stock_id AND QTYOUT.lot_no = serial.lot_no
+
+    LEFT JOIN ( 
+    SELECT jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.lot_no, SUM(jayhil.qty) AS QTY 
+    FROM stock_moves jayhil GROUP BY jayhil.type_out, jayhil.transno_out, jayhil.stock_id
+    )SPGEN ON SPGEN.type_out = serial.type_out AND SPGEN.transno_out = SPGEN.transno_out AND SPGEN.stock_id = serial.stock_id 
+ 
+    WHERE ISNULL(v.id) AND serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
+
+    if($category!=0){
+        $sql.=" AND smaster.category_id=$category";
+    }
+    if($reference!=''){
+        $sql.=" AND serial.reference='".$reference."'";
+        
+    }
+    if($branchcode!=''){
+        $sql.=" AND serial.loc_code='".$branchcode."'";
+        
+    }
+    if($trans_date!=null){
+        //$trans_date = date2sql($trans_date);
+        $sql.=" AND serial.tran_date<=".db_escape($trans_date);
+        
+    }
+    if($sales_return!=''){
+        $sql.=" AND serial.trans_no='".$sales_return."'";
+        
+    }
+    if($filter_type!=''){
+        $sql.=" AND serial.type='".$filter_type."'";
+        
+    }
+    if($serialquery!=null){
+        $sql.=" AND (serial.lot_no LIKE '%".$serialquery."%')";
+    }
+    if($querystr!=''){
+        $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
+    }
+    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
+    
+    /*if($all){
+        
+    }else{
+        $sql.=" limit $start,$limit";
+    }
+    echo $sql;
+    //die();
+    return db_query($sql, "could not get all Serial Items");*/
+
+    /*Added by Robert */
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all Serial Items");
+    }else{
+        $result = db_query($sqllimit, "could not get all Serial Items");
+    }
+    //echo $sql;
+
+    return $result;
+}
+
 /*Added by robert 04/19/2022*/
 function get_all_merchandise_transfer($start,$limit,$querystr='',$branchcode='',$search_ref='',$all=false){
     //global $def_coy;

@@ -768,6 +768,18 @@ function update_compli_item_status_disaaproved($reference){
     set_global_connection();
     return true;
 }
+
+//Added by Robert 11/08/2022
+function update_sales_return_status($type, $trans_no){
+    
+    $sql = "UPDATE ".TB_PREF."returned_units SET cpl_ret_status='1' WHERE debtor_trans_type= ".db_escape($type)."
+    AND debtor_trans_no=".db_escape($trans_no);
+    
+    db_query($sql, "The Return units Status record cannot be updated");
+    
+    set_global_connection();
+    return true;
+}
 //-------------------------------------------------------------------------------------------------------------
 
 // add 2 stock_moves entries for a stock transfer

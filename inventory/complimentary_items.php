@@ -36,7 +36,6 @@ if(isset($_GET['action']) || isset($_POST['action'])){
     $action=null;
 }
 
-
 if(!is_null($action) || !empty($action)){
     switch ($action) {
         case 'NewTransfer';
@@ -444,7 +443,6 @@ if(!is_null($action) || !empty($action)){
             break;
         
         case 'serial_items':
-            
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
             $catcode = (integer) (isset($_POST['catcode']) ? $_POST['catcode'] : $_GET['catcode']);
@@ -453,12 +451,14 @@ if(!is_null($action) || !empty($action)){
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
             $querystrserial = (isset($_POST['serialquery']) ? $_POST['serialquery'] : $_GET['serialquery']);
 
-            
+            $returntrans = (integer) (isset($_POST['returntrans']) ? $_POST['returntrans'] : $_GET['returntrans']);
+            $filtertype = (integer) (isset($_POST['filtertype']) ? $_POST['filtertype'] : $_GET['filtertype']);
+
             //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
-            $result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
-            $total_result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
+            $result = get_all_stockmoves_compli($start,$limit,$querystr,$catcode,$branchcode,false,'',$trans_date,$returntrans,$filtertype, $querystrserial);
+            $total_result = get_all_stockmoves_compli($start,$limit,$querystr,$catcode,$branchcode,true,'',$trans_date,$returntrans,$filtertype, $querystrserial);
 
             $total = DB_num_rows($result);
 
@@ -1007,6 +1007,7 @@ if(!is_null($action) || !empty($action)){
 
                         update_stock_adjustment_status_post($myrow["reference"], ST_COMPLIMENTARYITEM, $PostDated);
                         update_compli_item_status_post($myrow["reference"]);
+                        update_sales_return_status($myrow["trans_type_out"], $myrow["trans_no_out"]);
                     }
 
                     $result1 = get_transaction_from_stock_adjusment_gl(ST_COMPLIMENTARYITEM, $trans_no, $reference);

@@ -1360,7 +1360,9 @@ Ext.onReady(function(){
 						var catcode = Ext.getCmp('category').getValue();
 						var brcode = Ext.getCmp('fromlocation').getValue();
 						var AdjDate = Ext.getCmp('AdjDate').getValue();
-						ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate}
+						var returntrans = Ext.getCmp('newtrans_no').getValue();
+						var filtertype = Ext.getCmp('filter_type').getValue();
+						ItemListingStore.proxy.extraParams = {catcode: catcode, branchcode:brcode, trans_date:AdjDate, returntrans:returntrans, filtertype:filtertype}
 						ItemListingStore.load();
 						var windowItemList = Ext.create('Ext.Window',{
 							title:'Item Listing',
@@ -2166,6 +2168,29 @@ Ext.onReady(function(){
 												grow: false,
 												anchor:'100%'
 											}]
+										},{
+											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[
+												{
+													xtype:'textfield',
+													fieldLabel:'Type:',
+													readOnly: true,
+													fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+													id:'filter_type',
+													name:'filter_type',
+													hidden: true
+												},{
+													xtype:'textfield',
+													fieldLabel:'Trans No:',
+													readOnly: true,
+													fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+													id:'newtrans_no',
+													name:'newtrans_no',
+													hidden: true
+												}
+											]
 										}
 									]	
 								},{
@@ -2365,7 +2390,7 @@ Ext.onReady(function(){
 					});
 					
 					windowNewTransfer.show();
-					
+					GetUrlParamsType();	
 				},
 				scale	: 'small'
 			},{
@@ -2493,4 +2518,24 @@ function decodeHtmlEntity(str) {
 	return str.replace(/&#(\d+);/g, function(match, dec) {
 		return String.fromCharCode(dec);
 	});
+};
+function GetUrlParamsType(){
+	let form_values = {}
+	let url_string = window.location.search.substring(1);
+	let url_string_array = url_string.split('&');
+
+	url_string_array.forEach(function( value ){
+		let this_item = value.split('=');
+		let this_key = this_item[0];
+		let this_value = this_item[1];
+		form_values[this_key] = unescape(this_value);
+	});
+
+	var sales_return = form_values['NewSalesReturn'];
+	var filter_type = form_values['Filter_type'];
+	var category_return = form_values['Category'];
+	
+	Ext.getCmp('newtrans_no').setValue(sales_return);
+	Ext.getCmp('filter_type').setValue(filter_type);
+	Ext.getCmp('category').setValue(category_return);
 };
