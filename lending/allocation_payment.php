@@ -395,6 +395,21 @@ if(isset($_GET['get_loan_ledger']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
+if(isset($_GET['getCOA']))
+{
+    $result = get_List_COA();
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+            $status_array[] = array('code'=>$myrow["account_code"],
+                                    'name'=>$myrow["account_name"],
+                                    'group'=>$myrow["name"]
+                                );
+    }
+
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
 if(isset($_GET['submitAllocDP']))
 {
     if (empty($_POST['syspk']) || empty($_POST['moduletype']) || empty($_POST['transtype']) || empty($_POST['ref_no']) || empty($_POST['paymentType'])) {

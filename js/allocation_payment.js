@@ -311,6 +311,25 @@ Ext.onReady(function(){
 			direction : 'ASC'
 		}]
 	});
+	var GLStore = Ext.create('Ext.data.Store', {
+		name: 'GLStore',
+		fields:['code','name','group'],
+		autoLoad : true,
+        proxy: {
+			url: '?getCOA=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'code',
+			direction : 'ASC'
+		}]
+	});
 
 	//---------------------------------------------------------------------------------------
 	var AllocDPHeader = [
@@ -533,6 +552,20 @@ Ext.onReady(function(){
 			}	
 		}
 	];
+	var column_COA = [
+		{header:'<b>Code</b>', dataIndex:'code', width:120},
+		{header:'<b>Description</b>', dataIndex:'name', width:148, flex: 1},
+		{header:'<b>Category</b>', dataIndex:'group', width:120},
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:110,
+			items:[{
+				icon: '../js/ext4/examples/shared/icons/add.png', //tick
+				tooltip: 'Select',
+				handler: function(grid, rowIndex, colIndex) {
+					
+				}
+			}]
+		}
+	];
 	//for policy setup column model
 	var InterB_Payment_Header = [
 		new Ext.grid.RowNumberer(),
@@ -600,6 +633,66 @@ Ext.onReady(function(){
 			}]
 		}
 	];
+	var InterBGLHeader = [
+		//{header:'<b>Id</b>',dataIndex:'loansched_id',hidden: true},
+		{header:'<b>Date</b>', dataIndex:'trans_date', width:80},
+		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:80},
+		{header:'<b>Description</b>', dataIndex:'gl_name', width:230},
+		{header:'<b>SL Code</b>', dataIndex:'sl_code', width:80},
+		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:158},
+		{header:'<b>Debit</b>', dataIndex:'debit_amount', width:100, align:'right', summaryType: 'sum',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
+		{header:'<b>Credit</b>', dataIndex:'credit_amount', width:100, align:'right', summaryType: 'sum',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		}
+	];
+
+	var GLTitle_w = new Ext.create('Ext.window.Window', {
+		id: 'GLTitle_w',
+		width: 840,
+		height: 400,
+		scale: 'small',
+		closeAction:'destroy',
+		closable:true,
+		modal: true,
+		layout:'fit',
+		title: 'List Of Chart Of Accounts',
+		items: [{
+			xtype: 'gridpanel',
+			store: GLStore,
+			anchor:'100%',
+			layout:'fit',
+			frame: false,
+			loadMask: true,
+			columns: column_COA,
+			features: [{ftype: 'summary'}],
+			columnLines: true
+		}],
+		listeners:{
+			close: function(thiswindow) {
+				thiswindow.up('window').close();
+		   }
+        }
+	});
 
 	var submit_form_ADP = Ext.create('Ext.form.Panel', {
 		id: 'submit_form_ADP',
@@ -1471,6 +1564,324 @@ Ext.onReady(function(){
 			}
 		}]
 	});
+	var submit_form_waivpnlty = Ext.create('Ext.form.Panel', {
+		id: 'submit_form_waivpnlty',
+		model: 'AllocationModel',
+		frame: true,
+		defaultType: 'field',
+		defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
+			items: [{
+				xtype: 'textfield',
+				id: 'name_inb',
+				name: 'name_inb',
+				fieldLabel: 'customer name',
+				allowBlank: false,
+				hidden: true
+			},{
+				xtype: 'numericfield',
+				id: 'total_amount_inb',
+				name: 'total_amount_inb',
+				fieldLabel: 'Total Amount ',
+				allowBlank:false,
+				useThousandSeparator: true,
+				readOnly: true,
+				labelWidth: 100,
+				width: 255,
+				thousandSeparator: ',',
+				minValue: 0,
+				margin: '0 0 2 0',
+				hidden: true,
+				fieldStyle: 'font-weight: bold;color: red; text-align: right;'
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'textfield',
+					fieldLabel: 'Customer ',
+					id: 'customercode_wv',
+					name: 'customercode_wv',
+					allowBlank: false,
+					labelWidth: 105,
+					width: 250,
+					readOnly: true,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				},{
+					xtype: 'combobox',
+					id: 'customername_wv',
+					name: 'customername_wv',
+					allowBlank: false,
+					store : CustomerStore,
+					displayField: 'name',
+					valueField: 'debtor_no',
+					queryMode: 'local',
+					width: 290,
+					forceSelection: true,
+					selectOnFocus:true,
+					fieldStyle: 'font-weight: bold; color: #210a04;',
+					listeners: {
+						select: function(combo, record, index) {
+							Ext.getCmp('customercode_wv').setValue(record.get('debtor_ref'));
+							Ext.getCmp('tenderd_amount_wv').setValue();
+							Ext.getCmp('tenderd_amount_wv').focus(false, 200);
+							Ext.getCmp('name_inb').setValue(Ext.getCmp('customername_inb').getRawValue());
+
+							Ext.Ajax.request({
+								url : '?getReference=zHun',
+								params: {
+									debtor_id: record.get('debtor_no'),
+									date: Ext.getCmp('trans_date_wv').getValue()
+								},
+								async:false,
+								success: function (response){
+									var result = Ext.JSON.decode(response.responseText);
+									Ext.getCmp('ref_no_inb').setValue(result.reference);
+									submit_window_waivpnlty.setTitle('Customer Inter-Branch Receipt Entry - Reference No. : '+ result.reference + ' *new');
+								}
+							});
+
+							loadInterBranch();
+						}
+					}
+				},{
+					xtype : 'datefield',
+					id	  : 'trans_date_wv',
+					name  : 'trans_date_wv',
+					fieldLabel : 'Date ',
+					allowBlank: false,
+					labelWidth: 105,
+					width: 280,
+					format : 'm/d/Y',
+					fieldStyle: 'font-weight: bold; color: #210a04;',
+					value: Ext.Date.format(new Date(), 'Y-m-d')
+				}]
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'combobox',
+					id: 'InvoiceNo',
+					name: 'InvoiceNo',
+					allowBlank: false,
+					store : ARInvoiceStore,
+					displayField: 'name',
+					valueField: 'id',
+					queryMode: 'local',
+					fieldLabel : 'Invoice No. ',
+					labelWidth: 105,
+					width: 540,
+					forceSelection: true,
+					selectOnFocus:true,
+					fieldStyle: 'font-weight: bold; color: #210a04;',
+					listeners: {
+						select: function(combo, record, index) {
+							Getreference("DP");
+							Ext.getCmp('transtype').setValue(record.get('type'));
+							Ext.getCmp('paylocation').setValue(record.get('pay_location'));
+	
+							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: "down", payloc: record.get('pay_location') };
+							AllocationStore.load();
+							SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
+							SIitemStore.load();
+						}
+					}
+				},{
+					xtype: 'textfield',
+					fieldLabel: 'Prepared By ',
+					id: 'preparedby_inb',
+					name: 'preparedby_inb',
+					allowBlank: false,
+					readOnly: true,
+					labelWidth: 105,
+					width: 280,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				}]
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 	'textareafield',
+					fieldLabel: 'Remarks ',
+					id:	'remarks_inb',
+					name: 'remarks_inb',
+					//labelAlign:	'top',
+					allowBlank: false,
+					maxLength: 254,
+					labelWidth: 105,
+					width: 540,
+					hidden: false
+				},{
+					xtype: 'fieldcontainer',
+					layout: 'vbox',
+					margin: '0 0 0 0',
+					items:[{
+						xtype: 'numericfield',
+						id: 'tenderd_amount_wv',
+						name: 'tenderd_amount_wv',
+						fieldLabel: 'Tendered Amount ',
+						allowBlank:false,
+						useThousandSeparator: true,
+						labelWidth: 123,
+						width: 280,
+						thousandSeparator: ',',
+						minValue: 0,
+						fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+						listeners: {
+							afterrender: function(field) {
+								field.focus(true);
+							},
+							change: function(object, value) {
+								var otheramnt = Math.floor(Ext.getCmp('total_otheramount_inb').getValue());
+								var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
+	
+								Ext.getCmp('total_amount_inb').setValue(totalamnt);
+	
+								loadInterBranch();
+							}
+						}
+					}]
+				}]
+			},{
+				xtype: 'tabpanel',
+				id: 'InterBPanel',
+				activeTab: 0,
+				width: 860,
+				height: 240,
+				scale: 'small',
+				items:[{
+					xtype:'gridpanel',
+					id: 'InterBGrid',
+					anchor:'100%',
+					layout:'fit',
+					title: 'Entry',
+					icon: '../js/ext4/examples/shared/icons/vcard.png',
+					loadMask: true,
+					store:	CustomerStore,
+					columns: InterBGLHeader,
+					features: [{ftype: 'summary'}],
+					columnLines: true
+				}],
+				tabBar: {
+					items: [{
+						xtype: 'tbfill'
+					},{
+						xtype: 'button',
+						text: 'Add GL Account',
+						padding: '3px',
+						margin: '2px 2px 6px 2px',
+						icon: '../js/ext4/examples/shared/icons/chart_line_add.png',
+						tooltip: 'Click to Add GL Entry',
+						style : {
+							'color': 'blue',
+							'font-size': '30px',
+							'font-weight': 'bold',
+							'background-color': '#0a0a23',
+							'position': 'absolute',
+							'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+							'border': 'none',
+							//'border-radius':'10px'
+						},
+						handler: function(){
+							GLTitle_w.show();
+							GLTitle_w.setPosition(320,60);
+						}
+					}]
+			}
+			}]
+	});
+	var submit_window_waivpnlty = Ext.create('Ext.Window',{
+		width 	: 842,
+		modal	: true,
+		plain 	: true,
+		border 	: false,
+		resizable: false,
+		closeAction:'hide',
+		//closable: false,
+		items:[submit_form_waivpnlty],
+		buttons:[{
+			text: '<b>Save</b>',
+			tooltip: 'Save customer payment',
+			icon: '../js/ext4/examples/shared/icons/add.png',
+			single : true,
+			handler:function(){
+				var form_submit_InterB = Ext.getCmp('submit_form_waivpnlty').getForm();
+				if(form_submit_InterB.isValid()) {
+					var gridData = InterBStore.getRange();
+					var girdInterBData = [];
+					count = 0;
+					Ext.each(gridData, function(item) {
+						var ObjInterB = {
+							gl_code: item.get('gl_code'),  
+							gl_name: item.get('gl_name'),
+							sl_code: item.get('sl_code'),
+							sl_name: item.get('sl_name'),
+							debtor_id: item.get('debtor_id'),
+							debit_amount: item.get('debit_amount'),
+							credit_amount: item.get('credit_amount'),
+						};
+						girdInterBData.push(ObjInterB);
+					});
+					//other entries
+					if(Ext.getCmp('total_otheramount_inb').getValue() != 0){
+						var gridOEData = OtherEntryStore.getRange();
+						var OEData = [];
+						
+						Ext.each(gridOEData, function(item) {
+							var ObjItem = {
+								id: item.get('id'),  
+								gl_code: item.get('gl_code'),
+								gl_name: item.get('gl_name'),
+								sl_code: item.get('sl_code'),
+								sl_name: item.get('sl_name'),
+								debtor_id: item.get('debtor_id'),
+								debit_amount: item.get('debit_amount')
+							};
+							OEData.push(ObjItem);
+						});
+					}
+					//console.log(Ext.decode(gridData));
+					form_submit_InterB.submit({
+						url: '?submitInterB=payment',
+						params: {
+							InterBDataOnGrid: Ext.encode(girdInterBData),
+							DataOEGrid: Ext.encode(OEData)
+						},
+						waitMsg: 'Saving payment. please wait...',
+						method:'POST',
+						submitEmptyText: false,
+						success: function(form_submit_InterB, action) {
+							PaymentStore.load()
+							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
+							submit_window_waivpnlty.close();
+						},
+						failure: function(form_submit_InterB, action) {
+							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
+						}
+					});
+					window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
+						//alert('An error has occurred!')
+						Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
+						return true;
+					}
+				}
+			}
+		},{
+			text:'<b>Cancel</b>',
+			tooltip: 'Cancel customer payment',
+			icon: '../js/ext4/examples/shared/icons/cancel.png',
+			handler:function(){
+				Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to close this window?', function (btn, text) {
+					if (btn == 'yes') {
+						//Ext.Msg.alert('Close','close.');
+						submit_form_waivpnlty.getForm().reset();
+						submit_window_waivpnlty.close();
+					}
+				});
+			}
+		}]
+	});
 	var tbar = [{
 		xtype: 'searchfield',
 		id:'search',
@@ -1543,6 +1954,18 @@ Ext.onReady(function(){
 			submit_window_AIB.setTitle('Allocate Inter-Branch Payment Entry - Add');
 			submit_window_AIB.setPosition(320,23);
 		}
+	}, '-', {
+		text:'<b>Allocate Other Adjustment</b>',
+		tooltip: 'Waived Penalty Adjustment',
+		icon: '../js/ext4/examples/shared/icons/coins-in-hand-icon.png',
+		scale: 'small',
+		handler: function(){
+			submit_form_waivpnlty.getForm().reset();
+
+			submit_window_waivpnlty.show();
+			submit_window_waivpnlty.setTitle('Waived Penalty Adjustment - Add');
+			submit_window_waivpnlty.setPosition(320,23);
+		}
 	}, '->' ,{
 		xtype:'splitbutton',
 		//text: '<b>Maintenance</b>',
@@ -1556,7 +1979,23 @@ Ext.onReady(function(){
 			hrefTarget : '_blank'
 		}]
 	}];
-
+	var tbarCOA = [{
+		xtype: 'searchfield',
+		id:'searchCOA',
+		name:'searchCOA',
+		fieldLabel: '<b>Search</b>',
+		labelWidth: 50,
+		width: 305,
+		emptyText: "Search",
+		scale: 'small',
+		store: GLStore,
+		listeners: {
+			change: function(field) {
+				GLStore.proxy.extraParams = {query: field.getValue()};
+				GLStore.load();
+			}
+		}
+	}];
 	var builder_panel =  Ext.create('Ext.panel.Panel', { 
         renderTo: 'ext-form',
 		id: 'builder_panel',

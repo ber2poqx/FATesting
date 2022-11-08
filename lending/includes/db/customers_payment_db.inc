@@ -847,3 +847,13 @@ function get_islive($branch){
     set_global_connection();        
     return $row[0];
 }
+
+function get_List_COA()
+{
+	$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
+			FROM ".TB_PREF."chart_master AS chart 
+				INNER JOIN ".TB_PREF."chart_types AS type ON chart.account_type = type.id
+			WHERE chart.inactive = 0";
+                
+    return db_query($sql, "Failed in retreiving GL account list.");
+}
