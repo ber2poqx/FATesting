@@ -848,12 +848,30 @@ function get_islive($branch){
     return $row[0];
 }
 
-function get_List_COA()
+function get_List_COA($search)
 {
+	if($search != ''){
+		$sWhere .= " AND (chart.account_code LIKE '%".$search."%' OR chart.account_name LIKE '%".$search."%') ";
+	}
 	$sql = "SELECT chart.account_code, chart.account_name, type.name, chart.inactive, type.id
 			FROM ".TB_PREF."chart_master AS chart 
 				INNER JOIN ".TB_PREF."chart_types AS type ON chart.account_type = type.id
-			WHERE chart.inactive = 0";
-                
+			WHERE chart.inactive = 0 ".$sWhere."
+			ORDER BY chart.account_code";
+
     return db_query($sql, "Failed in retreiving GL account list.");
+}
+
+function get_InvoiceCOA($trans_no, $type)
+{
+	$sql = "SELECT X.account 
+			FROM gl_trans X 
+			WHERE X.person_id is not null AND X.amount >0 
+				AND X.type_no=".db_escape($trans_no)."
+				And X.type = ".db_escape($type);
+				
+	$result = db_query($sql, "could not get defered balance");
+	$row =  db_fetch($result);
+
+	return $row[0];
 }

@@ -28,7 +28,16 @@ if(isset($_GET['getReference'])){
 }
 if(isset($_GET['get_Customer']))
 {
-    if($_GET['module'] == "DP"){
+    if($_GET['module'] == "waived"){
+        $result = get_all_customer();
+        $total = DB_num_rows($result);
+        while ($myrow = db_fetch($result)) {
+            $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
+                                   'debtor_ref'=>$myrow["debtor_ref"],
+                                   'name'=>htmlentities($myrow["name"])
+                                );
+        }
+    }else if($_GET['module'] == "DP"){
         $result = get_AllocDP_customer();
         while ($myrow = db_fetch($result)) {
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
@@ -397,7 +406,7 @@ if(isset($_GET['get_loan_ledger']))
 }
 if(isset($_GET['getCOA']))
 {
-    $result = get_List_COA();
+    $result = get_List_COA($_GET['query']);
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
             $status_array[] = array('code'=>$myrow["account_code"],
@@ -410,6 +419,90 @@ if(isset($_GET['getCOA']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
+if(isset($_GET['get_interCOAPaymnt']))
+{
+    $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
+    $counter = 0;
+
+    if($_GET['tag'] == 'delete'){
+        foreach($objDataGrid as $value=>$data) {
+            $counter++;
+            if($_GET['gl_account'] != $data['gl_code']){
+                $status_array[] = array('id'=>$counter,
+                    'trans_date'=>$data["trans_date"],
+                    'gl_code'=>$data["gl_code"],
+                    'gl_name'=>$data["gl_name"],
+                    'sl_code'=>$data['sl_code'],
+                    'sl_name'=>$data['sl_name'],
+                    'debtor_id'=>$data['debtor_id'],
+                    'debit_amount'=>$data['debit_amount'],
+                    'credit_amount'=>$data['credit_amount']
+                );
+            }
+        }
+    }else{
+        if($_GET['transNo'] != 0 && $_GET['transtype'] != 0){
+            $gl_account = get_InvoiceCOA($_GET['transNo'], $_GET['transtype']);
+        }else{
+            $gl_account = $_GET['gl_account'];
+        }
+        $gl_row = get_gl_account($gl_account);
+        $customer = get_customer($_GET['debtor_id']);
+
+        if($_GET['tag'] == 'load'){
+            if (count($objDataGrid) != 0){
+                foreach($objDataGrid as $value=>$data) {
+                    $counter++;
+                    $status_array[] = array('id'=>$counter,
+                        'trans_date'=>$data["trans_date"],
+                        'gl_code'=>$data["gl_code"],
+                        'gl_name'=>$data["gl_name"],
+                        'sl_code'=>$customer["debtor_no"],
+                        'sl_name'=>$customer["name"],
+                        'debtor_id'=>$data['debtor_id'],
+                        'debit_amount'=>$data['debit_amount'],
+                        'credit_amount'=>$data['credit_amount']
+                    );
+                }
+            }
+        }else{
+            if (count($objDataGrid) != 0){
+                foreach($objDataGrid as $value=>$data) {
+                    $counter++;
+                    if($gl_account != $data['gl_code']){
+                        $status_array[] = array('id'=>$counter,
+                            'trans_date'=>$data["trans_date"],
+                            'gl_code'=>$data["gl_code"],
+                            'gl_name'=>$data["gl_name"],
+                            'sl_code'=>$data['sl_code'],
+                            'sl_name'=>$data['sl_name'],
+                            'debtor_id'=>$data['debtor_id'],
+                            'debit_amount'=>$data['debit_amount'],
+                            'credit_amount'=>$data['credit_amount']
+                        );
+                    }
+                }
+            }
+
+            $status_array[] = array('id'=>$counter+1,
+                                    'trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                    'gl_code'=>$gl_row["account_code"],
+                                    'gl_name'=>$gl_row["account_name"],
+                                    'sl_code'=>$customer["debtor_no"],
+                                    'sl_name'=>$customer["name"],
+                                    'debtor_id'=>$_GET['debtor_id'],
+                                    'debit_amount'=>0,
+                                    'credit_amount'=>0,
+                                );
+        }
+    }
+
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
+
 if(isset($_GET['submitAllocDP']))
 {
     if (empty($_POST['syspk']) || empty($_POST['moduletype']) || empty($_POST['transtype']) || empty($_POST['ref_no']) || empty($_POST['paymentType'])) {
@@ -989,6 +1082,93 @@ if(isset($_GET['submitAllocInterB']))
             $dsplymsg = _("Customer payment has been allocated successfully...");        
         }
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
+    }else{
+        echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+    }
+    return;
+}
+
+if(isset($_GET['submitAdj']))
+{
+    //initialise no input errors assumed initially before we proceed
+    //0 is by default no errors
+    $InputError = 0;
+    
+    if (empty($_POST['transtype_wv']) || empty($_POST['ref_no_wv']) || empty($_POST['total_debt_wv']) || empty($_POST['name_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+    }
+    if (empty($_POST['customercode_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Customer code must not be empty.');
+    }
+    if (empty($_POST['customername_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Customer name must not be empty.');
+    }
+    if (empty($_POST['trans_date_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Transaction date must not be empty.');
+    }else{
+        $trans_date = date('Y-m-d',strtotime($_POST['trans_date_wv']));
+    }
+    if (empty($_POST['InvoiceNo_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Invoice number must not be empty.');
+    }
+    if (empty($_POST['total_cred_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Total amount must not be empty.');
+    }
+    if ($_POST['total_cred_wv'] == 0) {
+        $InputError = 1;
+        $dsplymsg = _('Total amount must be greater than 0.');
+    }
+    if (empty($_POST['remarks_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('remarks must not be empty.');
+    }
+    if (empty($_POST['preparedby_wv'])) {
+        $InputError = 1;
+        $dsplymsg = _('Prepared by must not be empty.');
+    }
+
+    $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
+
+    $conn = $db_connections[user_company()];
+    
+    //var_dump($objDataGrid);
+    if (count($objDataGrid) == 0){
+        $InputError = 1;
+        $dsplymsg = _('Credit amount must not be empty! Please try again.');
+    }
+    
+    if ($InputError != 1){
+        
+        begin_transaction();
+        $BranchNo = get_newcust_branch($_POST['customername_wv'], $_POST['customercode_wv']);
+        $debtor_loans = get_debtor_loans_info($_POST['InvoiceNo'], $_POST['customername_wv']);
+
+        //gl------
+        foreach($objDataGrid as $value=>$data) {
+            /* Now credit bank account with penalty */
+            $company_prefs = get_company_prefs();
+            if(!empty($data['gl_code'])){
+                if($data['credit_amount'] != 0){
+                    $amount = -$data['credit_amount'];
+                }else{
+                    $amount = $data['debit_amount'];
+                }
+                if($data['sl_code'] == $_POST['customername_inb']){
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $trans_date, $data['gl_code'], 0, 0, '', $amount, $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], '', 0, null, null, 0, 0);
+                }else{
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $trans_date, $data['gl_code'], 0, 0, '', $amount, $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername_inb'], '', 0, $data['sl_code'], $data['sl_name'], 0, 0);
+                }
+            }
+        }
+
+        echo '({"success":"true","message":"'.$dsplymsg.'", "payno":"'.$payment_no.'"})';
     }else{
         echo '({"failure":"false","message":"'.$dsplymsg.'"})';
     }
