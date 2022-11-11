@@ -858,6 +858,14 @@ function write_bank_transaction(
 
 	// do the source account postings
 	/* Modified by Ronelle 2/22/2021 */
+	/* Added by Albert Address mantis# 1027, 1001 &1002*/
+	if($bank_account_name == 'Cash On Hand'){
+
+		$bank_code = get_person_id($person_type_id, $gl_item->mcode);
+		$bank_account_name = $gl_item->master_file;
+	}
+	/**/
+
 	add_gl_trans(
 		$trans_type,
 		$trans_no,
