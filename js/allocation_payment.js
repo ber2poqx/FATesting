@@ -1336,7 +1336,7 @@ Ext.onReady(function(){
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
-				xtype: 'combobox',
+				/*xtype: 'combobox',
 				fieldLabel: 'Cashier/Teller ',
 				id: 'cashier_aib',
 				name: 'cashier_aib',
@@ -1350,7 +1350,7 @@ Ext.onReady(function(){
 				selectOnFocus:true,
 				allowBlank: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
-			},{
+			},{*/
 				xtype: 'textfield',
 				fieldLabel: 'Prepared By ',
 				id: 'preparedby_aib',
@@ -1358,6 +1358,7 @@ Ext.onReady(function(){
 				allowBlank: false,
 				readOnly: true,
 				labelWidth: 105,
+				margin: '0 280 0 0',
 				width: 280,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
@@ -1899,6 +1900,7 @@ Ext.onReady(function(){
 							//'border-radius':'10px'
 						},
 						handler: function(){
+							Ext.getCmp('searchCOA').focus(false, 200);
 							GLTitle_w.show();
 							GLTitle_w.setPosition(320,60);
 						}
@@ -2024,7 +2026,7 @@ Ext.onReady(function(){
 		}
 	}, '-', {
 		text:'<b>Allocate Inter-branch Payment</b>',
-		tooltip: 'Allocate Down-payment',
+		tooltip: 'Allocate Inter-branch Payment',
 		icon: '../js/ext4/examples/shared/icons/table_relationship.png',
 		scale: 'small',
 		handler: function(){
@@ -2035,11 +2037,11 @@ Ext.onReady(function(){
 			AllocationStore.proxy.extraParams = {transNo: 0 };
 			AllocationStore.load();
 			
-			cashierStore.load({
+			/*cashierStore.load({
 				callback: function(records) {                 
         			Ext.getCmp('cashier_aib').setValue(records[i].get('id'));
 				}
-			});
+			});*/
 
 			Ext.getCmp('moduletype_aib').setValue('ALCN-INTERB');
 			Ext.getCmp('collectType_aib').setValue('0');
