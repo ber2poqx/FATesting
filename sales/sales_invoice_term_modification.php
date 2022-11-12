@@ -106,6 +106,18 @@ function sales_return_replacement($row)
 	// );
 }
 
+/*Added by Albert */
+function print_termode_receipt($row)
+{
+	if ($row['term_mode_fullpayment'] == 1 && $row['payment_status'] != "fully-paid") {
+			return pager_link(
+				_("Print to receipt: Termode Full Payment"),
+				"/reports/prnt_termode_fullpayment.php?trans_no=" . $row["trans_no"],
+				ICON_PRINT
+			);
+	}
+}
+
 //Added by Prog6 6/15/2021
 function print_sales_invoice_receipt($row)
 {
@@ -172,7 +184,8 @@ $cols = array(
 	_("Amortiztion") => array('align' => 'right', 'fun' => 'amortization_amount'),
 	_("A/R Balance") => array('align' => 'right', 'fun' => 'ar_balance'),
 	array('insert' => true, 'fun' => 'gl_view'),
-	array('insert' => true, 'fun' => 'payment_allocate_link')
+	array('insert' => true, 'fun' => 'payment_allocate_link'),
+	array('insert' => true, 'fun' => 'print_termode_receipt') 
 	// array('insert' => true, 'fun' => 'print_sales_invoice_receipt') //Added by Prog6
 );
 

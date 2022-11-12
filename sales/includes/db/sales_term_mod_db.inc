@@ -517,7 +517,20 @@ function get_sales_invoice_ct_header($invoice_no)
                 (t1.type = " . ST_SALESINVOICE . " OR t1.type = " . ST_SALESINVOICEREPO . ")
                 LIMIT 1) AND
                 (c.debtor_trans_type = " . ST_SALESINVOICE . " OR c.debtor_trans_type = " . ST_SALESINVOICEREPO . ")) as standard_cost,
-                d.profit_margin
+                d.profit_margin,
+                b.adv_payment_rebate,
+                b.sales_adjustment,
+                (SELECT 
+                c.stock_id
+                FROM debtor_trans_details c
+                WHERE c.debtor_trans_no = 
+                (SELECT 
+                t1.trans_no 
+                FROM debtor_trans t1 
+                WHERE t1.reference = b.invoice_ref_no AND
+                (t1.type = 10 OR t1.type = 57)
+                LIMIT 1) AND
+                (c.debtor_trans_type = 10 OR c.debtor_trans_type = 57)) as stockid
 
 
 			FROM
