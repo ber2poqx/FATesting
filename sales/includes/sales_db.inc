@@ -1058,7 +1058,7 @@ function get_customer_invoices($customer_id = '', $si_ref = '') {
 			INNER JOIN " . TB_PREF . "debtors_master DM ON DT.debtor_no = DM.debtor_no
 			LEFT JOIN " . TB_PREF . "voided V ON DT.trans_no = V.id AND DT.type = V.type 
 				AND V.void_status = 'Voided'
-		WHERE ISNULL(V.void_id) AND DT.type = " . ST_SALESINVOICE . " AND DT.payment_terms > 0";
+		WHERE ISNULL(V.void_id) AND DT.type = " . ST_SALESINVOICE . " AND DT.payment_terms > 0 AND DL.payment_status <> 'fully-paid'";
 
 	if ($customer_id != '') {
 		$sql .= " AND DT.debtor_no = " .db_escape($customer_id);
