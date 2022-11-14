@@ -121,11 +121,16 @@ function sales_return_replacement($row)
 }
 function return_defective($row)
 {
-return $row['remarks'] <> 'defective unit' ? '' : pager_link(
-    _("Complimentary"),
-    "/inventory/complimentary_items.php?NewSalesReturn=" . $row["trans_no"] . "&&Filter_type=" . ST_SALESRETURN."&&Category=".$row["category_id"],
-    ICON_DOC
-);
+    if($row['complimentary_status'] == 0){
+    
+        return $row['remarks'] <> 'defective unit' ? '' : pager_link(
+            _("Complimentary"),
+            "/inventory/complimentary_items.php?NewSalesReturn=" . $row["trans_no"] . "&&Filter_type=" . ST_SALESRETURN."&&Category=".$row["category_id"],
+            ICON_DOC
+        );
+    }else{
+        return null;
+    }
 }
 
 // Retrieve Sales Return Replacement
