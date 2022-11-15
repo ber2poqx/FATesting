@@ -117,7 +117,7 @@ if (isset($_POST['Process']) && can_process()) {
         get_post('cashier_'),
         get_post('memo_'),
         get_post('trans_type'),
-        get_post('date_2') == null || !isset($_POST['date_2']) ? '' : get_post('date_2')
+        get_post('date_2') == null || !isset($_POST['date_2']) ? '' : get_post('date_2'), get_post('bank_account')
     );
 
     if ($trans_no) {
@@ -155,6 +155,9 @@ value_type_list(_("Transaction Type:"), 'trans_type',
         ST_CUSTPAYMENT => 'Office Collection Receipt'
     ), 'label', null, true, _("All Transaction Types"), true
 );
+sql_type_list(_("GL Account"), 'bank_account', get_bank_accounts(), 'id', 'bank_account_name', 
+		'label', null, true, _("All Bank Account")
+);
 
 end_outer_table(1);
 div_end();
@@ -177,7 +180,7 @@ $sql = db_query(
         $_SESSION["wa_current_user"]->user, 
         false,
         get_post('trans_type'),
-        get_post('date_2') == null ? '' : get_post('date_2')
+        get_post('date_2') == null ? '' : get_post('date_2'), get_post('bank_account')
     )
 );
 

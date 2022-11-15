@@ -6,7 +6,7 @@
  */
 
 function _bank_transactions($from_date = null, $cashier = '', $report = true, 
-    $type = '', $trans_date = '') {
+    $type = '', $trans_date = '', $bank_account = 0) {
 
     set_global_connection();
 
@@ -45,6 +45,10 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 
     if ($trans_date != '') {
         $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
+    }
+    /*Added by Albert Address mantis # 1028 11/15/2022*/
+    if ($bank_account != 0){
+        $sql .= " AND A.bank_act = " .db_escape($bank_account);
     }
 
     if ($cashier != '') { 
@@ -131,14 +135,14 @@ function get_remit_transactions($reference = '', $remit_from = '', $from_date = 
 }
 
 function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_to = 0, $memo_ = '', 
-    $type = '', $trans_date = '') {
+    $type = '', $trans_date = '', $bank_account = 0) {
 
     set_global_connection();
 
     global $Refs;
 
     $trans_no = max_remit_no() + 1;
-    $result = db_query(_bank_transactions(null, $user_id, false, $type, $trans_date));
+    $result = db_query(_bank_transactions(null, $user_id, false, $type, $trans_date, $bank_account));
     $inserted = 0;
 
     while ($row = db_fetch($result)) {
