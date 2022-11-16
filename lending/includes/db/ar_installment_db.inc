@@ -12,6 +12,7 @@
 function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=false, $showall=false, $showlendingacc=false)
 {
 	global $db_connections;
+	$sWhere = "";
 	if(isset($InvType) && $InvType != 'x'){
 		$sWhere .= " AND B.invoice_type = '".$InvType."' ";
 	}
@@ -89,6 +90,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 
 function get_ar_installment_termmode($InvType='new', $start, $limit, $search, $showall=false)
 {
+	$sWhere = "";
 	if(isset($InvType) && $InvType != 'x'){
 		$sWhere .= " AND B.invoice_type = '".$InvType."' ";
 	}
@@ -114,6 +116,7 @@ function get_ar_installment_termmode($InvType='new', $start, $limit, $search, $s
 
 function get_ar_installment_lending($InvType='new', $start, $limit, $search, $showall=false)
 {
+	$sWhere = "";
 	if(isset($InvType) && $InvType != 'x'){
 		$sWhere .= " AND invoice_type = '".$InvType."' ";
 	}

@@ -126,7 +126,7 @@ function get_invoice_incoming($InvType, $status, $start, $limit, $search, $showa
 
 function get_debtor_items($invoice_no)
 {
-	$db_coy = Get_db_coy($branch_code);
+	$db_coy = Get_db_coy();
     set_global_connection($db_coy);
 
 	$sql = "SELECT A.*

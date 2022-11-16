@@ -64,6 +64,7 @@ function update_status_interbranch_trans_HO($ref_no, $user, $status, $trans_no, 
 
 function get_incoming_interb($status, $start, $limit, $branch=null, $query=null, $type=0)
 {
+	$sWhere = "";
 	if(!isset($status)){
 		$status = "draft";
 	}
@@ -165,6 +166,7 @@ function get_interB_transNo_from($id)
 
 function get_notfa_interb($branch=null, $query=null)
 {
+	$sWhere = "";
 	if(!empty($branch) && $branch != "zHun"){
 		$sWhere .= " AND A.branch_code_from = ".db_escape($branch);
 	}
