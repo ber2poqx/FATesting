@@ -1006,7 +1006,7 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 	$sql = "SELECT DT.*$months_term FROM " . TB_PREF . "debtor_trans DT ";
 
 	if ($reference == '') {
-		$sql .= " INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.invoice_ref_no";
+		$sql .= " INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.invoice_ref_no and DT.trans_no = DL.trans_no";
 	}
 
 	$sql .= " WHERE IFNULL(DT.trans_no, '') <> ''";
