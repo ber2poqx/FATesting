@@ -243,9 +243,11 @@ function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remi
     $sql = "UPDATE ".TB_PREF."bank_trans BT 
         SET BT.remit_stat = '$remit_stat'";
 
-    if ($remit_stat == "Approved") {
-        $sql .= ", BT.cashier_user_id = $remit_to";
-    }
+    /*comment by albert 11/16/2022 Address mantis #*/
+    // if ($remit_stat == "Approved") {
+    //     $sql .= ", BT.cashier_user_id = $remit_to";
+    // }
+    /**/
 
     if ($remit_stat != '') {
         if ($remit_stat != "Approved") {
