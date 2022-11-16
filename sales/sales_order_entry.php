@@ -851,7 +851,7 @@ function can_process()
 			}
 		}
 	}
-	if (!$Refs->is_valid($_POST['ref'], $_SESSION['Items']->trans_type)) {
+	if (!$Refs->is_valid(get_post('ref'), $_SESSION['Items']->trans_type)) {
 		display_error(_("You must enter a reference."));
 		set_focus('ref');
 		return false;
