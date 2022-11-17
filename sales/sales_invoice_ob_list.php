@@ -245,6 +245,18 @@ function restructured_link($row) {
 
 	return $link;
 }
+/*Added by Albert 11/07/2022*/
+function payment_allocate_link($row)
+{
+	if ($row['term_mode_fullpayment'] == 1 && $row['amount_to_be_paid_status'] == "paid") {
+		return pager_link(
+			_("Payment Allocate"),
+			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"] . "&customer=" . $row["debtor_no"] ,
+			ICON_ALLOC
+		);
+	}
+}
+/**/
 
 function status_row($row) {
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
@@ -311,6 +323,7 @@ $cols = array(
 	array('insert' => true, 'fun' => 'sales_return_replacement'),
 	array('insert' => true, 'fun' => 'change_term_link'),
 	array('insert' => true, 'fun' => 'restructured_link'), //Added by Albert
+	array('insert' => true, 'fun' => 'payment_allocate_link'),
 	array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center')
 	//
 );

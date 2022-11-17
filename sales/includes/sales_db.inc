@@ -867,7 +867,11 @@ function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balanc
 				c.downpayment_amount,
 				c.amortization_amount,
 				a.return_status, a.type,
-				a.restructured_status
+				a.restructured_status,
+				d.term_mode_fullpayment,
+				d.amount_to_be_paid_status,
+				a.debtor_no
+				
 			FROM
 				" . TB_PREF . "debtor_trans a
 			INNER JOIN
@@ -878,6 +882,9 @@ function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balanc
 				" . TB_PREF . "debtor_loans c
 			ON
 				c.trans_no = a.trans_no
+			LEFT JOIN " . TB_PREF . "debtor_term_modification d 
+			ON
+				a.reference = d.invoice_ref_no and  a.debtor_no = d.debtor_no
 			WHERE
 				(a.type = 10 OR a.type = 57 ) AND a.opening_balances = " . db_escape($opening_balances);
 			

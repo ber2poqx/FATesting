@@ -139,18 +139,6 @@ function print_sales_invoice_receipt($row)
 		}
 	}
 }
-/*Added by Albert 11/07/2022*/
-function payment_allocate_link($row)
-{
-	if ($row['term_mode_fullpayment'] == 1 && $row['payment_status'] != "fully-paid") {
-		return pager_link(
-			_("Payment Allocate"),
-			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"],
-			ICON_RECEIVE
-		);
-	}
-}
-/**/
 function cancel_link($row)
 {
 	return pager_link(
@@ -184,7 +172,6 @@ $cols = array(
 	_("Amortiztion") => array('align' => 'right', 'fun' => 'amortization_amount'),
 	_("A/R Balance") => array('align' => 'right', 'fun' => 'ar_balance'),
 	array('insert' => true, 'fun' => 'gl_view'),
-	array('insert' => true, 'fun' => 'payment_allocate_link'),
 	array('insert' => true, 'fun' => 'print_termode_receipt') 
 	// array('insert' => true, 'fun' => 'print_sales_invoice_receipt') //Added by Prog6
 );
