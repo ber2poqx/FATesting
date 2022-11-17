@@ -776,7 +776,8 @@ function add_debtor_term_modification(
 	$type,
 	$rebate_if_adv_pay = 0,
 	$sales_adjustment = 0,
-	$termode_full_payment= 0 //Added by Albert 11/05/2022
+	$termode_full_payment= 0,
+	$amount_to_be_paid_status //Added by Albert 11/05/2022
 
 ) {
 	if ($installmentplcy_id == 0) {
@@ -809,6 +810,7 @@ function add_debtor_term_modification(
 		adj_rate,
 		opportunity_cost,
 		amount_to_be_paid,
+		amount_to_be_paid_status,
 		remarks,
 		category_id,
 		profit_margin,
@@ -840,6 +842,7 @@ function add_debtor_term_modification(
 		$adj_rate,
 		$opportunity_cost,
 		$amount_to_be_paid,
+		" . db_escape($amount_to_be_paid_status) . ",
 		" . db_escape($remarks) . ",
 		$category_id,
 		$profit_margin,

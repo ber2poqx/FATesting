@@ -1125,29 +1125,32 @@ function display_change_term_header(&$order, $editable, $date_text,
 
 	table_section(3);
 	table_section_title(_("Previous"));
-
-	date_row(
-		"Old First Due Date:",
-		'first_due_date',
-		_('Date of first due'),
-		$order->trans_no == 0,
-		0,
-		1,
-		0,
-		null,
-		true
-	);
-	date_row(
-		"Old Maturity Date:",
-		'maturity_date',
-		_('Date of maturity'),
-		$order->trans_no == 0,
-		0,
-		0,
-		0,
-		null,
-		true
-	);
+	label_row(_("Old First Due Date:"), $_POST['first_due_date']);
+	hidden('first_due_date', get_post('first_due_date'));
+	// date_row(
+	// 	"Old First Due Date:",
+	// 	'first_due_date',
+	// 	_('Date of first due'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	1,
+	// 	0,
+	// 	null,
+	// 	true
+	// );
+	label_row(_("Old Maturity Date:"), $_POST['maturity_date']);
+	hidden('maturity_date', get_post('maturity_date'));
+	// date_row(
+	// 	"Old Maturity Date:",
+	// 	'maturity_date',
+	// 	_('Date of maturity'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	0,
+	// 	0,
+	// 	null,
+	// 	true
+	// );
 
 	$policy_detail = db_fetch(get_instlpolicy_by_id($_POST['installment_policy_id']));
 	$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
@@ -1186,29 +1189,32 @@ function display_change_term_header(&$order, $editable, $date_text,
 
 	table_section(4);
 	table_section_title(_("New"));
-
-	date_row(
-		"New First Due Date:",
-		'first_due_date',
-		_('Date of first due'),
-		$order->trans_no == 0,
-		0,
-		1,
-		0,
-		null,
-		true
-	);
-	date_row(
-		"New Maturity Date:",
-		'new_maturity_date',
-		_('Date of maturity'),
-		$order->trans_no == 0,
-		0,
-		0,
-		0,
-		null,
-		true
-	);
+	label_row(_("Old First Due Date:"), get_post('first_due_date'));
+	// date_row(
+	// 	"New First Due Date:",
+	// 	'first_due_date',
+	// 	_('Date of first due'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	1,
+	// 	0,
+	// 	null,
+	// 	false
+	// );
+	$new_maturity = get_post('new_maturity_date') == '' ? get_post('maturity_date') : get_post('new_maturity_date');
+	label_row(_("New Maturity Date:"), $new_maturity);
+	hidden('new_maturity_date', get_post('new_maturity_date'));
+	// date_row(
+	// 	"New Maturity Date:",
+	// 	'new_maturity_date',
+	// 	_('Date of maturity'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	0,
+	// 	0,
+	// 	null,
+	// 	false
+	// );
 
 	installment_policy_list_row(
 		_("New Payment Term:"),

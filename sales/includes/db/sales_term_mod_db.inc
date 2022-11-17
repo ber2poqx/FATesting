@@ -81,6 +81,9 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
     foreach ($invoice->line_items as $line_no => $invoice_line) {
         $term_mode_type = get_termode_serial_no($invoice_line->lot_no) ? 'repo' : 'new';
     }
+    /*Added by Albert 11/17/2022*/
+    $amount_to_be_paid_status = $invoice->termode_full_payment == 1 ? 'paid': 'unpaid';
+    /**/
     add_debtor_term_modification(
         $change_term_no,
         $invoice->customer_id,
@@ -111,46 +114,48 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         ST_SITERMMOD,
         $invoice->rebate_if_adv_pay,
         $invoice->sales_adjustment,
-        $invoice->termode_full_payment
+        $invoice->termode_full_payment,
+        $amount_to_be_paid_status
     );
     // Down-payment 
-    add_loan_schedule_ob(
-        ST_SITERMMOD,
-        $change_term_no,
-        $invoice->customer_id,
-        0,
-        $date_,
-        date('D', strtotime($date_)),
-        $invoice->dp_amount,
-        ($invoice->ar_amount - $invoice->dp_amount),
-        $invoice->dp_amount,
-        ($invoice->ar_amount - $invoice->dp_amount),
-        0,
-        0
-    );
-
-    // Monthly Payment
-    $sched_due_date = $invoice->first_due_date;
-    $principal_run_bal = $invoice->ar_amount - $invoice->dp_amount;
-    for ($i = 1; $i <= $invoice->months_term; $i++) {
-        $principal_run_bal = $principal_run_bal - $invoice->amortization;
+    if($invoice->termode_full_payment != 1){
         add_loan_schedule_ob(
             ST_SITERMMOD,
             $change_term_no,
             $invoice->customer_id,
-            $i,
-            $sched_due_date,
-            date('D', strtotime($sched_due_date)),
-            $invoice->amortization,
-            $principal_run_bal,
-            $invoice->amortization,
-            $principal_run_bal,
+            0,
+            $date_,
+            date('D', strtotime($date_)),
+            $invoice->dp_amount,
+            ($invoice->ar_amount - $invoice->dp_amount),
+            $invoice->dp_amount,
+            ($invoice->ar_amount - $invoice->dp_amount),
             0,
             0
         );
-        $sched_due_date = date("m/d/Y", strtotime("+1 month", strtotime($sched_due_date)));
-    }
 
+    // Monthly Payment
+        $sched_due_date = $invoice->first_due_date;
+        $principal_run_bal = $invoice->ar_amount - $invoice->dp_amount;
+        for ($i = 1; $i <= $invoice->months_term; $i++) {
+            $principal_run_bal = $principal_run_bal - $invoice->amortization;
+            add_loan_schedule_ob(
+                ST_SITERMMOD,
+                $change_term_no,
+                $invoice->customer_id,
+                $i,
+                $sched_due_date,
+                date('D', strtotime($sched_due_date)),
+                $invoice->amortization,
+                $principal_run_bal,
+                $invoice->amortization,
+                $principal_run_bal,
+                0,
+                0
+            );
+            $sched_due_date = date("m/d/Y", strtotime("+1 month", strtotime($sched_due_date)));
+        }
+    }
     // GL Entries
     $total = 0;
     /* ------------- */
@@ -352,67 +357,70 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
     }
     /* */
 
+    if($invoice->termode_full_payment != 1){
 
-    $invoice->status = "Closed";  
-    //modified by Albert
-    if(get_termode_serial_no($invoice->line_items[0]->lot_no)){
-        closed_sales_invoice_status_repo($invoice, $change_term_no, $invoice->document_ref);
-    }else{
-    // Added by spyrax10
-        closed_sales_invoice_status($invoice, $change_term_no, $invoice->document_ref, $invoice->payment_location);
-    }
-    $si_trans_no = $row['trans_no'];
-    $allocatedAmount = $loans['ar_amount']- $row['alloc'];
-
-    $Refs->save(ST_SITERMMOD, $change_term_no, $invoice->reference);
-    //Add termode alloc
-    add_cust_allocation($row['alloc'], ST_SITERMMOD, $change_term_no, ST_SITERMMOD, $change_term_no, $invoice->customer_id, $date_);
-
-    //close invoice alloc
-    add_cust_allocation($allocatedAmount, ST_SITERMMOD, $change_term_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
-    update_debtor_trans_allocation($row['type'], $si_trans_no, $invoice->customer_id);
-    /*----end Albert-----*/ 
-
-    add_gl_balance($row['type'], $change_term_no, $date_, -$total, PT_CUSTOMER, $invoice->customer_id);
-
-    $amortization_schedule = get_deptor_loan_schedule_ob($change_term_no, $invoice->customer_id, ST_SITERMMOD);
-    $total_exist_payment = floatval($invoice->alloc);
-    while ($amort_sched = db_fetch($amortization_schedule)) {
-        if ($total_exist_payment == 0)
-            break;
-
-        $amount = 0;
-        $status = "paid";
-        if ($total_exist_payment >= $invoice->amortization) {
-            $amount = $amort_sched["total_principaldue"];
-        } else {
-            $amount = $total_exist_payment;
-            $status = "partial";
+        $invoice->status = "Closed";  
+        //modified by Albert
+        if(get_termode_serial_no($invoice->line_items[0]->lot_no)){
+            closed_sales_invoice_status_repo($invoice, $change_term_no, $invoice->document_ref);
+        }else{
+        // Added by spyrax10
+            closed_sales_invoice_status($invoice, $change_term_no, $invoice->document_ref, $invoice->payment_location);
         }
-        add_loan_ledger_ct(
-            $change_term_no,
-            $invoice->customer_id,
-            $amort_sched["id"],
-           ST_SITERMMOD,
-           ST_SITERMMOD,
-            $amount,
-            0,
-            0,
-            0,
-            date2sql($date_),
-            $change_term_no,
-            1
-        );
+        $si_trans_no = $row['trans_no'];
+        $allocatedAmount = $loans['ar_amount']- $row['alloc'];
 
-        $total_exist_payment -= $amount;
-        $loansched_id = $amort_sched["id"];
-        $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
-			status=" . db_escape($status) . ",penalty_status=" . db_escape($status) . "
-			WHERE id=$loansched_id";
+        $Refs->save(ST_SITERMMOD, $change_term_no, $invoice->reference);
+        //Add termode alloc
+        add_cust_allocation($row['alloc'], ST_SITERMMOD, $change_term_no, ST_SITERMMOD, $change_term_no, $invoice->customer_id, $date_);
 
-        $ErrMsg = _('Could not update loan schedule because ');
+        //close invoice alloc
+        add_cust_allocation($allocatedAmount, ST_SITERMMOD, $change_term_no, $row['type'], $si_trans_no, $invoice->customer_id, $date_);
+        update_debtor_trans_allocation($row['type'], $si_trans_no, $invoice->customer_id);
+        /*----end Albert-----*/ 
 
-        db_query($sql, $ErrMsg);
+        add_gl_balance($row['type'], $change_term_no, $date_, -$total, PT_CUSTOMER, $invoice->customer_id);
+
+        $amortization_schedule = get_deptor_loan_schedule_ob($change_term_no, $invoice->customer_id, ST_SITERMMOD);
+        $total_exist_payment = floatval($invoice->alloc);
+        while ($amort_sched = db_fetch($amortization_schedule)) {
+            if ($total_exist_payment == 0)
+                break;
+
+            $amount = 0;
+            $status = "paid";
+            if ($total_exist_payment >= $invoice->amortization) {
+                $amount = $amort_sched["total_principaldue"];
+            } else {
+                $amount = $total_exist_payment;
+                $status = "partial";
+            }
+            add_loan_ledger_ct(
+                $change_term_no,
+                $invoice->customer_id,
+                $amort_sched["id"],
+            ST_SITERMMOD,
+            ST_SITERMMOD,
+                $amount,
+                0,
+                0,
+                0,
+                date2sql($date_),
+                $change_term_no,
+                1
+            );
+
+            $total_exist_payment -= $amount;
+            $loansched_id = $amort_sched["id"];
+            $sql = "UPDATE " . TB_PREF . "debtor_loan_schedule SET
+                status=" . db_escape($status) . ",penalty_status=" . db_escape($status) . "
+                WHERE id=$loansched_id";
+
+            $ErrMsg = _('Could not update loan schedule because ');
+
+            db_query($sql, $ErrMsg);
+        }
+
     }
 
     hook_db_postwrite($invoice, ST_SITERMMOD);
