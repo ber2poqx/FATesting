@@ -1089,7 +1089,7 @@ function installment_computation()
 	//modified by spyrax10
 	//modified by Albert  11/16/2022
 	if ($terms > 1) {
-		if(date("d", strtotime($_POST['OrderDate'])) >= 27 ){
+		if(date("d", strtotime($_POST['OrderDate'])) >= 26 ){
 
 			$_POST['first_due_date'] = date("m/01/Y", strtotime(add_months($_POST['OrderDate'], 2)));
 		}
