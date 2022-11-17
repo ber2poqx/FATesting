@@ -707,7 +707,9 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 				c.lcp_amount as lcp_2,
 				a.order_,
 				a.return_status,
-				a.restructured_status, a.ov_amount, c.ref_no, c.category_id, b.debtor_ref
+				a.restructured_status, a.ov_amount, c.ref_no, c.category_id, b.debtor_ref,
+				d.term_mode_fullpayment,
+				d.amount_to_be_paid_status
 
 			FROM " . TB_PREF . "debtor_trans a
 				INNER JOIN " . TB_PREF . "debtors_master b ON b.debtor_no= a.debtor_no
@@ -725,6 +727,10 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 					INNER JOIN " . TB_PREF . "sales_order_details B ON A.order_no = B.order_no 
 					GROUP BY B.order_no
 				) DIS ON a.order_ = DIS.order_no
+
+				LEFT JOIN 
+				" . TB_PREF . "debtor_term_modification d 
+				ON a.reference = d.invoice_ref_no and  a.debtor_no = d.debtor_no
 			
 			WHERE
 				a.type = " . ST_SALESINVOICE . " AND a.opening_balances = " . db_escape($opening_balances) . "";
@@ -765,7 +771,8 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 	return $sql;
 }
 // Added by Albert
-function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0)
+function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms, $opening_balances = 0,
+$status = '')
 {
 	$sql = "SELECT
 				a.trans_no,
@@ -797,7 +804,9 @@ function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id =
 				c.lcp_amount as lcp_2,
 				a.order_,
 				a.return_status,
-				a.restructured_status
+				a.restructured_status,
+				d.term_mode_fullpayment,
+				d.amount_to_be_paid_status
 
 			FROM " . TB_PREF . "debtor_trans a
 				INNER JOIN " . TB_PREF . "debtors_master b ON b.debtor_no= a.debtor_no
@@ -815,6 +824,10 @@ function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id =
 					INNER JOIN " . TB_PREF . "sales_order_details B ON A.order_no = B.order_no 
 					GROUP BY B.order_no
 				) DIS ON a.order_ = DIS.order_no
+
+				LEFT JOIN 
+				" . TB_PREF . "debtor_term_modification d 
+				ON a.reference = d.invoice_ref_no and  a.debtor_no = d.debtor_no
 			WHERE
 				a.type = " . ST_SALESINVOICEREPO . " AND a.opening_balances = " . db_escape($opening_balances) . "";
 
@@ -829,6 +842,11 @@ function get_sales_repo_invoices($trans_no = '', $debtor_no = '', $category_id =
 	if ($category_id != -1) {
 		$sql .= " AND c.category_id = " . db_escape($category_id);
 	}
+
+	if ($status != '') {
+		$sql .= " AND a.status = " .db_escape($status);
+	}
+
 	if ($payment_terms != -1) {
 		if ($payment_terms == 0)
 			$sql .= " AND a.payment_terms = 0 ";

@@ -49,6 +49,14 @@ if (!$page_nested)
 	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
 	stock_categories_list_cells(_("Category:"), "category_id", null, _("All Categories"),true);//Added by Albert
 	payment_terms_type(_("Payment Type:"), "payment_terms", null, _("All Payment Type"),true);
+	value_type_list(_("Sales Invoice Status:"), 'si_stat', 
+    	array(
+        	'Open' => 'Open',
+			'Pending' => 'Pending',
+        	'part-paid' => 'Part-Paid',
+        	'fully-paid' => 'Fully-Paid'
+    	), '', null, true, _('All Status Types')
+	);
 submit_cells('SearchRequest', _("Search"), '', _('Select documents'), 'default');
 end_row();
 end_table();
@@ -255,6 +263,19 @@ function sales_restructured_approval($row)
 		return null;
 	}
 }
+
+/*Added by Albert 11/07/2022*/
+function payment_allocate_link($row)
+{
+	if ($row['term_mode_fullpayment'] == 1 && $row['amount_to_be_paid_status'] == "paid") {
+		return pager_link(
+			_("Payment Allocate"),
+			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"] . "&customer=" . $row["debtor_no"] ,
+			ICON_ALLOC
+		);
+	}
+}
+/**/
 function cancel_link($row)
 {
 	return $row["status"] == "Closed" || $row["status"] == "Close" ? '' : pager_link(
@@ -279,7 +300,13 @@ function edit_link($row)
 }
 
 //figure out the sql required from the inputs available
-$sql = get_sales_repo_invoices($_POST['search_val'], $_POST['customer_id'],$_POST['category_id'],$_POST['payment_terms']); //Added by spyrax10
+$sql = get_sales_repo_invoices(
+	$_POST['search_val'], 
+	$_POST['customer_id'],
+	$_POST['category_id'],
+	$_POST['payment_terms'],
+	0,
+	$_POST['si_stat']); //Added by spyrax10
 
 /*show a table of the Request returned by the sql */
 $cols = array(
@@ -308,6 +335,7 @@ $cols = array(
 	array('insert' => true, 'fun' => 'sales_return_replacement'),
 	array('insert' => true, 'fun' => 'print_sales_invoice_receipt'), //Added by Prog6
 	array('insert' => true, 'fun' => 'change_term_link'),
+	array('insert' => true, 'fun' => 'payment_allocate_link'),
 	array('insert' => true, 'fun' => 'restructured_link')	//Added by Albert
 );
 
