@@ -1098,20 +1098,36 @@ function installment_computation()
 		$_POST['maturity_date'] = add_months($mature_date, -1);
 	}
 	else {
+		if(date("d", strtotime($_POST['OrderDate'])) >= 26 ){
+			$date_firstdue = date("m/01/Y", strtotime(add_months($_POST['OrderDate'], 1)));
+			
+			if($terms == 1){
+				$_POST['first_due_date'] = add_months($date_firstdue, 1);
+				$mature_date = add_months($date_firstdue, 1);
+				$_POST['maturity_date'] = add_months($mature_date, 0);
 
-		if($terms == 1){
-			$_POST['first_due_date'] = add_months($_POST['OrderDate'], 0);
-			$mature_date = add_months(get_post('first_due_date'), $terms);
-			$_POST['maturity_date'] = add_months($mature_date, 0);
-
-		}else{
-			if($terms > 0 && $terms < 1){
-				$_POST['first_due_date'] = add_months($_POST['OrderDate'], 0);
-				$mature_date = add_months(get_post('first_due_date'), $terms);
-				$_POST['maturity_date'] = add_days($mature_date, 15);
+			}else{
+				if($terms > 0 && $terms < 1){
+					$_POST['first_due_date'] = add_days($date_firstdue, 14);
+					$mature_date = add_days($date_firstdue, 14);
+					$_POST['maturity_date'] = $mature_date;
+				}
 			}
+		}else{
+			if($terms == 1){
+				$_POST['first_due_date'] = add_months($_POST['OrderDate'], 1);
+				$mature_date = add_months($_POST['OrderDate'], 1);
+				$_POST['maturity_date'] = add_months($mature_date, 0);
+
+			}else{
+				if($terms > 0 && $terms < 1){
+					$_POST['first_due_date'] = add_days($_POST['OrderDate'], 15);
+					$mature_date = add_days($_POST['OrderDate'], 15);
+					$_POST['maturity_date'] = $mature_date;
+				}
+			}
+			
 		}
-		
 	}
 	//
 
