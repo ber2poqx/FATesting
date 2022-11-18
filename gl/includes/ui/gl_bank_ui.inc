@@ -220,8 +220,9 @@ function display_bank_header(&$order) {
 		label_row("Cash Amount: ", price_format($_SESSION['pay_items']->gl_items_total_debit() - abs($order->gl_items_total_credit())));
 		label_row("Total Amount: ", price_format($_SESSION['pay_items']->gl_items_total_debit()));
 	}
-
-	if (get_post('bank_account') == BT_CHECK) {
+	$bank_data = get_bank_account(get_post('bank_account'));
+	$account_type = $bank_data['account_type'];
+	if ($account_type == BT_CHEQUE) {
 		date_row(_("Check Date:"), 'check_date', '');
 		//date_row(_("Check Date:"), 'check_date', '', true, 0, 0, 0, null, true);
 		text_row(_("Check #:"), 'check_no', null, 35, 35);

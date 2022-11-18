@@ -48,13 +48,17 @@ function add_bank_trans($type, $trans_no, $bank_act, $ref, $date_, $amount, $per
 	$amount_bank = round2($amount_bank, user_price_dec());	
 
 	if($module_type != 'CLTN-BEGDP'){
+		/*Added by Albert 11/17/2022*/
+		$bank_data = get_bank_account($bank_act);
+		$account_type = $bank_data['account_type'];
+		/**/
 		if($pay_type != 'Cash' && $type == ST_CUSTPAYMENT){
 			$sql_checkDate = date2sql($check_date);
 
 			$checksql = ", check_date, check_no, bank_branch ";
 			$checkval = ", ".db_escape($sql_checkDate).", ".db_escape($check_no).", ".db_escape($bank_branch);
 		}
-		else if ($bank_act == BT_CHECK) { //Added by spyrax10
+		else if ($account_type == BT_CHEQUE) { //Added by spyrax10 /*modified by Albert 11/17/2022*/
 			$sql_checkDate = date2sql($check_date);
 
 			$checksql = ", check_date, check_no, bank_branch ";

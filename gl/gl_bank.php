@@ -353,21 +353,22 @@ function check_trans()
 		$input_error = 1;
 	}
 	*/
-
-	if (get_post('bank_account') == BT_CHECK && (!get_post('check_no'))) {
+	$bank_data = get_bank_account(get_post('bank_account'));
+	$account_type = $bank_data['account_type'];
+	if ($account_type == BT_CHEQUE && (!get_post('check_no'))) {
 		display_error(_("Check # cannot be empty."));
 		set_focus('check_no');
 		$input_error = 1;
 	}
 
 	if (cheque_exists($_POST['check_no']) && get_post('check_no') != '' && 
-		get_post('bank_account') == BT_CHECK) {
+		$account_type == BT_CHEQUE) {
 		display_error(_("Cheque already been used!"));
 		set_focus('check_no');
 		$input_error = 1;
 	}
 
-	if (get_post('bank_account') == BT_CHECK && (!get_post('bank_branch'))) {
+	if ($account_type == BT_CHEQUE && (!get_post('bank_branch'))) {
 		display_error(_("Bank Branch cannot be empty."));
 		set_focus('bank_branch');
 		$input_error = 1;
@@ -420,6 +421,10 @@ if (isset($_POST['Process']) && !check_trans()) {
 	add_new_exchange_rate(get_bank_account_currency(get_post('bank_account')), get_post('date_'), input_num('_ex_rate'));
 
 	//Modified by robert
+	/*modified by Albert 11/17/2022*/
+	$bank_accounts_data = get_bank_account(get_post('bank_account'));
+	$account_type = $bank_accounts_data['account_type'];
+	/**/
 	$trans = write_bank_transaction(
 		$_SESSION['pay_items']->trans_type,
 		$_SESSION['pay_items']->order_id,
@@ -429,9 +434,9 @@ if (isset($_POST['Process']) && !check_trans()) {
 		$_POST['date_'],
 		$_POST['cashier_teller'],
 		//Modified by spyrax10
-		get_post('bank_account') == BT_CHECK ? $_POST['check_no'] : '',
-		get_post('bank_account') == BT_CHECK? $_POST['bank_branch'] : '',
-		get_post('bank_account') == BT_CHECK ? 'Cheque' : 'Cash',
+		$account_type == BT_CHEQUE ? $_POST['check_no'] : '',
+		$account_type == BT_CHEQUE? $_POST['bank_branch'] : '',
+		$account_type == BT_CHEQUE ? 'Check' : 'Cash',
 		//
 		$_POST['PayType'] != null ? $_POST['PayType'] : 0,
 		$_POST['person_id'] != null ? $_POST['person_id'] : 0,
@@ -442,7 +447,7 @@ if (isset($_POST['Process']) && !check_trans()) {
 		input_num('settled_amount', null),
 		"COH",
 		get_bank_account_name($_POST['bank_account']),
-		get_post('bank_account') == BT_CHECK ? $_POST['check_date'] : null,
+		$account_type == BT_CHEQUE ? $_POST['check_date'] : null,
 		false,
 		get_post('open_bal') != null ? get_post('open_bal') : 0, 0,
 		$_SESSION['pay_items']->void_id,

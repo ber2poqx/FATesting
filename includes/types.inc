@@ -105,8 +105,8 @@ function get_parent_type($type)
 //		Bank transaction types
 //
 define('BT_TRANSFER', 0);
-define('BT_CHEQUE', 1);
-define('BT_CREDIT', 2);
+define('BT_CHEQUE', 2);
+define('BT_CREDIT', 1);
 define('BT_CASH', 3);
 define('BT_CHECK', 4); //Added by robert
 
