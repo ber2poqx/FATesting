@@ -79,15 +79,14 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         null,
         0,
         null,
-        true //Added by Albert 11/18/2022
+        $invoice->termode_full_payment == 1 ? true : false //Added by Albert 11/18/2022
     );
     /*Added by Albert*/
     foreach ($invoice->line_items as $line_no => $invoice_line) {
         $term_mode_type = get_termode_serial_no($invoice_line->lot_no) ? 'repo' : 'new';
     }
     /*Added by Albert 11/17/2022*/
-    $amount_to_be_paid_status = $invoice->termode_full_payment == 1 ? 'paid': 'unpaid';
-    /**/
+       /**/
     add_debtor_term_modification(
         $change_term_no,
         $invoice->customer_id,
@@ -118,8 +117,7 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         ST_SITERMMOD,
         $invoice->rebate_if_adv_pay,
         $invoice->sales_adjustment,
-        $invoice->termode_full_payment,
-        $amount_to_be_paid_status
+        $invoice->termode_full_payment
     );
     // Down-payment 
     if($invoice->termode_full_payment != 1){

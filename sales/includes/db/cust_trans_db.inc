@@ -780,7 +780,7 @@ function add_debtor_term_modification(
 	$rebate_if_adv_pay = 0,
 	$sales_adjustment = 0,
 	$termode_full_payment= 0,
-	$amount_to_be_paid_status //Added by Albert 11/05/2022
+	$amount_to_be_paid_status = 'unpaid' //Added by Albert 11/05/2022
 
 ) {
 	if ($installmentplcy_id == 0) {

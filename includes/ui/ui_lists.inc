@@ -5298,7 +5298,7 @@ function full_payment_type($label, $name, $selected = null, $submit_on_change = 
 	echo "<td>\n";
 	$allocs = array( 
 		'-1'=>_("All Change term"),
-		'0'=> _("Regular Change Term"),
+		'0'=> _("Change Term"),
 		'1'=> _("Full Payment Change Term")
 	);
 	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change));
