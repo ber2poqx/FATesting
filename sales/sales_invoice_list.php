@@ -255,7 +255,7 @@ function change_term_link($row) {
 	}
 	else {
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
-			$link = ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" ? '' : pager_link(
+			$link = (($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH") || $row['term_mode_fullpayment'] == 1 ? '' : pager_link(
 				_("Change Term"),
 				"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"],
 				ICON_RECEIVE
@@ -325,8 +325,8 @@ function sales_restructured_approval($row) {
 /*Added by Albert 11/07/2022*/
 function payment_allocate_link($row)
 {
-	if ($row['term_mode_fullpayment'] == 1 && $row['amount_to_be_paid_status'] == "paid") {
-		return pager_link(
+	if ($row['term_mode_fullpayment'] == 1) {
+		return  ($row["status"] == "Closed" || $row["status"] == "Close") ? '' : pager_link(
 			_("Payment Allocate"),
 			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"] . "&customer=" . $row["debtor_no"] ,
 			ICON_ALLOC

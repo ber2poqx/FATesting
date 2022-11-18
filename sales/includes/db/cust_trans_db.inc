@@ -67,7 +67,7 @@ function write_customer_trans(
 	$rate = 0, $dimension_id = 0, $dimension2_id = 0,
 	$payment_terms = null, $tax_included = 0, $prep_amount = 0,
 	$opening_balances = 0, $payment_type = null,
-	$collection_type = 0, $module_type = null) {
+	$collection_type = 0, $module_type = null, $fullpayment = false) {
 
 	$new = $trans_no == 0;
 	$curr = get_customer_currency($debtor_no);
@@ -114,6 +114,9 @@ function write_customer_trans(
 			} else {
 				$status = "Closed";
 			}
+		}
+		if($fullpayment){
+			$status = "Closed";
 		}
 
 		$sql = 

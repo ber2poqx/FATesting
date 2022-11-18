@@ -75,7 +75,11 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         $invoice->payment,
         $invoice->tax_included,
         $invoice->prep_amount,
-        $opening_balances //Modified by spyrax10
+        $opening_balances, //Modified by spyrax10
+        null,
+        0,
+        null,
+        true //Added by Albert 11/18/2022
     );
     /*Added by Albert*/
     foreach ($invoice->line_items as $line_no => $invoice_line) {
