@@ -59,7 +59,7 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         $invoice->Branch,
         $date_,
         $invoice->reference,
-        $invoice->ar_amount,
+        $invoice->termode_full_payment == 1 ? 0 :$invoice->ar_amount,
         0,
         $items_added_tax,
         $invoice->freight_cost,
@@ -68,7 +68,7 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         0,
         $invoice->ship_via,
         $invoice->due_date,
-        $row['alloc'], //modified by albert
+        $invoice->termode_full_payment == 1 ? 0 :$row['alloc'], //modified by albert
         0,
         $invoice->dimension_id,
         $invoice->dimension2_id,

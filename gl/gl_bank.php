@@ -434,8 +434,8 @@ if (isset($_POST['Process']) && !check_trans()) {
 		$_POST['date_'],
 		$_POST['cashier_teller'],
 		//Modified by spyrax10
-		$account_type == BT_CHEQUE ? $_POST['check_no'] : '',
-		$account_type == BT_CHEQUE? $_POST['bank_branch'] : '',
+		$account_type == BT_CHEQUE && $_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT ? $_POST['check_no'] : '',
+		$account_type == BT_CHEQUE && $_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT ? $_POST['bank_branch'] : '',
 		$account_type == BT_CHEQUE ? 'Check' : 'Cash',
 		//
 		$_POST['PayType'] != null ? $_POST['PayType'] : 0,
@@ -447,7 +447,7 @@ if (isset($_POST['Process']) && !check_trans()) {
 		input_num('settled_amount', null),
 		"COH",
 		get_bank_account_name($_POST['bank_account']),
-		$account_type == BT_CHEQUE ? $_POST['check_date'] : null,
+		$account_type == BT_CHEQUE && $_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT ? $_POST['check_date'] : null,
 		false,
 		get_post('open_bal') != null ? get_post('open_bal') : 0, 0,
 		$_SESSION['pay_items']->void_id,
