@@ -222,7 +222,7 @@ function display_bank_header(&$order) {
 	}
 	$bank_data = get_bank_account(get_post('bank_account'));
 	$account_type = $bank_data['account_type'];
-	if ($account_type == BT_CHEQUE && $order->trans_type == ST_BANKDEPOSIT) {
+	if ($account_type != null && ($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && $order->trans_type == ST_BANKDEPOSIT) {	//Modified by Albert 11/21/2022
 		date_row(_("Check Date:"), 'check_date', '');
 		//date_row(_("Check Date:"), 'check_date', '', true, 0, 0, 0, null, true);
 		text_row(_("Check #:"), 'check_no', null, 35, 35);

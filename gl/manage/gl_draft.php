@@ -354,7 +354,7 @@ function display_gl_post($trans_no, $trans_type) {
 	
 			$bank_data = get_bank_account(get_post('bank_account'));
 			$account_type = $bank_data['account_type'];
-			if ($account_type == BT_CHEQUE) {
+			if ($account_type != null && ($account_type == BT_CREDIT || $account_type == BT_TRANSFER ) && $trans_type == ST_BANKDEPOSIT) { 	//Modified by Albert 11/21/2022
 				date_row(_("Check Date:"), 'check_date', '');
 				text_row(_("Check #:"), 'check_no', null, 35, 35);
 				text_row(_("Bank Branch: &nbsp;"), 'bank_branch', null, 35, 35);
@@ -488,20 +488,20 @@ function check_trans($trans_no, $trans_type)
 		}
 		$bank_data = get_bank_account(get_post('bank_account'));
 		$account_type = $bank_data['account_type'];
-		if ($account_type == BT_CHEQUE && (!get_post('check_no'))) {
+		if (ST_BANKDEPOSIT &&($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && (!get_post('check_no'))) {
 			display_error(_("Check # cannot be empty."));
 			set_focus('check_no');
 			$input_error = 1;
 		}
 
 		if (cheque_exists($_POST['check_no']) && get_post('check_no') != '' && 
-			$account_type == BT_CHEQUE) {
+			ST_BANKDEPOSIT &&($account_type == BT_CREDIT || $account_type == BT_TRANSFER)) {
 			display_error(_("Cheque already been used!"));
 			set_focus('check_no');
 			$input_error = 1;
 		}
 	
-		if ($account_type == BT_CHEQUE && (!get_post('bank_branch'))) {
+		if (ST_BANKDEPOSIT &&($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && (!get_post('bank_branch'))) {
 			display_error(_("Bank Branch cannot be empty."));
 			set_focus('bank_branch');
 			$input_error = 1;
@@ -673,9 +673,9 @@ function post_trans_entries($trans_type) {
 			$_POST['receipt_no'],
 			$_POST['date_'] != null ? $_POST['date_'] : $row['approved_date'],
 			$_POST['cashier_teller'],
-			$account_type == BT_CHEQUE ? $_POST['check_no'] : '',
-			$account_type == BT_CHEQUE? $_POST['bank_branch'] : '',
-			$account_type == BT_CHEQUE ? 'Cheque' : 'Cash',
+			(($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && $_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT) ? $_POST['check_no'] : '',
+			(($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && $_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT) ? $_POST['bank_branch'] : '',
+			($account_type == BT_CREDIT || $account_type == BT_TRANSFER) ? 'Cheque' : 'Cash',
 			get_post('PayType') != null ? get_post('PayType') : 0,
 			get_post('person_id') != null ? get_post('person_id') : 0,
 			get_post('PersonDetailID') != null ? get_post('PersonDetailID') : '',
@@ -685,7 +685,7 @@ function post_trans_entries($trans_type) {
 			null,
 			"COH",
 			get_bank_account_name($_POST['bank_account']),
-			$account_type == BT_CHEQUE ? $_POST['check_date'] : null,
+			(($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && $_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT) ? $_POST['check_date'] : null,
 			true, 0,
 			$total_amount
 		);
