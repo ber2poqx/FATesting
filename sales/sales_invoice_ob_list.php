@@ -248,7 +248,7 @@ function restructured_link($row) {
 /*Added by Albert 11/07/2022*/
 function payment_allocate_link($row)
 {
-	if ($row['term_mode_fullpayment'] == 1) {
+	if ($row['term_mode_fullpayment'] == 1 && $row['amount_to_be_paid_status'] == 'paid') {
 		return ($row["status"] == "Closed" || $row["status"] == "Close") ? '' : pager_link(
 			_("Payment Allocate"),
 			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"] . "&customer=" . $row["debtor_no"] ,
