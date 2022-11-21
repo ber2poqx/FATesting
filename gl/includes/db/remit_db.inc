@@ -6,7 +6,7 @@
  */
 
 function _bank_transactions($from_date = null, $cashier = '', $report = true, 
-    $type = '', $trans_date = '', $bank_account = 0) {
+    $type = '', $trans_date = '', $bank_account = 0, $on_remit = false) {
 
     set_global_connection();
 
@@ -29,7 +29,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
 				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
-			WHERE opening_balance = 0";
+                WHERE opening_balance = 0";
 
     if ($report) {
         $sql .= " AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
@@ -60,6 +60,14 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
             $sql .= " AND A.cashier_user_id = ".db_escape($cashier);
         }
 	}
+
+    /* Address mantis #1063 Added by Albert 11/21/2022 not display if already remitted to cashier */
+    if($on_remit){
+
+        $sql .= " AND A.ref not in (Select a.from_ref from ".TB_PREF." remittance a)";
+    }
+    /**/
+    
 
     if ($report) {
         $sql .= " AND A.remit_stat <> 'Disapproved'";

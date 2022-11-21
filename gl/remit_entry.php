@@ -180,7 +180,7 @@ $sql = db_query(
         $_SESSION["wa_current_user"]->user, 
         false,
         get_post('trans_type'),
-        get_post('date_2') == null ? '' : get_post('date_2'), get_post('bank_account')
+        get_post('date_2') == null ? '' : get_post('date_2'), get_post('bank_account'),true
     )
 );
 
