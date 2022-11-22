@@ -74,7 +74,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = TM.category_id
 				LEFT JOIN ".TB_PREF."repo_accounts Z ON Z.ar_trans_no = A.trans_no AND Z.ar_trans_type = A.type
 			WHERE (A.type = ".ST_SITERMMOD.")
-				AND A.payment_terms != 0 "
+				AND A.payment_terms != 0 AND TM.term_mode_fullpayment != 1 "
 				.$sWhere."
 			ORDER BY tran_date DESC";
 			
