@@ -22,7 +22,6 @@ include_once($path_to_root . "/admin/db/users_db.inc");
 
 function can_process()
 {
-
 	$Auth_Result = hook_authenticate($_SESSION["wa_current_user"]->username, $_POST['cur_password']);
 
 	if (!isset($Auth_Result))	// if not used external login: standard method
@@ -30,38 +29,62 @@ function can_process()
 
 	if (!$Auth_Result)
    	{
-  		display_error( _("Invalid password entered."));
+  		display_error( _("Wrong current password entered."));
 		set_focus('cur_password');
    		return false;
    	}
 	
-   	if (strlen($_POST['password']) < 4)
+   	if (strlen($_POST['password']) < 8)
    	{
-  		display_error( _("The password entered must be at least 4 characters long."));
+  		display_error( _("The new password entered must be at least 8 characters long."));
 		set_focus('password');
    		return false;
    	}
 
    	if (strstr($_POST['password'], $_SESSION["wa_current_user"]->username) != false)
    	{
-   		display_error( _("The password cannot contain the user login."));
+   		display_error( _("The new password cannot contain the user login."));
 		set_focus('password');
    		return false;
    	}
 
    	if ($_POST['password'] != $_POST['passwordConfirm'])
    	{
-   		display_error( _("The passwords entered are not the same."));
+   		display_error( _("The new password and repeat new password entered are not the same."));
 		set_focus('password');
    		return false;
    	}
+
+   	//--Added By Robert--//11/22/2022
+   	if ($_POST['password'] == $_POST['cur_password'])
+   	{
+   		display_error( _("The new password must not be the same in current password."));
+		set_focus('password');
+   		return false;
+   	}
+
+   	if (strstr($_POST['password'], "!") || strstr($_POST['password'], "@") || strstr($_POST['password'], "#") || strstr($_POST['password'], "$") 
+   		|| strstr($_POST['password'], "%") || strstr($_POST['password'], "^") || strstr($_POST['password'], "&") || strstr($_POST['password'], "*")
+   		|| strstr($_POST['password'], "(") || strstr($_POST['password'], ")") || strstr($_POST['password'], "-") || strstr($_POST['password'], "_")
+   		|| strstr($_POST['password'], "+") || strstr($_POST['password'], "=") || strstr($_POST['password'], "[") || strstr($_POST['password'], "]")
+   		|| strstr($_POST['password'], "{") || strstr($_POST['password'], "}") || strstr($_POST['password'], ";") || strstr($_POST['password'], ":")
+   		||strstr($_POST['password'], "'") || strstr($_POST['password'], "\\") || strstr($_POST['password'], "/") || strstr($_POST['password'], "<")
+   		|| strstr($_POST['password'], ">") || strstr($_POST['password'], "?") || strstr($_POST['password'], ",") || strstr($_POST['password'], ".")
+   		|| strstr($_POST['password'], "~") || strstr($_POST['password'], "|"))
+   	{
+   		display_error( _("The new password cannot contain any special characters"));
+		set_focus('password');
+   		return false;
+   	}
+   	//-----//
 
 	return true;
 }
 
 if (isset($_POST['UPDATE_ITEM']) && check_csrf_token())
 {
-
+	$datenow =Today();
+	$passupdate = date('Y-m-d', strtotime($datenow));
 	if (can_process())
 	{
 		if ($SysPrefs->allow_demo_mode) {
@@ -69,7 +92,7 @@ if (isset($_POST['UPDATE_ITEM']) && check_csrf_token())
 		} else {
 			update_user_password($_SESSION["wa_current_user"]->user, 
 				$_SESSION["wa_current_user"]->username,
-				md5($_POST['password']));
+				md5($_POST['password']), $passupdate);
 		    display_notification(_("Your password has been updated."));
 		}
 		$Ajax->activate('_page_body');

@@ -178,9 +178,9 @@ function can_process($new)
 
 	if (!$new && ($_POST['password'] != ""))
 	{
-    	if (strlen($_POST['password']) < 4)
+    	if (strlen($_POST['password']) < 8)
     	{
-    		display_error( _("The password entered must be at least 4 characters long."));
+    		display_error( _("The password entered must be at least 8 characters long."));
 			set_focus('password');
     		return false;
     	}
@@ -191,6 +191,20 @@ function can_process($new)
 			set_focus('password');
     		return false;
     	}
+
+        if (strstr($_POST['password'], "!") || strstr($_POST['password'], "@") || strstr($_POST['password'], "#") || strstr($_POST['password'], "$") 
+            || strstr($_POST['password'], "%") || strstr($_POST['password'], "^") || strstr($_POST['password'], "&") || strstr($_POST['password'], "*")
+            || strstr($_POST['password'], "(") || strstr($_POST['password'], ")") || strstr($_POST['password'], "-") || strstr($_POST['password'], "_")
+            || strstr($_POST['password'], "+") || strstr($_POST['password'], "=") || strstr($_POST['password'], "[") || strstr($_POST['password'], "]")
+            || strstr($_POST['password'], "{") || strstr($_POST['password'], "}") || strstr($_POST['password'], ";") || strstr($_POST['password'], ":")
+            ||strstr($_POST['password'], "'") || strstr($_POST['password'], "\\") || strstr($_POST['password'], "/") || strstr($_POST['password'], "<")
+            || strstr($_POST['password'], ">") || strstr($_POST['password'], "?") || strstr($_POST['password'], ",") || strstr($_POST['password'], ".")
+            || strstr($_POST['password'], "~") || strstr($_POST['password'], "|"))
+        {
+            display_error( _("The new password cannot contain any special characters"));
+            set_focus('password');
+            return false;
+        }
 	}
 
 	return true;
@@ -200,7 +214,8 @@ function can_process($new)
 
 if (($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM') && check_csrf_token())
 {
-
+    $datenow =Today();
+    $passupdate = date('Y-m-d', strtotime($datenow));
 	if (can_process($Mode == 'ADD_ITEM'))
 	{
     	if ($selected_id != -1) 
@@ -214,7 +229,7 @@ if (($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM') && check_csrf_token())
 			);
 
     		if ($_POST['password'] != "")
-    			update_user_password($selected_id, $_POST['user_id'], md5($_POST['password']));
+    			update_user_password($selected_id, $_POST['user_id'], md5($_POST['password']), $passupdate);
 
     		display_notification_centered(_("The selected user has been updated."));
     	} 
@@ -223,7 +238,7 @@ if (($Mode=='ADD_ITEM' || $Mode=='UPDATE_ITEM') && check_csrf_token())
     		add_user(
 				$_POST['user_id'], $_POST['real_name'], md5($_POST['password']),
 				$_POST['phone'], $_POST['email'], $_POST['role_id'], $_POST['language'],
-				$_POST['print_profile'], check_value('rep_popup'), $_POST['pos']
+				$_POST['print_profile'], check_value('rep_popup'), $_POST['pos'], $passupdate
 			);
 			
 			$id = db_insert_id();
