@@ -147,7 +147,7 @@ if (isset($_POST['update']) && $_POST['update'] != "")
 	if ($input_error != 1)
 	{
 		update_company_prefs(			
-			get_post( array('coy_name','branch_code', 'coy_no','gst_no','tax_prd','tax_last',
+			get_post( array('coy_name','branch_code', 'coy_no','gst_no','tin','tax_prd','tax_last',
 				'postal_address','phone', 'fax', 'email', 'coy_logo', 'domicile',
 				'use_dimension', 'curr_default', 'f_year', 'shortname_name_in_list',
 				'no_item_list' => 0, 'no_customer_list' => 0, 
@@ -174,6 +174,7 @@ $_POST['deployment_status'] = $myrow["deployment_status"];
 //
 $_POST['coy_name'] = $myrow["coy_name"];
 $_POST['gst_no'] = $myrow["gst_no"];
+$_POST['tin'] = $myrow["tin"];
 $_POST['tax_prd'] = $myrow["tax_prd"];
 $_POST['tax_last'] = $myrow["tax_last"];
 $_POST['coy_no']  = $myrow["coy_no"];
@@ -280,6 +281,7 @@ email_row_ex(_("BCC Address for all outgoing mails:"), 'bcc_email', 50, 55);
 
 text_row_ex(_("Official Company Number:"), 'coy_no', 25);
 text_row_ex(_("GSTNo:"), 'gst_no', 25);
+text_row_ex(_("TIN:"), 'tin', 20, 50);
 currencies_list_row(_("Home Currency:"), 'curr_default', $_POST['curr_default']);
 
 label_row(_("Company Logo:"), $_POST['coy_logo']);
