@@ -24,15 +24,34 @@ function can_process()
 {
 	$Auth_Result = hook_authenticate($_SESSION["wa_current_user"]->username, $_POST['cur_password']);
 
+	$uppercase = preg_match('`[A-Z]`', $_POST['password']);
+	$lowercase = preg_match('`[a-z]`', $_POST['password']);
+	$number = preg_match('`[0-9]`', $_POST['password']);
+
+
 	if (!isset($Auth_Result))	// if not used external login: standard method
 		$Auth_Result = get_user_auth($_SESSION["wa_current_user"]->username, md5($_POST['cur_password']));
 
 	if (!$Auth_Result)
    	{
-  		display_error( _("Wrong current password entered."));
+  		display_error( _("Invalid current password entered."));
 		set_focus('cur_password');
    		return false;
    	}
+
+   	if (strlen($_POST['password']) == 0) 
+	{
+		display_error(_("The new password cannot be empty."));
+		set_focus('password');
+		return false;
+	} 
+
+	if (strlen($_POST['passwordConfirm']) == 0) 
+	{
+		display_error(_("The Repeat password cannot be empty."));
+		set_focus('passwordConfirm');
+		return false;
+	} 
 	
    	if (strlen($_POST['password']) < 8)
    	{
@@ -68,11 +87,18 @@ function can_process()
    		|| strstr($_POST['password'], "(") || strstr($_POST['password'], ")") || strstr($_POST['password'], "-") || strstr($_POST['password'], "_")
    		|| strstr($_POST['password'], "+") || strstr($_POST['password'], "=") || strstr($_POST['password'], "[") || strstr($_POST['password'], "]")
    		|| strstr($_POST['password'], "{") || strstr($_POST['password'], "}") || strstr($_POST['password'], ";") || strstr($_POST['password'], ":")
-   		||strstr($_POST['password'], "'") || strstr($_POST['password'], "\\") || strstr($_POST['password'], "/") || strstr($_POST['password'], "<")
+   		||strstr($_POST['password'], "'")  || strstr($_POST['password'], "\\") || strstr($_POST['password'], "/") || strstr($_POST['password'], "<")
    		|| strstr($_POST['password'], ">") || strstr($_POST['password'], "?") || strstr($_POST['password'], ",") || strstr($_POST['password'], ".")
    		|| strstr($_POST['password'], "~") || strstr($_POST['password'], "|"))
    	{
    		display_error( _("The new password cannot contain any special characters"));
+		set_focus('password');
+   		return false;
+   	}
+
+   	if (!$uppercase || !$lowercase || !$number)
+   	{
+   		display_error( _("New password should include at least one upper case letter, one lower case letter, one number"));
 		set_focus('password');
    		return false;
    	}

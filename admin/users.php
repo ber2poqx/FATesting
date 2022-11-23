@@ -168,6 +168,9 @@ simple_page_mode(true);
 
 function can_process($new) 
 {
+    $uppercase = preg_match('`[A-Z]`', $_POST['password']);
+    $lowercase = preg_match('`[a-z]`', $_POST['password']);
+    $number = preg_match('`[0-9]`', $_POST['password']);
 
 	if (strlen($_POST['user_id']) < 4)
 	{
@@ -175,6 +178,41 @@ function can_process($new)
 		set_focus('user_id');
 		return false;
 	}
+
+    if (strlen($_POST['password']) == 0) 
+    {
+        display_error(_("The password cannot be empty."));
+        set_focus('password');
+        return false;
+    } 
+
+    if (strlen($_POST['password']) < 8)
+    {
+        display_error( _("The password entered must be at least 8 characters long."));
+        set_focus('password');
+        return false;
+    }
+
+    if (strstr($_POST['password'], "!") || strstr($_POST['password'], "@") || strstr($_POST['password'], "#") || strstr($_POST['password'], "$") 
+        || strstr($_POST['password'], "%") || strstr($_POST['password'], "^") || strstr($_POST['password'], "&") || strstr($_POST['password'], "*")
+        || strstr($_POST['password'], "(") || strstr($_POST['password'], ")") || strstr($_POST['password'], "-") || strstr($_POST['password'], "_")
+        || strstr($_POST['password'], "+") || strstr($_POST['password'], "=") || strstr($_POST['password'], "[") || strstr($_POST['password'], "]")
+        || strstr($_POST['password'], "{") || strstr($_POST['password'], "}") || strstr($_POST['password'], ";") || strstr($_POST['password'], ":")
+        ||strstr($_POST['password'], "'") || strstr($_POST['password'], "\\") || strstr($_POST['password'], "/") || strstr($_POST['password'], "<")
+        || strstr($_POST['password'], ">") || strstr($_POST['password'], "?") || strstr($_POST['password'], ",") || strstr($_POST['password'], ".")
+        || strstr($_POST['password'], "~") || strstr($_POST['password'], "|"))
+    {
+        display_error( _("The new password cannot contain any special characters"));
+        set_focus('password');
+        return false;
+    }
+
+    if (!$uppercase || !$lowercase || !$number)
+    {
+        display_error( _("The password should include at least one upper case letter, one lower case letter, one number"));
+        set_focus('password');
+        return false;
+    }
 
 	if (!$new && ($_POST['password'] != ""))
 	{
@@ -202,6 +240,13 @@ function can_process($new)
             || strstr($_POST['password'], "~") || strstr($_POST['password'], "|"))
         {
             display_error( _("The new password cannot contain any special characters"));
+            set_focus('password');
+            return false;
+        }
+
+        if (!$uppercase || !$lowercase || !$number)
+        {
+            display_error( _("The password should include at least one upper case letter, one lower case letter, one number"));
             set_focus('password');
             return false;
         }
