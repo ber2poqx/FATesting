@@ -19,18 +19,18 @@
 
 	$_SESSION['language']->encoding = "UTF-8";
 
-	function add_area_import($description, $collectors, $description_area)
+	function add_area_import($description, $collectors_id, $description_area)
 	{
 		$sql = "INSERT INTO ".TB_PREF."areas (description, collectors_id, collector_description)
-		VALUES (".db_escape($description).", ".db_escape($collectors) .", ".db_escape($description_area).")";
+		VALUES (".db_escape($description).", ".db_escape($collectors_id) .", ".db_escape($description_area).")";
 
 		return db_query($sql, "could not add area for $description");
 	}
 
-	function update_area_import($description, $collectors, $description_area)
+	function update_area_import($description, $collectors_id, $description_area)
 	{
 		$sql = "UPDATE ".TB_PREF."areas SET 
-		collectors_id=".db_escape($collectors) . ",
+		collectors_id=".db_escape($collectors_id) . ",
 		collector_description = ".db_escape($description_area). " 
 		WHERE description=".db_escape($description);
 
@@ -60,22 +60,22 @@
 				    list($type, $description, $collectors, $description_area) = $data;
 				   
 				    if ($type == 'CSVAREASET') {							
-						if(strlen(collectors) == 1)
+						if(strlen($collectors) == 1)
 						{
-							$collectors_id = "00000" + $collectors;
-						}elseif(strlen(collectors) == 2)
+							$collectors_id = "00000"."".$collectors;
+						}elseif(strlen($collectors) == 2)
 						{
-							$collectors_id = "0000" + $collectors;
-						}elseif(strlen(collectors) == 3)
+							$collectors_id = "0000"."".$collectors;
+						}elseif(strlen($collectors) == 3)
 						{
-							$collectors_id = "000" + $collectors;
-						}elseif(strlen(collectors) == 4)
+							$collectors_id = "000"."".$collectors;
+						}elseif(strlen($collectors) == 4)
 						{
-							$collectors_id = "00" + $collectors;
-						}elseif(strlen(collectors) == 5)
+							$collectors_id = "00"."".$collectors;
+						}elseif(strlen($collectors) == 5)
 						{
-							$collectors_id = "0" + $collectors;
-						}else
+							$collectors_id = "0"."".$collectors;
+						}elseif(strlen($collectors) == 6)
 						{
 							$collectors_id = $collectors;
 						}
