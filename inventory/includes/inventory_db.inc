@@ -919,7 +919,7 @@ function _item_serialise($company_id = -1, $search = '', $trans_no = null, $clea
 	}
 
 	$sql .= " ORDER BY serialise_lot_no, tran_date";
-	display_warning($sql);
+
 	$result = db_query($sql, _("_item_serialise()"));
 	set_global_connection();
 
