@@ -34,6 +34,9 @@ function get_transactions($search = '', $branch_id = null, $trans_no = null, $cl
 		|| str_contains_val($db_connections[$branch_id]['branch_code'], 'DESL')
 		|| $default_table_count != count_columns($branch_id, 'item_serialise');
 
+        display_warning('a'.$not_include);
+        display_warning('b'.count_columns($branch_id, 'item_serialise'));
+        display_warning('c'. $default_table_count);
 		if (!$not_include) {
 			$result = _item_serialise($branch_id, $search, $trans_no, $cleared_stat, $show_all, $serial_no);
 
