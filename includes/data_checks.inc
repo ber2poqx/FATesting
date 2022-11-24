@@ -736,6 +736,8 @@ function check_db_has_cost_area_types($msg)
 function count_columns($company_id = -1, $table = '') {
 	
 	global $db_connections;
+	set_global_connection($company_id);
+
 	$count = 0;
 	if ($company_id == -1) {
 		$company_id = $_SESSION["wa_current_user"]->company;
