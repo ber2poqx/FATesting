@@ -120,7 +120,7 @@ function print_transaction() {
 	else {
         include_once($path_to_root . "/reporting/includes/pdf_report.inc");
     }
-
+    display_warning($branch_id);
     if ($branch_id != null) {
         $branch_name = get_company_value($branch_id, 'name');
     }
