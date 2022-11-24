@@ -289,10 +289,13 @@ function get_payment_applied($type, $trans_no)
 
 function get_cost_Sales($type, $trans_no)
 {
+	$company_record = get_company_prefs();
+	//'501001' cost of sales
+
 	$sql = "SELECT A.amount
 		FROM ".TB_PREF."gl_trans A
 			INNER JOIN ".TB_PREF."debtor_trans B on B.trans_no = A.type_no
-		WHERE A.account = '501001'
+		WHERE A.account = ".db_escape($company_record["default_cogs_act"]). "
 			AND B.type = ".db_escape($type). "
 			AND B.trans_no = ".db_escape($trans_no);
 			
