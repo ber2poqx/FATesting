@@ -52,16 +52,23 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
     /* Control the left side */
     .left {
         left: 0;
-		padding-left: 20px;
+		padding-left: 20px;	
 		
     }
 
     /* Control the right side */
     .right {
+		right: 0;
+		padding-left: 20px;
+		border-style: none none none dotted;
+		
+    }
+	.customers_layout{
 		padding-top: 5cm;
         right: 0;
 		color:red;
-    }
+	}
+
 
 	.customers_copy {
 		height: 60%;
@@ -69,6 +76,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		border: 2px solid black;
         right: 0;
 		color:red;
+		overflow: hidden;
     }
 	.branch_copy {
 		height: 35%;
@@ -78,13 +86,14 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		padding-top: 2px;
 		padding-bottom: 2px;
 		padding-left: 2px;
-		padding-right: 2px
+		padding-right: 2px;
     }	
 	.box {
 		height: 98%;
         width: 98.5%;
 		border: 2px solid black;
         right: 0;
+		overflow: hidden;
     }	
 	
 	*{
@@ -612,160 +621,167 @@ $termode_data =  get_sales_invoice_ct_header($_GET['trans_no']);
     </div>
 
 	<div class="split right"> 
-		<div class = "customers_copy">
+		<div class="customers_layout">
+			<div class = "customers_copy">
 
-			<div class="row">
-				<div class="line1" style="width: 100%;text-align: center; font-size: 18px;"><b>Du Ek Sam, Inc.<b></div> 
-			</div>
+				<div class="row">
+					<div class="line1" style="width: 100%;text-align: center; font-size: 18px;"><b>Du Ek Sam, Inc.<b></div> 
+				</div>
 
-			<div class="row">
-				<div class="line1" style="width: 4.0cm;"></div> 
-				<div class="line1" style="width: 3cm;border-bottom: 2px solid black; font-size: 15px; text-align: center;"><b><?php echo $brchcode?></b></div> 
-				<div class="line1" style="width: 0.1cm; font-size: 15px;"><b>Branch</b></div> 
-			</div>
+				<div class="row">
+					<div class="line1" style="width: 4.0cm;"></div> 
+					<div class="line1" style="width: 3cm;border-bottom: 2px solid black; font-size: 15px; text-align: center;"><b><?php echo $brchcode?></b></div> 
+					<div class="line1" style="width: 0.1cm; font-size: 15px;"><b>Branch</b></div> 
+				</div>
 
-			<div class="row">
-				<div class="line1" style="width: 3.7cm;"></div> 
-				<div class="line1" style="width: 5.5cm;text-align: center; font-size: 15px;"><b>Term Modification</b></div> 
-			</div>
-			
-			<div class="row" >
-				<div class="line1" style="width: 0.1cm;"></div> 
-				<div class="line1" style="width: 9cm; height: 20px;"></div> 
-				<div class="line1" style="width: 0.7cm;">Date:</div> 
-				<div class="line1" style="width: 2.0cm;border-bottom: 2px solid black; text-align: center;"><?php echo $date?></div> 
-			</div>
+				<div class="row">
+					<div class="line1" style="width: 3.7cm;"></div> 
+					<div class="line1" style="width: 5.5cm;text-align: center; font-size: 15px;"><b>Term Modification</b></div> 
+				</div>
+				
+				<div class="row" >
+					<div class="line1" style="width: 0.1cm;"></div> 
+					<div class="line1" style="width: 9cm; height: 20px;"></div> 
+					<div class="line1" style="width: 0.7cm;">Date:</div> 
+					<div class="line1" style="width: 2.0cm;border-bottom: 2px solid black; text-align: center;"><?php echo $date?></div> 
+				</div>
 
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 1.8cm; ">Customer</div> 
-				<div class="line1" style="width: 0.1cm;">:</div> 
-				<div class="line1" style="width: 7cm; border-bottom: 2px solid black;"><?php echo $customer?></div> 
-				<div class="line1" style="width: 3.1cm; text-align: center;"></div> 
-			</div>
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 1.8cm; ">Customer</div> 
+					<div class="line1" style="width: 0.1cm;">:</div> 
+					<div class="line1" style="width: 7cm; border-bottom: 2px solid black;"><?php echo $customer?></div> 
+					<div class="line1" style="width: 3.1cm; text-align: center;"></div> 
+				</div>
 
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 1.8cm; ">Date Sold</div> 
-				<div class="line1" style="width: 0.1cm;">:</div> 
-				<div class="line1" style="width: 7cm; border-bottom: 2px solid black;"><?php echo $inv_date?></div> 
-				<div class="line1" style="width: 3.1cm; text-align: center;"></div> 
-			</div>
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 1.8cm; ">Date Sold</div> 
+					<div class="line1" style="width: 0.1cm;">:</div> 
+					<div class="line1" style="width: 7cm; border-bottom: 2px solid black;"><?php echo $inv_date?></div> 
+					<div class="line1" style="width: 3.1cm; text-align: center;"></div> 
+				</div>
 
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 1.8cm; ">Unit Sold</div> 
-				<div class="line1" style="width: 0.1cm;">:</div> 
-				<div class="line1" style="width: 7cm; border-bottom: 2px solid black;"><?php echo $brchcode?></div> 
-				<div class="line1" style="width: 3.1cm; text-align: center;"></div> 
-			</div>
-	
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 1.8cm;">Orig. Term</div> 
-				<div class="line1" style="width: 0.1cm;">:</div> 
-				<div class="line1" style="width: 2cm; text-align: center;  border-bottom: 2px solid black;"><?php echo $old_term?></div> 
-				<div class="line1" style="width: 3.1cm;"> months</div> 
-			</div>
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 1.8cm;">New Term</div> 
-				<div class="line1" style="width: 0.1cm;">:</div> 
-				<div class="line1" style="width: 2cm; text-align: center;  border-bottom: 2px solid black;"><?php echo $new_term?></div> 
-				<div class="line1" style="width: 3.1cm;"> months</div> 
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 10cm; "><p>Amount Due:</p></div> 
-
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm;"></div> 
-				<div class="line1" style="width: 9cm; "><p>OLD GROSS SELLING PRICE</p></div> 
-				<div class="line1" style="width: 2cm; text-align: right;"><?php echo number_format($old_gross_selling_price, 2)?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm;"></div> 
-				<div class="line1" style="width: 9cm; ">ADD: OPPORTUNITY COST</div> 
-				<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($opportunity_cost, 2)?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm;"></div> 
-				<div class="line1" style="width: 9cm; ">TOTAL:</div> 
-				<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($old_gross_selling_price + $opportunity_cost, 2) ?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm;"></div> 
-				<div class="line1" style="width: 9cm; ">LESS: SALES ADJUSTMENT</div> 
-				<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($sales_adjustment, 2)?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm;"></div> 
-				<div class="line1" style="width: 9cm; ">NEW GROSS SELLING PRICE</div> 
-				<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($new_gross_sp, 2)?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm;"></div> 
-				<div class="line1" style="width: 9cm; ">LESS: TOTAL PAYMENTS</div> 
-				<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($total_payment, 2)?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 10.4cm; "></div> 
-				<div class="line1" style="width: 1.0cm; text-align: right;"><?php echo number_format($new_gross_sp - $total_payment, 2)?></div>
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 1.0cm; padding-bottom: 20px;"></div> 
-				<div class="line1" style="width: 10cm; padding-bottom: 20px; ">ADD: PENALTY</div> 
-				<div class="line1" style="width: 1.0cm; padding-bottom: 20px; text-align: right;"><?php echo number_format($adv_payment_rebate, 2)?></div> 
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 2.4cm;"></div> 
-				<div class="line1" style="width: 6.58cm;border-top: 2px solid black;"></div> 
-				<div class="line1" style="width: 0.88cm;"></div> 
-				<div class="line1" style="width: 2.0cm;border-top: 2px solid black;"></div> 
-			</div>
-
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 10cm; ">AMOUNT DUE</div> 
-				<div class="line1" style="width: 1.0cm; text-align: right;"><?php echo number_format($customer_amount_due, 2)?></div> 
-			</div>
-			
-			<div style="width:100%; height: 1px; border-bottom: 2px solid black;"></div> 
-			
-			<div style="width:100%; height: 3px; border-bottom: 2px solid black;"></div> 
-			
-			<div class="row">
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 2cm; height: 30px;padding-top: 2cm; ">Noted by:</div> 
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 1.8cm; ">Unit Sold</div> 
+					<div class="line1" style="width: 0.1cm;">:</div> 
+					<div class="line1" style="width: 7cm; border-bottom: 2px solid black;"><?php echo $brchcode?></div> 
+					<div class="line1" style="width: 3.1cm; text-align: center;"></div> 
+				</div>
 		
-			</div>
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 1.8cm;">Orig. Term</div> 
+					<div class="line1" style="width: 0.1cm;">:</div> 
+					<div class="line1" style="width: 2cm; text-align: center;  border-bottom: 2px solid black;"><?php echo $old_term?></div> 
+					<div class="line1" style="width: 3.1cm;"> months</div> 
+				</div>
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 1.8cm;">New Term</div> 
+					<div class="line1" style="width: 0.1cm;">:</div> 
+					<div class="line1" style="width: 2cm; text-align: center;  border-bottom: 2px solid black;"><?php echo $new_term?></div> 
+					<div class="line1" style="width: 3.1cm;"> months</div> 
+				</div>
 
-			<div class="row" >
-				<div class="line1" style="width: 0.4cm;"></div> 
-				<div class="line1" style="width: 4cm; height: 30px; border-bottom: 2px solid black;"></div> 
-			</div>
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 10cm; "><p>Amount Due:</p></div> 
 
-			<div class="row" >
-				<div class="line1" style="width: 0.1cm;"></div> 
-				<div class="line1" style="width: 10cm; height: 20px;"></div> 
-				<div class="line1" style="width: 3cm;">Customer's copy</div> 
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm;"></div> 
+					<div class="line1" style="width: 9cm; "><p>OLD GROSS SELLING PRICE</p></div> 
+					<div class="line1" style="width: 2cm; text-align: right;"><?php echo number_format($old_gross_selling_price, 2)?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm;"></div> 
+					<div class="line1" style="width: 9cm; ">ADD: OPPORTUNITY COST</div> 
+					<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($opportunity_cost, 2)?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm;"></div> 
+					<div class="line1" style="width: 9cm; ">TOTAL:</div> 
+					<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($old_gross_selling_price + $opportunity_cost, 2) ?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm;"></div> 
+					<div class="line1" style="width: 9cm; ">LESS: SALES ADJUSTMENT</div> 
+					<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($sales_adjustment, 2)?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm;"></div> 
+					<div class="line1" style="width: 9cm; ">NEW GROSS SELLING PRICE</div> 
+					<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($new_gross_sp, 2)?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm;"></div> 
+					<div class="line1" style="width: 9cm; ">LESS: TOTAL PAYMENTS</div> 
+					<div class="line1" style="width: 2cm; border-bottom: 2px solid black; text-align: right;"><?php echo number_format($total_payment, 2)?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 10.4cm; "></div> 
+					<div class="line1" style="width: 1.0cm; text-align: right;"><?php echo number_format($new_gross_sp - $total_payment, 2)?></div>
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 1.0cm; padding-bottom: 20px;"></div> 
+					<div class="line1" style="width: 10cm; padding-bottom: 20px; ">ADD: PENALTY</div> 
+					<div class="line1" style="width: 1.0cm; padding-bottom: 20px; text-align: right;"><?php echo number_format($adv_payment_rebate, 2)?></div> 
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 2.4cm;"></div> 
+					<div class="line1" style="width: 6.58cm;border-top: 2px solid black;"></div> 
+					<div class="line1" style="width: 0.88cm;"></div> 
+					<div class="line1" style="width: 2.0cm;border-top: 2px solid black;"></div> 
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 10cm; ">AMOUNT DUE</div> 
+					<div class="line1" style="width: 1.0cm; text-align: right;"><?php echo number_format($customer_amount_due, 2)?></div> 
+				</div>
+				
+				<div style="width:100%; height: 1px; border-bottom: 2px solid black;"></div> 
+				
+				<div style="width:100%; height: 3px; border-bottom: 2px solid black;"></div> 
+				
+				<div class="row">
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 2cm; height: 30px;padding-top: 2cm; ">Noted by:</div> 
+			
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 0.4cm;"></div> 
+					<div class="line1" style="width: 4cm; height: 30px; border-bottom: 2px solid black;"></div> 
+				</div>
+
+				<div class="row" >
+					<div class="line1" style="width: 0.1cm;"></div> 
+					<div class="line1" style="width: 10cm; height: 20px;"></div> 
+					<div class="line1" style="width: 3cm;">Customer's copy</div> 
+				</div>
 			</div>
 		</div>
     </div>
 </div>
 <script type="text/javascript">
 		window.print();
+		window.onafterprint = back;
+
+        function back() {
+            window.history.back();
+        }
 </script>
 
 
