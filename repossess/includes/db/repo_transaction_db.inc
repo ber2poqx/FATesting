@@ -292,7 +292,7 @@ function get_cost_Sales($type, $trans_no)
 	$sql = "SELECT A.amount
 		FROM ".TB_PREF."gl_trans A
 			INNER JOIN ".TB_PREF."debtor_trans B on B.trans_no = A.type_no
-		WHERE A.account = '5010'
+		WHERE A.account = '501001'
 			AND B.type = ".db_escape($type). "
 			AND B.trans_no = ".db_escape($trans_no);
 			
