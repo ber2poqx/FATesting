@@ -777,11 +777,6 @@ $termode_data =  get_sales_invoice_ct_header($_GET['trans_no']);
 </div>
 <script type="text/javascript">
 		window.print();
-		window.onafterprint = back;
-
-        function back() {
-            window.history.back();
-        }
 </script>
 
 
