@@ -114,12 +114,16 @@ if(isset($_GET['get_InvoiceNo']))
         while ($myrow = db_fetch($result)) {
             $totalpayment = get_payment_applied($myrow["type"], $myrow["trans_no"]);
             $costofsales = get_cost_Sales($myrow["type"], $myrow["trans_no"]);
-    
+
+            if($costofsales == '' || $costofsales == null || $costofsales == 0 ){
+                $costofsales = $myrow["unit_price"];
+            }
             $balance = ($myrow["ar_amount"] - $totalpayment);
     
             //**** unrecovered cost = ((total payment * (1-profit margin)) - cost of sales) */
             $CGPM = (1 - $myrow["profit_margin"]);
             $dgp = ($totalpayment * $CGPM);
+            
             $unrecoverd = ($costofsales - $dgp);
     
             if($myrow["category_id"] != 14){
