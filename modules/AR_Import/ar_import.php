@@ -97,7 +97,8 @@
 						$profit_margin, 
 						$warranty_code,
 						$date_cut_off,
-						$invoice_type) = $data;
+						$invoice_type,
+						$recovered_cost) = $data;
 				$invoice_type = strtolower(trim($invoice_type));	
 				$debtor_no = utf8_encode($debtor_no);
 
@@ -276,6 +277,10 @@
 						
 						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!... Old Transaction No: $old_trans_no is not Added");
 					
+					}else if(is_numeric($recovered_cost) == null ){
+						
+						display_error("Line $lines: Recovered cost is not numeric: $recovered_cost Old Transaction No: $old_trans_no is not Added");
+
 					}else if($trans_type ==''){
 
 						display_error("Line $lines: invoice_type is Empty empty or not Valid!  $invoice_type   Old Transaction No: $old_trans_no is not Added");
@@ -420,7 +425,8 @@
 									$old_trans_no,
 									$ref_no,
 									$loans_status,
-									$invoice_type);
+									$invoice_type,
+									$recovered_cost);
 									
 									$item_color_code = check_color_exist($stock_id, $color_code);
 									add_debtor_trans_det(
