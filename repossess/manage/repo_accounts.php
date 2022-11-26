@@ -112,19 +112,23 @@ if(isset($_GET['get_InvoiceNo']))
         $addon_amount = get_company_pref('addon_amount');
     
         while ($myrow = db_fetch($result)) {
+            /**** 
+                SI new -- unrecovered cost = ((total payment * (1-profit margin)) - cost of sales)
+                SI Openbal -- unrecovered cost = (total unit cost(/cost of sales) - recovered cost)
+            *****/
             $totalpayment = get_payment_applied($myrow["type"], $myrow["trans_no"]);
             $costofsales = get_cost_Sales($myrow["type"], $myrow["trans_no"]);
 
-            if($costofsales == '' || $costofsales == null || $costofsales == 0 ){
-                $costofsales = $myrow["unit_price"];
-            }
             $balance = ($myrow["ar_amount"] - $totalpayment);
     
-            //**** unrecovered cost = ((total payment * (1-profit margin)) - cost of sales) */
             $CGPM = (1 - $myrow["profit_margin"]);
             $dgp = ($totalpayment * $CGPM);
-            
-            $unrecoverd = ($costofsales - $dgp);
+
+            if($myrow["opening_balances"] == 1){
+                $unrecoverd = ($myrow["unit_price"] - $myrow["recovered_cost"]);
+            }else{
+                $unrecoverd = ($costofsales - $dgp);
+            }
     
             if($myrow["category_id"] != 14){
                 $addon_amount = 0;
