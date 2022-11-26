@@ -75,7 +75,7 @@ function print_audit_trail()
     $cols = array(0, 60, 120, 180, 240, 340, 400, 460, 520);
 
     $headers = array(_('Date'), _('Time'), _('User'), _('Trans Date'),
-    	_('Type'), _('#'), _('Action'), _('Amount'));
+    	_('Type'), _('Transaction #'), _('Action'), _('Amount'));
 
     $aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'right');
 
