@@ -368,7 +368,7 @@ function get_Collector_by_area($user_id)
 	return db_query($sql, "could not get user table records");
 }
 
-function get_all_customer()
+function get_all_customer($debtorno=null)
 {
 	$sql = "SELECT A.debtor_no, A.name, A.debtor_ref, A.address, A.tax_id, B.tax_group_id, C.description, D.phone,
     			E.real_name, F.name AS salestype, G.name AS taxgroup
@@ -378,8 +378,11 @@ function get_all_customer()
 			LEFT JOIN ".TB_PREF."crm_persons D ON D.ref=A.debtor_ref
 			LEFT JOIN ".TB_PREF."users E ON E.user_id=A.collectors_name
 			LEFT JOIN ".TB_PREF."sales_type F ON F.id=A.sales_type
-			lEFT JOIN ".TB_PREF."tax_groups G ON G.id=B.tax_group_id
-		ORDER BY A.name ";
+			lEFT JOIN ".TB_PREF."tax_groups G ON G.id=B.tax_group_id ";
+		if($debtorno != null || $debtorno != '' || $debtorno != 0){
+			$sql .= " WHERE  A.debtor_no =".db_escape($debtorno);
+		}
+		$sql .= " ORDER BY A.name ";
 
 	return db_query($sql, "could not get all customers");
 }

@@ -23,6 +23,7 @@ Ext.onReady(function(){
 	var showall = false;
 	var maxfields = 10; //change this number if you want to increase/decrease adding fields.
 	var url_transno = getUrlParameter('transno');
+	var url_debtorno = getUrlParameter('customer');
 
     Ext.define('CustomerPay_model',{
         extend: 'Ext.data.Model',
@@ -2060,7 +2061,8 @@ Ext.onReady(function(){
 		handler: function(){
 			submit_form_waivpnlty.getForm().reset();
 			GetCashierPrep("waived");
-			CustomerStore.proxy.extraParams = {module: "waived"};
+			
+			CustomerStore.proxy.extraParams = {module: "waived", debtorno: url_debtorno };
 			CustomerStore.load();
 
 			submit_window_waivpnlty.show();

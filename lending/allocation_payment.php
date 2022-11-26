@@ -29,7 +29,7 @@ if(isset($_GET['getReference'])){
 if(isset($_GET['get_Customer']))
 {
     if($_GET['module'] == "waived"){
-        $result = get_all_customer();
+        $result = get_all_customer($_GET['debtorno']);
         $total = DB_num_rows($result);
         while ($myrow = db_fetch($result)) {
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
