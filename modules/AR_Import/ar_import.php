@@ -277,6 +277,10 @@
 						
 						display_error("Line $lines: lastpayment paid is not a valid date: $date_cut_off!... Old Transaction No: $old_trans_no is not Added");
 					
+					}else if(is_numeric($recovered_cost) == null ){
+						
+						display_error("Line $lines: Recovered cost is not numeric: $recovered_cost Old Transaction No: $old_trans_no is not Added");
+
 					}else if($trans_type ==''){
 
 						display_error("Line $lines: invoice_type is Empty empty or not Valid!  $invoice_type   Old Transaction No: $old_trans_no is not Added");
