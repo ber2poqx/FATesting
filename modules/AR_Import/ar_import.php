@@ -98,7 +98,8 @@
 						$warranty_code,
 						$date_cut_off,
 						$invoice_type,
-						$recovered_cost) = $data;
+						$recovered_cost,
+						$memo_) = $data;
 				$invoice_type = strtolower(trim($invoice_type));	
 				$debtor_no = utf8_encode($debtor_no);
 
@@ -442,6 +443,8 @@
 									$lot_no, 
 									$chassis_no, 
 									$item_color_code["item_code"]);
+
+									add_comments($trans_type, $trans_no, $date_, $memo_);
 
 									$oustanding_balance = $ov_amount - $total_amount_paid;
 
