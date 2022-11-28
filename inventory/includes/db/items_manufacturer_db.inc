@@ -70,14 +70,14 @@ function get_all_manufacturer($all=false) {
     return  db_query($sql, "could not get manufacturer");
 }
 
-//Added by spyrax10 4 May 2022
+//Added by spyrax10 4 May 2022 // Modified by Robert 11/28/2022 change to supplier
 function manufacturer_exists($manufacturer = '', $get_id = false) {
 	
-	$sql = "SELECT id 
-		FROM ".TB_PREF."item_manufacturer 
-		WHERE name = ".db_escape($manufacturer);
+	$sql = "SELECT supplier_id 
+		FROM ".TB_PREF."suppliers 
+		WHERE supp_name = ".db_escape($manufacturer);
 
-	$result = db_query($sql, "could not check manufacturer");
+	$result = db_query($sql, "could not check supplier");
 	$row = db_fetch_row($result);
 
 	if ($get_id) {
