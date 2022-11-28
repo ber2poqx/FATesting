@@ -123,13 +123,13 @@ if(isset($_GET['get_InvoiceNo']))
     
             $CGPM = (1 - $myrow["profit_margin"]);
             $dgp = ($totalpayment * $CGPM);
-
+            
             if($myrow["opening_balances"] == 1){
-                $unrecoverd = ($myrow["unit_price"] - $myrow["recovered_cost"]);
+                $unrecoverd = ($myrow["total_amount"] - $myrow["recovered_cost"]);
             }else{
                 $unrecoverd = ($costofsales - $dgp);
             }
-    
+
             if($myrow["category_id"] != 14){
                 $addon_amount = 0;
             }
