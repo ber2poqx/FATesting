@@ -1383,6 +1383,17 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 }
 
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
+	$reports->addReport(RC_GL, 722, _('SL Summary (Particulars) - All Accounts'),
+		array(	
+			_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			/*_('GL Title') => 'GL_ACCOUNTS', 			
+			_('Name') => 'CUSTOMERS_LIST',*/
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'
+		)
+	);
+
 	//Modified by Prog6 (8-06-2021) =====================================
 	$reports->addReport(RC_GL, 723, _('SL Summary (Particulars)'),
 		array(	
