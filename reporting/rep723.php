@@ -358,7 +358,7 @@ function print_SL_summary_particulars()
 			}		
 		$rep->Line($rep->row);
 		$rep->NewLine(2);
-		$rep->TextCol(2, 7, ''/*_('-  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  ')*/);
+		$rep->TextCol(2, 7, '');
 		$rep->NewLine(1);
 	}
 	
