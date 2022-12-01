@@ -1177,7 +1177,6 @@ function new_installment_computation()
 	$_POST['new_rebate'] = $rebate;
 	$_POST['new_financing_rate'] = $financing_rate;
 	$_POST['new_count_term'] = $terms;
-	//display_warning($_POST['new_count_term']);
 
 	$_POST['amort_diff'] = $_POST['new_due_amort'] >= $_POST['due_amort']
 		? $_POST['new_due_amort'] - $_POST['due_amort']

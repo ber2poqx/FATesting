@@ -768,13 +768,14 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	return $customer_error;
 }
 
-function display_change_term_header(&$order, $editable, $date_text, $opening_balance = 0)
+function display_change_term_header(&$order, $editable, $date_text, 
+	$opening_balance = 0, $payment_location = "Branch") //Added by spyrax10
 {
 	global $Ajax, $SysPrefs;
 
 	start_outer_table(TABLESTYLE2, "width='98%'");
 
-	table_section(1);
+	table_section(1);  
 	table_section_title("Customer Information");
 	$customer_error = "";
 	$change_prices = 0;
@@ -794,7 +795,7 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 
 		date_row(
 			$date_text,
-			'OrderDate',      
+			'OrderDate',
 			_('Date of order receive'),
 			$order->trans_no == 0,
 			0,
@@ -836,7 +837,7 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 			if ($dim > 1)
 				dimensions_list_row(
 					_("Dimension") . " 2:",
-					'dimension2_id',     
+					'dimension2_id',
 					null,
 					true,
 					' ',
@@ -861,7 +862,11 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 	hidden('sales_type', 2);
 	label_row(_("Co-maker:"), $_POST['co_maker']);
 	hidden('co_maker');
+	termmode_type(_("Term Mode Type:"),'termmode_id', null	, true, 'label');
+
+	if(get_post('termmode_id') == 0 ){
 	table_section(2);
+	}
 
 	start_row();
 	if (($order->pos['cash_sale'] || $order->pos['credit_sale'])
@@ -888,7 +893,7 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 	}
 	end_row();
 
-	if (!is_company_currency($order->customer_currency) && in_array($order->trans_type, array(ST_SALESINVOICEREPO, ST_CUSTDELIVERY))) {
+	if (!is_company_currency($order->customer_currency) && in_array($order->trans_type, array(ST_SALESINVOICE, ST_CUSTDELIVERY))) {
 		label_row(_("Customer Currency:"), $order->customer_currency);
 		exchange_rate_display(
 			get_company_currency(),
@@ -913,9 +918,8 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 	hidden('down_pay');
 	hidden('discount_dp_amount');
 	hidden('discount_dp2_amount');
-	if ($order->trans_type == ST_SALESINVOICEREPO || $order->trans_type == ST_SITERMMOD) {
-
-
+	if ($order->trans_type == ST_SALESINVOICEREPO || $order->trans_type == ST_SITERMMOD) 
+	{
 		if ($opening_balance == 1) {
 			$total_unit_cost = $order->line_items[0]->standard_cost;
 			/*Added by Albert */
@@ -924,54 +928,70 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 			$amort = $loans_data['amortization_amount'];
 			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
 			$old_profit_margin = $loans_data['profit_margin'];
-			
+
 			/* */
-		}else{
+		}
+		else {
 			$total_unit_cost = get_repo_cost_average(
 				$order->line_items[0]->stock_id,
 				$order->Location,
 				$order->line_items[0]->lot_no,
 				$order->line_items[0]->chasis_no
 			);
+			/*Added by Albert */
+			$all_ar_amount = get_post('ar_amount');
+			$amort = get_post('due_amort');
+			$half = 0.5 / pow(10, 2); //Added by Albert
+			$old_deferred_gross_profit = $all_ar_amount - $total_unit_cost;
+			$old_profit_margin = round(number_format($old_deferred_gross_profit / $all_ar_amount, 5) - $half,2,PHP_ROUND_HALF_DOWN);
+			/* */
 		}
-		$deferred_gross_profit = get_post('new_ar_amount') - $total_unit_cost;
+		//
+		$deferred_gross_profit =  price_format(get_post('new_ar_amount') - $total_unit_cost);
 		$half = 0.5 / pow(10, 2); //Added by Albert
-		$profit_margin = round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
+		$profit_margin = floatval(round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN));//modified by Albert
 		label_row(_("Total LCP Amount:"), price_format(get_post('lcp_amount')));
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
 		// label_row(_("Deferred Gross Profit:"), price_format($deferred_gross_profit));
 		// label_row(_("Profit Margin:"), price_format($profit_margin));
-		$payment_location_id = get_company_pref('payment_location');
-		label_row(_("Payment Location:"), $payment_location_id ? "Lending" : "Branch");
+		// $payment_location_id = get_company_pref('payment_location');
+
+		/*modified by Albert 10/03/2022*/
+		label_row(_("Payment Location:"), $order->payment_location);
+		hidden('payment_location');
+		/**/
 		hidden('new_deferred_gross_profit', $deferred_gross_profit);
 		hidden('new_profit_margin', $profit_margin);
 	}
 
 	table_section(3);
 	table_section_title(_("Previous"));
-
-	date_row(
-		"Old First Due Date:",
-		'first_due_date',
-		_('Date of first due'),
-		$order->trans_no == 0,
-		0,
-		1,
-		0,
-		null,
-		true
-	);
-	date_row(
-		"Old Maturity Date:",
-		'maturity_date',
-		_('Date of maturity'),
-		$order->trans_no == 0,
-		0,
-		0,
-		0,
-		null,
-		true
-	);
+	label_row(_("Old First Due Date:"), $_POST['first_due_date']);
+	hidden('first_due_date', get_post('first_due_date'));
+	// date_row(
+	// 	"Old First Due Date:",
+	// 	'first_due_date',
+	// 	_('Date of first due'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	1,
+	// 	0,
+	// 	null,
+	// 	true
+	// );
+	label_row(_("Old Maturity Date:"), $_POST['maturity_date']);
+	hidden('maturity_date', get_post('maturity_date'));
+	// date_row(
+	// 	"Old Maturity Date:",
+	// 	'maturity_date',
+	// 	_('Date of maturity'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	0,
+	// 	0,
+	// 	null,
+	// 	true
+	// );
 
 	$policy_detail = db_fetch(get_instlpolicy_by_id($_POST['installment_policy_id']));
 	$count_term_arr = explode("-", $policy_detail["plcydtl_code"]);
@@ -984,8 +1004,8 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 
 	hidden('lcp_amount');
 	hidden('total_amount');
-	hidden('due_amort');
-	hidden('ar_amount');
+	hidden('due_amort',$amort);
+	hidden('ar_amount',$all_ar_amount);
 	hidden('count_term');
 	hidden('rebate');
 	hidden('financing_rate');
@@ -995,14 +1015,11 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 	$_POST['rebate'] = $policy_detail["rebate"];
 	$_POST['financing_rate'] = $policy_detail["financing_rate"];
 	/*modified by Albert */
-	$half = 0.5 / pow(10, 2); //Added by Albert
-	$old_deferred_gross_profit = get_post('ar_amount') - $total_unit_cost;
-	$old_profit_margin = round(number_format($old_deferred_gross_profit / get_post('ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);
 	$total_dgp = get_post('alloc') * $old_profit_margin;
 	$dgp_bal = $old_deferred_gross_profit - $total_dgp;
-	$old_ar_balance =get_post('ar_amount')- get_post('alloc');
-	label_row(_("Old Amortization:"), price_format(get_post('due_amort')));
-	label_row(_("Old Gross:"), price_format(get_post('ar_amount')));
+	$old_ar_balance = $all_ar_amount- get_post('alloc');
+	label_row(_("Old Amortization:"), price_format($amort));
+	label_row(_("Old Gross:"), price_format($all_ar_amount));
 	label_row(_("Old AR-Balance:"), price_format($old_ar_balance));
 	label_row(_("Total Payment:"), price_format(get_post('alloc')));
 	label_row(_("Profit Margin:"), price_format($old_profit_margin));
@@ -1013,29 +1030,32 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 
 	table_section(4);
 	table_section_title(_("New"));
-
-	date_row(
-		"New First Due Date:",
-		'first_due_date',
-		_('Date of first due'),
-		$order->trans_no == 0,
-		0,
-		1,
-		0,
-		null,
-		true
-	);
-	date_row(
-		"New Maturity Date:",
-		'new_maturity_date',
-		_('Date of maturity'),
-		$order->trans_no == 0,
-		0,
-		0,
-		0,
-		null,
-		true
-	);
+	label_row(_("Old First Due Date:"), get_post('first_due_date'));
+	// date_row(
+	// 	"New First Due Date:",
+	// 	'first_due_date',
+	// 	_('Date of first due'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	1,
+	// 	0,
+	// 	null,
+	// 	false
+	// );
+	$new_maturity = get_post('new_maturity_date') == '' ? get_post('maturity_date') : get_post('new_maturity_date');
+	label_row(_("New Maturity Date:"), $new_maturity);
+	hidden('new_maturity_date', get_post('new_maturity_date'));
+	// date_row(
+	// 	"New Maturity Date:",
+	// 	'new_maturity_date',
+	// 	_('Date of maturity'),
+	// 	$order->trans_no == 0,
+	// 	0,
+	// 	0,
+	// 	0,
+	// 	null,
+	// 	false
+	// );
 
 	installment_policy_list_row(
 		_("New Payment Term:"),
@@ -1087,21 +1107,55 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 	/*--end by Albert */
 	table_section(5);
 	table_section_title("Adjustment");
-	label_row(_("Old Amortization:"), price_format(get_post('due_amort')));
+	label_row(_("Old Amortization:"), price_format($amort));
 	label_row(_("New Amortization:"), price_format(get_post('new_due_amort')));
 	label_row(_("Amort Difference:"), price_format($_POST['amort_diff']));
 	hidden('amort_diff');
+	//modified by albert 10/13/2022
 	label_row(_("No of Months Paid:"), $_POST['months_paid']);
 	hidden('months_paid');
+	//
 	label_row(_("Amortization Delay:"), price_format($_POST['amort_delay']));
 	hidden('amort_delay');
 	label_row(_("Adjustment Rate:"), price_format($_POST['adj_rate']) . "%");
 	hidden('adj_rate');
-	label_row(_("Opportunity Cost:"), price_format(round($_POST['opportunity_cost'])));
+		
+	if(get_post('termmode_id') == 1 ){
+		label_row(_("Opportunity Cost:"), price_format(round($_POST['opportunity_cost'],0)));
+		label_row(_("New Gross Net DP:"), price_format($_POST['new_gross_net_dp']));
+		label_row(_("Rebate Amount:"), price_format($_POST['rebate_amount']));
+	}
+	label_row(_("Opportunity Cost:"), price_format(round($_POST['opportunity_cost'],0)));
 	hidden('opportunity_cost');
-	label_row(_("Amount to be Paid:"), price_format(round($_POST['amount_to_be_paid'],0)));
-	hidden('amount_to_be_paid');
 
+	if(get_post('termmode_id') == 1 ){
+	
+		$sales_adjustment_amount = $all_ar_amount - $_POST['new_gross_price'];
+		label_row(_("total_amount_due:"), price_format($_POST['total_amount_due']));
+		label_row(_("Total Payment:"), price_format(get_post('alloc')));
+		text_row_ex1(_("Rebate If Advance Payment:"), 'rebate_if_adv_pay', null, 15, 16);
+		label_row(_("Amount Due:"), price_format(round(get_post('amount_to_be_paid'),0)));
+		hidden('amount_to_be_paid');
+
+		table_section(6);
+		table_section_title("Adjustment On Sales");
+		label_row(_("Old Gross:"), price_format($all_ar_amount));
+		label_row(_("New Gross Selling Price:"), price_format($_POST['new_gross_price']));
+		hidden('new_gross_price');	
+		label_row(_("Sales Adjustment:"), price_format($sales_adjustment_amount));
+		hidden('sales_adjustment', $sales_adjustment_amount);
+
+	}else{
+		label_row(_("Amount to be Paid:"), price_format(round(get_post('amount_to_be_paid'),0)));
+		hidden('amount_to_be_paid');
+		hidden('rebate_if_adv_pay', 0);
+		hidden('new_gross_price', 0);
+		hidden('sales_adjustment', 0);
+	}
+	if(get_post('termmode_id') == 1 ){
+
+	submit_cells('calculate_btn', _("Calculate"), "", _("Compute AmortizaTion"), true);
+	}
 	end_outer_table(1); // outer table
 
 	hidden('Location');
@@ -1118,7 +1172,7 @@ function display_change_term_header(&$order, $editable, $date_text, $opening_bal
 }
 
 /*Added by Albert*/
-function display_restructured_header(&$order, $editable, $date_text, $opening_balance = 0)
+function display_restructured_header(&$order, $editable, $date_text, $opening_balance = 0, $payment_location = "Branch")
 {
 	global $Ajax, $SysPrefs;
 
@@ -1133,7 +1187,7 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 	// label_row(_("Cust Branch:"), $_POST['branch_id']);
 	hidden('branch_id');
 
-	ref_row(_("Restructured No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
+	ref_row(_("Restructured No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', ST_SALESINVOICEREPO, array('date' => @$_POST['OrderDate']));
 	label_row(_("SI No."), $_POST['document_ref']);
 	$si_data = get_SI_by_reference(get_post('document_ref'));
 
@@ -1300,8 +1354,12 @@ function display_restructured_header(&$order, $editable, $date_text, $opening_ba
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
 		// label_row(_("Deferred Gross Profit:"), price_format($deferred_gross_profit));
 		// label_row(_("Profit Margin:"), price_format($profit_margin));
-		$payment_location_id = get_company_pref('payment_location');
-		label_row(_("Payment Location:"), $payment_location_id ? "Lending" : "Branch");
+		// $payment_location_id = get_company_pref('payment_location');
+		// label_row(_("Payment Location:"), $payment_location_id ? "Lending" : "Branch");
+		/*modified by Albert 10/03/2022*/
+		label_row(_("Payment Location:"), $order->payment_location);
+		hidden('payment_location');
+		/**/
 		hidden('new_deferred_gross_profit', $deferred_gross_profit);
 		hidden('new_profit_margin', $profit_margin);
 	}

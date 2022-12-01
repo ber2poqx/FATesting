@@ -99,7 +99,7 @@ class Cart
 	var $dp_amount = 0;	// Added by Ronelle 3/8/2021
 	var $discount_dp_amount2 = 0;	// Added by Albert 10/20/2021
 	var $old_trans_no = 0;	// Added by Albert 01/18/2022
-	var $previous_owner;	// Added by Albert 01/19/2022
+	var $previous_owner= "";	// Added by Albert 01/19/2022
 	var $ob_standard_cost = 0; //Modified by spyrax10
 	
 	var $amortization = 0;	// Added by Ronelle 3/8/2021

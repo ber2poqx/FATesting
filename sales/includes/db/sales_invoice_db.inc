@@ -936,12 +936,7 @@ function closed_sales_invoice_status($invoice, $trans_no, $ref, $payment_locatio
 	$row = get_SI_by_reference($ref);
 	$si_trans_no = $row['trans_no'];
 	/*Added by Albert 11/03/2022*/
-	if($payment_location == 'Lending'){
-		$type = 70;
-	}else{
-		$type =  ST_SALESINVOICE;
-	}
-	/**/
+	$type =  $row['type'];
 
 	begin_transaction();
 	hook_db_prewrite($invoice, $type);

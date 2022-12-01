@@ -426,8 +426,9 @@ function copy_to_cart()
 	$cart->discount_dp_amount = $_POST['discount_dp_amount'];
 	$cart->stype_id = $_POST['stype_id'];
 	$cart->so_item_type = 'repo';
-	$cart->previous_owner = $_POST['previous_owner'];
-
+	if($cart->trans_type == ST_SALESINVOICEREPO || $cart->trans_type == ST_SALESORDER){
+		$cart->previous_owner = $_POST['previous_owner'];
+	}
 	if ($cart->trans_type == ST_SITERMMOD || $cart->trans_type == ST_RESTRUCTURED) {
 		$cart->payment = $_POST['new_installment_policy_id'];
 		$cart->dp_amount = $_POST['down_pay'];
@@ -447,6 +448,7 @@ function copy_to_cart()
 		$cart->opportunity_cost = $_POST['opportunity_cost'];
 		$cart->amount_to_be_paid = $_POST['amount_to_be_paid'];
 		$cart->outstanding_ar_amount = $_POST['outstanding_ar_amount'];
+		$cart->payment_location = $_POST['payment_location'];
 
 		$cart->prev_months_term = $_POST['count_term'];
 		$cart->prev_ar_balance = $_POST['ar_amount'] - $_POST['alloc'];
