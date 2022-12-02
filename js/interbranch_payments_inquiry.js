@@ -388,7 +388,7 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:95,
-			items:[{
+			items:[{ 
 				icon: '../../js/ext4/examples/shared/icons/layout_content.png',
 				tooltip: 'view details',
 				handler: function(grid, rowIndex, colIndex) {
@@ -428,6 +428,13 @@ Ext.onReady(function(){
 					submit_window.setTitle('Inter-Branch Payment Details');
 					submit_window.show();
 					submit_window.setPosition(320,50);
+				}, '-',{
+				icon: '../js/ext4/examples/shared/icons/print-preview-icon.png',
+					tooltip: 'Print Voucher',
+					handler: function (grid, rowIndex, colIndex) {
+						var records = qqinterb_store.getAt(rowIndex);
+						window.open('../reports/journal_voucher.php?trans_num=' + records.get('trans_no'));
+					}
 				}
 			}]
 		}
