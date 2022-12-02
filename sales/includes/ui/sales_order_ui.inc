@@ -883,7 +883,8 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	// }
 
 	end_outer_table(1); // outer table
-
+	$result = db_fetch(get_itemcategory($_POST['category_id']));
+	$category_name = $result['description'];
 	if ($change_prices != 0) {
 		foreach ($order->line_items as $line_no => $item) {
 			$line = &$order->line_items[$line_no];
@@ -893,7 +894,7 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 			$date_epic_installment = Get_Policy_Installment_Effectivity_Date(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 			
 			/*modified by Albert 11/04/2022 if months term less than 1 price is equal to cash*/
-			if(get_post('count_term') < 1 && get_post('count_term') > 0){
+			if(get_post('count_term') < 1 && get_post('count_term') > 0 && $category_name == 'MOTORCYCLE'){
 				if (date2sql(get_post('OrderDate')) < $date_epic ){
 					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id,$last_date_updated);
