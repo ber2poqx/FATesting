@@ -156,8 +156,6 @@ function write_customer_trans(
 			" . db_escape($collection_type) . ", 
 			" . db_escape($module_type) . "
 		)";
-
-		//echo $sql;
 	} else {	// may be optional argument should stay unchanged ?
 
 		$sql = 

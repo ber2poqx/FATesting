@@ -865,7 +865,7 @@ function get_List_COA($search)
 function get_InvoiceCOA($trans_no, $type)
 {
 	$sql = "SELECT X.account 
-			FROM gl_trans X 
+			FROM ".TB_PREF."gl_trans X 
 			WHERE X.person_id is not null AND X.amount >0 
 				AND X.type_no=".db_escape($trans_no)."
 				And X.type = ".db_escape($type);

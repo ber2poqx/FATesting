@@ -1951,7 +1951,7 @@ Ext.onReady(function(){
 						method:'POST',
 						submitEmptyText: false,
 						success: function(form_submit_Adj, action) {
-							PaymentStore.load()
+							done_allocate_store.load()
 							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
 							submit_window_waivpnlty.close();
 						},

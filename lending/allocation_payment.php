@@ -1135,8 +1135,6 @@ if(isset($_GET['submitAdj']))
 
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
-
-    $conn = $db_connections[user_company()];
     
     //var_dump($objDataGrid);
     if (count($objDataGrid) == 0){
@@ -1146,30 +1144,43 @@ if(isset($_GET['submitAdj']))
     
     if ($InputError != 1){
         
+       // global $Refs;
         begin_transaction();
+        set_global_connection();
+
         $BranchNo = get_newcust_branch($_POST['customername_wv'], $_POST['customercode_wv']);
         $debtor_loans = get_debtor_loans_info($_POST['InvoiceNo_wv'], $_POST['customername_wv']);
 
-        $invoice_gl_account = get_InvoiceCOA($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
-
         $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername_wv'], check_isempty($BranchNo['branch_code']), $_POST['trans_date_wv'], $_POST['ref_no_wv'],
-                                    $_POST['total_cred_wv'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, 'amort',1, 'ALCN-ADJ');
+                                    $_POST['total_cred_wv'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, 'amort', 1, "ALCN-ADJ");
+
 
         add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no_wv'], $_POST['trans_date_wv'], $_POST['total_cred_wv'], PT_CUSTOMER, $_POST['customername_wv'],
                         0, 'alloc', '0000-00-00', 0, null, $_POST['InvoiceNo_wv'], 0, $_POST['preparedby_wv']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $_POST['remarks_wv']);
 
+        $invoice_gl_account = get_InvoiceCOA($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
+
         foreach($objDataGrid as $value=>$data) {
             //post to ledger adjustment
 
             if(!empty($data['gl_code'])){
                 if($invoice_gl_account == $data['gl_code']){
+                    if($data['debit_amount'] != 0){
+                        $aloc_amount = $data['debit_amount'];
+                    }else{
+                        $aloc_amount = $data['credit_amount'];
+                    }
                     $result = get_loan_schedule($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv']);
                     while ($myrow = db_fetch($result)) {
-                        add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, 0, $data['debit_amount'], 0, 0, $trans_date, $payment_no);
+                        add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, 0, 0, 0, $trans_date, $payment_no);
                         break;
                     }
+
+                    //accocate payment to invoice
+                    add_cust_allocation($aloc_amount, ST_CUSTPAYMENT, $payment_no, $_POST['transtype_wv'], $_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['trans_date_wv']);
+                    update_debtor_trans_allocation($_POST['transtype_wv'], $_POST['InvoiceNo_wv'], $_POST['customername_wv']);
                 }
             }
         }
@@ -1185,12 +1196,15 @@ if(isset($_GET['submitAdj']))
                     $amount = $data['debit_amount'];
                 }
                 if($data['sl_code'] == $_POST['customername_inb']){
-                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $data['gl_code'], 0, 0, '', $amount, null, PT_CUSTOMER, $_POST['customername_wv'], '', 0, null, null, 0, 0);
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $data['gl_code'], 0, 0, '', $amount, null, PT_CUSTOMER, $_POST['customername_wv'], '', 0, null, null, 0, $_POST['InvoiceNo_wv']);
                 }else{
-                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $data['gl_code'], 0, 0, '', $amount, null, PT_CUSTOMER, $_POST['customername_wv'], '', 0, $data['sl_code'], $data['sl_name'], 0, 0);
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $data['gl_code'], 0, 0, '', $amount, null, PT_CUSTOMER, $_POST['customername_wv'], '', 0, $data['sl_code'], $data['sl_name'], 0, $_POST['InvoiceNo_wv']);
                 }
             }
         }
+        $Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no_wv']);
+
+        $dsplymsg = _("Customer adjustment has been allocated successfully..."); 
 
         echo '({"success":"true","message":"'.$dsplymsg.'", "payno":"'.$payment_no.'"})';
     }else{
