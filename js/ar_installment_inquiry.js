@@ -88,7 +88,8 @@ Ext.onReady(function(){
 			{name:'amount_to_be_paid', mapping:'amount_to_be_paid'},
 			{name:'Termremarks', mapping:'Termremarks'},
 			{name:'profit_margin', mapping:'profit_margin'},
-			{name:'payment_loc', mapping:'payment_loc'}
+			{name:'payment_loc', mapping:'payment_loc'},
+			{name:'restructured_status', mapping:'restructured_status'}
 		]
 	});
     Ext.define('AmortSchedmodel',{
@@ -485,6 +486,94 @@ Ext.onReady(function(){
 			}
 		}
 	];
+	var link_form = Ext.create('Ext.form.Panel', {
+		id: 'link_form',
+		model: 'AllocationModel',
+		//frame: true,
+		margin: '2 2 2 2',
+		items: [{
+			xtype: 'textfield',
+			id: 'rpt_transno',
+			name: 'rpt_transno',
+			fieldLabel: 'rpt_transno',
+			//allowBlank: false,
+			hidden: true
+		}, {
+			xtype: 'textfield',
+			id: 'rpt_transtype',
+			name: 'rpt_transtype',
+			fieldLabel: 'rpt_transtype',
+			//allowBlank: false,
+			hidden: true
+		}, {
+			xtype: 'textfield',
+			id: 'fldstatus',
+			name: 'fldstatus',
+			fieldLabel: 'fldstatus',
+			//allowBlank: false,
+			//hidden: true
+		}, {
+			xtype: 'fieldcontainer',
+			layout: 'hbox',
+			margin: '2 0 2 2',
+			items:[{
+				xtype: 'button',
+				cls: 'rptbtn',
+				width: 200,
+				text:'<b>Change Term</b>',
+				icon: '../../js/ext4/examples/shared/icons/cash-register-icon.png',
+				margin: '2 2 2 2',
+				handler : function() {
+					window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + Ext.getCmp('rpt_transno').getValue() + '&opening_balance=1&paytype=' + Ext.getCmp('rpt_transtype').getValue());
+					submit_window_InterB.close();
+				}
+			},{
+                xtype: 'splitter'
+			},{
+				xtype: 'button',
+				cls: 'rptbtn',
+				width: 200,
+				text:'<b>Restructured Account</b>',
+				icon: '../../js/ext4/examples/shared/icons/script.png',
+				margin: '2 2 2 2',
+				handler : function() {
+					if(Ext.getCmp('fldstatus').getValue() == 0){
+						window.open('../../sales/sales_invoice_restructured_approval.php?SONumber=' + Ext.getCmp('rpt_transno').getValue());
+					}else{
+						window.open('../../sales/sales_order_entry.php?NewRestructured=' + Ext.getCmp('rpt_transno').getValue());
+					}
+					
+					submit_window_InterB.close();
+				}
+			}]
+		},{
+			/*xtype: 'fieldcontainer',
+			layout: 'hbox',
+			margin: '2 0 2 2',
+			items:[{
+				xtype: 'button',
+				cls: 'rptbtn',
+				width: 200,
+				text: '<b>Cash Sales Invoice</b>',
+				icon: '../js/ext4/examples/shared/icons/script.png',
+				margin: '2 2 2 2',
+				handler: function () {
+					window.open('../reports/prnt_cash_SI_serialized.php?SI_req=YES&SI_num=' + Ext.getCmp('rpt_transno').getValue());
+					submit_window_InterB.close();
+				}
+			}]*/
+		}]
+	});
+	var link_window = Ext.create('Ext.Window',{
+		width 	: 430,
+		modal	: true,
+		plain 	: true,
+		border 	: false,
+		resizable: false,
+		closeAction:'hide',
+		//closable: false,
+		items:[link_form]
+	});
 
 	var AR_window = new Ext.create('Ext.Window',{
 		width 	: 900,
@@ -1555,7 +1644,15 @@ Ext.onReady(function(){
 				tooltip: 'Change term',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = ARInstallQstore.getAt(rowIndex);
-					window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + records.get('trans_no') + '&opening_balance=1&paytype=' + records.get('payment_loc'));
+					//window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + records.get('trans_no') + '&opening_balance=1&paytype=' + records.get('payment_loc'));
+					
+					Ext.getCmp('rpt_transno').setValue(records.get('trans_no'));
+					Ext.getCmp('rpt_transtype').setValue(records.get('payment_loc'));
+					Ext.getCmp('fldstatus').setValue(records.get('restructured_status'));
+
+					link_window.setTitle('Selection List');
+					link_window.show();
+					link_window.setPosition(500,150);
 				},
 				isDisabled: function(view, rowIndex, colIndex, item, record) {
 				//hidden : function(view, record) {

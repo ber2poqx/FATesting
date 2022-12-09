@@ -4926,13 +4926,6 @@ Ext.onReady(function() {
 			//allowBlank: false,
 			hidden: true
 		}, {
-			xtype: 'textfield',
-			id: 'rpt_syspk',
-			name: 'rpt_syspk',
-			fieldLabel: 'rpt_syspk',
-			//allowBlank: false,
-			hidden: true
-		}, {
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 2',
