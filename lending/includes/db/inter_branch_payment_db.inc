@@ -188,7 +188,7 @@ function get_notfa_interb($branch=null, $query=null)
 function interbranch_notfa_add($branch_code_from, $branch_code_to, $debtor_ref, $name, $trans_date, $ref_no, $amount, $remarks, $prepared_by,
 		$status, $approved, $transno_to, $transno_type, $type=0)
 {
-	set_global_connection();
+	//set_global_connection();
 
 	$sql = "INSERT INTO ".TB_PREF."interbranch_trans (
 					branch_code_from, branch_code_to, debtor_ref, debtor_name, trans_date, ref_no, amount, remarks, prepared_by,

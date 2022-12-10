@@ -796,11 +796,11 @@ Ext.onReady(function(){
 							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
 						}
 					});
-					window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
+					/*window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
 						//alert('An error has occurred!')
 						Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
 						return true;
-					}
+					}*/
 				}
 			}
 		},{
