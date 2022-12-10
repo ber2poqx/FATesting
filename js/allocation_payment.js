@@ -675,6 +675,13 @@ Ext.onReady(function(){
 				handler : function(grid, rowIndex, colIndex){
 					var records = done_allocate_store.getAt(rowIndex);
 					window.open('../gl/view/gl_trans_view.php?type_id=12&trans_no='+ records.get('trans_no'));
+				} 
+			}, '-', {
+				icon: '../../js/ext4/examples/shared/icons/print-preview-icon.png',
+				tooltip: 'Print Journal Voucher',
+				handler: function (grid, rowIndex, colIndex) {
+					var records = done_allocate_store.getAt(rowIndex);
+					window.open('../../reports/journal_voucher.php?trans_num=' + records.get('trans_no') + '&trans_type=12');
 				}
 			}]
 		}
