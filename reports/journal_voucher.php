@@ -356,12 +356,11 @@ function convert_number($number)
 		return db_query($sql, "DV_headers query could not be retrieved");
 	}	
 
-	function get_gl_trans_jnl($type, $trans_id)
+	function get_gl_trans_jnl($type, $trans_no)
 	{
 		set_global_connection();
 
-		$sql = "
-			SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
+		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
 					COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
 					IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
 			FROM ".TB_PREF."gl_trans as gl
@@ -376,24 +375,31 @@ function convert_number($number)
 				LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
 						AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
 				LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no
-			WHERE gl.amount <> 0";	
+			WHERE gl.amount <> 0 AND gl.type= '$type' AND gl.type_no = '$trans_no'  ORDER BY tran_date, counter";	
 		
 		/*
 		gl.type= ".db_escape($type) 
-			." AND gl.type_no = ".db_escape($trans_id)
+			." AND gl.type_no = ".db_escape($trans_no)
 		$sql .= " ORDER BY tran_date, counter";*/
-
-		sql .= " AND gl.type= ".db_escape($type)" AND gl.type_no = ".db_escape($trans_id)"  ORDER BY tran_date, counter";
+		//sql .= " AND gl.type= ".db_escape($type)" AND gl.type_no = ".db_escape($trans_no)"  ORDER BY tran_date, counter";
 
 		return db_query($sql, "The gl transactions could not be retrieved");
 	}
 	
-	function Comment($type, $trans_id)
+	function Comment($type, $trans_no)
 	{
 		$sql = "
 			SELECT *
 			FROM `comments` 
-			WHERE `type` = '$type' AND `id` = '$trans_id'";
+			WHERE `type` = '$type' AND `id` = '$trans_no'";
+
+		return db_query($sql, "DV_headers query could not be retrieved");
+	}
+
+	function InterB_trans($trans_no)
+	{
+		$sql = "
+			SELECT * FROM `interbranch_trans` WHERE transno_to_branch = '$trans_no' ";
 
 		return db_query($sql, "DV_headers query could not be retrieved");
 	}
@@ -402,7 +408,9 @@ function convert_number($number)
 <?php
 	//$trans_no = "1";
 	$trans_no = $_REQUEST['trans_num'];
+	$type = $_REQUEST['trans_type'];
 
+	/*
 	if(isset($_REQUEST['trans_type']))
 	{
 		$type = ST_CUSTPAYMENT;
@@ -410,23 +418,30 @@ function convert_number($number)
 	else 
 	{
 		$type = ST_JOURNAL;
-	}	
-	$trans_id = $trans_no;
+	}*/
+
+	//$trans_no = $trans_no;
 		
-	$trans_data = get_gl_trans_jnl($type, $trans_id);
+	$trans_data = get_gl_trans_jnl($type, $trans_no);
 	$get_data = db_fetch($trans_data);
 
 	$headers_result = JV_headers($trans_no);
 	$headers_row = db_fetch($headers_result);
 
-	$comment_result = Comment($type, $trans_id);
+	$comment_result = Comment($type, $trans_no);
 	$get_comment = db_fetch($comment_result);
+
+	$row_interB = InterB_trans($trans_no);
+	$get_interB = db_fetch($row_interB);
+
 
 	//$name = $headers_row["name"];
 	$voucher_num = $get_data["reference"];
 	$amount = abs($get_data["amount"]);
 	$date = $get_data["doc_date"];
 	$particular = $get_comment["memo_"];
+	$fromBranch = $get_interB["branch_code_from"];
+	$debtor_name = $get_interB["debtor_name"];
 		
 	$null1 = "";
 
@@ -490,26 +505,67 @@ function convert_number($number)
 				</div>			
 			</h4>
 		</div>
-		<table id="header" cellspacing="0" cellpadding="0">
-			<tr><td>&nbsp;</td></tr>
-			<tr>
-				<td align=left class="text-params">GL Details:</td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo 'Journal Entry #'.$trans_id?>" class="underline_input_long" readonly></th>
-				<td class="text-params">Journal_#:</td>
-				<th align=left><input type="text" value="<?php echo $voucher_num?>" class="underline_input" readonly></th>
-			</tr>
-			<tr>
-				<td align=left class="text-params"></td>
-				<th style="width: 50%;" align=left><input type="text" value="<?php echo $null1 ?>" class="underline_input_long" readonly></th>
-				<td class="text-params">Date:</td>
-				<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
-			</tr>
-			<tr>
-				<td style="width: 83px;" align=left class="text-params">Particulars:</td>
-				<th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php echo $particular?>" class="underline_input_long"></th>
-			</tr>
-			<tr><td>&nbsp;</td></tr>
-		</table>
+
+		<?php 
+			if ($type==ST_CUSTPAYMENT) 
+			{
+		?>
+				<table id="header" cellspacing="0" cellpadding="0">
+				<tr><td>&nbsp;</td></tr>
+				<tr>
+					<td align=left class="text-params">GL Details:</td>
+					<th style="width: 50%;" align=left><input type="text" value="<?php echo 'Journal Entry #: '.$trans_no?>" class="underline_input_long" readonly></th>
+					<td class="text-params">Journal_#:</td>
+					<th align=left><input type="text" value="<?php echo $voucher_num?>" class="underline_input" readonly></th>
+				</tr>
+				<tr>
+					<td align=left class="text-params">Originating Branch:</td>
+					<th style="width: 50%;" align=left><input type="text" value="<?php echo $fromBranch ?>" class="underline_input_long" readonly></th>
+					<td class="text-params">Date:</td>
+					<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
+				</tr>
+				<tr>
+					<td align=left class="text-params">Customer:</td>
+					<th style="width: 50%;" align=left><input type="text" value="<?php echo $debtor_name ?>" class="underline_input_long" readonly></th>
+					<td class="text-params"></td>
+					<th align=left><input type="text" value="<?php echo $null1?>" class="underline_input" readonly></th>
+				</tr>
+				<tr>
+					<td style="width: 83px;" align=left class="text-params">Particulars:</td>
+					<th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php echo $particular?>" class="underline_input_long"></th>
+				</tr>
+				<tr><td>&nbsp;</td></tr>
+				</table>
+		<?php
+			}
+			else
+			{
+		?>
+				<table id="header" cellspacing="0" cellpadding="0">
+				<tr><td>&nbsp;</td></tr>
+				<tr>
+					<td align=left class="text-params">GL Details:</td>
+					<th style="width: 50%;" align=left><input type="text" value="<?php echo 'Journal Entry #: '.$trans_no?>" class="underline_input_long" readonly></th>
+					<td class="text-params">Journal_#:</td>
+					<th align=left><input type="text" value="<?php echo $voucher_num?>" class="underline_input" readonly></th>
+				</tr>
+				<tr>
+					<td align=left class="text-params"></td>
+					<th style="width: 50%;" align=left><input type="text" value="<?php echo $null1 ?>" class="underline_input_long" readonly></th>
+					<td class="text-params">Date:</td>
+					<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
+				</tr>
+				<tr>
+					<td style="width: 83px;" align=left class="text-params">Particulars:</td>
+					<th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php echo $particular?>" class="underline_input_long"></th>
+				</tr>
+				<tr><td>&nbsp;</td></tr>
+				</table>
+		<?php 
+			}
+		?>
+
+		
 
 						
 		<div class="row">
@@ -528,7 +584,7 @@ function convert_number($number)
 						</tr>
 						<?php 	
 							
-							$result = get_gl_trans_jnl($type, $trans_id);								
+							$result = get_gl_trans_jnl($type, $trans_no);								
 							if (db_num_rows($result) > 0)
 							{
 								echo '<tr class="datatable"><td colspan="7" style="padding-top: 5px;" align=right><b> </b></td></tr>';
@@ -537,7 +593,7 @@ function convert_number($number)
 								while($myrow=db_fetch($result))
 								{	
 									
-									$memo_result = Comment($type, $trans_id);
+									$memo_result = Comment($type, $trans_no);
 									$myrow2 = db_fetch($memo_result);
 
 									echo '<tr class="datatable">';

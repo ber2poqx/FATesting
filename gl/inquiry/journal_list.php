@@ -92,7 +92,7 @@ function print_voucher($row) {
 
     if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_JE')) {
         $print_link = pager_link(_("Print: Journal Voucher"),
-            "/reports/journal_voucher.php?trans_num=" . $row["trans_no"],
+            "/reports/journal_voucher.php?trans_num=" . $row["trans_no"] . "&trans_type=0",
             ICON_PRINT
         );
     }
