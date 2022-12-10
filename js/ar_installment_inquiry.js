@@ -538,9 +538,9 @@ Ext.onReady(function(){
 				margin: '2 2 2 2',
 				handler : function() {
 					if(Ext.getCmp('fldstatus').getValue() == 0){
-						window.open('../../sales/sales_invoice_restructured_approval.php?SONumber=' + Ext.getCmp('rpt_transno').getValue());
+						window.open('../../sales/sales_invoice_restructured_approval.php?SONumber=' + Ext.getCmp('rpt_transno').getValue()+ '&paytype=' + Ext.getCmp('rpt_transtype').getValue());
 					}else{
-						window.open('../../sales/sales_order_entry.php?NewRestructured=' + Ext.getCmp('rpt_transno').getValue());
+						window.open('../../sales/sales_order_entry.php?NewRestructured=' + Ext.getCmp('rpt_transno').getValue()+ '&opening_balance=1&paytype=' + Ext.getCmp('rpt_transtype').getValue());
 					}
 					
 					submit_window_InterB.close();

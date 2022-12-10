@@ -27,7 +27,9 @@ if (user_use_date_picker())
     $js .= get_js_date_picker();
 page(_($help_context = "Draft Restructured # " . $_GET['SONumber']), false, false, "", $js);
 
-if (isset($_GET['SONumber']) && is_numeric($_GET['SONumber'])) {
+if (isset($_GET['SONumber']) && is_numeric($_GET['SONumber']) && $_GET['paytype'] == 'Lending') {
+	create_cart(70, $_GET['SONumber']);
+}else{
 	create_cart(ST_SALESORDER, $_GET['SONumber']);
 }
 
