@@ -791,6 +791,7 @@ if(isset($_GET['submit_inbpaysalone']))
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
     $InputError = 0;
+    $isdoneledger = 0;
     
     if (empty($_POST['transtype']) || empty($_POST['ref_no']) || empty($_POST['debit_acct']) || empty($_POST['custname'])) {
         $InputError = 1;
@@ -857,8 +858,6 @@ if(isset($_GET['submit_inbpaysalone']))
 
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
-
-    $conn = $db_connections[user_company()];
     
     //var_dump($objDataGrid);
     if (count($objDataGrid) == 0){
@@ -871,6 +870,7 @@ if(isset($_GET['submit_inbpaysalone']))
         begin_transaction();
         $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
         $debtor_loans = get_debtor_loans_info($_POST['InvoiceNo'], $_POST['customername']);
+        $company_record = get_company_prefs();
 
         foreach($objDataGrid as $value=>$data) {
             $Loansched_ID = $data['loansched_id'];
@@ -897,7 +897,6 @@ if(isset($_GET['submit_inbpaysalone']))
             $tenderd_amount = $_POST['tenderd_amount'];
 
             $branch_data = get_branch_accounts($BranchNo['branch_code']);
-            $company_record = get_company_prefs();
 
             $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
                                                 $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], 0, $_POST['moduletype']);
@@ -1067,17 +1066,22 @@ if(isset($_GET['submit_inbpaysalone']))
                                 
                             }
                         }
+                        $isdoneledger = 1;
                         if($tenderd_amount <= 0){
                             $tenderd_amount = 0;
                             break;
                         }
                     }
                 }
+            }
+
+            if($isdoneledger != 0) {
+
                 //allocate payment to trans number sales invoice
                 //($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty))
                 add_cust_allocation($allocatedAmount, ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
-
+                
                 //allocate discount
                 if($GLRebate != 0){
                     update_alloc_rebate(ST_CUSTPAYMENT, $payment_no, $GLRebate);
@@ -1123,7 +1127,7 @@ if(isset($_GET['submit_inbpaysalone']))
 
                 //allocate payment to
                 update_debtor_trans_allocation(ST_CUSTPAYMENT, $payment_no, $_POST['customername']);
-
+                
                 if(check_schedule_status($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']) == 0){
                     update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "fully-paid");
                     update_status_debtor_loans($_POST['InvoiceNo'], $_POST['customername'], "fully-paid");
@@ -1131,10 +1135,12 @@ if(isset($_GET['submit_inbpaysalone']))
                     update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "part-paid");
                     update_status_debtor_loans($_POST['InvoiceNo'], $_POST['customername'], "part-paid");
                 }
-
-                interbranch_notfa_add($_POST['branch_inb'], $conn['branch_code'], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
-                                        $_POST['preparedby'], 'approved', $_SESSION["wa_current_user"]->username, $payment_no, ST_CUSTPAYMENT, 3);
+                
+                interbranch_notfa_add($_POST['branch_inb'], $db_connections[user_company()]["branch_code"], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
+                                            $_POST['preparedby'], 'approved', $_SESSION["wa_current_user"]->username, $payment_no, ST_CUSTPAYMENT, 3);
+           
             }
+           
             $dsplymsg = _("Customer payment has been allocated successfully...");
         }
         echo '({"success":"true","message":"'.$dsplymsg.'", "payno":"'.$payment_no.'"})';
