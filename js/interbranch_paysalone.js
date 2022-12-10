@@ -440,7 +440,7 @@ Ext.onReady(function(){
 				tooltip: 'Print Journal Voucher',
 				handler: function (grid, rowIndex, colIndex) {
 					var records = qqinterb_store.getAt(rowIndex);
-					window.open('../../reports/journal_voucher.php?trans_num=' + records.get('id'));
+					window.open('../../reports/journal_voucher.php?trans_num=' + records.get('id') + '&trans_type=12');
 				}
 			}]
 		}

@@ -359,26 +359,31 @@ function convert_number($number)
 	function get_gl_trans_jnl($type, $trans_id)
 	{
 		set_global_connection();
-		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
-				COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
-				IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
-		FROM ".TB_PREF."gl_trans as gl
-			LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
-			LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
-			LEFT JOIN ".TB_PREF."audit_trail as audit ON (gl.type=audit.type AND gl.type_no=audit.trans_no AND NOT ISNULL(gl_seq))
-			LEFT JOIN ".TB_PREF."users as user ON (audit.user=user.id)
-				# all this below just to retrieve doc_date :>
-			LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
-			LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE." AND gl.person_id=grn.supplier_id
-			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
-			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
-				 AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
-			LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no"
 
-			." WHERE gl.type= ".db_escape($type) 
+		$sql = "
+			SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
+					COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
+					IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
+			FROM ".TB_PREF."gl_trans as gl
+				LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
+				LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
+				LEFT JOIN ".TB_PREF."audit_trail as audit ON (gl.type=audit.type AND gl.type_no=audit.trans_no AND NOT ISNULL(gl_seq))
+				LEFT JOIN ".TB_PREF."users as user ON (audit.user=user.id)
+					# all this below just to retrieve doc_date :>
+				LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
+				LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE." AND gl.person_id=grn.supplier_id
+				LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
+				LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
+						AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
+				LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no
+			WHERE gl.amount <> 0";	
+		
+		/*
+		gl.type= ".db_escape($type) 
 			." AND gl.type_no = ".db_escape($trans_id)
-			." AND gl.amount <> 0"
-			." ORDER BY tran_date, counter";
+		$sql .= " ORDER BY tran_date, counter";*/
+
+		sql .= " AND gl.type= ".db_escape($type)" AND gl.type_no = ".db_escape($trans_id)"  ORDER BY tran_date, counter";
 
 		return db_query($sql, "The gl transactions could not be retrieved");
 	}
@@ -397,7 +402,15 @@ function convert_number($number)
 <?php
 	//$trans_no = "1";
 	$trans_no = $_REQUEST['trans_num'];
-	$type = ST_JOURNAL;
+
+	if(isset($_REQUEST['trans_type']))
+	{
+		$type = ST_CUSTPAYMENT;
+	}
+	else 
+	{
+		$type = ST_JOURNAL;
+	}	
 	$trans_id = $trans_no;
 		
 	$trans_data = get_gl_trans_jnl($type, $trans_id);
