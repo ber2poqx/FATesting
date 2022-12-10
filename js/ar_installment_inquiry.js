@@ -511,7 +511,7 @@ Ext.onReady(function(){
 			name: 'fldstatus',
 			fieldLabel: 'fldstatus',
 			//allowBlank: false,
-			//hidden: true
+			hidden: true
 		}, {
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
