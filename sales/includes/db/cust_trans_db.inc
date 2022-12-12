@@ -778,7 +778,8 @@ function add_debtor_term_modification(
 	$rebate_if_adv_pay = 0,
 	$sales_adjustment = 0,
 	$termode_full_payment= 0,
-	$amount_to_be_paid_status = 'unpaid' //Added by Albert 11/05/2022
+	$amount_to_be_paid_status = 'unpaid',
+	$si_trans_no //Added by Albert 11/05/2022
 
 ) {
 	if ($installmentplcy_id == 0) {
@@ -819,7 +820,8 @@ function add_debtor_term_modification(
 		type,
 		adv_payment_rebate,
 		sales_adjustment,
-		term_mode_fullpayment
+		term_mode_fullpayment,
+		si_trans_no
 		) VALUES (
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
@@ -851,7 +853,8 @@ function add_debtor_term_modification(
 		$type,
 		" .db_escape($rebate_if_adv_pay). ",
 		" .db_escape($sales_adjustment). ",
-		" .db_escape($termode_full_payment). ")";
+		" .db_escape($termode_full_payment). ",
+		" .db_escape($si_trans_no). ")";
 	db_query($sql, "The debtor loans record could not be inserted");
 }
 /* */

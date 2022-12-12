@@ -117,7 +117,10 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
         ST_SITERMMOD,
         $invoice->rebate_if_adv_pay,
         $invoice->sales_adjustment,
-        $invoice->termode_full_payment
+        $invoice->termode_full_payment,
+        'unpaid',
+        $row['trans_no']
+
     );
     // Down-payment 
     if($invoice->termode_full_payment != 1){

@@ -114,7 +114,12 @@ function write_restructured(&$invoice, $opening_balances=0)
         $invoice->category_id, //Added by Albert
         $invoice->new_profit_margin,
         $term_mode_type,
-        ST_RESTRUCTURED
+        ST_RESTRUCTURED,
+        0,
+        0,
+        0,
+        'unpaid',
+        $row['trans_no']
 
     );
     // Down-payment 
