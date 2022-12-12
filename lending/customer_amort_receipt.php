@@ -1236,9 +1236,15 @@ if(isset($_GET['submit']))
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
+                    
+                    if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
+                        $termode_status = 'Closed';
+                    }else{
+                        $termode_status = 'part-paid';
+                    }
 
-                    update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "part-paid");
-                    update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "part-paid");
+                    update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], $termode_status);
+                    update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "paid");
 
                 }else{
                     

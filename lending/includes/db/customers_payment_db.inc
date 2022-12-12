@@ -248,7 +248,7 @@ function get_invoice_per_customer($debtor_no, $tag)
 				AND IFNULL(A.module_type,'') != 'REPO'
 				AND A.debtor_no = ".db_escape($debtor_no)."
 				".$criteria;
-
+				
 	return db_query($sql, "could not get all customer invoice");
 }
 
@@ -869,6 +869,19 @@ function get_InvoiceCOA($trans_no, $type)
 			WHERE X.person_id is not null AND X.amount >0 
 				AND X.type_no=".db_escape($trans_no)."
 				And X.type = ".db_escape($type);
+				
+	$result = db_query($sql, "could not get defered balance");
+	$row =  db_fetch($result);
+
+	return $row[0];
+}
+
+function isTermFullpayment($trans_no, $type)
+{
+	$sql = "SELECT z.term_mode_fullpayment 
+			FROM ".TB_PREF."debtor_term_modification z 
+			WHERE z.type=".db_escape($trans_no)."
+				And z.type = ".db_escape($type);
 				
 	$result = db_query($sql, "could not get defered balance");
 	$row =  db_fetch($result);
