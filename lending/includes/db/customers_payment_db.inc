@@ -880,9 +880,9 @@ function isTermFullpayment($trans_no, $type)
 {
 	$sql = "SELECT z.term_mode_fullpayment 
 			FROM ".TB_PREF."debtor_term_modification z 
-			WHERE z.type=".db_escape($trans_no)."
+			WHERE z.trans_no=".db_escape($trans_no)."
 				And z.type = ".db_escape($type);
-				
+			
 	$result = db_query($sql, "could not get defered balance");
 	$row =  db_fetch($result);
 
