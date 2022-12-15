@@ -287,18 +287,28 @@ function get_payment_applied($type, $trans_no)
 	return $row[0];
 }
 
-function get_cost_Sales($type, $trans_no)
+function get_cost_Sales($type, $trans_no, $debtor_no)
 {
 	$company_record = get_company_prefs();
 	//'501001' cost of sales
-
-	$sql = "SELECT A.amount
+	//$typechild = get_sales_child_documents(ST_SALESORDER, $trans_no);
+	//$type_row = db_fetch($typechild);
+	//$delivery_no = get_trans_delivery($trans_no, ST_CUSTDELIVERY);
+	
+	/*$sql = "SELECT A.amount
 		FROM ".TB_PREF."gl_trans A
 			INNER JOIN ".TB_PREF."debtor_trans B on B.trans_no = A.type_no
 		WHERE A.account = ".db_escape($company_record["default_cogs_act"]). "
 			AND B.type = ".db_escape($type). "
 			AND B.trans_no = ".db_escape($trans_no);
-			
+		*/
+
+		$sql = "SELECT A.amount
+		FROM ".TB_PREF."gl_trans A
+		WHERE A.account = ".db_escape($company_record["default_cogs_act"]). "
+			AND A.type = ".db_escape(ST_CUSTDELIVERY). "
+			AND A.type_no = ".db_escape(get_trans_delivery($trans_no, $type, $debtor_no));
+			//echo $sql . ' - '. $trans_no;
 	$result = db_query($sql, "could not get cost of sales amount");
 	$row = db_fetch($result);
 	return $row[0];
@@ -577,4 +587,21 @@ function repo_update_mt_header($id)
 	
 	db_query($sql, "could not update  mt header because ");
 	set_global_connection();
+}
+
+function get_trans_delivery($trans_no, $trans_type, $debtor_no)
+{
+	$sql = "SELECT A.debtor_trans_no
+			FROM ".TB_PREF."debtor_trans_details A 
+			INNER JOIN ".TB_PREF."sales_orders B ON B.order_no = A.src_id
+			INNER JOIN ".TB_PREF."sales_order_details C ON C.order_no = B.order_no AND C.stk_code = A.stock_id
+			INNER JOIN ".TB_PREF."debtor_trans_details D ON D.stock_id = A.stock_id AND D.stock_id = C.stk_code
+			WHERE  D.debtor_trans_no = ".db_escape($trans_no)."
+				AND D.debtor_trans_type = ".db_escape($trans_type)."
+				AND B.debtor_no = ".db_escape($debtor_no);
+
+	$result = db_query($sql, "could not get delivery info because");
+	//echo $sql;
+	$row = db_fetch($result);
+	return $row[0];
 }

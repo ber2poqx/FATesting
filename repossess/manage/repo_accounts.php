@@ -117,13 +117,13 @@ if(isset($_GET['get_InvoiceNo']))
                 SI Openbal -- unrecovered cost = (total unit cost(/cost of sales) - recovered cost)
             *****/
             $totalpayment = get_payment_applied($myrow["type"], $myrow["trans_no"]);
-            $costofsales = get_cost_Sales($myrow["type"], $myrow["trans_no"]);
-
+            $costofsales = get_cost_Sales($myrow["type"], $myrow["trans_no"], $_GET['debtor_id']);
+            
             $balance = ($myrow["ar_amount"] - $totalpayment);
     
             $CGPM = (1 - $myrow["profit_margin"]);
             $dgp = ($totalpayment * $CGPM);
-            
+            //echo "total:".$totalpayment. "-margin:".$CGPM."-cost:".$costofsales;
             if($myrow["opening_balances"] == 1){
                 $unrecoverd = ($myrow["total_amount"] - $myrow["recovered_cost"]);
             }else{
