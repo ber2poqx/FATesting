@@ -645,7 +645,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 
 									if($myrow["receipt_no"] == '') {
 										$ref_trans_no = $myrow["reference"];
-									}elseif($myrow["receipt_no"] == 0){
+									}elseif($myrow["receipt_no"] == '0'){
 										$ref_trans_no = $myrow["ref"];
 									}else{
 										$ref_trans_no = $myrow["receipt_no"];
