@@ -143,7 +143,7 @@ function get_loan_amortization_ledgerss($type, $trans_no, $branch_code)
 	$db_coy = Get_db_coy($branch_code);
     set_global_connection($db_coy);
 
-	$sql = "SELECT A.id, A.debtor_no, A.trans_no, A.trans_type, A.month_no, A.date_due, A.principal_due, C.reference, D.receipt_no, D.ref
+	$sql = "SELECT A.id, A.debtor_no, A.trans_no, A.trans_type, A.month_no, A.date_due, A.principal_due, C.reference, D.receipt_no, D.ref,
 					B.date_paid, B.payment_applied, B.rebate, B.penalty, B.id ledger_id
 			FROM ".TB_PREF."debtor_loan_schedule A
 				LEFT JOIN ".TB_PREF."debtor_loan_ledger B ON B.loansched_id = A.id
@@ -645,7 +645,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 
 									if($myrow["receipt_no"] == '') {
 										$ref_trans_no = $myrow["reference"];
-									}elseif($myrow["receipt_no"] == '0'){
+									}elseif($myrow["receipt_no"] == 0){
 										$ref_trans_no = $myrow["ref"];
 									}else{
 										$ref_trans_no = $myrow["receipt_no"];
