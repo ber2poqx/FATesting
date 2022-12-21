@@ -196,6 +196,20 @@ Ext.onReady(function(){
 			direction : 'ASC'
 		}]
 	});
+	var PaymentTypeStore = Ext.create('Ext.data.Store', {
+		fields: ['id','name'],
+		autoLoad : true,
+		proxy: {
+			url: '?get_PaymentType=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true
+	});
 	var ARInvoiceStore = Ext.create('Ext.data.Store', {
 		model: 'comboModel',
 		//autoLoad : true,
@@ -496,6 +510,18 @@ Ext.onReady(function(){
 			allowBlank: false,
 			hidden: true
 		},{
+			xtype: 'textfield',
+			fieldLabel: 'Prepared By ',
+			id: 'preparedby',
+			name: 'preparedby',
+			allowBlank: false,
+			readOnly: true,
+			labelWidth: 100,
+			width: 255,
+			margin: '0 280 0 0',
+			fieldStyle: 'font-weight: bold; color: #210a04;',
+			hidden: true
+		},{
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 5',
@@ -526,7 +552,7 @@ Ext.onReady(function(){
 				fieldLabel : 'Date ',
 				allowBlank: false,
 				labelWidth: 100,
-				width: 255,
+				width: 260,
 				format : 'm/d/Y',
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				value: Ext.Date.format(new Date(), 'Y-m-d'),
@@ -587,7 +613,7 @@ Ext.onReady(function(){
 				allowBlank: false,
 				enforceMaxLength: true,
 				labelWidth: 100,
-				width: 255,
+				width: 260,
 				maxLength : 7,
 				maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
@@ -623,16 +649,45 @@ Ext.onReady(function(){
 					}
 				}
 			},{
-				xtype: 'textfield',
-				fieldLabel: 'Prepared By ',
-				id: 'preparedby',
-				name: 'preparedby',
+				xtype: 'combobox',
+				id: 'paymentType2',
+				name: 'paymentType2',
+				fieldLabel: 'Payment type ',
+				store: PaymentTypeStore,
+				displayField: 'name',
+				valueField: 'id',
+				queryMode: 'local',
+				width: 260,
+				margin: '0 0 2 0',
 				allowBlank: false,
-				readOnly: true,
-				labelWidth: 100,
-				width: 255,
-				margin: '0 280 0 0',
-				fieldStyle: 'font-weight: bold; color: #210a04;'
+				forceSelection: true,
+				selectOnFocus:true,
+				editable: false,
+				fieldStyle: 'font-weight: bold; color: #210a04;',
+				listeners: {
+					/*select: function(combo, record, index) {
+						Ext.getCmp('tenderd_amount').setValue();
+						Ext.getCmp('tenderd_amount').focus(false, 200);
+
+						AllocationStore.proxy.extraParams = {transNo: Ext.getCmp('InvoiceNo').getValue(), debtor_no: Ext.getCmp('customername').getValue(), transtype: Ext.getCmp('transtype').getValue(), transdate: Ext.getCmp('trans_date').getValue(), pay_type: record.get('id'), colltype: Ext.getCmp('collectType').getValue(), payloc: Ext.getCmp('paylocation').getValue() };
+						AllocationStore.load();
+
+						var allocgrid = Ext.getCmp('AllocTabGrid');
+						if(record.get('id') == "down"){
+							allocgrid.columns[6].setVisible(false);
+							allocgrid.columns[7].setVisible(true);
+							allocgrid.columns[8].setVisible(true);
+							allocgrid.columns[9].setVisible(false);
+							allocgrid.columns[10].setVisible(false);
+						}else{
+							allocgrid.columns[6].setVisible(true);
+							allocgrid.columns[7].setVisible(false);
+							allocgrid.columns[8].setVisible(false);
+							allocgrid.columns[9].setVisible(true);
+							allocgrid.columns[10].setVisible(true);
+						}
+					}*/
+				}
 			}]
 		},{
 			xtype: 'fieldcontainer',

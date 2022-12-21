@@ -181,7 +181,7 @@ function get_notfa_interb($branch=null, $query=null)
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_ref = A.debtor_ref
 				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.transno_to_branch
 		WHERE A.type = 3 ".$sWhere;
-
+	
 	return db_query($sql, "could not get inter-branch payment");
 }
 
