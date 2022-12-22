@@ -642,10 +642,35 @@ Ext.onReady(function(){
 						Getreference();
 						Ext.getCmp('transtype').setValue(record.get('type'));
 
-						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue()};
+						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue()};
 						AllocationStore.load();
 						SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
 						SIitemStore.load();
+
+						if(record.get('status') == "Pending" && record.get('type') != 56){
+
+							Ext.getCmp('paymentType2').setValue('down');
+							allocgrid.columns[6].setVisible(false);
+							allocgrid.columns[7].setVisible(true);
+							allocgrid.columns[8].setVisible(true);
+							allocgrid.columns[9].setVisible(false);
+							allocgrid.columns[10].setVisible(false);
+
+							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue()};
+							AllocationStore.load();
+
+						}else{
+							
+							Ext.getCmp('paymentType2').setValue('amort');
+							allocgrid.columns[6].setVisible(true);
+							allocgrid.columns[7].setVisible(false);
+							allocgrid.columns[8].setVisible(false);
+							allocgrid.columns[9].setVisible(true);
+							allocgrid.columns[10].setVisible(true);
+
+							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue()};
+							AllocationStore.load();
+						}
 					}
 				}
 			},{
@@ -665,6 +690,11 @@ Ext.onReady(function(){
 				editable: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
+					select: function(combo, record, index) {
+						AllocationStore.proxy.extraParams = {transNo: Ext.getCmp('InvoiceNo').getValue(), debtor_no: Ext.getCmp('customername').getValue(), transtype: Ext.getCmp('transtype').getValue(), transdate: Ext.getCmp('trans_date').getValue(), pay_type: record.get('id') };
+						AllocationStore.load();
+					}
+
 					/*select: function(combo, record, index) {
 						Ext.getCmp('tenderd_amount').setValue();
 						Ext.getCmp('tenderd_amount').focus(false, 200);
@@ -924,6 +954,7 @@ Ext.onReady(function(){
 
 			Ext.getCmp('moduletype').setValue('NOTFA-INTERB');
 			Ext.getCmp('paymentType').setValue('alloc')
+			Ext.getCmp('paymentType2').setValue('amort')
 			GetCashierPrep();
 
 			submit_window.show();

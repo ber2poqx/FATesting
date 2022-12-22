@@ -200,7 +200,49 @@ if(isset($_GET['get_aloc']))
 {
     $PartialPayment = $Penalty = $RebateAmount = $TotalBalance = $DP_Discount = 0;
     
-    if($_GET['islending'] ==  1){
+    if($_GET['pay_type'] == "down"){
+        $result = get_amort_downpayment($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype']);
+        $total = DB_num_rows($result);
+        $dprow = db_fetch($result);
+
+        if($dprow['status'] == 'unpaid'){
+            $DP_Discount = ($dprow["discount_downpayment"] + $dprow["discount_downpayment2"]);
+        }
+        $Totalpayment = ($dprow["downpayment_amount"] - $DP_Discount);
+        $paymentAppld = get_payment_appliedSUM($_GET['transtype'],$_GET['transNo'], $dprow["loansched_id"]);
+        $total_runbal = $dprow["total_runbal"];
+        $month_no = $dprow["month_no"];
+        $date_due = date('m-d-Y', strtotime($dprow["date_due"]));
+        $loansched_id = $dprow["loansched_id"];
+
+        if($paymentAppld != 0){
+            $PartialPayment = $paymentAppld;
+            $Totalpayment -= $paymentAppld;
+        }
+        $grossPM = $dprow["profit_margin"];
+
+        $status_array[] = array('loansched_id'=>$loansched_id,
+            'debtor_id'=>$_GET['debtor_no'],
+            'trans_no'=>$_GET['transNo'],
+            'date_due'=>$date_due,
+            'maturity_date'=>date('m-d-Y', strtotime($dprow["maturity_date"])),
+            'mosterm'=>$month_no,
+            'downpayment'=>$dprow["downpayment_amount"],
+            'amortization'=>0,
+            'ar_due'=>$total_runbal,
+            'rebate'=>0,
+            'penalty'=>0,
+            'penaltyBal'=>0,
+            'partialpayment'=>$PartialPayment,
+            'totalpayment'=>$Totalpayment,
+            'alloc_amount'=>0,
+            'dp_discount'=>$DP_Discount,
+            'grossPM'=>$grossPM,
+            'comptdGPM'=>0,
+            'balance'=>$ar_balance
+        );
+        
+    }else if($_GET['islending'] ==  1){
         $result = get_ARinvoice_debtor_trans($_GET['transNo'], $_GET['debtor_no']);
         $invoicerow = db_fetch($result);
 
