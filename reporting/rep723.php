@@ -77,7 +77,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 	{
 		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to'";
 	}
-		$sql .= " ORDER BY bt.receipt_no, gl.`tran_date`, gl.`counter`";
+		$sql .= " ORDER BY gl.`tran_date`, gl.`counter`";
 		
 	return db_query($sql,"No transactions were returned");
 }
