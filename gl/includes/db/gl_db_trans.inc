@@ -82,6 +82,11 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 	if ($link_type > 0) {
 		$sql .= ", link_type";
 	}
+	/*Added by Albert 12/22/2022*/
+	if ($amount_in_home_currency > 0) {
+		$sql .= ", balance_due";
+	}
+	//
 
 	$sql .= ") ";
 
@@ -103,7 +108,11 @@ function add_gl_trans($type, $trans_id, $date_, $account, $dimension, $dimension
 	if ($link_type > 0) {
 		$sql .= ", " .db_escape($link_type);
 	}
-
+	/*Added by Albert 12/22/2022*/
+	if ($amount_in_home_currency > 0) {
+		$sql .= ", " .db_escape($amount_in_home_currency);
+	}
+	//
 	$sql .= ") ";
 
 	if ($err_msg == "") {
