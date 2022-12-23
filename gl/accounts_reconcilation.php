@@ -90,13 +90,38 @@ Function get_gl_check($id){
 }
 Function get_gl_check_list(){
 	$sql = "SELECT 
-			counter
+			sum(amount)
 			FROM ".TB_PREF."gl_trans
 			where ischecked = 1";
 
 	$result = db_query($sql, "Cant get check box value");
 
-	return $result;
+	$row = db_fetch_row( $result);
+
+	return $row[0];
+}
+function update_balance_due($balance_due, $id){
+	$sql = "UPDATE " . TB_PREF . "gl_trans SET balance_due = ".db_escape($balance_due)." where counter =".db_escape($id);
+	db_query($sql, 'Concurrent editing conflict while gl_trans update check box');
+	
+}
+
+function add_reconcile_accounts($recon_no, $type, $type_no, $recon_date, $account, $masterfile, $amount, $balance_due){
+	$sql = "INSERT INTO " .TB_PREF. "reconcile_accounts (reconcile_no, type, type_no, reconcile_date, account, master_file, amount, balance_due)
+	VALUES(".db_escape($recon_no).",".db_escape($type).", ".db_escape($type_no).",".db_escape($recon_date).", ".db_escape($account).",".db_escape($masterfile).", ".db_escape($amount).",".db_escape($balance_due).")";
+	
+	db_query($sql,"reconcile_accounts could not be added.");
+}
+function get_max_recon_no(){
+	$sql = "SELECT 
+			max(reconcile_no)
+			FROM ".TB_PREF."reconcile_accounts ";
+
+	$result = db_query($sql, "Cant get check box value");
+
+	$row = db_fetch_row( $result);
+
+	return $row[0];
 
 }
 
@@ -109,33 +134,93 @@ if ($id != -1) {
 
 if (isset($_POST['ReconcileAll'])) {
 
+	$recon_no = get_max_recon_no() == '' ? 1 : get_max_recon_no()+1;
+
 	foreach($_POST['last'] as $id => $value)
-		if(get_gl_check($id)){
-			// change_tpl_flag($id);
+		if(get_gl_check($id)){		
 
 			$credit_amount = 0;
 			$data = db_fetch(get_gl_trans('', '', '', $id));
 
 			//this is to get the credit amount
 			if($data['amount']< 0){
+				$amount_ = db_fetch(get_gl_trans_amount($id));
 				$credit_id = $id;
-				$credit_amount = $data['amount'];
+				//get the total amount credit
+				// foreach($amount_ as $balance_due){
+				// 	$credit_amount += $balance_due;
+				// }
+				$credit_amount =  $amount_['amount'];
 
+			
 				foreach($_POST['last'] as $trans_id => $value){
 					if(get_gl_check($trans_id)){
-						$data = db_fetch(get_gl_trans('', '', '', $trans_id));
+						$row = db_fetch(get_gl_trans('', '', '', $trans_id));
 						//get the debit amount
-						if($data['amount'] > 0){
-			
-							display_warning("game".$credit_amount);
+						if($row['amount'] > 0){
+							if($credit_amount < 0){
+								$credit_amount = $credit_amount + $row['amount'];
+							}else{
+								$credit_amount = $row['amount'];
+
+							}
+							if(get_gl_check_list() >= 0){
+								$datenow = Today();
+								if($credit_amount <= 0){
+									update_balance_due(0, $trans_id);
+									
+									add_reconcile_accounts(
+										$recon_no, 
+										$row['type'], 
+										$row['type_no'],
+										date('Y-m-d', strtotime($datenow)),
+										$row['account'],
+										$row['master_file'],
+										$row['amount'],
+										0
+									);
+
+
+								}else{
+									if($credit_amount != $row['amount']){
+
+										update_balance_due($credit_amount, $trans_id);
+
+										add_reconcile_accounts(
+											$recon_no, 
+											$row['type'], 
+											$row['type_no'],
+											date('Y-m-d', strtotime($datenow)),
+											$row['account'],
+											$row['master_file'],
+											$row['amount'],
+											$credit_amount
+										);
+									change_tpl_flag($trans_id);
+
+									}else{
+										display_warning("Transaction # $trans_id Gl is not reconcile");
+									}
+									
+								}
+							// display_warning("game".$balance_due);
+							// display_warning("ga".$data['amount']);
+							
+							
+							}else{
+								
+								display_warning("The Amount to be reconcile is not valid!!! Please allocate the payment!!!");
+							}
+							
 
 						}
+						change_tpl_flag($id);
 					}
-				}
+				}		
 
 			}
-
-		}
+			
+		}	
 
     $Ajax->activate('_page_body');
 }
@@ -184,6 +269,7 @@ $sql = get_gl_transactions_list(
 	array(
 		_("Type") => array('fun'=>'systype_name', 'ord'=>''),
 		_("#"),
+		_("Reconcilation Date"),
 		_("Masterfile"),
 		_("Reference"),
 		_("Amount"),

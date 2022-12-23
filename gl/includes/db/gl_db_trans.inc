@@ -876,10 +876,9 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
     $from = date2sql($from_date);
     $to = date2sql($to_date);
 
-    $sql = "SELECT gl.type, gl.type_no, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, gl.tran_date, 
+    $sql = "SELECT gl.type, gl.type_no, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, gl.tran_date, 
 			IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
 			gl.mcode, gl.ischecked
-
 
             
 			FROM ".TB_PREF."gl_trans gl
@@ -905,7 +904,8 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
             LEFT JOIN ".TB_PREF."users u ON a.user = u.id
             LEFT JOIN ".TB_PREF."comments c ON c.id = gl.type_no AND c.type = gl.type
 
-            LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no ";
+            LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no 
+			LEFT JOIN ".TB_PREF."reconcile_accounts recon ON recon.type = gl.type AND recon.type_no = gl.type_no ";
 			
     $sql .= " WHERE ISNULL(v.date_) AND gl.tran_date >= '$from' AND gl.tran_date <= '$to'
         	AND gl.amount <> 0"; 
@@ -960,4 +960,16 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
     $sql .= " ORDER BY tran_date, counter";
 
     return $sql;
+}
+function get_gl_trans_amount($counter = '') {
+	set_global_connection();
+	
+	$sql = "SELECT gl.amount
+	FROM ".TB_PREF."gl_trans AS gl
+	WHERE gl.amount <> 0";
+	if ($counter != '') {
+		$sql .= " AND gl.counter = ".db_escape($counter);
+	}
+
+	return db_query($sql, "The gl transactions could not be retrieved");
 }
