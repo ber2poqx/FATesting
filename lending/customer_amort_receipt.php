@@ -1245,7 +1245,7 @@ if(isset($_GET['submit']))
 
                     update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], $termode_status);
                     update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "paid");
-
+                    
                 }else{
                     
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],

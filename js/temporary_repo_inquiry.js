@@ -349,8 +349,8 @@ Ext.onReady(function(){
 		}
 	];
 	var Item_view = [
-		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120},
-		{header:'<b>Description</b>', dataIndex:'description', width:148,
+		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120, editor: 'textfield'},
+		{header:'<b>Description</b>', dataIndex:'description', width:148, editor: 'textfield', 
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -636,6 +636,7 @@ Ext.onReady(function(){
 			loadMask: true,
 			store:	SIitemStore,
 			columns: Item_view,
+			plugins: [cellEditing],
 			columnLines: true
 		}]
 	});
