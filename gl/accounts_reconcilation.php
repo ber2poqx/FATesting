@@ -314,8 +314,6 @@ $sql = get_gl_transactions_list(
 		_("Reference"),
 		_("Amount"),
 		_("Balance Due"),
-		_("id"),
-
 		"X"=>array('insert'=>true, 'fun'=>'rec_checkbox')
 	   );
 	$table =& new_db_pager('trans_tbl', $sql, $cols);
