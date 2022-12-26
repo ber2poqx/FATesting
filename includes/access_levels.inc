@@ -509,7 +509,7 @@ $security_areas =array(
 	'SA_TAX_MISC_REP' => array(SS_GL_A|17, _("Tax Miscellaneous Report")),
 	'SA_TRIALB_LIST' => array(SS_GL_A|18, _("Trial Balance Inquiry List")),
 	'SA_GL_MISC_REP2' => array(SS_GL_A|19, _("GL Miscellaneous Report")),
-	'SA_ACCOUNTS_RECON' => array(SS_GL_A|20, _("Accounts Reconcillation")),
+	'SA_ACCOUNTS_RECON' => array(SS_GL_A|20, _("Internal Reconcillation")),
 
 	//Added by spyrax10 25 Mar 2022
 	'SA_REMIT' => array(SS_GL_B|1, _("Remittance Entry")),
