@@ -106,9 +106,39 @@ function update_balance_due($balance_due, $id){
 	
 }
 
-function add_reconcile_accounts($recon_no, $type, $type_no, $recon_date, $account, $masterfile, $amount, $balance_due){
-	$sql = "INSERT INTO " .TB_PREF. "reconcile_accounts (reconcile_no, type, type_no, reconcile_date, account, master_file, amount, balance_due)
-	VALUES(".db_escape($recon_no).",".db_escape($type).", ".db_escape($type_no).",".db_escape($recon_date).", ".db_escape($account).",".db_escape($masterfile).", ".db_escape($amount).",".db_escape($balance_due).")";
+function add_reconcile_accounts(
+	$recon_no, $type, 
+	$type_no, 
+	$recon_date, 
+	$account, 
+	$masterfile, 
+	$amount, 
+	$balance_due,
+	$credit_ref_no,
+	$credit_ref_type){
+
+	$sql = "INSERT INTO " .TB_PREF. "reconcile_accounts (
+	reconcile_no, 
+	type, 
+	type_no, 
+	reconcile_date, 
+	account, 
+	master_file, 
+	amount, 
+	balance_due,
+	credit_ref_no,
+	credit_ref_type)
+	VALUES(
+		".db_escape($recon_no).",
+		".db_escape($type).", 
+		".db_escape($type_no).",
+		".db_escape($recon_date).", 
+		".db_escape($account).",
+		".db_escape($masterfile).", 
+		".db_escape($amount).",
+		".db_escape($balance_due,).",
+		".db_escape($credit_ref_no).",
+		".db_escape($credit_ref_type).")";
 	
 	db_query($sql,"reconcile_accounts could not be added.");
 }
@@ -144,18 +174,22 @@ if (isset($_POST['ReconcileAll'])) {
 
 			//this is to get the credit amount
 			if($data['amount']< 0){
-				$amount_ = db_fetch(get_gl_trans_amount($id));
+				$credit_data = db_fetch(get_gl_trans_amount($id));
 				$credit_id = $id;
 				//get the total amount credit
 				// foreach($amount_ as $balance_due){
 				// 	$credit_amount += $balance_due;
 				// }
-				$credit_amount =  $amount_['amount'];
+				$credit_amount = $credit_data['amount'];
+				$credit_ref_no = $data['type_no'];
+				$credit_ref_type = $data['type'];
+
 
 			
 				foreach($_POST['last'] as $trans_id => $value){
 					if(get_gl_check($trans_id)){
 						$row = db_fetch(get_gl_trans('', '', '', $trans_id));
+						$ref_no = $row['type_no'];
 						//get the debit amount
 						if($row['amount'] > 0){
 							if($credit_amount < 0){
@@ -177,9 +211,12 @@ if (isset($_POST['ReconcileAll'])) {
 										$row['account'],
 										$row['master_file'],
 										$row['amount'],
-										0
-									);
+										0,
+										$credit_ref_no,
+										$credit_ref_type
+									);	
 
+									change_tpl_flag($trans_id);
 
 								}else{
 									if($credit_amount != $row['amount']){
@@ -194,7 +231,9 @@ if (isset($_POST['ReconcileAll'])) {
 											$row['account'],
 											$row['master_file'],
 											$row['amount'],
-											$credit_amount
+											$credit_amount,
+											$credit_ref_no,
+											$credit_ref_type
 										);
 									change_tpl_flag($trans_id);
 
@@ -213,7 +252,8 @@ if (isset($_POST['ReconcileAll'])) {
 							}
 							
 
-						}
+						}	
+						display_warning("Transaction #: $ref_no Gl is successfuly reconciled");
 						change_tpl_flag($id);
 					}
 				}		
@@ -274,6 +314,7 @@ $sql = get_gl_transactions_list(
 		_("Reference"),
 		_("Amount"),
 		_("Balance Due"),
+		_("id"),
 
 		"X"=>array('insert'=>true, 'fun'=>'rec_checkbox')
 	   );
