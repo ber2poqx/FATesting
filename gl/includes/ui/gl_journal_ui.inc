@@ -34,8 +34,8 @@ function display_order_header(&$Order) {
     	unset($_POST['ref']);
     	$Ajax->activate('ref');
     }
-
-	check_row(_('A/R Installment Adjustment: &nbsp;'), 'ar_alloc', null, true);
+	/* Address matis #1084 comment by albert 12/28/2022 */
+	//check_row(_('A/R Installment Adjustment: &nbsp;'), 'ar_alloc', null, true);
 
 	if (check_value('ar_alloc') == 1) {
 		
