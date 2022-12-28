@@ -48,8 +48,8 @@ class general_ledger_app extends application
 			"gl/accruals.php?", 'SA_ACCRUALS', MENU_TRANSACTION);
 		
 		//Added by Albert 12/22/2022
-		$this->add_rapp_function(0, _("Accounts Reconcilation"),
-		"gl/accounts_reconcilation.php?", 'SA_ACCOUNTS_RECON', MENU_TRANSACTION
+		$this->add_rapp_function(0, _("Internal Reconcilation"),
+			"gl/accounts_reconcilation.php?", 'SA_ACCOUNTS_RECON', MENU_TRANSACTION
 		);
 
 		$this->add_module(_("Inquiries and Reports"));
