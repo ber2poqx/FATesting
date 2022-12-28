@@ -309,6 +309,7 @@ $sql = get_gl_transactions_list(
 	array(
 		_("Type") => array('fun'=>'systype_name', 'ord'=>''),
 		_("#"),
+		_("Transaction Date"),
 		_("Reconcilation Date"),
 		_("Masterfile"),
 		_("Reference"),

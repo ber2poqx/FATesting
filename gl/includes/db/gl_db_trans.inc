@@ -876,7 +876,7 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
     $from = date2sql($from_date);
     $to = date2sql($to_date);
 
-    $sql = "SELECT gl.type, gl.type_no, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, gl.tran_date, 
+    $sql = "SELECT gl.type, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
 			IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
 			gl.mcode, gl.ischecked
 
