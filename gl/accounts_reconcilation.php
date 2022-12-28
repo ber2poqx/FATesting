@@ -4,7 +4,7 @@
 
 $page_security = 'SA_ACCOUNTS_RECON';
 $path_to_root = "..";
-include_once($path_to_root . "/includes/db_pager.inc");
+include($path_to_root . "/includes/db_pager.inc");
 include_once($path_to_root . "/includes/session.inc");
 
 include_once($path_to_root . "/includes/date_functions.inc");
@@ -136,7 +136,7 @@ function add_reconcile_accounts(
 		".db_escape($account).",
 		".db_escape($masterfile).", 
 		".db_escape($amount).",
-		".db_escape($balance_due,).",
+		".db_escape($balance_due).",
 		".db_escape($credit_ref_no).",
 		".db_escape($credit_ref_type).")";
 	
