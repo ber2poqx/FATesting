@@ -179,7 +179,7 @@ function get_sql_for_pr_search($request_number = '', $ho_data = '', $category_id
 	}
 
 	$sql .= " GROUP BY a.pr_no ORDER BY a.pr_date DESC, a.pr_no DESC"; // modified by spyrax10
-	display_warning($sql);
+
 	return $sql;
 }
 
