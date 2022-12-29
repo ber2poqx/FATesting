@@ -949,7 +949,7 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 		$sql .= " AND ((gl.type = recon.type AND recon.type_no = gl.type_no) Or (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no)) ";
 	}
 	if($recon_type == 0){
-		$sql .= " AND gl.counter not in (SELECT counter FROM ".TB_PREF."dueksam_agor.gl_trans gl
+		$sql .= " AND gl.counter not in (SELECT counter FROM ".TB_PREF."gl_trans gl
 		LEFT JOIN ".TB_PREF."reconcile_accounts recon ON ((recon.type = gl.type AND recon.type_no = gl.type_no) OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))
 		where  ((gl.type = recon.type AND recon.type_no = gl.type_no) 
 		OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))) ";
