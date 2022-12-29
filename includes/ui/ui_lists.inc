@@ -5304,4 +5304,18 @@ function full_payment_type($label, $name, $selected = null, $submit_on_change = 
 	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change));
 	echo "</td>\n";
 }
+
+function reconciled_type($label, $name, $selected = null, $submit_on_change = false) {
+	
+	if ($label != null)
+		label_cell($label);
+	echo "<td>\n";
+	$allocs = array( 
+		'-1'=>_("All Data"),
+		'0'=>_("Unreconciled"),
+		'1'=> _("Reconciled")
+	);
+	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change));
+	echo "</td>\n";
+}
 /*End by Albert*/

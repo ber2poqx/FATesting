@@ -283,6 +283,7 @@ start_row();
 ref_cells(_("Memo:"), 'Memo', '',null, _('Enter memo fragment or leave empty'));
 small_amount_cells(_("Amount min:"), 'amount_min', null, " ");
 small_amount_cells(_("Amount max:"), 'amount_max', null, " ");
+reconciled_type(_("Recon Type:"), 'recon_type', null, true);
 submit_cells('Show',_("Show"),'','', 'default');
 
 end_row();
@@ -293,6 +294,7 @@ echo "<hr>";
 if (!isset($_POST['bank_account']))
     $_POST['bank_account'] = "";
 
+	$_POST['recon_type_id'] = get_post('recon_type');
 $sql = get_gl_transactions_list(
 	get_post('TransFromDate'), 
 	get_post('TransToDate'), -1,
@@ -302,7 +304,8 @@ $sql = get_gl_transactions_list(
 	input_num('amount_min'), 
 	input_num('amount_max'), null, null,
 	get_post('Memo'),
-	get_post('masterfile')
+	get_post('masterfile'),
+	get_post('recon_type_id')
 );
 
 	$cols =

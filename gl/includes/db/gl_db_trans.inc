@@ -867,7 +867,7 @@ function get_gl_total($type = '', $trans_no = 0) {
 //Added by Albert 12/22/2022
 function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
     $account=null, $dimension=0, $dimension2=0, $filter_type=null,
-        $amount_min=null, $amount_max=null, $person_type=null, $person_id=null, $memo='', $master_file='')
+        $amount_min=null, $amount_max=null, $person_type=null, $person_id=null, $memo='', $master_file='', $recon_type = 0)
 {
     global $SysPrefs;
 	
@@ -905,7 +905,7 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
             LEFT JOIN ".TB_PREF."comments c ON c.id = gl.type_no AND c.type = gl.type
 
             LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no 
-			LEFT JOIN ".TB_PREF."reconcile_accounts recon ON recon.type = gl.type AND recon.type_no = gl.type_no ";
+			LEFT JOIN ".TB_PREF."reconcile_accounts recon ON recon.type = gl.type AND recon.type_no = gl.type_no";
 			
     $sql .= " WHERE ISNULL(v.date_) AND gl.tran_date >= '$from' AND gl.tran_date <= '$to'
         	AND gl.amount <> 0"; 
@@ -943,7 +943,16 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 	}
 	if ($master_file) {
 		$sql .= " AND gl.master_file LIKE ". db_escape("%$master_file%");
-		
+	}
+
+	if($recon_type == 1){
+		$sql .= " AND ((gl.type = recon.type AND recon.type_no = gl.type_no) Or (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no)) ";
+	}
+	if($recon_type == 0){
+		$sql .= " AND gl.counter not in (SELECT counter FROM ".TB_PREF."dueksam_agor.gl_trans gl
+		LEFT JOIN ".TB_PREF."reconcile_accounts recon ON ((recon.type = gl.type AND recon.type_no = gl.type_no) OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))
+		where  ((gl.type = recon.type AND recon.type_no = gl.type_no) 
+		OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))) ";
 	}
 
     $sql .= " GROUP BY counter";
