@@ -16,12 +16,18 @@ class suppliers_app extends application
 		parent::__construct("AP", _($this->help_context = "&Purchases"));
 
 		$this->add_module(_("Transactions"));
-		if (user_company() == 0) {
+		/*Modified by Albert 1/4/2023*/
+		global $db_connections;
+		$coy = user_company();
+		$db_branch_code = $db_connections[$coy]['branch_code'];
+
+		if ($db_branch_code == 'DESIHOFC' || $db_branch_code == 'DESMHOFC' ) {
 			$this->add_lapp_function(0, _("Branch Purchase Request"),
 			"purchasing/pr_branch.php?", 'SA_PR_BRANCH', MENU_TRANSACTION);
 			$this->add_lapp_function(0, _("Branch Purchase Orders"),
 				"purchasing/po_branch.php?", 'SA_PO_BRANCH', MENU_TRANSACTION);
 		}
+		/* */
 		$this->add_lapp_function(0, _("Purchase Request"),
 			"purchasing/purchase_request.php?", 'SA_PURCHASEREQUEST', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Purchase &Order Entry"),

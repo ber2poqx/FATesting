@@ -1301,22 +1301,26 @@ function branch_company_list_row($label = null, $name, $submit_on_change = false
 		echo "<td class=$bold>$label</td>\n";
 	}
 	echo "<td>";
+	$db_type = $db_connections[$coy]['type'];
 
 	for ($i = 0; $i < count($db_connections); $i++) {
 		if (check_db_exists($i)) {
-			if ($i != $coy) {
+			if ($i != $coy ) {
 				//for po_branch list open transaction
 				if ($name == 'selected_po_branch' ){
-					if (get_po_data($i)) {
+					if($db_connections[$i]['type'] == $db_type ){
+						if (get_po_data($i)) {
 
-						$db_list[$i] = $db_connections[$i]['name'];
-					}
+							$db_list[$i] = $db_connections[$i]['name'];
+						}
+					}	
 
 				}else{
 				//for pr_branch list open transaction
-					if (get_pr_data($i) && $name == 'selected_pr_branch') {
-
-						$db_list[$i] = $db_connections[$i]['name'];
+					if($db_connections[$i]['type'] == $db_type ){
+						if (get_pr_data($i) && $name == 'selected_pr_branch') {
+							$db_list[$i] = $db_connections[$i]['name'];
+						}
 					}
 				}
 			}
