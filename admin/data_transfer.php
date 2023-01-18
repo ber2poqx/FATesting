@@ -92,17 +92,24 @@ if(isset($_GET['submit'])){
     if($InputError !=1) {
         if($_POST['datadesc'] == "item"){
 
-            $items = get_items_to_transfer($_POST['date_from'], $_POST['date_to']);
-            while ($itemrow = db_fetch($items)) {
+            foreach($_POST['branch'] as $value)
+            {
+                //echo $value. '</br>';
+                $items = get_items_to_transfer(date('Y-m-d',strtotime($_POST['date_from'])), date('Y-m-d',strtotime($_POST['date_to'])));
+                while ($itemrow = db_fetch($items)) {
+                    
+                    $checkres = check_item($myrow["stock_id"], $value);
+    
+                    if (DB_num_rows($result)==1){
+                        echo "fdgfghfgh";
+                        if (isset($syspk)){
+                            $dsplymsg = _('No data changed.');
+                        }else{
+                            $InputError = 1;
+                            $dsplymsg = _('The entered information is a duplicate.').'. '. '<br />'. _('Please enter different values.');
+                        }
 
-                $checkres = check_item($myrow["stock_id"], );
-
-                if (DB_num_rows($result)==1){
-                    if (isset($syspk)){
-                        //$dsplymsg = _('No data changed.');
-                    }else{
-                        $InputError = 1;
-                        $dsplymsg = _('The entered information is a duplicate.').'. '. '<br />'. _('Please enter different values.');
+                        echo $dsplymsg;
                     }
                 }
             }

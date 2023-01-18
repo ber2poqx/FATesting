@@ -17,6 +17,7 @@ Ext.onReady(function(){
 	var itemsPerPage = 18;   // set the number of items you want per page on grid.
 	var showall = false;
 	var maxfields = 10; //change this number if you want to increase/decrease adding fields.
+	var selectedbranch = [];
 
 	////define model for policy installment
     Ext.define('data_description',{
@@ -155,7 +156,7 @@ Ext.onReady(function(){
 		},{
 			xtype: 'combobox',
 			id: 'branch',
-			name: 'branch',
+			name: 'branch[]',
 			fieldLabel: '<b>Branch </b>',
 			allowBlank: false,
 			store: branch_store,
@@ -167,7 +168,12 @@ Ext.onReady(function(){
 			selectOnFocus:true,
 			multiSelect: true,
 			labelWidth: 105,
-			margin: '5 0 5 0'
+			margin: '5 0 5 0',
+			listeners: {
+				select: function(combo, record, index) {
+
+				}
+			}
 		}]
 	});
 	var submit_window = Ext.create('Ext.Window',{
@@ -187,6 +193,7 @@ Ext.onReady(function(){
 			handler:function(){
 				var form_submit = Ext.getCmp('form_submit').getForm();
 				if(form_submit.isValid()) {
+					
 					form_submit.submit({
 						url: '?submit=info',
 						waitMsg: 'Proccessing data transfer. Please wait...',
