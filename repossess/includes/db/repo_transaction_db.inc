@@ -53,6 +53,9 @@ function add_repo_item($trans_no, $repo_id, $stock_id, $description, $qty, $unit
 			)";
 
 	db_query($sql, "The rr repo account item record cannot be inserted");
+	$repo_item_id = db_insert_id();
+
+	return $repo_item_id;
 }
 
 function update_repo_reprice_stock_move($amount, $trans_id, $trans_no, $stock_id, $def_loc)
@@ -149,6 +152,7 @@ function get_customer_account_repo($type)
 			WHERE A.payment_terms != 0
 				AND (A.type = ".$criteria.") "
 				.$swhere ;
+	
 	return db_query($sql, "could not get customer ");
 }
 
@@ -604,4 +608,31 @@ function get_trans_delivery($trans_no, $trans_type, $debtor_no)
 	//echo $sql;
 	$row = db_fetch($result);
 	return $row[0];
+}
+
+function add_item_serialise($type, $stock_id, $trans_no, $location, $reference, $quantity, $lot_no = "", $adj_item_id, $chasis_no = "", $remarks = "", $pnp_note = "")
+{
+	$sql = "INSERT INTO ".TB_PREF."item_serialise 
+    (
+        serialise_item_code, serialise_reference, serialise_chasis_no, serialise_lot_no, 
+		serialise_qty, serialise_grn_items_id, serialise_grn_id, serialise_trans_type,
+		serialise_loc_code, remarks, pnp_note
+    ) VALUES (
+        " . db_escape($stock_id) . ",
+		" . db_escape($reference) . ", 
+		" . db_escape($chasis_no) . ", 
+		" . db_escape($lot_no) . ", 
+		" . db_escape($quantity) . ", 
+		" . db_escape($adj_item_id) . ", 
+		" . db_escape($trans_no) . ", 
+		" . db_escape($type) . ", 
+		" . db_escape($location) . ", 
+		" . db_escape($remarks) . " , 
+		" . db_escape($pnp_note) . "
+    )";
+	
+	db_query($sql, "The stock serial item movement record cannot be inserted");
+	$itemserial_id = db_insert_id();
+
+	return $itemserial_id;
 }
