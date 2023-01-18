@@ -472,8 +472,8 @@ function get_replace_item_to_repo($trans_no)
 
 function get_mt_per_branch($home_branch, $from_branch)
 {
-	global $def_coy;
-    set_global_connection($def_coy);
+    $db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
 	
 	$sql = "SELECT A.mt_header_id, A.mt_header_reference, B.mt_details_stock_id, C.description, D.description category, A.mt_header_repo_account_id
 			FROM ".TB_PREF."mt_header A 
