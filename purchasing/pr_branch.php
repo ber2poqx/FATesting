@@ -386,6 +386,11 @@ function pr_branch_edit_prtpo_summary(&$pr, $branch_selected)
 	global $Ajax, $Refs;
 	global $Refs, $db_connections;
 	global $def_coy;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
+	if($db_branch_type == 'MKTG'){
+		$def_coy = 1;
+	}
 	$branchcode = $db_connections[user_company()]["branch_code"];
 	start_outer_table(TABLESTYLE2, "width='80%'");
 
