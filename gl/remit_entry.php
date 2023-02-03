@@ -136,11 +136,16 @@ div_start('pmt_header');
 start_outer_table(TABLESTYLE2, "width='40%'");
 
 table_section(1);
+list_cashier_name_list_row(_("Cashier/Teller Name:"), 'cashier_id', null, true, true);
 check_row(_('All Transaction Date/s : '), 'chk_date', get_post('chk_date'), true);
 
 if (check_value('chk_date') == 0) {
 
-    date_row(_("Date:"), 'date_2', '', true, 0, 0, 0, null, true);
+    date_row(_("Date From:"), 'date_from', '', true, 0, 0, 0, null, true);
+}
+if (check_value('chk_date') == 0) {
+
+    date_row(_("Date To:"), 'date_2', '', true, 0, 0, 0, null, true);
 }
 
 table_section(2);
@@ -176,8 +181,8 @@ start_table(TABLESTYLE, "width='85%'");
 
 $sql = db_query(
     _bank_transactions(
-        null, 
-        $_SESSION["wa_current_user"]->user, 
+        get_post('date_from') == null ? '' : get_post('date_from'), 
+        get_post('cashier_id'), 
         false,
         get_post('trans_type'),
         get_post('date_2') == null ? '' : get_post('date_2'), get_post('bank_account'),true

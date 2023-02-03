@@ -43,9 +43,9 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.type = " .db_escape($type);
     }
 
-    if ($trans_date != '') {
-        $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
-    }
+    // if ($trans_date != '') {
+    //     $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
+    // }
     /*Added by Albert Address mantis # 1028 11/15/2022*/
     if ($bank_account != 0){
         $sql .= " AND A.bank_act = " .db_escape($bank_account);
@@ -65,6 +65,18 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
     if($on_remit){
 
         $sql .= " AND A.ref not in (Select a.from_ref from ".TB_PREF." remittance a)";
+
+        if ($from_date != null) {
+            $sql .= " AND A.trans_date >= '$from_date'";
+        }
+
+        if ($trans_date != '') {
+            $sql .= " AND A.trans_date <= " .db_escape(date2sql($trans_date));
+        }
+    }else{
+        if ($trans_date != '') {
+            $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
+        }
     }
     /**/
     
