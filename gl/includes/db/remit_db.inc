@@ -73,6 +73,8 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         if ($trans_date != '') {
             $sql .= " AND A.trans_date <= " .db_escape(date2sql($trans_date));
         }
+        //Openning balance
+        $sql .= " OR A.opening_balance = 1";
     }else{
         if ($trans_date != '') {
             $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
