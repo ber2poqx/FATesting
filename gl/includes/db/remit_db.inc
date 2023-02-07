@@ -67,7 +67,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.ref not in (Select a.from_ref from ".TB_PREF." remittance a)";
 
         if ($from_date != null) {
-            $sql .= " AND A.trans_date >= '$from_date'";
+            $sql .= " AND A.trans_date >=" .date2sql($from_date);
         }
 
         if ($trans_date != '') {
