@@ -3000,7 +3000,7 @@ function incentive_types_list_row($label, $name, $selected_id=null, $submit_on_c
 function rebate_month_list($name, $selected_id=null, $submit_on_change=false, $exclude_home_curr=false, 
 	$special_option = false) //Added by spyrax10 8 Apr 2022
 {
-	$sql = "SELECT id, month, inactive FROM ".TB_PREF."rebmonth";
+	$sql = "SELECT 0 id , '-' month, 0 inactive UNION SELECT id, month, inactive FROM ".TB_PREF."rebmonth";
 
 	return combo_input($name, $selected_id, $sql, 'id', 'month',
 	array(
