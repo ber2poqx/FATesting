@@ -106,7 +106,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 		$from_date = date2sql($from_date);
 	}
 
-	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, Case When E.remit_stat = 'Approved' then 5 else A.type end as type, A.trans_date, A.pay_type, A.prepared_by, 
+	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, Case When E.remit_stat = 'Approved' then 5 else A.type end as type, Case When E.remit_stat = 'Approved' then E.remit_date else A.trans_date end as trans_date, A.pay_type, A.prepared_by, 
             A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
