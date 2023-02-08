@@ -157,7 +157,8 @@ value_type_list(_("Transaction Type:"), 'trans_type',
     array(
         ST_BANKPAYMENT => 'Disbursement Entries', 
         ST_BANKDEPOSIT => 'Receipt Entries',
-        ST_CUSTPAYMENT => 'Office Collection Receipt'
+        ST_CUSTPAYMENT => 'Office Collection Receipt',
+        ST_REMITTANCE => 'Remit Entries'
     ), 'label', null, true, _("All Transaction Types"), true
 );
 sql_type_list(_("GL Account"), 'bank_account', get_bank_accounts(), 'id', 'bank_account_name', 
@@ -180,7 +181,7 @@ div_start("remit_items");
 start_table(TABLESTYLE, "width='85%'");
 
 $sql = db_query(
-    _bank_transactions(
+    _bank_transactions_onremit(
         get_post('date_from') == null ? '' : get_post('date_from'), 
         get_post('cashier_id'), 
         false,

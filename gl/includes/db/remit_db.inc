@@ -97,6 +97,111 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
     }
 }
 
+function _bank_transactions_onremit($from_date = null, $cashier = '', $report = true, 
+    $type = '', $trans_date = '', $bank_account = 0, $on_remit = false) {
+
+    set_global_connection();
+
+	if ($report) {
+		$from_date = date2sql($from_date);
+	}
+
+	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, Case When E.remit_stat = 'Approved' then 5 else A.type end as type, A.trans_date, A.pay_type, A.prepared_by, 
+            A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
+			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
+			CASE 
+				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Collection Receipt:'
+    			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries:'
+			END AS 'receipt_type',
+            CASE 
+                WHEN A.bank_act = 1 OR A.bank_act = 2 THEN 0 ELSE A.amount
+            END AS 'non_cash'
+
+			FROM ".TB_PREF."remittance E
+                Right Join ".TB_PREF."bank_trans A ON E.from_ref = A.ref and E.remit_from = E.remit_from
+				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
+				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
+				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
+                WHERE A.trans_no <> 0 ";
+
+    if ($report) {
+
+        $sql .= "A.opening_balance = 0";
+        $sql .= " AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
+    }
+
+	if ($report && $from_date != null) {
+		$sql .= " AND A.trans_date = '$from_date'";
+	}
+
+    // if ($trans_date != '') {
+    //     $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
+    // }
+    /*Added by Albert Address mantis # 1028 11/15/2022*/
+    if ($bank_account != 0){
+        $sql .= " AND A.bank_act = " .db_escape($bank_account);
+    }
+
+    if ($cashier != '') { 
+        if ($report) {
+            $sql .= " AND (A.cashier_user_id = ".db_escape($cashier) . " || 
+                A.remit_from = ".db_escape($cashier) . ")";
+        }
+        else {
+            $sql .= " AND A.cashier_user_id = ".db_escape($cashier);
+        }
+	}
+
+    /* Address mantis #1063 Added by Albert 11/21/2022 not display if already remitted to cashier */
+    if($on_remit){
+
+        $sql .= " AND (A.ref not in (Select a.from_ref from ".TB_PREF." remittance a  where a.remit_stat != 'Approved'))";
+
+        if ($from_date != null) {
+            $sql .= " AND A.trans_date >=" .date2sql($from_date);
+        }
+
+        if ($trans_date != '') {
+            $sql .= " AND A.trans_date <= " .db_escape(date2sql($trans_date));
+        }
+        //Openning balance
+        $sql .= " AND (A.opening_balance = 0 OR A.opening_balance = 1) ";
+
+        if ($type == 5) {
+        
+            $sql .= " AND A.remit_stat = 'Approved'";
+        }else{
+            if ($type != '') {
+        
+                $sql .= " AND A.type = " .db_escape($type);
+            }
+        }
+    }else{
+        if ($trans_date != '') {
+            $sql .= " AND A.trans_date = " .db_escape(date2sql($trans_date));
+        }
+        if ($type != '') {
+        
+            $sql .= " AND A.type = " .db_escape($type);
+        }
+    }
+    /**/
+    
+
+    if ($report) {
+        $sql .= " AND A.remit_stat <> 'Disapproved'";
+    }
+
+	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no";
+    display_warning($sql);
+    if ($report) {
+        return db_query($sql,"No transactions were returned from bank transaction!");
+    }
+    else {
+        return $sql;
+    }
+}
+
 function get_remit_transactions($reference = '', $remit_from = '', $from_date = null, $to_date = null, $details = false) {
 
     set_global_connection();
