@@ -193,7 +193,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
     }
 
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no";
-    display_warning($sql);
+  
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
     }
