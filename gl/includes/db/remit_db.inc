@@ -106,8 +106,14 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 		$from_date = date2sql($from_date);
 	}
 
-	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, Case When E.remit_stat = 'Approved' then 5 else A.type end as type, Case When E.remit_stat = 'Approved' then E.remit_date else A.trans_date end as trans_date, A.pay_type, A.prepared_by, 
-            A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
+	$sql = "SELECT A.ref, A.trans_no, A.receipt_no,
+            CASE WHEN E.remit_stat = 'Approved' THEN E.type ELSE A.type END AS type, 
+            CASE WHEN E.remit_stat = 'Approved' THEN E.remit_date ELSE A.trans_date END AS trans_date,
+            A.pay_type, A.prepared_by, 
+            CASE WHEN E.remit_stat = 'Approved' THEN E.amount  ELSE A.amount END AS amt
+            , A.person_id, 
+            CASE WHEN E.remit_stat = 'Approved' THEN E.remit_to ELSE A.cashier_user_id END AS cashier_user_id
+            , B.name, A.bank_act, A.remit_from,
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
 				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Collection Receipt:'
@@ -117,7 +123,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
                 WHEN A.bank_act = 1 OR A.bank_act = 2 THEN 0 ELSE A.amount
             END AS 'non_cash'
 
-			FROM ".TB_PREF."remittance E
+			FROM ".TB_PREF."(SELECT Sum(amount) as amount, from_ref, remit_from, remit_date, remit_stat, remit_to, " . ST_REMITTANCE . " As type FROM ".TB_PREF."remittance Group by remit_num) E
                 Right Join ".TB_PREF."bank_trans A ON E.from_ref = A.ref and E.remit_from = E.remit_from
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
@@ -148,7 +154,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
                 A.remit_from = ".db_escape($cashier) . ")";
         }
         else {
-            $sql .= " AND A.cashier_user_id = ".db_escape($cashier);
+            $sql .= " AND (CASE WHEN E.remit_stat = 'Approved' THEN E.remit_to ELSE A.cashier_user_id END ) = ".db_escape($cashier);
         }
 	}
 
@@ -167,7 +173,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
         //Openning balance
         $sql .= " AND (A.opening_balance = 0 OR A.opening_balance = 1) ";
 
-        if ($type == 5) {
+        if ($type == ST_REMITTANCE) {
         
             $sql .= " AND A.remit_stat = 'Approved'";
         }else{
