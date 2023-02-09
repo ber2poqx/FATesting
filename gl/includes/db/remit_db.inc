@@ -106,7 +106,8 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 		$from_date = date2sql($from_date);
 	}
 
-	$sql = "SELECT A.ref, A.trans_no, A.receipt_no,
+	$sql = "SELECT CASE WHEN E.remit_stat = 'Approved' THEN E.remit_ref else A.ref end as ref
+            , A.trans_no, A.receipt_no,
             CASE WHEN E.remit_stat = 'Approved' THEN E.type ELSE A.type END AS type, 
             CASE WHEN E.remit_stat = 'Approved' THEN E.remit_date ELSE A.trans_date END AS trans_date,
             A.pay_type, A.prepared_by, 
@@ -123,7 +124,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
                 WHEN A.bank_act = 1 OR A.bank_act = 2 THEN 0 ELSE A.amount
             END AS 'non_cash'
 
-			FROM ".TB_PREF."(SELECT Sum(amount) as amount, from_ref, remit_from, remit_date, remit_stat, remit_to, " . ST_REMITTANCE . " As type FROM ".TB_PREF."remittance Group by remit_num) E
+			FROM ".TB_PREF."(SELECT Sum(amount) as amount, remit_ref, from_ref, remit_from, remit_date, remit_stat, remit_to, " . ST_REMITTANCE . " As type FROM ".TB_PREF."remittance Group by remit_num) E
                 Right Join ".TB_PREF."bank_trans A ON E.from_ref = A.ref and E.remit_from = E.remit_from
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
@@ -161,7 +162,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
     /* Address mantis #1063 Added by Albert 11/21/2022 not display if already remitted to cashier */
     if($on_remit){
 
-        $sql .= " AND (A.ref not in (Select a.from_ref from ".TB_PREF." remittance a  where a.remit_stat != 'Approved'))";
+        $sql .= " AND ((CASE WHEN E.remit_stat = 'Approved' THEN E.remit_ref else A.ref end) not in (Select a.from_ref from ".TB_PREF." remittance a))";
 
         if ($from_date != null) {
             $sql .= " AND A.trans_date >=" .date2sql($from_date);
