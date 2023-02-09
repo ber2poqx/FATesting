@@ -52,7 +52,7 @@ function add_to_order(
 		$item_num--;
 		if ($item_num) {
 			$price -= $item['quantity'] * $std_price * $price_factor;
-			$item_price = $std_price * $price_factor;
+			$item_price = $std_price * $price_factor;		
 		} else {
 			if ($item['quantity'])
 				$price = $price / $item['quantity'];
@@ -899,11 +899,13 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 					$last_date_updated =  Get_Previous_Policy_CashPrice_last_date_updated(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
 					$previous_price = Get_Previous_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id,$last_date_updated);
 
-				    $line->price = $previous_price;
+					$line->price = is_null($previous_price) ? 0 : $previous_price;
 
 				}else{
 	
-					$line->price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+					$price = Get_Policy_CashPrice(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id);
+				
+					$line->price = is_null($price) ? 0 : $price;
 				}
 				$Ajax->activate('amount');
 			}else{	
@@ -911,10 +913,15 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	
 				if ( date2sql(get_post('OrderDate')) < $date_epic_installment){
 
-					$line->price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+					$price = Get_Previous_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'],  $line->stock_id, $last_date_updated);
+				
+					$line->price = is_null($price) ? 0 : $price;
 				}else{
+					$price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+
 			
-					$line->price = Get_Policy_Installment_Price(getCompDet('branch_code'), $_POST['category_id'], $line->stock_id); //Modified by spyrax10
+					$line->price = is_null($price) ? 0 : $price;
+					
 				}
 			}
 
