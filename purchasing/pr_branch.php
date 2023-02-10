@@ -389,7 +389,7 @@ function pr_branch_edit_prtpo_summary(&$pr, $branch_selected)
 	$coy = user_company();
 	$db_branch_type = $db_connections[$coy]['type'];
 	if($db_branch_type == 'MKTG'){
-		$def_coy = 1;
+		$db_coy = 1;
 	}
 	$branchcode = $db_connections[user_company()]["branch_code"];
 	start_outer_table(TABLESTYLE2, "width='80%'");
@@ -463,8 +463,13 @@ function pr_branch_edit_prtpo_summary(&$pr, $branch_selected)
 		label_row(_("Order Comments"), $pr->Comments, "class='tableheader2'", "colspan=9");
 
 	end_outer_table(1);
-
-	$_SESSION["wa_current_user"]->company = $def_coy;
+	//Update by Albert 02/10/2023
+	if($db_branch_type == 'MKTG'){
+		$_SESSION["wa_current_user"]->company = $db_coy;
+	}else{
+		$_SESSION["wa_current_user"]->company = $def_coy;
+	}
+	//
 }
 
 //--------------------------------------------------------------------------------------------------
