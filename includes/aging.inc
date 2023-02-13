@@ -1073,7 +1073,7 @@ function sum_pastdue($trans_no_arr, $trans_type_arr, $debtor_no_arr, $trans_year
 # Transaction Query:
 //------------------------------------------------------------------------//
 
-function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', $summarized = false) {
+function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', $summarized = false, $term = 0) { //Added Term by Albert 02/10/2023
 
     $date = date2sql($endDate);
     $sales_invoice = ST_SALESINVOICE;
@@ -1181,6 +1181,18 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
         ELSE DL.ar_amount END) - IFNULL(CPAY.sum_pay, 0) <> 0 AND DL.payment_location = 'Branch'";
       
+    //Added by Albert 02/10/2023
+    if ($term == 3 && $term != '') {
+    
+        $sql .= " AND DL.months_term <= ".db_escape($term);
+    }
+    if ($term == 6 && $term != '') {
+        
+        $sql .= " AND DL.months_term >= ".db_escape($term);
+    }
+    
+    //
+    
     $sql .= 
     " AND (CASE 
 	        WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
@@ -1222,6 +1234,6 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
             $sql .= " ORDER BY DM.area, A.description, DM.name ASC";
         }     
     }
-    
+ 
     return db_query($sql,"No transactions were returned");
 }

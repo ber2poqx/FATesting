@@ -50,6 +50,17 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_AGING_REP')) {
 			_('Destination') => 'DESTINATION'
 		)	
 	);
+	$reports->addReport(RC_CUSTOMER, 1001, _('A&ging Summary Report v1'),
+		array(
+			_('As of Date') => 'DATEENDM',
+			_('Customer') => 'CUSTOMERS_NO_FILTER',
+			_('Group By') => 'COA_COL',
+			_('Select Filter') => 'AGING_FILTER',
+			_('Show Customer Address?') => 'YES_NO',
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'DESTINATION'
+		)	
+	);
 
 	$reports->addReport(RC_CUSTOMER, 99, _('A&ging Summary Report (Summarized)'),
 		array(
