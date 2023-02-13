@@ -1092,7 +1092,7 @@ if(isset($_GET['submitAdj']))
 {
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
-    $InputError = 0;
+    $InputError = $RebateAmount = $PenaltyAmount = 0;
     
     if (empty($_POST['transtype_wv']) || empty($_POST['ref_no_wv']) || empty($_POST['total_debt_wv']) || empty($_POST['name_wv'])) {
         $InputError = 1;
@@ -1162,6 +1162,28 @@ if(isset($_GET['submitAdj']))
 
         $invoice_gl_account = get_InvoiceCOA($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
 
+        //check kung naay rebate or penalty
+        foreach($objDataGrid as $value=>$data) {
+            $GLRebate = get_company_pref('default_prompt_payment_act');
+            $GLPenalty = get_company_pref('penalty_act');
+            
+            if($GLRebate == $data['gl_code']){
+                if($data['credit_amount'] != 0){
+                    $RebateAmount = -$data['credit_amount'];
+                }else{
+                    $RebateAmount = $data['debit_amount'];
+                }
+            }
+            //penalty
+            if($GLPenalty == $data['gl_code']){
+                if($data['credit_amount'] != 0){
+                    $PenaltyAmount = -$data['credit_amount'];
+                }else{
+                    $PenaltyAmount = $data['debit_amount'];
+                }
+            }
+        }
+
         foreach($objDataGrid as $value=>$data) {
             //post to ledger adjustment
 
@@ -1173,8 +1195,9 @@ if(isset($_GET['submitAdj']))
                         $aloc_amount = $data['credit_amount'];
                     }
                     $result = get_loan_schedule($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv']);
+
                     while ($myrow = db_fetch($result)) {
-                        add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, 0, 0, 0, $trans_date, $payment_no);
+                        add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
                         break;
                     }
 
@@ -1202,7 +1225,7 @@ if(isset($_GET['submitAdj']))
                 }
             }
         }
-        $Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no_wv']);
+        //$Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no_wv']);
 
         $dsplymsg = _("Customer adjustment has been allocated successfully..."); 
 
