@@ -599,7 +599,7 @@ function convert_number($number)
 									echo '<tr class="datatable">';
 									echo '<td align=center style="border-right:0px solid;">'.($count).'</td>';	
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["account"]).'</td>';
-									echo '<td align=center style="border-right:0px solid;">'.($myrow["account_name"]).'</td>';
+									echo '<td align=left style="border-right:0px solid;">'.($myrow["account_name"]).'</td>';
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["mcode"]).'</td>';	
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["master_file"]).'</td>';	
 									//echo '<td align=left style="border-right:0.5px solid; padding-left: 2px;">'.($myrow2["memo_"]).'</td>';
