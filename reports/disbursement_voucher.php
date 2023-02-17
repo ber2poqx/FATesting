@@ -508,7 +508,7 @@ function convert_number($number)
 				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>						
                         <tr class="table1-headers">
-							<th style="border-bottom:0.5px solid;">Account Code</th>
+							<th align=left style="border-bottom:0.5px solid;">Acct. Code</th>
 							<th align=left style="border-bottom:0.5px solid;">Account Name</th>
 							<th align=left style="border-bottom:0.5px solid;">MCode</th>
 							<th align=left style="border-bottom:0.5px solid;">Masterfile</th>			
@@ -529,7 +529,7 @@ function convert_number($number)
 									$myrow2 = db_fetch($memo_result);
 
 									echo '<tr class="datatable">';
-									echo '<td align=center style="border-right:0px solid;">'.($myrow["account"]).'</td>';	
+									echo '<td align=left style="border-right:0px solid;">'.($myrow["account"]).'</td>';	
 									echo '<td align=left style="border-right:0px solid;">'.($myrow["account_name"]).'</td>';
 									echo '<td align=left style="border-right:0px solid;">'.($myrow["mcode"]).'</td>';	
 									echo '<td align=left style="border-right:0px solid;">'.($myrow["master_file"]).'</td>';	
