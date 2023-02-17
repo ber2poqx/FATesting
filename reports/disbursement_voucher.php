@@ -509,9 +509,9 @@ function convert_number($number)
 					<tbody>						
                         <tr class="table1-headers">
 							<th style="border-bottom:0.5px solid;">Account Code</th>
-							<th style="border-bottom:0.5px solid;">Account Name</th>
-							<th style="border-bottom:0.5px solid;">MCode</th>
-							<th style="border-bottom:0.5px solid;">Masterfile</th>			
+							<th align=left style="border-bottom:0.5px solid;">Account Name</th>
+							<th align=left style="border-bottom:0.5px solid;">MCode</th>
+							<th align=left style="border-bottom:0.5px solid;">Masterfile</th>			
 							<th align=right style="border-bottom:0.5px solid;">Debit</th>
 							<th align=right style="border-bottom:0.5px solid;">Credit</th>	
 							
