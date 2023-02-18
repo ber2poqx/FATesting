@@ -91,8 +91,8 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    	WHEN so8.salesman_id IS NULL OR so8.salesman_id = 0 THEN 'Office Sales'
 		        WHEN so8.salesman_id = 0 THEN 'Office Sales'
 		        ELSE sn9.salesman_name END AS `SalesAgent`	
-			,sod.discount1
-			,sod.discount2
+			,dtd4.discount1
+			,dtd4.discount2
 		FROM ".TB_PREF."debtor_trans_details dtd4
 		    INNER JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
 			LEFT JOIN ".TB_PREF."debtor_loans dl2 on dtd4.debtor_trans_no = dl2.trans_no
@@ -103,7 +103,6 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.order_ = so8.order_no AND dt1.type = ".ST_SALESINVOICE."
 		    LEFT JOIN ".TB_PREF."salesman sn9 on so8.salesman_id = sn9.salesman_code
 		    LEFT JOIN ".TB_PREF."stock_category sc10 on dl2.category_id = sc10.category_id
-			LEFT JOIN  ".TB_PREF."sales_order_details sod on so8.order_no = sod.order_no and sod.trans_type = '30'
 		WHERE dt1.type = ".ST_SALESINVOICE."
 			AND dtd4.standard_cost <> 0
 			AND dt1.tran_date <= '$to'
@@ -133,6 +132,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 	// {
 	// 	//$sql .= " AND dl2.months_term = ".db_escape($terms);
 	// }
+	display_warning($sql);
 
 	return db_query($sql,"No transactions were returned");
 }
