@@ -113,11 +113,13 @@ if (isset($_POST['Process']) && can_process()) {
     $trans_no = write_remit_transactions(
         get_post('ref'), 
         get_post('date_'),
-        $_SESSION["wa_current_user"]->user,
+        get_post('cashier_id'),
         get_post('cashier_'),
         get_post('memo_'),
         get_post('trans_type'),
-        get_post('date_2') == null || !isset($_POST['date_2']) ? '' : get_post('date_2'), get_post('bank_account')
+        get_post('date_2') == null || !isset($_POST['date_2']) ? '' : get_post('date_2'), 
+        get_post('bank_account'),
+        get_post('amount')
     );
 
     if ($trans_no) {
@@ -239,6 +241,7 @@ while ($row = db_fetch_assoc($sql)) {
 label_row(_("Pending Remittance Total: "), number_format2($total, user_price_dec()), 
     "align=right colspan=9; style='font-weight:bold';", "style='font-weight:bold'; align=right", 0
 );
+hidden('amount', $total);
 
 end_table();
 div_end();
