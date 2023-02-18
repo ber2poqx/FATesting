@@ -132,7 +132,6 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 	// {
 	// 	//$sql .= " AND dl2.months_term = ".db_escape($terms);
 	// }
-	display_warning($sql);
 
 	return db_query($sql,"No transactions were returned");
 }
