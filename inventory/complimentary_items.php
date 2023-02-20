@@ -98,7 +98,7 @@ if(!is_null($action) || !empty($action)){
                         $line_item_header);
 
                         $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
-                        $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, 99, $line_item_header);
+                        $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
                     }
                 } 
             }
@@ -276,11 +276,12 @@ if(!is_null($action) || !empty($action)){
                         $isError = 1;
                         $errmsg = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
                         break;
-                    }elseif($standard_cost == 0) {
+                    }
+                    /*elseif($standard_cost == 0) {
                         $isError = 1;
                         $errmsg="Unit Cost must not be zero.";
                         break;
-                    }
+                    }*/
                 }
             
                 if($person_type==2)
@@ -313,7 +314,7 @@ if(!is_null($action) || !empty($action)){
                     $errmsg="This document cannot be processed because there is insufficient quantity for items marked.";
                     //echo '({"success":false,"errmsg":"'.$errmg.'"})';
                     
-                }elseif($totalDebit==$totalCredit && ($totaldebit!=0 || $totalcredit!=0) && $isError != 1){
+                }elseif($totalDebit==$totalCredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
                     //$_POST['ref']=$Refs->get_next(ST_COMPLIMENTARYITEM, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
                     $trans_no = add_stock_Complimentary_Items($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
                     

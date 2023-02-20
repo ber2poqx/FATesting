@@ -2502,7 +2502,7 @@ function GetTotalBalance(){
 			var CreditTotal = jsonData.TotalCredit;
 			Ext.getCmp('totaldebit').setValue(DebitTotal);
 			Ext.getCmp('totalcredit').setValue(CreditTotal);
-			if(DebitTotal==CreditTotal && (DebitTotal!=0 || CreditTotal!=0)){
+			if(DebitTotal==CreditTotal /*&& (DebitTotal!=0 || CreditTotal!=0)*/){
 				setButtonDisabled(false);
 			}else{
 				setButtonDisabled(true);
