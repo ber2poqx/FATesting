@@ -44,35 +44,51 @@ function getTransactions($from, $to)
 			ELSE 'INSTALLMENT' END AS Ptype,
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 			LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-     		WHERE E.category_id = 14 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)MOTOR,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+     		WHERE E.category_id = 14 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')MOTOR,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 15 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)APPLIANCE,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 15 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')APPLIANCE,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 16 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)COMPUTERS,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 16 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')COMPUTERS,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 17 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)PROMOITEM,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 17 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')PROMOITEM,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 18 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)OTHERS,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 18 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')OTHERS,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 19 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)FURNITURES,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 19 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')FURNITURES,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 21 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)POWERPRODUCT,
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 21 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')POWERPRODUCT,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
-		    WHERE E.category_id = 23 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term)SPGEN
+			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+		    WHERE E.category_id = 23 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
+			AND F.tran_date>='$from' AND F.tran_date<='$to')SPGEN
 
 			FROM debtor_trans A
 			LEFT JOIN debtor_loans B ON B.reference = A.reference
