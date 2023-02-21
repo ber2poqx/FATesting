@@ -81,8 +81,9 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    ,dl2.ar_amount as `grossAmnt`
 		    ,dl2.discount_downpayment as `discountdp`
 		    ,CASE
-		    	WHEN dl2.installmentplcy_id = 0 THEN 'CASH'
-		        ELSE 'INSTALLMENT' END AS `Type`
+		    	WHEN dl2.months_term = 0 THEN 'CASH'
+		        WHEN dl2.months_term > 3 THEN 'INSTALLMENT'
+				ELSE 'REGULAR' END AS `Type`
 		    ,dl2.months_term as Term
 		    ,dtd4.quantity as Qty
 		    ,dl2.lcp_amount as LCP
