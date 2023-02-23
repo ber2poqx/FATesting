@@ -209,8 +209,8 @@ function print_SL_summary_per_customer()
 		$rep->TextCol(0, 1, $SLsum['gl_entry']);
 		$rep->AmountCol(1, 2, $SLsum['Debits'], $dec);
 		$rep->AmountCol(2, 3, $SLsum['Credits'], $dec);	
-		$row_bal = abs($SLsum['Credits']) - abs($SLsum['Debits']);
-		$rep->AmountCol(3, 4, abs($row_bal), $dec);
+		$row_bal = $SLsum['Credits'] + $SLsum['Debits'];
+		$rep->AmountCol(3, 4, $row_bal, $dec);
 
 		$total_sub += $row_bal;
 		$Cred_bal += $SLsum['Credits'];
