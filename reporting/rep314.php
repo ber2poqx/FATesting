@@ -60,7 +60,7 @@ function get_repo_register($to)
         GROUP BY L.stock_id, L.lot_no
         ) QTYOUT ON B.stock_id = QTYOUT.stock_id AND B.serial_no = QTYOUT.lot_no
 
-        WHERE A.trans_date  <= '$to'
+        WHERE A.repo_date <= '$to'
         GROUP BY A.reference_no
         ORDER BY A.reference_no DESC";
 
@@ -228,9 +228,9 @@ function print_PO_Report()
         $rep->TextCol(10, 11, $ACRBCR['']);
         $rep->TextCol(11, 12, $ACRBCR['chassis_no']);
         $rep->TextCol(12, 13, $ACRBCR['']); 
-        $rep->AmountCol(13, 14, $ACRBCR['monthly_amount']); 
-        $rep->AmountCol(14, 15, $ACRBCR['balance']); 
-        $rep->AmountCol(15, 16, $ACRBCR['unrecovered_cost']);
+        $rep->AmountCol(13, 14, $ACRBCR['monthly_amount'], $dec); 
+        $rep->AmountCol(14, 15, $ACRBCR['balance'], $dec); 
+        $rep->AmountCol(15, 16, $ACRBCR['unrecovered_cost'], $dec);
 
         $stock_type = get_repo_register_serial($ACRBCR['serial_no']);
         $customer = get_repo_register_customer_details($ACRBCR['serial_no'], $stock_type);
