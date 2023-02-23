@@ -52,7 +52,7 @@ function getTransactions($from, $to, $masterfile)
 					LEFT JOIN `debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 				    LEFT JOIN `debtors_master` dm ON dt.debtor_no = dm.debtor_no
 				    LEFT JOIN `chart_master` cm ON gl.account = cm.account_code
-				WHERE dt.debtor_no = '$masterfile'";
+				WHERE gl.mcode = '$masterfile' or gl.person_id = '$masterfile' ";
 
 	if ($from == 0)	
 		$sql .= " AND gl.tran_date <= '$to' ";	
@@ -87,7 +87,8 @@ function getTotal_debit_Credit($to, $masterfile)
 			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 			LEFT JOIN ".TB_PREF."debtors_master dm ON dt.debtor_no = dm.debtor_no
 		WHERE gl.tran_date <= '$to'
-			AND dt.debtor_no = '$masterfile') A
+			AND gl.mcode = '$masterfile' OR gl.tran_date <= '$to'
+			AND gl.person_id = '$masterfile') A
 		";
 	return db_query($sql,"No transactions were returned");
 }
