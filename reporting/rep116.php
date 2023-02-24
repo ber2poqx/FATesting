@@ -34,14 +34,15 @@ print_dailycash_sales();
 function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	
 	$from = date2sql($from);
-
+//modified query by jr on 02/24/2023
 	$sql = "SELECT RT.*, SUM(RT.amount) AS total_amt
-		FROM ".TB_PREF."remittance RT";
+		FROM ".TB_PREF."remittance RT
+			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id ";
 
 	$sql .= " WHERE RT.trans_date = '$from'";
 
 	if ($fcashier != '') {
-		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
+		$sql .= " AND BT.remit_from = ".db_escape($fcashier);
 	}
 
 	if ($tcashier != '') {
@@ -51,7 +52,7 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
 
 	$sql .= " GROUP BY RT.remit_ref";
-
+	echo $sql;
 	return db_query($sql, "No transactions were returned");
 }
 
