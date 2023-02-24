@@ -39,10 +39,10 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 		FROM ".TB_PREF."remittance RT
 			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id ";
 
-	$sql .= " WHERE RT.trans_date = '$from'";
+	$sql .= " WHERE BT.trans_date = '$from'";
 
 	if ($fcashier != '') {
-		$sql .= " AND BT.remit_from = ".db_escape($fcashier);
+		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
 	}
 
 	if ($tcashier != '') {
