@@ -35,7 +35,7 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	
 	$from = date2sql($from);
 //modified query by jr on 02/24/2023
-	$sql = "SELECT RT.*, SUM(RT.amount) AS total_amt
+	$sql = "SELECT RT.*, SUM(BT.amount) AS total_amt
 		FROM ".TB_PREF."remittance RT
 			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id ";
 
@@ -52,7 +52,7 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
 
 	$sql .= " GROUP BY RT.remit_ref";
-	echo $sql;
+	
 	return db_query($sql, "No transactions were returned");
 }
 
