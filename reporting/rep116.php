@@ -228,8 +228,9 @@ function print_dailycash_sales()
 	//Office Collection || Receipt Entries
 	while ($trans = db_fetch($res)) {
 		$void_entry = get_voided_entry($trans['type'], $trans['trans_no']); 
-
-		if ($trans["remit_from"] == $cashier) {
+		//added by jr. dapat makita kung pag iyaang transaction
+		if ($trans["cashier_user_id"] == $cashier) {
+		//if ($trans["remit_from"] == $cashier) {
 			if ($trans_type != $trans['receipt_type']) {
 			
 				if ($trans_type != '') {
