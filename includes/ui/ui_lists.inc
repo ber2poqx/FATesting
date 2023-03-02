@@ -4668,7 +4668,7 @@ function regular_transaction_type($name, $selected_id=null, $name_select="", $ca
 
     $items[''] = strlen($name_select) ? $name_select : _("");
 	$items['CASH'] = strlen($cash) ? $cash : _("CASH");
-	$items['CASH'] = strlen($regular) ? $regular : _("REGULAR");
+	$items['REGULAR'] = strlen($regular) ? $regular : _("REGULAR");
 	$items['INSTALLMENT'] = strlen($installment) ? $installment : _("INSTALLMENT");
 
 	return array_selector($name, $selected_id, $items, 
