@@ -157,11 +157,11 @@ function auto_create_customer($cust_code, $branch_code)
 
 }
 
-function set_mt_repo_status($id, $stock_id)
+function set_mt_repo_status($id, $stock_id, $branch)
 {
     //get info from mt details table
     $mt_details = get_mt_details($id, $stock_id);
     //update status mt details
-    repo_update_mt_details($mt_details['mt_details_id']);
-    repo_update_mt_header($id);
+    repo_update_mt_details($mt_details['mt_details_id'], $branch);
+    repo_update_mt_header($id, $branch);
 }

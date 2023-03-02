@@ -566,7 +566,7 @@ if(isset($_GET['submit']))
             }
 
             //update mt from branch/ho
-            set_mt_repo_status($_POST['mt_ref'], $item_row['stock_id']);
+            set_mt_repo_status($_POST['mt_ref'], $item_row['stock_id'], $_POST['cBranch']);
 
         }else{
 
