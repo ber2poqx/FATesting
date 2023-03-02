@@ -504,6 +504,15 @@ if(isset($_GET['submit']))
         $trans_date = date('m/d/Y');
         $company_record = get_company_prefs();
 
+        //new added field naming 03/02/2023 zhunx...
+        if($_POST['repo_type'] == 'replcmnt') {
+            $quantity = $item_row['quantity'];
+        }else if($_POST['repo_type'] == 'mt') {
+            $quantity = $item_row['qty'];
+        }else{
+            $quantity = $item_row['quantity'];
+        }
+
         if($_POST['repo_type'] == 'mt') {
 
             $branch = get_branch_info($_POST['cBranch']);
@@ -511,7 +520,7 @@ if(isset($_GET['submit']))
             $Branch_name = $branch[0]["name"];
 
             //auto create customer
-            $result = get_mt_customer($_GET['repo_id'], $_GET['from_branch']);
+            $result = get_mt_customer($_POST['mtrep_fkid'], $_POST['cBranch']);
             $mtcustomer = db_fetch($result);
 
             $ncustomerst = check_existing_customer($mtcustomer['name'], $mtcustomer['age']);
@@ -534,14 +543,14 @@ if(isset($_GET['submit']))
                                             $repoacct_row['spot_cash_amount'], $repoacct_row['total_amount'], $repoacct_row['unrecovered_cost'], $repoacct_row['addon_amount'], $repoacct_row['total_unrecovered'],
                                             $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm'], $_POST['mt_ref']);
 
-            $repo_item_id = add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+            $repo_item_id = add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $_POST['unrecovrd_cost'],
                                             $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
 
-            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $quantity, $_POST['unrecovrd_cost'],
                             0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
 
             //item serialize
-            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $item_row['quantity'], $item_row['lot_no'], $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
+            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $item_row['lot_no'], $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
             //for gl entry
             //Repossessed Inventory - debit
             $repo_invty_act =  get_repo_invty_act($_POST['category']);
@@ -557,7 +566,7 @@ if(isset($_GET['submit']))
             }
 
             //update mt from branch/ho
-            set_mt_repo_status($_POST['mt_ref'], $item_row['stock_id']);
+            set_mt_repo_status($_POST['mt_ref'], $item_row['stock_id'], $_POST['cBranch']);
 
         }else{
 
@@ -567,14 +576,14 @@ if(isset($_GET['submit']))
                                             $_POST['spotcash'], $_POST['total_amount'], $_POST['unrecovrd_cost'], $_POST['addon_cost'], $_POST['total_unrecovrd'],
                                             check_isempty($_POST['over_due']), check_isempty($_POST['past_due']), $_POST['category'], $branch_code, $_POST['remarks'], $_POST['gpm']);
 
-            $repo_item_id = add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+            $repo_item_id = add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $_POST['unrecovrd_cost'],
                                             $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
 
-            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $item_row['quantity'], $_POST['unrecovrd_cost'],
+            add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $quantity, $_POST['unrecovrd_cost'],
                             0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
         
             //item serialize
-            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $item_row['quantity'], $item_row['lot_no'], $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
+            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $item_row['lot_no'], $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
 
             //for gl entry
             //Repossessed Inventory - debit

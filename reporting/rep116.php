@@ -34,11 +34,12 @@ print_dailycash_sales();
 function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	
 	$from = date2sql($from);
+//modified query by jr on 02/24/2023
+	$sql = "SELECT RT.*, SUM(BT.amount) AS total_amt
+		FROM ".TB_PREF."remittance RT
+			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id ";
 
-	$sql = "SELECT RT.*, SUM(RT.amount) AS total_amt
-		FROM ".TB_PREF."remittance RT";
-
-	$sql .= " WHERE RT.trans_date = '$from'";
+	$sql .= " WHERE BT.trans_date = '$from'";
 
 	if ($fcashier != '') {
 		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
@@ -51,7 +52,7 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
 
 	$sql .= " GROUP BY RT.remit_ref";
-
+	
 	return db_query($sql, "No transactions were returned");
 }
 
@@ -227,8 +228,9 @@ function print_dailycash_sales()
 	//Office Collection || Receipt Entries
 	while ($trans = db_fetch($res)) {
 		$void_entry = get_voided_entry($trans['type'], $trans['trans_no']); 
-
-		if ($trans["remit_from"] == $cashier) {
+		//added by jr. dapat makita kung pag iyaang transaction
+		if ($trans["cashier_user_id"] == $cashier) {
+		//if ($trans["remit_from"] == $cashier) {
 			if ($trans_type != $trans['receipt_type']) {
 			
 				if ($trans_type != '') {

@@ -567,10 +567,10 @@ function get_mt_details($id, $stock_id)
 	return db_fetch($result);
 }
 
-function repo_update_mt_details($id)
+function repo_update_mt_details($id, $from_branch)
 {
-	global $def_coy;
-    set_global_connection($def_coy);
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
 
 	$sql = "UPDATE ".TB_PREF."mt_details 
 			SET mt_details_status = 2 
@@ -580,10 +580,10 @@ function repo_update_mt_details($id)
 	set_global_connection();
 }
 
-function repo_update_mt_header($id)
+function repo_update_mt_header($id, $from_branch)
 {
-	global $def_coy;
-    set_global_connection($def_coy);
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
 
 	$sql = "UPDATE ".TB_PREF."mt_header 
 			SET mt_header_status = 2 

@@ -31,13 +31,26 @@ if(isset($_GET['getbranch'])){
     global $db_connections;
     $conn = $db_connections;
     $total = count($conn);
+    $company_prefs = get_company_prefs();
 
 	for ($i = 0; $i < $total; $i++)
 	{
-        $status_array[] = array('id'=>$conn[$i]['branch_code'],
-                                'name'=>$conn[$i]['name'],
-                                'area'=>$conn[$i]['branch_area'],
-                                'gl_account'=>$conn[$i]['gl_account']);
+        $islive = get_islive($conn[$i]['branch_code']);
+
+        if(!empty($company_prefs["deployment_status"])){
+            $status_array[] = array('id'=>$conn[$i]['branch_code'],
+                                    'name'=>$conn[$i]['name'],
+                                    'area'=>$conn[$i]['branch_area'],
+                                    'gl_account'=>$conn[$i]['gl_account']);
+        }else{
+
+            if(empty($company_prefs["deployment_status"]) == empty($islive)){
+                $status_array[] = array('id'=>$conn[$i]['branch_code'],
+                                    'name'=>$conn[$i]['name'],
+                                    'area'=>$conn[$i]['branch_area'],
+                                    'gl_account'=>$conn[$i]['gl_account']);
+            }
+        }
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';

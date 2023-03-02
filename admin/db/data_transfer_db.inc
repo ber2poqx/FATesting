@@ -15,7 +15,7 @@ function get_items_to_transfer($date_from, $date_to)
 	$sql = "SELECT A.*
 		FROM ".TB_PREF."stock_master A 
 		WHERE A.date_modified BETWEEN ".db_escape($date_from). " AND ".db_escape($date_to);
-		
+		echo $sql;
 	return db_query($sql, "could not get stock item ");
 }
 
