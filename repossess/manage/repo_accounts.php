@@ -504,7 +504,7 @@ if(isset($_GET['submit']))
         $trans_date = date('m/d/Y');
         $company_record = get_company_prefs();
 
-        //new added field naming 03/02/2023 zhun
+        //new added field naming 03/02/2023 zhunx...
         if($_POST['repo_type'] == 'replcmnt') {
             $quantity = $item_row['quantity'];
         }else if($_POST['repo_type'] == 'mt') {
