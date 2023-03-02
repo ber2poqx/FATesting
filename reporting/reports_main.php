@@ -328,6 +328,24 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
 		)
 	);
 	//=================================================================
+	
+	//Created by Prog6 (03/02/2023) ===================================
+	$reports->addReport(RC_CUSTOMER, 125, _('Sales Summary Report - &REPO'),
+		array(	
+			_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Category') => 'CATEGORY_LIST',
+			_('Brand') => 'BRAND_LIST',
+			_('Name of Customer') => 'CUSTOMERS_LIST',
+			_('Type') => 'TRANST_TYPE',
+			_('Model') => 'ITEMS_P',
+			//_('Months_term') => 'PO',
+			_('Comments') => 'TEXTBOX',
+			_('Paper Orientation') => 'LANDSCAPE',
+			_('Destination') => 'PDFDESTINATION'
+		)
+	);
+	//=================================================================
 
 	$reports->addReport(RC_CUSTOMER, 117, _('&Sales Order Monitoring Report'),
 		array(	
