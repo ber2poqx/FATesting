@@ -119,6 +119,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		$sql .= " AND dtd4.stock_id =".db_escape($item_model);
 	if ($sales_type != ALL_TEXT)
 	{
+		/*
 		if ($sales_type == 'CASH')
 		{
 			$sql .= " AND dl2.installmentplcy_id = '0'";
@@ -126,6 +127,19 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		else
 		{
 			$sql .= " AND dl2.installmentplcy_id != '0'";
+		}*/
+
+		if ($sales_type == 'CASH')
+		{
+			$sql .= " AND dl2.months_term = '0'";
+		}
+		else if($sales_type == 'INSTALLMENT')
+		{
+			$sql .= " AND dl2.months_term > '3'";
+		}
+		else
+		{
+			$sql .= " AND dl2.months_term BETWEEN '1' AND '3' ";
 		}
 	}
 

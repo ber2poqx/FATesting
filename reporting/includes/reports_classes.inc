@@ -548,6 +548,10 @@ class BoxReports
 				case 'TRANST_TYPE':
 					return main_transaction_type($name, null, _("ALL TYPE"));
 
+				//Added by Prog6 03/02/2023 =========================================
+				case 'REGULAR_TRANST_TYPE':
+					return regular_transaction_type($name, null, _("ALL TYPE"));
+
 				case 'STATUS_ORDER':
 					return main_status_order($name, null, _("ALL STATUS"));
 
