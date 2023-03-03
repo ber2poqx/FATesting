@@ -47,42 +47,42 @@ function getTransactions($from, $to)
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 14 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')MOTOR,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')MOTOR,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 15 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')APPLIANCE,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')APPLIANCE,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 16 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')COMPUTERS,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')COMPUTERS,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 17 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')PROMOITEM,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')PROMOITEM,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 18 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')OTHERS,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')OTHERS,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 19 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')FURNITURES,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')FURNITURES,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 21 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')POWERPRODUCT,
+			AND F.tran_date>='$from' AND F.tran_date<='$to')POWERPRODUCT,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			WHERE X.category_id = 23 AND X.months_term = B.months_term 
-			AND F.type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')SPGEN
+			AND F.tran_date>='$from' AND F.tran_date<='$to')SPGEN
 
 			FROM debtor_trans A
 			LEFT JOIN debtor_loans B ON B.reference = A.reference
