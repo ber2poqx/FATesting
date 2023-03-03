@@ -120,7 +120,7 @@ function print_RGP_summarized()
     $rep->SetHeaderType('SL_Summary_Header');
 	$rep->NewPage();
 	
-	$res = getTransactions($month, $account = '4465');
+	$res = getTransactions($month, $account = '402001'); //Old code = 4465
 
 	$RGP1 = 0;
 	$RGP2 = 0;
