@@ -641,7 +641,7 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date = n
 }
 
 function get_banking_transactions($type = null, $reference = '', $doc_ref = '', $from_date = null, $to_date = null, $cashier_id = '', 
-$interbranch = '', $open_bal = '', $trans_no = 0, $person_id = '', $person_type ='') {
+$interbranch = '', $open_bal = '', $trans_no = 0, $person_id = '', $person_type ='', $remit_no = 0) {
 	
 	set_global_connection();
 
@@ -653,8 +653,13 @@ $interbranch = '', $open_bal = '', $trans_no = 0, $person_id = '', $person_type 
 			SELECT GL.* FROM " . TB_PREF . "gl_trans GL GROUP BY GL.type, GL.type_no
 		) GL ON BT.trans_no = GL.type_no AND BT.type = GL.type";
 	} 
+	
 
-	$sql .= " WHERE BT.type <> 0 AND BT.type = " .db_escape($type);
+	$sql .= " WHERE BT.type <> 0";
+
+	if ($type != null) {
+		$sql .= " AND BT.type = " .db_escape($type);
+	}
 	
 	if ($reference != '') {
 		$sql .= " AND BT.ref = " .db_escape($reference);
@@ -684,7 +689,11 @@ $interbranch = '', $open_bal = '', $trans_no = 0, $person_id = '', $person_type 
 		$sql .= " AND BT.trans_date >= '" . date2sql($from_date) . "' 
 			AND BT.trans_date <= '" . date2sql($to_date) . "'";
 	}
-
+// aDDED BY aLBERT 3/3/2023
+	if ($remit_no != 0) {
+		$sql .= " AND BT.remit_no in (Select remit_num from " . TB_PREF . "remittance b where (b.remit_no_from = " . db_escape($remit_no) . " or b.remit_num = " . db_escape($remit_no) . "))";
+	}
+	
 	if ($person_id != '') {
 		if ($person_type == "Customer") {
 			$person_id = get_person_id(PT_CUSTOMER, $person_id);

@@ -178,9 +178,14 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
     if ($report) {
         $sql .= " AND A.remit_stat <> 'Disapproved'";
     }
+    //MODIFIED BY aLBERT 3/3/2023
+    if ($cashier == '') { 
 
-	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no)";
-
+        $sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no Limit 500)";
+    }else{
+        $sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no)";
+    }
+    //
 
 
     $sql .= " UNION ALL ";
@@ -331,7 +336,7 @@ function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_
             remit_bank_trans(_('Draft'), $row['ref'], $user_id, $remit_to, $trans_no);
 
             if(get_remit_data($row['ref'])){
-                display_warning('hello');
+
                 update_remit_entry($row['ref'], $trans_no);
             }
     
@@ -404,7 +409,7 @@ function update_remit_trans($status = '', $reference = '', $remarks = '', $remit
     set_global_connection();
 
     $sql = "UPDATE ".TB_PREF."remittance RT 
-        SET RT.remit_stat = '$status', RT.remit_no = '$remit_no',";
+        SET RT.remit_stat = '$status', RT.remit_no_from = '$remit_no'";
     
     if ($remarks != '') {
         $sql .= ", status_memo = " .db_escape($remarks);
@@ -436,9 +441,14 @@ function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remi
             $sql .= ", BT.remit_from = $user_id";
         }
     }
-    
-    $sql .= " WHERE BT.ref = " .db_escape($reference);
-    
+    //MODIFIED BY aLBERT 03/03/2023
+    if ($remit_stat == "Draft") {
+        $sql .= " WHERE BT.ref = " .db_escape($reference); 
+    }else{
+
+        $sql .= " WHERE BT.remit_no = " .db_escape($remit_no);
+    }   
+    //
     db_query($sql, "Cannot update remit transaction!");
 }
 

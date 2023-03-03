@@ -98,8 +98,8 @@ if (isset($_POST['Approved']) && can_proceed()) {
 
             $total += $row['amount'];
 
-            remit_bank_trans(_('Approved'), $row['from_ref'], 
-                $res_head['remit_from'], $_SESSION["wa_current_user"]->user
+            remit_bank_trans(_('Approved'), '', 
+                $res_head['remit_from'], $_SESSION["wa_current_user"]->user, $res_head['remit_num']
             );
         }
         
@@ -137,7 +137,7 @@ if (isset($_POST['Approved']) && can_proceed()) {
             get_user_name($res_head['remit_from'])
         );
 
-        add_comments(ST_REMITTANCE, $trans_no, $_POST['date_'], $memo_);
+        add_comments(ST_REMITTANCE, $trans_no, $_POST['date_'], get_post('memo_'));
         $Refs->save(ST_REMITTANCE, $trans_no, $reference);
 	    add_audit_trail(ST_REMITTANCE, $trans_no, $_POST['date_'], _("Draft ref: " . $reference));
 
@@ -157,7 +157,7 @@ if (isset($_POST['Disapproved']) && can_proceed()) {
         update_remit_trans('Disapproved', $_GET['reference'], get_post('memo_'));
 
         while ($row = db_fetch_assoc($res_details)) {
-            remit_bank_trans(_('Open'), $row['from_ref']);
+            remit_bank_trans(_('Open'), '',0,0,$res_head['remit_num']);
         }
 
         meta_forward("../inquiry/remittance_list.php?");
@@ -228,7 +228,7 @@ while ($row = db_fetch_assoc($res_details)) {
     $count++;
     $cashier = $row['remit_stat'] == 'Approved' ? $row['remit_to'] : $row['remit_from'];
 
-    $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $cashier, '', ''));
+    $bank_ = db_query(get_banking_transactions(null, '', '', null, null, $cashier, '', '', 0, '','', $row['remit_num']));
     $bank_row = db_fetch_assoc($bank_);
 
     alt_table_row_color($k);
@@ -240,7 +240,7 @@ while ($row = db_fetch_assoc($res_details)) {
     //label_cell($bank_row['trans_no']);
     label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $bank_row['ref']), "nowrap align='center'");
     label_cell(payment_person_name($bank_row['person_type_id'], $bank_row['person_id']), "nowrap align='left'");
-    label_cell(phil_short_date($row['trans_date']), "nowrap align='center'; style='color: blue';");
+    label_cell(phil_short_date($bank_row['trans_date']), "nowrap align='center'; style='color: blue';");
     label_cell($bank_row['receipt_no'], "nowrap align='center'");
     label_cell($bank_row['prepared_by']);
     label_cell($bank_row['pay_type'], "nowrap align='center'");

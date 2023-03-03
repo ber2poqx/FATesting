@@ -81,23 +81,23 @@ while ($row = db_fetch_assoc($res_details)) {
     $count++;
     $cashier = $row['remit_stat'] == 'Approved' ? $row['remit_to'] : $row['remit_from'];
 
-    $bank_ = db_query(get_banking_transactions($row['type'], $row['from_ref'], '', null, null, $cashier, '', ''));
-    $bank_row = db_fetch_assoc($bank_);
-
-    alt_table_row_color($k);
+    $bank_ = db_query(get_banking_transactions(null, '', '', null, null, '', '', '', 0, '','', $row['remit_num']));
+    //$bank_row = db_fetch_assoc($bank_);
     $total += $row['amount'];
-    $color = $row['amount'] > 0 ? "" : "style='color: red'";
-
-    label_cell($count . ".)", "nowrap align='left'");
-    label_cell(_systype_name($row['type']), "nowrap align='left'");
-    //label_cell($bank_row['trans_no']);
-    label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], $row['from_ref']), "nowrap align='center'");
-    label_cell(payment_person_name($bank_row['person_type_id'], $bank_row['person_id']), "nowrap align='left'");
-    label_cell(phil_short_date($row['trans_date']), "nowrap align='center'; style='color: blue';");
-    label_cell($bank_row['receipt_no'], "nowrap align='center'");
-    label_cell($bank_row['prepared_by'], "nowrap align='center'");
-    label_cell($bank_row['pay_type'], "nowrap align='center'");
-    amount_cell($row['amount'], false, $color);
+    while ($bank_row = db_fetch_assoc($bank_)) {
+        alt_table_row_color($k);
+        $color = $bank_row['amount'] > 0 ? "" : "style='color: red'";
+        label_cell($count . ".)", "nowrap align='left'");
+        label_cell(_systype_name($row['type']), "nowrap align='left'");
+        //label_cell($bank_row['trans_no']);
+        label_cell(get_trans_view_str($row["type"], $bank_row["trans_no"], ''), "nowrap align='center'");
+        label_cell(payment_person_name($bank_row['person_type_id'], $bank_row['person_id']), "nowrap align='left'");
+        label_cell(phil_short_date($row['remit_date']), "nowrap align='center'; style='color: blue';");
+        label_cell($bank_row['receipt_no'], "nowrap align='center'");
+        label_cell($bank_row['prepared_by'], "nowrap align='center'");
+        label_cell($bank_row['pay_type'], "nowrap align='center'");
+        amount_cell($bank_row['amount'], false, $color);
+    }
 }
 
 label_row(_("Document Total: "), number_format2($total, user_price_dec()), 
