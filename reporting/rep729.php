@@ -55,11 +55,11 @@ function get_transactions($from) {
 
     FROM gl_trans GL
     LEFT JOIN (
-        SELECT SUM(amount) AS debit, type, type_no FROM gl_trans WHERE amount > 0
+        SELECT ROUND(SUM(amount),2) AS debit, type, type_no FROM gl_trans WHERE amount > 0
         GROUP BY type, type_no
     ) DB ON GL.type = DB.type AND GL.type_no = DB.type_no
     LEFT JOIN (
-        SELECT SUM(amount) AS credit, type, type_no FROM gl_trans WHERE amount < 0
+        SELECT ROUND(SUM(amount),2) AS credit, type, type_no FROM gl_trans WHERE amount < 0
         GROUP BY type, type_no
     ) CD ON GL.type = CD.type AND GL.type_no = CD.type_no
     
