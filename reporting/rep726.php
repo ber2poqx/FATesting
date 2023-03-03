@@ -184,7 +184,7 @@ function print_SL_RGP()
 	$masterfile = $_POST['PARAM_2'];
 	$comments = $_POST['PARAM_3'];
 	$destination = $_POST['PARAM_4'];
-	$gl_account = 4465;
+	$gl_account = 402001;//4465;
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
