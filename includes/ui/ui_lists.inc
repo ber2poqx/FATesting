@@ -4662,7 +4662,7 @@ function main_transaction_type_list_row($label, $name, $selected_id=null, $cash=
 }
 
 //=============TRANSACTION TYPE WITH REGULAR======================================================================================
-function regular_transaction_type($name, $selected_id=null, $name_select="", $cash="", $installment="", $regular="", $submit_on_change=false)
+function regular_transaction_type($name, $selected_id=null, $name_select="", $cash="", $regular="", $installment="", $submit_on_change=false)
 {
 	$items = array();
 
@@ -4677,19 +4677,19 @@ function regular_transaction_type($name, $selected_id=null, $name_select="", $ca
 			'async' => false ) ); // FIX?
 }
 
-function regular_transaction_type_list_cells($label, $name,  $selected_id=null,  $cash="", $installment="", $regular="", $submit_on_change=false)
+function regular_transaction_type_list_cells($label, $name,  $selected_id=null,  $cash="", $regular="", $installment="", $submit_on_change=false)
 {
 	if ($label != null)
 		echo "<td>$label</td>\n";
 	echo "<td>";
-	echo main_transaction_type($name, $selected_id, $cash, $installment, $regular="", $submit_on_change);
+	echo main_transaction_type($name, $selected_id, $cash, $regular, $installment, $submit_on_change);
 	echo "</td>\n";
 }
 
-function regular_transaction_type_list_row($label, $name, $selected_id=null, $cash="", $installment="", $regular="", $submit_on_change=false)
+function regular_transaction_type_list_row($label, $name, $selected_id=null, $cash="", $regular="", $installment="", $submit_on_change=false)
 {
 	echo "<tr><td class='label'>$label</td>";
-	main_transaction_type_list_cells(null, $name, $selected_id, $cash, $installment, $regular="", $submit_on_change);
+	main_transaction_type_list_cells(null, $name, $selected_id, $cash, $regular, $installment, $submit_on_change);
 	echo "</tr>\n";
 }
 //================================================================================================================================
