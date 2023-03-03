@@ -33,6 +33,8 @@ print_PO_Report();
 
 function getTransactions($from, $to)
 {
+	set_global_connection();
+	
 	$from = date2sql($from);
 	$to = date2sql($to);
 	
