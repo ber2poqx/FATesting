@@ -111,10 +111,11 @@ function remittance_transactions_for_collection($from, $to, $fcashier = '', $tca
 	$from = date2sql($from);
 	$to = date2sql($to);
 
-	$sql = "SELECT RT.*, SUM(RT.amount) AS total_amt
-		FROM ".TB_PREF."remittance RT";
+	$sql = "SELECT RT.*, SUM(BT.amount) AS total_amt
+		FROM ".TB_PREF."remittance RT
+			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id";
 
-	$sql .= " WHERE RT.trans_date>='$from' AND RT.trans_date<='$to'";
+	$sql .= " WHERE BT.trans_date>='$from' AND BT.trans_date<='$to'";
 
 	if ($fcashier != '') {
 		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
