@@ -522,7 +522,8 @@ function get_cash_discount($trans_no, $trans_type)
 	$sql = "SELECT (SUM(A.discount1) + SUM(A.discount2)) discount
 		FROM ".TB_PREF."debtor_trans_details A 
 		WHERE A.debtor_trans_type = ".db_escape($trans_type)."
-			AND A.debtor_trans_no = ".db_escape($trans_no);
+			AND A.debtor_trans_no = ".db_escape($trans_no)."
+			AND A.quantity != 0";
 
 	$result = db_query($sql, "could not get sales cash discount info");
 	$row =  db_fetch($result);
