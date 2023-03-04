@@ -107,8 +107,10 @@ function opening_balance($from, $cashier = '') {
 function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 
 	$date = date2sql($from);
-
-	$sql = "SELECT SUM(A.amount), A.cashier_user_id
+	//modified by Albert fix amount 03/04/2023
+	$sql = "SELECT SUM(A.amount) + (SELECT sum(z.amount) 
+	FROM ".TB_PREF."remittance z where (z.remit_num = A.remit_no or remit_no_from = A.remit_no)), 
+	A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
@@ -407,7 +409,7 @@ function print_dailycash_sales()
 		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_transT['id']); 
 
 		$rep->NewLine(1.2);
-		$rep->TextCol(0, 1, sql2date($remit_transT['trans_date']));
+		$rep->TextCol(0, 1, sql2date($remit_transT['remit_date']));
 		$rep->TextCol(1, 2,	get_user_name($remit_transT['remit_from']));
 		$rep->TextCol(2, 3, $remit_transT['remit_memo']);
 
