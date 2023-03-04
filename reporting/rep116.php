@@ -49,7 +49,7 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 		$sql .= " AND RT.remit_to = ".db_escape($tcashier);
 	} 
 
-	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
+	$sql .= " AND RT.remit_stat = 'Approved'";  //modified by Albert 03/04/2023
 
 	$sql .= " GROUP BY RT.remit_ref";
 	
