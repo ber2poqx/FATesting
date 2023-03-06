@@ -34,12 +34,12 @@ print_dailycash_sales();
 function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	
 	$from = date2sql($from);
-//modified query by jr on 02/24/2023
-	$sql = "SELECT RT.*, SUM(BT.amount) AS total_amt
+	//modified query by jr on 02/24/2023
+	$sql = "SELECT RT.*, RT.amount AS total_amt
 		FROM ".TB_PREF."remittance RT
-			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id ";
+			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.remit_num ";
 
-	$sql .= " WHERE BT.trans_date = '$from'";
+	$sql .= " WHERE RT.remit_date = '$from'";
 
 	if ($fcashier != '') {
 		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
@@ -109,14 +109,14 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 	$date = date2sql($from);
 	//modified by Albert fix amount 03/04/2023
 	$sql = "SELECT SUM(A.amount) + (SELECT sum(z.amount) 
-	FROM ".TB_PREF."remittance z where (z.remit_num = A.remit_no or remit_no_from = A.remit_no)), 
+	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' And z.remit_date <= '$date'), 
 	A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
 				AND C.void_status = 'Voided' 
 
-		WHERE A.type <> 0 AND ISNULL(C.void_id)";
+		WHERE A.type <> 0 AND ISNULL(C.void_id) And remit_stat <> 'Approved'";
 
 	if ($bank_id != '') {
 		$sql .= " AND A.bank_act = " .db_escape($bank_id);
