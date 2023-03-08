@@ -87,20 +87,22 @@ function disbursement_transactions($from, $cashier = '') {
 function opening_balance($from, $cashier = '') {
 	$date = date2sql($from);
 
-	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)) + IFNULL((SELECT sum(z.amount) 
+	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)) + 
+	IFNULL((SELECT sum(z.amount) 
 	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' 
-	And (CASE WHEN z.remit_date < '$date' Then z.remit_date < '$date' else (z.remit_date <= '$date' and z.remit_no_from =0) end)),0),
+	And (CASE WHEN z.remit_date < '$date' Then z.remit_date < '$date' else (z.remit_date <= '$date' and z.remit_no_from =0) end)),0)
+	- (Case when D.remit_date < '$date' then D.amount else 0 end),
 		A.cashier_user_id, B.real_name, B.user_id 
 	FROM ".TB_PREF."bank_trans A 
 		LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
-		LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
-			AND C.void_status = 'Voided' 
+		LEFT JOIN ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id AND C.void_status = 'Voided' 
+		LEFT JOIN ".TB_PREF."remittance D ON A.remit_no = D.remit_num and A.remit_from = D.remit_from  
 	WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
 
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
-
+	
 	$result = db_query($sql, "The starting balance on hand could not be calculated");
 	$row = db_fetch_row($result);
 	return $row[0];
@@ -132,7 +134,7 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 	$sql .= " AND A.trans_date <= '$date' ";
 
 	$result = db_query($sql, "get_breakdown_balance()");
-	$row = db_fetch_row($result);
+	$row = db_fetch_row($result); 
 	return $row[0];
 
 }
