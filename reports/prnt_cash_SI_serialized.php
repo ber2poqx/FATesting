@@ -122,7 +122,7 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 
 	$sql = "SELECT dt.trans_no AS `SI_transno`, dt.reference, bt.ref
 			FROM " . TB_PREF . "`debtor_trans` dt
-				LEFT JOIN " . TB_PREF . "`bank_trans` bt ON dt.debtor_no = bt.masterfile
+				LEFT JOIN " . TB_PREF . "`bank_trans` bt ON dt.debtor_no = bt.person_id
 			WHERE bt.`receipt_no` = '".$trans_ref."' and dt.`type` = ".ST_SALESINVOICE."";
 
 			/*WHERE bt.type = ".ST_CUSTPAYMENT." AND dt.type = ".ST_SALESINVOICE." AND bt.ref = '".$trans_ref."'";*/
