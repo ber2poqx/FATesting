@@ -732,6 +732,7 @@ Ext.onReady(function() {
 
 					Ext.getCmp('rpt_syspk').setValue(records.get('reference'));
 					Ext.getCmp('rpt_transnum').setValue(records.get('trans_no'));
+					Ext.getCmp('rpt_receipt').setValue(records.get('receipt_no'));
 
 					report_window.setTitle('List Of Reports');
 					report_window.show();
@@ -4966,7 +4967,7 @@ Ext.onReady(function() {
 				icon: '../js/ext4/examples/shared/icons/script.png',
 				margin: '2 2 2 2',
 				handler: function () {
-					window.open('../reports/prnt_cash_SI_serialized.php?SI_req=YES&SI_num=' + Ext.getCmp('rpt_syspk').getValue());
+					window.open('../reports/prnt_cash_SI_serialized.php?SI_req=YES&SI_num=' + Ext.getCmp('rpt_receipt').getValue());
 					submit_window_InterB.close();
 				}
 			}]
