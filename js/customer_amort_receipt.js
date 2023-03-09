@@ -4918,14 +4918,21 @@ Ext.onReady(function() {
 			name: 'rpt_syspk',
 			fieldLabel: 'rpt_syspk',
 			//allowBlank: false,
-			hidden: true
+			hidden: false
 		}, {
 			xtype: 'textfield',
 			id: 'rpt_transnum',
 			name: 'rpt_transnum',
 			fieldLabel: 'rpt_transnum',
 			//allowBlank: false,
-			hidden: true
+			hidden: false
+		}, {
+			xtype: 'textfield',
+			id: 'rpt_receipt',
+			name: 'rpt_receipt',
+			fieldLabel: 'rpt_receipt',
+			//allowBlank: false,
+			hidden: false
 		}, {
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
