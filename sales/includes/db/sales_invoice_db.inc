@@ -293,10 +293,10 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 			$invoice_line->discount2,
 			//Modified by spyrax10 7 Feb 2022
 			Get_Item_Incentive_Price($invoice->category_id, $invoice_line->stock_id, "SMI"),
-			Get_Item_Incentive_Price($invoice->category_id, $invoice_line->stock_id, "BII")
+			Get_Item_Incentive_Price($invoice->category_id, $invoice_line->stock_id, "BII"),
 			//$invoice_line->smi,
 			//$invoice_line->incentives
-			//
+			Get_Policy_Installment_Price(getCompDet('branch_code'), $invoice->category_id, $invoice_line->stock_id)   //Added by Albert 03/09/2023
 		);
 
 		// Update delivery items for the quantity invoiced

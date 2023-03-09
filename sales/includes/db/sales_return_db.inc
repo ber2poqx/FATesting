@@ -230,7 +230,8 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 $sales_return_line->discount1,
                 $sales_return_line->discount2,
                 0,
-                0
+                0,
+                Get_Policy_Installment_Price(getCompDet('branch_code'), $sales_return->category_id, $sales_return_line->stock_id)       //Added by Albert 03/09/2023
             );
 
             add_return_units(
@@ -287,7 +288,8 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 $replace_items_line->discount1,
                 $replace_items_line->discount2,
                 0,
-                0
+                0,
+                Get_Policy_Installment_Price(getCompDet('branch_code'), $sales_return->category_id, $replace_items_line->stock_id)      //Added by Albert 03/09/2023
             );
 
             update_returned_units($sales_return_no, db_insert_id()); //Added by Albert 10/04/2022

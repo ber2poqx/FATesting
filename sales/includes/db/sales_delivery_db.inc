@@ -177,7 +177,8 @@ function write_sales_delivery(&$delivery, $bo_policy)
 					$delivery_line->discount1,
 					$delivery_line->discount2,
 					$smi,
-					$incentives
+					$incentives,
+					Get_Policy_Installment_Price(getCompDet('branch_code'), $myrow['category_id'], $delivery_line->stock_id)	//Added by Albert 03/09/2023
 				);
 
 				//Modified by spyrax10 13 Aug 2022
