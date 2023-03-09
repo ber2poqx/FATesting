@@ -102,9 +102,9 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 
     set_global_connection();
 
-	if ($report) {
+	
 		$from_date = date2sql($from_date);
-	}
+	
 
 	$sql = "(SELECT A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
             A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
@@ -160,7 +160,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
         $sql .= " AND (A.remit_stat = 'Open' or A.remit_stat = 'Draft')";
 
         if ($from_date != null) {
-            $sql .= " AND A.trans_date >=" .date2sql($from_date);
+            $sql .= " AND A.trans_date >= '$from_date'";
         }
 
         if ($trans_date != '') {
@@ -211,7 +211,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
         $sql .= " AND E.remit_stat = 'Approved'"; 
 
         if ($from_date != null) {
-            $sql .= " AND E.remit_date >=" .date2sql($from_date);
+            $sql .= " AND E.remit_date >= '$from_date'";
         }
 
         if ($trans_date != '') {
@@ -248,7 +248,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 	$sql .= " GROUP BY trans_no ORDER BY E.remit_date DESC)";
 
 
-
+    
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
     }
