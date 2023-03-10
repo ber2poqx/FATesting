@@ -78,7 +78,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    ,dtd4.stock_id as Model
 		    ,dtd4.lot_no as `Serial`
 		    ,dtd4.chassis_no as `Chassis`
-		    ,dl2.ar_amount as `grossAmnt`
+		    ,dtd4.unit_price as `grossAmnt`
 		    ,dl2.discount_downpayment as `discountdp`
 		    ,CASE
 		    	WHEN dl2.months_term = 0 THEN 'CASH'
@@ -262,7 +262,8 @@ function print_sales_summary_report()
 	$rep->fontSize -= 2;
     $rep->Info($params, $cols, $headers, $aligns, 
 		null, null, null, true, true, true);
-    $rep->SetHeaderType('SL_Summary_Header');
+    //$rep->SetHeaderType('SL_Summary_Header');
+    $rep->SetHeaderType('PO_Header');
 	$rep->NewPage();
 
 	$Tot_qty=0;

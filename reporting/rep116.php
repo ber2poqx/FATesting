@@ -34,12 +34,12 @@ print_dailycash_sales();
 function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 	
 	$from = date2sql($from);
-//modified query by jr on 02/24/2023
-	$sql = "SELECT RT.*, SUM(BT.amount) AS total_amt
+	//modified query by jr on 02/24/2023
+	$sql = "SELECT RT.*, RT.amount AS total_amt
 		FROM ".TB_PREF."remittance RT
-			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id ";
+			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.remit_num ";
 
-	$sql .= " WHERE BT.trans_date = '$from'";
+	$sql .= " WHERE RT.remit_date = '$from'";
 
 	if ($fcashier != '') {
 		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
@@ -49,7 +49,7 @@ function remittance_transactions($from, $fcashier = '', $tcashier = '') {
 		$sql .= " AND RT.remit_to = ".db_escape($tcashier);
 	} 
 
-	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
+	$sql .= " AND RT.remit_stat = 'Approved'";  //modified by Albert 03/04/2023
 
 	$sql .= " GROUP BY RT.remit_ref";
 	
@@ -87,18 +87,22 @@ function disbursement_transactions($from, $cashier = '') {
 function opening_balance($from, $cashier = '') {
 	$date = date2sql($from);
 
-	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)),
+	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)) + 
+	IFNULL((SELECT sum(z.amount) 
+	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' 
+	And (CASE WHEN z.remit_date < '$date' Then z.remit_date < '$date' else (z.remit_date <= '$date' and z.remit_no_from =0) end)),0)
+	- (Case when D.remit_date < '$date' then IFNULL((SELECT sum(z.amount) 
+	FROM ".TB_PREF."remittance z where z.remit_from =".db_escape($cashier)." And z.remit_stat = 'Approved' and z.remit_date < '$date' ),0) else 0 end),
 		A.cashier_user_id, B.real_name, B.user_id 
 	FROM ".TB_PREF."bank_trans A 
 		LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
-		LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
-			AND C.void_status = 'Voided' 
+		LEFT JOIN ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id AND C.void_status = 'Voided' 
+		LEFT JOIN ".TB_PREF."remittance D ON A.remit_no = D.remit_num and A.remit_from = D.remit_from  
 	WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
 
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
 	}
-
 	$result = db_query($sql, "The starting balance on hand could not be calculated");
 	$row = db_fetch_row($result);
 	return $row[0];
@@ -107,14 +111,17 @@ function opening_balance($from, $cashier = '') {
 function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 
 	$date = date2sql($from);
-
-	$sql = "SELECT SUM(A.amount), A.cashier_user_id
+	//modified by Albert fix amount 03/04/2023
+	$sql = "SELECT SUM(A.amount) + (SELECT sum(z.amount) 
+	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' And z.remit_date <= '$date'), 
+	A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
 				AND C.void_status = 'Voided' 
 
-		WHERE A.type <> 0 AND ISNULL(C.void_id)";
+		WHERE A.type <> 0 AND ISNULL(C.void_id) And 
+		(CASE WHEN (SELECT remit_date FROM ".TB_PREF."remittance z where z.remit_num = A.remit_no and z.remit_stat ='Approved' And z.remit_date > '$date') > A.trans_date THEN 'OPEN' else A.remit_stat end) <> 'Approved'";
 
 	if ($bank_id != '') {
 		$sql .= " AND A.bank_act = " .db_escape($bank_id);
@@ -127,7 +134,7 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 	$sql .= " AND A.trans_date <= '$date' ";
 
 	$result = db_query($sql, "get_breakdown_balance()");
-	$row = db_fetch_row($result);
+	$row = db_fetch_row($result); 
 	return $row[0];
 
 }
@@ -407,7 +414,7 @@ function print_dailycash_sales()
 		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_transT['id']); 
 
 		$rep->NewLine(1.2);
-		$rep->TextCol(0, 1, sql2date($remit_transT['trans_date']));
+		$rep->TextCol(0, 1, sql2date($remit_transT['remit_date']));
 		$rep->TextCol(1, 2,	get_user_name($remit_transT['remit_from']));
 		$rep->TextCol(2, 3, $remit_transT['remit_memo']);
 
@@ -429,7 +436,7 @@ function print_dailycash_sales()
 		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_trans['id']); 
 
 		$rep->NewLine(1.2);
-		$rep->TextCol(0, 1, sql2date($remit_trans['trans_date']));
+		$rep->TextCol(0, 1, sql2date($remit_trans['remit_date']));
 		$rep->TextCol(1, 2,	get_user_name($remit_trans['remit_from']));
 		$rep->TextCol(2, 3, $remit_trans['remit_memo']);
 

@@ -253,7 +253,9 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 			$invoice_line->discount1,
 			$invoice_line->discount2,
 			0,
-			Get_Item_Incentive_Price($invoice->category_id, $invoice_line->stock_id, "BII")
+			Get_Item_Incentive_Price($invoice->category_id, $invoice_line->stock_id, "BII"),
+			Get_Policy_Installment_Price(getCompDet('branch_code'), $invoice->category_id, $invoice_line->stock_id)		//Added by Albert 03/09/2023
+
 
 		);
 		/* Update status in repo items_details */
