@@ -86,7 +86,8 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 				ELSE 'REGULAR' END AS `Type`
 		    ,dl2.months_term as Term
 		    ,dtd4.quantity as Qty
-		    ,dl2.lcp_amount as LCP
+		    ,dl2.lcp_amount as LCP_perInvoice
+			,dtd4.lcp_price as LCP
 		    ,dtd4.standard_cost as `UnitCost`
 		    ,CASE
 		    	WHEN so8.salesman_id IS NULL OR so8.salesman_id = 0 THEN 'Office Sales'
