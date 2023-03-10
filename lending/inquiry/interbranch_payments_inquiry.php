@@ -375,7 +375,8 @@ if(isset($_GET['get_incoming_interb'])){
                                 'prepared_by'=>$myrow['prepared_by'],
                                 'status'=>$myrow['status'],
                                 'approved_by'=>$myrow['approved_by'],
-                                'type'=>$myrow['type']
+                                'type'=>$myrow['type'],
+                                'transno_to'=>$myrow['transno_to_branch']
                             );
      }
     $jsonresult = json_encode($status_array);

@@ -40,7 +40,8 @@ Ext.onReady(function(){
 			{name:'prepared_by', mapping:'prepared_by'},
 			{name:'status', mapping:'status'},
 			{name:'approved_by', mapping:'approved_by'},
-			{name:'type', mapping:'type'}
+			{name:'type', mapping:'type'},
+			{name:'transno_to', mapping:'transno_to'}
 		]
 	});
 	var fstatusStore = Ext.create('Ext.data.Store',{
@@ -428,6 +429,13 @@ Ext.onReady(function(){
 					submit_window.setTitle('Inter-Branch Payment Details');
 					submit_window.show();
 					submit_window.setPosition(320,50);
+				}
+			},'-',{
+				icon   : '../../js/ext4/examples/shared/icons/chart_line.png',
+				tooltip : 'Entries',
+				handler : function(grid, rowIndex, colIndex){
+					var records = qqinterb_store.getAt(rowIndex);
+					window.open('../../gl/view/gl_trans_view.php?type_id=12&trans_no='+ records.get('transno_to'));
 				}
 			}]
 		}
