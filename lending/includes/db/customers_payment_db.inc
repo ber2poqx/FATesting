@@ -336,6 +336,12 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	if($cashier != ''){
 		$sWhere .= " AND C.cashier_user_id = ".db_escape($cashier);
 	}
+
+	if($module_type == 'CLTN-CASH'){
+		$sWhere .= " AND A.module_type = ".db_escape($module_type). " AND A.payment_type = 'other' ";
+	}else{
+		$sWhere .= " AND (A.module_type = 'CLTN-INTERB' OR A.module_type = 'CLTN-DPWOSI' OR A.module_type = 'CLTN-AMORT') AND A.payment_type != 'other' "; 
+	}
 	
 	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name
 			FROM ".TB_PREF."debtor_trans A 
@@ -345,9 +351,7 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
 				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
 				LEFT JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
-			WHERE A.type = ".db_escape($type). "
-				AND A.module_type LIKE '".$module_type."%'"
-				.$sWhere."
+			WHERE A.type = ".db_escape($type).$sWhere."
 			ORDER BY A.tran_date DESC, A.reference DESC";
 	
 	$sqllimit = $sql ." limit $start, $limit";

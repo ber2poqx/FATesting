@@ -18,13 +18,16 @@ include_once($path_to_root . "/lending/includes/lending_cfunction.inc");
 //----------------------------------------------------------------------------------------------------
 
 add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
-add_js_ufile($path_to_root ."/js/customer_amort_receipt.js");
-
+if($_GET['type']=='cash'){
+    add_js_ufile($path_to_root ."/js/customer_cash_invoice.js");
+}else{
+    add_js_ufile($path_to_root ."/js/customer_amort_receipt.js");
+}
 //----------------------------------------------: for grid js :---------------------------------------
 if(isset($_GET['getReference'])){
-    $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('CR'), array('date' => Today()), true, ST_CUSTPAYMENT);
+    $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID($_GET['getReference']), array('date' => Today()), true, ST_CUSTPAYMENT);
     echo '({"success":"true","reference":"'.$reference.'"})';
-    //echo $_POST['debtor_id'];
+    //echo 'asdasd-'. $_GET['getReference'];
     return;
 }
 if(isset($_GET['getbranch'])){
@@ -81,6 +84,7 @@ if(isset($_GET['get_PaymentType']))
         $status_array[] = array('id'=>"other",
                                 'name'=>"Other Payment"
                             );
+    }elseif($_GET['type'] == "adjmt"){
         $status_array[] = array('id'=>"adjmt",
                             'name'=>"Adjustment"
                         );
@@ -2157,8 +2161,11 @@ if(isset($_GET['submitSICash']))
 
 //------------------------------------------------------------------------------------------------------
 //simple_page_mode(true);
-page(_($help_context = "Collection Receipt"), false, false, "", null);
-
+if($_GET['type']=='cash'){
+    page(_($help_context = "Cash Invoice Receipt"), false, false, "", null);
+}else{
+    page(_($help_context = "Office Collection Receipt"), false, false, "", null);
+}
 start_table(TABLESTYLE, "width='100%'");
    echo "<div id='ext-form'></div>";
    echo "<style type='text/css' media='screen'>

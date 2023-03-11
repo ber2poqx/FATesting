@@ -534,7 +534,7 @@ Ext.onReady(function() {
 		{header:'<b>trans_no</b>',dataIndex:'trans_no',hidden: true},
 		{header:'<b>Date</b>', dataIndex:'tran_date', sortable:true, width:80, renderer: Ext.util.Format.dateRenderer('m-d-Y')},
 		{header:'<b>Reference No.</b>', dataIndex:'reference', sortable:true, width:120},
-		{header:'<b>CR No.</b>', dataIndex:'receipt_no', sortable:true, width:100},
+		{header:'<b>Receipt No.</b>', dataIndex:'receipt_no', sortable:true, width:100},
 		{header:'<b>Customer Name</b>', dataIndex:'customer_name', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
@@ -1417,44 +1417,6 @@ Ext.onReady(function() {
 			submit_window.setPosition(320,23);
 		}
 	}, '-', {
-		text:'<b>Cash/Adjustment Payment</b>',
-		tooltip: 'Add new cash payment for sales invoice / Adjustment payment for replacement items',
-		icon: '../js/ext4/examples/shared/icons/coins-in-hand-icon.png',
-		scale: 'small',
-		handler: function(){
-			submit_form.getForm().reset();
-			submit_form_InterB.getForm().reset();
-			submit_form_DP.getForm().reset();
-			submit_form_cash.getForm().reset();
-			
-			Ext.getCmp('check_cash').setVisible(false);
-			
-			CustomerStore.load();
-			PaymentTypeStore.proxy.extraParams = {type: "cash"};
-			PaymentTypeStore.load();
-			ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
-			ARInvoiceStore.load();
-			OtherEntryStore.proxy.extraParams = {transNo: null};
-			OtherEntryStore.load();
-			/*cashierStore.load({
-				callback: function(records) {                 
-        			Ext.getCmp('cashier_cash').setValue(records[i].get('id'));
-				}
-			});*/
-
-			//Ext.getCmp('intobankacct_cash').setValue(3);
-			Ext.getCmp('total_otheramount_cashpay').setValue(0);
-			Ext.getCmp('debit_acct_cash').setValue("1050");
-			Ext.getCmp('paymentType_cash').setValue('other');
-			Ext.getCmp('collectType_cash').setValue(1);//'office'
-			Ext.getCmp('moduletype_cash').setValue('CLTN-CASH');
-			GetCashierPrep("sicash");
-
-			submit_window_cash.show();
-			submit_window_cash.setTitle('Cash Payment Receipt Entry - Add');
-			submit_window_cash.setPosition(320,23);
-		}
-	}, '-', {
 		text:'<b>Inter-branch Payment</b>',
 		tooltip: 'Add new inter-branch payment.',
 		icon: '../js/ext4/examples/shared/icons/table_relationship.png',
@@ -1493,6 +1455,44 @@ Ext.onReady(function() {
 			submit_window_InterB.setTitle('Customer Inter-Branch Receipt Entry - Add');
 			submit_window_InterB.setPosition(320,23);
 		}
+	}, '-', {
+		text:'<b>Adjustment Payment</b>',
+		tooltip: 'Add new cash payment for sales invoice / Adjustment payment for replacement items',
+		icon: '../js/ext4/examples/shared/icons/coins-in-hand-icon.png',
+		scale: 'small',
+		handler: function(){
+			submit_form.getForm().reset();
+			submit_form_InterB.getForm().reset();
+			submit_form_DP.getForm().reset();
+			submit_form_cash.getForm().reset();
+			
+			Ext.getCmp('check_cash').setVisible(false);
+			
+			CustomerStore.load();
+			PaymentTypeStore.proxy.extraParams = {type: "adjmt"};
+			PaymentTypeStore.load();
+			ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
+			ARInvoiceStore.load();
+			OtherEntryStore.proxy.extraParams = {transNo: null};
+			OtherEntryStore.load();
+			/*cashierStore.load({
+				callback: function(records) {                 
+        			Ext.getCmp('cashier_cash').setValue(records[i].get('id'));
+				}
+			});*/
+
+			//Ext.getCmp('intobankacct_cash').setValue(3);
+			Ext.getCmp('total_otheramount_cashpay').setValue(0);
+			Ext.getCmp('debit_acct_cash').setValue("1050");
+			Ext.getCmp('paymentType_cash').setValue('adjmt');
+			Ext.getCmp('collectType_cash').setValue(1);//'office'
+			Ext.getCmp('moduletype_cash').setValue('CLTN-AMORT');
+			GetCashierPrep("sicash");
+
+			submit_window_cash.show();
+			submit_window_cash.setTitle('Adjustment Payment - Add');
+			submit_window_cash.setPosition(320,23);
+		}		
 	}, '-', {
 		text:'<b>DP W/O Sales Invoice</b>',
 		tooltip: 'Add new down payment without sales Invoice.',
@@ -1845,7 +1845,7 @@ Ext.onReady(function() {
 							OtherEntryStore.load();
 
 							Ext.Ajax.request({
-								url : '?getReference=zHun',
+								url : '?getReference=CR',
 								params: {
 									debtor_id: record.get('debtor_no'),
 									date: Ext.getCmp('trans_date').getValue()
@@ -2532,7 +2532,7 @@ Ext.onReady(function() {
 							Ext.getCmp('name_inb').setValue(Ext.getCmp('customername_inb').getRawValue());
 
 							Ext.Ajax.request({
-								url : '?getReference=zHun',
+								url : '?getReference=CR',
 								params: {
 									debtor_id: record.get('debtor_no'),
 									date: Ext.getCmp('trans_date_inb').getValue()
@@ -3040,7 +3040,7 @@ Ext.onReady(function() {
 							Ext.getCmp('name_dp').setValue(Ext.getCmp('customername_dp').getRawValue());
 
 							Ext.Ajax.request({
-								url : '?getReference=zHun',
+								url : '?getReference=CR',
 								params: {
 									debtor_id: record.get('debtor_no'),
 									date: Ext.getCmp('trans_date_dp').getValue()
@@ -3497,7 +3497,7 @@ Ext.onReady(function() {
 							ARInvoiceStore.load();
 
 							Ext.Ajax.request({
-								url : '?getReference=zHun',
+								url : '?getReference=CR',
 								params: {
 									debtor_id: record.get('debtor_no'),
 									date: Ext.getCmp('trans_date_cash').getValue()
@@ -3506,7 +3506,7 @@ Ext.onReady(function() {
 								success: function (response){
 									var result = Ext.JSON.decode(response.responseText);
 									Ext.getCmp('ref_no_cash').setValue(result.reference);
-									submit_window_cash.setTitle('Cash Payment Receipt Entry - Reference No. : '+ result.reference + ' *new');
+									submit_window_cash.setTitle('Adjustment Payment - Reference No. : '+ result.reference + ' *new');
 								}
 							});
 						}
@@ -3555,18 +3555,18 @@ Ext.onReady(function() {
 						}
 					}
 				},{
-					xtype: 'textfield',
+					/*xtype: 'textfield',
 					fieldLabel: 'Receipt No. ',
 					id: 'receipt_no_cash',
 					name: 'receipt_no_cash',
 					margin: '2 0 0 0',
-					allowBlank: false,
+					//allowBlank: false,
 					enforceMaxLength: true,
 					labelWidth: 100,
 					width: 255,
 					maxLength : 7,
 					maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
-					fieldStyle: 'font-weight: bold; color: #210a04;',
+					fieldStyle: 'font-weight: bold; color: #210a04;',*/
 				}]
 			},{
 				xtype: 'fieldcontainer',
@@ -4994,7 +4994,7 @@ Ext.onReady(function() {
 	function Getreference(){
 		var reference;
 		Ext.Ajax.request({
-			url : '?getReference=zHun',
+			url : '?getReference=CR',
 			async:false,
 			success: function (response){
 				var result = Ext.JSON.decode(response.responseText);
