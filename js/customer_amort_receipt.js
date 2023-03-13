@@ -110,6 +110,7 @@ Ext.onReady(function() {
 	Ext.define('interBModel',{
 		extend : 'Ext.data.Model',
 		fields  : [
+			//{name:'id',mapping:'id'},
 			{name:'trans_date',mapping:'trans_date'},
 			{name:'gl_code',mapping:'gl_code'},
 			{name:'gl_name',mapping:'gl_name'},
@@ -117,7 +118,8 @@ Ext.onReady(function() {
 			{name:'sl_name',mapping:'sl_name'},
 			{name:'debtor_id',mapping:'debtor_id'},
 			{name:'debit_amount',mapping:'debit_amount',type:'float'},
-			{name:'credit_amount',mapping:'credit_amount',type:'float'}
+			{name:'credit_amount',mapping:'credit_amount',type:'float'},
+			{name:'tag',mapping:'tag'}
 		]
 	});
 	Ext.define('AllocationModel',{
@@ -527,6 +529,25 @@ Ext.onReady(function() {
 				totalProperty  : 'total'
 			}
 		}
+	});
+	var GLStore = Ext.create('Ext.data.Store', {
+		name: 'GLStore',
+		fields:['code','name','group'],
+		autoLoad : true,
+        proxy: {
+			url: '?getCOA=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'code',
+			direction : 'ASC'
+		}]
 	});
 
 	var ColumnModel = [
@@ -960,8 +981,18 @@ Ext.onReady(function() {
 				}
 			},
 			summaryRenderer: function(value, summaryData, dataIndex){
+				Ext.getCmp('total_debt_dp').setValue(value);
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
-			}
+			},
+			editor: new Ext.form.TextField({
+				xtype:'textfield',
+				id: 'debit_amount',
+				name: 'debit_amount',
+				allowBlank: false,
+				listeners : {
+
+				}
+			})
 		},
 		{header:'<b>Credit</b>', dataIndex:'credit_amount', width:100, align:'right', summaryType: 'sum',
 			renderer : function(value, metaData, summaryData, dataIndex){
@@ -972,8 +1003,28 @@ Ext.onReady(function() {
 				}
 			},
 			summaryRenderer: function(value, summaryData, dataIndex){
+				Ext.getCmp('total_amount_dp').setValue(value);
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
-			}
+			},
+			editor: new Ext.form.TextField({
+				xtype:'textfield',
+				id: 'credit_amount',
+				name: 'credit_amount',
+				allowBlank: false,
+				listeners : {
+
+				}
+			})
+		},
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:70,
+			items:[{
+				icon: '../js/ext4/examples/shared/icons/delete.png',
+				tooltip: 'remove',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = InterCOAStore.getAt(rowIndex);
+					loadCOA('delete', records.get('gl_code'));
+				}
+			}]
 		}
 	];
 	var AllocCash_Header = [
@@ -1340,6 +1391,35 @@ Ext.onReady(function() {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
+		}
+	];
+	var column_COA = [
+		{header:'<b>Code</b>', dataIndex:'code', width:120},
+		{header:'<b>Description</b>', dataIndex:'name', width:148, flex: 1},
+		{header:'<b>Group</b>', dataIndex:'group', width:120},
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:110,
+			items:[{
+				icon: '../js/ext4/examples/shared/icons/add.png', //tick
+				tooltip: 'Select',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = GLStore.getAt(rowIndex);
+					loadGLDP("add", records.get('code'));
+
+					Ext.toast({
+						icon: '../js/ext4/examples/shared/icons/accept.png',
+						html: 'Code: <b>' + records.get('code') + ' </b><br/> ' + 'Description: <b>' + records.get('name') + '<b/>',
+						title: 'Successfully added...',
+						width: 250,
+						bodyPadding: 10,
+						align: 'tl',
+						bodyStyle: {
+							color: ' #273746 ',
+							background:'#e8ecf0',
+							border: '2px solid red'
+						}
+					});	
+				}
+			}]
 		}
 	];
 
@@ -1739,7 +1819,7 @@ Ext.onReady(function() {
 				var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
 				
 				Ext.getCmp('total_amount_dp').setValue(totalamnt);
-				loadGLDP();
+				loadGLDP("load");
 			}
 		}
 	}];
@@ -2987,6 +3067,13 @@ Ext.onReady(function() {
 				allowBlank: false,
 				hidden: true
 			},{
+				xtype: 'textfield',
+				id: 'total_debt_dp',
+				name: 'total_debt_dp',
+				fieldLabel: 'total_debt_dp',
+				allowBlank: false,
+				hidden: true
+			},{
 				xtype: 'fieldcontainer',
 				layout: 'hbox',
 				margin: '2 0 2 5',
@@ -2998,7 +3085,7 @@ Ext.onReady(function() {
 					allowBlank: false,
 					labelWidth: 105,
 					width: 280,
-					margin: '0 282 0 0',
+					margin: '0 350 0 0',
 					readOnly: true,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
@@ -3007,8 +3094,8 @@ Ext.onReady(function() {
 					name  : 'trans_date_dp',
 					fieldLabel : 'Date ',
 					allowBlank: false,
-					labelWidth: 98,
-					width: 252,
+					labelWidth: 110,
+					width: 262,
 					format : 'm/d/Y',
 					fieldStyle: 'font-weight: bold; color: #210a04;',
 					value: Ext.Date.format(new Date(), 'Y-m-d')
@@ -3053,7 +3140,7 @@ Ext.onReady(function() {
 								}
 							});
 
-							loadGLDP();
+							loadGLDP("load");
 						}
 					}
 				},{
@@ -3114,7 +3201,7 @@ Ext.onReady(function() {
 					editable: false,
 					listeners: {
 						select: function(combo, record, index) {
-							loadGLDP();
+							loadGLDP("load");
 						}
 					}
 				}]
@@ -3192,7 +3279,7 @@ Ext.onReady(function() {
 							Ext.getCmp('debit_acct_dp').setValue(record.get("type"));
 							Ext.getCmp('tenderd_amount_dp').focus(false, 200);
 
-							loadGLDP();
+							loadGLDP("load");
 						},
 						change: function(object, value) {
 							//console.log(value);
@@ -3226,7 +3313,7 @@ Ext.onReady(function() {
 							var totalamnt = (parseFloat(otheramnt) + parseFloat(value));
 							Ext.getCmp('total_amount_dp').setValue(totalamnt);
 							
-							loadGLDP();
+							loadGLDP("load");
 						}
 					}
 				}]
@@ -3286,6 +3373,10 @@ Ext.onReady(function() {
 					loadMask: true,
 					store:	DPitemStore,
 					columns: DPGLHeader,
+					plugins: {
+						ptype: 'cellediting',
+						clicksToEdit: 1
+					},
 					features: [{ftype: 'summary'}],
 					columnLines: true
 				},{
@@ -3306,11 +3397,38 @@ Ext.onReady(function() {
 					columns: DPwoSiOtherEntryHeader,
 					features: [{ftype: 'summary'}],
 					columnLines: true
-				}]
+				}],
+				tabBar: {
+					items: [{
+						xtype: 'tbfill'
+					},{
+						xtype: 'button',
+						text: 'Add GL Account',
+						padding: '3px',
+						margin: '2px 2px 6px 2px',
+						icon: '../js/ext4/examples/shared/icons/chart_line_add.png',
+						tooltip: 'Click to Add GL Entry',
+						style : {
+							'color': 'blue',
+							'font-size': '30px',
+							'font-weight': 'bold',
+							'background-color': '#0a0a23',
+							'position': 'absolute',
+							'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+							'border': 'none',
+							//'border-radius':'10px'
+						},
+						handler: function(){
+							Ext.getCmp('searchCOA').focus(false, 200);
+							GLTitle_w.show();
+							GLTitle_w.setPosition(320,60);
+						}
+					}]
+				}
 			}]
 	});
 	var submit_window_DP = Ext.create('Ext.Window',{
-		width 	: 842,
+		width 	: 912,
 		modal	: true,
 		plain 	: true,
 		border 	: false,
@@ -4019,6 +4137,82 @@ Ext.onReady(function() {
 				]
 			}
 		}]
+	});
+
+	var GLTitle_w = new Ext.create('Ext.Window',{
+		id: 'GLTitle_w',
+		width: 840,
+		height: 400,
+		scale: 'small',
+		resizable: false,
+		closeAction:'hide',
+		//closable:true,
+		modal: true,
+		layout:'fit',
+		plain 	: true,
+		title: 'List Of Chart Of Accounts',
+		items: [{
+			xtype: 'gridpanel',
+			store: GLStore,
+			anchor:'100%',
+			layout:'fit',
+			frame: false,
+			loadMask: true,
+			columns: column_COA,
+			features: [{ftype: 'summary'}],
+			columnLines: true,
+			bbar : {
+				xtype : 'pagingtoolbar',
+				hidden: false,
+				store : GLStore,
+				pageSize : itemsPerPage,
+				displayInfo : false,
+				emptyMsg: "No records to display",
+				doRefresh : function(){
+					GLStore.load();
+				},
+				items:[{
+					xtype: 'searchfield',
+					id:'searchCOA',
+					name:'searchCOA',
+					fieldLabel: '<b>Search</b>',
+					labelWidth: 50,
+					width: 305,
+					emptyText: "Search",
+					scale: 'small',
+					store: GLStore,
+					listeners: {
+						change: function(field) {
+							GLStore.proxy.extraParams = {query: field.getValue()};
+							GLStore.load();
+						}
+					}
+				/*},'->',{
+					xtype: 'button',
+					tooltip: 'Close window',
+					margin: '0 12 0 0',
+					text:'<b>Close</b>',
+					style:'background-color: white; color: red; font-weight: bold;',
+					icon: '../js/ext4/examples/shared/icons/cancel.png',
+					handler : function() {
+						GLTitle_w.close();
+					}*/
+				}]
+			}
+		}],
+		/*listeners:{
+			close: function(thiswindow) {
+				thiswindow.close();
+		   }
+        }
+		buttons:[{
+			text:'<b>Close</b>',
+			tooltip: 'Close window',
+			icon: '../js/ext4/examples/shared/icons/cancel.png',
+			handler:function(){
+				GLTitle_w.close();
+			}
+		}]*/
 	});
 
 	var submit_form_view = Ext.create('Ext.form.Panel', {
@@ -5038,14 +5232,37 @@ Ext.onReady(function() {
 		};
 		InterBStore.load();
 	};
-	function loadGLDP($tag=""){
+	function loadGLDP($tag, $gl_code=0, $id=0){
 		if($tag == "view"){
 			DPitemStore.proxy.extraParams = {
-				isview: "zHun",
+				tag: "view",
 				trans_no: Ext.getCmp('syspk_dp').getValue()
 			};
 		}else{
+			var gridData = DPitemStore.getRange();
+			var OEData = [];
+
+			Ext.each(gridData, function(item) {
+				var ObjItem = {
+					//id: item.get('id'),
+					trans_date: item.get('trans_date'),
+					gl_code: item.get('gl_code'),
+					gl_name: item.get('gl_name'),
+					sl_code: item.get('sl_code'),
+					sl_name: item.get('sl_name'),
+					debtor_id: item.get('debtor_id'),
+					debit_amount: item.get('debit_amount'),
+					credit_amount: item.get('credit_amount'),
+					tag: item.get('tag')
+				};
+				OEData.push(ObjItem);
+			});
+			
 			DPitemStore.proxy.extraParams = {
+				DataOEGrid: Ext.encode(OEData),
+				trans_no: $id,
+				tag: $tag,
+				gl_account: $gl_code,
 				debtor_id: Ext.getCmp('customername_dp').getValue(),
 				date_issue: Ext.getCmp('trans_date_dp').getValue(),
 				debitTo: Ext.getCmp('debit_acct_dp').getValue(),

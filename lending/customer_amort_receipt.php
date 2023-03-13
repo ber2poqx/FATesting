@@ -710,7 +710,12 @@ if(isset($_GET['get_interBPaymnt']))
 }
 if(isset($_GET['get_DownPaymnt']))
 {
-    if($_GET['isview'] == "zHun"){
+    $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
+    $gl_account = $_GET['gl_account'];
+    $counter = count($objDataGrid);
+
+    if($_GET['tag'] == "view"){
         $result = get_DP_NoAmort(ST_CUSTPAYMENT, $_GET['trans_no']);
         $total = DB_num_rows($result);
 
@@ -735,39 +740,51 @@ if(isset($_GET['get_DownPaymnt']))
                                 );
         }
     }else{
-        //into bank/debit to bank //COH
-        if(isset($_GET['debitTo'])){
-            $gl_row = get_gl_account($_GET['debitTo']);
-            //$intoB_result = get_CPbank_accounts($_GET['debitTo']);
-            //$intoB_row = db_fetch($intoB_result);
-            //echo $intoB_row['account_code'];
-            $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
-                                    'gl_code'=>$gl_row["account_code"],
-                                    'gl_name'=>$gl_row["account_name"],
-                                    'sl_code'=>$_GET['branch_code'], //$intoB_row['account_code'],
-                                    'sl_name'=>$_GET['branch_name'], //$intoB_row['bank_account_name'],
-                                    'debtor_id'=>$_GET['debtor_id'],
-                                    'debit_amount'=>$_GET['amounttenderd'],
-                                    'credit_amount'=>0,
-                                );
-        }
-        //customer deposit
-        $company_prefs = get_company_prefs();
-        //echo "asda-".$_GET['paytype'];
-        if($_GET['paytype'] == "other"){
-            $gl_row = get_gl_account($company_prefs["ap_customer_account"]);
-            $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
-                                    'gl_code'=>$gl_row["account_code"],
-                                    'gl_name'=>$gl_row["account_name"],
-                                    'sl_code'=>$_GET['branch_code'],
-                                    'sl_name'=>$_GET['branch_name'],
-                                    'debtor_id'=>$_GET['debtor_id'],
-                                    'debit_amount'=>0,
-                                    'credit_amount'=>$_GET['amounttotal']
-                                );
-        }else{
-            if(!empty($company_prefs["downpaymnt_act"])){
-                $gl_row = get_gl_account($company_prefs["downpaymnt_act"]);
+        if($_GET['tag'] == "load"){
+
+            if (count($objDataGrid) != 0){
+                foreach($objDataGrid as $value=>$data) {
+                    $counter = 3;
+                    if($data['tag'] == 'add'){
+                        //echo 'asdasd';
+                        $status_array[] = array('trans_date'=>$data["trans_date"],
+                            'gl_code'=>$data["gl_code"],
+                            'gl_name'=>$data["gl_name"],
+                            'sl_code'=>$data['sl_code'],
+                            'sl_name'=>$data['sl_name'],
+                            'debtor_id'=>$data['debtor_id'],
+                            'debit_amount'=>$data['debit_amount'],
+                            'credit_amount'=>$data['credit_amount'],
+                            'tag'=>$data['tag']
+                        );
+                    }
+                }
+            }
+
+            //into bank/debit to bank //COH
+            if(!empty($_GET['debitTo'])){ 
+                $gl_row = get_gl_account($_GET['debitTo']);
+                //$intoB_result = get_CPbank_accounts($_GET['debitTo']);
+                //$intoB_row = db_fetch($intoB_result);
+                //echo $intoB_row['account_code'];
+                $counter = 1;
+                $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                        'gl_code'=>$gl_row["account_code"],
+                                        'gl_name'=>$gl_row["account_name"],
+                                        'sl_code'=>$_GET['branch_code'], //$intoB_row['account_code'],
+                                        'sl_name'=>$_GET['branch_name'], //$intoB_row['bank_account_name'],
+                                        'debtor_id'=>$_GET['debtor_id'],
+                                        'debit_amount'=>$_GET['amounttenderd'],
+                                        'credit_amount'=>0,
+                                        'tag'=>$_GET['tag']
+                                    );
+            }
+            //customer deposit
+            $company_prefs = get_company_prefs();
+            //echo "asda-".$_GET['paytype'];
+            $counter = 2;
+            if($_GET['paytype'] == "other"){
+                $gl_row = get_gl_account($company_prefs["ap_customer_account"]);
                 $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
                                         'gl_code'=>$gl_row["account_code"],
                                         'gl_name'=>$gl_row["account_name"],
@@ -775,9 +792,55 @@ if(isset($_GET['get_DownPaymnt']))
                                         'sl_name'=>$_GET['branch_name'],
                                         'debtor_id'=>$_GET['debtor_id'],
                                         'debit_amount'=>0,
-                                        'credit_amount'=>$_GET['amounttotal']
+                                        'credit_amount'=>$_GET['amounttotal'],
+                                        'tag'=>$_GET['tag']
                                     );
+            }else{
+                if(!empty($company_prefs["downpaymnt_act"])){
+                    $gl_row = get_gl_account($company_prefs["downpaymnt_act"]);
+                    $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                            'gl_code'=>$gl_row["account_code"],
+                                            'gl_name'=>$gl_row["account_name"],
+                                            'sl_code'=>$_GET['branch_code'],
+                                            'sl_name'=>$_GET['branch_name'],
+                                            'debtor_id'=>$_GET['debtor_id'],
+                                            'debit_amount'=>0,
+                                            'credit_amount'=>$_GET['amounttotal'],
+                                            'tag'=>$_GET['tag']
+                                        );
+                }
             }
+        }else{
+            $gl_row = get_gl_account($gl_account);
+
+            if (count($objDataGrid) != 0){
+                foreach($objDataGrid as $value=>$data) {
+                    $counter++;
+                    if($gl_account != $data['gl_code']){
+                        $status_array[] = array('trans_date'=>$data["trans_date"],
+                            'gl_code'=>$data["gl_code"],
+                            'gl_name'=>$data["gl_name"],
+                            'sl_code'=>$data['sl_code'],
+                            'sl_name'=>$data['sl_name'],
+                            'debtor_id'=>$data['debtor_id'],
+                            'debit_amount'=>$data['debit_amount'],
+                            'credit_amount'=>$data['credit_amount'],
+                            'tag'=>$data['tag']
+                        );
+                    }
+                }
+            }
+
+            $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                    'gl_code'=>$gl_row["account_code"],
+                                    'gl_name'=>$gl_row["account_name"],
+                                    'sl_code'=>$_GET['branch_code'],
+                                    'sl_name'=>$_GET['branch_name'],
+                                    'debtor_id'=>$_GET['debtor_id'],
+                                    'debit_amount'=>0,
+                                    'credit_amount'=>0,
+                                    'tag'=>$_GET['tag']
+                                );
         }
     }
 
@@ -920,6 +983,21 @@ if(isset($_GET['get_OtherEntryPay']))
                 }
             }
         }
+    }
+
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
+if(isset($_GET['getCOA']))
+{
+    $result = get_List_COA($_GET['query']);
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+            $status_array[] = array('code'=>$myrow["account_code"],
+                                    'name'=>$myrow["account_name"],
+                                    'group'=>$myrow["name"]
+                                );
     }
 
     $jsonresult = json_encode($status_array);
