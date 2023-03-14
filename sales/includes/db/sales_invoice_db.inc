@@ -1008,6 +1008,7 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 
 	if ($reference != '') {
 		$sql .= " AND DT.reference = " .db_escape($reference);
+		$sql .= " AND DT.trans_no not in (SELECT id FROM " . TB_PREF . "voided where void_status = 'Voided' AND reference_from = " .db_escape($reference).")"; //Added by Albert this is to avoid display voided data 
 	}
 	else {
 		$sql .= " AND DT.trans_no = " .db_escape($trans_no) . 
