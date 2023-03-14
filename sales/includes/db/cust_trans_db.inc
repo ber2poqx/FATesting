@@ -731,6 +731,8 @@ function get_cost_of_sales_for_si($deliver_ref_no)
 	global $SysPrefs;
 
 	$sql = "SELECT ov_amount FROM " . TB_PREF . "debtor_trans WHERE type = 13 AND reference=" . db_escape($deliver_ref_no);
+	$sql.= "order by trans_no DESC Limit 1";			// Added by Albert to fix void transaction
+	
 	$result = db_query($sql, "no delivery found");
 	if (db_num_rows($result) == 1) {
 		$row = db_fetch_row($result);
