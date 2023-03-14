@@ -367,13 +367,14 @@ if(isset($_GET['get_aloc']))
         );
     }else{
         if($_GET['colltype'] == 5){
+
             //for term mode first payment
             $result = get_deptor_loan_schedule($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype'], false);
             $total = DB_num_rows($result);
             $schedrow = db_fetch($result);
-            
-            $result = get_deptors_termmode($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype']);
-            $termoderow = db_fetch($result);
+
+            $termoderesult = get_deptors_termmode($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype']);
+            $termoderow = db_fetch($termoderesult);
 
             $AmortDelay = $termoderow["amort_delay"];
             $Penalty = $termoderow["opportunity_cost"];
@@ -1311,12 +1312,45 @@ if(isset($_GET['submit']))
     
                     $trmdresult = get_deptors_termmode($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                     $termoderow = db_fetch($trmdresult);
-                    
+                    /*
                     while ($myrow = db_fetch($result)) {
                         add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $termoderow["amort_delay"], $termoderow["opportunity_cost"], 0, 0, $trans_date, $payment_no);
                         update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
 
                         break;
+                    }
+                    */
+                    $amort_delay = $termoderow['amort_delay'];
+                    $opportunity_cost = $termoderow['opportunity_cost'];
+
+                    while ($myrow = db_fetch($result)) {
+                        if($amort_delay > 0){
+                            if($amort_delay == $myrow["principal_due"]){
+
+                                add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $amort_delay, $opportunity_cost, 0, 0, $trans_date, $payment_no);
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
+                                $amort_delay = $opportunity_cost = 0;
+
+                            }elseif($amort_delay < $myrow["principal_due"]){
+
+                                add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $amort_delay, $opportunity_cost, 0, 0, $trans_date, $payment_no);
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial", 0, "paid");
+                                $amort_delay = $opportunity_cost = 0;
+                            
+                            }else{
+
+                                add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $myrow["principal_due"], $opportunity_cost, 0, 0, $trans_date, $payment_no);
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
+                                $amort_delay -= $myrow["principal_due"];
+                                $opportunity_cost = 0;
+
+                            }
+
+                            if($amort_delay <= 0){
+                                $amort_delay = $opportunity_cost = 0;
+                                break;
+                            }
+                        }
                     }
 
                     //allocate payment to trans number sales invoice

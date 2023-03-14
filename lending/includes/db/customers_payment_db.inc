@@ -733,14 +733,22 @@ function get_debtor_invoice_date($trans_no, $debtor_no, $type)
 
 function get_deptors_termmode($trans_no, $debtor_no, $type)
 {
-	$sql = "SELECT A.*
+	/*$sql = "SELECT A.*
 		FROM ".TB_PREF."debtor_term_modification A
 		WHERE A.trans_no = ".db_escape($trans_no) ."
 			AND A.debtor_no = ".db_escape($debtor_no) ."
 			AND type = ".db_escape($type)."
 			AND A.amount_to_be_paid_status !='paid'
 			AND A.months_term != 0 ";
-		
+		*/
+
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."debtor_term_modification A
+		WHERE A.si_trans_no = ".db_escape($trans_no) ."
+			AND A.debtor_no = ".db_escape($debtor_no) ."
+			AND A.amount_to_be_paid_status !='paid'
+			AND A.months_term != 0 ";
+
 	return db_query($sql, "could not get loan term mode");
 }
 

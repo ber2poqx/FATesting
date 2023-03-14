@@ -30,7 +30,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	// Special value 'syslog' can be used for system logger usage (see php manual).
 	//$error_logfile = '';
 	$error_logfile = VARLOG_PATH.'/errors.log';
-	$debug 			= 1;	// show sql on database errors
+	$debug 			= 0;	// show sql on database errors
 
 	$show_sql 		= 0;	// show all sql queries in page footer for debugging purposes
 	$go_debug 		= 0;	// set to 1 for basic debugging, or 2 to see also backtrace after failure.
