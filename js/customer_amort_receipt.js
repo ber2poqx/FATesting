@@ -1021,8 +1021,8 @@ Ext.onReady(function() {
 				icon: '../js/ext4/examples/shared/icons/delete.png',
 				tooltip: 'remove',
 				handler: function(grid, rowIndex, colIndex) {
-					var records = InterCOAStore.getAt(rowIndex);
-					loadCOA('delete', records.get('gl_code'));
+					var records = DPitemStore.getAt(rowIndex);
+					loadGLDP("delete", records.get('gl_code'));
 				}
 			}]
 		}
@@ -3085,7 +3085,7 @@ Ext.onReady(function() {
 					allowBlank: false,
 					labelWidth: 105,
 					width: 280,
-					margin: '0 350 0 0',
+					margin: '0 310 0 0',
 					readOnly: true,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
@@ -3094,8 +3094,8 @@ Ext.onReady(function() {
 					name  : 'trans_date_dp',
 					fieldLabel : 'Date ',
 					allowBlank: false,
-					labelWidth: 110,
-					width: 262,
+					labelWidth: 123,
+					width: 278,
 					format : 'm/d/Y',
 					fieldStyle: 'font-weight: bold; color: #210a04;',
 					value: Ext.Date.format(new Date(), 'Y-m-d')
@@ -3116,7 +3116,7 @@ Ext.onReady(function() {
 					queryMode: 'local',
 					width: 560,
 					labelWidth: 106,
-					//margin: '0 5 0 0',
+					margin: '0 30 0 0',
 					forceSelection: true,
 					selectOnFocus:true,
 					fieldStyle: 'font-weight: bold; color: #210a04;',
@@ -3152,7 +3152,8 @@ Ext.onReady(function() {
 					allowBlank: false,
 					enforceMaxLength: true,
 					labelWidth: 100,
-					width: 255,
+					labelWidth: 123,
+					width: 278,
 					maxLength : 7,
 					maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
 					fieldStyle: 'font-weight: bold; color: #210a04;',
@@ -3184,6 +3185,7 @@ Ext.onReady(function() {
 					allowBlank: false,
 					readOnly: true,
 					labelWidth: 105,
+					margin: '0 30 0 0',
 					width: 280,
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
@@ -3195,7 +3197,8 @@ Ext.onReady(function() {
 					displayField: 'name',
 					valueField: 'id',
 					queryMode: 'local',
-					width: 255,
+					labelWidth: 123,
+					width: 278,
 					forceSelection: true,
 					selectOnFocus:true,
 					editable: false,
@@ -3218,6 +3221,7 @@ Ext.onReady(function() {
 					allowBlank: false ,
 					maxLength: 254,
 					labelWidth: 105,
+					margin: '0 30 0 0',
 					width: 560,
 					hidden: false
 				},{
@@ -3234,7 +3238,8 @@ Ext.onReady(function() {
 						valueField: 'id',
 						queryMode: 'local',
 						margin: '0 0 2 0',
-						width: 255,
+						labelWidth: 123,
+						width: 278,
 						allowBlank: false,
 						forceSelection: true,
 						selectOnFocus:true,
@@ -3247,8 +3252,8 @@ Ext.onReady(function() {
 						allowBlank:false,
 						useThousandSeparator: true,
 						readOnly: true,
-						labelWidth: 100,
-						width: 255,
+						labelWidth: 123,
+						width: 278,
 						thousandSeparator: ',',
 						minValue: 0,
 						margin: '0 0 2 0',
@@ -3270,7 +3275,8 @@ Ext.onReady(function() {
 					queryMode: 'local',
 					fieldLabel : 'Into Bank Account ',
 					labelWidth: 125,
-					width: 537,
+					width: 560,
+					margin: '0 30 0 0',
 					forceSelection: true,
 					selectOnFocus:true,
 					fieldStyle: 'font-weight: bold; color: #210a04;',
@@ -5235,7 +5241,7 @@ Ext.onReady(function() {
 	function loadGLDP($tag, $gl_code=0, $id=0){
 		if($tag == "view"){
 			DPitemStore.proxy.extraParams = {
-				tag: "view",
+				tag: $tag,
 				trans_no: Ext.getCmp('syspk_dp').getValue()
 			};
 		}else{

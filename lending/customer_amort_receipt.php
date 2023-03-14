@@ -736,8 +736,25 @@ if(isset($_GET['get_DownPaymnt']))
                                     'sl_name'=>array_column($branch, 'name'),
                                     'debtor_id'=>$myrow['person_id'],
                                     'debit_amount'=>$debit,
-                                    'credit_amount'=>$credit
+                                    'credit_amount'=>$credit,
+                                    'tag'=>$data['tag']
                                 );
+        }
+    }elseif($_GET['tag'] == "delete"){
+        foreach($objDataGrid as $value=>$data) {
+            $counter++;
+            if($_GET['gl_account'] != $data['gl_code']){
+                $status_array[] = array('trans_date'=>$data["trans_date"],
+                    'gl_code'=>$data["gl_code"],
+                    'gl_name'=>$data["gl_name"],
+                    'sl_code'=>$data['sl_code'],
+                    'sl_name'=>$data['sl_name'],
+                    'debtor_id'=>$data['debtor_id'],
+                    'debit_amount'=>$data['debit_amount'],
+                    'credit_amount'=>$data['credit_amount'],
+                    'tag'=>$data['tag']
+                );
+            }
         }
     }else{
         if($_GET['tag'] == "load"){
