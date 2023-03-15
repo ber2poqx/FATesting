@@ -421,7 +421,7 @@ Ext.onReady(function(){
 					ARInvoiceStore.load();
 
 					//Ext.getCmp('syspk').setValue(records.get('id'));
-					Ext.getCmp('moduletype').setValue('NOTFA-INTERB');
+					Ext.getCmp('moduletype').setValue('NTFA-INTERB');
 					Ext.getCmp('branch_inb').setValue(records.get('branch_code_from'));
 					Ext.getCmp('customercode').setValue(records.get('debtor_ref'));
 					Ext.getCmp('customername').setValue(records.get('debtor_id'));
@@ -952,7 +952,7 @@ Ext.onReady(function(){
 		handler: function(){
 			submit_form.getForm().reset();
 
-			Ext.getCmp('moduletype').setValue('NOTFA-INTERB');
+			Ext.getCmp('moduletype').setValue('NTFA-INTERB');
 			Ext.getCmp('paymentType').setValue('alloc')
 			Ext.getCmp('paymentType2').setValue('amort')
 			GetCashierPrep();

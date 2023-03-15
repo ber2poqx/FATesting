@@ -84,17 +84,21 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 		$discount_account = $company_record["default_prompt_payment_act"];
 	}
 	//added by jr 072821
-	if($module_type == "CLTN-CASH"){
-		if($payment_type == "adjmt"){
-			$debtors_account = $company_record["ar_customer_account"];
-		}else{
-			$debtors_account = $company_record["ar_cash_sales_account"];
-		}
-	}else if($module_type == "CLTN-AMORT"){
+	if($module_type == "CI-CASH"){
+
+		$debtors_account = $company_record["ar_cash_sales_account"];
+
+	}elseif($module_type == "CR-ADJ"){
+
+		$debtors_account = $company_record["ar_customer_account"];
+
+	}elseif($module_type == "CLTN-AMORT"){
+
 		$term = get_mos_term($masterfile, $customer_id, $trans_type);
 		if($term <= 3) {
 			$debtors_account = $company_record["ar_reg_current_account"];
 		}
+		
 	}
 	if($payment_type == "down"){
 		if($paylocation == 'Lending'){

@@ -47,7 +47,7 @@ function add_bank_trans($type, $trans_no, $bank_act, $ref, $date_, $amount, $per
 		$amount_bank = $amount;
 	$amount_bank = round2($amount_bank, user_price_dec());	
 
-	if($module_type != 'CLTN-BEGDP'){
+	if($module_type != 'CR-BEGDP'){
 		/*Added by Albert 11/17/2022*/
 		$bank_data = get_bank_account($bank_act);
 		$account_type = $bank_data['account_type'];

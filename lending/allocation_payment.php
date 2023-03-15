@@ -1092,7 +1092,7 @@ if(isset($_GET['submitAdj']))
 {
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
-    $InputError = $TotalRebateAmount = $RebateAmount = $PenaltyAmount = $GL_alocamount= 0;
+    $InputError = $TotalRebateAmount = $RebateAmount = $PenaltyAmount = $GL_alocamount = $GL_PenaltyAmount = 0;
     
     if (empty($_POST['transtype_wv']) || empty($_POST['ref_no_wv']) || empty($_POST['total_debt_wv']) || empty($_POST['name_wv'])) {
         $InputError = 1;
@@ -1198,47 +1198,50 @@ if(isset($_GET['submitAdj']))
 
                     $GL_alocamount = $aloc_amount;
                     $GL_totalRebate = $TotalRebateAmount;
+                    $GL_PenaltyAmount = $PenaltyAmount;
+                    $RebateAmount = $debtor_loans["rebate"];
                     
                     $result = get_loan_schedule($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv']);
 
                     while ($myrow = db_fetch($result)) {
-                        
-                        if($TotalRebateAmount != 0){
-                            $RebateAmount = $debtor_loans["rebate"];
-                        }else{
-                            $RebateAmount = 0;
+                        if($TotalRebateAmount < 0){
+                            $TotalRebateAmount = 0;
                         }
+                        if($aloc_amount > 0){
+                            if($aloc_amount == ($myrow["principal_due"] - $RebateAmount)){
 
-                        if($aloc_amount == ($myrow["principal_due"] - $RebateAmount)){
-                            add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
-                            update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
-                        
-                            $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
-                            
-                            break;
-                        }elseif($aloc_amount < ($myrow["principal_due"] - $RebateAmount)){
-                            add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
-                            update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo'], $_POST['transtype_wv'], "partial", 0, '');
-                            
-                            $PenaltyAmount = $RebateAmount = $aloc_amount = $TotalRebateAmount = 0;
+                                add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
 
-                            break;
-                        }else{
-                            add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $myrow["principal_due"], $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
-                            update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "partial", 0, $penaltyBal['penalty_status']);
-                        
-                            add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $myrow["principal_due"], 0, $RebateAmount, 0, $trans_date, $payment_no);
-                            update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
-                            
-                            $TotalRebateAmount -= $RebateAmount;
-                            $aloc_amount -= $myrow["principal_due"];                        
-                        }                       
+                            }elseif($aloc_amount < ($myrow["principal_due"] - $RebateAmount)){
+
+                                add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo'], $_POST['transtype_wv'], "partial", 0, '');
+                                $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+
+                            }else{
+
+                                add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $myrow["principal_due"], $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                $TotalRebateAmount -= $RebateAmount;
+                                $aloc_amount -= $myrow["principal_due"];
+
+                            }
+                            if($aloc_amount <= 0){
+                                $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+                                break;
+                            } 
+                        }                   
                     }
-                    //accocate payment to invoice
-                    add_cust_allocation($aloc_amount, ST_CUSTPAYMENT, $payment_no, $_POST['transtype_wv'], $_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['trans_date_wv']);
-                    update_debtor_trans_allocation($_POST['transtype_wv'], $_POST['InvoiceNo_wv'], $_POST['customername_wv']);
                 }
             }
+        }
+
+        //accocate payment to invoice
+        if($GL_alocamount !=0){
+            add_cust_allocation($GL_alocamount, ST_CUSTPAYMENT, $payment_no, $_POST['transtype_wv'], $_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['trans_date_wv']);
+            update_debtor_trans_allocation($_POST['transtype_wv'], $_POST['InvoiceNo_wv'], $_POST['customername_wv']);
         }
 
         //gl------
@@ -1258,20 +1261,19 @@ if(isset($_GET['submitAdj']))
                 }
             }
         }
-
-        if($GPM != 0){
+        if($debtor_loans["profit_margin"] != 0){
             $dgp_account = $company_prefs["dgp_account"];
             $rgp_account = $company_prefs["rgp_account"];
             
             if($islastPay != 0){
                 $DeferdAmt = get_deferdBal($_POST['InvoiceNo_wv'], $dgp_account);
             }else{
-                $ARValue = ($GL_totalRebate + ($GL_alocamount - $PenaltyAmount));
-                $DeferdAmt = $ARValue * $GPM;
+                $ARValue = ($GL_totalRebate + ($GL_alocamount - $GL_PenaltyAmount));
+                $DeferdAmt = $ARValue * $debtor_loans["profit_margin"];
             }
 
-            $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
-            $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+            $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername_wv'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo_wv']);
+            $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername_wv'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo_wv']);
         }
 
         //$Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no_wv']);

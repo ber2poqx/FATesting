@@ -266,7 +266,7 @@ Ext.onReady(function() {
 		autoLoad : true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
-			url: '?get_custPayment=zHun&module_type=CLTN',
+			url: '?get_custPayment=zHun&module_type=CR',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -631,7 +631,7 @@ Ext.onReady(function() {
 			Ext.getCmp('debit_acct_dp').setValue("2151");
 			Ext.getCmp('paymentType_dp').setValue('down');
 			Ext.getCmp('collectType_dp').setValue(1);//'interb'
-			Ext.getCmp('moduletype_dp').setValue('CLTN-BEGDP');
+			Ext.getCmp('moduletype_dp').setValue('CR-BEGDP');
 			GetCashierPrep("downp");
 
 			Ext.getCmp('btnDPcancel').setText('Cancel');

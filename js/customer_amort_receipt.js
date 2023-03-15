@@ -288,7 +288,7 @@ Ext.onReady(function() {
 		autoLoad : true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
-			url: '?get_custPayment=zHun&module_type=CLTN',
+			url: '?get_custPayment=zHun&module_type=CR',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -593,7 +593,7 @@ Ext.onReady(function() {
 					submit_form_DP.getForm().reset();
 					submit_form_cashview.getForm().reset();
 
-					if(records.get('module_type') == 'CLTN-INTERB'){
+					if(records.get('module_type') == 'CR-INTERB'){
 
 						RecptViewStore_inb.proxy.extraParams = {trans_no: records.get('trans_no')};
 						RecptViewStore_inb.load();
@@ -626,7 +626,7 @@ Ext.onReady(function() {
 						submit_window_InterB_view.show();
 						submit_window_InterB_view.setPosition(320,55);
 						
-					}else if(records.get('module_type') == 'CLTN-DPWOSI'){
+					}else if(records.get('module_type') == 'CR-DPWOSI'){
 
 						PaymentTypeStore.proxy.extraParams = {type: "downp"};
 						PaymentTypeStore.load();
@@ -668,7 +668,7 @@ Ext.onReady(function() {
 						submit_window_DP.show();
 						submit_window_DP.setPosition(320,55);
 					
-					}else if(records.get('module_type') == 'CLTN-CASH'){
+					}else if(records.get('module_type') == 'CR-ADJ'){
 						
 						ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_no'), tag: "cash"};
 						ARInvoiceStore.load();
@@ -1469,7 +1469,7 @@ Ext.onReady(function() {
 			Ext.getCmp('debit_acct').setValue("1050");
 			Ext.getCmp('paymentType').setValue('amort');
 			//Ext.getCmp('collectType').setValue(1);//'office'
-			Ext.getCmp('moduletype').setValue('CLTN-AMORT');
+			Ext.getCmp('moduletype').setValue('CR-AMORT');
 			//Ext.getCmp('lastpayment').setValue('no');
 			Ext.getCmp('AllocTabGrid').columns[7].setVisible(false);
 			Ext.getCmp('AllocTabGrid').columns[8].setVisible(false);
@@ -1527,7 +1527,7 @@ Ext.onReady(function() {
 			Ext.getCmp('debit_acct_inb').setValue("1050");
 			Ext.getCmp('paymentType_inb').setValue('other');
 			Ext.getCmp('collectType_inb').setValue(3);//'interb'
-			Ext.getCmp('moduletype_inb').setValue('CLTN-INTERB');
+			Ext.getCmp('moduletype_inb').setValue('CR-INTERB');
 			GetCashierPrep("interb");
 			loadInterBranch();
 
@@ -1566,7 +1566,7 @@ Ext.onReady(function() {
 			Ext.getCmp('debit_acct_cash').setValue("1050");
 			Ext.getCmp('paymentType_cash').setValue('adjmt');
 			Ext.getCmp('collectType_cash').setValue(1);//'office'
-			Ext.getCmp('moduletype_cash').setValue('CLTN-AMORT');
+			Ext.getCmp('moduletype_cash').setValue('CR-ADJ');
 			GetCashierPrep("sicash");
 
 			submit_window_cash.show();
@@ -1601,7 +1601,7 @@ Ext.onReady(function() {
 			Ext.getCmp('debit_acct_dp').setValue("1050");
 			Ext.getCmp('paymentType_dp').setValue('down');
 			Ext.getCmp('collectType_dp').setValue(1);//'interb'
-			Ext.getCmp('moduletype_dp').setValue('CLTN-DPWOSI');
+			Ext.getCmp('moduletype_dp').setValue('CR-DPWOSI');
 			GetCashierPrep("downp");
 
 			Ext.getCmp('btnDPcancel').setText('Cancel');

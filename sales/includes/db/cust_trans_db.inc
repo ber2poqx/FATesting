@@ -109,7 +109,7 @@ function write_customer_trans(
 			$status = "Open";
 
 		if ($trans_type == ST_CUSTPAYMENT) {
-			if ($module_type == "CLTN-DPWOSI") {
+			if ($module_type == "CR-DPWOSI") {
 				$status = "Open";
 			} else {
 				$status = "Closed";

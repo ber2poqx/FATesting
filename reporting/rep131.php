@@ -48,8 +48,8 @@ function getCollectionActual_Target($from, $to)
 		LEFT JOIN (
 		SELECT C.tran_date, C.module_type, C.type, SUM(C.ov_amount) AS Amount
 		FROM debtor_trans C
-		WHERE C.type = 12 AND C.module_type != 'CLTN-DPWOSI' 
-		AND C.module_type != 'CLTN-INTERB'
+		WHERE C.type = 12 AND C.module_type != 'CR-DPWOSI' 
+		AND C.module_type != 'CR-INTERB'
 		GROUP BY DATE_FORMAT(C.tran_date, '%Y-%m')
 		) ACTUALTAMT ON DATE_FORMAT(A.collect_date, '%Y-%m') = DATE_FORMAT(ACTUALTAMT.tran_date, '%Y-%m')
 

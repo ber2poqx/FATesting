@@ -336,13 +336,6 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	if($cashier != ''){
 		$sWhere .= " AND C.cashier_user_id = ".db_escape($cashier);
 	}
-
-	if($module_type == 'CLTN-CASH'){
-		$sWhere .= " AND A.module_type = ".db_escape($module_type). " AND A.payment_type = 'other' ";
-	}else{
-		$sWhere .= " AND (A.module_type = 'CLTN-INTERB' OR A.module_type = 'CLTN-DPWOSI' OR A.module_type = 'CLTN-AMORT') AND A.payment_type != 'other' "; 
-	}
-	
 	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
@@ -351,7 +344,9 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
 				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
 				LEFT JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
-			WHERE A.type = ".db_escape($type).$sWhere."
+			WHERE A.type = ".db_escape($type). "
+				AND A.module_type LIKE '".$module_type."%'"
+				.$sWhere."
 			ORDER BY A.tran_date DESC, A.reference DESC";
 	
 	$sqllimit = $sql ." limit $start, $limit";
@@ -587,7 +582,7 @@ function get_AllocDP_customer()
 	$sql = "SELECT A.debtor_no, A.name, A.debtor_ref, A.address, A.tax_id, B.ov_amount, B.trans_no, B.payment_type, B.collect_id, B.type
 		FROM ".TB_PREF."debtors_master A
 			LEFT JOIN ".TB_PREF."debtor_trans B ON B.debtor_no = A.debtor_no
-		WHERE B.module_type = 'CLTN-DPWOSI' AND B.status = 'Open'
+		WHERE B.module_type = 'CR-DPWOSI' AND B.status = 'Open'
 		ORDER BY A.name ";
 
 	return db_query($sql, "could not get customers to allocate");

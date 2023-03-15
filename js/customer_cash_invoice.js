@@ -255,7 +255,7 @@ Ext.onReady(function() {
 		autoLoad : true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
-			url: '?get_custPayment=zHun&module_type=CLTN-CASH',
+			url: '?get_custPayment=zHun&module_type=CI',
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -765,7 +765,7 @@ Ext.onReady(function() {
 			Ext.getCmp('debit_acct_cash').setValue("1050");
 			Ext.getCmp('paymentType_cash').setValue('other');
 			Ext.getCmp('collectType_cash').setValue(1);//'office'
-			Ext.getCmp('moduletype_cash').setValue('CLTN-CASH');
+			Ext.getCmp('moduletype_cash').setValue('CI-CASH');
 			GetCashierPrep("sicash");
 
 			submit_window_cash.show();
@@ -1891,19 +1891,8 @@ Ext.onReady(function() {
 		var OEData = [];
 		count = 0;
 
-		if($mode == 'amort'){
-			$debitTo = Ext.getCmp('othrdebit_acct').getValue();
-			$customername = Ext.getCmp('customername').getValue();
-		}else if($mode == 'interb'){
-			$debitTo = Ext.getCmp('othrdebit_acct_inb').getValue();
-			$customername = Ext.getCmp('customername_inb').getValue();
-		}else if($mode == 'cashpay'){
-			$debitTo = Ext.getCmp('othrdebit_acct_cashpay').getValue();
-			$customername = Ext.getCmp('customername_cash').getValue();
-		}else if($mode == 'dpwosi'){
-			$debitTo = Ext.getCmp('othrdebit_acct_dp').getValue();
-			$customername = Ext.getCmp('customername_dp').getValue();
-		}
+		$debitTo = Ext.getCmp('othrdebit_acct_cashpay').getValue();
+		$customername = Ext.getCmp('customername_cash').getValue();
 		
 		Ext.each(gridData, function(item) {
 			var ObjItem = {
