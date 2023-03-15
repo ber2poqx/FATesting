@@ -92,7 +92,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 
 		$debtors_account = $company_record["ar_customer_account"];
 
-	}elseif($module_type == "CLTN-AMORT"){
+	}elseif($module_type == "CR-AMORT"){
 
 		$term = get_mos_term($masterfile, $customer_id, $trans_type);
 		if($term <= 3) {
