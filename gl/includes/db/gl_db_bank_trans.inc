@@ -313,8 +313,10 @@ function check_bank_account_history($delta_amount, $bank_account, $date=null, $u
 		$date = date2sql($date);
 		$sql .= " AND trans_date > '$date'";
 	}
-	$sql .= " GROUP BY trans_date ORDER BY trans_date ASC";
-
+	/*modified by Albert fix overdraft payment in disbursement 03/15/2023*/
+	//$sql .= " GROUP BY trans_date ORDER BY trans_date ASC";  //original query
+	$sql .= "ORDER BY trans_date ASC";  
+	/**/
 	$history = db_query($sql, "cannot retrieve cash account history");
 
 	while ($trans = db_fetch($history)) {
