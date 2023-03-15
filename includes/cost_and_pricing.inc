@@ -158,7 +158,11 @@ function Get_Policy_Installment_Price($branchCode, $categoryID, $stockID)
 	$price = $row[0];
 
 	set_global_connection();
-	return $price;
+	if($price <> null){
+		return $price;
+	}else{
+		return 0;
+	}
 }
 
 function Get_Item_Incentive_Price($categoryID, $stockID, $moduleType)
