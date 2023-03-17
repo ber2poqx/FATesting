@@ -90,7 +90,7 @@ function opening_balance($from, $cashier = '') {
 	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)) + 
 	IFNULL((SELECT sum(z.amount) 
 	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' 
-	And (CASE WHEN z.remit_date < '$date' Then z.remit_date < '$date' else (z.remit_date <= '$date' and z.remit_no_from =0) end)),0)
+	And (CASE WHEN z.remit_date < '$date' Then z.remit_date < '$date' else (z.remit_date < '$date' and z.remit_no_from =0) end)),0)
 	- (Case when D.remit_date < '$date' then IFNULL((SELECT sum(z.amount) 
 	FROM ".TB_PREF."remittance z where z.remit_from =".db_escape($cashier)." And z.remit_stat = 'Approved' and z.remit_date < '$date' ),0) else 0 end),
 		A.cashier_user_id, B.real_name, B.user_id 
