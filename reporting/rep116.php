@@ -112,8 +112,8 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 
 	$date = date2sql($from);
 	//modified by Albert fix amount 03/04/2023
-	$sql = "SELECT SUM(A.amount) + (SELECT sum(z.amount) 
-	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' And z.remit_date <= '$date'), 
+	$sql = "SELECT SUM(A.amount) + Case when $bank_id = 1 or $bank_id = 2 Then (SELECT sum(z.amount) 
+	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' And z.remit_date <= '$date') else 0 end, 
 	A.cashier_user_id
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
@@ -638,8 +638,8 @@ function print_dailycash_sales()
 			$rep->NewLine(.8);
 		}
 		else {
-			$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
-			$rep->AmountCol(6, 7, $bank_total, $dec);
+				$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
+				$rep->AmountCol(6, 7, $bank_total, $dec);
 		}
 
 		$bank_ += $bank_total;
@@ -669,7 +669,11 @@ function print_dailycash_sales()
 	$rep->Font('bold');
 	$rep->fontSize += 2;
 	$rep->TextCol(1, 3, _('Total Ending Balance: '));
-	$rep->AmountCol(6, 7, $bank_, $dec);
+	/*modified by albert 03/17/2023 */
+	//$rep->AmountCol(6, 7, $bank_, $dec); //original code
+	$rep->AmountCol(6, 7, $prev_balance + $sum_receipt + $Tsum_remit + $sum_remit - $sum_dis, $dec, $dec);
+	
+	/**/
 	$rep->Font();
 	$rep->fontSize -= 2;
 
