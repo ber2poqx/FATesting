@@ -114,11 +114,11 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 	//modified by Albert fix amount 03/04/2023
 	$sql = "SELECT SUM(A.amount) + Case when $bank_id = 1 or $bank_id = 2 Then (SELECT sum(z.amount) 
 	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' And z.remit_date <= '$date') else 0 end, 
-	A.cashier_user_id
+	A.cashier_user_id, D.account_type, A.trans_date
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
-			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id 
-				AND C.void_status = 'Voided' 
+			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id AND C.void_status = 'Voided' 
+			LEFT JOIN ".TB_PREF."bank_accounts D ON A.bank_act = D.ID
 
 		WHERE A.type <> 0 AND ISNULL(C.void_id) And 
 		(CASE WHEN (SELECT remit_date FROM ".TB_PREF."remittance z where z.remit_num = A.remit_no and z.remit_stat ='Approved' And z.remit_date > '$date') > A.trans_date THEN 'OPEN' else A.remit_stat end) <> 'Approved'";
@@ -613,7 +613,8 @@ function print_dailycash_sales()
 			$cash += $bank_total;
 		}
 		else {
-			$non_cash += $bank_total;
+			if($bank_row['trans_date'] == $from)
+				$non_cash += $bank_total;
 		}
 
 		$rep->NewLine(1.2);
@@ -638,8 +639,20 @@ function print_dailycash_sales()
 			$rep->NewLine(.8);
 		}
 		else {
+			/*modified by Albert 03/21/2023*/
+			if($bank_row['account_type'] == 2 && $bank_row['trans_date'] == $from){
 				$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
 				$rep->AmountCol(6, 7, $bank_total, $dec);
+				
+			}else if($bank_row['account_type'] != 2){
+			
+				$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
+				$rep->AmountCol(6, 7, $bank_total, $dec);
+			}else{
+				$rep->TextCol(1, 3, _($bank_row['bank_account_name']));
+				$rep->AmountCol(6, 7, 0, $dec);
+			}
+			/**/
 		}
 
 		$bank_ += $bank_total;

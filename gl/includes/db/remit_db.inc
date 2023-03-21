@@ -333,7 +333,7 @@ function write_remit_transactions($reference = '', $date_, $user_id = 0, $remit_
 
         if ($void_entry['void_status'] != "Voided") {
             
-            remit_bank_trans(_('Draft'), $row['ref'], $user_id, $remit_to, $trans_no);
+            remit_bank_trans(_('Draft'), $row['ref'], $user_id, $remit_to, $trans_no, $row['trans_no'], $row['type']);
 
             if(get_remit_data($row['ref'])){
 
@@ -420,7 +420,7 @@ function update_remit_trans($status = '', $reference = '', $remarks = '', $remit
     db_query($sql, "Cannot update remit transaction!");
 }
 
-function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remit_to = 0, $remit_no = 0) {
+function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remit_to = 0, $remit_no = 0, $trans_no = 0, $type = 0) {
 
     set_global_connection();
 
@@ -443,7 +443,7 @@ function remit_bank_trans($remit_stat = '', $reference = '', $user_id = 0, $remi
     }
     //MODIFIED BY aLBERT 03/03/2023
     if ($remit_stat == "Draft") {
-        $sql .= " WHERE BT.ref = " .db_escape($reference); 
+        $sql .= " WHERE BT.ref = " .db_escape($reference) ." AND BT.trans_no =" .db_escape($trans_no) ." AND BT.type =" .db_escape($type); 
     }else{
 
         $sql .= " WHERE BT.remit_no = " .db_escape($remit_no);
@@ -489,6 +489,6 @@ function update_remit_entry($reference, $remit_no){
         SET RT.remit_no_from = '$remit_no'";
 
     $sql .= " WHERE RT.remit_ref = " .db_escape($reference);
-    
+
     db_query($sql, "Cannot update remit transaction!");
 }
