@@ -360,7 +360,9 @@ function convert_number($number)
 	{
 		set_global_connection();
 
-		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
+		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name
+					, IF(ISNULL(gl.mcode), '', dl.debtor_no) AS `mcode1`
+					, IF(ISNULL(gl.master_file), '', dm.name) AS `masterfile1`
 					COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
 					IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
 			FROM ".TB_PREF."gl_trans as gl
@@ -368,6 +370,8 @@ function convert_number($number)
 				LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
 				LEFT JOIN ".TB_PREF."audit_trail as audit ON (gl.type=audit.type AND gl.type_no=audit.trans_no AND NOT ISNULL(gl_seq))
 				LEFT JOIN ".TB_PREF."users as user ON (audit.user=user.id)
+				LEFT JOIN ".TB_PREF."debtor_loans dl ON gl.loan_trans_no = dl.trans_no
+				LEFT JOIN ".TB_PREF."debtors_master dm ON dl.debtor_no = dm.debtor_no
 					# all this below just to retrieve doc_date :>
 				LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
 				LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE." AND gl.person_id=grn.supplier_id
@@ -600,8 +604,8 @@ function convert_number($number)
 									echo '<td align=center style="border-right:0px solid;">'.($count).'</td>';	
 									echo '<td align=center style="border-right:0px solid;">'.($myrow["account"]).'</td>';
 									echo '<td align=left style="border-right:0px solid;">'.($myrow["account_name"]).'</td>';
-									echo '<td align=left style="border-right:0px solid;">'.($myrow["mcode"]).'</td>';	
-									echo '<td align=left style="border-right:0px solid;">'.($myrow["master_file"]).'</td>';	
+									echo '<td align=left style="border-right:0px solid;">'.($myrow["mcode1"]).'</td>';	
+									echo '<td align=left style="border-right:0px solid;">'.($myrow["masterfile1"]).'</td>';	
 									//echo '<td align=left style="border-right:0.5px solid; padding-left: 2px;">'.($myrow2["memo_"]).'</td>';
 									if($myrow["amount"] > 0)
 									{
