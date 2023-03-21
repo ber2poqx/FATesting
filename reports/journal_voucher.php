@@ -363,8 +363,8 @@ function convert_number($number)
 		$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name
 					, IF(ISNULL(gl.mcode), '', dl.debtor_no) AS `mcode1`
 					, IF(ISNULL(gl.master_file), '', dm.name) AS `masterfile1`
-					COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date,
-					IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
+					, COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date
+					, IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
 			FROM ".TB_PREF."gl_trans as gl
 				LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
 				LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
