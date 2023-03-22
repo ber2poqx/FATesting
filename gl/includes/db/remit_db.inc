@@ -87,7 +87,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.remit_stat <> 'Disapproved'";
     }
 
-	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.type, A.receipt_no";
+	$sql .= " ORDER BY A.trans_date DESC, A.type, A.receipt_no";
 
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
