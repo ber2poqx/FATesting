@@ -181,210 +181,211 @@ function print_transaction() {
 
         $void_entry = get_voided_entry($trans['trans_type'], $trans['trans_no']);
 
+        if($void_entry['void_status'] <> "Voided"){
 
-        if ($group == 1) {
-            if ($gl_name != $trans['gl_name']) {
+            if ($group == 1) {
+                if ($gl_name != $trans['gl_name']) {
 
-                if ($gl_name != '') {
-                    $rep->NewLine(2);
-                    $rep->Font('bold');
-				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
-                    $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
-                    $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec); 
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                    if ($gl_name != '') {
+                        $rep->NewLine(2);
+                        $rep->Font('bold');
+                        $rep->TextCol(1, 2, _('Sub_Total'));
+                        $rep->AmountCol(5, 6, $tot_gross, $dec);
+                        $rep->AmountCol(6, 7, $tot_down, $dec);
+                        $rep->AmountCol(7, 8, $tot_adj, $dec);
+                        $rep->AmountCol(8, 9, $tot_rest, $dec);
+                        $rep->AmountCol(9, 10, $tot_pay, $dec);
+                        $rep->AmountCol(10, 11, $tot_adv, $dec);
+                        $rep->AmountCol(11, 12, $tot_bal, $dec);
+                        $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                        $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                        $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                        $rep->SetTextColor(255, 0, 0);
+                        $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                        $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                        $rep->SetTextColor(0, 0, 0);
+                        $rep->AmountCol(17, 18, $tot_past, $dec); 
+                        $rep->AmountCol(18, 19, $tot_grand, $dec);
+                        if ($show_add == 1) {
+                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        }
+                        $rep->Line($rep->row  - 4);
+                        $rep->NewLine(2);
+                        $rep->Font();
+
+                        $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
+                        $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
+                        $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty = 0.0;
                     }
-                    $rep->Line($rep->row  - 4);
-                    $rep->NewLine(2);
-                    $rep->Font();
-
-                    $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
-                    $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
-                    $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty = 0.0;
-                }
-    
-                $rep->NewLine();
-                $rep->fontSize += 1;
-                $rep->Font('bold');
-                $rep->SetTextColor(0, 0, 255);
-                $rep->TextCol(0, 10, 'Accounts Receivable - Regular Current');
-                $gl_name = 'Accounts Receivable - Regular Current';
-                $rep->Font();
-                $rep->fontSize -= 1;
-                $rep->SetTextColor(0, 0, 0);
-                $rep->NewLine();
-
-            }
-        }
-        else if ($group == 2) {
-            if ($col_name != $trans['col_name']) {
-
-                if ($col_name != '') {
-                    $rep->NewLine(2);
-                    $rep->Font('bold');
-				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross_g1, $dec);
-                    $rep->AmountCol(6, 7, $tot_down_g1, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj_g1, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest_g1, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay_g1, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv_g1, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal_g1, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue_g1, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt_g1, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis_g1, $dec);
-                    $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1_g1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2_g1, $dec);
-                    $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past_g1, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand_g1, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty_g1, $dec);
-                    }
-                    $rep->Line($rep->row  - 4);
-                    $rep->NewLine(2);
-                    $rep->Font();
-                    //3 months and below
-                    $tot_gross_g1 = $tot_down_g1 = $tot_adj_g1 = $tot_rest_g1 = $tot_pay_g1 = $tot_adv_g1 = 
-                    $tot_bal_g1 = $tot_notDue_g1 = $tot_dueNxt_g1 = $tot_dueThis_g1 = $tot_ovr1_g1 = 
-                    $tot_ovr2_g1 = $tot_past_g1 = $tot_grand_g1 = $tot_penalty_g1 = 0.0;
-                    //
-                }
-    
-                $rep->NewLine();
-                $rep->fontSize += 1;
-                $rep->Font('bold');
-                $rep->SetTextColor(0, 0, 255);
-                $rep->TextCol(0, 10, $trans['user_id']. ' - ' . $trans['col_name']);
-                $col_name = $trans['col_name'];
-                $rep->Font();
-                $rep->fontSize -= 1;
-                $rep->SetTextColor(0, 0, 0);
-                $rep->NewLine();	
-            }
-        }
-        else {
-            if ($area_name != $trans['area_name']) {
-
-                if ($area_name != '') {
-                    $rep->NewLine(2);
-                    $rep->Font('bold');
-				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
-                    $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
-                    $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                    }
-                    $rep->Line($rep->row  - 4);
-                    $rep->NewLine(2);
-                    $rep->Font();
-
-                    $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
-                    $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
-                    $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty =  0.0;
-                }
-    
-                $rep->NewLine();
-                $rep->fontSize += 1;
-                $rep->Font('bold');
-                $rep->SetTextColor(0, 0, 255);
-                $rep->TextCol(0, 10, $trans['area_name']);
-                $area_name = $trans['area_name'];
-                $rep->Font();
-                $rep->fontSize -= 1;
-                $rep->SetTextColor(0, 0, 0);
-                $rep->NewLine();	
-            }
-        }
-
-        $rep->NewLine();
-        $rep->fontSize -= .5;
-
-        $rep->TextCol(0, 1, $total_act . ".) ");
-        $void_entry['void_status'] == "Voided" ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(1, 2, $trans['cust_name']);
-        $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(2, 3, debtor_stock_id($trans['trans_no'], $trans['trans_type']));
-        $rep->SetTextColor(0, 0, 255);	
-        $rep->TextCol(3, 4, $trans['buy_date']);
-        $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(4, 5, $trans['Term']);
-        $rep->AmountCol(5, 6, $trans['gross'], $dec);
-        $rep->AmountCol(6, 7, $trans['down_pay'], $dec);
-        $rep->AmountCol(7, 8, $total_adjusment, $dec);
-        $rep->AmountCol(8, 9, $trans['restruct'], $dec);
-        $rep->AmountCol(9, 10, $total_payment_this_month, $dec);
-        $rep->AmountCol(10, 11, $advance_payment, $dec);
-        $rep->AmountCol(11, 12, $current_balance, $dec);
-        $rep->AmountCol(12, 13, $not_yet_due, $dec);
-        $rep->AmountCol(13, 14, $due_nxt_month, $dec);
-        $rep->AmountCol(14, 15, $due_this_month, $dec);
-        $rep->SetTextColor(255, 0, 0);
-        $rep->AmountCol(15, 16, $overdue_1month, $dec);
-        $rep->AmountCol(16, 17, $overdue_2months, $dec);
-        $rep->SetTextColor(0, 0, 0);
-        $rep->AmountCol(17, 18, $past_due, $dec);
-        $rep->AmountCol(18, 19, $total_collectibles, $dec);
         
-        if ($show_add == 1) {
-            $rep->SetTextColor(255, 0, 0);
-            $rep->AmountCol(19, 20, $penalty, $dec);
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, 'Accounts Receivable - Regular Current');
+                    $gl_name = 'Accounts Receivable - Regular Current';
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();
+
+                }
+            }
+            else if ($group == 2) {
+                if ($col_name != $trans['col_name']) {
+
+                    if ($col_name != '') {
+                        $rep->NewLine(2);
+                        $rep->Font('bold');
+                        $rep->TextCol(1, 2, _('Sub_Total'));
+                        $rep->AmountCol(5, 6, $tot_gross_g1, $dec);
+                        $rep->AmountCol(6, 7, $tot_down_g1, $dec);
+                        $rep->AmountCol(7, 8, $tot_adj_g1, $dec);
+                        $rep->AmountCol(8, 9, $tot_rest_g1, $dec);
+                        $rep->AmountCol(9, 10, $tot_pay_g1, $dec);
+                        $rep->AmountCol(10, 11, $tot_adv_g1, $dec);
+                        $rep->AmountCol(11, 12, $tot_bal_g1, $dec);
+                        $rep->AmountCol(12, 13, $tot_notDue_g1, $dec);
+                        $rep->AmountCol(13, 14, $tot_dueNxt_g1, $dec);
+                        $rep->AmountCol(14, 15, $tot_dueThis_g1, $dec);
+                        $rep->SetTextColor(255, 0, 0);
+                        $rep->AmountCol(15, 16, $tot_ovr1_g1, $dec);
+                        $rep->AmountCol(16, 17, $tot_ovr2_g1, $dec);
+                        $rep->SetTextColor(0, 0, 0);
+                        $rep->AmountCol(17, 18, $tot_past_g1, $dec);
+                        $rep->AmountCol(18, 19, $tot_grand_g1, $dec);
+                        if ($show_add == 1) {
+                            $rep->AmountCol(19, 20, $tot_penalty_g1, $dec);
+                        }
+                        $rep->Line($rep->row  - 4);
+                        $rep->NewLine(2);
+                        $rep->Font();
+                        //3 months and below
+                        $tot_gross_g1 = $tot_down_g1 = $tot_adj_g1 = $tot_rest_g1 = $tot_pay_g1 = $tot_adv_g1 = 
+                        $tot_bal_g1 = $tot_notDue_g1 = $tot_dueNxt_g1 = $tot_dueThis_g1 = $tot_ovr1_g1 = 
+                        $tot_ovr2_g1 = $tot_past_g1 = $tot_grand_g1 = $tot_penalty_g1 = 0.0;
+                        //
+                    }
+        
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, $trans['user_id']. ' - ' . $trans['col_name']);
+                    $col_name = $trans['col_name'];
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();	
+                }
+            }
+            else {
+                if ($area_name != $trans['area_name']) {
+
+                    if ($area_name != '') {
+                        $rep->NewLine(2);
+                        $rep->Font('bold');
+                        $rep->TextCol(1, 2, _('Sub_Total'));
+                        $rep->AmountCol(5, 6, $tot_gross, $dec);
+                        $rep->AmountCol(6, 7, $tot_down, $dec);
+                        $rep->AmountCol(7, 8, $tot_adj, $dec);
+                        $rep->AmountCol(8, 9, $tot_rest, $dec);
+                        $rep->AmountCol(9, 10, $tot_pay, $dec);
+                        $rep->AmountCol(10, 11, $tot_adv, $dec);
+                        $rep->AmountCol(11, 12, $tot_bal, $dec);
+                        $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                        $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                        $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                        $rep->SetTextColor(255, 0, 0);
+                        $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                        $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                        $rep->SetTextColor(0, 0, 0);
+                        $rep->AmountCol(17, 18, $tot_past, $dec);
+                        $rep->AmountCol(18, 19, $tot_grand, $dec);
+                        if ($show_add == 1) {
+                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        }
+                        $rep->Line($rep->row  - 4);
+                        $rep->NewLine(2);
+                        $rep->Font();
+
+                        $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
+                        $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
+                        $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty =  0.0;
+                    }
+        
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, $trans['area_name']);
+                    $area_name = $trans['area_name'];
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();	
+                }
+            }
+
+            $rep->NewLine();
+            $rep->fontSize -= .5;
+
+            $rep->TextCol(0, 1, $total_act . ".) ");
+            $void_entry['void_status'] == "Voided" ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
+            $rep->TextCol(1, 2, $trans['cust_name']);
             $rep->SetTextColor(0, 0, 0);
-            $rep->TextCol(20, 21, $trans['address']);
+            $rep->TextCol(2, 3, debtor_stock_id($trans['trans_no'], $trans['trans_type']));
+            $rep->SetTextColor(0, 0, 255);	
+            $rep->TextCol(3, 4, $trans['buy_date']);
+            $rep->SetTextColor(0, 0, 0);
+            $rep->TextCol(4, 5, $trans['Term']);
+            $rep->AmountCol(5, 6, $trans['gross'], $dec);
+            $rep->AmountCol(6, 7, $trans['down_pay'], $dec);
+            $rep->AmountCol(7, 8, $total_adjusment, $dec);
+            $rep->AmountCol(8, 9, $trans['restruct'], $dec);
+            $rep->AmountCol(9, 10, $total_payment_this_month, $dec);
+            $rep->AmountCol(10, 11, $advance_payment, $dec);
+            $rep->AmountCol(11, 12, $current_balance, $dec);
+            $rep->AmountCol(12, 13, $not_yet_due, $dec);
+            $rep->AmountCol(13, 14, $due_nxt_month, $dec);
+            $rep->AmountCol(14, 15, $due_this_month, $dec);
+            $rep->SetTextColor(255, 0, 0);
+            $rep->AmountCol(15, 16, $overdue_1month, $dec);
+            $rep->AmountCol(16, 17, $overdue_2months, $dec);
+            $rep->SetTextColor(0, 0, 0);
+            $rep->AmountCol(17, 18, $past_due, $dec);
+            $rep->AmountCol(18, 19, $total_collectibles, $dec);
+            
+            if ($show_add == 1) {
+                $rep->SetTextColor(255, 0, 0);
+                $rep->AmountCol(19, 20, $penalty, $dec);
+                $rep->SetTextColor(0, 0, 0);
+                $rep->TextCol(20, 21, $trans['address']);
+            }
+
+            $rep->fontSize += .5;
+            $rep->NewLine(.5);
+
+            //Sub - Total                               //Grand Total
+            $tot_gross += $trans['gross'];              $tot1_gross += $trans['gross'];
+            $tot_down += $trans['down_pay'];            $tot1_down += $trans['down_pay'];           
+            $tot_adj += $total_adjusment;               $tot1_adj += $total_adjusment;
+            $tot_rest += $trans['restruct'];            $tot1_rest += $trans['restruct'];
+            $tot_pay += $total_payment_this_month;      $tot1_pay += $total_payment_this_month;
+            $tot_adv += $advance_payment;               $tot1_adv += $advance_payment;
+            $tot_bal += $current_balance;               $tot1_bal += $current_balance;
+            $tot_notDue += $not_yet_due;                $tot1_notDue += $not_yet_due;
+            $tot_dueNxt += $due_nxt_month;              $tot1_dueNxt += $due_nxt_month;
+            $tot_dueThis += $due_this_month;            $tot1_dueThis += $due_this_month;
+            $tot_ovr1 += $overdue_1month;               $tot1_ovr1 += $overdue_1month;
+            $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;
+            $tot_past += $past_due;                     $tot1_past += $past_due;
+            $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;
+
+            if ($show_add == 1) {
+                $tot_penalty += $penalty;               $tot1_penalty += $penalty;
+            }
         }
-
-        $rep->fontSize += .5;
-        $rep->NewLine(.5);
-
-        //Sub - Total                               //Grand Total
-        $tot_gross += $trans['gross'];              $tot1_gross += $trans['gross'];
-        $tot_down += $trans['down_pay'];            $tot1_down += $trans['down_pay'];           
-        $tot_adj += $total_adjusment;               $tot1_adj += $total_adjusment;
-        $tot_rest += $trans['restruct'];            $tot1_rest += $trans['restruct'];
-        $tot_pay += $total_payment_this_month;      $tot1_pay += $total_payment_this_month;
-        $tot_adv += $advance_payment;               $tot1_adv += $advance_payment;
-        $tot_bal += $current_balance;               $tot1_bal += $current_balance;
-        $tot_notDue += $not_yet_due;                $tot1_notDue += $not_yet_due;
-        $tot_dueNxt += $due_nxt_month;              $tot1_dueNxt += $due_nxt_month;
-        $tot_dueThis += $due_this_month;            $tot1_dueThis += $due_this_month;
-        $tot_ovr1 += $overdue_1month;               $tot1_ovr1 += $overdue_1month;
-        $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;
-        $tot_past += $past_due;                     $tot1_past += $past_due;
-        $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;
-
-        if ($show_add == 1) {
-            $tot_penalty += $penalty;               $tot1_penalty += $penalty;
-        }
-      
     } //END WHILE
                    
 
@@ -409,205 +410,207 @@ function print_transaction() {
         $void_entry = get_voided_entry($trans['trans_type'], $trans['trans_no']);
 
 
-        if ($group == 1) {
-            if ($gl_name != $trans['gl_name']) {
+        if($void_entry['void_status'] <> "Voided"  ){
+            if ($group == 1) {
+                if ($gl_name != $trans['gl_name']) {
 
-                if ($gl_name != '') {
-                    $rep->NewLine(2);
-                    $rep->Font('bold');
-				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
-                    $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
-                    $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                    if ($gl_name != '') {
+                        $rep->NewLine(2);
+                        $rep->Font('bold');
+                        $rep->TextCol(1, 2, _('Sub_Total'));
+                        $rep->AmountCol(5, 6, $tot_gross, $dec);
+                        $rep->AmountCol(6, 7, $tot_down, $dec);
+                        $rep->AmountCol(7, 8, $tot_adj, $dec);
+                        $rep->AmountCol(8, 9, $tot_rest, $dec);
+                        $rep->AmountCol(9, 10, $tot_pay, $dec);
+                        $rep->AmountCol(10, 11, $tot_adv, $dec);
+                        $rep->AmountCol(11, 12, $tot_bal, $dec);
+                        $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                        $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                        $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                        $rep->SetTextColor(255, 0, 0);
+                        $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                        $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                        $rep->SetTextColor(0, 0, 0);
+                        $rep->AmountCol(17, 18, $tot_past, $dec);
+                        $rep->AmountCol(18, 19, $tot_grand, $dec);
+                        if ($show_add == 1) {
+                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        }
+                        $rep->Line($rep->row  - 4);
+                        $rep->NewLine(2);
+                        $rep->Font();
+
+                        $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
+                        $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
+                        $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty = 0.0;
                     }
-                    $rep->Line($rep->row  - 4);
-                    $rep->NewLine(2);
-                    $rep->Font();
-
-                    $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
-                    $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
-                    $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty = 0.0;
-                }
-    
-                $rep->NewLine();
-                $rep->fontSize += 1;
-                $rep->Font('bold');
-                $rep->SetTextColor(0, 0, 255);
-                $rep->TextCol(0, 10, $trans['gl_name']);
-                $gl_name = $trans['gl_name'];
-                $rep->Font();
-                $rep->fontSize -= 1;
-                $rep->SetTextColor(0, 0, 0);
-                $rep->NewLine();	
-            }
-        }
-        else if ($group == 2) {
-            if ($col_name != $trans['col_name']) {
-
-                if ($col_name != '') {
-                    $rep->NewLine(2);
-                    $rep->Font('bold');
-				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
-                    $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
-                    $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                    }
-                    $rep->Line($rep->row  - 4);
-                    $rep->NewLine(2);
-                    $rep->Font();
-
-                    $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
-                    $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
-                    $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty = 0.0;
-                }
-    
-                $rep->NewLine();
-                $rep->fontSize += 1;
-                $rep->Font('bold');
-                $rep->SetTextColor(0, 0, 255);
-                $rep->TextCol(0, 10, $trans['user_id']. ' - ' . $trans['col_name']);
-                $col_name = $trans['col_name'];
-                $rep->Font();
-                $rep->fontSize -= 1;
-                $rep->SetTextColor(0, 0, 0);
-                $rep->NewLine();	
-            }
-        }
-        else {
-            if ($area_name != $trans['area_name']) {
-
-                if ($area_name != '') {
-                    $rep->NewLine(2);
-                    $rep->Font('bold');
-				    $rep->TextCol(1, 2, _('Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
-                    $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
-                    $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                    }
-                    $rep->Line($rep->row  - 4);
-                    $rep->NewLine(2);
-                    $rep->Font();
-
-                    $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
-                    $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
-                    $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty =  0.0;
-                }
-    
-                $rep->NewLine();
-                $rep->fontSize += 1;
-                $rep->Font('bold');
-                $rep->SetTextColor(0, 0, 255);
-                $rep->TextCol(0, 10, $trans['area_name']);
-                $area_name = $trans['area_name'];
-                $rep->Font();
-                $rep->fontSize -= 1;
-                $rep->SetTextColor(0, 0, 0);
-                $rep->NewLine();	
-            }
-        }
-
-        $rep->NewLine();
-        $rep->fontSize -= .5;
-
-        $rep->TextCol(0, 1, $total_act . ".) ");
-        $void_entry['void_status'] == "Voided" ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(1, 2, $trans['cust_name']);
-        $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(2, 3, debtor_stock_id($trans['trans_no'], $trans['trans_type']));
-        $rep->SetTextColor(0, 0, 255);	
-        $rep->TextCol(3, 4, $trans['buy_date']);
-        $rep->SetTextColor(0, 0, 0);
-        $rep->TextCol(4, 5, $trans['Term']);
-        $rep->AmountCol(5, 6, $trans['gross'], $dec);
-        $rep->AmountCol(6, 7, $trans['down_pay'], $dec);
-        $rep->AmountCol(7, 8, $total_adjusment, $dec);
-        $rep->AmountCol(8, 9, $trans['restruct'], $dec);
-        $rep->AmountCol(9, 10, $total_payment_this_month, $dec);
-        $rep->AmountCol(10, 11, $advance_payment, $dec);
-        $rep->AmountCol(11, 12, $current_balance, $dec);
-        $rep->AmountCol(12, 13, $not_yet_due, $dec);
-        $rep->AmountCol(13, 14, $due_nxt_month, $dec);
-        $rep->AmountCol(14, 15, $due_this_month, $dec);
-        $rep->SetTextColor(255, 0, 0);
-        $rep->AmountCol(15, 16, $overdue_1month, $dec);
-        $rep->AmountCol(16, 17, $overdue_2months, $dec);
-        $rep->SetTextColor(0, 0, 0);
-        $rep->AmountCol(17, 18, $past_due, $dec);
-        $rep->AmountCol(18, 19, $total_collectibles, $dec);
         
-        if ($show_add == 1) {
-            $rep->SetTextColor(255, 0, 0);
-            $rep->AmountCol(19, 20, $penalty, $dec);
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, $trans['gl_name']);
+                    $gl_name = $trans['gl_name'];
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();	
+                }
+            }
+            else if ($group == 2) {
+                if ($col_name != $trans['col_name']) {
+
+                    if ($col_name != '') {
+                        $rep->NewLine(2);
+                        $rep->Font('bold');
+                        $rep->TextCol(1, 2, _('Sub_Total'));
+                        $rep->AmountCol(5, 6, $tot_gross, $dec);
+                        $rep->AmountCol(6, 7, $tot_down, $dec);
+                        $rep->AmountCol(7, 8, $tot_adj, $dec);
+                        $rep->AmountCol(8, 9, $tot_rest, $dec);
+                        $rep->AmountCol(9, 10, $tot_pay, $dec);
+                        $rep->AmountCol(10, 11, $tot_adv, $dec);
+                        $rep->AmountCol(11, 12, $tot_bal, $dec);
+                        $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                        $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                        $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                        $rep->SetTextColor(255, 0, 0);
+                        $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                        $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                        $rep->SetTextColor(0, 0, 0);
+                        $rep->AmountCol(17, 18, $tot_past, $dec);
+                        $rep->AmountCol(18, 19, $tot_grand, $dec);
+                        if ($show_add == 1) {
+                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        }
+                        $rep->Line($rep->row  - 4);
+                        $rep->NewLine(2);
+                        $rep->Font();
+
+                        $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
+                        $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
+                        $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty = 0.0;
+                    }
+        
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, $trans['user_id']. ' - ' . $trans['col_name']);
+                    $col_name = $trans['col_name'];
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();	
+                }
+            }
+            else {
+                if ($area_name != $trans['area_name']) {
+
+                    if ($area_name != '') {
+                        $rep->NewLine(2);
+                        $rep->Font('bold');
+                        $rep->TextCol(1, 2, _('Sub_Total'));
+                        $rep->AmountCol(5, 6, $tot_gross, $dec);
+                        $rep->AmountCol(6, 7, $tot_down, $dec);
+                        $rep->AmountCol(7, 8, $tot_adj, $dec);
+                        $rep->AmountCol(8, 9, $tot_rest, $dec);
+                        $rep->AmountCol(9, 10, $tot_pay, $dec);
+                        $rep->AmountCol(10, 11, $tot_adv, $dec);
+                        $rep->AmountCol(11, 12, $tot_bal, $dec);
+                        $rep->AmountCol(12, 13, $tot_notDue, $dec);
+                        $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
+                        $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                        $rep->SetTextColor(255, 0, 0);
+                        $rep->AmountCol(15, 16, $tot_ovr1, $dec);
+                        $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                        $rep->SetTextColor(0, 0, 0);
+                        $rep->AmountCol(17, 18, $tot_past, $dec);
+                        $rep->AmountCol(18, 19, $tot_grand, $dec);
+                        if ($show_add == 1) {
+                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        }
+                        $rep->Line($rep->row  - 4);
+                        $rep->NewLine(2);
+                        $rep->Font();
+
+                        $tot_gross = $tot_down = $tot_adj = $tot_rest = $tot_pay = $tot_adv = 
+                        $tot_bal = $tot_notDue = $tot_dueNxt = $tot_dueThis = $tot_ovr1 = 
+                        $tot_ovr2 = $tot_past = $tot_grand = $tot_penalty =  0.0;
+                    }
+        
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, $trans['area_name']);
+                    $area_name = $trans['area_name'];
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();	
+                }
+            }
+
+            $rep->NewLine();
+            $rep->fontSize -= .5;
+
+            $rep->TextCol(0, 1, $total_act . ".) ");
+            $void_entry['void_status'] == "Voided" ? $rep->SetTextColor(255, 0, 0) : $rep->SetTextColor(0, 0, 0);
+            $rep->TextCol(1, 2, $trans['cust_name']);
             $rep->SetTextColor(0, 0, 0);
-            $rep->TextCol(20, 21, $trans['address']);
-        }
+            $rep->TextCol(2, 3, debtor_stock_id($trans['trans_no'], $trans['trans_type']));
+            $rep->SetTextColor(0, 0, 255);	
+            $rep->TextCol(3, 4, $trans['buy_date']);
+            $rep->SetTextColor(0, 0, 0);
+            $rep->TextCol(4, 5, $trans['Term']);
+            $rep->AmountCol(5, 6, $trans['gross'], $dec);
+            $rep->AmountCol(6, 7, $trans['down_pay'], $dec);
+            $rep->AmountCol(7, 8, $total_adjusment, $dec);
+            $rep->AmountCol(8, 9, $trans['restruct'], $dec);
+            $rep->AmountCol(9, 10, $total_payment_this_month, $dec);
+            $rep->AmountCol(10, 11, $advance_payment, $dec);
+            $rep->AmountCol(11, 12, $current_balance, $dec);
+            $rep->AmountCol(12, 13, $not_yet_due, $dec);
+            $rep->AmountCol(13, 14, $due_nxt_month, $dec);
+            $rep->AmountCol(14, 15, $due_this_month, $dec);
+            $rep->SetTextColor(255, 0, 0);
+            $rep->AmountCol(15, 16, $overdue_1month, $dec);
+            $rep->AmountCol(16, 17, $overdue_2months, $dec);
+            $rep->SetTextColor(0, 0, 0);
+            $rep->AmountCol(17, 18, $past_due, $dec);
+            $rep->AmountCol(18, 19, $total_collectibles, $dec);
+            
+            if ($show_add == 1) {
+                $rep->SetTextColor(255, 0, 0);
+                $rep->AmountCol(19, 20, $penalty, $dec);
+                $rep->SetTextColor(0, 0, 0);
+                $rep->TextCol(20, 21, $trans['address']);
+            }
 
-        $rep->fontSize += .5;
-        $rep->NewLine(.5);
+            $rep->fontSize += .5;
+            $rep->NewLine(.5);
 
-        //Sub - Total                               //Grand Total
-        $tot_gross += $trans['gross'];              $tot1_gross += $trans['gross'];
-        $tot_down += $trans['down_pay'];            $tot1_down += $trans['down_pay'];           
-        $tot_adj += $total_adjusment;               $tot1_adj += $total_adjusment;
-        $tot_rest += $trans['restruct'];            $tot1_rest += $trans['restruct'];
-        $tot_pay += $total_payment_this_month;      $tot1_pay += $total_payment_this_month;
-        $tot_adv += $advance_payment;               $tot1_adv += $advance_payment;
-        $tot_bal += $current_balance;               $tot1_bal += $current_balance;
-        $tot_notDue += $not_yet_due;                $tot1_notDue += $not_yet_due;
-        $tot_dueNxt += $due_nxt_month;              $tot1_dueNxt += $due_nxt_month;
-        $tot_dueThis += $due_this_month;            $tot1_dueThis += $due_this_month;
-        $tot_ovr1 += $overdue_1month;               $tot1_ovr1 += $overdue_1month;
-        $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;
-        $tot_past += $past_due;                     $tot1_past += $past_due;
-        $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;
+            //Sub - Total                               //Grand Total
+            $tot_gross += $trans['gross'];              $tot1_gross += $trans['gross'];
+            $tot_down += $trans['down_pay'];            $tot1_down += $trans['down_pay'];           
+            $tot_adj += $total_adjusment;               $tot1_adj += $total_adjusment;
+            $tot_rest += $trans['restruct'];            $tot1_rest += $trans['restruct'];
+            $tot_pay += $total_payment_this_month;      $tot1_pay += $total_payment_this_month;
+            $tot_adv += $advance_payment;               $tot1_adv += $advance_payment;
+            $tot_bal += $current_balance;               $tot1_bal += $current_balance;
+            $tot_notDue += $not_yet_due;                $tot1_notDue += $not_yet_due;
+            $tot_dueNxt += $due_nxt_month;              $tot1_dueNxt += $due_nxt_month;
+            $tot_dueThis += $due_this_month;            $tot1_dueThis += $due_this_month;
+            $tot_ovr1 += $overdue_1month;               $tot1_ovr1 += $overdue_1month;
+            $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;
+            $tot_past += $past_due;                     $tot1_past += $past_due;
+            $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;
 
-        if ($show_add == 1) {
-            $tot_penalty += $penalty;               $tot1_penalty += $penalty;
+            if ($show_add == 1) {
+                $tot_penalty += $penalty;               $tot1_penalty += $penalty;
+            }
         }
       
     } //END WHILE
