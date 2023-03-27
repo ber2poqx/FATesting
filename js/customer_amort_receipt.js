@@ -3379,10 +3379,10 @@ Ext.onReady(function() {
 					loadMask: true,
 					store:	DPitemStore,
 					columns: DPGLHeader,
-					plugins: {
+					/*plugins: {
 						ptype: 'cellediting',
 						clicksToEdit: 1
-					},
+					},*/
 					features: [{ftype: 'summary'}],
 					columnLines: true
 				},{
@@ -3403,7 +3403,7 @@ Ext.onReady(function() {
 					columns: DPwoSiOtherEntryHeader,
 					features: [{ftype: 'summary'}],
 					columnLines: true
-				}],
+				}]/*,
 				tabBar: {
 					items: [{
 						xtype: 'tbfill'
@@ -3430,7 +3430,7 @@ Ext.onReady(function() {
 							GLTitle_w.setPosition(320,60);
 						}
 					}]
-				}
+				}*/
 			}]
 	});
 	var submit_window_DP = Ext.create('Ext.Window',{
@@ -4485,7 +4485,7 @@ Ext.onReady(function() {
 		},{
 			xtype: 'tabpanel',
 			activeTab: 0,
-			width: 860,
+			width: 840,
 			scale: 'small',
 			items:[{
 				xtype:'gridpanel',
@@ -4499,11 +4499,69 @@ Ext.onReady(function() {
 				columns: columnAmort_view,
 				columnLines: true,
 				features: [{ftype: 'summary'}]
-			}]
+			}],
+			tabBar: {
+				items: [{
+					xtype: 'button',
+					text: 'Void',
+					padding: '3px',
+					margin: '2px 2px 6px 580px',
+					icon: '../js/ext4/examples/shared/icons/ipod_cast_delete.png',
+					tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#f71d04',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					},
+					handler: function(){
+						Ext.MessageBox.confirm('Confirmation:', 'Are you sure you wish to void this transaction?', function (btn, text) {
+							if (btn == 'yes') {
+								Ext.Ajax.request({
+									url : 'voidtrans='+Ext.getCmp('v_syspk').getValue() +'&type='+Ext.getCmp('v_transtypeFr').getValue(),
+									async:false,
+									success: function (response) {
+										var result = Ext.JSON.decode(response.responseText);
+										PaymentStore.load();
+										if (result.success == "true") {
+											Ext.Msg.show({
+												title: 'Void Transaction: Success!',
+												msg: '<font color="green">' + result.message + '</font>',
+												buttons: Ext.Msg.OK,
+												icon: Ext.MessageBox.INFORMATION
+											});
+										}
+										else {
+											Ext.Msg.show({
+												title: 'Void Transaction: Failed!',
+												msg: result.message,
+												buttons: Ext.Msg.OK,
+												icon: Ext.MessageBox.ERROR
+											});
+										}
+									},
+									failure: function () {
+										Ext.Msg.show({
+											title: 'Void Transaction: Failed!',
+											msg: result.message,
+											buttons: Ext.Msg.OK,
+											icon: Ext.MessageBox.ERROR
+										});
+									}
+								});
+							}
+						});
+					}
+				}]
+			}
 		}]
 	});
 	var submit_window_view = Ext.create('Ext.Window',{
-		width 	: 842,
+		width 	: 846,
 		modal	: true,
 		plain 	: true,
 		border 	: false,

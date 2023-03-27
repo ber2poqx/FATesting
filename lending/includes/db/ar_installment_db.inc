@@ -179,7 +179,8 @@ function get_debtor_trans_all($type, $trans_no)
 		WHERE A.trans_no = ".db_escape($trans_no)."
 			AND A.type = ".db_escape($type);
 
-	return db_query($sql, "The deptor trans all could not be retrieved");
+	$result = db_query($sql, "The deptor trans all could not be retrieved");
+	return db_fetch($result);
 }
 
 function get_ar_ledger_entries($type, $trans_no)

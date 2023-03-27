@@ -13,6 +13,7 @@ $page_security = 'SA_LCUSTAMORT';
 $path_to_root = "..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/lending/includes/lending_cfunction.inc");
+include_once($path_to_root . "/admin/db/voiding_db.inc");
 //header('Content-Type: text/html; charset=utf-8');
 
 //----------------------------------------------------------------------------------------------------
@@ -2284,6 +2285,37 @@ if(isset($_GET['submitSICash']))
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
     }else{
         echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+    }
+    return;
+}
+//void transaction
+if(isset($_GET['voidtrans']))
+{
+    $InputError = 0;
+    if (empty($_GET['voidtrans'])){
+        $InputError = 1;
+        $dsplymsg = _('Some fields are empty. Please reload the page and try again. Thank you...');
+    }
+
+    if ($InputError !=1)
+    {
+        get_debtor_trans_all($_GET['voidtrans'], $_GET['type']);
+        
+		$trans_no = add_voided_entry(
+			$delivery_row['type'], 
+			$delivery_row['trans_no'], 
+			sql2date($void_row['date_']), 
+			$void_row['memo_'], 
+			user_company(),
+			$debtor_row['delivery_ref_no'],
+			'', 'Voided', $void_row['cancel'],
+			$_SESSION["wa_current_user"]->user
+		);
+
+        $dsplymsg = _("Cannot find customer source details.");
+        echo '({"success":"false","message":"'.$dsplymsg.'"})';
+    }else{
+        echo '({"success":"false","message":"'.$dsplymsg.'"})';
     }
     return;
 }
