@@ -550,7 +550,7 @@ function get_unit_cost_average($stock_id, $location, $serial_no = "", $chassis_n
 			WHERE a.stock_id = ". db_escape($stock_id) ." 
 			AND a.loc_code =".db_escape($location);
 	} else {
-		$sql = "SELECT 
+		$sql = "SELECT  
 			a.standard_cost as unit_cost 
 			FROM ".TB_PREF."stock_moves a 
 			WHERE a.stock_id = ". db_escape($stock_id) ." 
@@ -560,7 +560,9 @@ function get_unit_cost_average($stock_id, $location, $serial_no = "", $chassis_n
 			//Added by spyrax10
 			if ($chassis_no != '') {
 				$sql .= "AND a.chassis_no =". db_escape($chassis_no);
-			}	
+			}
+		//Added by Albert 03/27/2023
+		$sql .= "Order By a.tran_date desc limit 1";
 			//
 	}
 
