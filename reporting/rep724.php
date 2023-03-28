@@ -245,7 +245,7 @@ function print_SL_summary_per_customer()
 			$rep->AmountCol(2, 3, $Total_amount['Debit'], $dec);
 			$rep->AmountCol(3, 4, $Total_amount['Credit'], $dec);
 		}
-		$rep->AmountCol(4, 5, $Tot_bal, $dec);
+		$rep->AmountCol(4, 5, abs($Tot_bal), $dec);
 	}
 
 	$rep->Font();
