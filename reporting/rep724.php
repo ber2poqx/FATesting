@@ -55,7 +55,8 @@ function getTransactions($from, $to, $gl_account)
 		SELECT `name`, `debtor_ref`, SUM(Debit) AS `Debit`, SUM(Credit) AS `Credit`, SUM(amount) AS `Balance`
 		FROM
 		(SELECT dt.debtor_no, IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as `name`
-			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) as `debtor_ref`
+			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) as `debtor_ref1`
+			, IFNULL(gl.mcode, gl.person_id) as `debtor_ref`
 			, CASE WHEN gl.amount >= 0 THEN gl.amount ELSE 0 END AS `Debit`
 		    , CASE WHEN gl.amount < 0 THEN -gl.amount ELSE 0 END AS `Credit`
 		    , gl.*
