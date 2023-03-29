@@ -40,7 +40,18 @@ if (isset($_GET['PONumber']) && !empty($_GET['PONumber'])) {
     copy_from_cart();
     if (isset($_GET['branch_coy'])) {
         global $def_coy;
-        $_SESSION["wa_current_user"]->company = $def_coy;
+        //modified by Albert 03/29/2023
+        $coy = user_company();
+        $db_branch_type = $db_connections[$coy]['type'];
+        if($db_branch_type == 'MKTG'){
+            $db_coy = 1;
+        }
+        if($db_branch_type == 'MKTG'){
+            $_SESSION["wa_current_user"]->company = $db_coy;
+        }else{
+            $_SESSION["wa_current_user"]->company = $def_coy;
+        }
+        /**/
     }
 }
 //--------------------------------------------------------------------------------------------------
