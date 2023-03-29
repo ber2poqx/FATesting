@@ -674,7 +674,7 @@ function get_sales_child_documents($trans_type, $trans_no)
 
 /* Added by Ronelle 3/14/2021 Retrieving Sales Invoices */
 function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', $payment_terms = -1, $opening_balances = 0, 
-	$status = '', $include_repo = false)
+	$status = '', $include_repo = false, $from_date = '', $to_date = '')
 {
 	//Modified by spyrax10 21-Oct-2021
 	$sql = "SELECT
@@ -765,6 +765,13 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 		else {
 			$sql .= " AND a.payment_terms > 0 ";
 		}
+	}
+	if($from_date != ''){
+		$sql .= " AND a.tran_date <= " .db_escape($from_date);
+	}
+
+	if($to_date != ''){
+		$sql .= " AND a.tran_date >= " .db_escape($to_date);
 	}
 
 	$sql .= " ORDER BY a.tran_date DESC, a.trans_no DESC ";
