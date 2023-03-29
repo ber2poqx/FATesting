@@ -162,7 +162,7 @@ function change_term_link($row) {
 		//modified by Albert 07/13/2022
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
 			if ($row['invoice_type'] == 'new'){
-				return (($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
+				return (($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "fully-paid" || $row["status"] == "Close")) 
 					|| $row['payment_type'] == "CASH") || $row['term_mode_fullpayment'] == 1  ? '' : pager_link(
 					_("Change Term"),
 					"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
@@ -170,7 +170,7 @@ function change_term_link($row) {
 				);
 			}
 			else {
-				return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) 
+				return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "fully-paid" || $row["status"] == "Close")) 
 					|| $row['payment_type'] == "CASH"  ? '' : pager_link(
 					_("Change Term"),
 					"/sales/si_repo_install.php?NewChangeTerm=" . $row["trans_no"] . "&opening_balance=1",
@@ -197,7 +197,7 @@ function sales_restructured_approval($row) {
 	}
 	else {
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RESTRUCTURED_APPROVAL')) {
-			$link = done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
+			$link = done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close" || $row["status"] == "fully-paid" || $row["status"] == "Closed") || ($row["restructured_status"] == 1 || $row["restructured_status"] == 2)  ? '' :  pager_link(
 				'Restructured Approval',
 				"/sales/manage/approval_restructured_ob.php?trans_no=" . $row["trans_no"],
 				ICON_DOC
@@ -223,14 +223,14 @@ function restructured_link($row) {
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_RESTRUCTURED')) {
 
 			if ($row['invoice_type'] == 'new'){
-				return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+				return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "fully-paid" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
 					_("Restructured"),
 					"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"]. "&opening_balance=1",
 					ICON_RECEIVE
 				);
 			}
 			else {
-				return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+				return ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "fully-paid" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
 					_("Restructured"),
 					"/sales/si_repo_install.php?NewRestructured=" . $row["trans_no"] . "&opening_balance=1",
 					ICON_RECEIVE
@@ -249,7 +249,7 @@ function restructured_link($row) {
 function payment_allocate_link($row)
 {
 	if ($row['term_mode_fullpayment'] == 1 && ($row['amount_to_be_paid_status'] != 'paid')) {
-		return ($row["status"] == "Closed" || $row["status"] == "Close") ? '' : pager_link(
+		return ($row["status"] == "Closed" || $row["status"] == "fully-paid"|| $row["status"] == "Close") ? '' : pager_link(
 			_("Payment Allocate"),
 			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"] . "&customer=" . $row["debtor_no"] ,
 			ICON_ALLOC
@@ -279,13 +279,13 @@ function cancel_row($row) {
         $void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
         if ($void_entry == null) {
-            $cancel_link = pager_link( _("Request to Cancel"),
+            $cancel_link = ($row["status"] == "Closed" || $row["status"] == "fully-paid"|| $row["status"] == "Close") ? '' : pager_link( _("Request to Cancel"),
                 "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . $row['type'] ."&status=0&cancel=1", ICON_CANCEL
             );
         }
         else if ($void_entry['void_status'] == 'Disapproved') {
 
-            $cancel_link = pager_link( _("Request to Cancel"),
+            $cancel_link = ($row["status"] == "Closed" || $row["status"] == "fully-paid"|| $row["status"] == "Close") ? '' : pager_link( _("Request to Cancel"),
                 "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . $row['type'] ."&status=0&cancel=1", ICON_CANCEL
             );
         }

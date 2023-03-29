@@ -255,7 +255,7 @@ function change_term_link($row) {
 	}
 	else {
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_SITERMMOD')) {
-			$link = (($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH") || $row['term_mode_fullpayment'] == 1 ? '' : pager_link(
+			$link = (($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close" || $row["status"] == "fully-paid")) || $row['payment_type'] == "CASH") || $row['term_mode_fullpayment'] == 1 ? '' : pager_link(
 				_("Change Term"),
 				"/sales/sales_order_entry.php?NewChangeTerm=" . $row["trans_no"],
 				ICON_RECEIVE
@@ -279,7 +279,7 @@ function restructured_link($row) {
 	else {
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_RESTRUCTURED')) {
 
-			$link = ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
+			$link = ($row['payment_type'] == "INSTALLMENT" && ($row["status"] == "Closed" || $row["status"] == "Close" || $row["status"] == "fully-paid")) || $row['payment_type'] == "CASH" || ($row["restructured_status"] == 0 || $row["restructured_status"] == 2) ? '' : pager_link(
 				_("Restructured"),
 				"/sales/sales_order_entry.php?NewRestructured=" . $row["trans_no"],
 				ICON_RECEIVE
@@ -303,7 +303,7 @@ function sales_restructured_approval($row) {
 		if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_RESTRUCTURED_APPROVAL')) {
 
 			$link = done_check_qty_return_invoice($row["reference"]) || 
-				($row["status"] == "Close" || $row["status"] == "Closed") || 
+				($row["status"] == "Close" || $row["status"] == "Closed" || $row["status"] == "fully-paid") || 
 				($row["restructured_status"] == 1 || $row["restructured_status"] == 2) ||
 				$row['payment_type'] == "CASH" ? '' :  
 	
@@ -326,7 +326,7 @@ function sales_restructured_approval($row) {
 function payment_allocate_link($row)
 {
 	if ($row['term_mode_fullpayment'] == 1 && $row['amount_to_be_paid_status'] != 'paid') {
-		return  ($row["status"] == "Closed" || $row["status"] == "Close") ? '' : pager_link(
+		return  ($row["status"] == "Closed" || $row["status"] == "Close" || $row["status"] == "fully-paid") ? '' : pager_link(
 			_("Payment Allocate"),
 			"/lending/allocation_payment.php?trans_no=" . $row["trans_no"]."&type=" . $row["type"] . "&customer=" . $row["debtor_no"] ,
 			ICON_ALLOC
@@ -346,7 +346,7 @@ function cancel_link($row) {
 		$cancel_link = '';
 	}
 	else {
-		$cancel_link =  $row["status"] == "Closed" || $row["status"] == "Close" ? '' : pager_link(
+		$cancel_link =  $row["status"] == "Closed" || $row["status"] == "Close" || $row["status"] == "fully-paid" ? '' : pager_link(
 			_("Cancel AR"),
 			"/sales/sales_order_entry.php?CancelInvoice=" . $row["trans_no"],
 			ICON_RECEIVE
