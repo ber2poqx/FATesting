@@ -133,12 +133,14 @@ start_table(TABLESTYLE, "width='95%'");
 if (db_num_rows($result) > 0) {
 	$th = array(
 		_("Item Code"), _("Item Description"), _("Serial/Eng Num"), _("Chassis Num"), _("Color"), _("Quantity"),
-		_("Unit"), _("Unit Price"), _("Unit Cost"), _("SMI"), _("Incentives"), _("Discount"), _("Other Discount"), _("Line Total")
+		_("Unit"), _("Unit Price"), _("Unit Cost"), _("SMI"), _("Incentives"), _("Discount"), _("Other Discount"), _("LCP Price"), _("Line Total")
 	);
 	table_header($th);
 
 	$k = 0;	//row colour counter
 	$sub_total = 0;
+	$discount1_sub_total = 0;
+	$discount2_sub_total = 0;
 	while ($myrow2 = db_fetch($result)) {
 		if ($myrow2["quantity"] == 0) continue;
 		alt_table_row_color($k);
@@ -147,6 +149,8 @@ if (db_num_rows($result) > 0) {
 			user_price_dec()
 		);
 		$sub_total += $value;
+		$discount1_sub_total += $myrow2["discount1"];
+		$discount2_sub_total += $myrow2["discount2"];
 
 		if ($myrow2["discount_percent"] == 0) {
 			$display_discount = "";
@@ -169,13 +173,19 @@ if (db_num_rows($result) > 0) {
 		amount_cell($myrow2["incentives"]);
 		amount_cell($myrow2["discount1"]);
 		amount_cell($myrow2["discount2"]);
+		amount_cell($myrow2["lcp_price"]);
 		amount_cell($value);
 		end_row();
 	} //end while there are line items to print out
-
-	// $display_sub_tot = price_format($sub_total);
-	// label_row(_("Sub-total"), $display_sub_tot, "colspan=6 align=right",
-	// 	"nowrap align=right width='15%'");
+	//Modified by albert 04/01/2023
+	$display_sub_tot = price_format($sub_total);
+	label_cells(_("Sub-total:"), price_format($discount1_sub_total), "colspan=11 align=right",
+		"nowrap align=right width='15%'");
+	label_cells('', price_format($discount2_sub_total), "colspan=0 align=right",
+	"nowrap align=right width='15%'");
+	label_cells('   ', $display_sub_tot, "colspan=1 align=right",
+		"nowrap align=right width='15%'");
+	/**/
 } else
 	display_note(_("There are no line items on this invoice."), 1, 2);
 
