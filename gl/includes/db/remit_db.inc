@@ -18,8 +18,9 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
             A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
-				WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Collection Receipt:'
-    			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries:'
+				WHEN A.type = " . ST_CUSTPAYMENT . " AND E.module_type <> 'CI-CASH'  THEN 'Collection Receipt:'
+                WHEN A.type = " . ST_CUSTPAYMENT . " AND E.module_type = 'CI-CASH'  THEN 'Cash Receipt:'
+    			WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Official Receipt:'
 			END AS 'receipt_type',
             CASE 
                 WHEN A.bank_act = 1 OR A.bank_act = 2 THEN 0 ELSE A.amount
@@ -29,6 +30,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
 				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
+                LEFT JOIN ".TB_PREF."debtor_trans E ON A.type = E.type and A.trans_no = E.trans_no
                 WHERE opening_balance = 0";
 
     if ($report) {
@@ -87,8 +89,11 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
         $sql .= " AND A.remit_stat <> 'Disapproved'";
     }
 
-	$sql .= " ORDER BY A.trans_date DESC, A.type, A.receipt_no";
-
+	$sql .= " ORDER BY A.trans_date DESC, A.type, (CASE 
+    WHEN A.type = " . ST_CUSTPAYMENT . " AND E.module_type <> 'CI-CASH'  THEN 'Collection Receipt:'
+    WHEN A.type = " . ST_CUSTPAYMENT . " AND E.module_type = 'CI-CASH'  THEN 'Cash Receipt:'
+    WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Official Receipt:' END) asc";
+    
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
     }
