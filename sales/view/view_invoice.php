@@ -148,9 +148,6 @@ if (db_num_rows($result) > 0) {
 		$value = round2(((1 - $myrow2["discount_percent"]) * $myrow2["unit_price"] * $myrow2["quantity"]),
 			user_price_dec()
 		);
-		$sub_total += $value;
-		$discount1_sub_total += $myrow2["discount1"];
-		$discount2_sub_total += $myrow2["discount2"];
 
 		if ($myrow2["discount_percent"] == 0) {
 			$display_discount = "";
@@ -159,6 +156,9 @@ if (db_num_rows($result) > 0) {
 		}
 
 		$value -= $myrow2["discount1"] + $myrow2["discount2"];
+		$sub_total += $value;
+		$discount1_sub_total += $myrow2["discount1"];
+		$discount2_sub_total += $myrow2["discount2"];
 
 		label_cell($myrow2["stock_id"]);
 		label_cell($myrow2["StockDescription"]);
@@ -183,7 +183,7 @@ if (db_num_rows($result) > 0) {
 		"nowrap align=right width='15%'");
 	label_cells('', price_format($discount2_sub_total), "colspan=0 align=right",
 	"nowrap align=right width='15%'");
-	label_cells('   ', $display_sub_tot, "colspan=1 align=right",
+	label_cells('   ', $display_sub_tot, "colspan=1 align                               =right",
 		"nowrap align=right width='15%'");
 	/**/
 } else
