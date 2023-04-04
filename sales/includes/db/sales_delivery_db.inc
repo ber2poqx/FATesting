@@ -193,7 +193,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 						-$dispatch_qty,
 						//Modified by spyrax10
 						/* Updated by Ronelle 11/11/2021 */
-						$myrow["standard_cost"],
+						round2($myrow["standard_cost"]),
 						/* */
 						$line_price * (1 - $delivery_line->discount_percent),
 						$delivery_line->lot_no,
@@ -471,7 +471,7 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 		Case When (SELECT serialised FROM " . TB_PREF . "stock_master WHERE stock_id=" . db_escape($stock_id).") <> 0 
 		THEN  x1.standard_cost
 		else 
-		(SELECT SUM(z1 .standard_cost * z1 .qty) / SUM(z1.qty) as standard_cost from 
+		(SELECT SUM(z1 .standard_cost * (z1.qty - z1.OutQty)) / SUM(z1.qty - z1.OutQty) as standard_cost from 
 			(SELECT a.trans_id, a.trans_no, a.stock_id, 
 				a.type, a.qty, a.category_id,
 				(SELECT IFNULL(SUM(t1.qty * -1), 0)
