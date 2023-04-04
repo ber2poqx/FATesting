@@ -203,7 +203,7 @@ function print_SL_summary_particulars()
 		3 => array('text' => _('Masterfile Name'), 'from' => $Masterfile_name, 'to' => '')*/);
 	}
 
-	$cols = array(5, 40,  90,   125,  215,  315, 395,  	           475,   535,	0); 
+	$cols = array(5, 40,  90,   125,  225,  315, 410,  	           475,   535,	0); 
 
 	$headers = array(
 		_('Date'), 
