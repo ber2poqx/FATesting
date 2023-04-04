@@ -217,7 +217,7 @@ function print_SL_summary_particulars()
 		_('Balance')
 		);
 
-	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'right', 'right', 'right');
+	$aligns = array('left', 'left', 'center', 'left', 'left', 'left', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('SL Summary (Particulars)'), "SalesSummaryReport", "letter", 9, $orientation = "L");
 
