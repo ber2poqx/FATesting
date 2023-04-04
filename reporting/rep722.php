@@ -398,9 +398,9 @@ function print_SL_summary_particulars()
 
 	$rep->fontSize += 1.5;	
 	$rep->Font('bold');
-	$rep->TextCol(5, 7, _('Grand Total'));
-	$rep->AmountCol(7, 8, $Tot_deb + $Forwarded_deb, $dec);
-	$rep->AmountCol(8, 9, $Tot_cred + $Forwarded_cred, $dec);
+	$rep->TextCol(5, 6, _('Grand Total'));
+	$rep->AmountCol(6, 7, $Tot_deb + $Forwarded_deb, $dec);
+	$rep->AmountCol(7, 9, $Tot_cred + $Forwarded_cred, $dec);
 	$rep->fontSize -= 1.5;	
 	$rep->Font();
 
