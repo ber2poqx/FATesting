@@ -271,13 +271,17 @@ function print_sales_summary_report()
 	$Tot_lcp=0;
 	$Tot_ucost = 0;
 	$Tot_gross = 0;
+	$row_gross = 0;
+	$row_unitcost = 0;
 	$Tot_discount1 = 0;	
 	$Tot_discount2 = 0;
 	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
 
 	While ($GRNs = db_fetch($res))
 	{
-		
+		$row_gross = $GRNs['Qty']*$GRNs['grossAmnt'];
+		$row_unitcost = $GRNs['Qty']*$GRNs['UnitCost'];
+
 		$dec2 = get_qty_dec($GRNs['Model']);
 
 		$rep->NewLine();
@@ -294,8 +298,8 @@ function print_sales_summary_report()
 		$rep->TextCol(10, 11, $GRNs['Term']);
 		$rep->TextCol(11, 12, $GRNs['Qty']);
 		$rep->AmountCol2(12, 13, $GRNs['LCP']);
-		$rep->AmountCol2(13, 14, $GRNs['UnitCost']);
-		$rep->AmountCol2(14, 15, $GRNs['grossAmnt']);
+		$rep->AmountCol2(13, 14, $row_unitcost);
+		$rep->AmountCol2(14, 15, $row_gross);
 		$rep->AmountCol2(15, 16, $GRNs['discount1']);
 		$rep->AmountCol2(16, 17, $GRNs['discount2']);
 		$rep->TextCol(17, 18, $GRNs['SalesAgent']);
@@ -306,10 +310,10 @@ function print_sales_summary_report()
 		$lcp = $GRNs['LCP'];
 		$Tot_lcp += $lcp;
 
-		$ucost = $GRNs['UnitCost'];
+		$ucost = $row_unitcost;
 		$Tot_ucost += $ucost;
 
-		$grossAmnt = $GRNs['grossAmnt'];
+		$grossAmnt = $row_gross;
 		$Tot_gross += $grossAmnt;
 
 		$discount1 = $GRNs['discount1'];
