@@ -219,7 +219,7 @@ function print_SL_summary_particulars()
 
 	$aligns = array('left', 'left', 'center', 'left', 'left', 'left', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('SL Summary (Particulars)'), "SalesSummaryReport", "letter", 9, $orientation = "L");
+	$rep = new FrontReport(_('SL Summary (Particulars) - All Accounts'), "SalesSummaryReport", "letter", 9, $orientation = "L");
 
     if ($orientation == 'L')
     	recalculate_cols($cols);
@@ -398,9 +398,9 @@ function print_SL_summary_particulars()
 
 	$rep->fontSize += 1.5;	
 	$rep->Font('bold');
-	$rep->TextCol(5, 7, _('Grand Total'));
-	$rep->AmountCol(7, 8, $Tot_deb + $Forwarded_deb, $dec);
-	$rep->AmountCol(8, 9, $Tot_cred + $Forwarded_cred, $dec);
+	$rep->TextCol(5, 6, _('Grand Total'));
+	$rep->AmountCol(6, 7, $Tot_deb + $Forwarded_deb, $dec);
+	$rep->AmountCol(7, 9, $Tot_cred + $Forwarded_cred, $dec);
 	$rep->fontSize -= 1.5;	
 	$rep->Font();
 
