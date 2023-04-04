@@ -203,11 +203,12 @@ function print_SL_summary_particulars()
 		3 => array('text' => _('Masterfile Name'), 'from' => $Masterfile_name, 'to' => '')*/);
 	}
 
-	$cols = array(5,   55,   90,  180,  280, 360,  	           435,   500,	0); 
+	$cols = array(5, 40,  90,   125,  215,  315, 395,  	           475,   535,	0); 
 
 	$headers = array(
 		_('Date'), 
-		_('CR Num'),
+		_('Trans #'),
+		_('Ref. #'),
 		_('Account'),
 		_('Name'), 
 		_('Particulars'),
@@ -216,7 +217,7 @@ function print_SL_summary_particulars()
 		_('Balance')
 		);
 
-	$aligns = array('left', 'left', 'left', 'left', 'left', 'right', 'right', 'right');
+	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('SL Summary (Particulars)'), "SalesSummaryReport", "letter", 9, $orientation = "L");
 
@@ -250,10 +251,10 @@ function print_SL_summary_particulars()
 		{	
 			$rep->NewLine(0.5);
 			$rep->Font('bold');
-			$rep->TextCol(0, 4, '');
+			$rep->TextCol(0, 5, '');
 			if($from == 0)
 			{
-				$rep->TextCol(6, 7, _('As of - ') . $to);
+				$rep->TextCol(7, 8, _('As of - ') . $to);
 			}
 			$rep->Line($rep->row - 2);
 			$rep->Font();
@@ -263,10 +264,10 @@ function print_SL_summary_particulars()
 				While ($F_bal = db_fetch($Forwarded_bal))
 				{	
 					$rep->Font('bold');
-					$rep->TextCol(4, 5, _('Balance Forwarded'));
-					$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
-					$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
-					$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
+					$rep->TextCol(5, 6, _('Balance Forwarded'));
+					$rep->AmountCol2(6, 7, $F_bal['Debit'], $dec);
+					$rep->AmountCol2(7, 8, $F_bal['Credit'], $dec);
+					$rep->AmountCol2(8, 9, $F_bal['Forwarded_Bal'], $dec);
 					$rep->Font();
 					$running_bal = $F_bal['Forwarded_Bal'];
 					$Forwarded_deb = $F_bal['Debit'];
@@ -295,18 +296,19 @@ function print_SL_summary_particulars()
 
 		$rep->NewLine();
 		$rep->TextCol(0, 1, $SLsum['tran_date']);
-		$rep->TextCol(1, 2, $SLsum['cr_num']);
-		$rep->TextCol(2, 3, $SLsum['account_name']);
-		$rep->TextCol(3, 4, $SLsum['name']);
-		$rep->TextCol(4, 5, $SLsum['memo_']);
-		$rep->AmountCol2(5, 6, $SLsum['Debit'], $dec);
-		$rep->AmountCol2(6, 7, $SLsum['Credit'], $dec);
+		$rep->TextCol(1, 2, $SLsum['reference']);
+		$rep->TextCol(2, 3, $SLsum['cr_num']);
+		$rep->TextCol(3, 4, $SLsum['account_name']);
+		$rep->TextCol(4, 5, $SLsum['name']);
+		$rep->TextCol(5, 6, $SLsum['memo_']);
+		$rep->AmountCol2(6, 7, $SLsum['Debit'], $dec);
+		$rep->AmountCol2(7, 8, $SLsum['Credit'], $dec);
 		//$rep->AmountCol2(6, 7, -$running_bal, $dec);
 		
 		if ($running_bal < 0)
-			$rep->AmountCol2(7, 8, -$running_bal, $dec);
+			$rep->AmountCol2(8, 9, -$running_bal, $dec);
 		else
-			$rep->AmountCol2(7, 8, $running_bal, $dec);
+			$rep->AmountCol2(8, 9, $running_bal, $dec);
 		
 
 		$Tot_deb = $SLsum['Debit'] + $Tot_deb;
@@ -344,11 +346,11 @@ function print_SL_summary_particulars()
 			While ($F_bal = db_fetch($Forwarded_bal))
 			{	
 				$rep->Font('bold');
-				$rep->TextCol(0, 4, '');
-				$rep->TextCol(4, 5, _('Balance Forwarded'));
-				$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
-				$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
-				$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
+				$rep->TextCol(0, 5, '');
+				$rep->TextCol(5, 6, _('Balance Forwarded'));
+				$rep->AmountCol2(6, 7, $F_bal['Debit'], $dec);
+				$rep->AmountCol2(7, 8, $F_bal['Credit'], $dec);
+				$rep->AmountCol2(8, 9, $F_bal['Forwarded_Bal'], $dec);
 				$rep->Font();
 				$running_bal = $F_bal['Forwarded_Bal'];
 				$Forwarded_deb = $F_bal['Debit'];
@@ -356,17 +358,17 @@ function print_SL_summary_particulars()
 			}		
 		$rep->Line($rep->row);
 		$rep->NewLine(2);
-		$rep->TextCol(2, 7, '');
+		$rep->TextCol(3, 8, '');
 		$rep->NewLine(1);
 	}
 	
 	if($Tot_bal != 0)
 	{
 		$rep->Font('bold');
-		$rep->TextCol(4, 6, _('Subtotal'));
+		$rep->TextCol(5, 7, _('Subtotal'));
 		$rep->Font('italic');
-		$rep->AmountCol(5, 6, $Tot_deb, $dec);
-		$rep->AmountCol(6, 7, $Tot_cred, $dec);
+		$rep->AmountCol(6, 7, $Tot_deb, $dec);
+		$rep->AmountCol(7, 8, $Tot_cred, $dec);
 		$rep->Font();
 	}
 
@@ -376,29 +378,29 @@ function print_SL_summary_particulars()
 
 		
 	$rep->Font('bold');		
-	$rep->TextCol(0, 4, '');	
-	$rep->TextCol(4, 5, _('Ending Balance'));
+	$rep->TextCol(0, 5, '');	
+	$rep->TextCol(5, 6, _('Ending Balance'));
 	$rep->Font();		
 	$rep->Font('bold');
 	$Total1 = getEnding_bal($to, $gl_account, $masterfile);
 	While ($Total_amount = db_fetch($Total1))
 	{
-		$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
-		$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+		$rep->AmountCol(6, 7, $Total_amount['Debit'], $dec);
+		$rep->AmountCol(7, 8, $Total_amount['Credit'], $dec);
 	}
 	if ($running_bal < 0)
-		$rep->AmountCol(7, 8, -$running_bal, $dec);
+		$rep->AmountCol(8, 9, -$running_bal, $dec);
 	else		
-		$rep->AmountCol(7, 8, $running_bal, $dec);
+		$rep->AmountCol(8, 9, $running_bal, $dec);
 	$rep->Line($rep->row - 2);
 		
 	$rep->NewLine(2);
 
 	$rep->fontSize += 1.5;	
 	$rep->Font('bold');
-	$rep->TextCol(4, 6, _('Grand Total'));
-	$rep->AmountCol(6, 7, $Tot_deb + $Forwarded_deb, $dec);
-	$rep->AmountCol(7, 8, $Tot_cred + $Forwarded_cred, $dec);
+	$rep->TextCol(5, 7, _('Grand Total'));
+	$rep->AmountCol(7, 8, $Tot_deb + $Forwarded_deb, $dec);
+	$rep->AmountCol(8, 9, $Tot_cred + $Forwarded_cred, $dec);
 	$rep->fontSize -= 1.5;	
 	$rep->Font();
 
