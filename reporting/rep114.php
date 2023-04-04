@@ -336,7 +336,7 @@ function print_sales_summary_report()
 	$rep->AmountCol(13, 14, $Tot_ucost, $dec);
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
 	$rep->AmountCol(15, 16, $Tot_discount1, $dec);
-	$rep->AmountCol(16, 17, $Tot_discount1, $dec);
+	$rep->AmountCol(16, 17, $Tot_discount2, $dec);
 
 	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
