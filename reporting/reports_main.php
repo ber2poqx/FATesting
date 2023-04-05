@@ -1428,7 +1428,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 		array(	
 			_('Start Date') => 'DATEBEGINM',
 			_('End Date') => 'DATEENDM',
-			_('GL Title') => 'GL_ACCOUNTS', /**/			
+			_('GL Title') => 'GL_ACCOUNTS_NO_FILTER', /**/			
 			_('Name') => 'CUSTOMERS_LIST',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'PDFDESTINATION'
