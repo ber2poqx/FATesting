@@ -337,7 +337,7 @@ class BoxReports
 				case 'GL_ACCOUNTS_NO_FILTER':	
 				case 'GL_ACCOUNTS':
 					if ($type == 'GL_ACCOUNTS_NO_FILTER')
-						return gl_all_accounts_list($name, null, false, false, _("All"));
+						return gl_all_accounts_list($name, null, false, _("All"));
 					else
 						return gl_all_accounts_list($name);
 
