@@ -14,7 +14,7 @@ $page_security = 'SA_SL_REP';
 // $ Revision:	7.0 $
 // Creator:	Prog6
 // date_:	2022-11-30
-// Title:	SL Summary (Particulars) - All Accounts
+// Title:	SL Summary (Particulars) - per transaction
 // Mantis Issue #: ???
 // ----------------------------------------------------------------
 $path_to_root="..";
@@ -219,7 +219,7 @@ function print_SL_summary_particulars()
 
 	$aligns = array('left', 'left', 'center', 'left', 'left', 'left', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('SL Summary (Particulars) - All Accounts'), "SalesSummaryReport", "letter", 9, $orientation = "L");
+	$rep = new FrontReport(_('SL Summary (Particulars) - per Transaction'), "SalesSummaryReport", "letter", 9, $orientation = "L");
 
     if ($orientation == 'L')
     	recalculate_cols($cols);

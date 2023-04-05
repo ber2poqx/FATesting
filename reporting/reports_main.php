@@ -1412,7 +1412,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 }
 
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
-	$reports->addReport(RC_GL, 722, _('SL Summary (Particulars) - All Accounts'),
+	$reports->addReport(RC_GL, 722, _('SL Summary (Particulars) - per Transaction'),
 		array(	
 			_('Start Date') => 'DATEBEGINM',
 			_('End Date') => 'DATEENDM',
