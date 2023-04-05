@@ -193,7 +193,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 						-$dispatch_qty,
 						//Modified by spyrax10
 						/* Updated by Ronelle 11/11/2021 */
-						round2($myrow["standard_cost"]),
+						$myrow["standard_cost"],
 						/* */
 						$line_price * (1 - $delivery_line->discount_percent),
 						$delivery_line->lot_no,
@@ -467,28 +467,7 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 	$sql = 
 	"SELECT x1.trans_id, x1.trans_no, x1.type, x1.stock_id,
 		x1.qty as InQty, x1.OutQty as OutQty,
-		(x1.qty - x1.OutQty) as qoh, x1.category_id,
-		Case When (SELECT serialised FROM " . TB_PREF . "stock_master WHERE stock_id=" . db_escape($stock_id).") <> 0 
-		THEN  x1.standard_cost
-		else 
-		(SELECT SUM(z1 .standard_cost * (z1.qty - z1.OutQty)) / SUM(z1.qty - z1.OutQty) as standard_cost from 
-			(SELECT a.trans_id, a.trans_no, a.stock_id, 
-				a.type, a.qty, a.category_id,
-				(SELECT IFNULL(SUM(t1.qty * -1), 0)
-				FROM stock_moves t1
-				WHERE t1.transno_out = a.trans_no AND t1.type_out = a.type
-					AND t1.stock_id = a.stock_id
-					AND IFNULL(t1.lot_no, '') = IFNULL(a.lot_no, '') 
-					AND IFNULL(t1.chassis_no, '') = IFNULL(a.chassis_no, '')
-					AND t1.item_type = a.item_type AND t1.loc_code = a.loc_code
-					AND t1.qty < 0
-				) as OutQty, a.standard_cost, a.tran_date
-
-			FROM stock_moves a 
-			WHERE a.qty > 0 AND a.loc_code = " . db_escape($location) . 
-				" AND a.tran_date < NOW() AND a.stock_id = " . db_escape($stock_id)." ) z1 
-				WHERE z1.qty > z1.OutQty) end as standard_cost, 
-		x1.tran_date
+		(x1.qty - x1.OutQty) as qoh, x1.category_id, x1.standard_cost, x1.tran_date
 	FROM
 		(SELECT a.trans_id, a.trans_no, a.stock_id, 
 		    a.type, a.qty, a.category_id,
