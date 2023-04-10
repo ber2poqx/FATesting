@@ -140,8 +140,8 @@ function print_transaction() {
 
 			$rep->fontSize -= 1;
 			$rep->TextCol(0, 1, $trans['Brand']);
-			$rep->TextCol(1, 2, $trans['prod_desc']);
-			$rep->TextCol(2, 3, $trans['Code']);
+			$rep->TextCol(1, 2, $trans['Code']);
+			$rep->TextCol(2, 3, $trans['prod_desc']);
 			$rep->TextCol(3, 4, $qoh);
 
         	$dec2 = 0; 
