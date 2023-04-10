@@ -307,38 +307,64 @@ function write_sales_delivery(&$delivery, $bo_policy)
 				// Invetory Items
 				else if ($total_cost != 0) {
 					/*first the cost of sales entry*/
-					add_gl_trans_std_cost(
-						ST_CUSTDELIVERY,
-						$delivery_no,
-						$delivery->document_date,
-						//Modified by spyrax10					//Ads & Promo Entry
-						get_stock_catID($delivery_line->stock_id) == 17 ? getCompDet('cos_free_item') : $stock_gl_code["cogs_account"],
-						$dim,
-						$dim2,
-						$delivery_line->stock_id, //Added by spyrax10
-						// Updated by ronelle 11/11/2021
-						$total_cost,
-						PT_CUSTOMER,
-						$delivery->customer_id,
-						"The cost of sales GL posting could not be inserted"
+					/*Added by Albert 04/10/2023 fix unbalance entry in delivery */
+					$result = get_available_items(
+						$delivery_line->stock_id,
+						$delivery->Location,
+						date("yyyy-MM-dd"),
+						$delivery_line->lot_no,
+						$delivery_line->chasis_no
 					);
+					while ($myrow = db_fetch($result)) {
+							if ($done_allocate)
+								break;
+							$dispatch_qty = 0;
+							for ($i = 0; $i < $myrow["qoh"]; $i++) {
+								if ($allocate_qty < $delivery_line->qty_dispatched) {
+									$allocate_qty++;
+									$dispatch_qty++;
+								} else {
+									$done_allocate = true;
+									break;
+								}
+							}
+							
+							$total_cost = $myrow["standard_cost"] * $dispatch_qty;
+					/**/
 
-					/*now the stock entry*/
-					// modified by albert 11/05/2021
-					add_gl_trans_std_cost(
-						ST_CUSTDELIVERY,
-						$delivery_no,
-						$delivery->document_date,
-						$get_si_repo_acc,
-						0,
-						0,
-						$delivery_line->stock_id, //Added by spyrax10
-						// Updated by ronelle 11/11/2021
-						($total_cost * -1),
-						PT_CUSTOMER,
-						$delivery->customer_id,
-						"The stock side of the cost of sales GL posting could not be inserted"
-					);
+						add_gl_trans_std_cost(
+							ST_CUSTDELIVERY,
+							$delivery_no,
+							$delivery->document_date,
+							//Modified by spyrax10					//Ads & Promo Entry
+							get_stock_catID($delivery_line->stock_id) == 17 ? getCompDet('cos_free_item') : $stock_gl_code["cogs_account"],
+							$dim,
+							$dim2,
+							$delivery_line->stock_id, //Added by spyrax10
+							// Updated by ronelle 11/11/2021
+							$total_cost,
+							PT_CUSTOMER,
+							$delivery->customer_id,
+							"The cost of sales GL posting could not be inserted"
+						);
+
+						/*now the stock entry*/
+						// modified by albert 11/05/2021
+						add_gl_trans_std_cost(
+							ST_CUSTDELIVERY,
+							$delivery_no,
+							$delivery->document_date,
+							$get_si_repo_acc,
+							0,
+							0,
+							$delivery_line->stock_id, //Added by spyrax10
+							// Updated by ronelle 11/11/2021
+							($total_cost * -1),
+							PT_CUSTOMER,
+							$delivery->customer_id,
+							"The stock side of the cost of sales GL posting could not be inserted"
+						);
+					}
 				}
 			} /* end of if GL and stock integrated and standard cost !=0 */
 		} /*quantity dispatched is more than 0 */
@@ -485,7 +511,7 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 		WHERE a.qty > 0 AND a.loc_code = " . db_escape($location) . 
 			" AND a.tran_date < NOW() AND a.stock_id = " . db_escape($stock_id);
 	
-	if ($serial_no != "") {
+	if ($serial_no != "") {  
 		$sql .= " AND a.lot_no = " . db_escape($serial_no);
 	}
 
@@ -511,3 +537,4 @@ function get_gl_account_per_category($category_id)
 
 	return $row[0];
 }
+  
