@@ -308,7 +308,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 				else if ($total_cost != 0) {
 					/*first the cost of sales entry*/
 					/*Added by Albert 04/10/2023 fix unbalance entry in delivery */
-					$result = get_stock_moves_delivery_amount($delivery_no);
+					$result = get_stock_moves_delivery_amount($delivery_no, $delivery_line->stock_id);
 					
 					while ($myrow = db_fetch($result)) {
 						$total_cost = $myrow["standard_cost"];
@@ -521,10 +521,11 @@ function get_gl_account_per_category($category_id)
 	return $row[0];
 }
 
-function get_stock_moves_delivery_amount($delivery_no)
+function get_stock_moves_delivery_amount($delivery_no, $stock_id)
 {
 
-	$sql = "SELECT A.standard_cost * (A.qty *-1) as standard_cost, A.trans_no FROM " . TB_PREF . "stock_moves A WHERE A.type = 13 AND A.trans_no =" . db_escape($delivery_no);
+	$sql = "SELECT DISTINCT A.standard_cost * (A.qty *-1) as standard_cost, A.trans_no 
+	FROM " . TB_PREF . "stock_moves A WHERE A.type = 13 AND A.stock_id =" . db_escape($stock_id)." AND A.trans_no =" . db_escape($delivery_no);
 
 	$result = db_query($sql, "Can not find delivery notes");
 	return $result;
