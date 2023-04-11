@@ -767,11 +767,11 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 		}
 	}
 	if($from_date != ''){
-		$sql .= " AND a.tran_date <= " .db_escape($from_date);
+		$sql .= " AND a.tran_date >= " .db_escape($from_date);
 	}
 
 	if($to_date != ''){
-		$sql .= " AND a.tran_date >= " .db_escape($to_date);
+		$sql .= " AND a.tran_date <= " .db_escape($to_date);
 	}
 
 	$sql .= " ORDER BY a.tran_date DESC, a.trans_no DESC ";

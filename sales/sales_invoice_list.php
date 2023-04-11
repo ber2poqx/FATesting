@@ -425,8 +425,8 @@ $sql = get_sales_invoices(
 	0,
 	$_POST['si_stat'],
 	false,
-	get_post('FromDate'),
-	get_post('ToDate')
+	date2sql(get_post('fromDate')),
+	date2sql(get_post('toDate'))
 );
 
 /*show a table of the Request returned by the sql */
