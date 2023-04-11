@@ -89,7 +89,9 @@ Ext.onReady(function(){
 			{name:'qty', mapping:'qty', type: 'float'},
 			{name:'category_id', mapping:'category_id'},
 			{name:'reference', mapping:'reference'},
-			{name:'status_msg', mapping:'status_msg'}
+			{name:'status_msg', mapping:'status_msg'},
+			{name:'unit_cost', mapping:'unit_cost', type: 'float'},
+			{name:'total_cost', mapping:'total_cost', type: 'float'}
 		]
 	});
 
@@ -572,12 +574,20 @@ Ext.onReady(function(){
 /*params:{serialise_id: serialise_id, AdjDate:AdjDate, model:model, sdescription:sdescription, color:color, category:category, qty:qty, lot_no:lot_no, chasis_no:chasis_no, type_out:type_out, transno_out:transno_out, standard_cost:standard_cost,serialised:serialised,rr_date:rr_date},*/
 	var columnItemSerialView = [
 		{header:'id', dataIndex:'serialise_id', sortable:true, width:60,hidden: true},
-		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'model', sortable:true, width:70, renderer: columnWrap,hidden: false},
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Standard<br/>Cost', dataIndex:'standard_cost', sortable:true, width:70, hidden: true, align:'right'},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:40, hidden: false, align:'center',
+		{header:'Unit Cost', dataIndex:'unit_cost', sortable:true, width:70, hidden: false,
+			renderer: function(value, metadata, record, rowIndex, colIndex, store) {
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
+				}
+			}	
+		},
+		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false, align:'center',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
 					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
@@ -588,11 +598,39 @@ Ext.onReady(function(){
 			summaryType: 'sum',
 			summaryRenderer: function(value, summaryData, dataIndex){
 				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
+			editor:{
+				field:{
+					xtype:'textfield',
+					name:'qty',
+					id: 'qty',
+					anchor:'100%',
+					listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModel = Ext.getCmp('ItemSerialListingView').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('unit_cost'));
+							GridRecords.set("total_cost",(newcost));
+						}
+					}	
+				}
+			}		
+		},
+		{header:'Total', dataIndex:'total_cost', sortable:true, width:80, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
 			}
 		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Status', dataIndex:'status_msg', sortable:true, width:50,renderer: columnWrap, hidden: false, renderer: Status},
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:70,renderer: columnWrap, hidden: false, renderer: Status},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
 	

@@ -198,6 +198,19 @@ if(!is_null($action) || !empty($action)){
                     }
                 }
 
+                foreach ($_SESSION['transfer_items']->line_items AS $item)
+                {         
+                    if($item->quantity == 0){
+                        $isError = 1;
+                        $message="Quantity must not be zero.";                     
+                        break;
+                    }elseif($item->quantity > $item->currqty){
+                        $isError = 1;
+                        $message = "Sorry, Quantity you entered '".$item->quantity."' is Greater than Available Quantity On Hand: '".$item->currqty."'";
+                        break;
+                    }
+                }
+
                 if($isError != 1){
                     $AdjDate = sql2date($_POST['AdjDate']);
                     $catcode = $_POST['catcode'];
@@ -684,7 +697,7 @@ if(!is_null($action) || !empty($action)){
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
 
             
-            $sql = "SELECT *, sc.description as category, md.mt_details_status, md.mt_details_total_qty as totalqty, ic.description as item_description, sm.description as stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
+            $sql = "SELECT *, sc.description AS category, md.mt_details_status, md.mt_details_total_qty AS totalqty, md.mt_details_st_cost AS unit_cost, ic.description AS item_description, sm.description AS stock_description FROM ".TB_PREF."mt_header mh LEFT JOIN ".TB_PREF."mt_details md ON mh.mt_header_id=md.mt_details_header_id LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id LEFT JOIN item_codes ic ON md.mt_details_item_code=ic.item_code LEFT JOIN stock_master sm ON md.mt_details_stock_id=sm.stock_id WHERE mh.mt_header_id=$trans_id";
 
             
             if($catcode!=0){
@@ -726,7 +739,7 @@ if(!is_null($action) || !empty($action)){
                     }elseif($myrow["mt_details_status"]==2){
                         $status_msg='Received';
                     }*/
-                    
+                    $total_cost = ($myrow["totalqty"] * $myrow["unit_cost"]);
                     $group_array[] = array('serialise_id'=>$serialise_id,
                         'color' => $myrow["serialise_item_code"],
                         'stock_description' => $myrow["stock_description"],
@@ -738,7 +751,9 @@ if(!is_null($action) || !empty($action)){
                         'lot_no' => $myrow["mt_details_serial_no"],
                         'chasis_no' => $myrow["mt_details_chasis_no"],
                         'serialise_loc_code'=>$myrow["serialise_loc_code"],
-                        'status_msg'=>$myrow["mt_details_status"]
+                        'status_msg'=>$myrow["mt_details_status"],
+                        'unit_cost'=>$myrow["unit_cost"],
+                        'total_cost'=>$total_cost
                     );
                 //}
                 
