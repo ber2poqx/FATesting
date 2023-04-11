@@ -524,7 +524,7 @@ function get_gl_account_per_category($category_id)
 function get_stock_moves_delivery_amount($delivery_no, $stock_id)
 {
 
-	$sql = "SELECT DISTINCT A.standard_cost * (A.qty *-1) as standard_cost, A.trans_no 
+	$sql = "SELECT DISTINCT A.standard_cost * (A.qty *-1) as standard_cost, A.trans_no, A.trans_id
 	FROM " . TB_PREF . "stock_moves A WHERE A.type = 13 AND A.stock_id =" . db_escape($stock_id)." AND A.trans_no =" . db_escape($delivery_no);
 
 	$result = db_query($sql, "Can not find delivery notes");
