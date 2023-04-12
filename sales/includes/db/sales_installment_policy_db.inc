@@ -72,14 +72,21 @@ function get_all_instlpolicy($term, $start, $limit, $search, $showall=false)
 	}
 	if (!$showall) $sWhere .= " AND !A.inactive";
 
-	$sqllimit = "SELECT A.*, B.plcy_code, C.description catgryname
+	$sql = "SELECT A.*, B.plcy_code, C.description catgryname
 				FROM ".TB_PREF."policy_details A
 				 	INNER JOIN ".TB_PREF."policy_header B ON B.id = A.policyhdr_id
 					INNER JOIN ".TB_PREF."stock_category C ON C.category_id = A.category_id 
 				WHERE A.module_type = 'INSTLPLCY' ".$sWhere."
-				ORDER BY date_defined DESC limit $start, $limit";
+				ORDER BY date_defined DESC ";
 
-	return db_query($sqllimit, "could not get all installment policy");
+	$sqllimit = $sql ." limit $start, $limit";
+
+	if($limit != 0){
+		$result = db_query($sqllimit, "could not get all installment policy");
+	}else{
+		$result = db_query($sql, "could not get all installment policy");
+	}
+	return $result;
 }
 
 function get_policytype($id)

@@ -90,7 +90,10 @@ if(isset($_GET['vwplcydata'])){
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
     $result = get_all_instlpolicy($_GET['plcyterm'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
-    $total = DB_num_rows($result);
+
+    $total_result = get_all_instlpolicy($_GET['plcyterm'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $total = DB_num_rows($total_result);
+
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('plcyd_id'=>ucfirst(trim($myrow["id"])),
                                'plcyd_code'=>$myrow["plcydtl_code"],
