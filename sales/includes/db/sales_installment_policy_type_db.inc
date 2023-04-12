@@ -66,9 +66,15 @@ function get_all_policy_type($area, $start, $limit, $search, $showall=false)
 			LEFT JOIN ".TB_PREF."stock_category B ON B.category_id = A.category_id 
 			INNER JOIN ".TB_PREF."branch_area C ON C.id = A.branch_area_id 
 			WHERE A.module_type = 'INSTLPLCYTYPS' ".$sWhere."
-			ORDER BY date_defined DESC limit $start, $limit";
+			ORDER BY date_defined DESC ";
 
-	return db_query($sql, "could not get all installment policy");
+	$sqllimit = $sql ." limit $start, $limit";
+	if($limit != 0){
+		$result = db_query($sqllimit, "could not get all installment policy");
+	}else{
+		$result = db_query($sql, "could not get all installment policy");
+	}
+	return $result;
 }
 
 function get_all_policyArea($limit=false)

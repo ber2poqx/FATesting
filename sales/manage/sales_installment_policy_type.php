@@ -67,7 +67,10 @@ if(isset($_GET['vwpolicytyp'])){
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
     $result = get_all_policy_type($_GET['brancharea'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
-    $total = DB_num_rows($result);
+    
+    $total_result = get_all_policy_type($_GET['brancharea'], 0, 0, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $total = DB_num_rows($total_result);
+
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('id'=>ucfirst(trim($myrow["id"])),
                                'plcy_code'=>$myrow["plcy_code"],
