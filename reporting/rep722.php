@@ -244,19 +244,20 @@ function print_SL_summary_particulars()
 	$amount_val = 0;
 	$Forwarded_deb = 0;
 	$Forwarded_cred = 0;
+	$reference_diff = "";
 
 	While ($SLsum = db_fetch($res))
 	{
 		if($running_bal == 0)
 		{	
-			$rep->NewLine(0.5);
+			//$rep->NewLine();
 			$rep->Font('bold');
 			$rep->TextCol(0, 5, '');
 			if($from == 0)
 			{
 				$rep->TextCol(7, 8, _('As of - ') . $to);
 			}
-			$rep->Line($rep->row - 2);
+			//$rep->Line($rep->row - 2);
 			$rep->Font();
 
 			if ($from != 0)
@@ -274,7 +275,8 @@ function print_SL_summary_particulars()
 					$Forwarded_cred = $F_bal['Credit'];
 				}
 					
-			}										
+			}		
+									
 		}
 
 		$amount_val = $SLsum['amount'];
@@ -314,6 +316,11 @@ function print_SL_summary_particulars()
 		$Tot_deb = $SLsum['Debit'] + $Tot_deb;
 		$Tot_cred = $SLsum['Credit'] + $Tot_cred;
 
+		if($reference_diff != $SLsum['reference'])
+		{
+			$rep->Line($rep->row + 10);
+		}
+
 
 		
 
@@ -331,6 +338,7 @@ function print_SL_summary_particulars()
 		// $rep->TextCol(16, 17, $GRNs['SalesAgent']);
 		
 		$rep->NewLine(0, 1);
+		$reference_diff = $SLsum['reference'];
 	}
 
 	
@@ -356,7 +364,7 @@ function print_SL_summary_particulars()
 				$Forwarded_deb = $F_bal['Debit'];
 				$Forwarded_cred = $F_bal['Credit'];
 			}		
-		$rep->Line($rep->row);
+		$rep->Line($rep->row - 5);
 		$rep->NewLine(2);
 		$rep->TextCol(3, 8, '');
 		$rep->NewLine(1);
