@@ -316,6 +316,7 @@ Ext.onReady(function(){
 		scale: 'small',
 		handler: function(){
 			//Ext.Msg.alert('Error', newURL);
+			plcytypestore.load();
 			plcytermstore.load();
 			plcyfratestore.load();
 			plcyrebatestore.load();

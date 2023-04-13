@@ -20,7 +20,7 @@ function add_policy_type($plcy_code, $category_id, $tax_included, $dateadded, $r
 					,module_type
 					,branch_area_id
 			) VALUES (
-			        ".db_escape($plcy_code)."
+			        ".db_escape(strtoupper($plcy_code))."
 				   ,".db_escape($category_id)."
 				   ,".db_escape($tax_included)."
 				   ,".db_escape($dateadded)."
@@ -45,7 +45,7 @@ function update_policy_type($id, $plcy_code, $category, $tax_included, $remark, 
 	db_query($sql, "could not update policy type");			
 }
 
-function get_all_policy_type($area, $start, $limit, $search, $showall=false)
+function get_all_policy_type($area, $start, $limit, $search, $showall=false, $isclick)
 {
 	if (!empty($search)) {
 		if (!empty($area)){
@@ -56,18 +56,22 @@ function get_all_policy_type($area, $start, $limit, $search, $showall=false)
 	}elseif (!empty($area)){
 		$sWhere = " AND A.branch_area_id ='".$area."'";
 	}else{
-		$area = db_fetch(get_all_policyArea(true));
-		$sWhere = " AND A.branch_area_id ='".$area['branch_area_id']."'";
+		if ($isclick != 0){
+			$sWhere = " AND A.branch_area_id ='$area'";
+		}else{
+			$area = db_fetch(get_all_policyArea(true));
+			$sWhere = " AND A.branch_area_id ='".$area['branch_area_id']."'";
+		}
 	}
 	if (!$showall) $sWhere .= " AND !A.inactive";
 
 	$sql = "SELECT A.*, B.description categoryname, C.id ba_id, C.code, C.description areaname
 			FROM ".TB_PREF."policy_header A
 			LEFT JOIN ".TB_PREF."stock_category B ON B.category_id = A.category_id 
-			INNER JOIN ".TB_PREF."branch_area C ON C.id = A.branch_area_id 
+			LEFT JOIN ".TB_PREF."branch_area C ON C.id = A.branch_area_id 
 			WHERE A.module_type = 'INSTLPLCYTYPS' ".$sWhere."
 			ORDER BY date_defined DESC ";
-
+//echo $sql;
 	$sqllimit = $sql ." limit $start, $limit";
 	if($limit != 0){
 		$result = db_query($sqllimit, "could not get all installment policy");

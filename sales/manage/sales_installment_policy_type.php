@@ -9,6 +9,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
+/******************************************
+modify as requested by maam helen on 04-12-2023
+remove area kay makalibog. naay ubang pilicy code nga ma apply sa tanan ug wala sad klaro ang setup sa ilang policy nga gesunod
+*****************************************/
+
 $page_security = 'SA_INSTLPLCYTYPS';
 $path_to_root = "../..";
 include_once($path_to_root . "/includes/session.inc");
@@ -33,6 +38,11 @@ if(isset($_GET['getbranchArea'])){
                     'code'=>$myrow['code'],
                     'name'=>$myrow['areaname']);
     }
+    $status_array[] = array('id'=>"0",
+        'code'=>'',
+        'name'=>'ALL'
+    );
+
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
@@ -45,6 +55,11 @@ if(isset($_GET['vwbranchdata'])){
         $status_array[] = array('id'=>$myrow['branch_area_id'],
                     'name'=>$myrow['areaname']);
     }
+    $status_array[] = array('id'=>"0",
+        'code'=>'',
+        'name'=>'ALL'
+    );
+
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
@@ -66,9 +81,9 @@ if(isset($_GET['vwpolicytyp'])){
     $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
     
-    $result = get_all_policy_type($_GET['brancharea'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $result = get_all_policy_type($_GET['brancharea'], $start, $limit, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN), $_GET['isclick']);
     
-    $total_result = get_all_policy_type($_GET['brancharea'], 0, 0, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $total_result = get_all_policy_type($_GET['brancharea'], 0, 0, $_GET['query'], filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN), $_GET['isclick']);
     $total = DB_num_rows($total_result);
 
     while ($myrow = db_fetch($result)) {
@@ -104,10 +119,10 @@ if(isset($_GET['submit'])){
         $InputError = 1;
         $dsplymsg = _('Category must not be empty');
     }
-    if (empty($_POST['brancharea'])){
+    /*if (empty($_POST['brancharea'])){
         $InputError = 1;
         $dsplymsg = _('Area must not be empty');
-    }
+    }*/
 
 	if (!empty($_GET['syspk']) || !empty($_POST['syspk'])) {
 		if (isset($_GET['syspk'])){

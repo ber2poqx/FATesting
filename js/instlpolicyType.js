@@ -327,11 +327,15 @@ Ext.onReady(function(){
 					},
 					select: function(combo, record, index) {
 						Area = record.get('code');
-						if (Ext.getCmp('category').getRawValue() == ""){
+						/*if (Ext.getCmp('category').getRawValue() == ""){
 							Ext.getCmp('plcycode').setValue(record.get('code')+'-');
-						}else{
-							Ext.getCmp('plcycode').setValue(record.get('code')+'-'+ Ext.getCmp('category').getRawValue());
-						}
+						}else{*/
+							if(record.get('code') != ""){
+								Ext.getCmp('plcycode').setValue(record.get('code')+'-'+ Ext.getCmp('category').getRawValue());
+							}else{
+								Ext.getCmp('plcycode').setValue('');
+							}
+						//}
 					}
 				}
 			},{
@@ -350,7 +354,12 @@ Ext.onReady(function(){
 				flex: 1,
 				listeners: {
 					select: function(combo, record, index) {
-						Ext.getCmp('plcycode').setValue(Area +'-' + record.get('name'));
+						if(Area != ""){
+							Ext.getCmp('plcycode').setValue(Area +'-' + record.get('name'));
+						}else{
+							Ext.getCmp('plcycode').setValue('');
+						}
+						
 					}
 				}
 			},{
@@ -362,7 +371,7 @@ Ext.onReady(function(){
 				allowBlank: false,
 				//readOnly: true,
 				maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
-				fieldStyle : 'text-transform: capitalize; background-color: #F2F3F4; background-image: none; color:green;'
+				fieldStyle : 'text-transform: uppercase; background-color: #F2F3F4; background-image: none; color:green; font-weight:bold;'
 			},{
 				xtype: 'container',
 				layout: 'hbox',
@@ -514,9 +523,9 @@ Ext.onReady(function(){
 
 					Areagrid.getSelectionModel().select(rowIndex);
 					if(search.getValue() != ""){
-						policytypestore.proxy.extraParams = {brancharea: record.get('id'), showall: showall, query: search.getValue() };
+						policytypestore.proxy.extraParams = {brancharea: record.get('id'), showall: showall, query: search.getValue(), isclick: 1 };
 					}else{
-						policytypestore.proxy.extraParams = {brancharea: record.get('id'), showall: showall };
+						policytypestore.proxy.extraParams = {brancharea: record.get('id'), showall: showall, isclick: 1 };
 					}
 					policytypestore.load();
 				},
