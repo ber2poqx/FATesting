@@ -259,7 +259,7 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                 $sales_return_line->lot_no,
                 $sales_return_line->chasis_no,
                 $sales_return->category_id,
-                $sales_return_line->color_desc,
+                $sales_return->category_id == 14 ?  $sales_return_line->color_desc : $sales_return_line->stock_id,
                 ST_SALESRETURN,
                 $sales_return_no,
                 $sales_return->repo_type
