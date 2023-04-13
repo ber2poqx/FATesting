@@ -809,6 +809,7 @@ if(!is_null($action) || !empty($action)){
                 }elseif($myrow["mt_details_status"]==2){
                     $status_msg='Received';
                 }*/
+                $total_cost = ($balance * $myrow["mt_details_st_cost"]);
                 
                 $group_array[] = array('trans_id'=>$myrow["mt_header_id"],
                     'line_item' => $myrow["mt_details_id"],
@@ -829,7 +830,8 @@ if(!is_null($action) || !empty($action)){
                     'item_description' => $myrow["item_description"],
                     'status_msg'=>$myrow["mt_details_status"],
                     'status'=>$myrow["mt_details_status"],
-                    'originating_id'=>$myrow["originating_id"]
+                    'originating_id'=>$myrow["originating_id"],
+                    'total_cost'=>$total_cost
                 );
                 
             }

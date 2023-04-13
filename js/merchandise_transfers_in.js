@@ -97,6 +97,31 @@ Ext.onReady(function(){
 		]
 	});
 
+	Ext.define('mymtitemlistrr',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'trans_id', mapping:'trans_id'},
+			{name:'model', mapping:'model'},
+			{name:'lot_no', mapping:'lot_no'},
+			{name:'chasis_no', mapping:'chasis_no'},
+			{name:'color', mapping:'color'},
+			{name:'item_description', mapping:'item_description'},
+			{name:'qty', mapping:'qty', type: 'float'},
+			{name:'currentqty', mapping:'currentqty'},
+			{name:'receivedqty', mapping:'receivedqty'},
+			{name:'category_id', mapping:'category_id'},
+			{name:'reference', mapping:'reference'},
+			{name:'rrbrreference', mapping:'rrbrreference'},
+			{name:'status', mapping:'status'},
+			{name:'status_msg', mapping:'status_msg'},
+			{name:'item_code', mapping:'item_code'},
+			{name:'standard_cost', mapping:'standard_cost', type: 'float'},
+			{name:'line_item', mapping:'line_item'},
+			{name:'originating_id', mapping:'originating_id'},
+			{name:'total_cost', mapping:'total_cost', type: 'float'}
+		]
+	});
+
 	function Manual(val) {
 		if(val == '0'){
 			return '<span style="color:black;font-weight: bold;">NO</span>';
@@ -304,6 +329,9 @@ Ext.onReady(function(){
 								id:'ItemSerialListingView',
 								store: MTItemListingStore,
 								columns: columnItemSerial,
+								features: [{
+									ftype: 'summary'
+								}],
 								//selModel: 'cellmodel',
 							    //plugins: [cellEditing],
 								dockedItems:[{
@@ -1063,7 +1091,8 @@ Ext.onReady(function(){
 	
 	
 	var MTItemListingStore = Ext.create('Ext.data.Store', {
-		fields: ['trans_id', 'model', 'lot_no', 'chasis_no', 'color', 'item_description', 'stock_description', 'qty', 'currentqty', 'receivedqty', 'category_id', 'reference', 'rrbrreference','status','status_msg','item_code', 'standard_cost', 'line_item', 'originating_id'],
+		model: mymtitemlistrr,
+		name: 'MTItemListingStore',
 		autoLoad: false,
 		proxy : {
 			type: 'ajax',
@@ -1082,37 +1111,64 @@ Ext.onReady(function(){
 		{header:'Line Item', dataIndex:'line_item', sortable:true, width:50,hidden: true},
 		{header:'Originating', dataIndex:'originating_id', sortable:true, width:50,hidden: true},
 		{header:'reference', dataIndex:'reference', sortable:true, width:100,hidden: true},
-		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'model', sortable:true, width:90, renderer: columnWrap,hidden: false},
 		{header:'Item Code', dataIndex:'item_code', sortable:true, width:60, renderer: columnWrap,hidden: true},
 		{header:'Item Description', dataIndex:'stock_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
-		{header:'Qty', dataIndex:'qty', sortable:true, width:50, hidden: false, align:'center',
-			editor:{
-				completeOnEnter: true,
-				field:{
-					xtype:'numberfield',
-					allowBlank: false,
-					minValue:0,
-					listeners : {
-					    keyup: function(grid, rowIndex, colIndex) {
-						//var record = GRNItemsStore.getAt(rowIndex);
-                        //console.log('Keup Logs');
-
-                    },
-						specialkey: function(f,e){
-							if (e.getKey() == e.ENTER) {
-								//alert('Hello World'+f.value());
-							}
-						}
-					}
+		{header:'Unit Cost', dataIndex:'standard_cost', hidden:false, width:90, hidden: false,
+			renderer: function(value, metadata, record, rowIndex, colIndex, store) {
+				if(value == 0){
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') + '</span>'
 				}
 			}
 		},
-		{header:'Standard Cost', dataIndex:'standard_cost', hidden:false, width:80, hidden: false},
-		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
-		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: true},
-		{header:'Status', dataIndex:'status_msg', sortable:true, width:60,renderer: columnWrap, hidden: false, renderer: Status}
+		{header:'Qty', dataIndex:'qty', sortable:true, width:60, hidden: false, align:'center',
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return '<span style="color:red; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:black; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			},
+			editor:{
+				field:{
+					xtype:'textfield',
+					name:'qty',
+					id: 'qty',
+					anchor:'100%'
+					/*listeners: {
+						afterrender: function(field) {
+							field.focus(true);
+						},
+						change: function(editor, e) {
+							var ItemModel = Ext.getCmp('ItemSerialListingView').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();																																		 
+							var newcost = (e * GridRecords.get('standard_cost'));
+							GridRecords.set("total_cost",(newcost));
+						}
+					}*/
+				}
+			}
+		},
+		{header:'Total', dataIndex:'total_cost', sortable:true, width:95, hidden: false,
+			renderer: Ext.util.Format.Currency = function(value){
+				return '<span style="color:green; font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';	
+			},
+			summaryType: 'sum',
+			summaryRenderer: function(value, summaryData, dataIndex){
+				return '<span style="color:blue;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';									
+			}
+		},
+		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:150,renderer: columnWrap, hidden: false},
+		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:150,renderer: columnWrap, hidden: true},
+		{header:'Status', dataIndex:'status_msg', sortable:true, width:80,renderer: columnWrap, hidden: false, renderer: Status}
 	]
 	var columnItemNonSerial = [
 		{header:'id', dataIndex:'trans_id', sortable:true, width:60,hidden: true},
