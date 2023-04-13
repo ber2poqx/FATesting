@@ -333,7 +333,9 @@ Ext.onReady(function(){
 							if(record.get('code') != ""){
 								Ext.getCmp('plcycode').setValue(record.get('code')+'-'+ Ext.getCmp('category').getRawValue());
 							}else{
-								Ext.getCmp('plcycode').setValue('');
+								if(Ext.getCmp('category').getRawValue() == ""){
+									Ext.getCmp('plcycode').setValue('');
+								}
 							}
 						//}
 					}

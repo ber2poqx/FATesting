@@ -65,7 +65,7 @@ function get_all_policy_type($area, $start, $limit, $search, $showall=false, $is
 	}
 	if (!$showall) $sWhere .= " AND !A.inactive";
 
-	$sql = "SELECT A.*, B.description categoryname, C.id ba_id, C.code, C.description areaname
+	$sql = "SELECT A.*, B.description categoryname, IFNULL(C.id,A.branch_area_id) ba_id, C.code, C.description areaname
 			FROM ".TB_PREF."policy_header A
 			LEFT JOIN ".TB_PREF."stock_category B ON B.category_id = A.category_id 
 			LEFT JOIN ".TB_PREF."branch_area C ON C.id = A.branch_area_id 
