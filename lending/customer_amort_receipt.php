@@ -2289,33 +2289,42 @@ if(isset($_GET['submitSICash']))
     return;
 }
 //void transaction
-if(isset($_GET['voidtrans']))
+if(isset($_GET['submitVoid']))
 {
     $InputError = 0;
-    if (empty($_GET['voidtrans'])){
+    if (empty($_GET['syspk'])){
         $InputError = 1;
-        $dsplymsg = _('Some fields are empty. Please reload the page and try again. Thank you...');
+        $dsplymsg = _('Error encountered when voiding transaction. Please reload the page and try again. Thank you...');
+    }
+    //check data
+	if(check_voided_payments_exist($_GET['systype'], $_GET['syspk'])){
+        $InputError = 1;
+        $dsplymsg = _("This payment has already been voided.");
     }
 
     if ($InputError !=1)
     {
-        get_debtor_trans_all($_GET['voidtrans'], $_GET['type']);
-        
-		$trans_no = add_voided_entry(
-			$delivery_row['type'], 
-			$delivery_row['trans_no'], 
-			sql2date($void_row['date_']), 
-			$void_row['memo_'], 
-			user_company(),
-			$debtor_row['delivery_ref_no'],
-			'', 'Voided', $void_row['cancel'],
-			$_SESSION["wa_current_user"]->user
-		);
 
-        $dsplymsg = _("Cannot find customer source details.");
-        echo '({"success":"false","message":"'.$dsplymsg.'"})';
+        $result = get_debtor_trans_all($_GET['systype'], $_GET['syspk']);
+        $transrow = db_fetch($result);
+
+		$trans_no = add_voided_entry(
+                        $_GET['systype'], 
+                        $_GET['syspk'], 
+                        sql2date(date('Y-m-d', strtotime(Today()))), 
+                        $_GET['reason'], 
+                        user_company(),
+                        $transrow['reference'],
+                        '',
+                        'Draft',
+                        '0',
+                        $_SESSION["wa_current_user"]->user
+		            );
+
+        $dsplymsg = _("Your request has been submitted successfully.");
+        echo '({"success":"true","message":"'.$dsplymsg.'"})';
     }else{
-        echo '({"success":"false","message":"'.$dsplymsg.'"})';
+        echo '({"failure":"false","message":"'.$dsplymsg.'"})';
     }
     return;
 }

@@ -172,17 +172,6 @@ function get_loan_amortization_ledger($type, $trans_no)
 	return db_query($sql, "could not get amortization ledger because ");
 }
 
-function get_debtor_trans_all($type, $trans_no)
-{
-	$sql = "SELECT A.*
-		FROM ".TB_PREF."debtor_trans A 
-		WHERE A.trans_no = ".db_escape($trans_no)."
-			AND A.type = ".db_escape($type);
-
-	$result = db_query($sql, "The deptor trans all could not be retrieved");
-	return db_fetch($result);
-}
-
 function get_ar_ledger_entries($type, $trans_no)
 {
 	$sql = "SELECT A.trans_no, A.reference, B.type_no, B.type, B.tran_date, C.debtor_no, C.name, D.account_code, D.account_name, B.amount,

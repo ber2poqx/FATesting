@@ -896,3 +896,27 @@ function isTermFullpayment($trans_no, $type)
 
 	return $row[0];
 }
+
+function check_voided_payments_exist($type, $trans_no)
+{
+	$sql = "SELECT COUNT(*)
+			FROM ".TB_PREF."voided X 
+			WHERE X.type=".db_escape($type)."
+				And X.id = ".db_escape($trans_no);
+			
+	$result = db_query($sql, "could not query voided transaction table");
+	$row = db_fetch($result);
+	return $row[0];
+
+}
+
+function get_debtor_trans_all($type, $trans_no)
+{
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."debtor_trans A 
+		WHERE A.trans_no = ".db_escape($trans_no)."
+			AND A.type = ".db_escape($type);
+
+	$result = db_query($sql, "The deptor trans all could not be retrieved");
+	return db_fetch($result);
+}
