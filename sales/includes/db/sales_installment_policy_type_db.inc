@@ -34,7 +34,7 @@ function add_policy_type($plcy_code, $category_id, $tax_included, $dateadded, $r
 function update_policy_type($id, $plcy_code, $category, $tax_included, $remark, $area, $inactive)
 {
 	$sql = "UPDATE ".TB_PREF."policy_header 
-			SET plcy_code = ".db_escape($plcy_code)."
+			SET plcy_code = ".db_escape(strtoupper($plcy_code))."
 				,category_id = ".db_escape($category)."
 				,tax_included = ".db_escape($tax_included)."
 				,inactive = ".db_escape($inactive)."
