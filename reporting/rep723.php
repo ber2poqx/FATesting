@@ -43,41 +43,49 @@ function getTransactions($from, $to, $gl_account,$masterfile)
             , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
 			, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
 			##, gl.memo_ AS memo_
-			, cm.account_name
+			, gl.account AS account
+			, cm.account_name AS account_name
 			, bt.receipt_no AS cr_num
 			, gl.amount
 			, CASE WHEN gl.amount >= 0 THEN gl.amount ELSE 0 END AS `Debit`
 		    , CASE WHEN gl.amount <  0 THEN -gl.amount ELSE 0 END AS `Credit`
-		FROM ".TB_PREF."`gl_trans` gl
-			LEFT JOIN ".TB_PREF."`refs` ref ON gl.type = ref.type AND gl.type_no = ref.id
-		    LEFT JOIN ".TB_PREF."`debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no			
-            LEFT JOIN ".TB_PREF."`grn_batch` grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE."
-		    LEFT JOIN ".TB_PREF."`debtors_master` debt ON dt.debtor_no = debt.debtor_no
-			LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
-                 AND (bt.person_id != '' AND !ISNULL(bt.person_id))
-            LEFT JOIN ".TB_PREF."`suppliers` sup2 ON grn.supplier_id = sup2.supplier_id
-		    LEFT JOIN (SELECT `type`, `id`, `date_`, `memo_` FROM ".TB_PREF."`comments` GROUP BY `type`, `id`, `date_`, `memo_`) c ON gl.type = c.type AND gl.type_no = c.id 
-		    LEFT JOIN ".TB_PREF."`chart_master` cm ON gl.account = cm.account_code			
-		    LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
-			LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
-			LEFT JOIN  ".TB_PREF."`debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
-		WHERE gl.`account` = '$gl_account' ";
+			FROM ".TB_PREF."`gl_trans` gl
+				LEFT JOIN ".TB_PREF."`refs` ref ON gl.type = ref.type AND gl.type_no = ref.id
+				LEFT JOIN ".TB_PREF."`debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no			
+				LEFT JOIN ".TB_PREF."`grn_batch` grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE."
+				LEFT JOIN ".TB_PREF."`debtors_master` debt ON dt.debtor_no = debt.debtor_no
+				LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
+					AND (bt.person_id != '' AND !ISNULL(bt.person_id))
+				LEFT JOIN ".TB_PREF."`suppliers` sup2 ON grn.supplier_id = sup2.supplier_id
+				LEFT JOIN (SELECT `type`, `id`, `date_`, `memo_` FROM ".TB_PREF."`comments` GROUP BY `type`, `id`, `date_`, `memo_`) c ON gl.type = c.type AND gl.type_no = c.id 
+				LEFT JOIN ".TB_PREF."`chart_master` cm ON gl.account = cm.account_code			
+				LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
+				LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
+				LEFT JOIN  ".TB_PREF."`debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
+		";
+		
+		if ($from == 0)
+		{
+			$sql .= " WHERE gl.tran_date <= '$to' ";
+		}
+		else if ($from != 0)
+		{
+			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to' ";
+		}
 
+		if($masterfile != ALL_TEXT)
+		{
+			$sql .= " AND dt.debtor_no = '$masterfile' ";
+		}
 
-	if($masterfile != ALL_TEXT)
-	{
-		$sql .= " AND dt.debtor_no = '$masterfile'";
-	}
-
-	if ($from == 0)
-	{
-		$sql .= " AND gl.tran_date <= '$to'";
-	}
-	if ($from != 0)
-	{
-		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to'";
-	}
-		$sql .= " ORDER BY gl.`tran_date`, gl.`counter`";
+		if ($gl_account != ALL_TEXT)
+		{
+			$sql .= " AND gl.account = '$gl_account' ORDER BY gl.`tran_date`, gl.`counter` ";
+		}
+		else if ($gl_account == ALL_TEXT)
+		{
+			$sql .= " ORDER BY gl.account, gl.`tran_date`, gl.`counter` ";
+		}
 		
 	return db_query($sql,"No transactions were returned");
 }
@@ -152,6 +160,13 @@ function get_Masterfile_Name($masterfile)
 	return db_query($sql,"No transactions were returned");
 }
 
+function get_GL_numbers($from, $to)
+{
+	$sql = " SELECT DISTINCT `account` FROM `gl_trans` WHERE `tran_date` BETWEEN '$from' AND '$to' ORDER BY `account` LIMIT 1 ";
+
+	return db_query($sql,"No transactions were returned");
+}
+
 function print_SL_summary_particulars()
 {
 	global $path_to_root;
@@ -173,12 +188,7 @@ function print_SL_summary_particulars()
 	$orientation = 'P';
     $dec = user_price_dec();
 
-	if($gl_account != ALL_TEXT)
-	{
-		$account = get_GL_Title($gl_account);
-		$GL_title = db_fetch($account);
-		$account_name = $GL_title['account_name'];
-	}    
+	  
 	
     if($masterfile == ALL_TEXT)
     {
@@ -199,18 +209,21 @@ function print_SL_summary_particulars()
 		{
 			$params = array(0 => $comments,		
 			1 => array('text' => _('Date'),'from' => _('As of'), 'to' => $to),		
-			2 => array('text' => _('GL Title'), 'from' => _('ALL') , 'to' => ''),
+			2 => array('text' => _('GL Title'), 'from' => $gl_account , 'to' => ''),
 			3 => array('text' => _('Masterfile Name'), 'from' => $Masterfile_name, 'to' => ''));
 		}
 		if($from != 0)
 		{
 			$params = array(0 => $comments,		
 			1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
-			2 => array('text' => _('GL Title'), 'from' => _('ALL') , 'to' => ''),
+			2 => array('text' => _('GL Title'), 'from' => $gl_account , 'to' => ''),
 			3 => array('text' => _('Masterfile Name'), 'from' => $Masterfile_name, 'to' => ''));
 		}
 	}else
 	{
+		$account = get_GL_Title($gl_account);
+		$GL_title = db_fetch($account);
+		$account_name = $GL_title['account_name'];
 		if($from == 0)
 		{
 			$params = array(0 => $comments,		
@@ -261,6 +274,10 @@ function print_SL_summary_particulars()
 		{
 			$Forwarded_bal = getBalance_forwarded($from, $gl_account, $masterfile);
 		}
+
+		$account = get_GL_Title($gl_account);
+		$GL_title = db_fetch($account);
+		$account_name = $GL_title['account_name'];
 	
 		$Tot_bal = 0;
 		$Tot_deb = 0;
@@ -276,7 +293,7 @@ function print_SL_summary_particulars()
 			{	
 				$rep->NewLine(0.5);
 				$rep->Font('bold');
-				//$rep->Line($rep->row + 9, 0.5);
+				//$rep->Line($rep->row + 9, 0.5); //put a borderline above the balance forwarded
 				$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);
 				if($from == 0)
 				{
@@ -320,6 +337,8 @@ function print_SL_summary_particulars()
 	
 			$dec2 = get_qty_dec($SLsum['reference']);
 	
+			$rep->fontSize -= 1.5;
+
 			$rep->NewLine();
 			$rep->TextCol(0, 1, $SLsum['tran_date']);
 			$rep->TextCol(1, 2, $SLsum['cr_num']);
@@ -333,15 +352,13 @@ function print_SL_summary_particulars()
 			if ($running_bal < 0)
 				$rep->AmountCol2(7, 8, -$running_bal, $dec);
 			else
-				$rep->AmountCol2(7, 8, $running_bal, $dec);
-			
+				$rep->AmountCol2(7, 8, $running_bal, $dec);			
 	
 			$Tot_deb = $SLsum['Debit'] + $Tot_deb;
-			$Tot_cred = $SLsum['Credit'] + $Tot_cred;
+			$Tot_cred = $SLsum['Credit'] + $Tot_cred;			
 	
-	
-			
-	
+			$rep->fontSize += 1.5;
+
 			// $rep->TextCol(5, 6, $GRNs['Name']);
 			// $rep->TextCol(6, 7, $GRNs['Model']);
 			// $rep->TextCol(7, 8, $GRNs['Serial']);
@@ -387,19 +404,19 @@ function print_SL_summary_particulars()
 		
 		if($Tot_bal != 0)
 		{
+			$rep->fontSize -= 1;
 			$rep->Font('bold');
 			$rep->TextCol(4, 6, _('Subtotal'));
 			$rep->Font('italic');
 			$rep->AmountCol(5, 6, $Tot_deb, $dec);
 			$rep->AmountCol(6, 7, $Tot_cred, $dec);
 			$rep->Font();
+			$rep->fontSize += 1;
 		}
 
 		$rep->Line($rep->row - 7);
 
-		$rep->NewLine(1.3);
-
-			
+		$rep->NewLine(1.3);			
 		$rep->Font('bold');		
 		$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
 		$rep->TextCol(4, 5, _('Ending Balance'));
@@ -416,32 +433,255 @@ function print_SL_summary_particulars()
 		else		
 			$rep->AmountCol(7, 8, $running_bal, $dec);
 		$rep->Line($rep->row - 2, 0.5);	
+		$rep->Font();
+
+		$rep->NewLine(5);
+	
+		//$rep->fontSize += 1;	
+		$rep->Font('bold');
+		$rep->TextCol(3, 4, _('Grand Total'));
+		$rep->AmountCol(5, 6, $Tot_deb + $Forwarded_deb, $dec);
+		$rep->AmountCol(6, 7, $Tot_cred + $Forwarded_cred, $dec);
+		$rep->fontSize -= 1;	
+		$rep->Font();
+		$rep->Line($rep->row - 2);
+		//$rep->SetFooterType('');
+		//$rep->fontSize -= 1;
 
 	}	
-	else
+	else if($gl_account == ALL_TEXT)
 	{
-		$rep->Line($rep->row);
-		$rep->NewLine(2);
-		$rep->TextCol(2, 9, _('-  -  -  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  -  -  '));
-		$rep->NewLine(1);
-	}
+		$res = getTransactions($from, $to, $gl_account, $masterfile);
 
-		
-	$rep->NewLine(2);
-
-	$rep->fontSize += 1.5;	
-	$rep->Font('bold');
-	$rep->TextCol(4, 6, _('Grand Total'));
-	$rep->AmountCol(6, 7, $Tot_deb + $Forwarded_deb, $dec);
-	$rep->AmountCol(7, 8, $Tot_cred + $Forwarded_cred, $dec);
-	$rep->fontSize -= 1.5;	
-	$rep->Font();
-
+		$Tot_bal = 0;
+		$Tot_deb = 0;
+		$Tot_cred = 0;
+		$running_bal = 0;
+		$amount_val = 0;
+		$Forwarded_deb = 0;
+		$Forwarded_cred = 0;
+		$grand_deb = 0;
+		$grand_cred = 0;
+		$grand_forwarded_deb = 0;
+		$grand_forwarded_cred = 0;
 	
+		While ($SLsum = db_fetch($res))
+		{
+			if($gl_account != $SLsum['account'])
+			{	
+				$account = get_GL_Title($gl_account);
+				$GL_title = db_fetch($account);
+				$account_name = $GL_title['account_name'];
 
-	$rep->Font();
-	$rep->Line($rep->row - 2);
-	//$rep->SetFooterType('');
-	$rep->fontSize -= 1;
+				$Forwarded_bal = getBalance_forwarded($from, $SLsum['account'], $masterfile);
+				
+				if($Tot_bal != 0)
+				{
+					$rep->Line($rep->row - 2);
+
+					//subtotal
+					$rep->NewLine();
+					$rep->fontSize -= 1;
+					$rep->Font('bold');
+					$rep->TextCol(4, 6, _('Subtotal'));
+					$rep->Font('italic');
+					$rep->AmountCol(5, 6, $Tot_deb, $dec);
+					$rep->AmountCol(6, 7, $Tot_cred, $dec);
+					$grand_deb = $grand_deb + $Tot_deb;
+					$grand_cred = $grand_cred + $Tot_cred;
+					$Tot_deb = 0;
+					$Tot_cred = 0;
+					$rep->fontSize += 1;
+
+					$rep->NewLine(0.2);
+					$rep->Line($rep->row - 3);
+
+					//ending balance
+					$rep->NewLine();			
+					$rep->Font('bold');		
+					$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
+					$rep->TextCol(4, 5, _('Ending Balance'));
+					$rep->Font();		
+					$rep->Font('bold');
+					$Total1 = getEnding_bal($to, $gl_account, $masterfile);
+					While ($Total_amount = db_fetch($Total1))
+					{
+						$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
+						$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+					}
+					if ($running_bal < 0)
+						$rep->AmountCol(7, 8, -$running_bal, $dec);
+					else		
+						$rep->AmountCol(7, 8, $running_bal, $dec);
+
+
+					$rep->Font();
+					$rep->Line($rep->row - 3,1);
+
+					$rep->NewLine(3);
+				}
+				
+				
+				$rep->Font('bold');
+				$rep->Line($rep->row + 9, 1); //put a borderline above the balance forwarded
+				$rep->TextCol(0, 4, $SLsum['account'] . _(' - ') . $SLsum['account_name']);
+				if($from == 0)
+				{
+					$rep->TextCol(6, 7, _('As of - ') . $to);
+				}
+				
+				$rep->Line($rep->row - 2);
+				$rep->Font();
+	
+				if ($from != 0)
+				{
+					While ($F_bal = db_fetch($Forwarded_bal))
+					{	
+						$rep->Font('bold');
+						$rep->TextCol(4, 5, _('Balance Forwarded'));
+						$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
+						$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
+						$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
+						$rep->Font();
+						$grand_forwarded_deb = $grand_forwarded_deb + $F_bal['Debit'];
+						$grand_forwarded_cred = $grand_forwarded_cred + $F_bal['Credit'];
+						$running_bal = $F_bal['Forwarded_Bal'];
+						$Forwarded_deb = $F_bal['Debit'];
+						$Forwarded_cred = $F_bal['Credit'];
+					}						
+				}										
+			}
+	
+			$amount_val = $SLsum['amount'];
+	
+			//$running_bal = $running_bal + $amount_val;
+			$Tot_bal = $Tot_bal + $amount_val;
+	
+			if($amount_val >= 0)
+			{
+				$running_bal = $running_bal + $amount_val;
+			}
+			if ($amount_val < 0)
+			{
+				$amount_val = -$SLsum['amount'];
+				$running_bal = $running_bal - $amount_val;
+			}
+	
+			$dec2 = get_qty_dec($SLsum['reference']);
+			
+			#CHANGE FONTSIZE
+			$rep->fontSize -= 1.5;
+
+			$rep->NewLine();
+			$rep->TextCol(0, 1, $SLsum['tran_date']);
+			$rep->TextCol(1, 2, $SLsum['cr_num']);
+			$rep->TextCol(2, 3, $SLsum['reference']);
+			$rep->TextCol(3, 4, $SLsum['name']);
+			$rep->TextCol(4, 5, $SLsum['memo_']);
+			$rep->AmountCol2(5, 6, $SLsum['Debit'], $dec);
+			$rep->AmountCol2(6, 7, $SLsum['Credit'], $dec);
+			//$rep->AmountCol2(6, 7, -$running_bal, $dec);
+			
+			if ($running_bal < 0)
+				$rep->AmountCol2(7, 8, -$running_bal, $dec);
+			else
+				$rep->AmountCol2(7, 8, $running_bal, $dec);			
+	
+			$Tot_deb = $SLsum['Debit'] + $Tot_deb;
+			$Tot_cred = $SLsum['Credit'] + $Tot_cred;			
+	
+			#CHANGE FONTSIZE
+			$rep->fontSize += 1.5;
+
+			$rep->NewLine(0, 1);
+
+			$gl_account = $SLsum['account'];
+		}
+
+		if($Tot_bal == 0)
+		{
+				While ($F_bal = db_fetch($Forwarded_bal))
+				{	
+					$rep->Font('bold');
+					$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);
+					$rep->TextCol(4, 5, _('Balance Forwarded'));
+					$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
+					$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
+					$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
+					$rep->Font();
+					$running_bal = $F_bal['Forwarded_Bal'];
+					$Forwarded_deb = $F_bal['Debit'];
+					$Forwarded_cred = $F_bal['Credit'];
+				}		
+			$rep->Line($rep->row);
+			$rep->NewLine(2);
+			$rep->TextCol(2, 7, _('-  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  '));
+			$rep->NewLine(1);
+		}
+		
+		if($Tot_bal != 0)
+		{
+			$rep->fontSize -= 1;
+			$rep->Line($rep->row - 2);
+			$rep->NewLine();
+			$rep->Font('bold');
+			$rep->TextCol(4, 6, _('Subtotal'));
+			$rep->Font('italic');
+			$rep->AmountCol(5, 6, $Tot_deb, $dec);
+			$rep->AmountCol(6, 7, $Tot_cred, $dec);
+			$grand_deb = $grand_deb + $Tot_deb;
+			$grand_cred = $grand_cred + $Tot_cred;
+			$Tot_deb = 0;
+			$Tot_cred = 0;
+			$rep->fontSize += 1;
+			$rep->Font();
+
+			$rep->NewLine(0.2);
+			$rep->Line($rep->row - 3);
+
+			$account = get_GL_Title($gl_account);
+			$GL_title = db_fetch($account);
+			$account_name = $GL_title['account_name'];
+
+			//ending balance
+			$rep->NewLine();			
+			$rep->Font('bold');		
+			$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
+			$rep->TextCol(4, 5, _('Ending Balance'));
+			$rep->Font();		
+			$rep->Font('bold');
+			$Total1 = getEnding_bal($to, $gl_account, $masterfile);
+			While ($Total_amount = db_fetch($Total1))
+			{
+				$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
+				$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+			}
+			if ($running_bal < 0)
+				$rep->AmountCol(7, 8, -$running_bal, $dec);
+			else		
+				$rep->AmountCol(7, 8, $running_bal, $dec);
+
+
+			$rep->Font();
+			$rep->Line($rep->row - 3,1);
+	
+			$rep->NewLine(5);
+	
+			//$rep->fontSize += 1;	
+			$rep->Font('bold');
+			$rep->TextCol(3, 4, _('Grand Total'));
+			$rep->AmountCol(5, 6, $grand_deb + $grand_forwarded_deb, $dec);
+			$rep->AmountCol(7, 8, $grand_cred + $grand_forwarded_cred, $dec);
+			$rep->fontSize -= 1;	
+			$rep->Font();
+			$rep->Line($rep->row - 2);
+			//$rep->SetFooterType('');
+			//$rep->fontSize -= 1;
+		}
+		
+	}
+	
+		
+	
     $rep->End();
 }
