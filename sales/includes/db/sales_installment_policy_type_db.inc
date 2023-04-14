@@ -127,7 +127,7 @@ function delete_policy_type($id)
 
 }
 
-function check_data_exist($areaid, $categoryid, $tax_incl, $remark, $inactive)
+function check_data_exist($areaid, $categoryid, $tax_incl, $remark, $inactive, $plcy_code)
 {
 	$sql = "SELECT A.*
 			FROM ".TB_PREF."policy_header A 
@@ -136,6 +136,7 @@ function check_data_exist($areaid, $categoryid, $tax_incl, $remark, $inactive)
 				AND A.branch_area_id = ".db_escape($areaid)."
 				AND A.tax_included = ".db_escape($tax_incl)."
 				AND A.remarks = ".db_escape($remark)."
+				AND A.plcy_code = ".db_escape($plcy_code)."
 				AND A.inactive = ".db_escape($inactive);
 
 	return db_query($sql, "could not get sales installment policy type data ");

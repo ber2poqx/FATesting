@@ -133,7 +133,7 @@ if(isset($_GET['submit'])){
     }
 
     //check if already exist in db
-    $result = check_data_exist($_POST['brancharea'], $_POST['category'], $_POST['tax_included'],  $_POST['remarks'], $_POST['inactive']);
+    $result = check_data_exist($_POST['brancharea'], $_POST['category'], $_POST['tax_included'],  $_POST['remarks'], $_POST['inactive'], $_POST['plcycode']);
     if (DB_num_rows($result)==1){
         $InputError = 1;
         if (isset($syspk)){
