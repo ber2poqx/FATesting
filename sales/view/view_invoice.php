@@ -154,12 +154,12 @@ if (db_num_rows($result) > 0) {
 		} else {
 			$display_discount = percent_format($myrow2["discount_percent"] * 100) . "%";
 		}
-
-		$value -= $myrow2["discount1"] + $myrow2["discount2"];
+		/*modified by Albert Discount is based in QTY*/
+		$value -= ($myrow2["discount1"] * $myrow2["quantity"]) + ($myrow2["discount2"] * $myrow2["quantity"]);
 		$sub_total += $value;
-		$discount1_sub_total += $myrow2["discount1"];
-		$discount2_sub_total += $myrow2["discount2"];
-
+		$discount1_sub_total += $myrow2["discount1"] * $myrow2["quantity"];
+		$discount2_sub_total += $myrow2["discount2"] * $myrow2["quantity"];
+		/**/
 		label_cell($myrow2["stock_id"]);
 		label_cell($myrow2["StockDescription"]);
 		label_cell($myrow2["lot_no"]);
@@ -171,8 +171,8 @@ if (db_num_rows($result) > 0) {
 		amount_cell($myrow2["standard_cost"]);
 		amount_cell($myrow2["smi"]);
 		amount_cell($myrow2["incentives"]);
-		amount_cell($myrow2["discount1"]);
-		amount_cell($myrow2["discount2"]);
+		amount_cell($myrow2["discount1"] * $myrow2["quantity"]);
+		amount_cell($myrow2["discount2"] * $myrow2["quantity"]);
 		amount_cell($myrow2["lcp_price"]);
 		amount_cell($value);
 		end_row();

@@ -264,7 +264,7 @@ foreach ($_SESSION['View']->line_items as $stock_item) {
 		user_price_dec()
 	);
 
-	$total_gross = $stock_item->price - ($stock_item->discount1 + $stock_item->discount2) * $stock_item->quantity;
+	$total_gross = ($stock_item->price - ($stock_item->discount1 + $stock_item->discount2)) * $stock_item->quantity;
 
 	alt_table_row_color($k);
 
