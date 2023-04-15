@@ -332,11 +332,11 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 				// else take the Item Dimension (if any)
 				$dim = ($invoice->dimension_id != $customer['dimension_id'] ? $invoice->dimension_id : ($customer['dimension_id'] != 0 ? $customer["dimension_id"] : $stock_gl_code["dimension_id"]));
 				$dim2 = ($invoice->dimension2_id != $customer['dimension2_id'] ? $invoice->dimension2_id : ($customer['dimension2_id'] != 0 ? $customer["dimension2_id"] : $stock_gl_code["dimension2_id"]));
-
-				$cash_discount += $invoice_line->discount1 + $invoice_line->discount2;
-				$c_discount1 += $invoice_line->discount1;
-				$c_discount2 += $invoice_line->discount2;
-				
+				/*modified by Albert Discount is based in QTY*/
+				$cash_discount += ($invoice_line->discount1 * $qty) + ($invoice_line->discount2 * $qty);
+				$c_discount1 += $invoice_line->discount1 * $qty;
+				$c_discount2 += $invoice_line->discount2 * $qty;
+				/**/
 				//Added by spyrax10
 				$row = get_supplier_mcode($invoice_line->stock_id);
 				$mcode = strtoupper($row['name']);
@@ -1129,10 +1129,10 @@ function get_total_discount($order_no, $dis1_only = false) {
 	set_global_connection();
 
 	if ($dis1_only) {
-		$sql = "SELECT SUM(B.discount1) AS discount";
+		$sql = "SELECT  SUM(B.discount1 * B.quantity AS discount";
 	}
 	else {
-		$sql = "SELECT SUM(B.discount1 + B.discount2) AS discount";
+		$sql = "SELECT SUM((B.discount1 * B.quantity) + (B.discount2 * B.quantity)) AS discount";
 	}
 
 	$sql .= " FROM sales_orders A 
@@ -1141,6 +1141,7 @@ function get_total_discount($order_no, $dis1_only = false) {
 
 	$result = db_query($sql, "get_total_discount()");
 	$row = db_fetch_row($result);
+	display_warning($sql);
 	return $row[0];
 }
 

@@ -861,13 +861,13 @@ function update_header() {
 	$total_lcp = $dis1 = $dis2 = $lcp = 0;
 
 	foreach ($_SESSION['Items']->line_items as $order_item) {
-
-		$dis1 += $order_item->discount1;
-		$dis2 += $order_item->discount2;
+		/*modified by albert discount is based in QTY*/
+		$dis1 += $order_item->discount1 * $order_item->qty_dispatched;
+		$dis2 += $order_item->discount2 * $order_item->qty_dispatched;
 		
 		$total += $order_item->price * $order_item->qty_dispatched;
-		$total_lcp += $order_item->price * $order_item->qty_dispatched - ($order_item->discount1 + $order_item->discount2);
-
+		$total_lcp += $order_item->price * $order_item->qty_dispatched - (($order_item->discount1 * $order_item->qty_dispatched) + ($order_item->discount2 * $order_item->qty_dispatched));
+		/**/
 		//$total += ($order_item->price - ($order_item->discount1 + $order_item->discount2)) * $order_item->qty_dispatched;
 		//$total_lcp += $order_item->price * $order_item->qty_dispatched;
 	}
