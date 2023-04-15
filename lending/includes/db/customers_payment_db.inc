@@ -518,7 +518,7 @@ function get_ar_cash($trans_no, $debtor_no, $trans_type)
 
 function get_cash_discount($trans_no, $trans_type)
 {
-	$sql = "SELECT (SUM(A.discount1) + SUM(A.discount2)) discount
+	$sql = "SELECT (SUM(A.discount1 * A.quantity) + SUM(A.discount2)) discount
 		FROM ".TB_PREF."debtor_trans_details A 
 		WHERE A.debtor_trans_type = ".db_escape($trans_type)."
 			AND A.debtor_trans_no = ".db_escape($trans_no)."
