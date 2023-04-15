@@ -1141,7 +1141,7 @@ function get_total_discount($order_no, $dis1_only = false) {
 
 	$result = db_query($sql, "get_total_discount()");
 	$row = db_fetch_row($result);
-	display_warning($sql);
+	
 	return $row[0];
 }
 
