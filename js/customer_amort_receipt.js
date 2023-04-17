@@ -1536,7 +1536,7 @@ Ext.onReady(function() {
 			submit_window_InterB.setPosition(320,23);
 		}
 	}, '-', {
-		text:'<b>Adjustment Payment</b>',
+		text:'<b>Sales Return Adjustment</b>',
 		tooltip: 'Add new cash payment for sales invoice / Adjustment payment for replacement items',
 		icon: '../js/ext4/examples/shared/icons/coins-in-hand-icon.png',
 		scale: 'small',
