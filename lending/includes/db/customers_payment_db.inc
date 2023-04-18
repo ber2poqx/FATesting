@@ -632,11 +632,13 @@ function get_item_detials_adjustment($trans_no, $trans_type)
 	return db_query($sql, "could not get replacement item details");	
 }
 
-function check_cr_number($crno)
+function check_cr_number($crno, $module_type)
 {
 	$sql = "SELECT COUNT(*) 
-			FROM ".TB_PREF."bank_trans A
-			WHERE A.receipt_no = ".db_escape($crno);
+			FROM ".TB_PREF."bank_trans A 
+			INNER JOIN ".TB_PREF."debtor_trans B ON B.trans_no = A.trans_no AND B.type = A.type
+			WHERE B.module_type = ".db_escape($module_type)."
+				AND A.receipt_no = ".db_escape($crno);
 
 	$result = db_query($sql, "check cr number failed");
 	$count =  db_fetch($result);

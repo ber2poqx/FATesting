@@ -1154,7 +1154,7 @@ if(isset($_GET['submit']))
     }
 
     //check data
-	if(check_cr_number($_POST['receipt_no'])){
+	if(check_cr_number($_POST['receipt_no'], $_POST['moduletype'])){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
     }
@@ -2230,7 +2230,7 @@ if(isset($_GET['submitSICash']))
     }
 
     //check data
-	if(check_cr_number($_POST['receipt_no_cash'])){
+	if(check_cr_number($_POST['receipt_no_cash'], $_POST['moduletype_cash'])){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
     }

@@ -1540,7 +1540,7 @@ Ext.onReady(function() {
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
 				xtype: 'textfield',
-				fieldLabel: '<b>CR No.</b>',
+				fieldLabel: '<b>Receipt No.</b>',
 				id: 'v_receipt_no_cash',
 				name: 'v_receipt_no_cash',
 				margin: '2 0 0 0',
