@@ -237,7 +237,7 @@ function print_SL_summary_per_customer()
 	//$rep->Line($rep->row - 2);
 
 	
-	if($row_bal == 0)
+	if($row_count == 0)
 	{
 		$rep->Font('bold');	
 		$rep->TextCol(0, 4, _('-      -      -      -      -      -      -      -      -      Nothing to Display Transaction in the given Parameter.      -      -      -      -      -      -      -      -      -'));
