@@ -111,7 +111,7 @@ function add_to_merchandise_transfer_order(&$order, $model, $new_item, $serialis
                 $supplier_id = get_item_supplier_id($model);
                 //$standard_cost = Get_Policy_Cost($order->from_loc,$item['category_id'],$model, $supplier_id['supplier_id']);
                 
-                $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                $standard_cost=Get_System_Cost_serialised($model, $item['serialise_lot_no'], $type_out, $transno_out);
                 $line_item = count($order->line_items);
                 $order->add_to_cart($line_item, $model, $qty, $standard_cost, $item['sdescription'], $rr_date, '0000-00-00', $item['serialise_lot_no'], 
                     $item['serialise_chasis_no'], $item['idescription'], $item['item_code'], $item['mt_details_id'], $type_out, $transno_out, '', 
@@ -274,7 +274,7 @@ function display_transfer_items_serial_repo(&$order, $FromStockLocation, $AdjDat
                 'color' => $stock_item->color,
                 'stock_description' => $stock_item->item_description,
                 'standard_cost' => $stock_item->standard_cost,
-                'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
+                'currentqty' => $stock_item->currqty, 
                 'qty' => $stock_quantity,
                 'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
                 'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
@@ -366,11 +366,13 @@ function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjD
             $qty=get_qoh_on_date_new($stock_item->type_out,$stock_item->transno_out,$stock_item->stock_id,$FromStockLocation);
             $qty-=$demand_qty;
         }
+        
         if ($stock_item->lot_no == '') {
-           $stock_quantity = 0;
+            $stock_quantity =  $stock_item->quantity;
         } else {
-            $stock_quantity = $stock_item->quantity;
+             $stock_quantity = $stock_item->quantity;
         }
+
         if($stock_item->stock_id != ''){
             $group_array[] = array('id'=>$line_no,
                 'stock_id'=>$stock_item->stock_id,
@@ -378,7 +380,7 @@ function display_transfer_items_serial_compli(&$order, $FromStockLocation, $AdjD
                 'color' => $stock_item->color,
                 'stock_description' => $stock_item->item_description,
                 'standard_cost' => $stock_item->standard_cost,
-                'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
+                'currentqty' => $stock_item->currqty, 
                 'qty' => $stock_quantity,
                 'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
                 'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,
@@ -415,11 +417,13 @@ function display_transfer_items_serial_compli_repo(&$order, $FromStockLocation, 
             $qty=get_qoh_on_date_new($stock_item->type_out,$stock_item->transno_out,$stock_item->stock_id,$FromStockLocation);
             $qty-=$demand_qty;
         }
+
         if ($stock_item->lot_no == '') {
-           $stock_quantity = 0;
+            $stock_quantity =  $stock_item->quantity;
         } else {
             $stock_quantity = $stock_item->quantity;
         }
+
         if($stock_item->stock_id != ''){
             $group_array[] = array('id'=>$line_no,
                 'stock_id'=>$stock_item->stock_id,
@@ -427,7 +431,7 @@ function display_transfer_items_serial_compli_repo(&$order, $FromStockLocation, 
                 'color' => $stock_item->color,
                 'stock_description' => $stock_item->item_description,
                 'standard_cost' => $stock_item->standard_cost,
-                'currentqty' => /*$qty  Modified by Me*/ $stock_item->quantity, 
+                'currentqty' => $stock_item->currqty, 
                 'qty' => $stock_quantity,
                 'lot_no' => is_null($stock_item->lot_no)?'':$stock_item->lot_no,
                 'chasis_no' => is_null($stock_item->chasis_no)?'':$stock_item->chasis_no,

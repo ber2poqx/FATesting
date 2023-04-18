@@ -72,9 +72,14 @@ if(!is_null($action) || !empty($action)){
                 $serialised = $data['serialised'];
                 $rr_date = $data['rr_date'];
                 $qty = $data['qty'];
+                $currentqty = $data['qty'];
                 $dflt_repo_invty_act = $data['dflt_repo_invty_act'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
+
+                if($lot_no == ''){
+                    $qty = 0;
+                }
 
                 if(!isset($_REQUEST['view'])){
                     //add_to_mt_order($_SESSION['transfer_items'], $model, $serialise_id, $serialised, $type_out, $transno_out,'repo',$qty, 
@@ -82,12 +87,12 @@ if(!is_null($action) || !empty($action)){
                     $line_item_header = rand();
 
                     if($serialised) {
-                       $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
+                       $standard_cost=Get_System_Cost_serialised($model, $lot_no, $type_out, $transno_out);
                        $line_item = count($_SESSION['transfer_items']->line_items);
 
                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
                         '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out, '', 'repo', '', '', '',
-                        $line_item_header);
+                        $line_item_header, null, $currentqty);
 
                        $_SESSION['transfer_items']->add_gl_item($dflt_repo_invty_act, '', '', -($standard_cost * $qty), 
                        $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
@@ -97,7 +102,7 @@ if(!is_null($action) || !empty($action)){
 
                         $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
                         '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'repo', '', '', '',
-                        $line_item_header);
+                        $line_item_header, null, $currentqty);
 
                         $_SESSION['transfer_items']->add_gl_item($dflt_repo_invty_act, '', '', -($standard_cost * $qty), 
                         $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
@@ -284,6 +289,19 @@ if(!is_null($action) || !empty($action)){
                         $errmsg="Unit Cost must not be zero.";
                         break;
                     }*/
+                }
+
+                foreach ($_SESSION['transfer_items']->line_items AS $item)
+                {         
+                    if($item->quantity == 0){
+                        $isError = 1;
+                        $errmsg="Quantity must not be zero.";                     
+                        break;
+                    }elseif($item->quantity > $item->currqty){
+                        $isError = 1;
+                        $errmsg = "Sorry, Quantity you entered '".$item->quantity."' is Greater than Available Quantity On Hand: '".$item->currqty."'";
+                        break;
+                    }
                 }
 
                 if($person_type==2)

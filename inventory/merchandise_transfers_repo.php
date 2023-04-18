@@ -154,6 +154,19 @@ if(!is_null($action) || !empty($action)){
                     }
                 }
 
+                foreach ($_SESSION['transfer_items']->line_items AS $item)
+                {         
+                    if($item->quantity == 0){
+                        $isError = 1;
+                        $message="Quantity must not be zero.";                     
+                        break;
+                    }elseif($item->quantity > $item->currqty){
+                        $isError = 1;
+                        $message = "Sorry, Quantity you entered '".$item->quantity."' is Greater than Available Quantity On Hand: '".$item->currqty."'";
+                        break;
+                    }
+                }
+
                 if($isError != 1){              
                     $AdjDate = sql2date($_POST['AdjDate']);
                     $catcode = $_POST['catcode'];

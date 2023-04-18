@@ -207,6 +207,23 @@ function Get_System_Cost($stockID,$type_out=0,$transno_out=0){
     return $cost;
 }
 
+//Added by Robert for serialised
+function Get_System_Cost_serialised($stockID, $lot_no, $type_out=0,$transno_out=0){
+    set_global_connection();
+    $sql = "SELECT A.standard_cost 
+			FROM ".TB_PREF."stock_moves A WHERE A.type_out = ".db_escape($type_out)."
+    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.lot_no = ".db_escape($lot_no)."
+				AND A.transno_out = ".db_escape($transno_out);
+    
+    $result = db_query($sql, "The standard cost for the selected item could not be retrieved");
+    $row = db_fetch_row($result);
+    $cost = $row[0];
+    
+    set_global_connection();
+    return $cost;
+}
+
 function Get_Sales_Discount1($stockID){
     /* Modified by Ronelle */
 	global $def_coy;
