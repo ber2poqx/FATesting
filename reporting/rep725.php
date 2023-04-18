@@ -52,7 +52,7 @@ function getTransactions($from, $to, $masterfile)
 					LEFT JOIN `debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 				    LEFT JOIN `debtors_master` dm ON dt.debtor_no = dm.debtor_no
 				    LEFT JOIN `chart_master` cm ON gl.account = cm.account_code
-				WHERE gl.mcode = '$masterfile' or gl.person_id = '$masterfile' ";
+				WHERE dt.debtor_no = '$masterfile' ";
 
 	if ($from == 0)	
 		$sql .= " AND gl.tran_date <= '$to' ";	
@@ -236,7 +236,7 @@ function print_SL_summary_per_customer()
 	$rep->NewLine();
 	//$rep->Line($rep->row - 2);
 
-	
+	/*
 	if($row_count == 0)
 	{
 		$rep->Font('bold');	
@@ -245,20 +245,22 @@ function print_SL_summary_per_customer()
 	}
 	else
 	{
-		$rep->NewLine(2);
-		$rep->fontSize += 1;	
-		$rep->Font('bold');
-		$rep->TextCol(0, 1, _('GRAND TOTAL'));
-
-		$Total1 = getTotal_debit_Credit($to, $masterfile);
-		While ($Total_amount = db_fetch($Total1))
-		{
-			$rep->AmountCol(1, 2, $Deb_bal, $dec);
-			$rep->AmountCol(2, 3, $Cred_bal, $dec);
-			$rep->AmountCol(3, 4, $total_sub, $dec);
-		}
+		
 		//$rep->AmountCol(4, 5, $Tot_bal, $dec);
+	}*/
+	$rep->NewLine(2);
+	$rep->fontSize += 1;	
+	$rep->Font('bold');
+	$rep->TextCol(0, 1, _('GRAND TOTAL'));
+
+	$Total1 = getTotal_debit_Credit($to, $masterfile);
+	While ($Total_amount = db_fetch($Total1))
+	{
+		$rep->AmountCol(1, 2, $Deb_bal, $dec);
+		$rep->AmountCol(2, 3, $Cred_bal, $dec);
+		$rep->AmountCol(3, 4, $total_sub, $dec);
 	}
+
 
 	$rep->Font();
 	$rep->Line($rep->row - 2);
