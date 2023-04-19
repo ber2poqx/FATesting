@@ -15,7 +15,7 @@
 */
 function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, 
 	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0,
-	$old_code = "")
+	$old_code = "", $currentdate)
 {
 	//Added by spyrax10 7 May 2022
 	global $def_coy;
@@ -36,7 +36,8 @@ function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp
 		product_status = ".db_escape($itemstatus).",
 		pnp_color = ".db_escape($pnp_color).",
 		color = ".db_escape($color).",
-		old_code = ".db_escape($old_code)."
+		old_code = ".db_escape($old_code).",
+		date_modified = ".db_escape($currentdate)."
         	WHERE ";
 			
 	if ($id == -1) // update with unknown $id i.e. from items table editor
@@ -50,7 +51,7 @@ function update_item_code($id, $item_code, $color, $stock_id, $description, $pnp
 
 //--Added by Robert--06/25/2022//
 function update_item_code_for_import($id, $item_code, $color, $stock_id, $description, $pnp_color, $category, $qty, 
-	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0,
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $currentdate, $itemstatus = 0,
 	$old_code = "")
 {
 	$sql = "UPDATE ".TB_PREF."item_codes SET
@@ -67,7 +68,8 @@ function update_item_code_for_import($id, $item_code, $color, $stock_id, $descri
 		product_status = ".db_escape($itemstatus).",
 		pnp_color = ".db_escape($pnp_color).",
 		color = ".db_escape($color).",
-		old_code = ".db_escape($old_code)."
+		old_code = ".db_escape($old_code).",
+		date_modified = ".db_escape($currentdate)."
         	WHERE ";
 			
 	if ($id == -1) // update with unknown $id i.e. from items table editor
@@ -81,12 +83,12 @@ function update_item_code_for_import($id, $item_code, $color, $stock_id, $descri
 
 //--Added by Robert--06/25/2022//
 function add_item_code_for_import($item_code, $color = null, $stock_id, $description, $pnp_color = null, $category, $qty, 
-	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null)
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $currentdate, $itemstatus = 0, $old_code = null)
 {
 	$sql = "INSERT INTO ".TB_PREF."item_codes
 			(
 				item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer, 
-				product_status, pnp_color, color, old_code
+				product_status, pnp_color, color, old_code, date_modified
 			) 
 			
 			VALUES ( 
@@ -103,7 +105,8 @@ function add_item_code_for_import($item_code, $color = null, $stock_id, $descrip
             	".db_escape($itemstatus).", 
             	".db_escape($pnp_color).",  
             	".db_escape($color).",
-				".db_escape($old_code)." 
+				".db_escape($old_code).",
+				".db_escape($currentdate)." 
             )";
 
 	db_query($sql,"an item code could not be added");
@@ -111,7 +114,7 @@ function add_item_code_for_import($item_code, $color = null, $stock_id, $descrip
 
 //Modify by spyrax10 4 May 2022
 function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_color = null, $category, $qty, 
-	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null, $company_id = 0)
+	$foreign = 0, $brand = 0, $manufacturer = 0, $distributor = 0, $importer = 0, $itemstatus = 0, $old_code = null, $currentdate, $company_id = 0)
 {
 	//Added by spyrax10 7 May 2022
 	global $def_coy;
@@ -121,7 +124,7 @@ function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_
 	$sql = "INSERT INTO ".TB_PREF."item_codes
 			(
 				item_code, stock_id, description, category_id, quantity, is_foreign, brand, manufacturer, distributor, importer, 
-				product_status, pnp_color, color, old_code
+				product_status, pnp_color, color, old_code, date_modified
 			) 
 			
 			VALUES ( 
@@ -138,7 +141,8 @@ function add_item_code($item_code, $color = null, $stock_id, $description, $pnp_
             	".db_escape($itemstatus).", 
             	".db_escape($pnp_color).",  
             	".db_escape($color).",
-				".db_escape($old_code)." 
+				".db_escape($old_code).", 
+				".db_escape($currentdate)." 
             )";
 
 	db_query($sql,"an item code could not be added");

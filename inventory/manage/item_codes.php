@@ -56,6 +56,7 @@ if ($Mode == 'ADD_ITEM' || $Mode == 'UPDATE_ITEM') {
 
 	if ($input_error == 0) {
 		if ($Mode == 'ADD_ITEM') {
+			$currentdate = date('Y-m-d');
 			add_item_code(
 				$item_code,
 				$_POST['color'],
@@ -64,11 +65,12 @@ if ($Mode == 'ADD_ITEM' || $Mode == 'UPDATE_ITEM') {
 				$_POST['pnp_color'],
 				$_POST['category_id'],
 				$_POST['quantity'],
-				1, 0, 0, 0, 0, 0, $_POST['old_code']
+				1, 0, 0, 0, 0, 0, $_POST['old_code'], $currentdate
 			);
 
 			display_notification(_("New item code has been added."));
 		} else {
+			$currentdate = date('Y-m-d');
 			update_item_code(
 				$selected_id,
 				$item_code,
@@ -78,7 +80,7 @@ if ($Mode == 'ADD_ITEM' || $Mode == 'UPDATE_ITEM') {
 				$_POST['pnp_color'],
 				$_POST['category_id'],
 				$_POST['quantity'],
-				1, 0, 0, 0, 0, 0, $_POST['old_code']
+				1, 0, 0, 0, 0, 0, $_POST['old_code'], $currentdate
 			);
 
 			display_notification(_("Item code has been updated."));
