@@ -2381,6 +2381,7 @@ function employee_unemployee_list($name, $selected_id=null, $name_unemployee="",
 	$items = array();
 	$items['0'] = strlen($name_unemployee) ? $name_unemployee : _("Customer");
 	$items['1'] = strlen($name_employee) ? $name_employee : _("Employee");
+	$items['2'] = strlen($name_employee) ? $name_employee : _("Bank");
 
 	return array_selector($name, $selected_id, $items, 
 		array( 
