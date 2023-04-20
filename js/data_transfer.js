@@ -156,17 +156,17 @@ Ext.onReady(function(){
 		},{
 			xtype: 'combobox',
 			id: 'branch',
-			name: 'branch[]',
+			name: 'branch',
 			fieldLabel: '<b>Send to? </b>',
 			allowBlank: false,
 			store: branch_store,
 			displayField: 'branch_name',
-			valueField: 'branch_no',
+			valueField: 'branch_code',
 			queryMode: 'local',
 			emptyText:'Select branch',
 			forceSelection: true,
 			selectOnFocus:true,
-			multiSelect: true,
+			multiSelect: false,
 			labelWidth: 105,
 			margin: '5 0 5 0',
 			listeners: {
@@ -201,7 +201,8 @@ Ext.onReady(function(){
 						success: function(form_submit, action) {
 							//show and load new added
 							datadesc_store.load();
-							Ext.MessageBox.alert('Success!',action.result.message);
+							Ext.Msg.alert('Success!', JSON.stringify(action.result.message));
+							datalogs_store.load();
 							submit_window.close();
 						},
 						failure: function(form_submit, action) {
@@ -235,11 +236,22 @@ Ext.onReady(function(){
 	var CheckOperatorModel = [
 		new Ext.grid.RowNumberer(),
 		{header:'<b>id</b>',dataIndex:'id',hidden: true},
-		{header:'<b>Cashier Id</b>', dataIndex:'cashier_id', sortable:true, width:110},
-		{header:'<b>Main Cashier</b>', dataIndex:'cashier_name', sortable:true, width:225},
-		{header:'<b>Preparer Id</b>', dataIndex:'tabang_id', sortable:true, width:110},
-		{header:'<b>Preparer Name</b>', dataIndex:'tabang_name', sortable:true, width:225},
-		{header:'<b>Active</b>', dataIndex:'inactive', sortable:true, width:68,
+		{header:'<b>Date Upload</b>', dataIndex:'date_upload', sortable:true, width:150,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+		    }	
+		},
+		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:354,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
+			}
+		},
+		{header:'<b>Preparer Name</b>', dataIndex:'prepared', sortable:true, width:210,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
+			}	
+		},
+		{header:'<b>Active</b>', dataIndex:'inactive', sortable:true, width:68, hidden: true,
 			renderer:function(value,metaData){
 				if (value === 'Yes'){
 					metaData.style="color:#229954";
@@ -249,7 +261,7 @@ Ext.onReady(function(){
 				return "<b>" + value + "</b>";
 			}
 		},
-		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:95,
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:95, hidden: true,
 			items:[{
 				icon: '../js/ext4/examples/shared/icons/layout_content.png',
 				tooltip: 'view details',
@@ -301,7 +313,7 @@ Ext.onReady(function(){
 			}]
 		}
 	];
-	var tbar = [{
+	var tbar = [/*{
 		xtype: 'searchfield',
 		id:'search',
 		name:'search',
@@ -317,7 +329,7 @@ Ext.onReady(function(){
 				datadesc_store.load();
 			}
 		}
-	}, '-', {
+	}, '-',*/{
 		text:'<b>Transfer Data</b>',
 		tooltip: 'Click transfer data to branches',
 		icon: '../js/ext4/examples/shared/icons/table_relationship.png',
@@ -328,7 +340,7 @@ Ext.onReady(function(){
 			submit_window.setTitle('Data Synchronization');
 			submit_window.setPosition(330,90);
 		}
-	}, '->' ,{
+	} /*, '->' ,{
 		xtype:'splitbutton',
 		//text: '<b>Maintenance</b>',
 		tooltip: 'Select...',
@@ -340,13 +352,14 @@ Ext.onReady(function(){
 			href: '../lending/inquiry/ar_installment_inquiry.php?',
 			hrefTarget : '_blank'
 		}]
-	}];
+	}*/];
 
 	var builder_panel =  Ext.create('Ext.panel.Panel', { 
         renderTo: 'ext-form',
 		id: 'builder_panel',
+		title	: 'Data Synchronization Logs',
         frame: false,
-		width: 870,
+		width: 750,
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
@@ -363,7 +376,7 @@ Ext.onReady(function(){
 				hidden: false,
 				store : datalogs_store,
 				pageSize : itemsPerPage,
-				displayInfo : false,
+				displayInfo : true,
 				emptyMsg: "No records to display",
 				doRefresh : function(){
 					datalogs_store.load();

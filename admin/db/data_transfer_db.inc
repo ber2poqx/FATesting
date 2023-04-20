@@ -10,28 +10,699 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 //items
+function add_to_datalogs($date, $remarks, $prepared)
+{
+	set_global_connection();
+	$sql = "INSERT INTO ".TB_PREF."data_logs (
+		date_upload 
+		,remarks 				
+		,prepared							
+	) VALUES (
+		".db_escape($date)."
+		,".db_escape($remarks)."
+		,".db_escape($prepared)."
+	)";
+	$MessageError = _('Could not insert data logs');
+	db_query($sql, $MessageError);
+}
+
+function get_data_logs($start, $limit, $showall=false)
+{
+	set_global_connection();
+	$sql = "SELECT A.*, B.real_name
+		FROM ".TB_PREF."data_logs A
+		INNER JOIN  ".TB_PREF."users B ON A.prepared = B.user_id
+		ORDER BY A.date_upload DESC";
+
+	$sqllimit = $sql ." limit $start, $limit";
+
+	if($showall){
+		$result = db_query($sql, "could not get data logs");
+	}else{
+		$result = db_query($sqllimit, "could not get data logs");
+	}
+	return $result;
+}
+
 function get_items_to_transfer($date_from, $date_to)
 {
+	set_global_connection();
 	$sql = "SELECT A.*
 		FROM ".TB_PREF."stock_master A 
 		WHERE A.date_modified BETWEEN ".db_escape($date_from). " AND ".db_escape($date_to);
-		echo $sql;
-	return db_query($sql, "could not get stock item ");
+
+	$result = db_query($sql, "could not get item");
+
+    return $result;
 }
 
-function check_item($stock_id, $db_coy)
+function check_item($stock_id, $target_branch)
 {
+	$db_coy = Get_db_coy($target_branch);
 	set_global_connection($db_coy);
 
-	$sql = "SELECT A.*
+	$sql = "SELECT A.stock_id
 			FROM ".TB_PREF."stock_master A 
-			WHERE A.stock_id = ".db_escape($cashier_id);
+			WHERE A.stock_id = ".db_escape($stock_id);
 
 	$result = db_query($sql, "could not get stock item ");
 
 	set_global_connection();
 	return $result;;
 }
+
+function add_to_stockmaster($stockid, $category, $tax_id, $descrip, $descrip_long, $units, $mbflag, $sales_accnt, $install_accnt, $regular_accnt, 
+	$cogs_accnt, $invent_accnt, $adjust_accnt, $wip_accnt, $dimension1, $dimension2, $brand, $manufacturer, $distributor, $importer, $old_code, $sap_code, 
+	$serialised, $date_modified, $targetbranch) 
+{
+	$db_coy1 = Get_db_coy($targetbranch);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."stock_master (
+					stock_id 
+					,category_id
+					,tax_type_id
+					,description
+					,long_description 
+					,units
+					,mb_flag
+					,sales_account
+					,installment_sales_account
+					,regular_sales_account
+					,cogs_account
+					,inventory_account
+					,adjustment_account
+					,wip_account
+					,dimension_id
+					,dimension2_id
+					,brand
+					,manufacturer
+					,distributor
+					,importer
+					,old_code
+					,sap_code
+					,serialised
+					,date_modified
+			) VALUES (
+					".db_escape($stockid)."
+					,".db_escape($category)."
+					,".db_escape($tax_id)."
+					,".db_escape($descrip)."
+					,".db_escape($descrip_long)."
+					,".db_escape($units)."
+					,".db_escape($mbflag)."
+					,".db_escape($sales_accnt)."
+					,".db_escape($install_accnt)."
+					,".db_escape($regular_accnt)."
+					,".db_escape($cogs_accnt)."
+					,".db_escape($invent_accnt)."
+					,".db_escape($adjust_accnt)."
+					,".db_escape($wip_accnt)."
+					,".db_escape($dimension1)."
+					,".db_escape($dimension2)."
+					,".db_escape($brand)."
+					,".db_escape($manufacturer)."
+					,".db_escape($distributor)."
+					,".db_escape($importer)."
+					,".db_escape($old_code)."
+					,".db_escape($sap_code)."
+					,".db_escape($serialised)."
+					,".db_escape($date_modified)."
+			)";
+	$MessageError = _('Could not insert items into stock master');
+	db_query($sql, $MessageError);
+}
+
+function update_to_stockmaster($stockid, $category, $tax_id, $descrip, $descrip_long, $units, $mbflag, $sales_accnt, $install_accnt, $regular_accnt, 
+	$cogs_accnt, $invent_accnt, $adjust_accnt, $wip_accnt, $dimension1, $dimension2, $brand, $manufacturer, $distributor, $importer, $old_code, $sap_code, 
+	$serialised, $date_modified, $targetbranch1)
+{
+	$db_coy2 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."stock_master 
+			SET category_id = ".db_escape($category)."
+				,tax_type_id = ".db_escape($tax_id)."
+				,description = ".db_escape($descrip)."
+				,long_description = ".db_escape($descrip_long)."
+				,units = ".db_escape($units)."
+				,mb_flag = ".db_escape($mbflag)."
+				,sales_account = ".db_escape($sales_accnt)."
+				,installment_sales_account = ".db_escape($install_accnt)."
+				,regular_sales_account = ".db_escape($regular_accnt)."
+				,cogs_account = ".db_escape($cogs_accnt)."
+				,inventory_account = ".db_escape($invent_accnt)."
+				,adjustment_account = ".db_escape($adjust_accnt)."
+				,wip_account = ".db_escape($wip_accnt)."
+				,dimension_id = ".db_escape($dimension1)."
+				,dimension2_id = ".db_escape($dimension2)."
+				,brand = ".db_escape($brand)."
+				,manufacturer = ".db_escape($manufacturer)."
+				,distributor = ".db_escape($distributor)."
+				,importer = ".db_escape($importer)."
+				,old_code = ".db_escape($old_code)."
+				,sap_code = ".db_escape($sap_code)."
+				,serialised = ".db_escape($serialised)."
+				,date_modified = ".db_escape($date_modified)."
+			WHERE stock_id = " .db_escape($stockid);
+
+	db_query($sql, "could not update stock master ");	
+}
+//
+
+//Item Codes
+function get_itemcodes_to_transfer($date_from, $date_to)
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."item_codes A 
+		WHERE A.date_modified BETWEEN ".db_escape($date_from). " AND ".db_escape($date_to);
+
+	$result = db_query($sql, "could not get item");
+
+    return $result;
+}
+
+function check_item_codes($item_code, $target_branch)
+{
+	$db_coy = Get_db_coy($target_branch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.item_code
+			FROM ".TB_PREF."item_codes A 
+			WHERE A.item_code = ".db_escape($item_code);
+
+	$result = db_query($sql, "could not get item codes ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_itemcodes($itemcode, $stockid, $descrip, $category, $qty, $foreign, $inactive, $brand, $manufacturer, $distributor, 
+	$importer, $status, $pnp_color, $color, $old_code, $date_modified, $targetbranch) 
+{
+	$db_coy1 = Get_db_coy($targetbranch);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."item_codes (
+					item_code 
+					,stock_id
+					,description
+					,category_id
+					,quantity 
+					,is_foreign
+					,inactive
+					,brand
+					,manufacturer
+					,distributor
+					,importer
+					,product_status
+					,pnp_color
+					,color
+					,old_code
+					,date_modified					
+			) VALUES (
+					".db_escape($itemcode)."
+					,".db_escape($stockid)."
+					,".db_escape($descrip)."
+					,".db_escape($category)."
+					,".db_escape($qty)."
+					,".db_escape($foreign)."
+					,".db_escape($inactive)."
+					,".db_escape($brand)."
+					,".db_escape($manufacturer)."
+					,".db_escape($distributor)."
+					,".db_escape($importer)."
+					,".db_escape($status)."
+					,".db_escape($pnp_color)."
+					,".db_escape($color)."
+					,".db_escape($old_code)."
+					,".db_escape($date_modified)."
+			)";
+	$MessageError = _('Could not insert product codes into item codes');
+	db_query($sql, $MessageError);
+}
+
+function update_to_itemcodes($itemcode, $stockid, $descrip, $category, $qty, $foreign, $inactive, $brand, $manufacturer, $distributor, 
+	$importer, $status, $pnp_color, $color, $old_code, $date_modified, $targetbranch1)
+{
+	$db_coy2 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."item_codes 
+			SET stock_id = ".db_escape($stockid)."
+				,description = ".db_escape($descrip)."
+				,category_id = ".db_escape($category)."
+				,quantity = ".db_escape($qty)."
+				,is_foreign = ".db_escape($foreign)."
+				,inactive = ".db_escape($inactive)."
+				,brand = ".db_escape($brand)."
+				,manufacturer = ".db_escape($manufacturer)."
+				,distributor = ".db_escape($distributor)."
+				,importer = ".db_escape($importer)."
+				,product_status = ".db_escape($status)."
+				,pnp_color = ".db_escape($pnp_color)."
+				,color = ".db_escape($color)."
+				,old_code = ".db_escape($old_code)."
+				,date_modified = ".db_escape($date_modified)."
+			WHERE item_code = " .db_escape($itemcode);
+
+	db_query($sql, "could not update product codes ");	
+}
+//
+
+//Policy
+function get_policy_to_transfer($date_from, $date_to)
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."policy_header A 
+		WHERE A.date_defined BETWEEN ".db_escape($date_from). " AND ".db_escape($date_to);
+
+	$result = db_query($sql, "could not get policy");
+
+    return $result;
+}
+
+function check_plcy_code($plcycode, $target_branch)
+{
+	$db_coy = Get_db_coy($target_branch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.plcy_code
+			FROM ".TB_PREF."policy_header A 
+			WHERE A.plcy_code = ".db_escape($plcycode);
+
+	$result = db_query($sql, "could not get policy codes ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_policy($plcycode, $name, $tax, $factor, $date_defined, $remarks, $module, $inactive, $category, $branch_id, $targetbranch1) 
+{
+	$db_coy1 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."policy_header (
+					plcy_code 
+					,name
+					,tax_included
+					,factor
+					,date_defined 
+					,remarks
+					,module_type
+					,inactive
+					,category_id
+					,branch_area_id				
+			) VALUES (
+					".db_escape($plcycode)."
+					,".db_escape($name)."
+					,".db_escape($tax)."
+					,".db_escape($factor)."
+					,".db_escape($date_defined)."
+					,".db_escape($remarks)."
+					,".db_escape($module)."
+					,".db_escape($inactive)."
+					,".db_escape($category)."
+					,".db_escape($branch_id)."
+			)";
+	$MessageError = _('Could not insert policy code into policy header');
+	db_query($sql, $MessageError);
+}
+
+function get_policy_details_to_transfer($date_from, $date_to)
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."policy_details A 
+		WHERE A.date_defined BETWEEN ".db_escape($date_from). " AND ".db_escape($date_to);
+
+	$result1 = db_query($sql, "could not get policy details");
+
+    return $result1;
+}
+
+function check_plcydetails_code($plcycode, $target_branch2)
+{
+	$db_coy2 = Get_db_coy($target_branch2);
+	set_global_connection($db_coy2);
+
+	$sql = "SELECT A.plcydtl_code
+			FROM ".TB_PREF."policy_details A 
+			WHERE A.plcydtl_code = ".db_escape($plcycode);
+
+	$result = db_query($sql, "could not get policy codes ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_policy_details($plcycode, $descrip, $tax, $factor, $date_defined, $remarks, $module, $inactive, $term, $financing, $rebate, $penalty, $category, $policy_id, $targetbranch3) 
+{
+	$db_coy3 = Get_db_coy($targetbranch3);
+	set_global_connection($db_coy3);
+
+	$sql = "INSERT INTO ".TB_PREF."policy_details (
+					plcydtl_code 
+					,description
+					,tax_included
+					,factor
+					,date_defined 
+					,remarks
+					,module_type
+					,inactive
+					,term
+					,financing_rate				
+					,rebate				
+					,penalty				
+					,category_id				
+					,policyhdr_id				
+			) VALUES (
+					".db_escape($plcycode)."
+					,".db_escape($descrip)."
+					,".db_escape($tax)."
+					,".db_escape($factor)."
+					,".db_escape($date_defined)."
+					,".db_escape($remarks)."
+					,".db_escape($module)."
+					,".db_escape($inactive)."
+					,".db_escape($term)."
+					,".db_escape($financing)."
+					,".db_escape($rebate)."
+					,".db_escape($penalty)."
+					,".db_escape($category)."
+					,".db_escape($policy_id)."
+			)";
+	$MessageError = _('Could not insert policy code into policy details');
+	db_query($sql, $MessageError);
+}
+//
+
+//Supplier
+function get_supplier_to_transfer()
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."suppliers A";
+
+	$result = db_query($sql, "could not get supplier");
+
+    return $result;
+}
+
+function check_supplier($supplname, $target_branch)
+{
+	$db_coy = Get_db_coy($target_branch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.supp_name
+			FROM ".TB_PREF."suppliers A 
+			WHERE A.supp_name = ".db_escape($supplname);
+
+	$result = db_query($sql, "could not get supplier ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_supplier($supplname, $suppref, $address, $suppaddress, $gstno, $contact, $suppaccount, $website, $bankaccount, $currcode, $payment, $tax_inc, $dimension1, 
+	$dimension2, $tax_group, $credit, $purchase_accnt, $payable_accnt, $paymnet_disct, $notes, $inactive, $supplier_grp, $sapcode, $supplier_type, $targetbranch1) 
+{
+	$db_coy1 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."suppliers (
+					supp_name 
+					,supp_ref
+					,address
+					,supp_address
+					,gst_no 
+					,contact
+					,supp_account_no
+					,website
+					,bank_account
+					,curr_code
+					,payment_terms				
+					,tax_included				
+					,dimension_id				
+					,dimension2_id				
+					,tax_group_id				
+					,credit_limit				
+					,purchase_account				
+					,payable_account				
+					,payment_discount_account				
+					,notes				
+					,inactive				
+					,supplier_group				
+					,SAPcode				
+					,supplier_type				
+			) VALUES (
+					".db_escape($supplname)."
+					,".db_escape($suppref)."
+					,".db_escape($address)."
+					,".db_escape($suppaddress)."
+					,".db_escape($gstno)."
+					,".db_escape($contact)."
+					,".db_escape($suppaccount)."
+					,".db_escape($website)."
+					,".db_escape($bankaccount)."
+					,".db_escape($currcode)."
+					,".db_escape($payment)."
+					,".db_escape($tax_inc)."
+					,".db_escape($dimension1)."
+					,".db_escape($dimension2)."
+					,".db_escape($tax_group)."
+					,".db_escape($credit)."
+					,".db_escape($purchase_accnt)."
+					,".db_escape($payable_accnt)."
+					,".db_escape($paymnet_disct)."
+					,".db_escape($notes)."
+					,".db_escape($inactive)."
+					,".db_escape($supplier_grp)."
+					,".db_escape($sapcode)."
+					,".db_escape($supplier_type)."
+			)";
+	$MessageError = _('Could not insert supplier');
+	db_query($sql, $MessageError);
+}
+
+function update_to_supplier($supplname, $suppref, $address, $suppaddress, $gstno, $contact, $suppaccount, $website, $bankaccount, $currcode, $payment, $tax_inc, $dimension1, 
+	$dimension2, $tax_group, $credit, $purchase_accnt, $payable_accnt, $paymnet_disct, $notes, $inactive, $supplier_grp, $sapcode, $supplier_type, $targetbranch2)
+{
+	$db_coy2 = Get_db_coy($targetbranch2);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."suppliers 
+			SET supp_ref = ".db_escape($suppref)."
+				,address = ".db_escape($address)."
+				,supp_address = ".db_escape($suppaddress)."
+				,gst_no = ".db_escape($gstno)."
+				,contact = ".db_escape($contact)."
+				,supp_account_no = ".db_escape($suppaccount)."
+				,website = ".db_escape($website)."
+				,bank_account = ".db_escape($bankaccount)."
+				,curr_code = ".db_escape($currcode)."
+				,payment_terms = ".db_escape($payment)."
+				,tax_included = ".db_escape($tax_inc)."
+				,dimension_id = ".db_escape($dimension1)."
+				,dimension2_id = ".db_escape($dimension2)."
+				,tax_group_id = ".db_escape($tax_group)."
+				,credit_limit = ".db_escape($credit)."
+				,purchase_account = ".db_escape($purchase_accnt)."
+				,payable_account = ".db_escape($payable_accnt)."
+				,payment_discount_account = ".db_escape($paymnet_disct)."
+				,notes = ".db_escape($notes)."
+				,inactive = ".db_escape($inactive)."
+				,supplier_group = ".db_escape($supplier_grp)."
+				,SAPcode = ".db_escape($sapcode)."
+				,supplier_type = ".db_escape($supplier_type)."
+			WHERE supp_name = " .db_escape($supplname);
+
+	db_query($sql, "could not update product codes ");	
+}
+//
+
+//Brand
+function get_brand_to_transfer()
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."item_brand A";
+
+	$result = db_query($sql, "could not get brand");
+
+    return $result;
+}
+
+function check_brand($brandname, $target_branch)
+{
+	$db_coy = Get_db_coy($target_branch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.name
+			FROM ".TB_PREF."item_brand A 
+			WHERE A.name = ".db_escape($brandname);
+
+	$result = db_query($sql, "could not get supplier ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_brand($code, $name, $category, $inactive, $targetbranch1)
+{
+	$db_coy1 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."item_brand (
+		code 
+		,name				
+		,cat_id				
+		,inactive				
+	) VALUES (
+		".db_escape($code)."
+		,".db_escape($name)."
+		,".db_escape($category)."
+		,".db_escape($inactive)."
+	)";
+	$MessageError = _('Could not insert brand');
+	db_query($sql, $MessageError);
+}
+
+function update_to_brand($code, $name, $category, $inactive, $targetbranch2)
+{
+	$db_coy2 = Get_db_coy($targetbranch2);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."item_brand
+			SET code = ".db_escape($code)."
+				,name = ".db_escape($name)."
+				,cat_id = ".db_escape($category)."
+				,inactive = ".db_escape($inactive)."
+			WHERE name = ".db_escape($name);
+
+	db_query($sql, "could not update brand");
+}
+//
+
+//Classification
+function get_classification_to_transfer()
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."item_importer A";
+
+	$result = db_query($sql, "could not get classification");
+
+    return $result;
+}
+
+function check_class($classname, $target_branch)
+{
+	$db_coy = Get_db_coy($target_branch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.name
+			FROM ".TB_PREF."item_importer A 
+			WHERE A.name = ".db_escape($classname);
+
+	$result = db_query($sql, "could not get supplier ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_classification($code, $name, $inactive, $targetbranch1)
+{
+	$db_coy1 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."item_importer (
+		code 
+		,name						
+		,inactive				
+	) VALUES (
+		".db_escape($code)."
+		,".db_escape($name)."
+		,".db_escape($inactive)."
+	)";
+	$MessageError = _('Could not insert classification');
+	db_query($sql, $MessageError);
+}
+
+function update_to_classification($code, $name, $inactive, $targetbranch2)
+{
+	$db_coy2 = Get_db_coy($targetbranch2);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."item_importer
+			SET code = ".db_escape($code)."
+				,inactive = ".db_escape($inactive)."
+			WHERE name = ".db_escape($name);
+
+	db_query($sql, "could not update classification");
+}
+//
+
+//Sub Category
+function get_subcategory_to_transfer()
+{
+	set_global_connection();
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."item_distributor A";
+
+	$result = db_query($sql, "could not get sub-category");
+
+    return $result;
+}
+
+function check_sub_categ($subcabname, $target_branch)
+{
+	$db_coy = Get_db_coy($target_branch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.name
+			FROM ".TB_PREF."item_distributor A 
+			WHERE A.name = ".db_escape($subcabname);
+
+	$result = db_query($sql, "could not get supplier ");
+
+	set_global_connection();
+	return $result;;
+}
+
+function add_to_subcategory($code, $name, $inactive, $targetbranch1)
+{
+	$db_coy1 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."item_distributor (
+		code 
+		,name						
+		,inactive				
+	) VALUES (
+		".db_escape($code)."
+		,".db_escape($name)."
+		,".db_escape($inactive)."
+	)";
+	$MessageError = _('Could not insert sub-category');
+	db_query($sql, $MessageError);
+}
+
+function update_to_subcategory($code, $name, $inactive, $targetbranch2)
+{
+	$db_coy2 = Get_db_coy($targetbranch2);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."item_distributor
+			SET code = ".db_escape($code)."
+				,inactive = ".db_escape($inactive)."
+			WHERE name = ".db_escape($name);
+
+	db_query($sql, "could not update sub-category");
+}
+//
 
 function add_branchplcy($dateadded, $branchcode, $branchname, $brpolicyid, $brcategoryid, $moduletype, $affectedfld)
 {
