@@ -540,6 +540,7 @@ class FrontReport extends Cpdf
 		$footDetLine = $footRow - 415;
 		$num_page = $this->pageNumber;
 		$val = $this->getNumPages();
+		$prepared = get_user_name($_POST['PARAM_1']);
 		$approved = get_user_name($_POST['PARAM_3']);
 		$reviewed = get_user_name($_POST['PARAM_2']);
 
@@ -553,7 +554,7 @@ class FrontReport extends Cpdf
 			$this->LineTo($this->leftMargin + 30, $footDetLine, 
 				150, $footDetLine);
 			$this->Font();
-			$prep = $_SESSION["wa_current_user"]->name;
+			$prep = $prepared;
 			$this->Text($this->leftMargin + 40, $prep, 0, 0, 
 				$footDet);
 			$this->fontSize -= 2;
