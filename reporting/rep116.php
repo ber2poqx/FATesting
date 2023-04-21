@@ -147,8 +147,10 @@ function print_dailycash_sales()
 
 	$from = $_POST['PARAM_0'];
 	$cashier = $_POST['PARAM_1'];
-	$comments = $_POST['PARAM_2'];
-	$destination = $_POST['PARAM_3'];
+	$reviewed_by = $_POST['PARAM_2'];
+	$approved_by = $_POST['PARAM_3'];
+	$comments = $_POST['PARAM_4'];
+	$destination = $_POST['PARAM_5'];
 
 	if ($destination) {
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -166,7 +168,7 @@ function print_dailycash_sales()
 	}
 	else {
 		$cashier_display = _("ALL CASHIER");
-		$cashier_name = '';
+		$cashier_name = ''; 	
 	}
 
 	$headers = array(
@@ -197,7 +199,7 @@ function print_dailycash_sales()
 	$rep->Font('bold');
 	//$rep->SetCommonData($myrow, null, $myrow, $baccount, ST_BANKPAYMENT, $contacts);
     $rep->Info($params, $cols, $headers, $aligns);
-    $rep->SetHeaderType('PO_Header');
+    $rep->SetHeaderType('DCPR_Header');
     $rep->NewPage();
 	$rep->Font();
 

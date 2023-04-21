@@ -561,6 +561,20 @@ class BoxReports
 					'cashier_user_id', 'real_name', 'label', null, true, 
 					_("All Cashiers"), true
 				);
+				//Added by Albert 4 April 2023
+				case 'REVIEWED_BY':
+				return sql_type_list(null, $name, 
+					get_dcpr_approver_and_reviewer(0, 1), 
+					'admin_branches_admin_id', 'real_name', 'label', null, true, 
+					_("All Can Reviewed"), true
+				);
+				case 'APPROVED_BY':
+				return sql_type_list(null, $name, 
+					get_dcpr_approver_and_reviewer(1, 0), 
+					'admin_branches_admin_id', 'real_name', 'label', null, true, 
+					_("All Can Approved"), true
+				);
+				//
 
 				case 'COLLECTOR_COLLECTION':
 					return collector_area($name, null, _("All Collector"),  false, true);

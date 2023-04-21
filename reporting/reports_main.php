@@ -395,6 +395,8 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_DCPR')) {
 			_('Transaction Date') => 'DATEBEGINM',
 			//_('End Date') => 'DATEENDM',
 			_('Cashier') => 'CASHIER_DCPR',
+			_('Reviewed by') => 'REVIEWED_BY',
+			_('Approved by') => 'APPROVED_BY',
 			_('Comments') => 'TEXTBOX',
 			//_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'

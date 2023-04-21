@@ -899,5 +899,26 @@ function hocbc_type_list() {
 
 	return db_query($sql, _("Cant get list of HOC/BC types!"));
 }
+//Added by Albert 4 April 2023
+function get_dcpr_approver_and_reviewer($can_approved = 0, $can_reviewed = 0) {
+	
+	set_global_connection();
+
+	$sql = "SELECT b.admin_branches_admin_id, a.real_name 
+		FROM ".TB_PREF."users a
+		INNER JOIN admin_branches_access b ON a.id = b.admin_branches_admin_id
+		WHERE a.id <> 0";
+		if ($can_reviewed != 0) {
+			$sql .= " AND b.admin_branches_canreview = ".db_escape($can_reviewed);
+		}
+		if ($can_approved != 0) {
+			$sql .= " AND b.admin_branches_canapprove = ".db_escape($can_approved);
+		}
+		 
+		$sql .= " ORDER BY a.real_name";
+
+	return db_query($sql, _("Cant get DCPR Approver/Reviewer!"));
+}
+
 
 //

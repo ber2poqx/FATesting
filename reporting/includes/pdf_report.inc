@@ -348,6 +348,7 @@ class FrontReport extends Cpdf
 			$this->cols[$i] += $this->leftMargin;
 		$this->headers = $headers;
 		$this->aligns = $aligns;
+		$this->bottomMargin  =150; // Added by Albert 04/20/2023
 		$this->cols2 = $cols2;
 		if ($this->cols2 != null)
 		{
@@ -533,58 +534,60 @@ class FrontReport extends Cpdf
 
 	function dcprFooter() 
 	{
-		
-		$footRow = $this->bottomMargin + 240;
-		$footDet = $footRow + 40;
-		$footDetLine = $footRow - 220;
-		$num_page += $this->pageNumber;
+		//modified by Albert 4 April 2023
+		$footRow = $this->bottomMargin + 340;
+		$footDet = $footRow + 30;
+		$footDetLine = $footRow - 415;
+		$num_page = $this->pageNumber;
 		$val = $this->getNumPages();
+		$approved = get_user_name($_POST['PARAM_3']);
+		$reviewed = get_user_name($_POST['PARAM_2']);
 
-		if ($this->pageNumber - 1) { // Set footer to the very last page of report (FIX ME!!!)
+		// if ($this->pageNumber - 1) { // Set footer to the very last page of report (FIX ME!!!)
 			
 			$this->fontSize += 2;
 			$this->Font('bold');
 			$str = _("Prepared By") . ":";
-			$this->Text($this->leftMargin + 180, $str, 0, 0, 
+			$this->Text($this->leftMargin + 40, $str, 0, 0, 
 				$footRow);		
-			$this->LineTo($this->leftMargin + 180, $footDetLine, 
-				300, $footDetLine);
+			$this->LineTo($this->leftMargin + 30, $footDetLine, 
+				150, $footDetLine);
 			$this->Font();
 			$prep = $_SESSION["wa_current_user"]->name;
-			$this->Text($this->leftMargin + 180, $prep, 0, 0, 
+			$this->Text($this->leftMargin + 40, $prep, 0, 0, 
 				$footDet);
 			$this->fontSize -= 2;
 		
 			$this->fontSize += 2;
 			$this->Font('bold');
-				$str = _("Approver 1") . ":";
-			$this->Text($this->leftMargin + 430, $str, 0, 0, 
+				$str = _("Reviewed By") . ":";
+			$this->Text($this->leftMargin + 230, $str, 0, 0, 
 				$footRow);
-			$this->LineTo($this->leftMargin + 430, $footDetLine, 
-				550, $footDetLine);
+			$this->LineTo($this->leftMargin + 220, $footDetLine, 
+				340, $footDetLine);
 			$this->Font();
-			$prep = _("Evanessa Villar");
-			$this->Text($this->leftMargin + 430, $prep, 0, 0, 
+			$prep = $reviewed;
+			$this->Text($this->leftMargin + 230, $prep, 0, 0, 
 				$footDet);
 			$this->fontSize -= 2;
 		
 			$this->fontSize += 2;
 			$this->Font('bold');
-			$str = _("Approver 2") . ":";
-			$this->Text($this->leftMargin + 650, $str, 0, 0, 
+			$str = _("Approved By") . ":";
+			$this->Text($this->leftMargin + 450, $str, 0, 0, 
 				$footRow);
-			$this->LineTo($this->leftMargin + 650, $footDetLine, 
-			830, $footDetLine);
+			$this->LineTo($this->leftMargin + 440, $footDetLine, 
+			560, $footDetLine);
 			$this->Font();
-			$prep = _("Engr. Carl Ryan Lim/Dr. Wilson Du");
-			$this->Text($this->leftMargin + 650, $prep, 0, 0, 
+			$prep = $approved;
+			$this->Text($this->leftMargin + 450, $prep, 0, 0, 
 			$footDet);
 			$this->fontSize -= 2;
 		
 			//$this->NewLine(2);
 			//$this->NewPage();
 
-		}
+		// }
 				
 	}
 
