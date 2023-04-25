@@ -476,8 +476,8 @@ if(!is_null($action) || !empty($action)){
             //if($start < 1)	$start = 0;	if($end < 1) $end = 25;
             
             //$brcode = $db_connections[user_company()]["branch_code"];
-            $result = get_all_stockmoves_compli($start,$limit,$querystr,$catcode,$branchcode,false,'',$trans_date,$returntrans,$filtertype, $querystrserial);
-            $total_result = get_all_stockmoves_compli($start,$limit,$querystr,$catcode,$branchcode,true,'',$trans_date,$returntrans,$filtertype, $querystrserial);
+            $result = get_all_stockmoves_compli($start,$limit,$querystr,$catcode,$branchcode,false,'',null,$returntrans,$filtertype, $querystrserial);
+            $total_result = get_all_stockmoves_compli($start,$limit,$querystr,$catcode,$branchcode,true,'',null,$returntrans,$filtertype, $querystrserial);
 
             $total = DB_num_rows($result);
 
@@ -489,7 +489,7 @@ if(!is_null($action) || !empty($action)){
                 }else{
                     $demand_qty = get_demand_qty($myrow["model"], $branchcode);
                     $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
-                    $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, sql2date($trans_date));
+                    $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, null);
                     $qty-=$demand_qty;
                 }
                 if($qty>0){
@@ -1001,7 +1001,7 @@ if(!is_null($action) || !empty($action)){
                 $isError = 0;
                 while ($myrow01 = db_fetch($result2))
                 {
-                    $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
+                    $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], null, 
                         $myrow01['lot_no']);
 
                     if($qoh == 0) {

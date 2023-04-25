@@ -327,7 +327,7 @@ Ext.onReady(function(){
 															}	
 														} 
 													});
-													//Ext.MessageBox.hide();
+													Ext.MessageBox.hide();
 												}
 											};
 										}

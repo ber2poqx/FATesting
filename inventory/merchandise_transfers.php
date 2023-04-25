@@ -598,8 +598,8 @@ if(!is_null($action) || !empty($action)){
             //if($start < 1)	$start = 0;	if($limit < 1) $limit = 25;
 
             //$brcode = $db_connections[user_company()]["branch_code"];
-            $result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,false,'',$trans_date, $querystrserial);
-            $total_result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,true,'',$trans_date, $querystrserial);
+            $result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,false,'',null, $querystrserial);
+            $total_result = get_all_stockmoves($start,$limit,$querystr,$catcode,$branchcode,true,'',null, $querystrserial);
 
             $total = DB_num_rows($result);
 
@@ -610,7 +610,7 @@ if(!is_null($action) || !empty($action)){
                 }else{
                    $demand_qty = get_demand_qty($myrow["model"], $branchcode);
 	               $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
-	               $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, sql2date($trans_date));
+	               $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, null);
                    $qty-=$demand_qty;
                 }
 
