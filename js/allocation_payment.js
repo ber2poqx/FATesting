@@ -361,6 +361,20 @@ Ext.onReady(function(){
 			}
 		}
 	});
+	var SlmasterfileStore = Ext.create('Ext.data.Store', {
+		model: 'comboModel',
+		autoLoad : true,
+		proxy: {
+			url: '?get_slmasterfile=xx',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true
+	});
 
 	//---------------------------------------------------------------------------------------
 	var AllocDPHeader = [
@@ -692,7 +706,29 @@ Ext.onReady(function(){
 		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:80},
 		{header:'<b>Description</b>', dataIndex:'gl_name', width:230},
 		{header:'<b>SL Code</b>', dataIndex:'sl_code', width:80},
-		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:155},
+		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:155,
+			field: {
+				xtype: 'combobox',
+				id: 'sl_name',
+				name: 'sl_name',
+				allowBlank: false,
+				store : SlmasterfileStore,
+				displayField: 'name',
+				valueField: 'name',
+				queryMode: 'local',
+				forceSelection: true,
+				selectOnFocus:true,
+				listClass: 'x-combo-list-small',
+				listeners: {
+					select: function(combo, record, index) {
+						var ItemModel = Ext.getCmp('gridCOA_wv').getSelectionModel();
+						var GridRecords = ItemModel.getLastSelected();
+
+						GridRecords.set("sl_code",record.get('id'));
+					}
+				}
+			}
+		},
 		{header:'<b>Debit</b>', dataIndex:'debit_amount', width:100, align:'right', summaryType: 'sum',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
@@ -1764,8 +1800,6 @@ Ext.onReady(function(){
 
 							ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), tag: "inst"};
 							ARInvoiceStore.load();
-
-							loadCOA('load');
 						}
 					}
 				},{
@@ -1806,6 +1840,8 @@ Ext.onReady(function(){
 	
 							SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
 							SIitemStore.load();
+							
+							SlmasterfileStore.load();
 
 							loadCOA('add','',record.get('id'),record.get('type'));
 						}

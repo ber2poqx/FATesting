@@ -922,3 +922,16 @@ function get_debtor_trans_all($type, $trans_no)
 	$result = db_query($sql, "The deptor trans all could not be retrieved");
 	return db_fetch($result);
 }
+
+function get_sl_masterfile()
+{
+	$sql = "SELECT *
+			FROM (
+				SELECT debtor_no as id, name as name, employee as type FROM ".TB_PREF."debtors_master
+				/*UNION ALL
+				SELECT supplier_id as id, supp_name as name, '3' as type FROM ".TB_PREF."suppliers*/
+			) sl
+			ORDER BY sl.name ASC, sl.type ASC;";
+
+	return db_query($sql, "The masterfile could not be retrieved");
+}

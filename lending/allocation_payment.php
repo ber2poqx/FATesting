@@ -71,6 +71,19 @@ if(isset($_GET['get_Customer']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
+if(isset($_GET['get_slmasterfile'])){
+    $result = get_sl_masterfile();
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+        $status_array[] = array('id'=>$myrow["id"],
+                               'name'=>$myrow["name"],
+                               'type'=>$myrow["type"]
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
 if(isset($_GET['get_InvoiceNo']))
 {
     $result = get_invoice_per_customer($_GET['debtor_id'], $_GET['tag']);
@@ -1217,7 +1230,7 @@ if(isset($_GET['submitAdj']))
                             }elseif($aloc_amount < ($myrow["principal_due"] - $RebateAmount)){
 
                                 add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
-                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo'], $_POST['transtype_wv'], "partial", 0, '');
+                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "partial", 0, '');
                                 $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
 
                             }else{
