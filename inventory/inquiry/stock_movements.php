@@ -272,14 +272,14 @@ while ($myrow = db_fetch($result))
 
 
 	if ($myrow['name'] == '') {
-		$manu = $myrow['manu_name'];
-	}
-	else {
 		if($myrow['cmplname'] != ''){
 			$manu = $myrow['cmplname'];
 		}else{
-			$manu = $myrow['name'];
+			$manu = $myrow['manu_name'];
 		}
+	}
+	else {
+		$manu = $myrow['name'];
 	}
 
 	label_cell($manu);
