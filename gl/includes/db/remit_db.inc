@@ -14,7 +14,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 		$from_date = date2sql($from_date);
 	}
 
-	$sql = "SELECT A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
+	$sql = "SELECT Distinct A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
             A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
@@ -111,7 +111,7 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 		$from_date = date2sql($from_date);
 	
 
-	$sql = "(SELECT A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
+	$sql = "(SELECT Distinct A.ref, A.trans_no, A.receipt_no, A.type, A.trans_date, A.pay_type, A.prepared_by, 
             A.amount AS amt, A.person_id, A.cashier_user_id, B.name, A.bank_act, A.remit_from,
 			C.memo_, D.real_name, D.user_id, A.person_type_id, A.masterfile,
 			CASE 
