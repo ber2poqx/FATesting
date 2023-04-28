@@ -1186,12 +1186,13 @@ function new_installment_computation()
 	if(get_post('termmode_id') == 1 )
 	{	
 		$months_due_date = get_loan_schedule_months_due($_POST['document_ref'],date("Y-m-d", strtotime(get_post('OrderDate'))));
-		if(date('Y-m-d', strtotime($months_due_date. ' + 15 days')) < date("Y-m-d", strtotime(get_post('OrderDate')))){
+		// if(date('Y-m-d', strtotime($months_due_date. ' + 15 days')) < date("Y-m-d", strtotime(get_post('OrderDate')))){
 
-			$_POST['months_paid'] = count_months_paid($_POST['document_ref'])+1;
-		}else{
-			$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
-		}
+		// 	$_POST['months_paid'] = count_months_paid($_POST['document_ref'])+1;
+		// }else{
+		// 	$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+		// }
+		$_POST['months_paid'] = $terms;
 
 	}else{
 		$_POST['months_paid'] = $terms;
