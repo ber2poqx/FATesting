@@ -112,7 +112,8 @@ function auto_allocate_payment($trans_no, $trans_type, $amount)
 		db_query($sql, "could not auto allocate payment because ");
 }
 
-function update_alloc_rebate($trans_type, $trans_no, $amount){
+function update_alloc_rebate($trans_type, $trans_no, $amount)
+{
 	$sql = "UPDATE ".TB_PREF."debtor_trans 
 			SET ov_discount = ".db_escape($amount)."
 		WHERE trans_no  = ".db_escape($trans_no)."
@@ -131,7 +132,8 @@ function Update_invoice_no($trans_no, $trans_type, $debtor_no, $invoice_no)
 	
 	db_query($sql, "could not update invoice number in debtor trans table because ");
 }
-function update_loan_schedule($loansched_id, $debtor_no, $trans_no, $type, $status, $penaltyBal=0, $penalty_status=null){
+function update_loan_schedule($loansched_id, $debtor_no, $trans_no, $type, $status, $penaltyBal=0, $penalty_status=null)
+{
 	$sql = "UPDATE ".TB_PREF."debtor_loan_schedule 
 				SET status = ".db_escape($status)."
 					,penalty_balance = ".db_escape($penaltyBal)."
@@ -144,7 +146,8 @@ function update_loan_schedule($loansched_id, $debtor_no, $trans_no, $type, $stat
 	db_query($sql, "could not update table loan schedule because ");
 }
 
-function update_status_debtor_loans($trans_no, $debtor_no, $status){
+function update_status_debtor_loans($trans_no, $debtor_no, $status)
+{
 	$sql = "UPDATE ".TB_PREF."debtor_loans 
 			SET payment_status = ".db_escape($status)."
 		WHERE debtor_no = ".db_escape($debtor_no)."

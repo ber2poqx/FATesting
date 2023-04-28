@@ -1245,7 +1245,17 @@ Ext.onReady(function(){
 									emptyMsg: "No records to display",
 									doRefresh : function(){
 										Entriestore.load();
-									}
+									},
+									items:[{
+										xtype: 'button',
+										text : '<b>Open in new tab</b>',
+										//tooltip: 'Click to search customer information',
+										margin: '0 0 0 0',
+										icon: '../../js/ext4/examples/shared/icons/application_side_expand.png',
+										handler : function() {
+											window.open('../../gl/view/gl_trans_view.php?type_id='+ Ext.getCmp('trans_type').getValue() +'&trans_no='+ Ext.getCmp('trans_no').getValue());
+										}
+									}]
 								}
 							},{
 								xtype:'gridpanel',

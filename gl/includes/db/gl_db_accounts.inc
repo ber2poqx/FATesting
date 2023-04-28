@@ -316,6 +316,7 @@ function get_subaccount_code($trans_type, $trans_no)
 		case ST_SALESRETURN :
 		case ST_SITERMMOD :
 		case ST_RESTRUCTURED : //ADDED BY ALBERT
+		case ST_ARINVCINSTLITM :
 			$sql = "SELECT
 						a.debtor_no as person_id,
 						b.name
@@ -356,6 +357,7 @@ function get_subaccount_fullname($trans_type, $trans_no)
 		case ST_SALESRETURN :
 		case ST_SITERMMOD :
 		case ST_RESTRUCTURED ://ADDED BY ALBERT
+		case ST_ARINVCINSTLITM :
 			$sql = "SELECT
 						a.debtor_no as person_id,
 						b.name
