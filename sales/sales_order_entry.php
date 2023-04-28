@@ -1194,7 +1194,7 @@ function new_installment_computation()
 		}
 
 	}else{
-		$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+		$_POST['months_paid'] = $terms;
 	}
 
 	$_POST['amort_delay'] = $_POST['new_due_amort'] > $_POST['due_amort']
