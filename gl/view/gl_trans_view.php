@@ -292,7 +292,6 @@ function _gl_details() {
 		//Added by Albert
 		//modify jr 03/21/22
 		else if ($termmode|| $restructured || $payments || $rrepo || $arlending) {
-			echo '-'.$_GET['type_id'].'-'.$_GET['trans_no'].'-'.get_subaccount_code($_GET['type_id'],$_GET['trans_no']);
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 			get_subaccount_code($_GET['type_id'],$_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 
