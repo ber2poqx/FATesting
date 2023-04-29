@@ -450,6 +450,15 @@ function copy_to_cart()
 		$cart->outstanding_ar_amount = $_POST['outstanding_ar_amount'];
 		$cart->payment_location = $_POST['payment_location'];
 
+		/*full payment term added by albert 09/27/2022*/
+		if ($cart->trans_type == ST_SITERMMOD){
+			$cart->rebate_if_adv_pay = $_POST['rebate_if_adv_pay'];
+			$cart->new_gross_price = $_POST['new_gross_price'];
+			$cart->sales_adjustment = $_POST['sales_adjustment'];
+			$cart->termode_full_payment = $_POST['termmode_id'];
+		}
+		//
+
 		$cart->prev_months_term = $_POST['count_term'];
 		$cart->prev_ar_balance = $_POST['ar_amount'] - $_POST['alloc'];
 		$cart->prev_ar_amount = $_POST['ar_amount'];
