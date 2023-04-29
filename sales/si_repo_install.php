@@ -907,15 +907,31 @@ function new_installment_computation()
 
 	$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $terms;
 
-	$amort = round($amort_wo_rebate + $rebate);
+	//modified by Albert 10/15/2022
+	if(get_post('termmode_id') == 0){
+		$amort = round($amort_wo_rebate + $rebate);
+	}else{
+		$amort = $amort_wo_rebate + $rebate;
+	}
 
 	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
 	$_POST['new_due_amort'] = $amort;
 
 	//modified by spyrax10
 	$mature_date = add_months($_POST['first_due_date'], $terms);
-	$_POST['new_maturity_date'] = add_months($mature_date, -1);
-	//
+	//modified by Albert 11/04/2022
+	if(get_post('termmode_id') == 0 || get_post('termmode_id') == 1){
+		$_POST['new_maturity_date'] = add_months($mature_date, -1);
+	}else{
+		if ($terms > 1) {
+			$_POST['maturity_date'] = add_months($mature_date, -1);
+		}
+		else {
+			$_POST['maturity_date'] = add_days($mature_date, 15);
+		}
+		
+	}
+	/**/
 
 	$_POST['new_rebate'] = $rebate;
 	$_POST['new_financing_rate'] = $financing_rate;
@@ -924,8 +940,22 @@ function new_installment_computation()
 	$_POST['amort_diff'] = $_POST['new_due_amort'] >= $_POST['due_amort']
 		? $_POST['new_due_amort'] - $_POST['due_amort']
 		: $_POST['due_amort'] - $_POST['new_due_amort'];
+	
+	//modified by albert 10/13/2022
+	if(get_post('termmode_id') == 1 )
+	{	
+		$months_due_date = get_loan_schedule_months_due($_POST['document_ref'],date("Y-m-d", strtotime(get_post('OrderDate'))));
+		// if(date('Y-m-d', strtotime($months_due_date. ' + 15 days')) < date("Y-m-d", strtotime(get_post('OrderDate')))){
 
-	$_POST['months_paid'] = $terms;
+		// 	$_POST['months_paid'] = count_months_paid($_POST['document_ref'])+1;
+		// }else{
+		// 	$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+		// }
+		$_POST['months_paid'] = $terms;
+
+	}else{
+		$_POST['months_paid'] = $terms;
+	}
 
 	$_POST['amort_delay'] = $_POST['new_due_amort'] > $_POST['due_amort']
 		? $_POST['amort_diff'] * $_POST['months_paid']
@@ -935,16 +965,62 @@ function new_installment_computation()
 	// 	? $_POST['new_financing_rate'] - $_POST['financing_rate']
 	// 	: $_POST['financing_rate'] - $_POST['new_financing_rate'];
 	$_POST['adj_rate'] = $company["penalty_rate"];
-
 	/*modified by Albert*/
-	if($_POST['due_amort'] > $_POST['new_due_amort']){
-		$_POST['opportunity_cost'] = 0;
-		$_POST['amount_to_be_paid'] = 0;
-	}else{
-		$_POST['opportunity_cost'] = round(($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']),0);//modified by Albert
-		$_POST['amount_to_be_paid'] = round($_POST['amort_delay'] + $_POST['opportunity_cost'],0);
-	}
+
+	if(get_post('termmode_id') == 0)
+	{
+		if($_POST['due_amort'] > $_POST['new_due_amort']){
+			$_POST['opportunity_cost'] = 0;
+			$_POST['amount_to_be_paid'] = 0;
+		}else{
+			$_POST['opportunity_cost'] = round(($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']));//modified by Albert
+			$_POST['amount_to_be_paid'] = round($_POST['amort_delay'] + $_POST['opportunity_cost']);
+		}
+	}else
+	{
 	/* */
+		if($_POST['due_amort'] > $_POST['new_due_amort'])
+		{
+			$_POST['opportunity_cost'] = 0;
+			$_POST['amount_to_be_paid'] = 0;
+		
+		}else
+		{
+
+		/*full payment term computation Added by Albert 09/28/2022*/
+			$financing_charge = $amount_to_be_finance * $quotient_financing_rate;
+			$new_gross_net_dp = $_POST['new_lcp_amount'] + $financing_charge;
+			$rebate_amount = $rebate * $terms;
+			if($terms == 3)
+			{
+				$_POST['opportunity_cost'] = 0;
+
+				$total_amount_due = $new_gross_net_dp + $rebate_amount;
+
+				$_POST['new_gross_net_dp'] = $new_gross_net_dp;
+				$_POST['rebate_amount'] = $rebate_amount;
+				$_POST['total_amount_due'] = $total_amount_due;
+				$_POST['amount_to_be_paid'] = $total_amount_due - get_post('alloc') + get_post('rebate_if_adv_pay');
+				$_POST['new_gross_price'] = $total_amount_due;
+
+			}else
+			{
+				$_POST['opportunity_cost'] = round(($_POST['amort_diff'] * $_POST['months_paid']) * ($_POST['adj_rate']));//modified by Albert
+
+				
+				$total_amount_due = $new_gross_net_dp + $rebate_amount + $_POST['opportunity_cost'];
+		
+				$_POST['new_gross_net_dp'] = $new_gross_net_dp;
+				$_POST['rebate_amount'] = $rebate_amount;
+				$_POST['total_amount_due'] = $total_amount_due;
+				$_POST['amount_to_be_paid'] = $total_amount_due - get_post('alloc') + get_post('rebate_if_adv_pay');
+				$_POST['new_gross_price'] = $new_gross_net_dp + $rebate_amount;
+			}
+		}
+
+	}
+
+	/**/
 	$_POST['new_total_amount'] = $total_amount;
 	$_POST['new_ar_amount'] = $total_amount; //Modified by Albert
 	$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
