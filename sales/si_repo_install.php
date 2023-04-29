@@ -749,7 +749,7 @@ function can_process()
 
 	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 		(total_current_payment($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')))
-		+ get_post('amount_to_be_paid')) > get_post('new_ar_amount')) {
+		+ (get_post('amount_to_be_paid') - get_post('opportunity_cost'))) > get_post('new_ar_amount')) {
 		display_error(_("Cant proceed! amortization paid greater than new Gross!"));
 		return false;
 	}
