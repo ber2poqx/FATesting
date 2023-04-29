@@ -1130,7 +1130,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 
 	if(get_post('termmode_id') == 1 ){
 	
-		$sales_adjustment_amount = $all_ar_amount - $_POST['new_gross_price'];
+		$sales_adjustment_amount = round($all_ar_amount - $_POST['new_gross_price']);
 		label_row(_("total_amount_due:"), price_format($_POST['total_amount_due']));
 		label_row(_("Total Payment:"), price_format(get_post('alloc')));
 		text_row_ex1(_("Rebate If Advance Payment:"), 'rebate_if_adv_pay', null, 15, 16);

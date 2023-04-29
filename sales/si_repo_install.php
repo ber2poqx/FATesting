@@ -1001,7 +1001,7 @@ function new_installment_computation()
 				$_POST['rebate_amount'] = $rebate_amount;
 				$_POST['total_amount_due'] = $total_amount_due;
 				$_POST['amount_to_be_paid'] = $total_amount_due - get_post('alloc') + get_post('rebate_if_adv_pay');
-				$_POST['new_gross_price'] = $total_amount_due;
+				$_POST['new_gross_price'] = round($total_amount_due);
 
 			}else
 			{
@@ -1014,7 +1014,7 @@ function new_installment_computation()
 				$_POST['rebate_amount'] = $rebate_amount;
 				$_POST['total_amount_due'] = $total_amount_due;
 				$_POST['amount_to_be_paid'] = $total_amount_due - get_post('alloc') + get_post('rebate_if_adv_pay');
-				$_POST['new_gross_price'] = $new_gross_net_dp + $rebate_amount;
+				$_POST['new_gross_price'] = round($new_gross_net_dp + $rebate_amount);
 			}
 		}
 
