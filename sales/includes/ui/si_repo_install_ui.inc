@@ -948,8 +948,8 @@ function display_change_term_header(&$order, $editable, $date_text,
 		}
 		//
 		$deferred_gross_profit =  price_format(get_post('new_ar_amount') - $total_unit_cost);
-		$half = 0.5 / pow(10, 2); //Added by Albert
-		$profit_margin = floatval(round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN));//modified by Albert
+		// $half = 0.5 / pow(10, 2); //Added by Albert
+		// $profit_margin = floatval(round(number_format($deferred_gross_profit / get_post('new_ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN));//modified by Albert		
 		label_row(_("Total LCP Amount:"), price_format(get_post('lcp_amount')));
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
 		// label_row(_("Deferred Gross Profit:"), price_format($deferred_gross_profit));
@@ -961,7 +961,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 		hidden('payment_location');
 		/**/
 		hidden('new_deferred_gross_profit', $deferred_gross_profit);
-		hidden('new_profit_margin', $profit_margin);
+		// hidden('new_profit_margin', $profit_margin);
 	}
 
 	table_section(3);
@@ -1101,6 +1101,7 @@ function display_change_term_header(&$order, $editable, $date_text,
 	label_row(_("A/R Balance:"), price_format(get_post('outstanding_ar_amount')));
 	label_row(_("Total Payment:"), price_format(get_post('alloc')));
 	label_row(_("Profit Margin:"), price_format($profit_margin));
+	hidden('new_profit_margin', $profit_margin);
 	label_row(_("New DGP:"), price_format($deferred_gross_profit));
 	label_row(_("Total Generated dgp from Payment:"), price_format($new_total_dgp));
 	label_row(_("DGP Balance:"), price_format($new_dgp_bal));

@@ -1023,7 +1023,7 @@ function new_installment_computation()
 	/**/
 	$_POST['new_total_amount'] = $total_amount;
 	$_POST['new_ar_amount'] = $total_amount; //Modified by Albert
-	$_POST['outstanding_ar_amount'] = $_POST['new_ar_amount'] - $_POST['alloc'];
+	$_POST['outstanding_ar_amount'] = round($_POST['new_ar_amount'] - $_POST['alloc']);
 	global $Ajax;
 	$Ajax->activate('_page_body');
 }
