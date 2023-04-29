@@ -728,14 +728,14 @@ function can_process()
 	// 	return false;
 	// }
 
-	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 &&
 		debtor_last_month_balance($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')), true) != 0) {
 		display_error(_("Cant proceed! Last month amortization must be fully paid!"));
 		return false;
 	}
 
 	//amortization - payment this month 
-	if (total_payment_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0)
+	if (total_payment_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0 && get_post('termmode_id') == 0)
 	{
 		if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
 			(amort_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')))
