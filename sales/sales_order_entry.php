@@ -1152,10 +1152,10 @@ function new_installment_computation()
 	if(get_post('termmode_id') == 0){
 		$amort = round($amort_wo_rebate + $rebate);
 	}else{
-		$amort = $amort_wo_rebate + $rebate;
+		$amort = round($amort_wo_rebate + $rebate);
 	}
 
-	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
+	$total_amount = round($amort * $terms + floatval($_POST['down_pay']));
 	$_POST['new_due_amort'] = $amort;
 
 	//modified by spyrax10
