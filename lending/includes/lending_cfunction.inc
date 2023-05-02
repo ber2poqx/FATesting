@@ -221,13 +221,14 @@ function CalculatePenalty($TransDate, $MaturityDate, $PrincipalDue, $TotalBalanc
 function CalculateMonthsPastDue($TransDate, $DueDate, $MaturityDate){
     
     if(date('Y-m-d', strtotime($TransDate)) > date('Y-m-d', strtotime($MaturityDate))){
-        $StrDueDate = strtotime($MaturityDate);
+        $StrMaturityDate = strtotime($MaturityDate);
         $StrTransDate = strtotime($TransDate);
+        //$StrDueDate = strtotime($DueDate);
         
-        $StrDueYear = date('Y', $StrDueDate);
+        $StrDueYear = date('Y', $StrMaturityDate);
         $StrTransYear = date('Y', $StrTransDate);
         
-        $StrDueMonth = date('m', $StrDueDate);
+        $StrDueMonth = date('m', $StrMaturityDate);
         $StrTransMonth = date('m', $StrTransDate);
         
         $StrDueDay = date('d', strtotime($DueDate));
@@ -235,7 +236,7 @@ function CalculateMonthsPastDue($TransDate, $DueDate, $MaturityDate){
         
         $DateDiff = ($StrTransDay - $StrDueDay);
         $MonthDiff = (($StrTransYear - $StrDueYear) * 12) + ($StrTransMonth - $StrDueMonth);
-        
+        //echo $StrTransDay .'-'. $StrDueDay. ' - v'.$DueDate. ' - '.$TransDate;
         if($DateDiff <= 0){
             $MonthNo = ($MonthDiff - 1);
             if($MonthNo < 0){
@@ -247,6 +248,7 @@ function CalculateMonthsPastDue($TransDate, $DueDate, $MaturityDate){
     }else{
         $MonthNo = 0;
     }
+    //echo 's-'. $MonthNo;
     return $MonthNo;
     
 }

@@ -22,6 +22,8 @@ Ext.onReady(function(){
 	var GridItemOnTab = 7;
 	var showall = false;
 	var showlend = false;
+	var url_transno = getUrlParameter('trans_no');
+	var url_typeno = getUrlParameter('type');
 
 	////define model for policy installment
     Ext.define('voidmodel',{
@@ -123,6 +125,30 @@ Ext.onReady(function(){
 		]
 	});
 
+	var ARInstallQstore = Ext.create('Ext.data.Store', {
+		model: 'voidmodel',
+		autoLoad : true,
+		pageSize: itemsPerPage, // items per page
+		proxy: {
+			url: '?get_custPayment=zHun&module_type=ALCN&transno= '+url_transno,
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'tran_date',
+			direction : 'DESC'
+		}],
+		callback: function(records, operation, success) {
+			console.log(records.get('trans_no'));
+			alert(records.get('trans_no'));
+		}
+	});
+	
 	var Entriestore = Ext.create('Ext.data.Store', {
 		model: 'Entriesmodel',
 		proxy: {
@@ -228,271 +254,287 @@ Ext.onReady(function(){
 	];
 
 	var submit_form = Ext.create('Ext.form.Panel', {
-			renderTo: 'voidform',
-			id: 'voidform',
-			model: 'voidmodel',
-			defaultType: 'field',
-			defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
-				items: [{
+		renderTo: 'voidform',
+		id: 'voidform',
+		model: 'voidmodel',
+		defaultType: 'field',
+		defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
+			items: [{
+				xtype: 'fieldcontainer',
+				layout: 'vbox',
+				margin: '0 0 10 300',
+				items:[{
+					xtype: 	'textareafield',
+					id:	'remarks',
+					name: 'remarks',
+					fieldLabel: '<b>Approval Remarks </b>',
+					labelWidth: 130,
+					width: 560,
+					allowBlank: false
+				},{
+					xtype: 'button',
+					text: 'Approved',
+					padding: '8px',
+					margin: '2 2 2 440',
+					icon: '../../js/ext4/examples/shared/icons/ipod_cast_delete.png',
+					tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#0766f9 ',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					},
+				}]
+			},{
+			xtype: 'panel',
+			id: 'mainpanel',
+			frame: true,
+			//width: 1060,
+			items: [{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'textfield',
+					fieldLabel: '<b>Customer </b>',
+					id: 'customercode',
+					name: 'customercode',
+					allowBlank: false,
+					labelWidth: 105,
+					width: 250,
+					readOnly: true,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				},{
+					xtype : 'datefield',
+					id	  : 'trans_date',
+					name  : 'trans_date',
+					fieldLabel : '<b>Date </b>',
+					allowBlank: false,
+					labelWidth: 100,
+					width: 255,
+					format : 'm/d/Y',
+					fieldStyle: 'font-weight: bold; color: #210a04;',
+					value: Ext.Date.format(new Date(), 'Y-m-d')
+				}]
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'textfield',
+					fieldLabel: '<b>Customer </b>',
+					id: 'InvoiceNo',
+					name: 'InvoiceNo',
+					allowBlank: false,
+					labelWidth: 105,
+					width: 250,
+					readOnly: true,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				},{
+					xtype: 'textfield',
+					fieldLabel: '<b>CR No.</b>',
+					id: 'receipt_no',
+					name: 'receipt_no',
+					margin: '2 0 0 0',
+					allowBlank: false,
+					readOnly: true,
+					labelWidth: 100,
+					width: 255,
+					maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
+					fieldStyle: 'font-weight: bold; color: #210a04;',
+				}]
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'textfield',
+					id: 'intobankacct',
+					name: 'intobankacct',
+					allowBlank: false,
+					readOnly: true,
+					fieldLabel : '<b>Into Bank Account </b>',
+					labelWidth: 125,
+					width: 560,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				},{
+					xtype: 'textfield',
+					fieldLabel: 'Payment type ',
+					width: 255,
+					allowBlank: false,
+					readOnly: true,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				}]
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 'textfield',
+					fieldLabel: 'Cashier/Teller ',
+					id: 'v_cashier',
+					name: 'v_cashier',
+					allowBlank: false,
+					readOnly: true,
+					labelWidth: 105,
+					width: 280,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				},{
+					xtype: 'textfield',
+					fieldLabel: 'Prepared By ',
+					id: 'v_preparedby',
+					name: 'v_preparedby',
+					allowBlank: false,
+					readOnly: true,
+					labelWidth: 105,
+					width: 280,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				},{
+					xtype: 'textfield',
+					id: 'collectType',
+					name: 'collectType',
+					fieldLabel: 'Collction type ',
+					margin: '0 0 2 0',
+					width: 255,
+					allowBlank: false,
+					readOnly: true,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
+				}]
+			},{
+				xtype: 'fieldcontainer',
+				layout: 'hbox',
+				margin: '2 0 2 5',
+				items:[{
+					xtype: 	'textareafield',
+					fieldLabel: '<b>Remarks </b>',
+					id:	'vremarks',
+					name: 'vremarks',
+					//labelAlign:	'top',
+					allowBlank: true,
+					maxLength: 254,
+					labelWidth: 105,
+					width: 560,
+					hidden: false
+				},{
 					xtype: 'fieldcontainer',
 					layout: 'vbox',
-					margin: '0 0 10 300',
+					margin: '0 0 0 0',
 					items:[{
-						xtype: 	'textareafield',
-						id:	'remarks',
-						name: 'remarks',
-						fieldLabel: '<b>Approval Remarks </b>',
-						labelWidth: 130,
-						width: 560,
-						allowBlank: false
-					},{
-						xtype: 'button',
-						text: 'Approved',
-						padding: '8px',
-						margin: '2 2 2 440',
-						icon: '../../js/ext4/examples/shared/icons/ipod_cast_delete.png',
-						tooltip: 'Void Transaction',
-						style : {
-							'color': 'black',
-							'font-size': '30px',
-							'font-weight': 'bold',
-							'background-color': '#0766f9 ',
-							'position': 'absolute',
-							'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
-							//'border': 'none',
-							'border-radius':'3px'
-						},
-					}]
-				},{
-				xtype: 'panel',
-				id: 'mainpanel',
-				frame: true,
-				items: [{
-					xtype: 'fieldcontainer',
-					layout: 'hbox',
-					margin: '2 0 2 5',
-					items:[{
-						xtype: 'textfield',
-						fieldLabel: '<b>Customer </b>',
-						id: 'customercode',
-						name: 'customercode',
-						allowBlank: false,
-						labelWidth: 105,
-						width: 250,
-						readOnly: true,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					},{
-						xtype : 'datefield',
-						id	  : 'trans_date',
-						name  : 'trans_date',
-						fieldLabel : '<b>Date </b>',
-						allowBlank: false,
-						labelWidth: 100,
-						width: 255,
-						format : 'm/d/Y',
-						fieldStyle: 'font-weight: bold; color: #210a04;',
-						value: Ext.Date.format(new Date(), 'Y-m-d')
-					}]
-				},{
-					xtype: 'fieldcontainer',
-					layout: 'hbox',
-					margin: '2 0 2 5',
-					items:[{
-						xtype: 'textfield',
-						fieldLabel: '<b>Customer </b>',
-						id: 'InvoiceNo',
-						name: 'InvoiceNo',
-						allowBlank: false,
-						labelWidth: 105,
-						width: 250,
-						readOnly: true,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					},{
-						xtype: 'textfield',
-						fieldLabel: '<b>CR No.</b>',
-						id: 'receipt_no',
-						name: 'receipt_no',
-						margin: '2 0 0 0',
-						allowBlank: false,
+						xtype: 'numericfield',
+						id: 'total_amount',
+						name: 'total_amount',
+						fieldLabel: 'Total Amount ',
+						allowBlank:false,
+						useThousandSeparator: true,
 						readOnly: true,
 						labelWidth: 100,
 						width: 255,
-						maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
-						fieldStyle: 'font-weight: bold; color: #210a04;',
-					}]
-				},{
-					xtype: 'fieldcontainer',
-					layout: 'hbox',
-					margin: '2 0 2 5',
-					items:[{
-						xtype: 'textfield',
-						id: 'intobankacct',
-						name: 'intobankacct',
-						allowBlank: false,
-						readOnly: true,
-						fieldLabel : '<b>Into Bank Account </b>',
-						labelWidth: 125,
-						width: 560,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					},{
-						xtype: 'textfield',
-						fieldLabel: 'Payment type ',
-						width: 255,
-						allowBlank: false,
-						readOnly: true,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					}]
-				},{
-					xtype: 'fieldcontainer',
-					layout: 'hbox',
-					margin: '2 0 2 5',
-					items:[{
-						xtype: 'textfield',
-						fieldLabel: 'Cashier/Teller ',
-						id: 'v_cashier',
-						name: 'v_cashier',
-						allowBlank: false,
-						readOnly: true,
-						labelWidth: 105,
-						width: 280,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					},{
-						xtype: 'textfield',
-						fieldLabel: 'Prepared By ',
-						id: 'v_preparedby',
-						name: 'v_preparedby',
-						allowBlank: false,
-						readOnly: true,
-						labelWidth: 105,
-						width: 280,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					},{
-						xtype: 'textfield',
-						id: 'collectType',
-						name: 'collectType',
-						fieldLabel: 'Collction type ',
+						thousandSeparator: ',',
+						minValue: 0,
 						margin: '0 0 2 0',
-						width: 255,
-						allowBlank: false,
-						readOnly: true,
-						fieldStyle: 'font-weight: bold; color: #210a04;'
-					}]
-				},{
-					xtype: 'fieldcontainer',
-					layout: 'hbox',
-					margin: '2 0 2 5',
-					items:[{
-						xtype: 	'textareafield',
-						fieldLabel: '<b>Remarks </b>',
-						id:	'vremarks',
-						name: 'vremarks',
-						//labelAlign:	'top',
-						allowBlank: true,
-						maxLength: 254,
-						labelWidth: 105,
-						width: 560,
-						hidden: false
-					},{
-						xtype: 'fieldcontainer',
-						layout: 'vbox',
-						margin: '0 0 0 0',
-						items:[{
-							xtype: 'numericfield',
-							id: 'total_amount',
-							name: 'total_amount',
-							fieldLabel: 'Total Amount ',
-							allowBlank:false,
-							useThousandSeparator: true,
-							readOnly: true,
-							labelWidth: 100,
-							width: 255,
-							thousandSeparator: ',',
-							minValue: 0,
-							margin: '0 0 2 0',
-							fieldStyle: 'font-weight: bold;color: red; text-align: right;'
-						}]
-					}]
-				},{
-					xtype: 'tabpanel',
-					id: 'tbpanel',
-					activeTab: 0,
-					//width: 1060,
-					//height: 1240,
-					scale: 'small',
-					items:[{
-						xtype:'gridpanel',
-						id: 'EntriesGrid',
-						title: 'A/R Entries',
-						anchor:'100%',
-						height: 440,
-						autoScroll: true,
-						loadMask: true,
-						store: Entriestore,
-						columns: EntriescolModel,
-						columnLines: true
-					},{
-						xtype:'gridpanel',
-						id: 'AmortLedgerGrid',
-						title: 'Amortization Ledger',
-						anchor:'100%',
-						autoScroll: true,
-						loadMask: true,
-						store: AmortLedgertore,
-						columns: AmortLedgerHeader,
-						height: 440,
-						width: 560,
-						columnLines: true
+						fieldStyle: 'font-weight: bold;color: red; text-align: right;'
 					}]
 				}]
-			}]
-		});
-		var submit_window = Ext.create('Ext.Window',{
-			
-			items:[submit_form],
-			buttons:[{
-				text: '<b>Save</b>',
-				tooltip: 'Save customer payment',
-				icon: '../js/ext4/examples/shared/icons/add.png',
-				single : true,				
-				handler:function(){
-					//console.log(Ext.decode(gridData));
-					form_submit.submit({
-						url: '?submit=payment',
-						params: {
-							DataOnGrid: Ext.encode(gridData),
-							DataOEGrid: Ext.encode(OEData)
-						},
-						waitMsg: 'Saving payment for Invoice No.' + Ext.getCmp('InvoiceNo').getRawValue() + '. please wait...',
-						method:'POST',
-						submitEmptyText: false,
-						success: function(form_submit, action) {
-							PaymentStore.load()
-							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
-							submit_window.close();
-						},
-						failure: function(form_submit, action) {
-							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
-						}
-					});
-					window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
-						//alert('An error has occurred!')
-						Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
-						return true;
-					}
-				}
 			},{
-				text:'<b>Cancel</b>',
-				tooltip: 'Cancel customer payment',
-				icon: '../js/ext4/examples/shared/icons/cancel.png',
-				handler:function(){
-					Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to close this window?', function (btn, text) {
-						if (btn == 'yes') {
-							//Ext.Msg.alert('Close','close.');
-							submit_form.getForm().reset();
-							submit_window.close();
-						}
-					});
-				}
+				xtype: 'tabpanel',
+				id: 'tbpanel',
+				activeTab: 0,
+				width: 1060,
+				height: 1240,
+				scale: 'small',
+				items:[{
+					xtype:'gridpanel',
+					id: 'EntriesGrid',
+					title: 'Entries',
+					anchor:'100%',
+					height: 440,
+					autoScroll: true,
+					loadMask: true,
+					store: Entriestore,
+					columns: EntriescolModel,
+					columnLines: true
+				},{
+					xtype:'gridpanel',
+					id: 'AmortLedgerGrid',
+					title: 'Amortization Ledger',
+					anchor:'100%',
+					autoScroll: true,
+					loadMask: true,
+					store: AmortLedgertore,
+					columns: AmortLedgerHeader,
+					height: 440,
+					width: 560,
+					columnLines: true
+				}]
 			}]
-		});
+		}]
+	});
+	var submit_window = Ext.create('Ext.Window',{
+		
+		items:[submit_form],
+		buttons:[{
+			text: '<b>Save</b>',
+			tooltip: 'Save customer payment',
+			icon: '../js/ext4/examples/shared/icons/add.png',
+			single : true,				
+			handler:function(){
+				//console.log(Ext.decode(gridData));
+				form_submit.submit({
+					url: '?submit=payment',
+					params: {
+						DataOnGrid: Ext.encode(gridData),
+						DataOEGrid: Ext.encode(OEData)
+					},
+					waitMsg: 'Saving payment for Invoice No.' + Ext.getCmp('InvoiceNo').getRawValue() + '. please wait...',
+					method:'POST',
+					submitEmptyText: false,
+					success: function(form_submit, action) {
+						PaymentStore.load()
+						Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
+						submit_window.close();
+					},
+					failure: function(form_submit, action) {
+						Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
+					}
+				});
+				window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
+					//alert('An error has occurred!')
+					Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
+					return true;
+				}
+			}
+		},{
+			text:'<b>Cancel</b>',
+			tooltip: 'Cancel customer payment',
+			icon: '../js/ext4/examples/shared/icons/cancel.png',
+			handler:function(){
+				Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to close this window?', function (btn, text) {
+					if (btn == 'yes') {
+						//Ext.Msg.alert('Close','close.');
+						submit_form.getForm().reset();
+						submit_window.close();
+					}
+				});
+			}
+		}]
+	});
+
+	function getUrlParameter(sParam) {
+		var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+			sURLVariables = sPageURL.split('&'),
+			sParameterName,
+			i;
+
+		for (i = 0; i < sURLVariables.length; i++) {
+			sParameterName = sURLVariables[i].split('=');
+alert(sParameterName);
+			if (sParameterName[0] === sParam) {
+				return sParameterName[1] === undefined ? true : sParameterName[1];
+			}
+		}
+	};
 });

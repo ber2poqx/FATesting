@@ -156,7 +156,8 @@ function update_status_debtor_loans($trans_no, $debtor_no, $status)
 	db_query($sql, "could not update table debtor loan because ");
 }
 
-function update_status_debtor_trans($trans_no, $debtor_no, $type, $status, $module_type = null){
+function update_status_debtor_trans($trans_no, $debtor_no, $type, $status, $module_type = null)
+{
 	if(isset($module_type)){
 		$upmode = ", module_type = ".db_escape($module_type);
 	}
@@ -418,7 +419,8 @@ function get_loan_schedule_pastdue($trans_no, $deptor_no, $type)
 	return db_query($sql, "could not get loan schedule pastdue");
 }
 
-function get_loan_ledger_payment($Trans_no, $typeFrom, $typeTo){
+function get_loan_ledger_payment($Trans_no, $typeFrom, $typeTo)
+{
 	/*$sql = "SELECT A.loansched_id, A.trans_no, A.date_paid, SUM(A.penalty) penalty, SUM(A.rebate) rebate, SUM(A.payment_applied) PayAmount,
 					B.principal_due, A.debtor_no, B.date_due, B.month_no, B.principal_runbal, C.ov_amount, D.ar_amount
 		FROM ".TB_PREF."debtor_loan_ledger A
@@ -454,14 +456,14 @@ function get_Trans_Type($trans_no)
 
 function get_DP_NoAmort($type, $trans_no)
 {
-		$sql = "SELECT A.type, A.trans_no, A.person_id, A.bank_act, A.ref, A.trans_date, A.masterfile, B.amount,
-					B.type_no, B.account, B.mcode, C.account_code, C.account_name
-			FROM ".TB_PREF."bank_trans A 
-					INNER JOIN ".TB_PREF."gl_trans B 
-						ON B.type = A.type AND B.type_no = A.trans_no
-					INNER JOIN ".TB_PREF."chart_master C ON C.account_code = B.account
-			WHERE A.trans_no = ".db_escape($trans_no)."
-				AND A.type = ".db_escape($type);
+	$sql = "SELECT A.type, A.trans_no, A.person_id, A.bank_act, A.ref, A.trans_date, A.masterfile, B.amount,
+				B.type_no, B.account, B.mcode, C.account_code, C.account_name
+		FROM ".TB_PREF."bank_trans A 
+				INNER JOIN ".TB_PREF."gl_trans B 
+					ON B.type = A.type AND B.type_no = A.trans_no
+				INNER JOIN ".TB_PREF."chart_master C ON C.account_code = B.account
+		WHERE A.trans_no = ".db_escape($trans_no)."
+			AND A.type = ".db_escape($type);
 
 	return db_query($sql, "could not get down payment item");
 }
@@ -847,7 +849,8 @@ function get_deferdBal($trans_no, $glcode)
 	return $row[0];
 }
 
-function get_islive($branch){
+function get_islive($branch)
+{
 
     $db_coy = Get_db_coy($branch);
     set_global_connection($db_coy);
@@ -937,4 +940,9 @@ function get_sl_masterfile()
 			ORDER BY sl.name ASC, sl.type ASC;";
 
 	return db_query($sql, "The masterfile could not be retrieved");
+}
+
+function get_payment_to_void($trans_type, $trans_no)
+{
+
 }
