@@ -371,16 +371,18 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id)) {
 			$sales_account = $category_gl_code['dflt_installment_sales_act'];
 		}
-		// addressed to fix employee entry
-		if (check_employee_customer($invoice->customer_id) == 1) {
-			$sales_account = $category_gl_code['dflt_installment_sales_act'];
-		}
-		//
 		/*Added by Albert */
 		if ($invoice->payment_location == "Lending") {
 			$sales_account = $category_gl_code['dflt_sales_act'];
 		}
 		/**/
+
+		// addressed to fix employee entry
+		if (check_employee_customer($invoice->customer_id) == 1) {
+			$sales_account = $category_gl_code['dflt_installment_sales_act'];
+			$entry_amount = $invoice->ar_amount;
+		}
+		//
 	} else {
 		$sales_account = $category_gl_code['dflt_sales_act'];
 	}
@@ -524,6 +526,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 				// addressed to fix employee entry
 				if (check_employee_customer($invoice->customer_id)) {
 					$ar_account = $company_data['isa_employee'];
+					$amount = $invoice->ar_amount;
 				}
 				/**/
 					
