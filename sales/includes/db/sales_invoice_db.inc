@@ -371,9 +371,11 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id)) {
 			$sales_account = $category_gl_code['dflt_installment_sales_act'];
 		}
-		if (check_employee_customer($invoice->customer_id)) {
-			$sales_account = $company_data['isa_employee'];
+		// addressed to fix employee entry
+		if (check_employee_customer($invoice->customer_id) == 1) {
+			$sales_account = $category_gl_code['dflt_installment_sales_act'];
 		}
+		//
 		/*Added by Albert */
 		if ($invoice->payment_location == "Lending") {
 			$sales_account = $category_gl_code['dflt_sales_act'];
@@ -518,8 +520,13 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 					}else{
 						$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
 					}
-					/**/
-			
+					
+				// addressed to fix employee entry
+				if (check_employee_customer($invoice->customer_id)) {
+					$ar_account = $company_data['isa_employee'];
+				}
+				/**/
+					
 				$total += add_gl_trans_customer(
 					ST_SALESINVOICE,
 					$invoice_no,
