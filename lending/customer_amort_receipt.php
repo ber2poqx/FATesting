@@ -1393,7 +1393,11 @@ if(isset($_GET['submit']))
                     if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
                         $termode_status = 'Closed';
                     }else{
-                        $termode_status = 'part-paid';
+                        if($termoderow["outstanding_ar_amount"] <= ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
+                            $termode_status = 'Closed';
+                        }else{
+                            $termode_status = 'part-paid';
+                        }
                     }
 
                     update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], $termode_status);
