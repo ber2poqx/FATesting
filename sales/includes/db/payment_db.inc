@@ -103,6 +103,11 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 	if($payment_type == "down"){
 		if($paylocation == 'Lending'){
 			$debtors_account = $company_record["ar_cash_sales_account"];
+		}else{
+			$custtype = get_customer_type($customer_id);
+			if($custtype != 1){
+				$debtors_account = $company_record["isa_employee"];
+			}
 		}
 	}
 	if (($discount + $amount) != 0)	{

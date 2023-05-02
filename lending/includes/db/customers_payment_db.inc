@@ -942,6 +942,17 @@ function get_sl_masterfile()
 	return db_query($sql, "The masterfile could not be retrieved");
 }
 
+function get_customer_type($debtor_no)
+{
+	$sql = "SELECT A.employee
+			FROM ".TB_PREF."debtors_master A 
+			WHERE A.debtor_no = ".db_escape($debtor_no);
+
+	$result = db_query($sql, "could not get customer type");
+	$row = db_fetch($result);
+	return $row[0];
+}
+
 function get_payment_to_void($trans_type, $trans_no)
 {
 
