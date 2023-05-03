@@ -955,5 +955,12 @@ function get_customer_type($debtor_no)
 
 function get_payment_to_void($trans_type, $trans_no)
 {
+	$sql = "SELECT A.*, B.*
+			FROM ".TB_PREF."debtor_trans A 
+				INNER JOIN ".TB_PREF."bank_trans B ON B.trans_no = A.trans_no AND B.type = A.type 
+			WHERE A.type = ".db_escape($trans_type)." 
+				AND A.trans_no = ".db_escape($trans_no); 
 
+	$result = db_query($sql, "could not get payment data to void becuase");
+	return db_fetch($result);
 }
