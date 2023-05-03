@@ -38,9 +38,9 @@ function getTransactions($period_from,$period_to)
 				,c.category_id AS `classification`
 				,c.months_term AS `orig_term`
 				,a.months_term AS `new_term`
-				,c.outstanding_ar_amount AS `Existing_AR`
-				,a.outstanding_ar_amount AS `New_AR`
-				,(c.outstanding_ar_amount-a.outstanding_ar_amount) AS `AR Reduction`
+				,c.ar_amount AS `Existing_AR`
+				,a.ar_amount AS `New_AR`
+				,(c.ar_amount-a.ar_amount) AS `AR Reduction`
 			FROM debtor_term_modification a
 			INNER JOIN debtor_trans b ON b.trans_no = a.trans_no and a.type = b.type
 			LEFT JOIN debtor_loans c ON c.invoice_ref_no = a.invoice_ref_no
@@ -139,8 +139,8 @@ function print_Accounts_with_Term_Modification()
 	$rep->TextCol(3, 4, 'Category',null,null,1);
 	$rep->TextCol(4, 5, 'Orig',null,null,1);
 	$rep->TextCol(5, 6, 'New',null,null,1);
-	$rep->TextCol(6, 7, 'Existing',null,null,1);
-	$rep->TextCol(7, 8, 'New',null,null,1);
+	$rep->TextCol(6, 7, 'Old GSP',null,null,1);
+	$rep->TextCol(7, 8, 'New GSP',null,null,1);
 	$rep->TextCol(8, 9, 'Reduction',null,null,1);
 	$rep->TextCol(9, 10, $year_param,null,null,1);
 	$rep->TextCol(10, 11, $last_year,null,null,1);
