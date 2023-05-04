@@ -32,66 +32,22 @@ Ext.onReady(function(){
 			{name:'trans_no', mapping:'trans_no'},
 			{name:'type', mapping:'type'},
 			{name:'debtor_no', mapping:'debtor_no'},
-			{name:'debtor_ref', mapping:'debtor_ref'},
-			{name:'debtor_name', mapping:'debtorname'},
-			{name:'status', mapping:'status'},
-			{name:'gender', mapping:'gender'},
-			{name:'age', mapping:'age'},
-			{name:'name_father', mapping:'name_father'},
-			{name:'name_mother', mapping:'name_mother'},
-			{name:'address', mapping:'address'},
-			{name:'collector', mapping:'collector'},
-			{name:'phone', mapping:'phone'},
-			{name:'email', mapping:'email'},
-			{name:'branch_no', mapping:'branch_no'},
+			{name:'customer_code', mapping:'customer_code'},
+			{name:'customer_name', mapping:'customer_name'},
 			{name:'tran_date', mapping:'tran_date'},
 			{name:'reference', mapping:'reference'},
-			{name:'order', mapping:'order'},
-			{name:'ov_amount', mapping:'ov_amount'},
-			{name:'trans_status', mapping:'trans_status'},
-			{name:'debtor_loan_id', mapping:'debtor_loan_id'},
-			{name:'invoice_ref_no', mapping:'invoice_ref_no'},
-			{name:'delivery_ref_no', mapping:'delivery_ref_no'},
-			{name:'invoice_date', mapping:'invoice_date'},
-			{name:'orig_branch_code', mapping:'orig_branch_code'},
-			{name:'invoice_type', mapping:'invoice_type'},
-			{name:'installplcy_id', mapping:'installplcy_id'},
-			{name:'months_term', mapping:'months_term'},
-			{name:'rebate', mapping:'rebate'},
-			{name:'fin_rate', mapping:'fin_rate'},
-			{name:'firstdue_date', mapping:'firstdue_date'},
-			{name:'maturity_date', mapping:'maturity_date'},
-			{name:'outs_ar_amount', mapping:'outs_ar_amount'},
-			{name:'ar_amount', mapping:'ar_amount'},
-			{name:'ar_balance', mapping:'ar_balance'},
-			{name:'lcp_amount', mapping:'lcp_amount'},
-			{name:'dp_amount', mapping:'dp_amount'},
-			{name:'amortn_amount', mapping:'amortn_amount'},
-			{name:'total_amount', mapping:'total_amount'},
-			{name:'category_id', mapping:'category_id'},
-			{name:'category_desc', mapping:'category_desc'},
-			{name:'comments', mapping:'comments'},
-			{name:'pay_status', mapping:'pay_status'},
+			{name:'recpt_no', mapping:'recpt_no'},
+			{name:'total', mapping:'total'},
+			{name:'payment_type', mapping:'payment_type'},
+			{name:'collect_type', mapping:'collect_type'},
 			{name:'module_type', mapping:'module_type'},
-			{name:'unrecovered', mapping:'unrecovered'},
-			{name:'addon_amount', mapping:'addon_amount'},
-			{name:'total_unrecovrd', mapping:'total_unrecovrd'},
-			{name:'repo_date', mapping:'repo_date'},
-			{name:'past_due', mapping:'past_due'},
-			{name:'over_due', mapping:'over_due'},
-			{name:'repo_remark', mapping:'repo_remark'},
-			{name:'type_module', mapping:'type_module'},
-			{name:'term_mod_date', mapping:'term_mod_date'},
-			{name:'amort_diff', mapping:'amort_diff'},
-			{name:'months_paid', mapping:'months_paid'},
-			{name:'amort_delay', mapping:'amort_delay'},
-			{name:'adj_rate', mapping:'adj_rate'},
-			{name:'oppnity_cost', mapping:'oppnity_cost'},
-			{name:'amount_to_be_paid', mapping:'amount_to_be_paid'},
-			{name:'Termremarks', mapping:'Termremarks'},
-			{name:'profit_margin', mapping:'profit_margin'},
-			{name:'payment_loc', mapping:'payment_loc'},
-			{name:'restructured_status', mapping:'restructured_status'}
+			{name:'Bank_account', mapping:'Bank_account'},
+			{name:'remarks', mapping:'remarks'},
+			{name:'prepared_by', mapping:'prepared_by'},
+			{name:'check_by', mapping:'check_by'},
+			{name:'approved_by', mapping:'approved_by'},
+			{name:'cashier', mapping:'cashier'},
+			{name:'cashier_name', mapping:'cashier_name'},
 		]
 	});
     Ext.define('Entriesmodel',{
@@ -130,7 +86,7 @@ Ext.onReady(function(){
 		autoLoad : true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
-			url: '?get_custPayment=zHun&module_type=ALCN&transno= '+url_transno,
+			url: '?get_voidPayment=zHun&trans_type='+url_typeno+'&trans_no= '+url_transno,
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -138,21 +94,14 @@ Ext.onReady(function(){
 				totalProperty  : 'total'
 			}
 		},
-		simpleSortMode : true,
-		sorters : [{
-			property : 'tran_date',
-			direction : 'DESC'
-		}],
-		callback: function(records, operation, success) {
-			console.log(records.get('trans_no'));
-			alert(records.get('trans_no'));
-		}
+		simpleSortMode : true
 	});
 	
 	var Entriestore = Ext.create('Ext.data.Store', {
 		model: 'Entriesmodel',
+		autoLoad : true,
 		proxy: {
-			url: '?get_AREntry=zHun',
+			url: '?get_AREntry=zHun&trans_type='+url_typeno+'&trans_no= '+url_transno,
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -262,20 +211,24 @@ Ext.onReady(function(){
 			items: [{
 				xtype: 'fieldcontainer',
 				layout: 'vbox',
-				margin: '0 0 10 300',
+				margin: '2 2 2 0',
+				style : {
+					'background-color': '#edeeef',
+					'border-radius':'10px'
+				},
 				items:[{
 					xtype: 	'textareafield',
 					id:	'remarks',
 					name: 'remarks',
 					fieldLabel: '<b>Approval Remarks </b>',
 					labelWidth: 130,
-					width: 560,
+					width: 820,
 					allowBlank: false
 				},{
 					xtype: 'button',
 					text: 'Approved',
 					padding: '8px',
-					margin: '2 2 2 440',
+					margin: '2 2 2 710',
 					icon: '../../js/ext4/examples/shared/icons/ipod_cast_delete.png',
 					tooltip: 'Void Transaction',
 					style : {
@@ -300,21 +253,22 @@ Ext.onReady(function(){
 				margin: '2 0 2 5',
 				items:[{
 					xtype: 'textfield',
-					fieldLabel: '<b>Customer </b>',
-					id: 'customercode',
-					name: 'customercode',
+					fieldLabel: '<b>Reference No. </b>',
+					id: 'Ref_no',
+					name: 'Ref_no',
 					allowBlank: false,
 					labelWidth: 105,
-					width: 250,
+					width: 560,
+					margin: '0 0 0 0',
 					readOnly: true,
-					fieldStyle: 'font-weight: bold; color: #210a04;'
+					fieldStyle : 'text-transform: capitalize; background-color: #ddd; background-image: none; color:green; font-weight: bold;'
 				},{
 					xtype : 'datefield',
 					id	  : 'trans_date',
 					name  : 'trans_date',
 					fieldLabel : '<b>Date </b>',
 					allowBlank: false,
-					labelWidth: 100,
+					labelWidth: 80,
 					width: 255,
 					format : 'm/d/Y',
 					fieldStyle: 'font-weight: bold; color: #210a04;',
@@ -327,8 +281,8 @@ Ext.onReady(function(){
 				items:[{
 					xtype: 'textfield',
 					fieldLabel: '<b>Customer </b>',
-					id: 'InvoiceNo',
-					name: 'InvoiceNo',
+					id: 'cust_code',
+					name: 'cust_code',
 					allowBlank: false,
 					labelWidth: 105,
 					width: 250,
@@ -336,16 +290,24 @@ Ext.onReady(function(){
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
-					fieldLabel: '<b>CR No.</b>',
-					id: 'receipt_no',
-					name: 'receipt_no',
-					margin: '2 0 0 0',
+					id: 'cust_name',
+					name: 'cust_name',
 					allowBlank: false,
 					readOnly: true,
-					labelWidth: 100,
-					width: 255,
+					width: 309,
+					margin: '0 0 0 1',
 					maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
 					fieldStyle: 'font-weight: bold; color: #210a04;',
+				},{
+					xtype: 'textfield',
+					fieldLabel: '<b>Receipts No. </b>',
+					id: 'recpt_no',
+					name: 'recpt_no',
+					allowBlank: false,
+					labelWidth: 100,
+					width: 255,
+					readOnly: true,
+					fieldStyle: 'font-weight: bold; color: #210a04;'
 				}]
 			},{
 				xtype: 'fieldcontainer',
@@ -363,6 +325,8 @@ Ext.onReady(function(){
 					fieldStyle: 'font-weight: bold; color: #210a04;'
 				},{
 					xtype: 'textfield',
+					id: 'paytype',
+					name: 'paytype',
 					fieldLabel: 'Payment type ',
 					width: 255,
 					allowBlank: false,
@@ -447,17 +411,29 @@ Ext.onReady(function(){
 				height: 1240,
 				scale: 'small',
 				items:[{
-					xtype:'gridpanel',
+					xtype:'grid',
 					id: 'EntriesGrid',
 					title: 'Entries',
 					anchor:'100%',
+					width: 1060,
 					height: 440,
 					autoScroll: true,
 					loadMask: true,
 					store: Entriestore,
 					columns: EntriescolModel,
-					columnLines: true
-				},{
+					columnLines: true,
+					bbar : {
+						xtype : 'pagingtoolbar',
+						hidden: false,
+						store : Entriestore,
+						displayInfo : false,
+						emptyMsg: "No records to display",
+						doRefresh : function(){
+							Entriestore.load();
+							
+						}
+					}
+				/*},{
 					xtype:'gridpanel',
 					id: 'AmortLedgerGrid',
 					title: 'Amortization Ledger',
@@ -468,7 +444,7 @@ Ext.onReady(function(){
 					columns: AmortLedgerHeader,
 					height: 440,
 					width: 560,
-					columnLines: true
+					columnLines: true*/
 				}]
 			}]
 		}]
@@ -531,10 +507,33 @@ Ext.onReady(function(){
 
 		for (i = 0; i < sURLVariables.length; i++) {
 			sParameterName = sURLVariables[i].split('=');
-alert(sParameterName);
 			if (sParameterName[0] === sParam) {
 				return sParameterName[1] === undefined ? true : sParameterName[1];
 			}
 		}
 	};
+
+	ARInstallQstore.load({
+		callback: function(records) {                 
+			//alert(records[i].get('customer_name'));
+			Ext.getCmp('Ref_no').setValue(records[i].get('reference'));
+			Ext.getCmp('recpt_no').setValue(records[i].get('recpt_no'));
+			Ext.getCmp('trans_date').setValue(records[i].get('tran_date'));
+			Ext.getCmp('cust_code').setValue(records[i].get('customer_code'));
+			Ext.getCmp('cust_name').setValue(records[i].get('customer_name'));
+			Ext.getCmp('intobankacct').setValue(records[i].get('Bank_account'));
+			Ext.getCmp('paytype').setValue(records[i].get('payment_type'));
+			Ext.getCmp('v_preparedby').setValue(records[i].get('recpt_no'));
+			Ext.getCmp('collectType').setValue(records[i].get('collect_type'));
+			Ext.getCmp('vremarks').setValue(records[i].get('remarks'));
+			Ext.getCmp('total_amount').setValue(records[i].get('total'));
+			Ext.getCmp('v_cashier').setValue(records[i].get('cashier_name'));
+			Ext.getCmp('v_preparedby').setValue(records[i].get('prepared_by'));
+		}
+	});
+	/*Entriestore.load({
+		callback: function(records) {
+			alert(records[i].get('acct_code'));
+		}
+	});*/
 });

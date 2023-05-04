@@ -23,72 +23,65 @@ add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ex
 add_js_ufile($path_to_root ."/js/void_payments.js");
 
 //----------------------------------------------: for grid js :---------------------------------------
-if(isset($_GET['get_invcincome'])){
+if(isset($_GET['get_voidPayment'])){
 
-    $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
-    $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
-    
-    $result = get_invoice_incoming($_GET['InvType'], $_GET['status'], $start, $limit, $_GET['query'], null, filter_var($_GET['showall'], FILTER_VALIDATE_BOOLEAN));
+    $result = get_debtor_payment_per_transno($_GET['trans_type'], $_GET['trans_no']);
     $total = DB_num_rows($result);
-    $ar_ref_no = $Refs->get_next(ST_ARINVCINSTLITM);
+
     while ($myrow = db_fetch($result)) {
-        $data_approve = get_Approve_deptor_trans($myrow["id"], ST_ARINVCINSTLITM);
-        if($_GET['status'] == "Approved"){
-            $comment = $data_approve["memo_"];
-        }else{
-            $comment = $myrow["memo_"];
+        if($myrow["payment_type"] == "down"){
+            $paymentType = "Down Payment";
+        }elseif($myrow["payment_type"] == "amort"){
+            $paymentType = "Amort Payment";
+        }elseif($myrow["payment_type"] == "other"){
+            $paymentType = "Other Payment";
+        }elseif($myrow["payment_type"] == "adjmt"){
+            $paymentType = "Adjustment";
         }
-        $status_array[] = array('ar_id'=>$myrow["trans_no"],
-                            'invoice_date'=>date('m/d/Y',strtotime($myrow["tran_date"])),
-                            'invoice_no'=>$myrow["reference"],
+        $status_array[] = array('trans_no'=>$myrow["trans_no"],
+                            'type'=>$myrow["type"],
+                            'debtor_no'=>$myrow["debtor_no"],
                             'customer_code'=>$myrow["debtor_ref"],
                             'customer_name'=>htmlentities($myrow["name"]),
-                            'branch_code'=>$myrow["orig_branch_code"],
-                            'delivery_no'=>$myrow["delivery_ref_no"],
-                            'invoice_type'=>$myrow["invoice_type"],
-                            'installplcy_id'=>$myrow["installmentplcy_id"],
-                            'months_term'=>$myrow["months_term"],
-                            'rebate'=>$myrow["rebate"],
-                            'fin_rate'=>$myrow["financing_rate"],
-                            'firstdue_date'=>date('m/d/Y',strtotime($myrow["firstdue_date"])),
-                            'maturity_date'=>date('m/d/Y',strtotime($myrow["maturity_date"])),
-                            'outs_ar_amount'=>$myrow["outstanding_ar_amount"],
-                            'ar_amount'=>$myrow["ar_amount"],
-                            'lcp_amount'=>$myrow["lcp_amount"],
-                            'dp_amount'=>$myrow["downpayment_amount"],
-                            'amortn_amount'=>$myrow["amortization_amount"],
-                            'total_amount'=>$myrow["total_amount"],
-                            'category_id'=>$myrow["category_id"],
-                            'category_desc'=>$myrow["description"],
-                            'comments'=>$comment,
-                            //'prepared_by'=>$myrow["prepared_by"],
-                            //'approved_by'=>$myrow["approved_by"],
-                            //'approved_date'=>date('m/d/Y',strtotime($myrow["approved_date"])),
-                            //'status'=>($myrow["status"] == 0) ? 'Draft' : (($myrow["status"] == 1) ? 'Approved' : 'Disapproved'),
-                            'status'=>$myrow["status"],
-                            'trans_no'=>$data_approve["trans_no"],
-                            'debtor_no'=>$data_approve["debtor_no"],
-                            'debtor_ref'=>$data_approve["debtor_ref"],
-                            'reference'=>$data_approve["reference"]
+                            'tran_date'=>$myrow["tran_date"],
+                            'reference'=>$myrow["reference"],
+                            'recpt_no'=>$myrow["receipt_no"],
+                            'total'=>$myrow["ov_amount"],
+                            'payment_type'=>$paymentType,
+                            'module_type'=>$myrow["module_type"],
+                            'Bank_account'=>$myrow["bank_account_name"],
+                            'remarks'=>$myrow["memo_"],
+                            'prepared_by'=>$myrow["prepared_by"],
+                            'check_by'=>$myrow["checked_by"],
+                            'approved_by'=>$myrow["approved_by"],
+                            'collect_type'=>$myrow["collection"],
+                            'cashier'=>$myrow["cashier_user_id"],
+                            'cashier_name'=>$myrow["real_name"]
                          );
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return; 
 }
-if(isset($_GET['get_aritem'])){
-    $result = get_debtor_items($_GET['SIitem']);
+if(isset($_GET['get_AREntry'])){
+    $result = get_gl_trans($_GET['trans_type'], $_GET['trans_no']);
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
-        $total_price = ($myrow["unit_price"] * $myrow["quantity"]);
+        if ($myrow['amount'] > 0 ){
+            $debit = $myrow['amount'];
+            $credit = 0;
+        }else {
+            $debit = 0;
+            $credit = -$myrow['amount'];
+        }
         $status_array[] = array('id'=>$myrow["id"],
-                               'invoice_no'=>$myrow["debtor_trans_no"],
-                               'stock_id'=>$myrow["stock_id"],
-                               'qty'=>$myrow["quantity"],
-                               'unit_price'=>$myrow["unit_price"],
-                               'total_price'=>$total_price,
-                               'serial_no'=>$myrow["lot_no"],
-                               'chasis_no'=>$myrow["chassis_no"]
+                               'trans_no'=>$myrow["type_no"],
+                               'type'=>$myrow["type"],
+                               'entry_date'=>date('m/d/Y',strtotime($myrow["tran_date"])),
+                               'acct_code'=>$myrow["account"],
+                               'descrption'=>$myrow["account_name"],
+                               'debit_amount'=>$debit,
+                               'credit_amount'=>$credit
                             );
     }
     $jsonresult = json_encode($status_array);

@@ -1280,6 +1280,10 @@ if(isset($_GET['submit']))
                         add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']); //$OTdata['sl_code']
                     }
                 }
+                //for employee closed status
+                if($custtype == 1){
+                    update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], 'Closed');
+                }
 
                 $dsplymsg = _("Down-payment has been successfully entered...");
 
