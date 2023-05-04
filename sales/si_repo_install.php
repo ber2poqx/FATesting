@@ -746,7 +746,7 @@ function can_process()
 	//amortization - payment this month 
 	if (total_payment_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0 && get_post('termmode_id') == 0)
 	{
-		if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
+		if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 &&
 			(amort_this_month($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')))
 			- last_month_payment($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')), true) 
 			) > 0) 
@@ -756,7 +756,7 @@ function can_process()
 		}
 	}
 
-	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && 
+	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 &&
 		(total_current_payment($row['trans_no'], ST_SALESINVOICEREPO, $row['debtor_no'], date2sql(get_post('OrderDate')))
 		+ (get_post('amount_to_be_paid') - get_post('opportunity_cost'))) > get_post('new_ar_amount')) {
 		display_error(_("Cant proceed! amortization paid greater than new Gross!"));
@@ -920,7 +920,7 @@ function new_installment_computation()
 	if(get_post('termmode_id') == 0){
 		$amort = round($amort_wo_rebate + $rebate);
 	}else{
-		$amort = round($amort_wo_rebate + $rebate, 2);
+		$amort = $amort_wo_rebate + $rebate;
 	}
 
 	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
@@ -947,8 +947,8 @@ function new_installment_computation()
 	$_POST['new_count_term'] = $terms;
 
 	$_POST['amort_diff'] = $_POST['new_due_amort'] >= $_POST['due_amort']
-		? round($_POST['new_due_amort'] - $_POST['due_amort'], 2)
-		: round($_POST['due_amort'] - $_POST['new_due_amort'], 2);
+		? $_POST['new_due_amort'] - $_POST['due_amort']
+		: $_POST['due_amort'] - $_POST['new_due_amort'];
 	
 	//modified by albert 10/13/2022
 	if(get_post('termmode_id') == 1 )
