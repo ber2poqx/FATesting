@@ -920,7 +920,7 @@ function new_installment_computation()
 	if(get_post('termmode_id') == 0){
 		$amort = round($amort_wo_rebate + $rebate);
 	}else{
-		$amort = $amort_wo_rebate + $rebate;
+		$amort = round($amort_wo_rebate + $rebate, 2);
 	}
 
 	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
@@ -947,8 +947,8 @@ function new_installment_computation()
 	$_POST['new_count_term'] = $terms;
 
 	$_POST['amort_diff'] = $_POST['new_due_amort'] >= $_POST['due_amort']
-		? $_POST['new_due_amort'] - $_POST['due_amort']
-		: $_POST['due_amort'] - $_POST['new_due_amort'];
+		? round($_POST['new_due_amort'] - $_POST['due_amort'], 2)
+		: round($_POST['due_amort'] - $_POST['new_due_amort'], 2);
 	
 	//modified by albert 10/13/2022
 	if(get_post('termmode_id') == 1 )
