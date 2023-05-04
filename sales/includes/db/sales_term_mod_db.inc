@@ -171,7 +171,7 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
     $masterfile = null;
     //
     /*Added by Albert 11/05/2022 Address mantis #1038*/
-    // if($invoice->termode_full_payment != 1){
+    if($invoice->termode_full_payment != 1){
 
         $ar_account = $branch_data["receivables_account"];
         if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
@@ -359,10 +359,10 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
                 $row['trans_no']
             );
         }
-    // }
+    }
     /* */
 
-    // if($invoice->termode_full_payment != 1){
+    if($invoice->termode_full_payment != 1){
 
         $invoice->status = "Closed";  
         //modified by Albert
@@ -426,7 +426,7 @@ function write_change_term(&$invoice, $opening_balances = 0) //Modified by spyra
             db_query($sql, $ErrMsg);
         }
 
-    // }
+    }
 
     hook_db_postwrite($invoice, ST_SITERMMOD);
 
