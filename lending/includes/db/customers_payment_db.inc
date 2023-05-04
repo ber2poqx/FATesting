@@ -363,6 +363,24 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	return $result;
 }
 
+function get_debtor_payment_per_transno($trans_type, $trans_no)
+{
+	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name, H.collection, I.bank_account_name
+			FROM ".TB_PREF."debtor_trans A 
+				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
+				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type
+				LEFT JOIN ".TB_PREF."comments D ON D.type = A.type AND D.id = A.trans_no
+				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
+				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
+				LEFT JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
+				LEFT JOIN ".TB_PREF."collection_types H ON H.collect_id = A.collect_id
+				LEFT JOIN ".TB_PREF."bank_accounts I ON I.id = C.bank_act
+			WHERE A.type = ".db_escape($trans_type)." 
+				AND A.trans_no = ".db_escape($trans_no); 
+
+	return db_query($sql, "could not get payment data to void becuase");
+}
+
 function check_schedule_status($trans_no, $trans_type, $debtor_no)
 {
 	$sql = "SELECT COUNT(*) 
@@ -951,16 +969,4 @@ function get_customer_type($debtor_no)
 	$result = db_query($sql, "could not get customer type");
 	$row = db_fetch($result);
 	return $row[0];
-}
-
-function get_payment_to_void($trans_type, $trans_no)
-{
-	$sql = "SELECT A.*, B.*
-			FROM ".TB_PREF."debtor_trans A 
-				INNER JOIN ".TB_PREF."bank_trans B ON B.trans_no = A.trans_no AND B.type = A.type 
-			WHERE A.type = ".db_escape($trans_type)." 
-				AND A.trans_no = ".db_escape($trans_no); 
-
-	$result = db_query($sql, "could not get payment data to void becuase");
-	return db_fetch($result);
 }
