@@ -790,7 +790,7 @@ if(isset($_GET['submitBEGDP']))
     }
 
     //check data
-	if(check_cr_number($_POST['receipt_no_dp'])){
+	if(check_cr_number($_POST['receipt_no_dp'], 'CR')){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
     }

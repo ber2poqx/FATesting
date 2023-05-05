@@ -1164,7 +1164,7 @@ if(isset($_GET['submit']))
     }
 
     //check data
-	if(check_cr_number($_POST['receipt_no'], $_POST['moduletype'])){
+	if(check_cr_number($_POST['receipt_no'], 'CR')){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
     }
@@ -1398,18 +1398,19 @@ if(isset($_GET['submit']))
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
                     
-                    if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
+                    //commented kay mag adjust pa sila sa remaining balance - full payment term mode
+                    /*if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
                         $termode_status = 'Closed';
                     }else{
                         if($termoderow["outstanding_ar_amount"] <= ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                             $termode_status = 'Closed';
-                        }else{
+                        }else{*/
                             $termode_status = 'part-paid';
-                        }
-                    }
+                        //}
+                    //}
 
                     update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], $termode_status);
-                    update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], "paid");
+                    update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], "paid");
                     
                 }else{
                     
@@ -1928,7 +1929,7 @@ if(isset($_GET['submitInterB']))
     }
 
     //check data
-	if(check_cr_number($_POST['receipt_no_inb'])){
+	if(check_cr_number($_POST['receipt_no_inb'], 'CR')){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
     }
@@ -2096,7 +2097,7 @@ if(isset($_GET['submitDPnoAmort']))
     }
 
     //check data
-	if(check_cr_number($_POST['receipt_no_dp'])){
+	if(check_cr_number($_POST['receipt_no_dp'], 'CR')){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
     }

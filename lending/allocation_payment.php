@@ -1287,6 +1287,13 @@ if(isset($_GET['submitAdj']))
 
             $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername_wv'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo_wv']);
             $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername_wv'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo_wv']);
+        
+            //check balance to update status debtor trans.
+            $ar_balance = check_ar_balance($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
+            echo 'sss-'.$ar_balance;
+            if($ar_balance == 0){
+                update_status_debtor_trans($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv'], 'Closed');
+            }
         }
 
         //$Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no_wv']);

@@ -660,7 +660,7 @@ function check_cr_number($crno, $module_type)
 	$sql = "SELECT COUNT(*) 
 			FROM ".TB_PREF."bank_trans A 
 			INNER JOIN ".TB_PREF."debtor_trans B ON B.trans_no = A.trans_no AND B.type = A.type
-			WHERE B.module_type = ".db_escape($module_type)."
+			WHERE B.module_type LIKE '".$module_type."%' 
 				AND A.receipt_no = ".db_escape($crno);
 
 	$result = db_query($sql, "check cr number failed");
@@ -753,31 +753,31 @@ function get_debtor_invoice_date($trans_no, $debtor_no, $type)
 
 function get_deptors_termmode($trans_no, $debtor_no, $type)
 {
-	$sql = "SELECT A.*
+/*	$sql = "SELECT A.*
 		FROM ".TB_PREF."debtor_term_modification A
 		WHERE A.trans_no = ".db_escape($trans_no) ."
 			AND A.debtor_no = ".db_escape($debtor_no) ."
 			AND type = ".db_escape($type)."
 			AND A.amount_to_be_paid_status !='paid'
 			AND A.months_term != 0 ";
-		
+*/		
 
-/*	$sql = "SELECT A.*
+	$sql = "SELECT A.*
 		FROM ".TB_PREF."debtor_term_modification A
 		WHERE A.si_trans_no = ".db_escape($trans_no) ."
 			AND A.debtor_no = ".db_escape($debtor_no) ."
 			AND A.amount_to_be_paid_status !='paid'
-			AND A.months_term != 0 ";*/
+			AND A.months_term != 0 ";
 //echo $sql;
 	return db_query($sql, "could not get loan term mode");
 }
 
-function update_termmode_status($trans_no, $debtor_no, $type, $status)
+function update_termmode_status($trans_no, $debtor_no, $status)
 {
 	$sql = "UPDATE ".TB_PREF."debtor_term_modification 
 			SET amount_to_be_paid_status = ".db_escape($status)."
-		WHERE trans_no  = ".db_escape($trans_no)."
-			AND type = ".db_escape($type);
+		WHERE si_trans_no  = ".db_escape($trans_no)."
+			AND debtor_no = ".db_escape($debtor_no);
 	
 	db_query($sql, "could not auto allocate payment because ");
 }
@@ -969,4 +969,16 @@ function get_customer_type($debtor_no)
 	$result = db_query($sql, "could not get customer type");
 	$row = db_fetch($result);
 	return $row[0];
+}
+
+function get_loan_ledger_payment_per_transno($type, $trans_no)
+{
+	$sql = "SELECT B.id, B.month_no, C.reference, B.date_due, B.principal_due, A.date_paid, A.payment_applied, A.rebate, A.penalty, A.id ledger_id, A.trans_no, A.debtor_no
+	FROM ".TB_PREF."debtor_loan_ledger A
+		INNER JOIN ".TB_PREF."debtor_loan_schedule B ON B.id = A.loansched_id
+		INNER JOIN ".TB_PREF."debtor_trans C ON C.trans_no = A.payment_trans_no AND C.type = A.trans_type_from
+	WHERE  A.trans_type_from = ".db_escape($type)."
+		AND A.payment_trans_no = ".db_escape($trans_no);
+		
+	return db_query($sql, "could not get amortization ledger because ");
 }
