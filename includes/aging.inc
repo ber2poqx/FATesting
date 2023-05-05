@@ -515,7 +515,7 @@ function total_current_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor
     }
 
     $sql .= " AND DATE_FORMAT(DLL.date_paid, '%Y-%m') <= DATE_FORMAT('$end_date', '%Y-%m')";
-
+    
     $res = db_query($sql, 'Cant get total_current_payment!');
     $row = db_fetch_row($res);
     $total = $row[0];
@@ -1107,7 +1107,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE DL.invoice_date END AS buy_date,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN CT.ar_amount
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
         ELSE DL.ar_amount END AS gross,
             
@@ -1124,7 +1124,10 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         CASE 
 	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
-        ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type
+        ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type,
+        CT.term_mode_fullpayment,
+        CT.si_trans_no,
+        DL.invoice_type
 
     FROM " . TB_PREF . "debtor_loans DL
         LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
@@ -1236,4 +1239,20 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     }
  
     return db_query($sql,"No transactions were returned");
+}
+
+//Added by Albert 05/05/2023
+function full_payment_current_balance_display($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date, $gross = 0, $invoice_type = 'new') {
+
+    $total = 0;
+    if($gross !=0){
+        if (invoice_type_status($trans_no, $debtor_no, $end_date) == 'new'  && $invoice_type == 'new') {
+            $total = $gross - total_current_payment($trans_no, $trans_type, $debtor_no, $end_date);
+        }else {
+            // Get Repo balance
+            $total = $gross - total_current_payment($trans_no, ST_SALESINVOICEREPO, $debtor_no, $end_date);
+        }
+    }    
+    
+    return $total;
 }
