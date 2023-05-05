@@ -118,8 +118,9 @@ Ext.onReady(function(){
 	});
 	var AmortLedgertore = Ext.create('Ext.data.Store', {
 		model: 'AmortLedgrmodel',
+		autoLoad : true,
 		proxy: {
-			url: '?get_AmortLedger=zHun',
+			url: '?get_AmortLedger=zHun&trans_type='+url_typeno+'&trans_no= '+url_transno,
 			type: 'ajax',
 			reader: {
 				type: 'json',
@@ -162,10 +163,10 @@ Ext.onReady(function(){
 	var AmortLedgerHeader = [
 		{header:'<b>Amort</br>No.</b>', dataIndex:'month_no',align:'center', sortable:false, width:80},
 		{header:'<b>Date Due</b>', dataIndex:'due_date', sortable:true, width:90},
-		{header:'<b>Trans No</b>', dataIndex:'pay_ref_no', sortable:false, width:100},
+		{header:'<b>Trans No</b>', dataIndex:'pay_ref_no', sortable:false, width:140},
 		{header:'<b>Date Paid</b>', dataIndex:'date_paid', sortable:false, width:90},
 		{header:'<b>Principal</br>Amortization</b>', dataIndex:'amortization', sortable:false, width:120,
-			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+			renderer: function(value, metaData, record, rowIndex, colIndex,   store) {
 				metaData.tdAttr = 'data-qtip=' + Ext.util.Format.number(value, '0,000.00');
 				return '<span style="color:#793F3F;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			}
@@ -202,11 +203,12 @@ Ext.onReady(function(){
 		}
 	];
 
-	var submit_form = Ext.create('Ext.form.Panel', {
+	var submit_form = Ext.create('Ext.form.Panel', {//Ext.panel.Panel
 		renderTo: 'voidform',
 		id: 'voidform',
 		model: 'voidmodel',
 		defaultType: 'field',
+		width: 880,
 		defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
 			items: [{
 				xtype: 'fieldcontainer',
@@ -407,21 +409,21 @@ Ext.onReady(function(){
 				xtype: 'tabpanel',
 				id: 'tbpanel',
 				activeTab: 0,
-				width: 1060,
-				height: 1240,
 				scale: 'small',
 				items:[{
 					xtype:'grid',
 					id: 'EntriesGrid',
 					title: 'Entries',
 					anchor:'100%',
-					width: 1060,
-					height: 440,
+					width: 880,
 					autoScroll: true,
 					loadMask: true,
 					store: Entriestore,
 					columns: EntriescolModel,
 					columnLines: true,
+					features: [{
+						ftype: 'summary'
+					}],
 					bbar : {
 						xtype : 'pagingtoolbar',
 						hidden: false,
@@ -430,72 +432,31 @@ Ext.onReady(function(){
 						emptyMsg: "No records to display",
 						doRefresh : function(){
 							Entriestore.load();
-							
 						}
 					}
-				/*},{
+				},{
 					xtype:'gridpanel',
 					id: 'AmortLedgerGrid',
 					title: 'Amortization Ledger',
 					anchor:'100%',
+					width: 880,
 					autoScroll: true,
 					loadMask: true,
 					store: AmortLedgertore,
 					columns: AmortLedgerHeader,
-					height: 440,
-					width: 560,
-					columnLines: true*/
+					columnLines: true,
+					bbar : {
+						xtype : 'pagingtoolbar',
+						hidden: false,
+						store : AmortLedgertore,
+						displayInfo : false,
+						emptyMsg: "No records to display",
+						doRefresh : function(){
+							AmortLedgertore.load();
+						}
+					}
 				}]
 			}]
-		}]
-	});
-	var submit_window = Ext.create('Ext.Window',{
-		
-		items:[submit_form],
-		buttons:[{
-			text: '<b>Save</b>',
-			tooltip: 'Save customer payment',
-			icon: '../js/ext4/examples/shared/icons/add.png',
-			single : true,				
-			handler:function(){
-				//console.log(Ext.decode(gridData));
-				form_submit.submit({
-					url: '?submit=payment',
-					params: {
-						DataOnGrid: Ext.encode(gridData),
-						DataOEGrid: Ext.encode(OEData)
-					},
-					waitMsg: 'Saving payment for Invoice No.' + Ext.getCmp('InvoiceNo').getRawValue() + '. please wait...',
-					method:'POST',
-					submitEmptyText: false,
-					success: function(form_submit, action) {
-						PaymentStore.load()
-						Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
-						submit_window.close();
-					},
-					failure: function(form_submit, action) {
-						Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
-					}
-				});
-				window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
-					//alert('An error has occurred!')
-					Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
-					return true;
-				}
-			}
-		},{
-			text:'<b>Cancel</b>',
-			tooltip: 'Cancel customer payment',
-			icon: '../js/ext4/examples/shared/icons/cancel.png',
-			handler:function(){
-				Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to close this window?', function (btn, text) {
-					if (btn == 'yes') {
-						//Ext.Msg.alert('Close','close.');
-						submit_form.getForm().reset();
-						submit_window.close();
-					}
-				});
-			}
 		}]
 	});
 
