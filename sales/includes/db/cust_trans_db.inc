@@ -116,9 +116,9 @@ function write_customer_trans(
 			}
 		}
 		/*comment by Albert*/
-		// if($fullpayment){
-		// 	$status = "Closed";
-		// }
+		if($fullpayment){
+			$status = "Closed";
+		}
 
 		$sql = 
 		"INSERT INTO " . TB_PREF . "debtor_trans (
