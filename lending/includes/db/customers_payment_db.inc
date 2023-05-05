@@ -167,7 +167,7 @@ function update_status_debtor_trans($trans_no, $debtor_no, $type, $status, $modu
 		WHERE debtor_no = ".db_escape($debtor_no)."
 			AND trans_no = ".db_escape($trans_no)."
 			AND type = ".db_escape($type);
-	
+		
 	db_query($sql, "could not update table debtor trans because ");
 }
 
@@ -252,7 +252,7 @@ function get_invoice_per_customer($debtor_no, $tag)
 				AND IFNULL(A.module_type,'') != 'REPO'
 				AND A.debtor_no = ".db_escape($debtor_no)."
 				".$criteria;
-				
+			
 	return db_query($sql, "could not get all customer invoice");
 }
 

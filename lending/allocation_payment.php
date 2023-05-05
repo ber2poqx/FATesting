@@ -1290,7 +1290,6 @@ if(isset($_GET['submitAdj']))
         
             //check balance to update status debtor trans.
             $ar_balance = check_ar_balance($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
-            echo 'sss-'.$ar_balance;
             if($ar_balance == 0){
                 update_status_debtor_trans($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv'], 'Closed');
             }
