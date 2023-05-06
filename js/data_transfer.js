@@ -39,6 +39,7 @@ Ext.onReady(function(){
         extend: 'Ext.data.Model',
         fields: [
 			{name:'branch_no', mapping:'branch_no'},
+			{name:'branch_code', mapping:'branch_code'},
 			{name:'branch_name', mapping:'branch_name'}
 		]
     });
@@ -166,7 +167,7 @@ Ext.onReady(function(){
 			emptyText:'Select branch',
 			forceSelection: true,
 			selectOnFocus:true,
-			multiSelect: false,
+			multiSelect: true,
 			labelWidth: 105,
 			margin: '5 0 5 0',
 			listeners: {
@@ -236,17 +237,17 @@ Ext.onReady(function(){
 	var CheckOperatorModel = [
 		new Ext.grid.RowNumberer(),
 		{header:'<b>id</b>',dataIndex:'id',hidden: true},
-		{header:'<b>Date Upload</b>', dataIndex:'date_upload', sortable:true, width:150,
+		{header:'<b>Date Upload</b>', dataIndex:'date_upload', sortable:true, width:120,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 		    }	
 		},
-		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:354,
+		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:442,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:green; font-weight:bold;">' + value + '</span>';
 			}
 		},
-		{header:'<b>Preparer Name</b>', dataIndex:'prepared', sortable:true, width:210,
+		{header:'<b>Preparer Name</b>', dataIndex:'prepared', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:black; font-weight:bold;">' + value + '</span>';
 			}	
@@ -359,7 +360,7 @@ Ext.onReady(function(){
 		id: 'builder_panel',
 		title	: 'Data Synchronization Logs',
         frame: false,
-		width: 750,
+		width: 780,
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
