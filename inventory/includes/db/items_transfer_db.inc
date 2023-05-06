@@ -702,82 +702,82 @@ function update_stock_mt_details($line_item,$quantity=0,$currentqty,$receivedqty
 
 //Added by Robert 10/06/2022
 function update_stock_adjustment_status($reference, $type){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."stock_adjustment SET status='Approved' WHERE reference= ".db_escape($reference)."
     AND type=".db_escape($type);
     
     db_query($sql, "The Stock Adjusment Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 
 //Added by Robert 10/06/2022
 function update_compli_item_status($reference){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."complimentary_items SET status='Approved' WHERE reference= ".db_escape($reference);
     
     db_query($sql, "The Complimentary Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 
 //Added by Robert 10/06/2022
 function update_stock_adjustment_status_post($reference, $type, $date){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."stock_adjustment SET date_approved='".$date."', status='Closed' WHERE reference= ".db_escape($reference)."
     AND type=".db_escape($type);
     
     db_query($sql, "The Stock Adjusment Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 
 //Added by Robert 10/06/2022
 function update_compli_item_status_post($reference){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."complimentary_items SET status='Closed' WHERE reference= ".db_escape($reference);
     
     db_query($sql, "The Complimentary Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 
 //Added by Robert 10/18/2022
 function update_stock_adjustment_status_disaaproved($reference, $type){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."stock_adjustment SET status='Disapproved' WHERE reference= ".db_escape($reference)."
     AND type=".db_escape($type);
     
     db_query($sql, "The Stock Adjusment Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 
 //Added by Robert 10/18/2022
 function update_compli_item_status_disaaproved($reference){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."complimentary_items SET status='Disapproved' WHERE reference= ".db_escape($reference);
     
     db_query($sql, "The Complimentary Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 
 //Added by Robert 11/08/2022
 function update_sales_return_status($type, $trans_no){
+    set_global_connection();
     
     $sql = "UPDATE ".TB_PREF."returned_units SET cpl_ret_status='1' WHERE debtor_trans_type= ".db_escape($type)."
     AND debtor_trans_no=".db_escape($trans_no);
     
     db_query($sql, "The Return units Status record cannot be updated");
     
-    set_global_connection();
     return true;
 }
 //-------------------------------------------------------------------------------------------------------------
