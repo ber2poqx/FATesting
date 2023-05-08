@@ -157,7 +157,7 @@ Ext.onReady(function(){
 		},{
 			xtype: 'combobox',
 			id: 'branch',
-			name: 'branch',
+			name: 'branch[]',
 			fieldLabel: '<b>Send to? </b>',
 			allowBlank: false,
 			store: branch_store,
@@ -171,7 +171,7 @@ Ext.onReady(function(){
 			labelWidth: 105,
 			margin: '5 0 5 0',
 			listeners: {
-				select: function(combo, record, index) {
+				select: function(combo, records, index) {
 					
 				}
 			}
