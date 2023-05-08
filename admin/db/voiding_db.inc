@@ -355,6 +355,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		$debtor_row = get_SI_by_reference('', $void_row['id'], $void_row['type']);
 		$delivery_row = get_SI_by_reference($debtor_row['delivery_ref_no']);
 		$delivery_gl = get_gl_trans($delivery_row['type'], $delivery_row['trans_no'], "DESC");
+		$promo_item = get_promo_item_delivery($delivery_row['order_']); //Added by Albert Delete Dispatch qty out 05/06/2023
 	}
 
 	while ($row = db_fetch($gl_sql)) {
@@ -419,7 +420,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 	}
 
 	if ($delivery_row['trans_no'] > 0) {
-
+		
 		$trans_no = add_voided_entry(
 			$delivery_row['type'], 
 			$delivery_row['trans_no'], 
@@ -457,17 +458,47 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 				1
 			);
 
-		}
+		} 
 
-		delete_smo($delivery_row['trans_no'], $delivery_row['type']);
-		add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), 
-			_("Voided From Reference: " . $void_row['reference_from'])."\n". $void_row['memo_']
-		);
+		//Added by Albert Delete Dispatch qty out 05/06/2023
+		if($promo_item['trans_no'] > 0){
+
+			add_voided_entry(
+				$promo_item['type'], 
+				$promo_item['trans_no'], 
+				sql2date($void_row['date_']), 
+				$void_row['memo_'], 
+				user_company(),
+				$promo_item['reference'],
+				'', 'Voided', $void_row['cancel'],
+				$_SESSION["wa_current_user"]->user
+			);
+			delete_smo($promo_item['trans_no'], $promo_item['type']);
+
+		}
+		/**/
+			delete_smo($delivery_row['trans_no'], $delivery_row['type']);
+			add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), 
+				_("Voided From Reference: " . $void_row['reference_from'])."\n". $void_row['memo_']
+			);
 	}
 
 	add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), _("Voided.")."\n". $void_row['memo_']);
 	return $void_id;
 }
 
+//Added by Albert Delete Dispatch qty out 05/06/2023
+function get_promo_item_delivery($order_no){
+	set_global_connection();
+
+	$sql =" SELECT DISTINCT a.trans_no, a.type, a.reference
+			FROM ".TB_PREF." debtor_trans a 
+			INNER JOIN ".TB_PREF." debtor_trans_details b  on a.trans_no = b.debtor_trans_no
+			WHERE b.item_type = 'Promo' AND a.type = 13";
+	$sql .= " AND a.order_ = ".db_escape($order_no);
+	$result = db_query($sql, "Cant get promo item delivery!");
+	
+	return db_fetch($result);;
+}
 //--------------------------------------------------------------------------------------------------
 
