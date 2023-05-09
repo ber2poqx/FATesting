@@ -684,7 +684,7 @@ if(!is_null($action) || !empty($action)){
             $isError = 0;
             while ($myrow01 = db_fetch($result2))
             {
-                $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
+                $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], null, 
                     $myrow01['lot_no']);
 
                 if($qoh == 0) {
