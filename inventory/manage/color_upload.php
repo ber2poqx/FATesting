@@ -154,6 +154,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 			$manu_id = !manufacturer_exists($manufacturer) || $manufacturer == "" ? 0 : manufacturer_exists($manufacturer, true);
 			$brand_id = !brand_exists($brand_name) || $brand_name == "" ? 0 : brand_exists($brand_name, true);
 			$importer_id = get_importer_id(trim($stock_id), user_company());
+			$currentdate = date('Y-m-d');
 
 			if ($status == "") {
 				$status_id = 0;
@@ -176,6 +177,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					$manu_id, 
 					0, $importer_id, $status_id,
 					$old_code,
+					$currentdate,
 					user_company()
 				);
 			}
@@ -188,6 +190,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					$brand_id,
 					$manu_id, 
 					0, $importer_id, $status_id, null,
+					$currentdate,
 					user_company()
 				);
 
@@ -199,6 +202,7 @@ if (isset($_POST['import_btn']) && can_import()) {
 					$manu_id, 
 					0, $importer_id, $status_id,
 					$old_code,
+					$currentdate,
 					user_company()
 				);
 			}
