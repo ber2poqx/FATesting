@@ -9,12 +9,12 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-$page_security = 'SA_MERCHANDISETRANSFER';
+$page_security = 'SA_ITEMSTRANSVIEW';
 $path_to_root = "../..";
 
 include($path_to_root . "/includes/session.inc");
 
-page(_($help_context = "View Merchandise Transfer"), true);
+page(_($help_context = "View Inventory Voided"), true);
 
 include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/ui.inc");
@@ -25,9 +25,9 @@ if (isset($_GET["trans_no"]))
 	$trans_no = $_GET["trans_no"];
 }
 
-$trans = get_stock_merchandise_transfer($trans_no);
+$trans = get_stock_voided($trans_no);
 
-display_heading($systypes_array[ST_MERCHANDISETRANSFER] . " #$trans_no");
+display_heading($systypes_array[ST_VOID] . " #$trans_no");
 
 echo "<br>";
 start_table(TABLESTYLE2, "width='90%'");
@@ -38,46 +38,37 @@ label_cells(_("Date"), sql2date($trans['tran_date']), "class='tableheader2'");
 end_row();
 start_row();
 label_cells(_("From Location"), $trans['from_name'], "class='tableheader2'");
-$mt_header = get_mt_header($trans["reference"]);
-label_cells(_("To Location"),get_db_location_name($mt_header["mt_header_tolocation"]), "class='tableheader2'");
 end_row();
-start_row();
-label_cells(_("RSD#"), $mt_header['mt_header_rsd'], "class='tableheader2'");
-label_cells(_("Serve By"), $mt_header['mt_header_servedby'], "class='tableheader2'");
-end_row();
-start_row();
-label_cells(_("Category"), $trans['category_name'], "class='tableheader2'");
-end_row();
-comments_display_row(ST_MERCHANDISETRANSFER, $trans_no);
+
+comments_display_row(ST_VOID, $trans_no);
 
 end_table(2);
 
 start_table(TABLESTYLE, "width='90%'");
+
 if($trans['category_id']=='14'){
     $th = array(_("Item Code"), _("Item Description"),_("Color"), _("Engine #"),_("Chasis #"),_("Quantity"), ("Standard Cost"),_("Units"));
 }else $th = array(_("Item Code"), _("Description"), _("Serial #"), _("Quantity"), ("Standard Cost"),_("Units"));
 table_header($th);
-$transfer_items = get_stock_moves(ST_MERCHANDISETRANSFER, $trans_no, null, null, null, null);
+$transfer_items = get_stock_moves(ST_VOID, $trans_no, null, null, null, null);
 $k = 0;
 while ($item = db_fetch($transfer_items))
 {
-	//if ($item['loc_code'] == $trans['to_loc'])
-	//{
-        alt_table_row_color($k);
-        label_cell($item['stock_id']);
-        label_cell($item['description']);
-        if($item['category_id']=='14') label_cell($item['Color']);
-        label_cell($item['lot_no']);
-        if($item['category_id']=='14') label_cell($item['chassis_no']);
-        qty_cell($item['qty'], false, get_qty_dec($item['stock_id']));
-        label_cell(number_format($item['standard_cost'],2),"align=right");
-        label_cell($item['units'],"align=center");
-        end_row();
-	//}
+    alt_table_row_color($k);
+
+    label_cell($item['stock_id']);
+    label_cell($item['description']);
+    if($item['category_id']=='14') label_cell($item['Color']);
+    label_cell($item['lot_no']);
+    if($item['category_id']=='14') label_cell($item['chassis_no']);
+    qty_cell($item['qty'], false, get_qty_dec($item['stock_id']));
+    label_cell(number_format($item['standard_cost'],2),"align=right");
+    label_cell($item['units'],"align=center");
+    end_row();
 }
 
 end_table(1);
 
-is_voided_display(ST_MERCHANDISETRANSFER, $trans_no, _("This transfer has been voided."));
+is_voided_display(ST_VOID, $trans_no, _("This items has been voided."));
 
-end_page(true, false, false, ST_MERCHANDISETRANSFER, $trans_no);
+end_page(true, false, false, ST_VOID, $trans_no);

@@ -57,7 +57,7 @@ if($trans['category_id']=='14'){
     $th = array(_("Item Code"), _("Item Description"),_("Color"), _("Engine #"),_("Chasis #"),_("Quantity"), ("Standard Cost"),_("Units"));
 }else $th = array(_("Item Code"), _("Item Description"), _("Serial #"), _("Quantity"), ("Standard Cost"),_("Units"));
 table_header($th);
-$transfer_items = get_stock_moves(ST_MERCHANDISETRANSFERREPO, $trans_no);
+$transfer_items = get_stock_moves(ST_MERCHANDISETRANSFERREPO, $trans_no, null, null, null, null);
 $k = 0;
 while ($item = db_fetch($transfer_items))
 {
@@ -68,7 +68,7 @@ while ($item = db_fetch($transfer_items))
         label_cell($item['stock_id']);
         label_cell($item['description']);
         if($trans['category_id']=='14'){
-            label_cell($item['color_desc']);
+            label_cell($item['Color']);
             label_cell($item['lot_no']);
             label_cell($item['chassis_no']);
             

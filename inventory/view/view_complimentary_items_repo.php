@@ -88,7 +88,7 @@ end_page(true, false, false, ST_COMPLIMENTARYITEMREPO, $trans_no);
 
 function get_stock_complimentary_items_repo($trans_no)
 {
-    $result = get_stock_moves(ST_COMPLIMENTARYITEMREPO, $trans_no);
+    $result = get_stock_moves(ST_COMPLIMENTARYITEMREPO, $trans_no, null, null, null, null);
     
     if (db_num_rows($result) == 0)
     {

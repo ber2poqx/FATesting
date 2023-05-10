@@ -49,7 +49,7 @@ start_table(TABLESTYLE, "width='90%'");
 
 $th = array(_("Item Code"), _("Description"), _("Quantity"), _("Units"));
 table_header($th);
-$transfer_items = get_stock_moves(ST_LOCTRANSFER, $trans_no);
+$transfer_items = get_stock_moves(ST_LOCTRANSFER, $trans_no, null, null, null, null);
 $k = 0;
 while ($item = db_fetch($transfer_items))
 {

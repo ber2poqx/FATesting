@@ -56,7 +56,8 @@ $systypes_array = array (
 	ST_SALESRETURN => _("Sales Return"), // Added by Ronelle
 	ST_SITERMMOD => _("Sales Invoice Term Modification"),	// Added by Ronelle
 	ST_SALESINVOICEREPO => _("Sales Invoice Repossessed"),	// Added by Ronelle
-	ST_RESTRUCTURED => _("Sales Invoice Restructured"));	//Added by Albert
+	ST_RESTRUCTURED => _("Sales Invoice Restructured"),	//Added by Albert
+	ST_VOID => _("Voided"));	//Added by Robert
 
 $fa_systypes_array = array (
 	ST_INVADJUST => _("Fixed Assets Disposal"),

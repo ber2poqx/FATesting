@@ -182,6 +182,8 @@ function get_inventory_trans_view_str($type, $trans_no, $label="",
 		$viewer .= "view_complimentary_items_repo.php";
 	elseif ($type == ST_SUPPRECEIVE)
 		$viewer .= "rr_supplier.php";
+	elseif ($type == ST_VOID)
+		$viewer .= "view_voided.php";
 	else
 		return null;
 	$viewer .= "?trans_no=$trans_no";
@@ -368,6 +370,13 @@ function get_trans_view_str($type, $trans_no, $label = "", $icon=false,
 		}
 		
 		if ($type == ST_LOCTRANSFER) {
+			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
+			if ($view_str != null) {
+				return $view_str;
+			}
+		}
+
+		if ($type == ST_VOID) {
 			$view_str = get_inventory_trans_view_str($type, $trans_no, $label, $icon, $class, $id);
 			if ($view_str != null) {
 				return $view_str;

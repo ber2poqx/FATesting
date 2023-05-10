@@ -406,7 +406,7 @@ function get_stock_movements($stock_id, $Inventory_type, $StockLocation, $Before
 	$after_date = date2sql($AfterDate);
 	// PO Delivery and Customer Credit Notes references should be saved in stock moves reference in 2.5
 	$sql = "SELECT SUM(move.qty) AS qty_total, move.*, item_codes.description, 
-			IM.name AS manu_name, cname.name AS cmplname,
+			IM.supp_name AS manu_name, cname.name AS cmplname, void.cancel,
 			IF(ISNULL(supplier.supplier_id), debtor.name, supplier.supp_name) name,
 			
 			CASE WHEN (SELECT SUM(moveinner.qty) as qtytest 
@@ -444,9 +444,10 @@ function get_stock_movements($stock_id, $Inventory_type, $StockLocation, $Before
 				LEFT JOIN " . TB_PREF . "debtors_master debtor ON cust_trans.debtor_no=debtor.debtor_no
 				LEFT JOIN " . TB_PREF . "item_codes ON item_codes.item_code = move.color_code
 				LEFT JOIN " . TB_PREF . "stock_master SM ON SM.stock_id = move.stock_id
-				LEFT JOIN " . TB_PREF . "item_manufacturer IM ON SM.manufacturer = IM.id
+				LEFT JOIN " . TB_PREF . "suppliers IM ON SM.manufacturer = IM.supplier_id
 				LEFT JOIN " . TB_PREF . "complimentary_items compl ON move.reference = compl.reference
 				LEFT JOIN " . TB_PREF . "debtors_master cname ON compl.mcode=cname.debtor_no
+				LEFT JOIN " . TB_PREF . "voided void ON move.type=void.type AND move.trans_no=void.id
 
 		WHERE";
 

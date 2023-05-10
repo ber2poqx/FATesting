@@ -133,12 +133,12 @@ array_push($th, _("Location"));
 array_push($th, _("Color"));
 
 if ($category_id==14) {
-array_push($th, _("Serial/Engine"), _("Chasis"), _("Date"), _("Detail"), _("Quantity In"), _("Quantity Out"),
- _("Quantity On Hand"), _("Unit Cost In"), _("Unit Cost Out"), _("Balance"), _("Status"));
+	array_push($th, _("Serial/Engine"), _("Chasis"), _("Date"), _("Detail"), _("Quantity In"), _("Quantity Out"),
+	_("Quantity On Hand"), _("Unit Cost In"), _("Unit Cost Out"), _("Balance"), _("Status"));
 } 
 else {
-array_push($th, _("Serial/Engine"), _("Date"), _("Detail"), _("Quantity In"), _("Quantity Out"), 
-_("Quantity On Hand"), _("Unit Cost In"), _("Unit Cost Out"), _("Balance"), _("Status"));
+	array_push($th, _("Serial/Engine"), _("Date"), _("Detail"), _("Quantity In"), _("Quantity Out"), 
+	_("Quantity On Hand"), _("Unit Cost In"), _("Unit Cost Out"), _("Balance"), _("Status"));
 }
 
 
@@ -223,15 +223,12 @@ while ($myrow = db_fetch($result))
 	}
 	//
 
-	if ($myrow["qty"] > 0)
-	{
+	if ($myrow["qty"] > 0){
 		$quantity_formatted = number_format2($myrow["qty_total"], $dec);
 		$cost_formatted = number_format2($myrow["standard_cost"], $dec);
 		$total_in += $myrow["qty_total"];
 		$cost_in += $myrow["standard_cost"];
-	}
-	else
-	{
+	}else{
 		$quantity_formatted = number_format2(-$myrow["qty_total"], $dec);
 		$cost_formatted = number_format2($myrow["standard_cost"], $dec);
 		$total_out += -$myrow["qty"];
@@ -259,10 +256,10 @@ while ($myrow = db_fetch($result))
 	//-------MODIFY BY ROBERT----------//
 	label_cell($myrow['description']);
 	if ($category_id==14) {
-	label_cell($myrow['lot_no']);
-	label_cell($myrow['chassis_no']);
+		label_cell($myrow['lot_no']);
+		label_cell($myrow['chassis_no']);
 	} else {
-	label_cell($myrow['lot_no']);
+		label_cell($myrow['lot_no']);
 	}
 	//--------------------------------//
 
@@ -301,9 +298,19 @@ while ($myrow = db_fetch($result))
 	qty_cell($after_cost, false, $dec);
 
 	if ($myrow["lot_no"] != '') {
-		label_cell($myrow['TYPE']);
-	} else {
-		label_cell($myrow['TYPE_SPGEN']);
+		$statuscancel = $myrow['TYPE'] . '/' . 'Cancel';
+		if ($myrow["cancel"] == '') {
+			label_cell($myrow['TYPE']);
+		}else{
+			label_cell($statuscancel);
+		}	
+	}else{
+		$statuscancel = $myrow['TYPE_SPGEN'] . '/' . 'Cancel';
+		if ($myrow["cancel"] == '') {
+			label_cell($myrow['TYPE_SPGEN']);
+		}else{
+			label_cell($statuscancel);
+		}			
 	}
 
 	end_row();

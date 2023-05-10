@@ -89,7 +89,7 @@ end_page(true, false, false, ST_COMPLIMENTARYITEM, $trans_no);
 
 function get_stock_complimentary_items($trans_no)
 {
-    $result = get_stock_moves(ST_COMPLIMENTARYITEM, $trans_no);
+    $result = get_stock_moves(ST_COMPLIMENTARYITEM, $trans_no, null, null, null, null);
     
     if (db_num_rows($result) == 0)
     {

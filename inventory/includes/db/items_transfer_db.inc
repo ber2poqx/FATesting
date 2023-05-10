@@ -947,6 +947,26 @@ function get_stock_rrbranch_transfer($trans_no)
     return $data;
 }
 
+//Added by Robert 05/10/2023
+function get_stock_voided($trans_no)
+{
+    set_global_connection();
+    // retrieve common data from any two from/to move records
+    $sql = "SELECT loc_to.*
+        FROM
+			(SELECT trans_no, type, tran_date, reference, move.loc_code as from_loc, loc.location_name as from_name, move.category_id, sc.description as category_name
+			FROM ".TB_PREF."stock_moves move
+			LEFT JOIN ".TB_PREF."locations loc ON loc.loc_code=move.loc_code
+			LEFT JOIN ".TB_PREF."stock_category sc ON move.category_id=sc.category_id
+			WHERE move.type=".ST_VOID." AND move.trans_no=".db_escape($trans_no). " AND qty>0 LIMIT 1) loc_to";
+    
+    $result = db_query($sql, "Could not get transfer common data");
+    
+    $data = db_fetch($result);
+    
+    return $data;
+}
+
 function get_stock_transfer_items($trans_no)
 {
     $result = get_stock_moves(ST_MERCHANDISETRANSFER, $trans_no);
