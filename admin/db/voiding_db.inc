@@ -473,11 +473,61 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 				'', 'Voided', $void_row['cancel'],
 				$_SESSION["wa_current_user"]->user
 			);
-			delete_smo($promo_item['trans_no'], $promo_item['type']);
-
+			/*modified by Albert 5/10/2023*/
+			$delivery_item = get_SI_details($promo_item['trans_no']);
+			$void = get_voided_entry($promo_item['type'], $promo_item['trans_no']);
+			// delete_smo($promo_item['trans_no'], $promo_item['type']);
+			foreach ($delivery_item as $line=>$item){
+				$row_delivery = db_fetch(get_stock_moves($promo_item['type'], $promo_item['trans_no'], '', '', '', $item['stock_id']));
+				add_stock_move(
+					ST_VOID,
+					$item['stock_id'],
+					$void['void_id'],
+					$row_delivery['loc_code'],
+					sql2date($void_row['date_']),
+					$debtor_row['delivery_ref_no'],
+					$item['quantity'],
+					$item['standard_cost'],
+					0,
+					$item['lot_no'],
+					$item['chassis_no'],
+					$row_delivery['category_id'],
+					'', 
+					ST_VOID,
+					$void['void_id'],
+					$row_delivery['item_type']
+				);
+			}
 		}
+		
+			$delivery_item = get_SI_details($delivery_row['trans_no']);
+			$void = get_voided_entry($delivery_row['type'], $delivery_row['trans_no']);
+			
+			foreach ($delivery_item as $line=>$item){
+				$row_delivery = db_fetch(get_stock_moves($delivery_row['type'], $delivery_row['trans_no'], '', '', '', $item['stock_id']));
+				add_stock_move(
+					ST_VOID,
+					$item['stock_id'],
+					$void['void_id'],
+					$row_delivery['loc_code'],
+					sql2date($void_row['date_']),
+					$debtor_row['delivery_ref_no'],
+					$item['quantity'],
+					$item['standard_cost'],
+					0,
+					$item['lot_no'],
+					$item['chassis_no'],
+					$row_delivery['category_id'],
+					'', 
+					ST_VOID,
+					$void['void_id'],
+					$row_delivery['item_type']
+				);
+			}
+
+		
 		/**/
-			delete_smo($delivery_row['trans_no'], $delivery_row['type']);
+			// delete_smo($delivery_row['trans_no'], $delivery_row['type']);
 			add_audit_trail($void_row['type'], $void_row['id'], sql2date($void_row['date_']), 
 				_("Voided From Reference: " . $void_row['reference_from'])."\n". $void_row['memo_']
 			);

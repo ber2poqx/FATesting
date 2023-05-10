@@ -27,6 +27,7 @@ define('ST_CUSTDELIVERY', 13);
 
 define('ST_LOCTRANSFER', 16);
 define('ST_INVADJUST', 17);
+define('ST_VOID', 19);
 
 define('ST_PURCHORDER', 18);
 define('ST_SUPPINVOICE', 20);

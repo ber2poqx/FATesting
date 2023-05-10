@@ -159,6 +159,23 @@ function display_menu($trans_no, $type) {
             }
             else if ($sales_inv) {
                 label_row("Reference: &nbsp;", $row['ref_no']);
+                /*Added by Albert 5/10/2023*/
+                if ($void_row == null) {
+                    date_row(
+                    "Date Voided",
+                    'VoidedDate',
+                    _('Date of Voided'),
+                    $trans_no,
+                    0,
+                    0,
+                    0,
+                    null,
+                    true
+                );
+                }else{
+                    label_row("Date Voided: &nbsp;", phil_short_date($void_row['date_']));
+                    hidden("VoidedDate", $void_row['date_']);
+                }
             }
 
             if ($void_row != null) {
@@ -343,7 +360,7 @@ if (isset($_POST['Process'])) {
     $trans_no = add_voided_entry(
         $_GET['type'], 
         $_GET['trans_no'], 
-        Today(), 
+        $_GET['type'] == ST_SALESINVOICE || $_GET['type'] == ST_SALESINVOICEREPO ? get_post('VoidedDate') : Today(), 
         get_post('memo_'), 
         user_company(),
         get_post('reference'),
@@ -363,7 +380,7 @@ if (isset($_POST['Approved']) && can_proceed()) {
         $trans_no = update_void_status(
             $_GET['type'], 
             $_GET['trans_no'], 
-            Today(),
+            $_GET['type'] == ST_SALESINVOICE || $_GET['type'] == ST_SALESINVOICEREPO ? get_post('VoidedDate') : Today(),
             "Approved",
             get_post('memo_'),
             $_SESSION["wa_current_user"]->user,

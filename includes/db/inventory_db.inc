@@ -706,7 +706,7 @@ function update_stock_move($type, $trans_no, $stock_id, $cost)
 
 //--------------------------------------------------------------------------------------------------
 
-function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_no = '', $order = 'ASC') {
+function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_no = '', $order = 'ASC', $stock_id) {
 	/* $sql = "SELECT move.*, CONCAT_WS(' **',item.description,item) as description, item.mb_flag, item.units, stock.location_name
 		FROM ".TB_PREF."stock_moves move,"
 			.TB_PREF."locations stock,"
@@ -752,6 +752,11 @@ function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_n
 	if ($chassis_no != '') {
 		$sql .= " AND move.chassis_no = " .db_escape($chassis_no);
 	}
+	//Added by albert 
+	if ($stock_id != '') {
+		$sql .= " AND move.stock_id = " .db_escape($stock_id);
+	}
+	//
 
 	$sql .= " ORDER BY move.trans_id $order";
 
@@ -1233,6 +1238,7 @@ function get_available_item_for_si(
 				a.stock_id LIKE " . db_escape('%' . trim($search_value) . '%') . " OR 
 				a.description LIKE " . db_escape('%' . trim($search_value) . '%') . ")"; //modified by spyrax10
 		}
+		$sql .= " LIMIT 300";
 	}
 	$result = db_query($sql, "could not retreive the items");
 	set_global_connection();
