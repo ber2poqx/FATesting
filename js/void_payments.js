@@ -22,8 +22,9 @@ Ext.onReady(function(){
 	var GridItemOnTab = 7;
 	var showall = false;
 	var showlend = false;
-	var url_transno = getUrlParameter('trans_no');
-	var url_typeno = getUrlParameter('type');
+	var url_transno = Ext.String.trim(getUrlParameter('trans_no'));
+	var url_typeno = Ext.String.trim(getUrlParameter('type'));
+	var url_void_id = Ext.String.trim(getUrlParameter('void_id'));
 
 	////define model for policy installment
     Ext.define('voidmodel',{
@@ -203,35 +204,60 @@ Ext.onReady(function(){
 		}
 	];
 
-	var submit_form = Ext.create('Ext.form.Panel', {//Ext.panel.Panel
+	//var submit_form = Ext.create('Ext.form.Panel', {//Ext.panel.Panel
+	new Ext.form.FormPanel({
 		renderTo: 'voidform',
 		id: 'voidform',
 		model: 'voidmodel',
 		defaultType: 'field',
 		width: 880,
 		defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
-			items: [{
+		items: [{
+			xtype: 'fieldcontainer',
+			layout: 'vbox',
+			margin: '2 2 2 0',
+			style : {
+				'background-color': '#edeeef',
+				'border-radius':'10px'
+			},
+			items:[{
+
+				xtype: 	'textareafield',
+				id:	'remarks',
+				name: 'remarks',
+				fieldLabel: '<b>Approval Remarks </b>',
+				labelWidth: 130,
+				width: 820,
+				allowBlank: false
+			},{
 				xtype: 'fieldcontainer',
-				layout: 'vbox',
-				margin: '2 2 2 0',
-				style : {
-					'background-color': '#edeeef',
-					'border-radius':'10px'
-				},
+				layout: 'hbox',
+				margin: '20 10 5 10',
 				items:[{
-					xtype: 	'textareafield',
-					id:	'remarks',
-					name: 'remarks',
-					fieldLabel: '<b>Approval Remarks </b>',
-					labelWidth: 130,
-					width: 820,
-					allowBlank: false
+					xtype: 'button',
+					id:'disapprvd',
+					text: 'Disapproved',
+					padding: '8px',
+					margin: '2 510 2 5',//'2 2 2 710',
+					icon: '../../js/ext4/examples/shared/icons/bin_closed.png',
+					//tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#873a12 ',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					}
 				},{
 					xtype: 'button',
+					id:'apprvd',
 					text: 'Approved',
 					padding: '8px',
-					margin: '2 2 2 710',
-					icon: '../../js/ext4/examples/shared/icons/ipod_cast_delete.png',
+					margin: '2 2 2 55',
+					icon: '../../js/ext4/examples/shared/icons/bin_empty.png',
 					tooltip: 'Void Transaction',
 					style : {
 						'color': 'black',
@@ -243,6 +269,38 @@ Ext.onReady(function(){
 						//'border': 'none',
 						'border-radius':'3px'
 					},
+					handler : function() {
+						if(Ext.getCmp('remarks').getValue() == ''){
+							Ext.Msg.show({
+								title: 'Error!',
+								msg: '<font color="red">Please fill up the required field</font>',
+								buttons: Ext.Msg.OK,
+								icon: Ext.MessageBox.ERROR
+							});
+							Ext.getCmp('remarks').focus(false, 200);
+							return false;
+						}else{
+							Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to viod this payment? </br></br> Please note that this will reverse any revenue in the financial reports.', function (btn, text) {
+								if (btn == 'yes') {
+									Ext.Ajax.request({
+										url : '?submit=void&trans_type='+url_typeno+'&trans_no= '+url_transno+'&void_id= '+url_void_id+'&note='+Ext.getCmp('remarks').getValue(),
+										async:false,
+										success: function (response){
+											var result = Ext.JSON.decode(response.responseText);
+											//reference = result.reference;
+											Ext.Msg.show({
+												title: 'Success!',
+												msg: '<font color="green">'+ result.message +'</font>',
+												buttons: Ext.Msg.OK,
+												icon: Ext.MessageBox.ERROR
+											});
+										}
+									});
+								}
+							});
+						}
+					}
+				}]
 				}]
 			},{
 			xtype: 'panel',
@@ -457,6 +515,15 @@ Ext.onReady(function(){
 					}
 				}]
 			}]
+		}],
+		buttons:[{
+			text: '<b>Save</b>',
+			tooltip: 'Save customer payment',
+			icon: '../js/ext4/examples/shared/icons/add.png',
+			single : true,
+			handler:function(){
+
+			}
 		}]
 	});
 
@@ -492,9 +559,4 @@ Ext.onReady(function(){
 			Ext.getCmp('v_preparedby').setValue(records[i].get('prepared_by'));
 		}
 	});
-	/*Entriestore.load({
-		callback: function(records) {
-			alert(records[i].get('acct_code'));
-		}
-	});*/
 });
