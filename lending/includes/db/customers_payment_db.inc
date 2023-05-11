@@ -971,14 +971,79 @@ function get_customer_type($debtor_no)
 	return $row[0];
 }
 
+//void payments------------------->>
 function get_loan_ledger_payment_per_transno($type, $trans_no)
 {
-	$sql = "SELECT B.id, B.month_no, C.reference, B.date_due, B.principal_due, A.date_paid, A.payment_applied, A.rebate, A.penalty, A.id ledger_id, A.trans_no, A.debtor_no
+	$sql = "SELECT B.id, B.month_no, C.reference, B.date_due, B.principal_due, A.date_paid, A.payment_applied, A.rebate, A.penalty, A.id ledger_id, A.trans_no, A.debtor_no, B.trans_type
 	FROM ".TB_PREF."debtor_loan_ledger A
 		INNER JOIN ".TB_PREF."debtor_loan_schedule B ON B.id = A.loansched_id
 		INNER JOIN ".TB_PREF."debtor_trans C ON C.trans_no = A.payment_trans_no AND C.type = A.trans_type_from
 	WHERE  A.trans_type_from = ".db_escape($type)."
-		AND A.payment_trans_no = ".db_escape($trans_no);
+		AND A.payment_trans_no = ".db_escape($trans_no)."
+	ORDER BY B.id ASC";
 		
 	return db_query($sql, "could not get amortization ledger because ");
+}
+function get_gl_trans_void($type, $trans_no)
+{
+	$sql = "SELECT * FROM ".TB_PREF."gl_trans WHERE type = ".db_escape($type)." AND type_no =".db_escape($trans_no);
+	return db_query($sql,"could not get gl trans because ");
+}
+function update_gl_trans_void($counter, $type, $trans_no, $Voidno)
+{
+	$sql = "UPDATE ".TB_PREF."gl_trans SET
+				void_entry =".db_escape($Voidno)."
+			WHERE counter = ".db_escape($counter)."
+				AND type = ".db_escape($type)."
+				AND type_no =".db_escape($trans_no);
+
+	return db_query($sql,"could not update gl trans void entry because ");
+}
+function update_debtor_trans_void($type, $trans_no, $status)
+{
+	$sql = "UPDATE ".TB_PREF."debtor_trans SET
+				status =".db_escape($status)."
+			WHERE type = ".db_escape($type)."
+				AND trans_no =".db_escape($trans_no);
+
+	return db_query($sql,"could not update debtor trans void because ");
+}
+function update_loan_sched_void($loansched_id, $debtor_no, $trans_no, $status)
+{
+	$sql = "UPDATE ".TB_PREF."debtor_loan_schedule SET
+				status =".db_escape($status).",
+				penalty_status = null
+			WHERE id = ".db_escape($loansched_id)."
+				AND debtor_no = ".db_escape($debtor_no)."
+				AND trans_no =".db_escape($trans_no);
+
+	return db_query($sql,"could not update loan schedule status because ");		
+}
+function update_void($void_id, $trans_no, $status, $note)
+{
+	$sql = "UPDATE ".TB_PREF." voided SET
+				void_status =".db_escape($status).",
+				status_note = ".db_escape($note)."
+			WHERE void_id = ".db_escape($void_id)."
+				AND id = ".db_escape($trans_no);
+
+	return db_query($sql,"could not update loan schedule status because ");	
+}
+function delete_cust_allocations_void($type, $trans_no, $invoice_no)
+{
+	$sql = "DELETE FROM ".TB_PREF."cust_allocations 
+			WHERE trans_type_from = ".db_escape($type)."
+					AND trans_no_from =".db_escape($trans_no)."
+					AND trans_no_to =".db_escape($invoice_no);
+
+	return db_query($sql,"could not delete customer allocation because ");
+}
+function delete_loan_ledger_void($type, $trans_no, $pay_trans_no)
+{
+	$sql = "DELETE FROM ".TB_PREF."debtor_loan_ledger 
+			WHERE trans_type_from = ".db_escape($type)."
+					AND trans_no =".db_escape($trans_no)."
+					AND payment_trans_no =".db_escape($pay_trans_no);
+
+	return db_query($sql,"could not delete loan ledger because ");
 }

@@ -1067,9 +1067,17 @@ if(isset($_GET['submitAllocInterB']))
                 //$GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $branch_data["receivables_account"], 0, 0, -($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty)), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit");
                 $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_aib'], $debtors_account, 0, 0, -$_POST['tenderd_amount_aib'], $_POST['customername_aib'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo_aib']);
             }
+
+            $ar_balance = check_ar_balance($_POST['InvoiceNo_aib'], $_POST['transtype_aib']);
+
             //deferred -> debit; realized -> credit
             if($grossPM > 0){
-                $PM_amount = ($_POST['tenderd_amount_aib'] *  $grossPM);
+                if($ar_balance == 0){
+                    $PM_amount = get_deferdBal($_POST['InvoiceNo_aib'], $company_prefs["dgp_account"]);
+                }else{
+                    $PM_amount = ($_POST['tenderd_amount_aib'] *  $grossPM);
+                }
+                
                 if($PM_amount != 0){
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_aib'], $company_prefs["dgp_account"], 0, 0, '', check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername_aib'], "", 0, null, null, 0, $_POST['InvoiceNo_aib']);
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_aib'], $company_prefs["rgp_account"], 0, 0, '', -check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername_aib'], "", 0, null, null, 0, $_POST['InvoiceNo_aib']);
@@ -1274,11 +1282,14 @@ if(isset($_GET['submitAdj']))
                 }
             }
         }
+        //check balance to update status debtor trans.
+        $ar_balance = check_ar_balance($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
+
         if($debtor_loans["profit_margin"] != 0){
             $dgp_account = $company_prefs["dgp_account"];
             $rgp_account = $company_prefs["rgp_account"];
             
-            if($islastPay != 0){
+            if($ar_balance == 0){
                 $DeferdAmt = get_deferdBal($_POST['InvoiceNo_wv'], $dgp_account);
             }else{
                 $ARValue = ($GL_totalRebate + ($GL_alocamount - $GL_PenaltyAmount));
@@ -1288,8 +1299,6 @@ if(isset($_GET['submitAdj']))
             $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername_wv'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo_wv']);
             $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername_wv'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo_wv']);
         
-            //check balance to update status debtor trans.
-            $ar_balance = check_ar_balance($_POST['InvoiceNo_wv'], $_POST['transtype_wv']);
             if($ar_balance == 0){
                 update_status_debtor_trans($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv'], 'Closed');
             }

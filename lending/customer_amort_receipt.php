@@ -1388,12 +1388,18 @@ if(isset($_GET['submit']))
                     //A/R
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -$termoderow["outstanding_ar_amount"], $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
 
+                    $ar_balance = check_ar_balance($_POST['InvoiceNo'], $_POST['transtype']);
+
                     if($GPM != 0){
                         $dgp_account = $company_record["dgp_account"];
                         $rgp_account = $company_record["rgp_account"];
     
-                        $DeferdAmt = $termoderow["outstanding_ar_amount"] * $GPM;
-    
+                        if($ar_balance == 0){
+                            $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
+                        }else{
+                            $DeferdAmt = $termoderow["outstanding_ar_amount"] * $GPM;
+                        }
+
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
@@ -1779,12 +1785,14 @@ if(isset($_GET['submit']))
                         //$GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $branch_data["receivables_account"], 0, 0, -($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty)), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit");
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -($GLRebate + (($_POST['tenderd_amount'] + $_POST['total_otheramount']) - $GLPenalty)), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
+
+                    $ar_balance = check_ar_balance($_POST['InvoiceNo'], $_POST['transtype']);
     
                     if($GPM != 0){
                         $dgp_account = $company_record["dgp_account"];
                         $rgp_account = $company_record["rgp_account"];
                         
-                        if($islastPay != 0){
+                        if($ar_balance == 0){
                             $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
                         }else{
                             $ARValue = ($GLRebate + (($_POST['tenderd_amount'] + $_POST['total_otheramount']) - $GLPenalty));
