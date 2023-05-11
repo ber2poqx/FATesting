@@ -492,7 +492,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 					$item['lot_no'],
 					$item['chassis_no'],
 					$row_delivery['category_id'],
-					'', 
+					$item['stock_id'], 
 					ST_VOID,
 					$void['void_id'],
 					$row_delivery['item_type']
@@ -518,7 +518,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 					$item['lot_no'],
 					$item['chassis_no'],
 					$row_delivery['category_id'],
-					'', 
+					$item['lot_no'] == null ? $item['stock_id'] : $item['color_code'], 
 					ST_VOID,
 					$void['void_id'],
 					$row_delivery['item_type']
