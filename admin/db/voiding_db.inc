@@ -432,6 +432,8 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 			$_SESSION["wa_current_user"]->user
 		);
 
+		update_status_debtor_trans($debtor_row['trans_no'], $debtor_row['debtor_no'], $debtor_row['type'], 'Cancel','');
+
 		while ($row = db_fetch($delivery_gl)) {
 			
 			update_gl_memo($row['counter'], $row['memo_'] . " - " . $memo_);
@@ -485,7 +487,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 					$void['void_id'],
 					$row_delivery['loc_code'],
 					sql2date($void_row['date_']),
-					$debtor_row['delivery_ref_no'],
+					$debtor_row['reference'],
 					$item['quantity'],
 					$item['standard_cost'],
 					0,
@@ -511,7 +513,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 					$void['void_id'],
 					$row_delivery['loc_code'],
 					sql2date($void_row['date_']),
-					$debtor_row['delivery_ref_no'],
+					$debtor_row['reference'],
 					$item['quantity'],
 					$item['standard_cost'],
 					0,
