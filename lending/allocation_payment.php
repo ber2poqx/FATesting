@@ -434,9 +434,14 @@ if(isset($_GET['getCOA']))
 }
 if(isset($_GET['get_interCOAPaymnt']))
 {
+    global $db_connections;
+
     $DataOnGrid = stripslashes(html_entity_decode($_GET['DataOEGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
     $counter = 0;
+    $slname = $slcode = '';
+
+    $cust_type = get_customer_type($_GET['debtor_id']);
 
     if($_GET['tag'] == 'delete'){
         foreach($objDataGrid as $value=>$data) {
@@ -488,8 +493,8 @@ if(isset($_GET['get_interCOAPaymnt']))
                             'trans_date'=>$data["trans_date"],
                             'gl_code'=>$data["gl_code"],
                             'gl_name'=>$data["gl_name"],
-                            'sl_code'=>$data['sl_code'],
-                            'sl_name'=>$data['sl_name'],
+                            'sl_code'=> $data['sl_code'],
+                            'sl_name'=> $data['sl_name'],
                             'debtor_id'=>$data['debtor_id'],
                             'debit_amount'=>$data['debit_amount'],
                             'credit_amount'=>$data['credit_amount']
@@ -498,16 +503,36 @@ if(isset($_GET['get_interCOAPaymnt']))
                 }
             }
 
-            $status_array[] = array('id'=>$counter+1,
-                                    'trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
-                                    'gl_code'=>$gl_row["account_code"],
-                                    'gl_name'=>$gl_row["account_name"],
-                                    'sl_code'=>$customer["debtor_no"],
-                                    'sl_name'=>$customer["name"],
-                                    'debtor_id'=>$_GET['debtor_id'],
-                                    'debit_amount'=>0,
-                                    'credit_amount'=>0,
-                                );
+            if($cust_type == 1){
+                //if HOC DESI or DESM default SL
+                if($gl_account == get_company_pref('isa_employee')){
+                    for ($i = 0; $i < count($db_connections); $i++)
+                    {
+                        if(get_company_pref("branch_code") == $db_connections[$i]["branch_code"]){
+                            $sl_name = get_company_type_desc($db_connections[$i]["type"]);
+                            $sl_code = $db_connections[$i]["type"];
+                        }
+                    }
+                }else{
+                    $sl_name = $customer["name"];
+                    $sl_code = $customer["debtor_no"];
+                }
+            }else{
+                $sl_name = $customer["name"];
+                $sl_code = $customer["debtor_no"];
+            }
+            if(!empty($_GET['debtor_id'])){
+                $status_array[] = array('id'=>$counter+1,
+                    'trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                    'gl_code'=>$gl_row["account_code"],
+                    'gl_name'=>$gl_row["account_name"],
+                    'sl_code'=>$sl_code,
+                    'sl_name'=>$sl_name,
+                    'debtor_id'=>$_GET['debtor_id'],
+                    'debit_amount'=>0,
+                    'credit_amount'=>0,
+                );
+            }
         }
     }
 

@@ -1828,7 +1828,7 @@ Ext.onReady(function(){
 			},
 			viewConfig: {
 				listeners: {
-					refresh: function(view) {      
+					refresh: function(view) {
 						// get all grid view nodes
 						var nodes = view.getNodes();
 						
@@ -1853,7 +1853,6 @@ Ext.onReady(function(){
 								//Ext.getCmp('showlending').setVisible(false);
 							}else{
 								//Ext.getCmp('showlending').setVisible(true);
-
 							}
 						}
 					}

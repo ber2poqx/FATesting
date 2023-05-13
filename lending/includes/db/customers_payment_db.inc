@@ -340,7 +340,7 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	if($cashier != ''){
 		$sWhere .= " AND C.cashier_user_id = ".db_escape($cashier);
 	}
-	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name
+	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name, K.void_status
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
 				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type
@@ -348,6 +348,7 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
 				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
 				LEFT JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
+				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
 			WHERE A.type = ".db_escape($type). "
 				AND A.module_type LIKE '".$module_type."%'"
 				.$sWhere."
@@ -856,7 +857,7 @@ function get_NoSchedDownPaymnt($trans_no, $debtor_no)
 
 function get_deferdBal($trans_no, $glcode)
 {
-	$sql = "SELECT abs(TRUNCATE(SUM(X.amount),2)) bal 
+	$sql = "SELECT abs(ROUND(SUM(X.amount),2)) bal 
 			FROM gl_trans X 
 			WHERE X.loan_trans_no=".db_escape($trans_no)."
 				And X.account = ".db_escape($glcode);
@@ -962,6 +963,7 @@ function get_sl_masterfile()
 
 function get_customer_type($debtor_no)
 {
+	//customer=0; employee=1; bank=2
 	$sql = "SELECT A.employee
 			FROM ".TB_PREF."debtors_master A 
 			WHERE A.debtor_no = ".db_escape($debtor_no);

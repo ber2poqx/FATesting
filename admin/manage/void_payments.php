@@ -145,7 +145,7 @@ if(isset($_GET['submit']))
 
         if($invoice_trans_no != 0 && $invoice_trans_type != 0){
             //delete loan ledger
-            delete_loan_ledger_void($invoice_trans_type, $invoice_trans_no, $_GET['trans_no']);
+            delete_loan_ledger_void($_GET['trans_type'], $invoice_trans_no, $_GET['trans_no']);
             //delete cust allocation
             delete_cust_allocations_void($_GET['trans_type'], $_GET['trans_no'], $invoice_trans_no);
         }
@@ -170,7 +170,7 @@ if(isset($_GET['submit']))
 
         //update debtor trans
         update_debtor_trans_void($_GET['trans_type'], $_GET['trans_no'], 'Cancelled');
-        update_void($_GET['void_id'], $_GET['trans_no'], 'Approved', $_GET['note']);
+        update_void($_GET['void_id'], $_GET['trans_no'], 'Voided', $_GET['note']);
 
         $dsplymsg = _("Payment su approved.<b>".$reference."</b>");
         echo '({"success":"true","message":"'.$dsplymsg.'"})';

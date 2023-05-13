@@ -58,7 +58,8 @@ Ext.onReady(function() {
 			{name:'payment_type_v', mapping:'payment_type_v'},
 			{name:'collect_type', mapping:'collect_type'},
 			{name:'cashier', mapping:'cashier'},
-			{name:'cashier_name', mapping:'cashier_name'}
+			{name:'cashier_name', mapping:'cashier_name'},
+			{name:'status', mapping:'status'}
 		]
 	});
     Ext.define('CustomersModel',{
@@ -736,6 +737,12 @@ Ext.onReady(function() {
 						submit_window_view.setTitle('Customer Amortization Receipt Details - Reference No. :'+ records.get('reference'));
 						submit_window_view.show();
 						submit_window_view.setPosition(320,55);
+					}
+
+					if(records.get('status') != null){
+						Ext.getCmp('btnVoid').setVisible(false);
+					}else{
+						Ext.getCmp('btnVoid').setVisible(true);
 					}
 				}
 			},'-',{
@@ -4141,6 +4148,38 @@ Ext.onReady(function() {
 						}
 					}
 				]
+			},
+			viewConfig: {
+				listeners: {
+					refresh: function(view) {
+						// get all grid view nodes
+						var nodes = view.getNodes();
+						
+						for (var i = 0; i < nodes.length; i++) {
+							var node = nodes[i];
+							var record = view.getRecord(node);
+							// get all td elements
+							var cells = Ext.get(node).query('td');  
+							// set bacground color to all row td elements
+							for(var j = 0; j < cells.length; j++) {
+								//console.log(cells[j]);
+								if(record.get('status') == "Draft"){
+									Ext.fly(cells[j]).setStyle('background-color', "#f8cbcb");
+								}else if(record.get('status') == "Approved"){
+									Ext.fly(cells[j]).setStyle('background-color', "#716e6e");
+								}
+							}
+							//Ext.getCmp('changeterm');
+							//Ext.getCmp('changeterm').isDisabled(true);
+							if(record.get('payment_loc') == 'Lending'){
+								//Ext.getCmp('changeterm').iconCls= 'btnchangetrm';
+								//Ext.getCmp('showlending').setVisible(false);
+							}else{
+								//Ext.getCmp('showlending').setVisible(true);
+							}
+						}
+					}
+				}
 			}
 		}]
 	});
@@ -4503,6 +4542,7 @@ Ext.onReady(function() {
 			tabBar: {
 				items: [{
 					xtype: 'button',
+					id: 'btnVoid',
 					text: 'Void',
 					padding: '3px',
 					margin: '2px 2px 6px 580px',
@@ -4525,7 +4565,7 @@ Ext.onReady(function() {
 									if (btn == 'ok'){
 										Ext.Ajax.request({
 											url : '?submitVoid=payment&syspk='+Ext.getCmp('v_syspk').getValue()+'&systype='+Ext.getCmp('v_transtypeFr').getValue()+'&reason='+text,
-											waitMsg: 'Saving downpayment. please wait...',
+											//waitMsg: 'Saving downpayment. please wait...',
 											method:'POST',
 											//async:false,
 											success: function (response) {
@@ -4547,6 +4587,7 @@ Ext.onReady(function() {
 														icon: Ext.MessageBox.ERROR
 													});
 												}
+												submit_window_view.close();
 											},
 											failure: function () {
 												Ext.Msg.show({

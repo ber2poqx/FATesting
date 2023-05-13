@@ -2107,6 +2107,9 @@ Ext.onReady(function(){
 			
 			CustomerStore.proxy.extraParams = {module: "waived", debtorno: url_debtorno };
 			CustomerStore.load();
+			
+			InterCOAStore.proxy.extraParams = {debtor_id: "0"};
+			InterCOAStore.load();
 
 			submit_window_waivpnlty.show();
 			submit_window_waivpnlty.setTitle('Waived Penalty Adjustment - Add');
