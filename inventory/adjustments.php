@@ -470,13 +470,17 @@ if (isset($_POST['Process']) && can_process()) {
 		$trans_no_out = $adj_type == "OUT" ? $row['transno_out'] : $adj_id;
 		$trans_type_out = $adj_type == "OUT" ? $row['type_out'] : $trans_type;
 
+		/*Added by Albert 5/13/2023*/
+		$inv_adj_type = get_post('adj_type') == 2 ? get_post('adjustment_id') : 0;
+		$rr_ref = get_post('adj_type') == 2 ? $items->stock_ref : '';
+
 		$line_id = $count;
 
 		add_stock_adjust(ST_INVADJUST, $items->stock_id, $adj_id, $line_id, $_POST['StockLocation'],
 			$_POST['AdjDate'], $_POST['ref'], $items->quantity, $items->standard_cost, 
 			0, $items->lot_no, $items->chasis_no, $items->category_id,
 			$items->color, $adj_type, 'Draft', $_POST['memo_'], '', '0000-00-00', '', 
-			$trans_no_out, $trans_type_out, get_item_type()
+			$trans_no_out, $trans_type_out, get_item_type(), $rr_ref, $inv_adj_type
 		); 
 	}
 

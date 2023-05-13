@@ -40,10 +40,10 @@ function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufa
 
 function display_order_header(&$order, $id = 0, $line_items = 0)
 {
-	global $Refs;
+	global  $Ajax, $Refs;
 
 	div_start('item_head');
-	start_outer_table(TABLESTYLE2, "width='70%'");
+	start_outer_table(TABLESTYLE2, "width='80%'");
 	table_section(1);
 
 	sql_type_list(_("Location: "), 'StockLocation', 
@@ -56,8 +56,24 @@ function display_order_header(&$order, $id = 0, $line_items = 0)
 	}
 	else {
 		date_row(_("Date: "), 'AdjDate', '', true);
-	}	
-    
+	} 
+	/*Added by Albert 5/13/2023*/
+	adjustment_list_row(_("Adjustment Types:"), "adjustment_id", null, _("All Types"),true);
+
+	if(get_post('adjustment_id') == 1){
+		$Ajax->activate('item_head');
+		$_POST['rr_ref'] = '';
+		foreach ($order->line_items as $line_no=>$stock_item)
+		{
+			$_POST['rr_ref'] = $stock_item->stock_ref;	
+		}
+		label_row(_("RR Reference #: &nbsp;"), get_post('rr_ref'));
+		hidden('rr_ref', get_post('rr_ref'));
+	}else{
+		$Ajax->activate('item_head');
+	}
+	/**/
+	
 	table_section(2, "50%");
 	$_POST['ref'] = $order->reference;
 	label_row(_("Reference #: &nbsp;"), get_post('ref'));
@@ -69,7 +85,7 @@ function display_order_header(&$order, $id = 0, $line_items = 0)
 	);
 
 	if ($id == 1) {
-		numeric_type_list(_("Adjustment Type: "), 'adj_type', 
+		numeric_type_list(_("Adjustment Status: "), 'adj_type', 
 			array(
 				_('Inventory In'),
 				_('Inventory Out')
@@ -271,6 +287,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 				inty_list_cells(null, 'stock_id', null, $_POST['category'], false, true, true, 2, $_POST['StockLocation'], 
 					null, $item_type
 				);
+				display_warning('hai');
 			}
 			else {
 				if ($ob == 1) {
@@ -281,6 +298,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 					/*pr_stock_items_list_cells($_POST['supplier_id'], get_post("category"), null, 'stock_id', null, false, true, false, true, 
 						array('editable' => 30, 'where' => array("NOT no_purchase"))
 					);*/
+					// display_warning('hai');
 
 				}
 				else {

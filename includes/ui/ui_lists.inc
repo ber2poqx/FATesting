@@ -5356,4 +5356,35 @@ function reconciled_type($label, $name, $selected = null, $submit_on_change = fa
 	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change));
 	echo "</td>\n";
 }
+//Added by Albert 05/13/2023
+function adjustment_list($name, $selected_id=null, $spec_opt=false, $submit_on_change=true, $fixed_asset=false, $disabled = false)
+{	
+	$where_opts = array();
+
+	$sql = "SELECT adjust_id, adjustment_name FROM ".TB_PREF."`inventory_adjustment` where inactive = 0";
+
+	return combo_input($name, $selected_id, $sql, 'adjust_id', 'adjustment_name',
+ 		array('order'=>'adjust_id',
+			'spec_option' => $spec_opt,
+			'spec_id' => -1,
+ 			'select_submit'=> $submit_on_change,
+ 			'async' => true,
+			'where' => $where_opts
+ 		));
+}
+function adjustment_list_cells($label, $name, $selected_id=null, $spec_opt=false, $submit_on_change=false, $fixed_asset=false, $disabled = false)
+{
+	if ($label != null)
+		echo "<td>$label</td>\n";
+	echo "<td>";
+	echo adjustment_list($name, $selected_id, $spec_opt, $submit_on_change, $fixed_asset, $disabled);
+	echo "</td>\n";
+}
+function adjustment_list_row($label, $name, $selected_id=null, $spec_opt=false, $submit_on_change=false, $fixed_asset=false, $disabled = false)
+{
+	echo "<tr><td class='label'>$label</td>";
+	adjustment_list_cells(null, $name, $selected_id, $spec_opt, $submit_on_change, $fixed_asset, $disabled);
+	echo "</tr>\n";
+}
+
 /*End by Albert*/

@@ -660,7 +660,9 @@ function add_stock_adjust(
 	$comments = '',
 	$trans_no_out = 0,
 	$trans_type_out = 0,
-	$item_type = "new"
+	$item_type = "new",
+	$rr_ref= '',
+	$inv_adj_type = 0
 ) {
 	$date = date2sql($date_);
 	set_global_connection();
@@ -669,13 +671,13 @@ function add_stock_adjust(
 
 	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment (stock_id, trans_no, line_id, type, loc_code, tran_date, reference, qty, standard_cost,
 				price, lot_no, chassis_no, category_id, color_code, adjustment_type, status, memo, approver, date_approved, comments, trans_no_out, trans_type_out,
-				item_type) 
+				item_type, rr_ref, inv_adjustment_type) 
 			VALUES ("
 		. db_escape($stock_id) . ", " . db_escape($trans_no) . ", " . db_escape($line_id) . ", " . db_escape($type) . ", " . db_escape($location) . ", '$date', "
 		. db_escape($reference) . ", " . db_escape($quantity) . ", " . db_escape($std_cost) . "," . db_escape($price) . ", "
 		. db_escape($lot_no) . ", " . db_escape($chasis_no) . ", " . db_escape($category) . ", " . db_escape($color_code) . ", "
 		. db_escape($adj_type) . ", " . db_escape($status) . ", " . db_escape($memo) . ", " . db_escape($approver) . ", " . db_escape($date_approved) . ", "
-		. db_escape($comments) . ", " . db_escape($trans_no_out) . ", " . db_escape($trans_type_out) . ", " . db_escape($item_type) . ")";
+		. db_escape($comments) . ", " . db_escape($trans_no_out) . ", " . db_escape($trans_type_out) . ", " . db_escape($item_type) . ", " . db_escape($rr_ref) . ", " . db_escape($inv_adj_type) . ")";
 
 	db_query($sql, "The stock adjustment record cannot be inserted! (spyrax10)");
 
@@ -706,7 +708,7 @@ function update_stock_move($type, $trans_no, $stock_id, $cost)
 
 //--------------------------------------------------------------------------------------------------
 
-function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_no = '', $order = 'ASC', $stock_id) {
+function get_stock_moves($type = null, $type_no = null, $lot_no = '', $chassis_no = '', $order = 'ASC', $stock_id = '') {
 	/* $sql = "SELECT move.*, CONCAT_WS(' **',item.description,item) as description, item.mb_flag, item.units, stock.location_name
 		FROM ".TB_PREF."stock_moves move,"
 			.TB_PREF."locations stock,"
