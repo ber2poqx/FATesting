@@ -4165,7 +4165,7 @@ Ext.onReady(function() {
 								//console.log(cells[j]);
 								if(record.get('status') == "Draft"){
 									Ext.fly(cells[j]).setStyle('background-color', "#f8cbcb");
-								}else if(record.get('status') == "Approved"){
+								}else if(record.get('status') == "Voided"){
 									Ext.fly(cells[j]).setStyle('background-color', "#716e6e");
 								}
 							}
