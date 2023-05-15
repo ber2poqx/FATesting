@@ -1300,3 +1300,13 @@ function alloc_in_openning($trans_no, $debtor_no, $alloc, $amortization, $date_)
         db_query($sql, $ErrMsg);
     }
 }
+
+function get_system_pref(){
+
+	$sql = " SELECT value FROM " . TB_PREF . "sys_prefs where name = 'isa_employee'";
+
+	$result = db_query($sql, "System Prefs can't return value");
+	$row = db_fetch($result);
+	return $row[0];
+
+}
