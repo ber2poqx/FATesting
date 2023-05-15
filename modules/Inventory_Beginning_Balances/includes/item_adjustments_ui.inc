@@ -287,7 +287,6 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 				inty_list_cells(null, 'stock_id', null, $_POST['category'], false, true, true, 2, $_POST['StockLocation'], 
 					null, $item_type
 				);
-				display_warning('hai');
 			}
 			else {
 				if ($ob == 1) {
@@ -298,7 +297,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 					/*pr_stock_items_list_cells($_POST['supplier_id'], get_post("category"), null, 'stock_id', null, false, true, false, true, 
 						array('editable' => 30, 'where' => array("NOT no_purchase"))
 					);*/
-					// display_warning('hai');
+					
 
 				}
 				else {
