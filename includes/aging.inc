@@ -1107,7 +1107,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE DL.invoice_date END AS buy_date,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN CT.ar_amount
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
         ELSE DL.ar_amount END AS gross,
             

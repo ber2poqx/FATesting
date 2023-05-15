@@ -169,8 +169,7 @@ function print_transaction() {
         $total_adjusment = total_adjusment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $total_payment_this_month = payment_this_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $advance_payment = advance_payment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
-        $current_balance = $trans['term_mode_fullpayment'] = 1 ? full_payment_current_balance_display($trans['si_trans_no'], ST_SALESINVOICE, $trans['debtor_no'], $trans['cur_date'], $trans['gross'], $trans['invoice_type'])
-                            :current_balance_display($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
+        $current_balance = current_balance_display($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $not_yet_due = not_yet_due($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $due_nxt_month = due_nxt_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $due_this_month = due_this_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
@@ -398,8 +397,7 @@ function print_transaction() {
         $total_adjusment = total_adjusment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $total_payment_this_month = payment_this_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $advance_payment = advance_payment($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
-        $current_balance = $trans['term_mode_fullpayment'] = 1 ? full_payment_current_balance_display($trans['si_trans_no'], ST_SALESINVOICE, $trans['debtor_no'], $trans['cur_date'], $trans['gross'], $trans['invoice_type'])
-                            :current_balance_display($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
+        $current_balance = current_balance_display($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $not_yet_due = not_yet_due($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $due_nxt_month = due_nxt_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
         $due_this_month = due_this_month($trans['trans_no'], $trans['trans_type'], $trans['debtor_no'], $trans['cur_date']);
