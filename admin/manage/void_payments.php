@@ -175,7 +175,7 @@ if(isset($_GET['submit']))
         // only add an entry if it's actually been voided
 	    add_audit_trail($_GET['trans_type'], $_GET['trans_no'], sql2date(date('Y-m-d', strtotime(Today()))), _("Voided.")."\n".$_GET['note']);
 
-        $dsplymsg = _("Payment su approved.<b>".$reference."</b>");
+        $dsplymsg = _("Payment was successfully voided.<b>".$reference."</b>");
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
 
     }else{

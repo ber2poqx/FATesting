@@ -1140,6 +1140,10 @@ if(isset($_GET['submitAdj']))
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
     $InputError = $TotalRebateAmount = $RebateAmount = $PenaltyAmount = $GL_alocamount = $GL_PenaltyAmount = 0;
+
+    $ARInst = get_company_pref('debtors_act');
+    $ARReg = get_company_pref('ar_reg_current_account');
+
     
     if (empty($_POST['transtype_wv']) || empty($_POST['ref_no_wv']) || empty($_POST['total_debt_wv']) || empty($_POST['name_wv'])) {
         $InputError = 1;
@@ -1180,6 +1184,7 @@ if(isset($_GET['submitAdj']))
         $dsplymsg = _('Prepared by must not be empty.');
     }
 
+
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
     
@@ -1188,7 +1193,17 @@ if(isset($_GET['submitAdj']))
         $InputError = 1;
         $dsplymsg = _('Credit amount must not be empty! Please try again.');
     }
-    
+    //check if AR is in Credit side
+    foreach($objDataGrid as $value=>$data) {
+            //get AR amount
+            if($ARInst == $data['gl_code'] || $ARReg == $data['gl_code']) {
+                if($data['credit_amount'] == 0){
+                    $InputError = 1;
+                    $dsplymsg = _('AR Credit amount must not be 0! Please try again.');
+                }
+            }
+    }
+
     if ($InputError != 1){
         
        // global $Refs;
@@ -1228,6 +1243,14 @@ if(isset($_GET['submitAdj']))
                     $PenaltyAmount = -$data['credit_amount'];
                 }else{
                     $PenaltyAmount = $data['debit_amount'];
+                }
+            }
+            //get AR amount
+            if($ARInst == $data['gl_code'] || $ARReg == $data['gl_code']) {
+                if($data['credit_amount'] != 0){
+                    $ARAmountAdj = $data['credit_amount'];
+                }else{
+                    $ARAmountAdj = $data['debit_amount'];
                 }
             }
         }
@@ -1318,7 +1341,7 @@ if(isset($_GET['submitAdj']))
             if($ar_balance == 0){
                 $DeferdAmt = get_deferdBal($_POST['InvoiceNo_wv'], $dgp_account);
             }else{
-                $ARValue = ($GL_totalRebate + ($GL_alocamount - $GL_PenaltyAmount));
+                $ARValue = $ARAmountAdj; //($GL_totalRebate + ($GL_alocamount - $GL_PenaltyAmount));
                 $DeferdAmt = $ARValue * $debtor_loans["profit_margin"];
             }
 
