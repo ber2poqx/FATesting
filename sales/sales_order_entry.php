@@ -504,6 +504,7 @@ function copy_to_cart()
 	if ($cart->trans_type == ST_SALESINVOICE || $cart->trans_type == ST_SITERMMOD || $cart->trans_type == ST_RESTRUCTURED) {
 		$cart->dr_ref = $_POST['dr_ref'];
 		$cart->document_ref = $_POST['document_ref'];
+		$cart->dr_ref_no = $_POST['dr_ref_no'];
 	}
 
 	if ($cart->trans_type == ST_SALESINVOICE) {
@@ -633,6 +634,7 @@ function copy_from_cart()
 	$_POST['ref'] = $cart->reference;
 	if ($cart->trans_type == ST_SALESINVOICE || $cart->trans_type == ST_SITERMMOD || $cart->trans_type == ST_RESTRUCTURED)
 		$_POST['dr_ref'] = $cart->dr_ref;
+		$_POST['dr_ref_no'] = $cart->dr_ref_no;
 	$_POST['Comments'] = $cart->Comments;
 	// added by Albert
 	$_POST['account_specialist_remarks'] = $cart->account_specialist_remarks;

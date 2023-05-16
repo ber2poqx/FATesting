@@ -130,6 +130,7 @@ class Cart
 	var $total_new_cost = 0;
 	/* */
 	var $dr_ref = "";
+	var $dr_ref_no = "";     // delivery  reference no Added by Albert 5/16/2023
 	var $discount_dp_amount = 0; // Added by Ronelle 7/1/2021
 	var $co_maker; // Added by ROnelle 7/1/2021
 	var $stype_id;

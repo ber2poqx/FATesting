@@ -67,7 +67,7 @@ function write_customer_trans(
 	$rate = 0, $dimension_id = 0, $dimension2_id = 0,
 	$payment_terms = null, $tax_included = 0, $prep_amount = 0,
 	$opening_balances = 0, $payment_type = null,
-	$collection_type = 0, $module_type = null, $fullpayment = false) {
+	$collection_type = 0, $module_type = null, $fullpayment = false, $dr_ref_no ='') {
 
 	$new = $trans_no == 0;
 	$curr = get_customer_currency($debtor_no);
@@ -126,7 +126,7 @@ function write_customer_trans(
 			reference, tpe, order_, ov_amount, ov_discount, ov_gst, ov_freight, ov_freight_tax,
 			rate, ship_via, alloc,
 			dimension_id, dimension2_id, payment_terms, tax_included, prep_amount, opening_balances, 
-			status, payment_type, collect_id, module_type
+			status, payment_type, collect_id, module_type, dr_ref_no
 		) 
 		VALUES (
 			" . db_escape($trans_no) . ", 
@@ -155,7 +155,8 @@ function write_customer_trans(
 			" . db_escape($status) . ", 
 			" . db_escape($payment_type) . ", 
 			" . db_escape($collection_type) . ", 
-			" . db_escape($module_type) . "
+			" . db_escape($module_type) . ",
+			" . db_escape($dr_ref_no) . "
 		)";
 	} else {	// may be optional argument should stay unchanged ?
 

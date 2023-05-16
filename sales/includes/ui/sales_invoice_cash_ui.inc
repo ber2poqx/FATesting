@@ -489,13 +489,18 @@ function display_order_header(&$order, $editable, $date_text)
 		label_row(_("Reference #: "), $reference);
 		hidden('ref', $reference);
 		if ($order->category_id == 14) {
-			text_row_ex(_("DR No.:"), 'dr_ref', 16);
+
+			$dr_reference = $Refs->get_next(ST_CUSTDELIVERY, null, array('date' => @$_POST['OrderDate']));
+			hidden('dr_ref', $dr_reference);
+
+			text_row_ex(_("DR No.:"), 'dr_ref_no', 16);
 		}
 		else {
 			$dr_reference = $Refs->get_next(ST_CUSTDELIVERY, null, array('date' => @$_POST['OrderDate']));
-			label_row(_("DR No.:"), $dr_reference);
+			label_row(_("DR ref.:"), $dr_reference);
 			hidden('dr_ref', $dr_reference);
-		}
+			hidden('dr_ref_no', '');
+		} 
 		//
 	}
 

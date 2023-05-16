@@ -69,7 +69,13 @@ function write_sales_delivery(&$delivery, $bo_policy)
 		$delivery->dimension2_id,
 		$delivery->payment,
 		$delivery->tax_included,
-		$delivery->prep_amount
+		$delivery->prep_amount,
+		0,
+		'',
+		0,
+		'',
+		false,
+		$delivery->dr_ref_no
 	);
 
 	if ($trans_no == 0) {

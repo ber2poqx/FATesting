@@ -271,6 +271,7 @@ function copy_to_cart()
 	$cart->reference = $_POST['ref'];
 	if ($cart->trans_type == ST_SALESINVOICE)
 		$cart->dr_ref = $_POST['dr_ref'];
+		$_POST['dr_ref_no'] = $cart->dr_ref_no;
 
 	$cart->Comments =  $_POST['Comments'];
 
@@ -354,6 +355,7 @@ function copy_from_cart()
 	$_POST['ref'] = $cart->reference;
 	if ($cart->trans_type == ST_SALESINVOICE)
 		$_POST['dr_ref'] = $cart->dr_ref;
+		$_POST['dr_ref_no'] = $cart->dr_ref_no;
 	$_POST['Comments'] = $cart->Comments;
 	// added by Albert
 	$_POST['account_specialist_remarks'] = $cart->account_specialist_remarks ;
