@@ -1710,7 +1710,73 @@ Ext.onReady(function(){
 				columns: columnAmort_view,
 				columnLines: true,
 				features: [{ftype: 'summary'}]
-			}]
+			}],
+			tabBar: {
+				items: [{
+					xtype: 'button',
+					id: 'btnVoid',
+					text: 'Void',
+					padding: '3px',
+					margin: '2px 2px 6px 580px',
+					icon: '../js/ext4/examples/shared/icons/ipod_cast_delete.png',
+					tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#f71d04',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					},
+					handler: function(){
+						Ext.MessageBox.confirm('Confirmation:', 'Are you sure you wish to void this transaction?', function (btn, text) {
+							if (btn == 'yes') {
+								Ext.MessageBox.prompt('Void Receipt', 'Reason for Void:', function(btn, text){
+									if (btn == 'ok'){
+										Ext.Ajax.request({
+											url : '?submitVoid=payment&syspk='+Ext.getCmp('v_syspk').getValue()+'&systype='+Ext.getCmp('v_transtypeFr').getValue()+'&reason='+text,
+											//waitMsg: 'Saving downpayment. please wait...',
+											method:'POST',
+											//async:false,
+											success: function (response) {
+												var result = Ext.JSON.decode(response.responseText);
+												PaymentStore.load();
+												if (result.success == "true") {
+													Ext.Msg.show({
+														title: 'Void Transaction: Success!',
+														msg: '<font color="green">' + result.message + '</font>',
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.INFORMATION
+													});
+												}
+												else {
+													Ext.Msg.show({
+														title: 'Void Transaction: Failed!',
+														msg: result.message,
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.ERROR
+													});
+												}
+												submit_window_view.close();
+											},
+											failure: function () {
+												Ext.Msg.show({
+													title: 'Void Transaction: Failed!',
+													msg: result.message,
+													buttons: Ext.Msg.OK,
+													icon: Ext.MessageBox.ERROR
+												});
+											}
+										});
+									}
+								});
+							}
+						});
+					}
+				}]
+			}
 		}]
 	});
 	var submit_window_view = Ext.create('Ext.Window',{

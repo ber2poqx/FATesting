@@ -1364,6 +1364,45 @@ if(isset($_GET['submitAdj']))
     return;
 }
 
+//void transaction
+if(isset($_GET['submitVoid']))
+{
+    $InputError = 0;
+    if (empty($_GET['syspk'])){
+        $InputError = 1;
+        $dsplymsg = _('Error encountered when voiding transaction. Please reload the page and try again. Thank you...');
+    }
+    //check data
+	if(check_voided_payments_exist($_GET['systype'], $_GET['syspk'])){
+        $InputError = 1;
+        $dsplymsg = _("This payment has already been voided.");
+    }
+
+    if ($InputError !=1)
+    {
+
+        $info = get_debtor_trans_all($_GET['systype'], $_GET['syspk']);
+		$trans_no = add_voided_entry(
+                        $_GET['systype'], 
+                        $_GET['syspk'], 
+                        sql2date(date('Y-m-d', strtotime(Today()))), 
+                        $_GET['reason'], 
+                        user_company(),
+                        $info['reference'],
+                        '',
+                        'Draft',
+                        '0',
+                        $_SESSION["wa_current_user"]->user
+		            );
+
+        $dsplymsg = _("Your request has been submitted successfully.");
+        echo '({"success":"true","message":"'.$dsplymsg.'"})';
+    }else{
+        echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+    }
+    return;
+}
+
 page(_($help_context = "Payments Allocation Inquiry"));
 
 start_table(TABLESTYLE, "width='100%'");
