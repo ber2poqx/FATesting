@@ -75,7 +75,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 		0,
 		'',
 		false,
-		$delivery->dr_ref_no
+		$delivery->dr_ref_no == '' ? $delivery->reference : $delivery->dr_ref_no
 	);
 
 	if ($trans_no == 0) {

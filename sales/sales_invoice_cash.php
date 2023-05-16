@@ -269,9 +269,10 @@ function copy_to_cart()
 	$cart = &$_SESSION['Items'];
 
 	$cart->reference = $_POST['ref'];
-	if ($cart->trans_type == ST_SALESINVOICE)
+	if ($cart->trans_type == ST_SALESINVOICE){
 		$cart->dr_ref = $_POST['dr_ref'];
-		$_POST['dr_ref_no'] = $cart->dr_ref_no;
+		$cart->dr_ref_no = $_POST['dr_ref_no'];
+	}
 
 	$cart->Comments =  $_POST['Comments'];
 
