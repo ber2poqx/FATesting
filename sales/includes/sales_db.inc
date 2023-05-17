@@ -72,7 +72,7 @@ function add_gl_trans_customer(
 	}
 	
 	//Added by spyrax10 28 Feb 2022 //modified by Albert 5/15/2023
-	if (($type == ST_SALESRETURN || $type == ST_SALESINVOICE || $type == ST_RESTRUCTURED || $type == ST_CUSTPAYMENT) && $account ==  get_system_pref()) {
+	if (($type == ST_SALESRETURN || $type == ST_SALESINVOICE || $type == ST_RESTRUCTURED || $type == ST_CUSTPAYMENT) && $account ==  get_company_pref('isa_employee')) {
 		global $db_connections;
 		$coy = user_company();
 		$db_branch_type = $db_connections[$coy]['type'];
