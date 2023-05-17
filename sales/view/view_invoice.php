@@ -43,6 +43,7 @@ $branch = get_branch($myrow["branch_code"]);
 
 //Added by spyrax10
 $debt_loans = get_debtor_loans($trans_id);
+$dr_ref = get_delivery_data($debt_loans['delivery_ref_no']);
 $total_unit_cost = $header["opening_balances"] == 0 ? get_cost_of_sales_for_si($header['delivery_ref_no']) : 
 	get_ob_standard_cost($trans_id);
 $payment_location_id = get_company_pref('payment_location');
@@ -72,9 +73,10 @@ label_row(_("Customer's Name: "), $myrow["DebtorName"], "class='tableheader2'");
 label_row(_("Cust Branch: "), $header["branch_ref"], "class='tableheader2'");
 label_row(null, ''); label_row(null, ''); label_row(null, '');
 //label_row(_("SO Trans #: "), get_customer_trans_view_str(ST_SALESORDER, $sales_order["order_no"]), "class='tableheader2'");
-label_row(_("Sales Invoice #: "), $header["si_no"], "class='tableheader2'");
-label_row(_("DR No. : "), $debt_loans['delivery_ref_no'], "class='tableheader2'");
-label_row(_("Reference No. : "), $debt_loans['ref_no'], "class='tableheader2'");
+label_row(_("Reference No. #:"), $header["si_no"], "class='tableheader2'");
+label_row(_("DR No. : "), $header["category_id"] == 14 ? $debt_loans['delivery_ref_no'] : '', "class='tableheader2'");
+label_row(_("Sales Invoice #: "), $debt_loans['ref_no'], "class='tableheader2'");
+label_row(_("Delivery Ref. : "), $dr_ref, "class='tableheader2'");
 label_row(null, ''); label_row(null, '');
 label_row("SO Date: ", sql2date($myrow['tran_date']), "class='tableheader2'");
 label_row("Invoice Date: ", sql2date($header["invoice_date"]), "class='tableheader2'");
