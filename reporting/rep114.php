@@ -143,6 +143,8 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 			$sql .= " AND dl2.months_term BETWEEN '1' AND '3' ";
 		}
 	}
+		
+		$sql .= " ORDER BY dt1.tran_date ";
 
 	// if($terms != 'ALL')
 	// {
