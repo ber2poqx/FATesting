@@ -1891,6 +1891,13 @@ Ext.onReady(function() {
 				hidden: true
 			},{
 				xtype: 'textfield',
+				id: 'totalpenalty',
+				name: 'totalpenalty',
+				fieldLabel: 'total penalty',
+				allowBlank: false,
+				hidden: true
+			},{
+				xtype: 'textfield',
 				id: 'paylocation',
 				name: 'paylocation',
 				fieldLabel: 'pay location',
@@ -1999,6 +2006,7 @@ Ext.onReady(function() {
 							Ext.getCmp('tenderd_amount').focus(false, 200);
 							Ext.getCmp('paylocation').setValue(record.get('paylocation'));
 							Ext.getCmp('totalrebate').setValue(0);
+							Ext.getCmp('totalpenalty').setValue(0);
 							
 							scheduleStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), colltype: Ext.getCmp('collectType').getValue()};
 							scheduleStore.load({
@@ -2360,6 +2368,7 @@ Ext.onReady(function() {
 							cellclick : function(view, cell, cellIndex, record, row, rowIndex, e) {
 								//alert( record.get("totalpayment") + ' ' + (rowIndex+1));
 								Ext.getCmp("total_amount").setValue(record.get("totalpayment"));
+								Ext.getCmp('totalpenalty').setValue(record.get('penalty'));
 								//Ext.getCmp('tenderd_amount').setValue();
 								Ext.getCmp('tenderd_amount').focus(false, 200);
 

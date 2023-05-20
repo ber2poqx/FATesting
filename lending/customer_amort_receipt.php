@@ -1181,7 +1181,7 @@ if(isset($_GET['submit']))
             if($ar_balance < ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                 $InputError = 1;
                 $dsplymsg = _('Tendered amount must be lesser than or equal to A/R amount balance.');
-            }elseif(($ar_balance - $_POST['totalrebate']) < ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
+            }elseif((($ar_balance - $_POST['totalrebate']) + $_POST['totalpenalty']) < ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                 $InputError = 1;
                 $dsplymsg = _('Tendered amount must be lesser than or equal to A/R amount balance.');
             }
