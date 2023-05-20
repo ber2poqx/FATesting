@@ -250,6 +250,32 @@ Ext.onReady(function(){
 						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
 						//'border': 'none',
 						'border-radius':'3px'
+					},
+					handler : function() {
+						Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to disapproved this void request?', function (btn, text) {
+							if (btn == 'yes') {
+								Ext.Ajax.request({
+									url : '?declined=void&trans_type='+url_typeno+'&trans_no= '+url_transno+'&void_id= '+url_void_id,
+									async:false,
+									success: function (response){
+										var result = Ext.JSON.decode(response.responseText);
+										//reference = result.reference;
+										Ext.Msg.show({
+											title: 'Success!',
+											msg: '<font color="green">'+ result.message +'</font>',
+											buttons: Ext.Msg.OK,
+											icon: Ext.MessageBox.OK,
+											fn: function(btn) {
+												if (btn === 'ok') {
+													//window.open('../inquiry/void_inquiry_list.php?');
+													header("../inquiry/void_inquiry_list.php?");
+												}
+											}
+										});
+									}
+								});
+							}
+						});
 					}
 				},{
 					xtype: 'button',
