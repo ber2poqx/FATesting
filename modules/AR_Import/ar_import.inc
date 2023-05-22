@@ -389,7 +389,7 @@ function get_item_description_ar_import($stock_id)
 			FROM ".TB_PREF."stock_master
 			where stock_id =".db_escape($stock_id);
 
-	$result = db_query($sql, "check sales_account Code failed");
+	$result = db_query($sql, "check Sales Account Code failed");
 	$row = db_fetch_row( $result);
 
 	return $row[0];
