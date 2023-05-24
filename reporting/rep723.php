@@ -67,11 +67,11 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 		
 		if ($from == 0)
 		{
-			$sql .= " WHERE gl.tran_date <= '$to' AND void.Cancel <> '1' ";
+			$sql .= " WHERE gl.tran_date <= '$to' AND void.cancel <> 1 ";
 		}
 		else if ($from != 0)
 		{
-			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to' AND void.Cancel <> '1' ";
+			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to' AND void.cancel <> 1 ";
 		}
 
 		if($masterfile != ALL_TEXT)
