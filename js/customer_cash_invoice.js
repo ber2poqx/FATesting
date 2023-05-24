@@ -453,7 +453,7 @@ Ext.onReady(function() {
 		new Ext.grid.RowNumberer(),
 		{header:'<b>trans_no</b>',dataIndex:'trans_no',hidden: true},
 		{header:'<b>Date</b>', dataIndex:'tran_date', sortable:true, width:80, renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-		{header:'<b>Reference No.</b>', dataIndex:'reference', sortable:true, width:120},
+		{header:'<b>Reference No.</b>', dataIndex:'reference', sortable:true, width:150},
 		{header:'<b>Receipt No.</b>', dataIndex:'receipt_no', sortable:true, width:100},
 		{header:'<b>Customer Name</b>', dataIndex:'customer_name', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
@@ -474,7 +474,7 @@ Ext.onReady(function() {
 				return value;
 			}
 		},
-		{header:'<b>Particulars</b>', dataIndex:'remarks', sortable:true, width:170,
+		{header:'<b>Particulars</b>', dataIndex:'remarks', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -1399,7 +1399,7 @@ Ext.onReady(function() {
         renderTo: 'ext-form',
 		id: 'cust_pay',
         frame: false,
-		width: 1210,
+		width: 1250,
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
