@@ -327,7 +327,7 @@ function display_order_summary($title, &$order, $editable_items = false)
 
 function display_order_header(&$order, $editable, $date_text)
 {
-	global $Ajax, $SysPrefs;
+	global $Ajax, $SysPrefs, $Refs;
 
 	start_outer_table(TABLESTYLE2, "width='80%'");
 
@@ -440,14 +440,34 @@ function display_order_header(&$order, $editable, $date_text)
 	}
 	if ($order->trans_type == ST_SALESQUOTE) {
 		ref_row(_("Quotation No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
-	} elseif ($order->trans_type == ST_SALESORDER) {
-		ref_row(_("Order No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
-	} else {
-		ref_row(_("Invoice No.") . ':', 'ref', _('Reference number unique for this document type'), null, '', $order->trans_type, array('date' => @$_POST['OrderDate']));
-		ref_row(_("DR No.") . ':', 'dr_ref', _('Reference number unique for this document type'), null, '', ST_CUSTDELIVERY, array('date' => @$_POST['OrderDate']));
 	}
+	elseif ($order->trans_type == ST_SALESORDER) {
+		$reference = $Refs->get_next($order->trans_type, null, array('date' => @$_POST['OrderDate']));
+		label_row(_("Order No.: "), $reference);
+		hidden('ref', $reference);
+	} 
+	else {
+		$reference = $Refs->get_next($order->trans_type, null, array('date' => @$_POST['OrderDate']));
+		label_row(_("Reference #: "), $reference);
+		hidden('ref', $reference);
+		if ($order->category_id == 14) {
+
+			$dr_reference = $Refs->get_next(ST_CUSTDELIVERY, null, array('date' => @$_POST['OrderDate']));
+			hidden('dr_ref', $dr_reference);
+
+			text_row_ex(_("DR No.:"), 'dr_ref_no', 16);
+		}
+		else {
+			$dr_reference = $Refs->get_next(ST_CUSTDELIVERY, null, array('date' => @$_POST['OrderDate']));
+			label_row(_("DR ref.:"), $dr_reference);
+			hidden('dr_ref', $dr_reference);
+			hidden('dr_ref_no', '');
+		} 
+		//
+	}
+
 	if ($order->trans_type == ST_SALESINVOICEREPO) {
-		text_row_ex(_("Reference No.") . ':', 'document_ref', 16);
+		text_row_ex(_("Sales Invoice #: &nbsp;"), 'document_ref', 16);
 	}
 
 
