@@ -62,15 +62,16 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 				LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
 				LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
 				LEFT JOIN  ".TB_PREF."`debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
+				LEFT JOIN ".TB_PREF."`voided` void ON gl.type = void.type AND gl.type_no = void.id
 		";
 		
 		if ($from == 0)
 		{
-			$sql .= " WHERE gl.tran_date <= '$to' ";
+			$sql .= " WHERE gl.tran_date <= '$to' AND void.Cancel <> '1' ";
 		}
 		else if ($from != 0)
 		{
-			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to' ";
+			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to' AND void.Cancel <> '1' ";
 		}
 
 		if($masterfile != ALL_TEXT)

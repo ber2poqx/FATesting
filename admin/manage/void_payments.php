@@ -184,23 +184,17 @@ if(isset($_GET['submit']))
     
     return;
 
-}elseif(isset($_GET['DisApproved']))
+}elseif(isset($_GET['declined']))
 {
-    if (empty($_GET['id'])){
+    if (empty($_GET['trans_type']) || empty($_GET['trans_no']) || empty($_GET['void_id'])) {
         $InputError = 1;
-        $dsplymsg = _('Some fields are empty. Please reload the page and try again. Thank you...');
-    }
-    if (empty($_GET['branch_code'])){
-        $InputError = 1;
-        $dsplymsg = _('Some fields are empty. Please reload the page and try again. Thank you...');
+        $dsplymsg = _('Some fields are empty or contain an improper value. Please clear browser cache and reload the page again.');
     }
     if ($InputError !=1){
         //now for disapproved invoice
-        $approved_date = date("Y-m-d");
-        //update_ar_logs(check_isempty($_GET['invid']), $_GET['CCODE'], $approved_date, $_SESSION["wa_current_user"]->user, 2);
-        Update_debtor_trans_status(ST_SALESINVOICE, $_GET['id'], "Disapproved", $_GET['branch_code']);
+        disapproved_void($_GET['trans_type'], $_GET['trans_no'], $_GET['void_id']);
 
-        $dsplymsg = _("Invoice has been rejected.");
+        $dsplymsg = _("Void request declined.");
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
     }else{
         echo '({"success":"false","message":"'.$dsplymsg.'"})';

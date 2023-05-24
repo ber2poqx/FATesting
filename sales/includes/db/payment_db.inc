@@ -184,7 +184,7 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 		$date_, $bank_amount - $charge, PT_CUSTOMER, $customer_id);
 	*/
 
-	add_bank_trans(ST_CUSTPAYMENT, $payment_no, $bank_account, $ref, $date_, $bank_amount - $charge, PT_CUSTOMER, $customer_id,
+	add_bank_trans(ST_CUSTPAYMENT, $payment_no, $bank_account, $ref, $date_, ($bank_amount + $otherentry_amount) - $charge, PT_CUSTOMER, $customer_id,
 					$cashier_id, $pay_type, $check_date, $check_no, $bank_branch, $masterfile, $receipt_no, $prepared_by, $checked_by, $approved_by);
 
 	add_comments(ST_CUSTPAYMENT, $payment_no, $date_, $memo_);

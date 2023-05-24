@@ -43,10 +43,10 @@ if (isset($_GET['PONumber']) && !empty($_GET['PONumber'])) {
         //modified by Albert 03/29/2023
         $coy = user_company();
         $db_branch_type = $db_connections[$coy]['type'];
-        if($db_branch_type == 'MKTG'){
+        if($db_branch_type == 'DESM'){
             $db_coy = 1;
         }
-        if($db_branch_type == 'MKTG'){
+        if($db_branch_type == 'DESM'){
             $_SESSION["wa_current_user"]->company = $db_coy;
         }else{
             $_SESSION["wa_current_user"]->company = $def_coy;

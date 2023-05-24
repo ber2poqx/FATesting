@@ -388,7 +388,7 @@ function pr_branch_edit_prtpo_summary(&$pr, $branch_selected)
 	global $def_coy;
 	$coy = user_company();
 	$db_branch_type = $db_connections[$coy]['type'];
-	if($db_branch_type == 'MKTG'){
+	if($db_branch_type == 'DESM'){
 		$db_coy = 1;
 	}
 	$branchcode = $db_connections[user_company()]["branch_code"];
@@ -464,7 +464,7 @@ function pr_branch_edit_prtpo_summary(&$pr, $branch_selected)
 
 	end_outer_table(1);
 	//Update by Albert 02/10/2023
-	if($db_branch_type == 'MKTG'){
+	if($db_branch_type == 'DESM'){
 		$_SESSION["wa_current_user"]->company = $db_coy;
 	}else{
 		$_SESSION["wa_current_user"]->company = $def_coy;

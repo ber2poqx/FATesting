@@ -355,7 +355,7 @@ function check_trans()
 	*/
 	$bank_data = get_bank_account(get_post('bank_account'));
 	$account_type = $bank_data['account_type'];
-	if (ST_BANKDEPOSIT &&($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && (!get_post('check_no'))) {
+	if (ST_BANKDEPOSIT && $_SESSION['pay_items']->trans_type != ST_BANKPAYMENT &&($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && (!get_post('check_no'))) {
 		display_error(_("Check # cannot be empty."));
 		set_focus('check_no');
 		$input_error = 1;
@@ -368,7 +368,7 @@ function check_trans()
 		$input_error = 1;
 	}
 
-	if (ST_BANKDEPOSIT && ($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && (!get_post('bank_branch'))) {
+	if (ST_BANKDEPOSIT && $_SESSION['pay_items']->trans_type != ST_BANKPAYMENT && ($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && (!get_post('bank_branch'))) {
 		display_error(_("Bank Branch cannot be empty."));
 		set_focus('bank_branch');
 		$input_error = 1;

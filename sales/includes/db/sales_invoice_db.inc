@@ -1300,3 +1300,12 @@ function alloc_in_openning($trans_no, $debtor_no, $alloc, $amortization, $date_)
         db_query($sql, $ErrMsg);
     }
 }
+/*Added by Albert*/
+function get_delivery_data($reference) {
+	set_global_connection();
+	$sql = "SELECT reference FROM " . TB_PREF . "debtor_trans
+		WHERE dr_ref_no = " .db_escape($reference);
+	$result = db_query($sql, "No debtor_trans data return!");
+	$row = db_fetch($result);
+	return $row[0];
+}

@@ -1049,3 +1049,22 @@ function delete_loan_ledger_void($type, $trans_no, $pay_trans_no)
 
 	return db_query($sql,"could not delete loan ledger because ");
 }
+function disapproved_void($type, $trans_no, $void_id)
+{
+	$sql = "DELETE FROM ".TB_PREF."voided 
+			WHERE void_id = ".db_escape($void_id)." 
+				AND type = ".db_escape($type)." 
+				AND id = ".db_escape($trans_no);
+	
+	return db_query($sql,"could not disapproved void because ");
+}
+function check_ledger_to_void($type, $trans_no)
+{
+	$sql = "SELECT B.loansched_id, B.trans_no, B.payment_trans_no 
+			FROM ".TB_PREF."debtor_loan_ledger B 
+			WHERE B.trans_no = ".db_escape($trans_no)." 
+				AND B.trans_type_to = ".db_escape($type)." 
+			ORDER BY B.loansched_id DESC";
+
+	return db_query($sql,"could not get loan ledger because ");
+}

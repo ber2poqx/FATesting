@@ -78,7 +78,8 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    ,dtd4.stock_id as Model
 		    ,dtd4.lot_no as `Serial`
 		    ,dtd4.chassis_no as `Chassis`
-		    ,dtd4.unit_price as `grossAmnt`
+		    ,dtd4.unit_price as `grossAmnt_old`
+			,dl2.financing_gross as 'grossAmnt'
 		    ,dl2.discount_downpayment as `discountdp`
 		    ,CASE
 		    	WHEN dl2.months_term = 0 THEN 'CASH'
@@ -105,6 +106,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.order_ = so8.order_no AND dt1.type = ".ST_SALESINVOICE."
 		    LEFT JOIN ".TB_PREF."salesman sn9 on so8.salesman_id = sn9.salesman_code
 		    LEFT JOIN ".TB_PREF."stock_category sc10 on dl2.category_id = sc10.category_id
+            LEFT JOIN ".TB_PREF."voided void ON dtd4.debtor_trans_type=void.type AND dtd4.debtor_trans_no = void.id
 		WHERE dt1.type = ".ST_SALESINVOICE."
 			AND dtd4.standard_cost <> 0
 			AND dt1.tran_date <= '$to'
@@ -143,6 +145,8 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 			$sql .= " AND dl2.months_term BETWEEN '1' AND '3' ";
 		}
 	}
+		
+		$sql .= " AND void.void_status IS NULL ORDER BY dt1.tran_date "; 
 
 	// if($terms != 'ALL')
 	// {
