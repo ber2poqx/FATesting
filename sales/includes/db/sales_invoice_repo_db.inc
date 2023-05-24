@@ -817,7 +817,7 @@ function get_previous_owner($lot_no) {
 	set_global_connection();
 	$sql = "SELECT b.name, b.debtor_no
 			FROM ".TB_PREF."debtor_trans a  
-			Inner join ".TB_PREF."debtor_trans_details c ON c.debtor_trans_no = a.trans_no
+			Inner join ".TB_PREF."debtor_trans_details c ON c.debtor_trans_no = a.trans_no and a.type = c.debtor_trans_type 
 			Inner Join ".TB_PREF."debtors_master b ON a.debtor_no = b.debtor_no
 			WHERE c.lot_no =" . db_escape($lot_no);
 
