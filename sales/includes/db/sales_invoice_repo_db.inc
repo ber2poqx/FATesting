@@ -129,7 +129,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		$invoice_no,
 		$invoice->customer_id,
 		$invoice->reference,
-		$invoice->dr_ref,
+		$invoice->dr_ref_no == '' ? $invoice->dr_ref : $invoice->dr_ref_no,
 		$invoice->reference,
 		$date_,
 		$company_data["branch_code"],

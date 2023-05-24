@@ -341,6 +341,7 @@ function copy_to_cart()
 	if ($cart->trans_type == ST_SALESINVOICEREPO || $cart->trans_type == ST_SITERMMOD || $cart->trans_type == ST_RESTRUCTURED) {
 		$cart->dr_ref = $_POST['dr_ref'];
 		$cart->document_ref = $_POST['document_ref'];
+		$cart->dr_ref_no = $_POST['dr_ref_no'];
 	}
 
 	if ($cart->trans_type == ST_SALESINVOICEREPO) {
