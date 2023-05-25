@@ -1010,14 +1010,18 @@ function update_debtor_trans_void($type, $trans_no, $status)
 
 	return db_query($sql,"could not update debtor trans void because ");
 }
-function update_loan_sched_void($loansched_id, $debtor_no, $trans_no, $status)
+function update_loan_sched_void($loansched_id = 0, $debtor_no, $trans_no, $status)
 {
 	$sql = "UPDATE ".TB_PREF."debtor_loan_schedule SET
 				status =".db_escape($status).",
 				penalty_status = null
-			WHERE id = ".db_escape($loansched_id)."
-				AND debtor_no = ".db_escape($debtor_no)."
+			WHERE debtor_no = ".db_escape($debtor_no)."
 				AND trans_no =".db_escape($trans_no);
+	/*modified by Albert fix AR openning void*/
+	if($loansched_id != 0){
+		$sql .= " AND id = ".db_escape($loansched_id);
+	}
+	/**/
 
 	return db_query($sql,"could not update loan schedule status because ");		
 }
