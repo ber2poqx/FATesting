@@ -154,7 +154,9 @@ Ext.onReady(function() {
 			{name:'sl_code',mapping:'sl_code'},
 			{name:'sl_name',mapping:'sl_name'},
 			{name:'debtor_id',mapping:'debtor_id'},
-			{name:'debit_amount',mapping:'debit_amount',type:'float'}
+			{name:'debit_amount',mapping:'debit_amount',type:'float'},
+			{name:'bankaccount',mapping:'bankaccount'},
+			{name:'otref_no',mapping:'otref_no'}			
 		]
 	});
 	Ext.define('interBModel',{
@@ -654,11 +656,22 @@ Ext.onReady(function() {
 	];
 
 	var cashpayOtherEntryHeader = [
-		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:90},
-		{header:'<b>Description</b>', dataIndex:'gl_name', width:230},
+		{header:'<b>GL Code</b>', dataIndex:'gl_code', width:80},
+		{header:'<b>Description</b>', dataIndex:'gl_name', width:225},
 		{header:'<b>SL Code</b>', dataIndex:'sl_code', width:90},
-		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:230},
-		{header:'<b>Amount</b>', dataIndex:'debit_amount', width:115, align:'right', summaryType: 'sum',
+		{header:'<b>SL Name</b>', dataIndex:'sl_name', width:172},
+		{header:'<b>Ref. No.</b>', dataIndex:'otref_no', width:90,
+			editor: new Ext.form.TextField({
+				xtype:'textfield',
+				id: 'otref_no_cashpay',
+				name: 'otref_no_cashpay',
+				allowBlank: false,
+				listeners : {
+
+				}
+			})
+		},
+		{header:'<b>Amount</b>', dataIndex:'debit_amount', width:100, align:'right', summaryType: 'sum',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				if (value==0) {
 					return Ext.util.Format.number(value, '0,000.00');
@@ -815,7 +828,7 @@ Ext.onReady(function() {
 		listeners: {
 			select: function(combo, record, index) {
 				Ext.getCmp('othrdebit_acct_cashpay').setValue(record.get("type"));
-				loadOtherEntry('add',0, 'cashpay');
+				loadOtherEntry('add',0, 'cashpay', record.get("id"));
 			}
 		}
 	},{
@@ -1348,7 +1361,9 @@ Ext.onReady(function() {
 								sl_code: item.get('sl_code'),
 								sl_name: item.get('sl_name'),
 								debtor_id: item.get('debtor_id'),
-								debit_amount: item.get('debit_amount')
+								debit_amount: item.get('debit_amount'),
+								bankaccount: item.get('bankaccount'),
+								otref_no: item.get('otref_no')
 							};
 							OEData.push(ObjItem);
 						});
@@ -1886,7 +1901,7 @@ Ext.onReady(function() {
 		}
 		DPitemStore.load();
 	}
-	function loadOtherEntry($tag, $id=0, $mode){
+	function loadOtherEntry($tag, $id=0, $mode, $bankaccount){
 		var gridData = OtherEntryStore.getRange();
 		var OEData = [];
 		count = 0;
@@ -1902,7 +1917,9 @@ Ext.onReady(function() {
 				sl_code: item.get('sl_code'),
 				sl_name: item.get('sl_name'),
 				debtor_id: item.get('debtor_id'),
-				debit_amount: item.get('debit_amount')
+				debit_amount: item.get('debit_amount'),
+				bankaccount: item.get('bankaccount'),
+				otref_no: item.get('otref_no')
 			};
 			OEData.push(ObjItem);
 		});
@@ -1915,7 +1932,8 @@ Ext.onReady(function() {
 			OtherEntryStore.proxy.extraParams = {
 				DataOEGrid: Ext.encode(OEData),
 				debtor_id: $customername,
-				debitTo: $debitTo
+				debitTo: $debitTo,
+				bankaccount: $bankaccount
 			};
 		}
 		OtherEntryStore.load();

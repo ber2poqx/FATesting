@@ -21,7 +21,7 @@
 function add_bank_trans($type, $trans_no, $bank_act, $ref, $date_, $amount, $person_type_id, $person_id, $cashier_id = 0,
 	$pay_type = null, $check_date = '0000-00-00', $check_no = 0, $bank_branch = null, $masterfile = 0, $receipt_no = 0, 
 	$prepared_by = null, $checked_by = null, $approved_by = null, $module_type = null, 
-	$currency = "", $err_msg = "", $open_bal = 0, $company_id = '', $rate = 0)
+	$currency = "", $err_msg = "", $open_bal = 0, $company_id = '', $rate = 0, $isotherentry = 0)
 {
 	//Added by spyrax10
 	$checksql = $checkval = '';
@@ -75,12 +75,12 @@ function add_bank_trans($type, $trans_no, $bank_act, $ref, $date_, $amount, $per
 	//Modified by spyrax10 23 Feb 2022 (opening_balance column added)
 	$sql = "INSERT INTO ".TB_PREF."bank_trans (type, trans_no, bank_act, ref, trans_date, amount, person_type_id, person_id,
 					cashier_user_id, pay_type, prepared_by, checked_by, approved_by, masterfile, receipt_no, 
-					opening_balance ".$checksql.") ";
+					opening_balance, isotherentry ".$checksql.") ";
 
 	$sql .= "VALUES ($type, $trans_no, '$bank_act', ".db_escape($ref).", '$sqlDate', ".db_escape($amount_bank). ", ".db_escape($person_type_id).",
 		".db_escape($person_id).", ".db_escape($cashier_id).", ".db_escape($pay_type).", ".db_escape($prepared_by). ",
 		".db_escape($checked_by).", ".db_escape($approved_by).", ".db_escape($masterfile).", ".db_escape($receipt_no). ",
-		".db_escape($open_bal). $checkval.")";
+		".db_escape($open_bal).", ".db_escape($isotherentry). $checkval.")";
 	//
 
 	if ($err_msg == "")

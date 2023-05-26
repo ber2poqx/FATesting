@@ -257,7 +257,7 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
 // Update Query Format (spyrax10) 3 May 2022 
 function get_gl_trans($type = '', $trans_id = '', $order = "ASC", $counter = '') {
 	set_global_connection();
-	
+	//modify sql for other entry payment on 05-25-2023 jr
 	$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
 			COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) AS doc_date,
 			IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference, 
@@ -283,7 +283,7 @@ function get_gl_trans($type = '', $trans_id = '', $order = "ASC", $counter = '')
 				gl.type != ".ST_JOURNAL." OR gl.person_id = dt.debtor_no
 			)
 		LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type = gl.type AND bt.trans_no = gl.type_no 
-			AND bt.amount != 0 AND bt.person_type_id = gl.person_type_id AND bt.person_id = gl.person_id
+			AND bt.amount != 0 AND bt.person_type_id = gl.person_type_id AND bt.person_id = gl.person_id AND bt.isotherentry = 0
 		LEFT JOIN ".TB_PREF."journal j ON j.type = gl.type AND j.trans_no = gl.type_no
 	WHERE gl.amount <> 0";
 

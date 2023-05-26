@@ -983,7 +983,9 @@ if(isset($_GET['get_OtherEntryPay']))
                                 'sl_code'=>$data['sl_code'],
                                 'sl_name'=>$data['sl_name'],
                                 'debtor_id'=>$data['debtor_id'],
-                                'debit_amount'=>$data['debit_amount']
+                                'debit_amount'=>$data['debit_amount'],
+                                'bankaccount'=>$data['bankaccount'],
+                                'otref_no'=>$data['otref_no']
                             );
             }
         }
@@ -994,7 +996,9 @@ if(isset($_GET['get_OtherEntryPay']))
                                 'sl_code'=>$customer["debtor_ref"],
                                 'sl_name'=>$customer["name"],
                                 'debtor_id'=>$_GET['debtor_id'],
-                                'debit_amount'=>0
+                                'debit_amount'=>0,
+                                'bankaccount'=>$_GET['bankaccount'],
+                                'otref_no'=>0
                             );
 
     }else{
@@ -1008,7 +1012,9 @@ if(isset($_GET['get_OtherEntryPay']))
                         'sl_code'=>$data['sl_code'],
                         'sl_name'=>$data['sl_name'],
                         'debtor_id'=>$data['debtor_id'],
-                        'debit_amount'=>$data['debit_amount']
+                        'debit_amount'=>$data['debit_amount'],
+                        'bankaccount'=>$data['bankaccount'],
+                        'otref_no'=>$data['otref_no']
                     );
                 }
             }
@@ -1163,6 +1169,14 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Credit amount must not be empty! Please try again.');
     }
+    if (count($OtherEGrid) != 0){
+        foreach($OtherEGrid as $value=>$OTdata) {
+            if($OTdata['otref_no'] == 0 && $OTdata['gl_code'] != '101001' && $OTdata['gl_code'] != '101003'){
+                $InputError = 1;
+                $dsplymsg = _($OTdata['gl_name'].' reference number must not be empty! Please try again.');
+            }
+        }
+    }
 
     //check data
 	if(check_cr_number($_POST['receipt_no'], 'CR')){
@@ -1242,6 +1256,12 @@ if(isset($_GET['submit']))
                 add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
                 
+                //add other entry to bank trans table
+                if (count($OtherEGrid) != 0){
+                    foreach($OtherEGrid as $value=>$OTdata) {
+                        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'], $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1);
+                    }
+                }
                 if($_POST['paylocation'] != "Lending"){
 
                     if($_POST['total_amount'] == ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
@@ -1276,8 +1296,9 @@ if(isset($_GET['submit']))
                 }
                 //for other entry
                 if (count($OtherEGrid) != 0){
-                    $bank = get_bank_account($_POST['otherintobankacct']);
+                    //$bank = get_bank_account($_POST['otherintobankacct']);
                     foreach($OtherEGrid as $value=>$OTdata) {
+                        $bank = get_bank_account($OTdata['bankaccount']);
                         add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']); //$OTdata['sl_code']
                     }
                 }
@@ -1310,13 +1331,21 @@ if(isset($_GET['submit']))
 
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
 
+                    //add other entry to bank trans table
+                    if (count($OtherEGrid) != 0){
+                        foreach($OtherEGrid as $value=>$OTdata) {
+                            add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'], $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1);
+                        }
+                    }
+
                     /* Bank account entry first */
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $bank_gl_account, 0, 0, '', $_POST['tenderd_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
 
                     //for other entry
                     if (count($OtherEGrid) != 0){
-                        $bank = get_bank_account($_POST['otherintobankacct']);
+                        //$bank = get_bank_account($_POST['otherintobankacct']);
                         foreach($OtherEGrid as $value=>$OTdata) {
+                            $bank = get_bank_account($OTdata['bankaccount']);
                             add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']); //$OTdata['sl_code']
                         }
                     }
@@ -1429,6 +1458,14 @@ if(isset($_GET['submit']))
                     
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
     
+                    //add other entry to bank trans table
+                    if (count($OtherEGrid) != 0){
+                        foreach($OtherEGrid as $value=>$OTdata) {
+                            add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'],
+                                    $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1);
+                        }
+                    }
+
                     /* Bank account entry first */
                     $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $bank_gl_account, 0, 0, '', $_POST['tenderd_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
                     
@@ -1812,8 +1849,9 @@ if(isset($_GET['submit']))
 
                     //for other entry
                     if (count($OtherEGrid) != 0){
-                        $bank = get_bank_account($_POST['otherintobankacct']);
+                        //$bank = get_bank_account($_POST['otherintobankacct']);
                         foreach($OtherEGrid as $value=>$OTdata) {
+                            $bank = get_bank_account($OTdata['bankaccount']);
                              $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $OTdata['gl_code'], 0, 0, '', $OTdata['debit_amount'],  $bank['bank_curr_code'], PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']); //$OTdata['sl_code']
                         }
                     }
@@ -1937,6 +1975,15 @@ if(isset($_GET['submitInterB']))
         $dsplymsg = _('Credit amount must not be empty! Please try again.');
     }
 
+    if (count($OtherEGrid) != 0){
+        foreach($OtherEGrid as $value=>$OTdata) {
+            if($OTdata['otref_no'] == 0 && $OTdata['gl_code'] != '101001' && $OTdata['gl_code'] != '101003'){
+                $InputError = 1;
+                $dsplymsg = _($OTdata['gl_name'].' reference number must not be empty! Please try again.');
+            }
+        }
+    }
+
     //check data
 	if(check_cr_number($_POST['receipt_no_inb'], 'CR')){
         $InputError = 1;
@@ -1957,6 +2004,13 @@ if(isset($_GET['submitInterB']))
                         $_POST['cashier_inb'], $_POST['pay_type_inb'], $_POST['check_date_inb'], $_POST['check_no_inb'], $_POST['bank_branch_inb'], $_POST['branch_inb'], $_POST['receipt_no_inb'], $_POST['preparedby_inb']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_inb'], $_POST['remarks_inb']);
+
+        //add other entry to bank trans table
+        if (count($OtherEGrid) != 0){
+            foreach($OtherEGrid as $value=>$OTdata) {
+                add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no_inb'], $_POST['trans_date_inb'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername_inb'], $_POST['cashier_inb'], $_POST['pay_type_inb'], $_POST['trans_date_inb'], $OTdata['otref_no'], null, $_POST['branch_inb'], $_POST['receipt_no_inb'], $_POST['preparedby_inb'], null, null, null, null, null, 0, null, 0, 1);
+            }
+        }
 
         //gl entries
         //for other entry
@@ -2105,6 +2159,15 @@ if(isset($_GET['submitDPnoAmort']))
         $dsplymsg = _('Credit amount must not be empty! Please try again.');
     }
 
+    if (count($OtherEGrid) != 0){
+        foreach($OtherEGrid as $value=>$OTdata) {
+            if($OTdata['otref_no'] == 0 && $OTdata['gl_code'] != '101001' && $OTdata['gl_code'] != '101003'){
+                $InputError = 1;
+                $dsplymsg = _($OTdata['gl_name'].' reference number must not be empty! Please try again.');
+            }
+        }
+    }
+
     //check data
 	if(check_cr_number($_POST['receipt_no_dp'], 'CR')){
         $InputError = 1;
@@ -2125,6 +2188,14 @@ if(isset($_GET['submitDPnoAmort']))
                         $_POST['cashier_dp'], $_POST['pay_type_dp'], $_POST['check_date_dp'], $_POST['check_no_dp'], $_POST['bank_branch_dp'], 0, $_POST['receipt_no_dp'], $_POST['preparedby_dp']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_dp'], $_POST['remarks_dp']);
+
+        //add other entry to bank trans table
+        if (count($OtherEGrid) != 0){
+            foreach($OtherEGrid as $value=>$OTdata) {
+                add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no_dp'], $_POST['trans_date_dp'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername_dp'],
+                        $_POST['cashier_dp'], $_POST['pay_type_dp'], $_POST['trans_date'], $OTdata['otref_no'], null, 0, $_POST['receipt_no_dp'], $_POST['preparedby_dp'], null, null, null, null, null, 0, null, 0, 1);
+            }
+        }
 
         //gl entries
         //for other entry
@@ -2280,6 +2351,15 @@ if(isset($_GET['submitSICash']))
         $dsplymsg = _('Credit amount must not be empty! Please try again.');
     }
 
+    if (count($OtherEGrid) != 0){
+        foreach($OtherEGrid as $value=>$OTdata) {
+            if($OTdata['otref_no'] == 0 && $OTdata['gl_code'] != '101001' && $OTdata['gl_code'] != '101003'){
+                $InputError = 1;
+                $dsplymsg = _($OTdata['gl_name'].' reference number must not be empty! Please try again.');
+            }
+        }
+    }
+
     //check data
 	if(check_cr_number($_POST['receipt_no_cash'], $_POST['moduletype_cash'])){
         $InputError = 1;
@@ -2309,7 +2389,14 @@ if(isset($_GET['submitSICash']))
                                             $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'],
                                             null, null, 0,0, $_POST['transtype_cash'], null, $_POST['total_otheramount_cashpay']);
 
-            add_cust_allocation(($_POST['tenderd_amount_cash'] + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);
+            //add other entry to bank trans table
+            if (count($OtherEGrid) != 0){
+                foreach($OtherEGrid as $value=>$OTdata) {
+                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no_cash'], $_POST['trans_date_cash'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername_cash'], $_POST['cashier_cash'], $_POST['pay_type_cash'], $_POST['trans_date_cash'], $OTdata['otref_no'], null, $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'], null, null, null, null, null, 0, null, 0, 1);
+                }
+            }
+
+            add_cust_allocation(($_POST['tenderd_amount_cash'] + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);  
             update_debtor_trans_allocation($_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash']);
 
             //allocate payment to
