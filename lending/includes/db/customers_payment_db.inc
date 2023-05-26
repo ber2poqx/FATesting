@@ -343,7 +343,7 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name, K.void_status
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
-				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type
+				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type AND C.isotherentry = 0
 				LEFT JOIN ".TB_PREF."comments D ON D.type = A.type AND D.id = A.trans_no
 				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
 				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
@@ -369,7 +369,7 @@ function get_debtor_payment_per_transno($trans_type, $trans_no)
 	$sql = "SELECT A.*, B.debtor_ref, B.name, C.*, D.memo_, E.bank_account_name, G.real_name, H.collection, I.bank_account_name
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
-				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type
+				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type AND C.isotherentry = 0
 				LEFT JOIN ".TB_PREF."comments D ON D.type = A.type AND D.id = A.trans_no
 				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
 				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
@@ -479,7 +479,7 @@ function get_DP_NoAmort($type, $trans_no)
 				B.type_no, B.account, B.mcode, C.account_code, C.account_name
 		FROM ".TB_PREF."bank_trans A 
 				INNER JOIN ".TB_PREF."gl_trans B 
-					ON B.type = A.type AND B.type_no = A.trans_no
+					ON B.type = A.type AND B.type_no = A.trans_no AND A.isotherentry = 0
 				INNER JOIN ".TB_PREF."chart_master C ON C.account_code = B.account
 		WHERE A.trans_no = ".db_escape($trans_no)."
 			AND A.type = ".db_escape($type);
@@ -660,7 +660,7 @@ function check_cr_number($crno, $module_type)
 {
 	$sql = "SELECT COUNT(*) 
 			FROM ".TB_PREF."bank_trans A 
-			INNER JOIN ".TB_PREF."debtor_trans B ON B.trans_no = A.trans_no AND B.type = A.type
+				INNER JOIN ".TB_PREF."debtor_trans B ON B.trans_no = A.trans_no AND B.type = A.type AND A.isotherentry = 0
 			WHERE B.module_type LIKE '".$module_type."%' 
 				AND A.receipt_no = ".db_escape($crno);
 
@@ -858,7 +858,7 @@ function get_NoSchedDownPaymnt($trans_no, $debtor_no)
 function get_deferdBal($trans_no, $glcode)
 {
 	$sql = "SELECT abs(ROUND(SUM(X.amount),2)) bal 
-			FROM gl_trans X 
+			FROM ".TB_PREF."gl_trans X 
 			WHERE X.loan_trans_no=".db_escape($trans_no)."
 				And X.account = ".db_escape($glcode);
 				
