@@ -84,7 +84,7 @@ function get_repo_schedule($to)
             LEFT JOIN repo_accounts GGWP ON EET.trans_no = GGWP.ar_trans_no AND EET.debtor_no = GGWP.debtor_no 
             AND EET.trans_type = GGWP.ar_trans_type
             WHERE DATE_FORMAT(EET.date_due, '%Y-%m') <= DATE_FORMAT('$to', '%Y-%m') AND 
-            EET.status != 'paid' AND YEAR(GGWP.repo_date) = YEAR(EET.date_due)
+            EET.status != 'paid' AND YEAR(GGWP.repo_date) >= YEAR(EET.date_due)
             GROUP BY EET.debtor_no, EET.trans_no) OVERDUE ON F.trans_no = OVERDUE.trans_no AND F.debtor_no = OVERDUE.debtor_no
 
             LEFT JOIN (

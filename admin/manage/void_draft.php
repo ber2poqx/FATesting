@@ -343,9 +343,16 @@ function can_proceed() {
         while ($row = db_fetch($payment_sql)) {
             $void_pay = get_voided_entry(ST_CUSTPAYMENT, $row['trans_no']);
 
-            if ($void_pay['void_status'] != 'Voided') {
+            if ($void_pay['void_status'] != 'Voided' && $void_pay['type'] == ST_CUSTPAYMENT) {
                 display_error(_("Can't Proceed! Payments are not fully voided..."));
                 return false;
+            }else {
+                //Added by Albert fix Delete auto alloc payment in AR openning
+                if($debtor_row['opening_balances'] == 1){
+                    update_loan_sched_void($debtor_row["id"], $debtor_row["debtor_no"], $debtor_row["trans_no"], 'unpaid');
+                    delete_loan_ledger_void($_GET['type'], $debtor_row['trans_no'], $debtor_row['trans_no']);
+                    delete_cust_allocations_void($_GET['type'], $debtor_row['trans_no'], $debtor_row['trans_no']);
+                }
             }
         }
     }
