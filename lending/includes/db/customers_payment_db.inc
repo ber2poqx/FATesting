@@ -231,7 +231,7 @@ function get_invoice_per_customer($debtor_no, $tag)
                 INNER JOIN ".TB_PREF."debtor_loans C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
                 INNER JOIN ".TB_PREF."stock_category D ON D.category_id = C.category_id
 			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.")
-				AND (A.status != 'fully-paid' AND A.status != 'Closed')
+				AND (A.status != 'fully-paid' AND A.status != 'Closed'  AND A.status != 'Cancelled')
 				AND IFNULL(A.module_type,'') != 'REPO'
 				AND A.debtor_no = ".db_escape($debtor_no)."
 				".$criteria."
@@ -248,7 +248,7 @@ function get_invoice_per_customer($debtor_no, $tag)
 						INNER JOIN ".TB_PREF."debtor_trans XX ON X.debtor_trans_no = XX.trans_no AND X.debtor_trans_type = XX.type
 				) XT ON XT.reference = C.invoice_ref_no
 			WHERE (A.type = ".ST_SITERMMOD.")
-				AND (A.status != 'fully-paid' AND A.status != 'Closed')
+				AND (A.status != 'fully-paid' AND A.status != 'Closed'  AND A.status != 'Cancelled')
 				AND IFNULL(A.module_type,'') != 'REPO'
 				AND A.debtor_no = ".db_escape($debtor_no)."
 				".$criteria;
@@ -624,7 +624,7 @@ function get_invoice_per_adjustment($debtor_no)
 			WHERE A.type = ".ST_SALESRETURN." 
 				AND D.total_receivable != 0
 				AND A.alloc < D.total_receivable
-				AND (A.status != 'fully-paid' AND A.status != 'Closed')
+				AND (A.status != 'fully-paid' AND A.status != 'Closed' AND A.status != 'Cancelled')
 				AND A.debtor_no = ".db_escape($debtor_no)."
 			ORDER BY A.tran_date ASC";
 
