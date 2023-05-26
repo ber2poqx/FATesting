@@ -723,13 +723,18 @@ if(isset($_GET['submit']))
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty)), $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                 }
 
-                //deferred -> debit; realized -> credit
-                if($grossPM > 0){
-                    $PM_amount = (($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty)) *  $grossPM);
-                    if($PM_amount != 0){
-                        $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_record["dgp_account"], 0, 0, '', check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
-                        $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_record["rgp_account"], 0, 0, '', -check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                $ar_balance = check_ar_balance($_POST['InvoiceNo'], $_POST['transtype']);
+
+                if($grossPM != 0){
+
+                    if($ar_balance == 0){
+                        $PM_amount = get_deferdBal($_POST['InvoiceNo'], $company_record["dgp_account"]);
+                    }else{
+                        $PM_amount = (($GLRebate + ($_POST['tenderd_amount'] - $GLPenalty)) *  $grossPM);
                     }
+
+                    $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_record["dgp_account"], 0, 0, '', check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                    $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_record["rgp_account"], 0, 0, '', -check_isempty($PM_amount), null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
                 }
 
                 if ($GLRebate != 0)	{
@@ -976,12 +981,18 @@ if(isset($_GET['submit_inbpaysalone']))
                     update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
                 
                 }
+                
+                $ar_balance = check_ar_balance($_POST['InvoiceNo'], $_POST['transtype']);
 
                 if($grossPM != 0){
                     $dgp_account = $company_record["dgp_account"];
                     $rgp_account = $company_record["rgp_account"];
 
-                    $DeferdAmt = ($_POST['tenderd_amount'] + $dp_discount) * $grossPM;
+                    if($ar_balance == 0){
+                        $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
+                    }else{
+                        $DeferdAmt = ($_POST['tenderd_amount'] + $dp_discount) * $grossPM;
+                    }
 
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
