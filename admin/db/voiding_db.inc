@@ -432,7 +432,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 			$_SESSION["wa_current_user"]->user
 		);
 
-		update_status_debtor_trans($debtor_row['trans_no'], $debtor_row['debtor_no'], $debtor_row['type'], 'Cancel','');
+		update_status_debtor_trans($debtor_row['trans_no'], $debtor_row['debtor_no'], $debtor_row['type'], 'Cancelled','');
 
 		while ($row = db_fetch($delivery_gl)) {
 			
