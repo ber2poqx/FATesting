@@ -311,6 +311,18 @@ function check_item_data() {
 }
 
 function can_add_child($add = true, $id = 0) {
+	global $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
+	
+	if($db_branch_type == 'DESM'){
+		$mcode_ = get_company_value(1, 'branch_code');
+		$master_file = get_company_value(1, 'name');
+	}else{
+		$mcode_ = get_company_value(0, 'branch_code');
+		$master_file = get_company_value(0, 'name');
+	}
+
 	$trans_no = get_next_adjID();
 
 	if (!input_num('debit_') || input_num('debit_') == 0) {
@@ -321,6 +333,13 @@ function can_add_child($add = true, $id = 0) {
 	if (!get_post('code_id')) {
 		display_error(_("Please Select Account Code..."));
 		return false;
+	}
+	
+	if(get_post('code_id') == get_company_pref('isa_employee') && get_post('mcode') != $mcode_ ){
+		$acc_code = get_company_pref('isa_employee');
+		display_error(_("Invalid of Account $acc_code Masterfile please Change to: $mcode_..."));
+		return false;
+
 	}
 
 	if (!get_post('mcode')) {
