@@ -38,14 +38,14 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 	
 	
 		$sql = "		
-			SELECT gl.tran_date
+			SELECT DISTINCT bt.receipt_no AS cr_num
+			, gl.tran_date
 			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) AS reference			
             , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
 			, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
 			##, gl.memo_ AS memo_
 			, gl.account AS account
 			, cm.account_name AS account_name
-			, bt.receipt_no AS cr_num
 			, gl.amount
 			, CASE WHEN gl.amount >= 0 THEN gl.amount ELSE 0 END AS `Debit`
 		    , CASE WHEN gl.amount <  0 THEN -gl.amount ELSE 0 END AS `Credit`
