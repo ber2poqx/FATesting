@@ -151,6 +151,16 @@ function get_counterparty_name($trans_type, $trans_no, $full=true)
 	return '';
 }
 
+function get_CR_number($trans_type, $trans_no){
+	$sql = "SELECT receipt_no
+			FROM ".TB_PREF."bank_trans
+			WHERE trans_no=".db_escape($trans_no)." AND type=".db_escape($trans_type)."";
+
+	$result = db_query($sql, 'cannot retrieve CR_number, in bank trans receipt_no column');
+	$row = db_fetch($result);
+	return $row['receipt_no'];
+}
+
 
 //-----------------------------------------------------------------------------------------
 //	Returns next transaction number.
