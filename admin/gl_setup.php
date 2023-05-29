@@ -135,7 +135,7 @@ if (isset($_POST['submit']) && can_process())
 		'misc_expense_act', 'misc_income_act', 'ar_cash_sales_account', 'ar_reg_current_account', 
 		'isd_account', 'dgp_account', 'isa_employee', 'rgp_account', 'ar_customer_account', 'ap_customer_account', 
 		'payment_location', 'default_rebate_valid_days', 'addon_amount', 'ar_supp_discount_act', 
-		'cos_free_item', 'open_inty', 'default_si_repo_act', 'ap_account', 'arlending_account'
+		'cos_free_item', 'open_inty', 'default_si_repo_act', 'ap_account', 'arlending_account', 'ffe_accum_repo_act', 'ffe_repo_act'
 )));
 
 	display_notification(_("The general GL setup has been updated."));
@@ -218,6 +218,8 @@ $_POST['arlending_account'] = $myrow['arlending_account'];
 ---> for repo added by jr on 08-24-2021 :--------------- 
 */
 $_POST['addon_amount'] = $myrow['addon_amount'];
+$_POST['ffe_accum_repo_act'] = $myrow['ffe_accum_repo_act'];
+$_POST['ffe_repo_act'] = $myrow['ffe_repo_act'];
 
 //---------------
 
@@ -410,6 +412,8 @@ gl_all_accounts_list_row(_("A/R Account Lending:"), 'arlending_account', $_POST[
 
 table_section_title(_("Repo Defaults"));
 amount_row(_("Add-on Amount:"), 'addon_amount', $_POST['addon_amount']);
+gl_all_accounts_list_row(_("FFE Accumulated Account:"), 'ffe_accum_repo_act', $_POST['ffe_accum_repo_act']);
+gl_all_accounts_list_row(_("FFE Account:"), 'ffe_repo_act', $_POST['ffe_repo_act']);
 // Added by Albert
 gl_all_accounts_list_row(_("SI Repo Account:"), 'default_si_repo_act', $_POST['default_si_repo_act']);
 
