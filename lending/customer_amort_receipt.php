@@ -2184,7 +2184,7 @@ if(isset($_GET['submitDPnoAmort']))
         $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername_dp'], check_isempty($BranchNo['branch_code']), $_POST['trans_date_dp'], $_POST['ref_no_dp'],
                                     $_POST['total_amount_dp'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType_dp'], $_POST['collectType_dp'], $_POST['moduletype_dp']);
 
-        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct_dp'], $_POST['ref_no_dp'], $_POST['trans_date_dp'], $_POST['total_amount_dp'], PT_CUSTOMER, $_POST['customername_dp'],
+        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct_dp'], $_POST['ref_no_dp'], $_POST['trans_date_dp'], $_POST['tenderd_amount_dp'], PT_CUSTOMER, $_POST['customername_dp'],
                         $_POST['cashier_dp'], $_POST['pay_type_dp'], $_POST['check_date_dp'], $_POST['check_no_dp'], $_POST['bank_branch_dp'], 0, $_POST['receipt_no_dp'], $_POST['preparedby_dp']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_dp'], $_POST['remarks_dp']);
