@@ -89,7 +89,8 @@ function display_gl_heading($myrow)
 		array_insert($th, 3, array(_("Document Date"), _("Event Date")));
 	}
 	else {
-		array_insert($th, 3, array(_("Counterparty")));	
+		array_insert($th, 2, array(_("CR #")));
+		array_insert($th, 4, array(_("Counterparty")));	
 	}
 	
 	if($myrow['supp_reference']) {
@@ -104,6 +105,14 @@ function display_gl_heading($myrow)
 	if ($myrow['supp_reference']){
 		label_cell($myrow["supp_reference"], "align='center'");
 	}
+
+	if ($journal)
+	{}
+	else 
+	{
+		label_cell(get_CR_number($_GET['type_id'],$_GET['trans_no']), "align='center'");
+	}
+
 
 	if ($_GET['type_id'] == ST_INVADJUST && is_invty_open_bal('', $myrow["reference"])) {
 		label_cell(sql2date($myrow["ob_date"]), "align='center'");
