@@ -342,8 +342,8 @@ function can_proceed() {
 
         while ($row = db_fetch($payment_sql)) {
             $void_pay = get_voided_entry(ST_CUSTPAYMENT, $row['trans_no']);
-
-            if ($void_pay['void_status'] != 'Voided' && $void_pay['type'] == ST_CUSTPAYMENT) {
+            
+            if ($void_pay['void_status'] != 'Voided' && $row['trans_type_from'] == ST_CUSTPAYMENT) {
                 display_error(_("Can't Proceed! Payments are not fully voided..."));
                 return false;
             }else {
