@@ -379,6 +379,7 @@ Ext.onReady(function(){
 					Ext.getCmp('gpm').setValue(records.get('gpm'));
 					Ext.getCmp('total_unrecovrd').setValue(records.get('total_unrecovered'));
 					Ext.getCmp('remarks').setValue(records.get('comments'));
+					Ext.getCmp('Accuamount').setValue(records.get('accu_amount'));
 					Ext.getCmp('customername').setWidth(390);
 
 					SIitemStore.proxy.extraParams = {repo_id: records.get('id')};
