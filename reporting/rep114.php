@@ -78,7 +78,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    ,dtd4.stock_id as Model
 		    ,dtd4.lot_no as `Serial`
 		    ,dtd4.chassis_no as `Chassis`
-		    ,dtd4.unit_price as `grossAmnt_old`
+		    ,dtd4.unit_price as `Unit_price`
 			,dl2.financing_gross as 'grossAmnt'
 		    ,dl2.discount_downpayment as `discountdp`
 		    ,CASE
@@ -284,7 +284,7 @@ function print_sales_summary_report()
 
 	While ($GRNs = db_fetch($res))
 	{
-		$row_gross = $GRNs['Qty']*$GRNs['UnitCost'];
+		$row_gross = $GRNs['Qty']*$GRNs['Unit_price'];
 		$row_unitcost = $GRNs['UnitCost'];
 		$row_netsales = $row_gross - $GRNs['discount1'] - $GRNs['discount2'];
 
