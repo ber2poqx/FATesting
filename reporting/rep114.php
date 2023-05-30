@@ -248,8 +248,8 @@ function print_sales_summary_report()
 		_('Type'),
 		_('Term'),
 		_('Qty'),
-		_('LCP'),
 		_('Unit Cost'),
+		_('LCP'),
 		_('Gross Amount'),
 		_('Dscount1'),
 		_('Dscount2'),
@@ -303,8 +303,8 @@ function print_sales_summary_report()
 		$rep->TextCol(9, 10, $GRNs['Type']);
 		$rep->TextCol(10, 11, $GRNs['Term']);
 		$rep->TextCol(11, 12, $GRNs['Qty']);
-		$rep->AmountCol2(12, 13, $GRNs['LCP']);
-		$rep->AmountCol2(13, 14, $row_unitcost);
+		$rep->AmountCol2(12, 13, $row_unitcost);
+		$rep->AmountCol2(13, 14, $GRNs['LCP']);
 		$rep->AmountCol2(14, 15, $row_gross);
 		$rep->AmountCol2(15, 16, $GRNs['discount1']);
 		$rep->AmountCol2(16, 17, $GRNs['discount2']);
@@ -339,8 +339,8 @@ function print_sales_summary_report()
 	$rep->fontSize -= 1;	
 	$rep->TextCol(0, 11, _('Total'));
 	$rep->AmountCol(11, 12, $Tot_qty);
-	$rep->AmountCol(12, 13, $Tot_lcp, $dec);
-	$rep->AmountCol(13, 14, $Tot_ucost, $dec);
+	$rep->AmountCol(12, 13, $Tot_ucost, $dec);
+	$rep->AmountCol(13, 14, $Tot_lcp, $dec);
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
 	$rep->AmountCol(15, 16, $Tot_discount1, $dec);
 	$rep->AmountCol(16, 17, $Tot_discount2, $dec);
