@@ -198,49 +198,92 @@ if(isset($_GET['get_InvoiceNo']))
 }
 if(isset($_GET['get_Item_details']))
 {
-    if($_GET['rtype'] == 'mt'){
-        $result = get_mt_repo_account($_GET['repo_id'], $_GET['from_branch']);
-    }else{
-        if(isset($_GET['repo_id'])){
-            $result = get_repo_accounts_item_details($_GET['repo_id']);
-        }else if($_GET['rtype'] == 'replcmnt') {
-            $result = get_replace_item_to_repo($_GET['transNo']);
-        }else{
-            if($_GET['rtype'] == 'trmode') {
-                $transNo = $_GET['base_transno'];
-                $transtype = $_GET['base_transtype'];
-            }else{
-                $transNo = $_GET['transNo'];
-                $transtype = $_GET['transtype'];
-            }
+    if($_GET['tag'] == 'add'){
+        $DataOnGrid = stripslashes(html_entity_decode($_GET['DataitmGrid']));
+        $objDataGrid = json_decode($DataOnGrid, true);
+        $counter = 0;
 
-            $result = get_item_detials_to_repo($transNo, $transtype);
-        }
-    }
-    
-    $total = DB_num_rows($result);
+        $result = get_stock_items($_GET['category'], $_GET['stockid'], $_GET['itemcode']);
+        $total = DB_num_rows($result);
 
-    while ($myrow = db_fetch($result)) {
-        if(isset($_GET['repo_id'])){
-            $serial = $myrow["serial_no"];
-            $qty = $myrow["qty"];
-        }else{
-            $serial = $myrow["lot_no"];
-            $qty = $myrow["quantity"];
-        }
-        $status_array[] = array('id'=>$myrow["id"],
-                               'repo_id'=>$myrow["repo_id"],
-                               'ar_trans_no'=>$myrow["ar_trans_no"],
-                               'stock_id'=>$myrow["stock_id"],
-                               'description'=>$myrow["description"],
-                               'qty'=>$qty,
-                               'unit_price'=>$myrow["unit_price"],
-                               'serial_no'=>$serial,
-                               'chassis_no'=>$myrow["chassis_no"],
-                               'color_code'=>$myrow["color_code"],
-                               'status'=>$myrow["status"]
+        if (count($objDataGrid) != 0){
+            foreach($objDataGrid as $value=>$data) {
+                $counter++;
+                $status_array[] = array('id'=>$counter,
+                                'repo_id'=>$data["repo_id"],
+                                'ar_trans_no'=>$data["ar_trans_no"],
+                                'stock_id'=>$data['stock_id'],
+                                'description'=>$data['description'],
+                                'qty'=>$data['qty'],
+                                'unit_price'=>$data['unit_price'],
+                                'serial_no'=>$data['serial_no'],
+                                'chassis_no'=>$data['chassis_no'],
+                                'color_code'=>$data['color_code'],
+                                'status'=>$data['status']
                             );
+            }
+        }
+
+        while ($myrow = db_fetch($result)) {
+            $status_array[] = array('id'=>$myrow["id"],
+                'repo_id'=>$myrow["repo_id"],
+                'ar_trans_no'=>$myrow["ar_trans_no"],
+                'stock_id'=>$myrow["stock_id"],
+                'description'=>$myrow["description"],
+                'qty'=>1,
+                'unit_price'=>0,
+                'serial_no'=>'',
+                'chassis_no'=>'',
+                'color_code'=>$myrow["item_code"],
+                'status'=>0
+            );
+        }
+    }else{
+        if($_GET['rtype'] == 'mt'){
+            $result = get_mt_repo_account($_GET['repo_id'], $_GET['from_branch']);
+        }else{
+            if(isset($_GET['repo_id'])){
+                $result = get_repo_accounts_item_details($_GET['repo_id']);
+            }else if($_GET['rtype'] == 'replcmnt') {
+                $result = get_replace_item_to_repo($_GET['transNo']);
+            }else{
+                if($_GET['rtype'] == 'trmode') {
+                    $transNo = $_GET['base_transno'];
+                    $transtype = $_GET['base_transtype'];
+                }else{
+                    $transNo = $_GET['transNo'];
+                    $transtype = $_GET['transtype'];
+                }
+    
+                $result = get_item_detials_to_repo($transNo, $transtype);
+            }
+        }
+        
+        $total = DB_num_rows($result);
+    
+        while ($myrow = db_fetch($result)) {
+            if(isset($_GET['repo_id'])){
+                $serial = $myrow["serial_no"];
+                $qty = $myrow["qty"];
+            }else{
+                $serial = $myrow["lot_no"];
+                $qty = $myrow["quantity"];
+            }
+            $status_array[] = array('id'=>$myrow["id"],
+                                   'repo_id'=>$myrow["repo_id"],
+                                   'ar_trans_no'=>$myrow["ar_trans_no"],
+                                   'stock_id'=>$myrow["stock_id"],
+                                   'description'=>$myrow["description"],
+                                   'qty'=>$qty,
+                                   'unit_price'=>$myrow["unit_price"],
+                                   'serial_no'=>$serial,
+                                   'chassis_no'=>$myrow["chassis_no"],
+                                   'color_code'=>$myrow["color_code"],
+                                   'status'=>$myrow["status"]
+                                );
+        }
     }
+   
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
@@ -257,7 +300,6 @@ if(isset($_GET['getcategory'])){
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
-
 if(isset($_GET['get_repodetails']))
 {
     $result = get_repo_accounts();
@@ -307,14 +349,14 @@ if(isset($_GET['get_repodetails']))
                                'branch_code'=>$myrow["branch_code"],
                                'comments'=>$myrow["comments"],
                                'gpm'=>$myrow["gpm"],
-                               'transfer_id'=>$myrow["transfer_id"]
+                               'transfer_id'=>$myrow["transfer_id"],
+                               'accu_amount'=>$myrow["accu_amount"],
                             );
     }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
-
 if(isset($_GET['getbranch'])){
     global $db_connections;
     $conn = $db_connections;
@@ -332,7 +374,6 @@ if(isset($_GET['getbranch'])){
     return;
 
 }
-
 if(isset($_GET['getmtItem']))
 {
     $branch_code = get_company_pref("branch_code");
@@ -348,16 +389,38 @@ if(isset($_GET['getmtItem']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
+if(isset($_GET['getStockItems']))
+{
+    $result = get_stock_items($_GET['category']);
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+        $status_array[] = array('stockid'=>$myrow["stock_id"],
+                               'itemcode'=>$myrow["item_code"],
+                               'description'=>$myrow["description"]
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
+
 
 if(isset($_GET['submit']))
 {
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
     $InputError = 0;
+    $unit_price = 0;
     
-    if (empty($_POST['transtype'])) {
-        $InputError = 1;
-        $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+    if($_POST['repo_type'] != 'ffe') {
+        if (empty($_POST['transtype'])) {
+            $InputError = 1;
+            $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+        }
+        if (empty($_POST['InvoiceNo'])) {
+            $InputError = 1;
+            $dsplymsg = _('Invoice number must not be empty.');
+        }
     }
     if (empty($_POST['customercode'])) {
         $InputError = 1;
@@ -370,10 +433,6 @@ if(isset($_GET['submit']))
     if (empty($_POST['repo_date'])) {
         $InputError = 1;
         $dsplymsg = _('Repo date must not be empty.');
-    }
-    if (empty($_POST['InvoiceNo'])) {
-        $InputError = 1;
-        $dsplymsg = _('Invoice number must not be empty.');
     }
     if (empty($_POST['repo_type'])) {
         $InputError = 1;
@@ -456,6 +515,15 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('remarks must not be empty.');
     }
+    if (empty($_POST['addon_cost'])) {
+        $_POST['addon_cost'] = 0;
+    }
+    if (empty($_POST['past_due'])) {
+        $_POST['past_due'] = 0;
+    }
+    if (empty($_POST['over_due'])) {
+        $_POST['over_due'] = 0;
+    }
 
     if($_POST['repo_type'] == 'mt') {
         if (empty($_POST['cBranch'])) {
@@ -478,19 +546,37 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Unit price must not be empty! Please try again.');
     }
- 
-    if($_POST['repo_type'] == 'replcmnt') {
-        $result = get_replace_item_to_repo($_POST['base_transno']);
-    }else if($_POST['repo_type'] == 'mt') {
-            $result = get_mt_repo_account($_POST['base_transno'], $_POST['cBranch']);
-    }else{
-        $result = get_item_detials_to_repo($_POST['base_transno'], $_POST['base_transtype']);
-    }
     
-    $item_row = db_fetch($result);
-    if (empty($item_row['stock_id']) && empty($item_row['color_code'])) {
-        $InputError = 1;
-        $dsplymsg = _('Stock id and color code must not be empty.');
+    //if($_POST['repo_type'] == 'ffe') {
+        if (count($objDataGrid) != 0){
+            foreach($objDataGrid as $value=>$itmdata) {
+                $unit_price = $itmdata['unit_price'];
+                if($itmdata['unit_price'] == 0){
+                    $InputError = 1;
+                    $dsplymsg = _($itmdata['description'].' Unit price must not be empty! Please try again.');
+                }
+                if($_POST['category'] == '14'){
+                    if (empty($itmdata['serial_no']) || empty($itmdata['chassis_no'])) {
+                        $InputError = 1;
+                        $dsplymsg = _('Serail/chasis number must not be empty! Please try again.');
+                    }
+                }
+            }
+        }
+    if($_POST['repo_type'] != 'ffe') {
+        if($_POST['repo_type'] == 'replcmnt') {
+            $result = get_replace_item_to_repo($_POST['base_transno']);
+        }else if($_POST['repo_type'] == 'mt') {
+                $result = get_mt_repo_account($_POST['base_transno'], $_POST['cBranch']);
+        }else{
+            $result = get_item_detials_to_repo($_POST['base_transno'], $_POST['base_transtype']);
+        }
+        
+        $item_row = db_fetch($result);
+        if (empty($item_row['stock_id']) && empty($item_row['color_code'])) {
+            $InputError = 1;
+            $dsplymsg = _('Stock id and color code must not be empty.');
+        }
     }
 
     $loc_code = get_default_location();
@@ -543,7 +629,7 @@ if(isset($_GET['submit']))
                                             $repoacct_row['spot_cash_amount'], $repoacct_row['total_amount'], $repoacct_row['unrecovered_cost'], $repoacct_row['addon_amount'], $repoacct_row['total_unrecovered'],
                                             $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm'], $_POST['mt_ref']);
 
-            $repo_item_id = add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $_POST['unrecovrd_cost'],
+            $repo_item_id = add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $unit_price, $_POST['unrecovrd_cost'],
                                             $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
 
             add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $quantity, $_POST['unrecovrd_cost'],
@@ -568,6 +654,43 @@ if(isset($_GET['submit']))
             //update mt from branch/ho
             set_mt_repo_status($_POST['mt_ref'], $item_row['stock_id'], $_POST['cBranch']);
 
+        }else if($_POST['repo_type'] == 'ffe'){
+
+            $repo_id = add_repo_accounts(ST_RRREPO, 0, $_POST['transtype'], $trans_date, $_POST['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
+                        $_POST['customername'], $_POST['lcp_amount'], $_POST['downpayment'], $_POST['outs_ar_amount'], $_POST['amort_amount'],
+                        $_POST['months_term'], $_POST['release_date'], $_POST['firstdue_date'], $_POST['maturity_date'], $_POST['balance'],
+                        $_POST['spotcash'], $_POST['total_amount'], $_POST['unrecovrd_cost'], $_POST['addon_cost'], $_POST['total_unrecovrd'],
+                        check_isempty($_POST['over_due']), check_isempty($_POST['past_due']), $_POST['category'], $branch_code, $_POST['remarks'], $_POST['gpm'], 0, $_POST['Accuamount']);
+
+            if (count($objDataGrid) != 0){
+                foreach($objDataGrid as $value=>$itmdata) {
+                    $repo_item_id = add_repo_item(0, $repo_id, $itmdata['stock_id'], $itmdata['description'], $itmdata['qty'], $itmdata['unit_price'], $_POST['unrecovrd_cost'],
+                                                    $itmdata['serial_no'], $itmdata['chassis_no'], $itmdata['color_code']);
+
+                    add_stock_move(ST_RRREPO, $itmdata['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $itmdata['qty'], $_POST['unrecovrd_cost'],
+                                    0, $itmdata['serial_no'], $itmdata['chassis_no'], $_POST['category'], $itmdata['color_code'], 0, 0, "repo");
+
+                    //item serialize
+                    add_item_serialise(ST_RRREPO, $itmdata['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $itmdata['qty'], $itmdata['serial_no'], $repo_item_id, $itmdata['chassis_no'], $itmdata['description'], '');
+                }
+            }
+            //for gl entry
+            //Repossessed Inventory - debit
+            $repo_invty_act =  get_repo_invty_act($_POST['category']);
+            if(isset($repo_invty_act)){
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['customername'], $_POST['custname'], 0, 0);
+            }
+            //accumulated -debit
+            $accum_repo_act = $company_record["ffe_accum_repo_act"];
+            if(isset($repo_invty_act)){
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $accum_repo_act, 0, 0, $_POST['Accuamount'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['customername'], $_POST['custname'], 0, 0);
+            }
+            //ffe_repo_act -credit
+            $ffe_repo_act = $company_record["ffe_repo_act"];
+            if(isset($repo_invty_act)){
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $ffe_repo_act, 0, 0, -$_POST['lcp_amount'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['customername'], $_POST['custname'], 0, 0);
+            }
+
         }else{
 
             $repo_id = add_repo_accounts(ST_RRREPO, $_POST['InvoiceNo'], $_POST['transtype'], $trans_date, $_POST['repo_date'], $_POST['repo_type'], $_POST['reference_no'],
@@ -576,7 +699,7 @@ if(isset($_GET['submit']))
                                             $_POST['spotcash'], $_POST['total_amount'], $_POST['unrecovrd_cost'], $_POST['addon_cost'], $_POST['total_unrecovrd'],
                                             check_isempty($_POST['over_due']), check_isempty($_POST['past_due']), $_POST['category'], $branch_code, $_POST['remarks'], $_POST['gpm']);
 
-            $repo_item_id = add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $_POST['unrecovrd_cost'],
+            $repo_item_id = add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $unit_price, $_POST['unrecovrd_cost'],
                                             $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
 
             add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $quantity, $_POST['unrecovrd_cost'],

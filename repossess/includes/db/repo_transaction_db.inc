@@ -11,7 +11,7 @@
 ***********************************************************************/
 function add_repo_accounts($trans_type, $trans_no, $ar_trans_type, $trans_date_, $repo_date_, $repo_type, $reference_no, $debtor_no, $lcp, $downpayment, $out_ar, 
 							$monthly, $term, $release_date_, $firstdue_date_, $maturity_date_, $balance, $spot_cash, $total_amount, $unrecovered,
-							$addon, $total_unrecovered, $over_due=0, $past_due=0, $category_id, $branch_code, $comments, $gpm, $transfer_id=0)
+							$addon, $total_unrecovered, $over_due=0, $past_due=0, $category_id, $branch_code, $comments, $gpm, $transfer_id=0, $accu_amount=0)
 {
 	global $Refs;
 	
@@ -24,14 +24,14 @@ function add_repo_accounts($trans_type, $trans_no, $ar_trans_type, $trans_date_,
 	$sql = "INSERT INTO ".TB_PREF."repo_accounts (
 					type, ar_trans_no, ar_trans_type, trans_date, repo_date, repo_type, reference_no, debtor_no, lcp_amount, downpayment, outstanding_ar,
 					monthly_amount, term, release_date, firstdue_date, maturity_date, balance, spot_cash_amount, total_amount, unrecovered_cost,
-					addon_amount, total_unrecovered, over_due, past_due, category_id, branch_code, comments, gpm, transfer_id
+					addon_amount, total_unrecovered, over_due, past_due, category_id, branch_code, comments, gpm, transfer_id, accu_amount
 			) VALUES (
 					".db_escape($trans_type).", ".db_escape($trans_no).", ".db_escape($ar_trans_type).", ".db_escape($trans_date).", ".db_escape($repo_date).", ".db_escape($repo_type).",
 					".db_escape($reference_no).", ".db_escape($debtor_no).", ".db_escape($lcp).", ".db_escape($downpayment).", ".db_escape($out_ar).",
 					".db_escape($monthly).", ".db_escape($term).", ".db_escape($release_date).", ".db_escape($firstdue_date).", ".db_escape($maturity_date).",
 					".db_escape($balance).", ".db_escape($spot_cash).", ".db_escape($total_amount).", ".db_escape($unrecovered).", ".db_escape($addon).",
 					".db_escape($total_unrecovered).", ".db_escape($over_due).", ".db_escape($past_due).", ".db_escape($category_id).", ".db_escape($branch_code).",
-					".db_escape($comments).", ".db_escape($gpm).", ".db_escape($transfer_id)."
+					".db_escape($comments).", ".db_escape($gpm).", ".db_escape($transfer_id).", ".db_escape($accu_amount)."
 			)";
 
 	db_query($sql, "The rr repo account record cannot be inserted");
@@ -43,13 +43,13 @@ function add_repo_accounts($trans_type, $trans_no, $ar_trans_type, $trans_date_,
 	return $repo_id;
 }
 
-function add_repo_item($trans_no, $repo_id, $stock_id, $description, $qty, $unit_price, $serial_no, $chassis_no, $color_code)
+function add_repo_item($trans_no, $repo_id, $stock_id, $description, $qty, $unit_price, $unrecovrd_cost, $serial_no, $chassis_no, $color_code)
 {
 	$sql = "INSERT INTO ".TB_PREF."repo_item_details (
-					repo_id, ar_trans_no, stock_id, description, qty, unit_price, serial_no, chassis_no, color_code
+					repo_id, ar_trans_no, stock_id, description, qty, unit_price, unrecovrd_cost, serial_no, chassis_no, color_code
 			) VALUES (
 					".db_escape($repo_id).", ".db_escape($trans_no).", ".db_escape($stock_id).", ".db_escape($description).", ".db_escape($qty).",
-					".db_escape($unit_price).", ".db_escape($serial_no).", ".db_escape($chassis_no).", ".db_escape($color_code)."
+					".db_escape($unit_price).", ".db_escape($unrecovrd_cost).", ".db_escape($serial_no).", ".db_escape($chassis_no).", ".db_escape($color_code)."
 			)";
 
 	db_query($sql, "The rr repo account item record cannot be inserted");
@@ -635,4 +635,20 @@ function add_item_serialise($type, $stock_id, $trans_no, $location, $reference, 
 	$itemserial_id = db_insert_id();
 
 	return $itemserial_id;
+}
+
+function get_stock_items($category, $stock_id= '', $item_code='')
+{
+	//echo $stock_id;
+	if($stock_id != ''){
+		$sWhere = " AND a.stock_id = ".db_escape($stock_id)." AND b.item_code = ".db_escape($item_code);
+	}
+	$sql = "SELECT a.stock_id, b.item_code, b.description
+			FROM ".TB_PREF."stock_master a 
+				INNER JOIN ".TB_PREF."item_codes b ON b.stock_id = a.stock_id
+			WHERE a.category_id = ".db_escape($category)."
+			".$sWhere."
+			ORDER BY a.stock_id ASC";
+ //echo $sql;
+	return db_query($sql, "could not get stock items because ");
 }

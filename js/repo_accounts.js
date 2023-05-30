@@ -67,7 +67,8 @@ Ext.onReady(function(){
 			{name:'branch_code', mapping:'branch_code'},
 			{name:'comments', mapping:'comments'},
 			{name:'gpm', mapping:'gpm'},
-			{name:'transfer_id', mapping:'transfer_id'}
+			{name:'transfer_id', mapping:'transfer_id'},
+			{name:'accu_amount', mapping:'accu_amount'}
 		]
     });
     Ext.define('CustomersModel',{
@@ -115,8 +116,8 @@ Ext.onReady(function(){
 			{name:'description',mapping:'description'},
 			{name:'qty',mapping:'qty'},
 			{name:'unit_price',mapping:'unit_price',type:'float'},
-			{name:'serial',mapping:'serial'},
-			{name:'chasis',mapping:'chasis'},
+			{name:'serial_no',mapping:'serial_no'},
+			{name:'chassis_no',mapping:'chassis_no'},
 			{name:'color_code',mapping:'color_code'}
 		]
 	});
@@ -139,7 +140,8 @@ Ext.onReady(function(){
 			{"id":"mt","name":"Merchandise Transfer"},
 			{"id":"trmode","name":"AR Term mode"},
 			{"id":"openar","name":"AR Opening"},
-			{"id":"arlend","name":"From AR lending"}
+			{"id":"arlend","name":"From AR lending"},
+			{"id":"ffe","name":"FFE"}
         ]
 	});
 	var CustomerStore = Ext.create('Ext.data.Store', {
@@ -268,6 +270,25 @@ Ext.onReady(function(){
 		simpleSortMode : true,
 		sorters : [{
 			property : 'desc',
+			direction : 'ASC'
+		}]
+	});
+	var StoctItemStore = Ext.create('Ext.data.Store', {
+		name: 'StoctItemStore',
+		fields:['stockid','itemcode','description'],
+		autoLoad : true,
+        proxy: {
+			url: '?getStockItems=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'code',
 			direction : 'ASC'
 		}]
 	});
@@ -412,8 +433,8 @@ Ext.onReady(function(){
 		}
 	];
 	var Item_view = [
-		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120, editor: 'textfield'},
-		{header:'<b>Description</b>', dataIndex:'description', width:148, editor: 'textfield',
+		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120},
+		{header:'<b>Description</b>', dataIndex:'description', width:148,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -421,29 +442,79 @@ Ext.onReady(function(){
 		},
 		{header:'<b>Qty</b>', dataIndex:'qty', width:60},
 		{header:'<b>Unit Price</b>', dataIndex:'unit_price', width:100,
+			editor: new Ext.form.TextField({
+				xtype:'textfield',
+				id: 'unit_price',
+				name: 'unit_price',
+				allowBlank: false,
+				listeners : {
+					change: function(editor, e){
+						Ext.getCmp('lcp_amount').setValue(e);					  
+					}
+				},
+			}), 
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return Ext.util.Format.number(value, '0,000.00');
 			}
 		},
-		{header:'<b>Serial No.</b>', dataIndex:'serial_no', width:200,
+		{header:'<b>Serial No.</b>', dataIndex:'serial_no', width:200, editor: 'textfield',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
 		},
-		{header:'<b>Chasis No.</b>', dataIndex:'chassis_no', width:200,
+		{header:'<b>Chasis No.</b>', dataIndex:'chassis_no', width:200, editor: 'textfield',
 			renderer : function(value, metaData, summaryData, dataIndex){
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
-		}/*,
-		{header:'<b>Color code</b>', dataIndex:'color_code', width:200,
+		},
+		/*{header:'<b>Color code</b>', dataIndex:'color_code', width:200,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
 		}*/
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:70,
+			items:[{
+				icon: '../../js/ext4/examples/shared/icons/delete.png',
+				tooltip: 'remove',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = OtherEntryStore.getAt(rowIndex);
+					//loadOtherEntry('delete',records.get("id"), 'amort');
+				}
+			}]
+		}
+	];
+	var column_item = [
+		{header:'<b>Stock Code</b>', dataIndex:'stockid', width:120},
+		{header:'<b>Item Code</b>', dataIndex:'itemcode', width:130},
+		{header:'<b>Description</b>', dataIndex:'description', width:148, flex: 1},
+		{header:'<b>Action</b>',xtype:'actioncolumn', align:'center', width:110,
+			items:[{
+				icon: '../../js/ext4/examples/shared/icons/add.png', //tick
+				tooltip: 'Select',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = StoctItemStore.getAt(rowIndex);
+					AddItem('add', records.get('stockid'), records.get('itemcode'));
+
+					Ext.toast({
+						icon: '../../js/ext4/examples/shared/icons/accept.png',
+						html: 'Item Code: <b>' + records.get('itemcode') + ' </b><br/> ' + 'Description: <b>' + records.get('description') + '<b/>',
+						title: 'Successfully added...',
+						width: 250,
+						bodyPadding: 10,
+						align: 'tl',
+						bodyStyle: {
+							color: ' #273746 ',
+							background:'#e8ecf0',
+							border: '2px solid red'
+						}
+					});	
+				}
+			}]
+		}
 	];
 
 	var tbar = [{
@@ -469,9 +540,11 @@ Ext.onReady(function(){
 		scale: 'small',
 		handler: function(){
 			submit_form.getForm().reset();
-			
+			//Ext.Msg.alert('friend lang :)', '<font color="green">stackoverflow is my friend</font>');
 			CustomerStore.proxy.extraParams = {rtype: 'new', debtor_id: ''};
 			CustomerStore.load();
+			SIitemStore.proxy.extraParams = {tag: '', transNo: 0 };
+			SIitemStore.load();
 
 			Ext.getCmp('repo_type').setValue("new");
 			Ext.getCmp('btnsave').setVisible(true);
@@ -484,6 +557,7 @@ Ext.onReady(function(){
 			//Ext.getCmp('autocreatecust').setVisible(false);
 			Ext.getCmp('btnloadc').setVisible(false);
 			Ext.getCmp('customername').setWidth(390);
+			Ext.getCmp('btnItem').setVisible(false);
 			
 			submit_window.show();
 			submit_window.setTitle('Receiving Report Repo - Add');
@@ -687,7 +761,7 @@ Ext.onReady(function(){
 									SIitemStore.load();
 									
 									Ext.getCmp('InvoiceNo').setValue();
-									Ext.getCmp('transtype').setValue();
+									Ext.getCmp('transtype').setValue(0);
 									Ext.getCmp('release_date').setValue();
 									Ext.getCmp('months_term').setValue();
 									Ext.getCmp('downpayment').setValue();
@@ -707,8 +781,13 @@ Ext.onReady(function(){
 									Ext.getCmp('total_unrecovrd').setValue();
 									Ext.getCmp('past_due').setValue();
 									Ext.getCmp('over_due').setValue();
-									Ext.getCmp('base_transno').setValue();
-									Ext.getCmp('base_transtype').setValue();
+
+									Ext.getCmp('Accuamount').setValue(0);
+									Ext.getCmp('base_transtype').setValue(0);
+									Ext.getCmp('base_transno').setValue(0);
+									
+									//Ext.getCmp('remarks').readOnly = false;
+									Ext.getCmp('remarks').setReadOnly(false);
 								}
 								Ext.Ajax.request({
 									url : '?getReference=zHun',
@@ -770,10 +849,16 @@ Ext.onReady(function(){
 						fieldStyle: 'font-weight: bold; color: #210a04;',
 						listeners: {
 							select: function(combo, record, index) {
+								var form = this.up('form').getForm();
+								fields = form.getFields();
+
 								CustomerStore.proxy.extraParams = {rtype: record.get('id')};
 								CustomerStore.load();
 								ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
 								ARInvoiceStore.load();
+								SIitemStore.proxy.extraParams = {tag: '', transNo: 0 };
+								SIitemStore.load();
+								
 								Ext.getCmp('customercode').setValue();
 								Ext.getCmp('customername').setValue();
 								Ext.getCmp('InvoiceNo').setValue();
@@ -802,16 +887,42 @@ Ext.onReady(function(){
 								Ext.getCmp('custname').setValue();
 								Ext.getCmp('cBranch').setValue();
 								Ext.getCmp('mt_ref').setValue();
+
+								Ext.getCmp('Accuamount').setValue(0);
+								Ext.getCmp('base_transtype').setValue(0);
+								Ext.getCmp('base_transno').setValue(0);
+								Ext.getCmp('transtype').setValue(0);
+
 								//Ext.getCmp('autocreatecust').setValue();
 								Ext.getCmp('customername').setWidth(390);
 								Ext.getCmp('btnloadc').setVisible(false);
+								Ext.getCmp('btnItem').setVisible(false);
+
+								Ext.getCmp('InvoiceNo').allowBlank = false;
+								Ext.each(fields.items, function (f) {
+									f.inputEl.dom.readOnly = true;
+								});
+								//Ext.getCmp('remarks').readOnly = false;
+								Ext.getCmp('remarks').setReadOnly(false);
 
 								if(record.get('id') == 'mt'){
+
 									Ext.getCmp('cBranch').setVisible(true);
 									Ext.getCmp('mt_ref').setVisible(true);
 									//Ext.getCmp('autocreatecust').setVisible(true);
 									//Ext.getCmp('btnloadc').setVisible(true);
 									//Ext.getCmp('customername').setWidth(350);
+
+								}else if(record.get('id') == 'ffe'){
+
+									Ext.each(fields.items, function (f) {
+										f.inputEl.dom.readOnly = false;
+									});
+									CustomerStore.proxy.extraParams = {rtype: 'all'};
+									CustomerStore.load();
+									Ext.getCmp('InvoiceNo').allowBlank = true;
+									Ext.getCmp('btnItem').setVisible(true);
+
 								}else{
 									Ext.getCmp('cBranch').setVisible(false);
 									Ext.getCmp('mt_ref').setVisible(false);
@@ -843,6 +954,12 @@ Ext.onReady(function(){
 						fieldStyle: 'font-weight: bold; color: #210a04;',
 						listeners: {
 							select: function(combo, record, index) {
+								var form = this.up('form').getForm();
+								fields = form.getFields();
+								Ext.each(fields.items, function (f) {
+									f.inputEl.dom.readOnly = true;
+								});
+								
 								if(Ext.getCmp('repo_type').getValue() != 'mt'){
 									SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type'), amount: record.get('unrecoverd'), rtype: Ext.getCmp('repo_type').getValue(), base_transno: record.get('base_transno'), base_transtype: record.get('base_transtype')};
 									SIitemStore.load();
@@ -871,6 +988,9 @@ Ext.onReady(function(){
 								Ext.getCmp('remarks').setValue(record.get('remarks'));
 								Ext.getCmp('base_transno').setValue(record.get('base_transno'));
 								Ext.getCmp('base_transtype').setValue(record.get('base_transtype'));
+
+								//Ext.getCmp('remarks').readOnly = false;
+								Ext.getCmp('remarks').setReadOnly(false);
 							}
 						}
 					},{
@@ -928,6 +1048,8 @@ Ext.onReady(function(){
 								Ext.getCmp('base_transtype').setValue();
 								Ext.getCmp('cBranch').setValue();
 								Ext.getCmp('mt_ref').setValue();
+
+								Ext.getCmp('remarks').readOnly = false;
 							}
 						}
 					}]
@@ -952,7 +1074,7 @@ Ext.onReady(function(){
 							name  : 'release_date',
 							fieldLabel : '<b>Invoice Date </b>',
 							allowBlank: false,
-							readOnly: true,
+							//readOnly: true,
 							margin: '3 3 3 0',
 							labelWidth: 115,
 							format : 'm/d/Y',
@@ -1041,7 +1163,7 @@ Ext.onReady(function(){
 							name  : 'firstdue_date',
 							fieldLabel : '<b>First Due Date </b>',
 							allowBlank: false,
-							readOnly: true,
+							//readOnly: true,
 							margin: '3 3 3 0',
 							labelWidth: 115,
 							format : 'm/d/Y',
@@ -1052,7 +1174,7 @@ Ext.onReady(function(){
 							name  : 'maturity_date',
 							fieldLabel : '<b>Maturity Date </b>',
 							allowBlank: false,
-							readOnly: true,
+							//readOnly: true,
 							margin: '3 3 3 0',
 							labelWidth: 115,
 							format : 'm/d/Y',
@@ -1089,7 +1211,7 @@ Ext.onReady(function(){
 								allowBlank: false,
 								forceSelection: true,
 								selectOnFocus:true,
-								readOnly: true,
+								//readOnly: true,
 								margin: '2 0 2 0',
 								labelWidth: 70,
 								width: 225,
@@ -1097,7 +1219,10 @@ Ext.onReady(function(){
 								fieldStyle: 'font-weight: bold; color: #210a04;',
 								listeners: {
 									select: function(combo, record, index) {
+										StoctItemStore.proxy.extraParams = {category: record.get('id')};
+										StoctItemStore.load();
 
+										Ext.getCmp('remarks').readOnly = false;
 									}
 								}
 							}]
@@ -1245,26 +1370,49 @@ Ext.onReady(function(){
 								name: 'gpm',
 								readOnly: true,
 								allowBlank: false,
+								//fieldLabel: '<b>Gpm </b>',
 								width: 50,
 								margin: '2 0 2 0',
-								fieldStyle: 'font-weight: bold;color: #4a235a; text-align: right;'
+								fieldStyle: 'font-weight: bold;color: #4a235a; text-align: right;',
+								
 							}]
 						},{
-							xtype: 'numericfield',
-							id: 'total_unrecovrd',
-							name: 'total_unrecovrd',
-							fieldLabel: '<b>Total unrecovered </b>',
-							useThousandSeparator: true,
-							decimalPrecision: 2,
-							alwaysDisplayDecimals: true,
-							allowNegative: false,
-							allowBlank: false,
-							readOnly: true,
-							labelWidth: 125,
-							width: 292,
-							thousandSeparator: ',',
-							minValue: 0,
-							fieldStyle: 'font-weight: bold;color: #008000; text-align: right;'
+							xtype: 'fieldcontainer',
+							layout: 'hbox',
+							margin: '0 0 0 0',
+							items:[{
+								xtype: 'numericfield',
+								id: 'total_unrecovrd',
+								name: 'total_unrecovrd',
+								fieldLabel: '<b>Total unrecovered </b>',
+								useThousandSeparator: true,
+								decimalPrecision: 2,
+								alwaysDisplayDecimals: true,
+								allowNegative: false,
+								allowBlank: false,
+								readOnly: true,
+								labelWidth: 125,
+								width: 292,
+								thousandSeparator: ',',
+								minValue: 0,
+								fieldStyle: 'font-weight: bold;color: #008000; text-align: right;'
+							},{
+								xtype: 'numericfield',
+								id: 'Accuamount',
+								name: 'Accuamount',
+								fieldLabel: '<b>Accumulated </b>',
+								useThousandSeparator: true,
+								decimalPrecision: 2,
+								alwaysDisplayDecimals: true,
+								allowNegative: false,
+								allowBlank: false,
+								margin: '2 0 2 0',
+								labelWidth: 95,
+								width: 225,
+								thousandSeparator: ',',
+								minValue: 0,
+								fieldStyle: 'font-weight: bold;color: #008000; text-align: right;'
+							}]
 						},{
 							xtype: 	'textareafield',
 							fieldLabel: 'Remarks ',
@@ -1281,22 +1429,57 @@ Ext.onReady(function(){
 				}]
 			}]
 		},{
-			xtype:'gridpanel',
-			id: 'ItemGrid',
-			anchor:'100%',
-			layout:'fit',
-			title: 'Item Details',
-			icon: '../../js/ext4/examples/shared/icons/lorry_flatbed.png',
-			loadMask: true,
-			store:	SIitemStore,
-			columns: Item_view,
-			plugins: [cellEditing],
-			columnLines: true
+			xtype: 'tabpanel',
+			activeTab: 0,
+			width: 860,
+			scale: 'small',
+			items:[{
+				xtype:'gridpanel',
+				id: 'ItemGrid',
+				anchor:'100%',
+				layout:'fit',
+				title: 'Item Details',
+				icon: '../../js/ext4/examples/shared/icons/lorry_flatbed.png',
+				loadMask: true,
+				store:	SIitemStore,
+				columns: Item_view,
+				plugins: [cellEditing],
+				columnLines: true
+			}],
+			tabBar: {
+				items: [{
+					xtype: 'button',
+					id: 'btnItem',
+					text: 'Item/s',
+					padding: '3px',
+					margin: '2px 2px 6px 580px',
+					icon: '../../js/ext4/examples/shared/icons/lorry_add.png',
+					tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#494644',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					},
+					handler: function(){
+						if(Ext.getCmp('category').getValue() == null){
+							Ext.Msg.alert('Error!', '<font color="red">Please pick category first...</font>');
+						}else{
+							item_w.show();
+							item_w.setPosition(320,60);
+						}
+					}
+				}]
+			}
 		}]
 	});
 	var submit_window = Ext.create('Ext.Window',{
 		id: 'submit_window',
-		width 	: 840,
+		width 	: 850,
 		modal	: true,
 		plain 	: true,
 		border 	: true,
@@ -1322,8 +1505,9 @@ Ext.onReady(function(){
 							description: item.get('description'),
 							qty: item.get('qty'),
 							unit_price: item.get('unit_price'),
-							serial: item.get('serial'),
-							chasis: item.get('chasis')
+							serial_no: item.get('serial_no'),
+							chassis_no: item.get('chassis_no'),
+							color_code: item.get('color_code')
 						};
 						gridRepoData.push(ObjItem);
 					});
@@ -1369,6 +1553,58 @@ Ext.onReady(function(){
 			}
 		}]
 	});
+	var item_w = new Ext.create('Ext.Window',{
+		id: 'item_w',
+		width: 840,
+		height: 400,
+		scale: 'small',
+		resizable: false,
+		closeAction:'hide',
+		//closable:true,
+		modal: true,
+		layout:'fit',
+		plain 	: true,
+		title: 'List Of items',
+		items: [{
+			xtype: 'gridpanel',
+			store: StoctItemStore,
+			anchor:'100%',
+			layout:'fit',
+			frame: false,
+			loadMask: true,
+			columns: column_item,
+			features: [{ftype: 'summary'}],
+			columnLines: true,
+			bbar : {
+				xtype : 'pagingtoolbar',
+				hidden: false,
+				store : StoctItemStore,
+				pageSize : itemsPerPage,
+				displayInfo : false,
+				emptyMsg: "No records to display",
+				doRefresh : function(){
+					StoctItemStore.load();
+				},
+				items:[{
+					xtype: 'searchfield',
+					id:'searchCOA',
+					name:'searchCOA',
+					fieldLabel: '<b>Search</b>',
+					labelWidth: 50,
+					width: 305,
+					emptyText: "Search",
+					scale: 'small',
+					store: StoctItemStore,
+					listeners: {
+						change: function(field) {
+							StoctItemStore.proxy.extraParams = {query: field.getValue()};
+							StoctItemStore.load();
+						}
+					}
+				}]
+			}
+		}]
+	});
 	//------------------------------------: main grid :----------------------------------------
 	var REPO_GRID =  Ext.create('Ext.panel.Panel', { 
         renderTo: 'ext-form',
@@ -1399,4 +1635,35 @@ Ext.onReady(function(){
 			}
 		}]
 	});
+
+	function AddItem($tag, $stockid, $itemcode){
+		var gridData = SIitemStore.getRange();
+		var OEData = [];
+
+		Ext.each(gridData, function(item) {
+			var ObjItem = {
+				id: item.get('id'),  
+				repo_id: item.get('repo_id'),
+				ar_trans_no: item.get('ar_trans_no'),
+				stock_id: item.get('stock_id'),
+				description: item.get('description'),
+				qty: item.get('qty'),
+				unit_price: item.get('unit_price'),
+				serial_no: item.get('serial_no'),
+				chassis_no: item.get('chassis_no'),
+				color_code: item.get('color_code'),
+				status: item.get('status')
+			};
+			OEData.push(ObjItem);
+		});
+
+		SIitemStore.proxy.extraParams = {
+			DataitmGrid: Ext.encode(OEData),
+			tag: $tag,
+			stockid: $stockid,
+			itemcode: $itemcode,
+			category: Ext.getCmp('category').getValue()
+		};
+		SIitemStore.load();
+	};
 });
