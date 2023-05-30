@@ -233,7 +233,7 @@ function print_sales_summary_report()
 		215,      275,       335,       395,       445,     475,     500,   
 
 	//      LCP     Cost     gross     discount1  discount2  Net_Sales   Agent
-		515,    555,     595,      625,         650,         670,         705,      0);
+		515,    555,     590,      625,         650,         670,         705,      0);
 
 	$headers = array(
 		_('Brand'), 
@@ -280,12 +280,13 @@ function print_sales_summary_report()
 	$row_unitcost = 0;
 	$Tot_discount1 = 0;	
 	$Tot_discount2 = 0;
+	$Tot_netsales = 0;
 	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
 
 	While ($GRNs = db_fetch($res))
 	{
 		$row_gross = $GRNs['Qty']*$GRNs['Unit_price'];
-		$row_unitcost = $GRNs['UnitCost'];
+		$row_unitcost = $GRNs['UnitCost']*$GRNs['Qty'];
 		$row_netsales = $row_gross - $GRNs['discount1'] - $GRNs['discount2'];
 
 		$dec2 = get_qty_dec($GRNs['Model']);
@@ -328,6 +329,9 @@ function print_sales_summary_report()
 		$discount2 = $GRNs['discount2'];
 		$Tot_discount2 += $discount2;
 
+		$netSales = $row_netsales;
+		$Tot_netsales += $netSales;
+
 		$rep->NewLine(0, 1);
 	}
 
@@ -344,6 +348,7 @@ function print_sales_summary_report()
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
 	$rep->AmountCol(15, 16, $Tot_discount1, $dec);
 	$rep->AmountCol(16, 17, $Tot_discount2, $dec);
+	$rep->AmountCol(17, 18, $Tot_netsales, $dec);
 
 	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
