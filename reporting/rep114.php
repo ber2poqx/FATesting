@@ -227,13 +227,13 @@ function print_sales_summary_report()
 		// 7 => array('text' => _('Months Term'), 'from' => $terms, 'to' => ''));
 
 	//              brand    cat      sub-cat   date       SIno.
-	$cols = array(0,      45,     95,  	     140,      175, 
+	$cols = array(0,      30,     80,  	     125,      160, 
 
 	//       name     model     serial     chassis    type       term       qty
-		230,      290,       350,       410,       460,     490,     515,   
+		215,      275,       335,       395,       445,     475,     500,   
 
-	//      LCP     Cost     gross     discount1  discount2    Agent
-		530,    570,     610,      655,        685,         710,     0);
+	//      LCP     Cost     gross     discount1  discount2  Net_Sales   Agent
+		515,    555,     595,      625,         650,         670,         705,      0);
 
 	$headers = array(
 		_('Brand'), 
@@ -253,11 +253,12 @@ function print_sales_summary_report()
 		_('Gross Amount'),
 		_('Dscount1'),
 		_('Dscount2'),
+		_('Net Sales'),
 		_('Sales Agent'),
 		);
 
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'left');
+	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
 
@@ -283,8 +284,9 @@ function print_sales_summary_report()
 
 	While ($GRNs = db_fetch($res))
 	{
-		$row_gross = $GRNs['Qty']*$GRNs['grossAmnt'];
-		$row_unitcost = $GRNs['Qty']*$GRNs['UnitCost'];
+		$row_gross = $GRNs['Qty']*$GRNs['UnitCost'];
+		$row_unitcost = $GRNs['UnitCost'];
+		$row_netsales = $row_gross - $GRNs['discount1'] - $GRNs['discount2'];
 
 		$dec2 = get_qty_dec($GRNs['Model']);
 
@@ -306,7 +308,8 @@ function print_sales_summary_report()
 		$rep->AmountCol2(14, 15, $row_gross);
 		$rep->AmountCol2(15, 16, $GRNs['discount1']);
 		$rep->AmountCol2(16, 17, $GRNs['discount2']);
-		$rep->TextCol(17, 18, $GRNs['SalesAgent']);
+		$rep->AmountCol2(17, 18, $row_netsales);
+		$rep->TextCol(18, 19, $GRNs['SalesAgent']);
 
 		$qty = $GRNs['Qty'];
 		$Tot_qty += $qty;
