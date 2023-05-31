@@ -5386,5 +5386,17 @@ function adjustment_list_row($label, $name, $selected_id=null, $spec_opt=false, 
 	adjustment_list_cells(null, $name, $selected_id, $spec_opt, $submit_on_change, $fixed_asset, $disabled);
 	echo "</tr>\n";
 }
+function Other_Entry_type($label, $name, $selected = null, $submit_on_change = false, $design = '' ) {
+	
+	if ($label != null)
+	echo "<tr><td class='label'>$label</td>";
+	echo "<td>\n";
+	$allocs = array( 
+		'0'=> _("Normal Entry"),
+		'1'=> _("Other Entry")
+	);
+	echo array_selector($name, $selected, $allocs, array('select_submit'=> $submit_on_change),$design);
+	echo "</td>\n";
+}
 
 /*End by Albert*/

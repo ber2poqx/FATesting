@@ -573,7 +573,14 @@ function write_bank_transaction(
 	$interbranch = false,
 	$open_bal = 0,
 	$inter_total = 0,
-	$void_id = 0, $ar_trans_no = 0, $ar_trans_type = null
+	$void_id = 0, $ar_trans_no = 0, $ar_trans_type = null,
+	//Added by Albert fix Other Entry in Reciepts 5/31/2023
+	$pay_amount = 0,
+	$other_entry_account = 0,
+	$othr_entry_pay_amount = 0,
+	$othr_entry_check_date = null,
+	$othr_entry_check_no = null,
+	$othr_entry_bank_branch = null
 	// 
 ) {
 	global $Refs, $SysPrefs;
@@ -684,33 +691,89 @@ function write_bank_transaction(
 		);
 	}
 	// do the source account postings
+	/*Modified by Albert fix Other Entry in Reciepts 5/31/2023*/
+	if($other_entry_account <> 0){
 
-	add_bank_trans(
-		$trans_type,
-		$trans_no,
-		$from_account,
-		$ref,
-		$date_,
-		-$total_amount,
-		$person_type_id,
-		$person_id,
-		$cashier_teller, //Cashier
-		$typecollection,
-		$check_date,
-		$check_no,
-		$bank_branch,
-		$person_detail_id, 
-		//Modified by spyrax10
-		$receipt_no,
-		get_current_user_fullname(), //Prepared by 
-		null, //Checked by
-		null, //Approved by
-		null, //Module type
-		$currency, // 19
-		"Cannot insert a source bank transaction || ",// 20
-		$open_bal
-		//
-	);
+		add_bank_trans(
+			$trans_type,
+			$trans_no,
+			$from_account,
+			$ref,
+			$date_,
+			$pay_amount,
+			$person_type_id,
+			$person_id,
+			$cashier_teller, //Cashier
+			$typecollection,
+			$check_date,
+			$check_no,
+			$bank_branch,
+			$person_detail_id, 
+			//Modified by spyrax10
+			$receipt_no,
+			get_current_user_fullname(), //Prepared by 
+			null, //Checked by
+			null, //Approved by
+			null, //Module type
+			$currency, // 19
+			"Cannot insert a source bank transaction || ",// 20
+			$open_bal
+			//
+		);
+		add_bank_trans(
+			$trans_type,
+			$trans_no,
+			$other_entry_account,
+			$ref,
+			$date_,
+			$othr_entry_pay_amount,
+			$person_type_id,
+			$person_id,
+			$cashier_teller, //Cashier
+			$typecollection,
+			$othr_entry_check_date,
+			$othr_entry_check_no,
+			$othr_entry_bank_branch,
+			$person_detail_id, 
+			//Modified by spyrax10
+			$receipt_no,
+			get_current_user_fullname(), //Prepared by 
+			null, //Checked by
+			null, //Approved by
+			null, //Module type
+			$currency, // 19
+			"Cannot insert a source bank transaction || ",// 20
+			$open_bal
+			//
+		);
+	}else{
+		add_bank_trans(
+			$trans_type,
+			$trans_no,
+			$from_account,
+			$ref,
+			$date_,
+			-$total_amount,
+			$person_type_id,
+			$person_id,
+			$cashier_teller, //Cashier
+			$typecollection,
+			$check_date,
+			$check_no,
+			$bank_branch,
+			$person_detail_id, 
+			//Modified by spyrax10
+			$receipt_no,
+			get_current_user_fullname(), //Prepared by 
+			null, //Checked by
+			null, //Approved by
+			null, //Module type
+			$currency, // 19
+			"Cannot insert a source bank transaction || ",// 20
+			$open_bal
+			// 
+		);
+	}
 	$total = 0;
 	$link_to_entry = false;
 	foreach ($items->gl_items as $gl_item) {
@@ -865,25 +928,64 @@ function write_bank_transaction(
 		$bank_account_name = $gl_item->master_file;
 	}
 	/**/
+	/*Added by Albert fix Other Entry in Reciepts 5/31/2023*/
+	if($other_entry_account <> 0){
+		add_gl_trans(
+			$trans_type,
+			$trans_no,
+			$date_,
+			$bank_gl_account,
+			0,
+			0,
+			$memo_,
+			$pay_amount,
+			null,
+			$person_type_id,
+			$person_id,
+			"",
+			0,
+			$open_bal == 1 ? get_company_value(0, 'branch_code') : $bank_code,
+			$open_bal == 1 ? get_company_value(0, 'name') : $bank_account_name
+		);
 
-	add_gl_trans(
-		$trans_type,
-		$trans_no,
-		$date_,
-		$bank_gl_account,
-		0,
-		0,
-		$memo_,
-		-$total,
-		null,
-		$person_type_id,
-		$person_id,
-		"",
-		0,
-		$open_bal == 1 ? get_company_value(0, 'branch_code') : $bank_code,
-		$open_bal == 1 ? get_company_value(0, 'name') : $bank_account_name
-	);
-	/* */
+		add_gl_trans(
+			$trans_type,
+			$trans_no,
+			$date_,
+			get_bank_gl_account($other_entry_account),
+			0,
+			0,
+			$memo_,
+			$othr_entry_pay_amount,
+			null,
+			$person_type_id,
+			$person_id,
+			"",
+			0,
+			$open_bal == 1 ? get_company_value(0, 'branch_code') : $bank_code,
+			$open_bal == 1 ? get_company_value(0, 'name') : $bank_account_name
+		);
+	}
+	else{
+		add_gl_trans(
+			$trans_type,
+			$trans_no,
+			$date_,
+			$bank_gl_account,
+			0,
+			0,
+			$memo_,
+			-$total,
+			null,
+			$person_type_id,
+			$person_id,
+			"",
+			0,
+			$open_bal == 1 ? get_company_value(0, 'branch_code') : $bank_code,
+			$open_bal == 1 ? get_company_value(0, 'name') : $bank_account_name
+		);
+	}
+		/* */
 
 	if ($do_exchange_variance) {
 		if ($exchanged || add_exchange_variation(

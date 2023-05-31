@@ -422,6 +422,11 @@ if (isset($_POST['Process']) && !check_trans()) {
 
 	//Modified by robert
 	/*modified by Albert 11/17/2022*/
+
+	if(get_post('other_entry_id')){
+		$bank_accounts_data_oe = get_bank_account(get_post('bank_account'));
+		$account_type_oe = $bank_accounts_data['account_type'];
+	}
 	$bank_accounts_data = get_bank_account(get_post('bank_account'));
 	$account_type = $bank_accounts_data['account_type'];
 	/**/
@@ -453,7 +458,14 @@ if (isset($_POST['Process']) && !check_trans()) {
 		get_post('open_bal') != null ? get_post('open_bal') : 0, 0,
 		$_SESSION['pay_items']->void_id,
 		$_POST['ar_trans_no'] != null ? $_POST['ar_trans_no'] : 0, 
-		$_POST['ar_trans_type'] != null ? $_POST['ar_trans_type'] : 0
+		$_POST['ar_trans_type'] != null ? $_POST['ar_trans_type'] : 0,
+		//Added by Albert 5/30/2023
+		get_post('other_entry_id') ?  get_post('pay_amount'): 0,
+		get_post('other_entry_id') ?  get_post('other_entry_account'): 0,
+		get_post('other_entry_id') ?  get_post('othr_entry_pay_amount'): 0,
+		get_post('other_entry_id') ?  get_post('othr_entry_check_date'): null,
+		get_post('other_entry_id') ?  get_post('othr_entry_check_no'): null,
+		get_post('other_entry_id') ?  get_post('othr_entry_bank_branch'): null
 	);
 
 	$trans_type = $trans[0];
