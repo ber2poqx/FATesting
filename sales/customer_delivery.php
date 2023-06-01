@@ -622,7 +622,13 @@ foreach ($_SESSION['Items']->line_items as $line => $ln_itm) {
 	$line_total = ($ln_itm->qty_dispatched * $ln_itm->price * (1 - $ln_itm->discount_percent));
 
 	amount_cell($ln_itm->price);
-	amount_cell($ln_itm->standard_cost);
+	/*modified by albert 06/1/2023*/
+	$row = db_fetch(get_available_items($ln_itm->stock_id,
+	$_POST['Location'],
+	date("yyyy-MM-dd")));
+
+	amount_cell($row['standard_cost']);
+	/**/
 	label_cell($ln_itm->tax_type_name);
 	label_cell($display_discount_percent, "nowrap align=right");
 	amount_cell($line_total);
