@@ -319,3 +319,4 @@ function check_two_dates($trans_date, $repo_date)
 
     return $diffdate->format("%r%a");
 }
+sample
