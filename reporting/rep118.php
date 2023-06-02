@@ -46,15 +46,15 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 	$to = date2sql($to);
 	$advanceDate = endCycle($to, 1);
 	
-	$sql ="SELECT A.masterfile, A.trans_date, A.ref, A.receipt_no, abs(A.amount) AS amt, B.ov_discount AS rebate,
+	$sql ="SELECT A.type AS No_type, A.trans_no AS No_trans, A.masterfile, A.trans_date, A.ref, A.receipt_no, abs(A.amount) AS amt, B.ov_discount AS rebate,
 			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty,
 			F.month_no, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
 
-			A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,
+			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,*/
 			A.amount + B.ov_discount AS downtotal,
 			A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS advancetotal,
-			A.amount - E.payment_applied + B.ov_discount - IFNULL(E.penalty, 0) AS advance,
+			/*A.amount - E.payment_applied + B.ov_discount - IFNULL(E.penalty, 0) AS advance,*/
 
 			CASE 
 			    WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt'
@@ -178,6 +178,32 @@ function get_cashier_name($id)
 
 	$row = db_fetch_row($result);
 	return $row[0];
+}
+
+function get_payment_applied($type, $trans_no){
+
+    $sql = "SELECT SUM(payment_applied) AS applied_pay FROM debtor_loan_ledger
+			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
+
+    $result = db_query($sql, "Payment applied failed");
+
+	$myrow = db_fetch_row($result);
+
+	$payment_appl =  $myrow[0];
+	return $payment_appl;
+}
+
+function get_penalty_applied($type, $trans_no){
+
+    $sql = "SELECT SUM(penalty) AS penalty_pay FROM debtor_loan_ledger
+			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
+
+    $result = db_query($sql, "Penalty applied failed");
+
+	$myrow = db_fetch_row($result);
+
+	$penalty_appl =  $myrow[0];
+	return $penalty_appl;
 }
 
 function print_PO_Report()
@@ -425,19 +451,28 @@ function print_PO_Report()
             }
         }
 
+		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
+		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
+
+		
+		$ar_total = $DSOC['amt'] - $penalty_appl + $DSOC['rebate'];
+		$advance_total = $DSOC['amt'] - $payment_appl + $DSOC['rebate'] - $penalty_appl;
+		
+
+
 		$month_no = $DSOC['month_no'];
 		if ($month_no == 0) {
 			$advance = 0;
 		}else {
-			$advance = $DSOC['advance'];
+			$advance = $advance_total;
 		}
 
 		$Type = $DSOC['Type'];
 	    if ($Type == 'amort'){
-			$Ar = $DSOC['artotal'] - $DSOC['advance'];
+			$Ar = $ar_total - $advance_total;
 			$Dw = '';
 	    }elseif($Type == 'down'){
-			$Dw = $DSOC['downtotal'] - $DSOC['advance'];
+			$Dw = $DSOC['downtotal'] - $advance_total;
 	   		$Ar = '';
 		}elseif($Type == 'other'){
 			$Dw = $DSOC['downtotal'];
@@ -447,7 +482,7 @@ function print_PO_Report()
 	   		$Ar4 = 0;
 	   		$Ar = 0;
 		}elseif ($Type == 'alloc') {
-			$Dw = $DSOC['downtotal'] - $DSOC['advance'];
+			$Dw = $DSOC['downtotal'] - $advance_total;
 	   		$Ar1 = 0;
 	   		$Ar2 = 0;
 	   		$Ar3 = 0;
@@ -495,7 +530,7 @@ function print_PO_Report()
 
 		$amt = $DSOC['amt'];
 		$rebate = $DSOC['rebate'];
-		$penalty = $DSOC['penalty'];
+		//$penalty = $DSOC['penalty'];
 
 		if($DSOC['collection'] == '') {
 			$category = '';
@@ -525,7 +560,7 @@ function print_PO_Report()
 		$rep->AmountCol(13, 14, $Ar4, $dec);
 		$rep->AmountCol(14, 15, $rebate, $dec);
 		$rep->SetTextColor(255, 0, 0);
-		$rep->AmountCol(15, 16, $penalty, $dec);
+		$rep->AmountCol(15, 16, $penalty_appl, $dec);
         $rep->SetTextColor(0, 0, 0);
 		$rep->AmountCol(16, 17, $Dw, $dec);
 		$rep->AmountCol(17, 18, $DSOC[''], $dec);
@@ -553,8 +588,8 @@ function print_PO_Report()
 		$rb += $rebate;
 		$grandrebate += $rebate;
 
-		$pn += $penalty;
-		$grandpenalty += $penalty;
+		$pn += $penalty_appl;
+		$grandpenalty += $penalty_appl;
 
 		$cr += $Dw;
 		$grandcr += $Dw;
