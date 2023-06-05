@@ -262,7 +262,7 @@ function print_sales_summary_report()
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
 	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
+	$rep = new FrontReport(_('Sales Summary Report - REPO'), "SalesSummaryReport", "legal", 9, $orientation);
 
     if ($orientation == 'L')
     	recalculate_cols($cols);
