@@ -29,6 +29,8 @@ include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_sales_summary_report();
 
+print_sales_summary_report();
+
 function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model)
 {
 	$from = date2sql($from);
@@ -78,7 +80,8 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    ,dtd4.stock_id as Model
 		    ,dtd4.lot_no as `Serial`
 		    ,dtd4.chassis_no as `Chassis`
-		    ,dtd4.unit_price as `grossAmnt`
+		    ,dtd4.unit_price as `Unit_price`
+			,dl2.financing_gross as 'grossAmnt'
 		    ,dl2.discount_downpayment as `discountdp`
 		    ,CASE
 		    	WHEN dl2.months_term = 0 THEN 'CASH'
@@ -86,7 +89,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 				ELSE 'REGULAR' END AS `Type`
 		    ,dl2.months_term as Term
 		    ,dtd4.quantity as Qty
-		    ,dl2.lcp_amount as LCP_perInvoice
+		    ,dl2.lcp_amount as LCP_perinvoice
 			,dtd4.lcp_price as LCP
 		    ,dtd4.standard_cost as `UnitCost`
 		    ,CASE
@@ -105,6 +108,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.order_ = so8.order_no AND dt1.type = ".ST_SALESINVOICEREPO."
 		    LEFT JOIN ".TB_PREF."salesman sn9 on so8.salesman_id = sn9.salesman_code
 		    LEFT JOIN ".TB_PREF."stock_category sc10 on dl2.category_id = sc10.category_id
+            LEFT JOIN ".TB_PREF."voided void ON dtd4.debtor_trans_type=void.type AND dtd4.debtor_trans_no = void.id
 		WHERE dt1.type = ".ST_SALESINVOICEREPO."
 			AND dtd4.standard_cost <> 0
 			AND dt1.tran_date <= '$to'
@@ -120,6 +124,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		$sql .= " AND dtd4.stock_id =".db_escape($item_model);
 	if ($sales_type != ALL_TEXT)
 	{
+		/*
 		if ($sales_type == 'CASH')
 		{
 			$sql .= " AND dl2.installmentplcy_id = '0'";
@@ -127,8 +132,23 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		else
 		{
 			$sql .= " AND dl2.installmentplcy_id != '0'";
+		}*/
+
+		if ($sales_type == 'CASH')
+		{
+			$sql .= " AND dl2.months_term = '0'";
+		}
+		else if($sales_type == 'INSTALLMENT')
+		{
+			$sql .= " AND dl2.months_term > '3'";
+		}
+		else
+		{
+			$sql .= " AND dl2.months_term BETWEEN '1' AND '3' ";
 		}
 	}
+		
+		$sql .= " AND void.void_status IS NULL ORDER BY dt1.tran_date "; 
 
 	// if($terms != 'ALL')
 	// {
@@ -209,13 +229,13 @@ function print_sales_summary_report()
 		// 7 => array('text' => _('Months Term'), 'from' => $terms, 'to' => ''));
 
 	//              brand    cat      sub-cat   date       SIno.
-	$cols = array(0,      45,     95,  	     140,      175, 
+	$cols = array(0,      30,     80,  	     125,      160, 
 
 	//       name     model     serial     chassis    type       term       qty
-		230,      290,       350,       410,       460,     490,     515,   
+		215,      275,       335,       395,       445,     475,     500,   
 
-	//      LCP     Cost     gross     discount1  discount2    Agent
-		530,    570,     610,      655,        685,         710,     0);
+	//      LCP     Cost     gross     discount1  discount2  Net_Sales   Agent
+		515,    555,     590,      625,         650,         670,         705,      0);
 
 	$headers = array(
 		_('Brand'), 
@@ -230,16 +250,17 @@ function print_sales_summary_report()
 		_('Type'),
 		_('Term'),
 		_('Qty'),
-		_('LCP'),
 		_('Unit Cost'),
+		_('LCP'),
 		_('Gross Amount'),
 		_('Dscount1'),
 		_('Dscount2'),
+		_('Net Sales'),
 		_('Sales Agent'),
 		);
 
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'left');
+	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
 
@@ -249,6 +270,7 @@ function print_sales_summary_report()
 	$rep->fontSize -= 2;
     $rep->Info($params, $cols, $headers, $aligns, 
 		null, null, null, true, true, true);
+    //$rep->SetHeaderType('SL_Summary_Header');
     $rep->SetHeaderType('PO_Header');
 	$rep->NewPage();
 
@@ -256,13 +278,27 @@ function print_sales_summary_report()
 	$Tot_lcp=0;
 	$Tot_ucost = 0;
 	$Tot_gross = 0;
+	$row_gross = 0;
+	$row_unitcost = 0;
 	$Tot_discount1 = 0;	
 	$Tot_discount2 = 0;
+	$Tot_netsales = 0;
 	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
 
 	While ($GRNs = db_fetch($res))
 	{
+		if($GRNs['Type']=='INSTALLMENT')
+		{
+			$row_gross = $GRNs['Qty']*$GRNs['grossAmnt'];
+		}
+		else 
+		{
+			$row_gross = $GRNs['Qty']*$GRNs['Unit_price'];
+		}
 		
+		$row_unitcost = $GRNs['UnitCost']*$GRNs['Qty'];
+		$row_netsales = $row_gross - $GRNs['discount1'] - $GRNs['discount2'];
+
 		$dec2 = get_qty_dec($GRNs['Model']);
 
 		$rep->NewLine();
@@ -278,12 +314,13 @@ function print_sales_summary_report()
 		$rep->TextCol(9, 10, $GRNs['Type']);
 		$rep->TextCol(10, 11, $GRNs['Term']);
 		$rep->TextCol(11, 12, $GRNs['Qty']);
-		$rep->AmountCol2(12, 13, $GRNs['LCP']);
-		$rep->AmountCol2(13, 14, $GRNs['UnitCost']);
-		$rep->AmountCol2(14, 15, $GRNs['grossAmnt']);
+		$rep->AmountCol2(12, 13, $row_unitcost);
+		$rep->AmountCol2(13, 14, $GRNs['LCP']);				
+		$rep->AmountCol2(14, 15, $row_gross);
 		$rep->AmountCol2(15, 16, $GRNs['discount1']);
 		$rep->AmountCol2(16, 17, $GRNs['discount2']);
-		$rep->TextCol(17, 18, $GRNs['SalesAgent']);
+		$rep->AmountCol2(17, 18, $row_netsales);
+		$rep->TextCol(18, 19, $GRNs['SalesAgent']);
 
 		$qty = $GRNs['Qty'];
 		$Tot_qty += $qty;
@@ -291,16 +328,19 @@ function print_sales_summary_report()
 		$lcp = $GRNs['LCP'];
 		$Tot_lcp += $lcp;
 
-		$ucost = $GRNs['UnitCost'];
+		$ucost = $row_unitcost;
 		$Tot_ucost += $ucost;
 
-		$grossAmnt = $GRNs['grossAmnt'];
+		$grossAmnt = $row_gross;
 		$Tot_gross += $grossAmnt;
 
 		$discount1 = $GRNs['discount1'];
 		$Tot_discount1 += $discount1;
 		$discount2 = $GRNs['discount2'];
 		$Tot_discount2 += $discount2;
+
+		$netSales = $row_netsales;
+		$Tot_netsales += $netSales;
 
 		$rep->NewLine(0, 1);
 	}
@@ -313,11 +353,12 @@ function print_sales_summary_report()
 	$rep->fontSize -= 1;	
 	$rep->TextCol(0, 11, _('Total'));
 	$rep->AmountCol(11, 12, $Tot_qty);
-	$rep->AmountCol(12, 13, $Tot_lcp, $dec);
-	$rep->AmountCol(13, 14, $Tot_ucost, $dec);
+	$rep->AmountCol(12, 13, $Tot_ucost, $dec);
+	$rep->AmountCol(13, 14, $Tot_lcp, $dec);
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
 	$rep->AmountCol(15, 16, $Tot_discount1, $dec);
-	$rep->AmountCol(16, 17, $Tot_discount1, $dec);
+	$rep->AmountCol(16, 17, $Tot_discount2, $dec);
+	$rep->AmountCol(17, 18, $Tot_netsales, $dec);
 
 	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
