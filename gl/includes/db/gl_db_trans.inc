@@ -258,7 +258,7 @@ function get_gl_transactions($from_date, $to_date, $trans_no=0,
 function get_gl_trans($type = '', $trans_id = '', $order = "ASC", $counter = '') {
 	set_global_connection();
 	//modify sql for other entry payment on 05-25-2023 jr
-	$sql = "SELECT gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
+	$sql = "SELECT Distinct gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
 			COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) AS doc_date,
 			IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference, 
 			audit.gl_date AS ob_date
@@ -554,7 +554,7 @@ function add_trans_tax_details($trans_type, $trans_no, $tax_id, $rate, $included
 	// guess tax register if not set
 	if (!isset($reg_type))
 		$reg_type = in_array($trans_type, array(ST_SUPPINVOICE, ST_SUPPCREDIT)) ? TR_OUTPUT
-				: in_array($trans_type, array(ST_SALESINVOICE, ST_CUSTCREDIT)) ? TR_INPUT : null;
+				: (in_array($trans_type, array(ST_SALESINVOICE, ST_CUSTCREDIT)) ? TR_INPUT : null);
 
 	$sql = "INSERT INTO ".TB_PREF."trans_tax_details 
 		(trans_type, trans_no, tran_date, tax_type_id, rate, ex_rate,

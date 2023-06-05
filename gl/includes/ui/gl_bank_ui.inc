@@ -185,11 +185,15 @@ function display_bank_header(&$order) {
 			'label', null, true, '', false, true
 		);
 	}
+	/*Added by Albert*/
+	if ($order->trans_type == ST_BANKDEPOSIT) {
+		Other_Entry_type(_("Other Entry:"),'other_entry_id', null, true);
+	}
 	//
 		
 	//-----------------------------------------//
 
-	table_section(3, "33%");
+	table_section(3, "30%");
 
 	//Commented by spyrax10 21 Feb 2022
 	// if (!$order->order_id && !get_post('bank_account')) {
@@ -213,7 +217,12 @@ function display_bank_header(&$order) {
 	if ($order->trans_type == ST_BANKDEPOSIT)
 	{
 		label_row("Total Amount: &nbsp;", price_format(abs($order->gl_items_total_credit())));
-		label_row("Pay Amount: ", price_format(abs($order->gl_items_total_credit()) - $_SESSION['pay_items']->gl_items_total_debit()));
+
+		if(get_post('other_entry_id')){
+			text_row(_("Pay Amount:"), 'pay_amount', null, 35, 35);
+		}else{
+			label_row("Pay Amount: ", price_format(abs($order->gl_items_total_credit()) - $_SESSION['pay_items']->gl_items_total_debit()));
+		}
 	}
 	if ($order->trans_type == ST_BANKPAYMENT)
 	{
@@ -236,6 +245,29 @@ function display_bank_header(&$order) {
 	// $bank_currency = get_bank_account_currency($_POST['bank_account']);
 
 	// exchange_rate_display(get_company_currency(), $bank_currency, $_POST['date_']);
+	if(get_post('other_entry_id')){
+		table_section(4, "20%");
+		sql_type_list($bank_text, 'other_entry_account', get_bank_accounts(), 'id', 'bank_account_name', 
+			'label', null, true, _("Select Other Entry Account")
+		);
+
+		if ($order->trans_type == ST_BANKDEPOSIT)
+		{
+			text_row(_("Pay Amount:"), 'othr_entry_pay_amount', null, 35, 35);
+			$bank_data = get_bank_account(get_post('other_entry_account'));
+			$account_type = $bank_data['account_type'];
+			if ($account_type != null && ($account_type == BT_CREDIT || $account_type == BT_TRANSFER) && $order->trans_type == ST_BANKDEPOSIT) {	//Modified by Albert 11/21/2022
+				date_row(_("Check Date:"), 'othr_entry_check_date', '');
+				//date_row(_("Check Date:"), 'check_date', '', true, 0, 0, 0, null, true);
+				text_row(_("Check #:"), 'othr_entry_check_no', null, 35, 35);
+				text_row(_("Bank Branch:"), 'othr_entry_bank_branch', null, 35, 35);
+			}
+			
+			if ($payment) {
+				bank_balance_row($_POST['other_entry_account']); 
+			}
+		}
+	}
 
 	end_outer_table(1); // outer table
 

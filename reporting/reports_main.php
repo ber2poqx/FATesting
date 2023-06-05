@@ -418,7 +418,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
 			_('Cashier') => 'CASHIER_COLLECTION',
 			_('Group By') => 'COA_COL',
 			_('Orientation') => 'ORIENTATION',
-			_('Destination') => 'DESTINATION'
+			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
 
