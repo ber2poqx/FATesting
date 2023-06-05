@@ -151,7 +151,7 @@ function get_loan_amortization_ledgerss($type, $trans_no, $branch_code)
 				LEFT JOIN bank_trans D ON D.ref = C.reference AND D.trans_no = C.trans_no AND D.type = C.type
 			WHERE A.trans_no = ".db_escape($trans_no)."
 				AND A.trans_type = ".db_escape($type)."
-			ORDER BY A.month_no ASC, B.loansched_id ASC";
+			ORDER BY A.month_no ASC, B.date_paid ASC, B.id ASC";
 
 	$result =  db_query($sql, "could not get amortization ledger because ");
 
