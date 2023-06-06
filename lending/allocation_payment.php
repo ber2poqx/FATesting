@@ -1276,27 +1276,59 @@ if(isset($_GET['submitAdj']))
                     while ($myrow = db_fetch($result)) {
                         if($TotalRebateAmount < 0){
                             $TotalRebateAmount = 0;
+                            $RebateAmount = 0;
                         }
                         if($aloc_amount > 0){
-                            if($aloc_amount == ($myrow["principal_due"] - $RebateAmount)){
+                            if($myrow["status"] == "partial"){
+                                $paymentAppld = get_payment_appliedSUM($_POST['transtype_wv'],$_POST['InvoiceNo_wv'], $myrow["loansched_id"]);
 
-                                add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
-                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
-                                $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+                                $thismonthAmort = ($myrow["principal_due"] - $paymentAppld);
 
-                            }elseif($aloc_amount < ($myrow["principal_due"] - $RebateAmount)){
+                                if(($aloc_amount + $TotalRebateAmount) == $thismonthAmort){
 
-                                add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
-                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "partial", 0, '');
-                                $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+                                    add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $thismonthAmort, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                    $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+
+                                }elseif(($aloc_amount + $TotalRebateAmount) < $thismonthAmort){
+
+                                    add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                    $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+
+                                }else{
+
+                                    add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $thismonthAmort, $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                    
+                                    $TotalRebateAmount -= $RebateAmount;
+                                    $aloc_amount -= $myrow["principal_due"];
+                                    $PenaltyAmount = 0;
+                                    
+                                }
 
                             }else{
+                                if($aloc_amount == ($myrow["principal_due"] - $RebateAmount)){
 
-                                add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $myrow["principal_due"], $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
-                                update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
-                                $TotalRebateAmount -= $RebateAmount;
-                                $aloc_amount -= $myrow["principal_due"];
-
+                                    add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                    $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+    
+                                }elseif($aloc_amount < ($myrow["principal_due"] - $RebateAmount)){
+    
+                                    add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $aloc_amount, $PenaltyAmount, $TotalRebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "partial", 0, '');
+                                    $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
+    
+                                }else{
+    
+                                    add_loan_ledger($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $myrow["loansched_id"], $_POST['transtype_wv'], ST_CUSTPAYMENT, $myrow["principal_due"], $PenaltyAmount, $RebateAmount, 0, $trans_date, $payment_no);
+                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername_wv'], $_POST['InvoiceNo_wv'], $_POST['transtype_wv'], "paid", 0, "paid");
+                                    $TotalRebateAmount -= $RebateAmount;
+                                    $aloc_amount -= $myrow["principal_due"];
+                                    $PenaltyAmount = 0;
+    
+                                }
                             }
                             if($aloc_amount <= 0){
                                 $aloc_amount = $PenaltyAmount = $RebateAmount = $TotalRebateAmount = 0;
