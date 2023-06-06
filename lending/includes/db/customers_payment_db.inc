@@ -1070,5 +1070,6 @@ function check_ledger_to_void($type, $trans_no)
 				AND B.trans_type_to = ".db_escape($type)." 
 			ORDER BY B.loansched_id DESC";
 
-	return db_query($sql,"could not get loan ledger because ");
+	$result = db_query($sql,"could not get loan ledger because ");
+	return db_fetch($result);
 }

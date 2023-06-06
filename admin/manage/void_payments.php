@@ -124,6 +124,16 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
     }
+    //check if 
+    $loaninfo = get_loan_ledger_payment_per_transno($_GET['trans_type'], $_GET['trans_no']);
+    $loanrow = db_fetch($loaninfo);
+    $chkres = check_ledger_to_void($loanrow["trans_type"], $myrow["trans_no"]);
+    if($chkres['payment_trans_no'] != $_GET['trans_no']){
+        $InputError = 1;
+        $info = get_debtor_trans_all($_GET['trans_type'], $chkres['payment_trans_no']);
+
+        $dsplymsg = _('Error. Make sure to void this payment reference no. '.$info['reference'].' first. ');
+    }
 
     if ($InputError != 1){
         $trans_date = sql2date(date('Y-m-d', strtotime(Today())));
