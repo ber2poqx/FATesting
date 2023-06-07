@@ -1193,7 +1193,7 @@ function get_available_item_for_si(
 				AND
 					a.loc_code = " . db_escape($loc_code) . "
 				AND
-					b.category_id = $category_id
+					b.category_id = " . db_escape($category_id) . "
 		  		) x1
 				WHERE
 					x1.type <> 80 AND  
@@ -1317,7 +1317,7 @@ function get_available_item_for_si_repo(
 			WHERE 
 				a.type=80 AND
 				b.serialised = 1 AND 
-				b.category_id = $category_id AND 
+				b.category_id = " . db_escape($category_id). " AND 
 				(SELECT SUM(t1.qty) 
 					 FROM stock_moves t1 
 						 WHERE 

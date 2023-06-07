@@ -1157,7 +1157,7 @@ function get_so_repo_status($lot_no)
 {
 	set_global_connection();
 	$sql = "SELECT
-				IFNULL(sorder.status, '') as status
+				sorder.status
 			FROM " . TB_PREF . "sales_orders as sorder,"
 			. TB_PREF . "sales_order_details as line 
 				WHERE sorder.order_no = line.order_no
@@ -1169,9 +1169,12 @@ function get_so_repo_status($lot_no)
 			$sql .= " ORDER BY sorder.order_no DESC LIMIT 1";
 			//
 			$result = db_query($sql, "Can't Get Status!!!");
-			$row = db_fetch_row($result);
-
-	return $row[0];
+			
+			if (db_num_rows($result) == 1) {
+				$row = db_fetch_row($result);
+				
+				return $row[0];
+			}
 }
 function get_so_item_type($order_no, $type)
 {
