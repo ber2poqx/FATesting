@@ -255,10 +255,10 @@ function copy_to_cart()
 	$cart = &$_SESSION['Items'];
 
 	$cart->reference = $_POST['ref'];
-	if ($cart->trans_type == ST_SALESINVOICEREPO)
+	if ($cart->trans_type == ST_SALESINVOICEREPO){
 		$cart->dr_ref = $_POST['dr_ref'];
 		$cart->dr_ref_no = $_POST['dr_ref_no'];
-
+	}
 	$cart->Comments =  $_POST['Comments'];
 
 	$cart->document_date = $_POST['OrderDate'];

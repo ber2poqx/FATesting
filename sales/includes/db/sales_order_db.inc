@@ -1155,9 +1155,9 @@ function update_restructured_status(&$so_obj)
 }
 function get_so_repo_status($lot_no)
 {
-
-	$sql = "SELECT 
-				sorder.status
+	set_global_connection();
+	$sql = "SELECT
+				IFNULL(sorder.status, '') as status
 			FROM " . TB_PREF . "sales_orders as sorder,"
 			. TB_PREF . "sales_order_details as line 
 				WHERE sorder.order_no = line.order_no
@@ -1170,7 +1170,7 @@ function get_so_repo_status($lot_no)
 			//
 			$result = db_query($sql, "Can't Get Status!!!");
 			$row = db_fetch_row($result);
-
+			
 	return $row[0];
 }
 function get_so_item_type($order_no, $type)
