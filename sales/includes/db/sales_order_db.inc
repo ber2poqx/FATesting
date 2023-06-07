@@ -1170,7 +1170,7 @@ function get_so_repo_status($lot_no)
 			//
 			$result = db_query($sql, "Can't Get Status!!!");
 			$row = db_fetch_row($result);
-	display_error($sql);
+
 	return $row[0];
 }
 function get_so_item_type($order_no, $type)
