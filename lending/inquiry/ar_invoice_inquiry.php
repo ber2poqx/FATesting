@@ -343,12 +343,13 @@ if(isset($_GET['submit']))
             //now for gl entries
             $unearned_amount = 0;
             if($_POST['months_term'] <= 3) {
-                $debtors_account = $company_record["ar_reg_current_account"];
+                $debtors_account = $company_prefs["ar_reg_current_account"];
             }else{
-                $debtors_account = $company_record["debtors_act"];
+                $debtors_account = $company_prefs["debtors_act"];
             }
             if(isset($_POST['outs_ar_amount']) &&  $_POST['outs_ar_amount'] != 0){
                 //AR amount = outstanding ar amount "/" or // AR amount - down-payment amount
+                
                 $unearned_amount = add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $debtors_account, 0, 0,
                              $_POST['outs_ar_amount'], $_POST['customername'], "The outstanding a/r amount GL posting could not be inserted", 0, null, null, 0, $_POST['invoice_no']);
                 
