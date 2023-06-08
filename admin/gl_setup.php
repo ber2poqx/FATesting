@@ -135,7 +135,8 @@ if (isset($_POST['submit']) && can_process())
 		'misc_expense_act', 'misc_income_act', 'ar_cash_sales_account', 'ar_reg_current_account', 
 		'isd_account', 'dgp_account', 'isa_employee', 'rgp_account', 'ar_customer_account', 'ap_customer_account', 
 		'payment_location', 'default_rebate_valid_days', 'addon_amount', 'ar_supp_discount_act', 
-		'cos_free_item', 'open_inty', 'default_si_repo_act', 'ap_account', 'arlending_account', 'ffe_accum_repo_act', 'ffe_repo_act'
+		'cos_free_item', 'open_inty', 'default_si_repo_act', 'ap_account', 'arlending_account', 'ffe_accum_repo_act', 
+		'ffe_repo_act', 'gain_of_sale_repo', 'loss_on_sale_repo'
 )));
 
 	display_notification(_("The general GL setup has been updated."));
@@ -246,6 +247,8 @@ $_POST['open_inty'] = $myrow["open_inty"];
 
 // Added by Albert
 $_POST['default_si_repo_act'] = $myrow['default_si_repo_act'];
+$_POST['gain_of_sale_repo'] = $myrow['gain_of_sale_repo'];
+$_POST['loss_on_sale_repo'] = $myrow['loss_on_sale_repo'];
 
 table_section_title(_("General GL"));
 
@@ -416,7 +419,8 @@ gl_all_accounts_list_row(_("FFE Accumulated Account:"), 'ffe_accum_repo_act', $_
 gl_all_accounts_list_row(_("FFE Account:"), 'ffe_repo_act', $_POST['ffe_repo_act']);
 // Added by Albert
 gl_all_accounts_list_row(_("SI Repo Account:"), 'default_si_repo_act', $_POST['default_si_repo_act']);
-
+gl_all_accounts_list_row(_("Gain Of Sale Repo:"), 'gain_of_sale_repo', $_POST['gain_of_sale_repo']);
+gl_all_accounts_list_row(_("Loss On Sale Repo:"), 'loss_on_sale_repo', $_POST['loss_on_sale_repo']);
 //----------------
 end_outer_table(1);
 
