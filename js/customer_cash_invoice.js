@@ -1465,6 +1465,38 @@ Ext.onReady(function() {
 						}
 					}
 				]
+			},
+			viewConfig: {
+				listeners: {
+					refresh: function(view) {
+						// get all grid view nodes
+						var nodes = view.getNodes();
+						
+						for (var i = 0; i < nodes.length; i++) {
+							var node = nodes[i];
+							var record = view.getRecord(node);
+							// get all td elements
+							var cells = Ext.get(node).query('td');  
+							// set bacground color to all row td elements
+							for(var j = 0; j < cells.length; j++) {
+								//console.log(cells[j]);
+								if(record.get('status') == "Draft"){
+									Ext.fly(cells[j]).setStyle('background-color', "#f8cbcb");
+								}else if(record.get('status') == "Voided"){
+									Ext.fly(cells[j]).setStyle('background-color', "#716e6e");
+								}
+							}
+							//Ext.getCmp('changeterm');
+							//Ext.getCmp('changeterm').isDisabled(true);
+							if(record.get('payment_loc') == 'Lending'){
+								//Ext.getCmp('changeterm').iconCls= 'btnchangetrm';
+								//Ext.getCmp('showlending').setVisible(false);
+							}else{
+								//Ext.getCmp('showlending').setVisible(true);
+							}
+						}
+					}
+				}
 			}
 		}]
 	});
@@ -1739,7 +1771,73 @@ Ext.onReady(function() {
 				columns: AllocCash_Header_view,
 				columnLines: true,
 				features: [{ftype: 'summary'}]
-			}]
+			}],
+			tabBar: {
+				items: [{
+					xtype: 'button',
+					id: 'btnVoidSR',
+					text: 'Void',
+					padding: '3px',
+					margin: '2px 2px 6px 580px',
+					icon: '../js/ext4/examples/shared/icons/ipod_cast_delete.png',
+					tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#f71d04',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					},
+					handler: function(){
+						Ext.MessageBox.confirm('Confirmation:', 'Are you sure you wish to void this transaction?', function (btn, text) {
+							if (btn == 'yes') {
+								Ext.MessageBox.prompt('Void Receipt', 'Reason for Void:', function(btn, text){
+									if (btn == 'ok'){
+										Ext.Ajax.request({
+											url : '?submitVoid=payment&syspk='+Ext.getCmp('v_syspk_cash').getValue()+'&systype='+Ext.getCmp('v_transtypeFr_cash').getValue()+'&reason='+text,
+											//waitMsg: 'Saving downpayment. please wait...',
+											method:'POST',
+											//async:false,
+											success: function (response) {
+												var result = Ext.JSON.decode(response.responseText);
+												PaymentStore.load();
+												if (result.success == "true") {
+													Ext.Msg.show({
+														title: 'Void Transaction: Success!',
+														msg: '<font color="green">' + result.message + '</font>',
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.INFORMATION
+													});
+												}
+												else {
+													Ext.Msg.show({
+														title: 'Void Transaction: Failed!',
+														msg: result.message,
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.ERROR
+													});
+												}
+												submit_window_view.close();
+											},
+											failure: function () {
+												Ext.Msg.show({
+													title: 'Void Transaction: Failed!',
+													msg: result.message,
+													buttons: Ext.Msg.OK,
+													icon: Ext.MessageBox.ERROR
+												});
+											}
+										});
+									}
+								});
+							}
+						});
+					}
+				}]
+			}
 		}]
 	});
 	var submit_window_cashview = Ext.create('Ext.Window',{

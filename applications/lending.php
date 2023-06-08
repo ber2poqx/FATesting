@@ -32,8 +32,8 @@ class lending_app extends application
 		"lending/inquiry/interbranch_payments_inquiry.php?", 'SA_INTRBPAYINQ', MENU_TRANSACTION);
 
 		$this->add_module(_("Inquiries and Reports"));
-		$this->add_lapp_function(1, _("Payment Allocation"),
-			"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_INQUIRY);
+		//$this->add_lapp_function(1, _("Payment Allocation"),
+		//	"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_INQUIRY);
 		$this->add_lapp_function(1, _("Incoming Inter-branch Payments Inquiry"),
 			"lending/inquiry/interbranch_payments_inquiry.php?", 'SA_INTRBPAYINQ', MENU_INQUIRY);
 
