@@ -20,7 +20,10 @@ class lending_app extends application
 		//	"lending/ar_installment_incoming.php?", 'SA_ARINVCINSTL', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("A/R Installment Incoming"),
 			"lending/inquiry/ar_invoice_inquiry.php?", 'SA_INVCINQ', MENU_INQUIRY);
-
+		$this->add_rapp_function(0, _("Cash &Invoice Receipt"),
+			"lending/customer_amort_receipt.php?type=cash", 'SA_LCUSTAMORT', MENU_TRANSACTION);
+		$this->add_rapp_function(0, _("Payment Allocation"),
+			"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("Office &Collection Receipt"),
 			"lending/customer_amort_receipt.php?", 'SA_LCUSTAMORT', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("Inter-branch (From Not FA)"),
