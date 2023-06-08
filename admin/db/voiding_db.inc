@@ -353,7 +353,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 
 	if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO) {
 		$debtor_row = get_SI_by_reference('', $void_row['id'], $void_row['type']);
-		$delivery_row = get_SI_by_reference($debtor_row['delivery_ref_no']);
+		$delivery_row = get_SI_by_reference('','' ,'' ,'' ,$debtor_row['delivery_ref_no']);
 		$delivery_gl = get_gl_trans($delivery_row['type'], $delivery_row['trans_no'], "DESC");
 		$promo_item = get_promo_item_delivery($delivery_row['order_']); //Added by Albert Delete Dispatch qty out 05/06/2023
 	}

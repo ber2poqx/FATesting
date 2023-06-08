@@ -84,7 +84,7 @@ else if (isset($_GET['CancelID'])) {
     display_note(get_gl_view_str($trans_type, $trans_no, _("&View the GL Postings for this Transaction"), false, '', '', 1));
     if ($trans_type == ST_SALESINVOICE || $trans_type == ST_SALESINVOICEREPO) {
         $debtor_row = get_SI_by_reference('', $trans_no, $trans_type);
-        $delivery_row = get_SI_by_reference($debtor_row['delivery_ref_no']);
+        $delivery_row = get_SI_by_reference('', '', '', '', $debtor_row['delivery_ref_no']);
         display_note(get_gl_view_str($delivery_row['type'], $delivery_row['trans_no'], _("&View the GL Postings for this Delivery Transaction"), false, '', '', 1));
     }
     hyperlink_params("$path_to_root/admin/inquiry/void_inquiry_list.php", _("Back to Void Transactions List"), "");

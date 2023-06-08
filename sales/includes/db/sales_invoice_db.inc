@@ -1002,15 +1002,16 @@ function get_supplier_mcode($stock_id) {
 	return db_fetch($result);
 }
 
-function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debtor_no = '') {
+function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debtor_no = '', $dr_ref_no = '') {
 	
 	set_global_connection();
-	
-	$months_term = $reference == '' ? ', DL.months_term, DL.delivery_ref_no' : '' ;
-
+	$months_term = '';
+	if ($dr_ref_no == ''){
+		$months_term = $reference == '' ? ', DL.months_term, DL.delivery_ref_no' : '' ;
+	}
 	$sql = "SELECT DT.*$months_term FROM " . TB_PREF . "debtor_trans DT ";
 
-	if ($reference == '') {
+	if ($reference == '' && $dr_ref_no == '') {
 		$sql .= " INNER JOIN " . TB_PREF . "debtor_loans DL ON DT.reference = DL.invoice_ref_no and DT.trans_no = DL.trans_no";
 	}
 
@@ -1018,7 +1019,11 @@ function get_SI_by_reference($reference = '', $trans_no = '', $type = '', $debto
 
 	if ($reference != '') {
 		$sql .= " AND DT.reference = " .db_escape($reference);
-		$sql .= " AND DT.trans_no not in (SELECT id FROM " . TB_PREF . "voided where void_status = 'Voided' AND reference_from = " .db_escape($reference).")"; //Added by Albert this is to avoid display voided data 
+		$sql .= " AND DT.status != 'Cancelled' "; //Added by Albert this is to avoid display voided data 
+	}
+	else if ($dr_ref_no != ''){
+		$sql .= " AND (DT.dr_ref_no = " .db_escape($dr_ref_no). " OR DT.reference = " .db_escape($dr_ref_no);
+		$sql .= ") AND DT.status != 'Cancelled' "; //Added by Albert this is to avoid display voided data 
 	}
 	else {
 		$sql .= " AND DT.trans_no = " .db_escape($trans_no) . 
