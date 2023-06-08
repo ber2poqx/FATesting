@@ -359,7 +359,7 @@ if(isset($_GET['submit']))
             if(isset($_POST['ar_amount']) &&  $_POST['ar_amount'] != 0){
                 //DGP = AR amount - LCP amount / or // total financing charge + rebate
                 $DGP_amount = ($_POST['ar_amount'] - $_POST['lcp_amount']);
-                add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["deferred_income_act"], 0, 0,
+                add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["default_int_income"], 0, 0,
                                 -$DGP_amount, $_POST['customername'], "The unearned interest amount GL posting could not be inserted", 0, null, null, 0, $_POST['invoice_no']);
             }
 
