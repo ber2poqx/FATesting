@@ -1167,7 +1167,6 @@ Ext.onReady(function(){
 					Ext.getCmp('desamort_amount').setValue(records.get('amortn_amount'));
 					Ext.getCmp('policy_id').setValue(records.get('installplcy_id'));
 					Ext.getCmp('profitmargin').setValue(records.get('gpm'));
-					alert(records.get('gpm'));
 					Ext.getCmp('ARINQRYGRID').getSelectionModel().select(rowIndex);
 					if(records.get('invoice_type') == "repo"){
 						$type = '<span style="color: blue;font-weight:bold"> Repo </span>';

@@ -78,7 +78,7 @@ if(isset($_GET['get_invcincome'])){
                             'debtor_no'=>$data_approve["debtor_no"],
                             'debtor_ref'=>$data_approve["debtor_ref"],
                             'reference'=>$data_approve["reference"],
-                            'gpm'=>$data_approve["profit_margin"]
+                            'gpm'=>$myrow["profit_margin"]
                          );
     }
     $jsonresult = json_encode($status_array);
