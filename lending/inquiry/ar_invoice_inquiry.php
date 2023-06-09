@@ -23,6 +23,14 @@ add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ex
 add_js_ufile($path_to_root ."/js/ar_invoice_inquiry.js");
 
 //----------------------------------------------: for grid js :---------------------------------------
+if(isset($_GET['getReference'])){
+    //$reference = $Refs->get_next(ST_ARINVCINSTLITM, GetReferenceID($_GET['getReference']), array('date' => Today()), true, ST_ARINVCINSTLITM);
+    $reference = $Refs->get_next(ST_ARINVCINSTLITM, null, sql2date(date('Y-m-d', strtotime(Today()))));
+    echo '({"success":"true","reference":"'.$reference.'"})';
+    //echo 'asdasd-'. $_GET['getReference'];
+    return;
+}
+
 if(isset($_GET['get_invcincome'])){
 
     $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
@@ -69,7 +77,8 @@ if(isset($_GET['get_invcincome'])){
                             'trans_no'=>$data_approve["trans_no"],
                             'debtor_no'=>$data_approve["debtor_no"],
                             'debtor_ref'=>$data_approve["debtor_ref"],
-                            'reference'=>$data_approve["reference"]
+                            'reference'=>$data_approve["reference"],
+                            'gpm'=>$data_approve["profit_margin"]
                          );
     }
     $jsonresult = json_encode($status_array);
@@ -240,6 +249,10 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Total amount must not be empty.');
     }
+    if (empty($_POST['ref_no'])) {
+        $InputError = 1;
+        $dsplymsg = _('Reference number must not be empty.');
+    }
     if (empty($_POST['firstdue_date'])) {
         $InputError = 1;
         $dsplymsg = _('first due date must not be empty.');
@@ -281,12 +294,16 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Sorry, Account title was not found in Company preferences.');
     }
-
+    
+    if($_POST['descustname'] != $_POST['name']){
+        $InputError = 1;
+        $dsplymsg = _('Please select valid customer name');
+    }
     //$trans_no = get_next_trans_no(ST_ARINVCINSTLITM);
     if (isset($_POST['customername']) && isset($_POST['invoice_no']) && isset($_POST['financing_rate']) &&  $InputError != 1){
 
         $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
-        $reference = $Refs->get_next(ST_ARINVCINSTLITM);
+        $reference = $_POST['ref_no']; //$Refs->get_next(ST_ARINVCINSTLITM);
 
         $approved_date = date("Y-m-d", strtotime($_POST['invoice_date'])); //date("Y-m-d");
         $firstdue_date = date("Y-m-d", strtotime($_POST['firstdue_date']));
@@ -295,8 +312,9 @@ if(isset($_GET['submit']))
 
         $conn = $db_connections[user_company()];
         //$reference - tanggal ug replace sa original invoice ref no kay nag term mode as requested by albert
-        $trans_no = write_customer_trans(ST_ARINVCINSTLITM, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), date("m/d/Y", strtotime($approved_date)), $_POST['invoice_no'], 
-                            check_isempty($_POST['total_amount']), 0, 0, 0, 0, $loansrow["tpe"], check_isempty($_POST['id']), 0, date("m/d/Y", strtotime($approved_date)), 0, 0, 0, 0, $loansrow["payment_terms"], 0, 0);
+        //modify ov_amount kay dapat ang AR after DP na ang mabutang para sakto sa balance ang installment report //$_POST['total_amount'] to $_POST['outs_ar_amount']
+        $trans_no = write_customer_trans(ST_ARINVCINSTLITM, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), date("m/d/Y", strtotime($approved_date)), $reference, 
+                                 check_isempty($_POST['outs_ar_amount']), 0, 0, 0, 0, $loansrow["tpe"], check_isempty($_POST['id']), 0, date("m/d/Y", strtotime($approved_date)), 0, 0, 0, 0, $loansrow["payment_terms"], 0, 0);
 
         //detailed A/R info
         if(isset($trans_no)){

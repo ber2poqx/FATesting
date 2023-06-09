@@ -57,7 +57,8 @@ Ext.onReady(function(){
 			{name:'trans_no', mapping:'trans_no'},
 			{name:'debtor_no', mapping:'debtor_no'},
 			{name:'debtor_ref', mapping:'debtor_ref'},
-			{name:'reference', mapping:'reference'}
+			{name:'reference', mapping:'reference'},
+			{name:'gpm', mapping:'gpm'}
 		]
 	});
     Ext.define('Itemmodel',{
@@ -319,6 +320,30 @@ Ext.onReady(function(){
 			hidden: true,
 			fieldStyle: 'font-weight: bold; color: #210a04;'
 		},{
+			xtype: 'textfield',
+			fieldLabel: '<b>Reference No. </b>',
+			id: 'ref_no',
+			name: 'ref_no',
+			labelWidth: 113,
+			width: 320,
+			margin: '0 42 0 0',
+			allowBlank: false,
+			readOnly: true,
+			hidden: true,
+			fieldStyle: 'font-weight: bold; color: #210a04;'
+		},{
+			xtype: 'textfield',
+			fieldLabel: '<b>Name </b>',
+			id: 'name',
+			name: 'name',
+			labelWidth: 113,
+			width: 320,
+			margin: '0 42 0 0',
+			allowBlank: false,
+			readOnly: true,
+			hidden: true,
+			fieldStyle: 'font-weight: bold; color: #210a04;'
+		},{
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 5',
@@ -400,7 +425,7 @@ Ext.onReady(function(){
 			xtype: 'panel',
 			id: 'mpanel',
 			//width: 500,
-			height: 378,
+			height: 400,
 			layout: 'border',
 			items: [{
 				xtype: 'panel',
@@ -728,6 +753,31 @@ Ext.onReady(function(){
 						minValue: 0,
 						fieldStyle: 'font-weight: bold;color: #008000; text-align: right;'
 					}]
+				},{
+					xtype: 'fieldcontainer',
+					layout: 'hbox',
+					margin: '2 0 2 5',
+					items:[{
+
+					},{
+						xtype: 'numericfield',
+						id: 'profitmargin',
+						name: 'profitmargin',
+						fieldLabel: '<b>Profit Margin </b>',
+						allowBlank:false,
+						useThousandSeparator: true,
+						decimalPrecision: 2,
+						alwaysDisplayDecimals: true,
+						allowNegative: false,
+						//currencySymbol: '₱',
+						labelWidth: 117,
+						width: 250,
+						margin: '0 0 0 255',
+						readOnly: true,
+						thousandSeparator: ',',
+						minValue: 0,
+						fieldStyle: 'font-weight: bold;color: #008000; text-align: right;'
+					}]
 				}]
 			},{
 				//title: 'South Region is resizable',
@@ -767,6 +817,17 @@ Ext.onReady(function(){
 						listeners: {
 							select: function(combo, record, index) {
 								Ext.getCmp('customercode').setValue(record.get('debtor_ref'));
+								Ext.getCmp('name').setValue(record.get('name'));
+
+								Ext.Ajax.request({
+									url : '?getReference=INV',
+									async:false,
+									success: function (response){
+										var result = Ext.JSON.decode(response.responseText);
+										Ext.getCmp('ref_no').setValue(result.reference);
+										submit_window.setTitle('Customer Amortization Receipt Entry - Reference No. : '+ result.reference + ' *new');
+									}
+								});
 							}
 						}
 					}]
@@ -1105,6 +1166,7 @@ Ext.onReady(function(){
 					Ext.getCmp('destotal_amount').setValue(records.get('total_amount'));
 					Ext.getCmp('desamort_amount').setValue(records.get('amortn_amount'));
 					Ext.getCmp('policy_id').setValue(records.get('installplcy_id'));
+					Ext.getCmp('profitmargin').setValue(records.get('gpm'));
 					Ext.getCmp('ARINQRYGRID').getSelectionModel().select(rowIndex);
 					if(records.get('invoice_type') == "repo"){
 						$type = '<span style="color: blue;font-weight:bold"> Repo </span>';
