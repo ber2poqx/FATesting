@@ -872,7 +872,7 @@ if ($customer_error == "") {
 	start_table(TABLESTYLE, "width='80%'", 10);
 	echo "<tr><td>";
 	/*modified by Albert*/
-	if (get_so_repo_status(get_post('serialeng_no')) == ''){
+	if (get_so_repo_status(get_post('serialeng_no')) == ''|| get_post('serialeng_no') == ''){
 		display_order_summary($orderitems, $_SESSION['Items'], true);
 	}else if (get_so_repo_status(get_post('serialeng_no')) == 'Cancelled' || get_so_repo_status(get_post('serialeng_no')) == 'Closed'){
 		display_order_summary($orderitems, $_SESSION['Items'], true);
