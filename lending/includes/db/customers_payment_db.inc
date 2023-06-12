@@ -983,7 +983,7 @@ function get_loan_ledger_payment_per_transno($type, $trans_no)
 	WHERE  A.trans_type_from = ".db_escape($type)."
 		AND A.payment_trans_no = ".db_escape($trans_no)."
 	ORDER BY B.id ASC";
-		echo $sql;
+		
 	return db_query($sql, "could not get amortization ledger because ");
 }
 function get_gl_trans_void($type, $trans_no)
