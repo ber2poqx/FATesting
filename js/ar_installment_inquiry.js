@@ -22,6 +22,8 @@ Ext.onReady(function(){
 	var GridItemOnTab = 7;
 	var showall = false;
 	var showlend = false;
+	var sumdebit = 0;
+	var sumcredit = 0;
 
 	////define model for policy installment
     Ext.define('ARInstlqmodel',{
@@ -387,6 +389,7 @@ Ext.onReady(function(){
 		{header:'<b>GL Account</b>', dataIndex:'account_name', sortable:false, width:300},
 		{header:'<b>Debit</b>', dataIndex:'debit', sortable:false, width:110,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				sumdebit = sumdebit + value;
 				metaData.tdAttr = 'data-qtip=' + Ext.util.Format.number(value, '0,000.00');
 				return '<span style="color:green;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			},
@@ -397,6 +400,7 @@ Ext.onReady(function(){
 		},
 		{header:'<b>Credit</b>', dataIndex:'credit', sortable:false, width:110, align: 'center',
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				sumcredit = sumcredit + value;
 				metaData.tdAttr = 'data-qtip=' + Ext.util.Format.number(value, '0,000.00');
 				return '<span style="color:green;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			},
@@ -412,7 +416,10 @@ Ext.onReady(function(){
 			},
             summaryType: 'min',
             summaryRenderer: function(value, summaryData, record, dataIndex) {
+				//added sumdebit & sumcredit kay dili sakto ang display kung naay gi void nga ledger
+				value = sumdebit - sumcredit;
 				return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
+				//return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(Ext.getCmp('balance_amount').getValue(), '0,000.00') + '</span>';
 			}
 		}
 	];
@@ -1528,6 +1535,9 @@ Ext.onReady(function(){
 				handler: function(grid, rowIndex, colIndex) {
 					var records = ARInstallQstore.getAt(rowIndex);
 					
+					sumdebit = 0;
+					sumcredit = 0;
+
 					Ext.getCmp('trans_no').setValue(records.get('trans_no'));
 					Ext.getCmp('trans_type').setValue(records.get('type'));
 					Ext.getCmp('invoice_no').setValue(records.get('invoice_ref_no'));
