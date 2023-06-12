@@ -338,9 +338,9 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id)){
 			$sales_account = $category_gl_code['dflt_installment_sales_act'];
 		}
-		if ($invoice->payment_location == "Lending"){
-			$sales_account = $category_gl_code['dflt_sales_act'];
-		}
+		// if ($invoice->payment_location == "Lending"){
+		// 	$sales_account = $category_gl_code['dflt_sales_act'];
+		// }
 		if (check_employee_customer($invoice->customer_id)){
 			$sales_account = $company_data['isa_employee'];
 			$entry_amount = $invoice->ar_amount;
@@ -352,21 +352,21 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 	}
 	if ($opening_balances <> 1) { // albert 09/14/2021
 
-		if($invoice->payment_location == "Lending"){
-			$total += add_gl_trans_customer(
-				ST_SALESINVOICEREPO,
-				$invoice_no,
-				$date_,
-				$sales_account,
-				0,
-				0,
-				(-$entry_amount * 1), //Modified by spyrax10
-				$invoice->customer_id,
-				"The sales price GL posting could not be inserted"
-			);
-		}else{
-			foreach ($invoice->line_items as $line_no => $invoice_line) {
-				if ($invoice->amortization == 0 ) {
+		foreach ($invoice->line_items as $line_no => $invoice_line) {
+			if ($invoice->amortization == 0 ) {
+				$total += add_gl_trans_customer(
+					ST_SALESINVOICEREPO,
+					$invoice_no,
+					$date_,
+					$sales_account,
+					0,
+					0,
+					(-$invoice_line->standard_cost * 1), 
+					$invoice->customer_id,
+					"The sales price GL posting could not be inserted"
+				);
+			}else{
+				if($invoice_line->standard_cost > $entry_amount){
 					$total += add_gl_trans_customer(
 						ST_SALESINVOICEREPO,
 						$invoice_no,
@@ -379,62 +379,48 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 						"The sales price GL posting could not be inserted"
 					);
 				}else{
-					if($invoice_line->standard_cost > $entry_amount){
-						$total += add_gl_trans_customer(
-							ST_SALESINVOICEREPO,
-							$invoice_no,
-							$date_,
-							$sales_account,
-							0,
-							0,
-							(-$invoice_line->standard_cost * 1), 
-							$invoice->customer_id,
-							"The sales price GL posting could not be inserted"
-						);
-					}else{
-						$total += add_gl_trans_customer(
-							ST_SALESINVOICEREPO,
-							$invoice_no,
-							$date_,
-							$sales_account,
-							0,
-							0,
-							(-$entry_amount * 1),
-							$invoice->customer_id,
-							"The sales price GL posting could not be inserted"
-						);
-					}
-				}
-				/*loss on sale*/
-				if($invoice_line->standard_cost > $entry_amount ){
-					$loss_on_sale = $invoice_line->standard_cost - $entry_amount;
 					$total += add_gl_trans_customer(
 						ST_SALESINVOICEREPO,
 						$invoice_no,
 						$date_,
-						$company_data['loss_on_sale_repo'],
+						$sales_account,
 						0,
 						0,
-						$loss_on_sale, //Modified by spyrax10
+						(-$entry_amount * 1),
 						$invoice->customer_id,
 						"The sales price GL posting could not be inserted"
 					);
-				}else{
-					if ($invoice->amortization == 0 ) {
-						/*Gain of sale*/
-						$gain_of_sale = $entry_amount - $invoice_line->standard_cost;
-						$total += add_gl_trans_customer(
-							ST_SALESINVOICEREPO,
-							$invoice_no,
-							$date_,
-							$company_data['gain_of_sale_repo'],
-							0,
-							0,
-							(-$gain_of_sale * 1), //Modified by spyrax10
-							$invoice->customer_id,
-							"The sales price GL posting could not be inserted"
-						);
-					}
+				}
+			}
+			/*loss on sale*/
+			if($invoice_line->standard_cost > $entry_amount ){
+				$loss_on_sale = $invoice_line->standard_cost - $entry_amount;
+				$total += add_gl_trans_customer(
+					ST_SALESINVOICEREPO,
+					$invoice_no,
+					$date_,
+					$company_data['loss_on_sale_repo'],
+					0,
+					0,
+					$loss_on_sale, //Modified by spyrax10
+					$invoice->customer_id,
+					"The sales price GL posting could not be inserted"
+				);
+			}else{
+				if ($invoice->amortization == 0 ) {
+					/*Gain of sale*/
+					$gain_of_sale = $entry_amount - $invoice_line->standard_cost;
+					$total += add_gl_trans_customer(
+						ST_SALESINVOICEREPO,
+						$invoice_no,
+						$date_,
+						$company_data['gain_of_sale_repo'],
+						0,
+						0,
+						(-$gain_of_sale * 1), //Modified by spyrax10
+						$invoice->customer_id,
+						"The sales price GL posting could not be inserted"
+					);
 				}
 			}
 		}
@@ -528,7 +514,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 				
 				/*Added by Albert*/
 				if ($invoice->payment_location == "Lending"){
-					$ar_account = $company_data["ar_cash_sales_account"];
+					// $ar_account = $company_data["ar_cash_sales_account"];
 					$amount = $entry_amount;
 				}else{
 					$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
