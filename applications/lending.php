@@ -23,8 +23,8 @@ class lending_app extends application
 
 		$this->add_rapp_function(0, _("Office &Collection Receipt"),
 			"lending/customer_amort_receipt.php?", 'SA_LCUSTAMORT', MENU_TRANSACTION);
-		$this->add_rapp_function(0, _("Cash &Invoice Receipt"),
-			"lending/customer_amort_receipt.php?type=cash", 'SA_LCUSTAMORT', MENU_TRANSACTION);
+		//$this->add_rapp_function(0, _("Cash &Invoice Receipt"),
+		//	"lending/customer_amort_receipt.php?type=cash", 'SA_LCUSTAMORT', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("Payment Allocation"),
 			"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_TRANSACTION);
 

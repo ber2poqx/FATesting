@@ -84,7 +84,8 @@ Ext.onReady(function(){
 
 	var ARInstallQstore = Ext.create('Ext.data.Store', {
 		model: 'voidmodel',
-		autoLoad : true,
+		autoLoad: true,
+		remoteFilter: true,
 		pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_voidPayment=zHun&trans_type='+url_typeno+'&trans_no= '+url_transno,
