@@ -81,7 +81,7 @@ function getTransactions($from, $to, $gl_account)
 		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to' ) A";
 	
 		
-	$sql .= " GROUP BY `name`, `debtor_ref` ORDER BY name	";
+	$sql .= " GROUP BY `name` ORDER BY name	";
 		
 	
 	return db_query($sql,"No transactions were returned");
