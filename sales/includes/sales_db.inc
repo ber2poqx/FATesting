@@ -742,7 +742,7 @@ function get_sales_invoices($trans_no = '', $debtor_no = '', $category_id = '', 
 				ON a.reference = d.invoice_ref_no and  a.debtor_no = d.debtor_no
 			
 			WHERE
-				a.type = " . ST_SALESINVOICE . " AND a.opening_balances = " . db_escape($opening_balances) . "";
+				a.opening_balances = " . db_escape($opening_balances) . "";
 
 	//Added by spyrax10
 	if ($include_repo) {

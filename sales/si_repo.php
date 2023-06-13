@@ -248,6 +248,30 @@ function restructured_link($row)
 		return null;
 	}
 }
+function cancel_row($row) {
+    $cancel_link = '';
+
+    if ($_SESSION["wa_current_user"]->can_access_page('SA_VOIDTRANSACTION')) {
+        $void_entry = get_voided_entry($row['type'], $row['trans_no']);
+
+        if ($void_entry == null) {
+            $cancel_link = pager_link( _("Request to Cancel"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . $row['type'] ."&status=0&cancel=1", ICON_CANCEL
+            );
+        }
+        else if ($void_entry['void_status'] == 'Disapproved') {
+
+            $cancel_link = pager_link( _("Request to Cancel"),
+                "/admin/manage/void_draft.php?trans_no=" . $row['trans_no'] . "&type=" . $row['type'] ."&status=0&cancel=1", ICON_CANCEL
+            );
+        }
+    }
+    else {
+		$cancel_link = '';
+	}
+
+    return $cancel_link;
+}
 function sales_restructured_approval($row)
 {
 	global $page_nested;
@@ -338,7 +362,8 @@ $cols = array(
 	array('insert' => true, 'fun' => 'print_sales_invoice_receipt'), //Added by Prog6
 	array('insert' => true, 'fun' => 'change_term_link'),
 	array('insert' => true, 'fun' => 'payment_allocate_link'),
-	array('insert' => true, 'fun' => 'restructured_link')	//Added by Albert
+	array('insert' => true, 'fun' => 'restructured_link'),	//Added by Albert
+	array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center')
 );
 
 $table = &new_db_pager('invoice_tbl', $sql, $cols, null, null, 25);
