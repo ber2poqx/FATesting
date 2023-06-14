@@ -1073,3 +1073,14 @@ function check_ledger_to_void($type, $trans_no)
 	$result = db_query($sql,"could not get loan ledger because ");
 	return db_fetch($result);
 }
+
+function get_bank_trans_perno($type, $trans_no)
+{
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."bank_trans A 
+		WHERE A.trans_no = ".db_escape($trans_no)."
+			AND A.type = ".db_escape($type);
+
+	$result = db_query($sql, "The bank trans per trans number could not be retrieved");
+	return db_fetch($result);
+}

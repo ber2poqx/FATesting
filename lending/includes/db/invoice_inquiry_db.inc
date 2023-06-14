@@ -114,7 +114,7 @@ function get_invoice_incoming($InvType, $status, $start, $limit, $search, $showa
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 				INNER JOIN ".TB_PREF."debtors_master F ON F.debtor_no = A.debtor_no
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
-			WHERE (A.type = 10 OR A.type = 57) AND A.payment_terms != 0 AND B.payment_location = 'Lending'
+			WHERE (A.type = ".ST_SALESINVOICE." OR A.type = ".ST_SALESINVOICEREPO.") AND A.payment_terms != 0 AND B.payment_location = 'Lending'
 			".$sWhere."
 			ORDER BY A.tran_date ASC limit $start, $limit";
 
@@ -132,7 +132,7 @@ function get_debtor_items($invoice_no)
 	$sql = "SELECT A.*
 			FROM ".TB_PREF."debtor_trans_details A 
 			WHERE A.debtor_trans_no = '".$invoice_no."'
-				AND A.debtor_trans_type = '10'";
+				AND A.debtor_trans_type = ".ST_SALESINVOICE;
 	
 	$result = db_query($sql, "could not debtor trans item details ");
 	set_global_connection();
@@ -147,7 +147,7 @@ function get_debtor_per_transNo($Trans_no){
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtor_loans B ON B.trans_no = A.trans_no
 				INNER JOIN ".TB_PREF."debtors_master F ON F.debtor_no = A.debtor_no
-			WHERE A.type = 10 AND A.payment_terms != 0 AND B.payment_location = 'Lending'
+			WHERE (A.type = ".ST_SALESINVOICE." OR A.type = ".ST_SALESINVOICEREPO.") AND A.payment_terms != 0 AND B.payment_location = 'Lending'
 				AND A.trans_no = ".$Trans_no;
 
 	$result = db_query($sql, "could not get all debtor invoice per trans_no");
