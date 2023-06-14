@@ -132,7 +132,7 @@ function get_debtor_items($invoice_no)
 	$sql = "SELECT A.*
 			FROM ".TB_PREF."debtor_trans_details A 
 			WHERE A.debtor_trans_no = '".$invoice_no."'
-				AND A.debtor_trans_type = ".ST_SALESINVOICE." OR A.type = ".ST_SALESINVOICEREPO;
+				AND A.debtor_trans_type = ".ST_SALESINVOICE." OR A.debtor_trans_type = ".ST_SALESINVOICEREPO;
 	
 	$result = db_query($sql, "could not debtor trans item details ");
 	set_global_connection();
