@@ -1259,7 +1259,7 @@ if(isset($_GET['submit']))
                 //add other entry to bank trans table
                 if (count($OtherEGrid) != 0){
                     foreach($OtherEGrid as $value=>$OTdata) {
-                        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'], $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1);
+                        add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'], $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1, $_POST['transtype']);
                     }
                 }
                 if($_POST['paylocation'] != "Lending"){
@@ -1327,14 +1327,15 @@ if(isset($_GET['submit']))
                                                 ($_POST['tenderd_amount'] + $_POST['total_otheramount']), 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
                     
                     add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], ($_POST['tenderd_amount'] + $_POST['total_otheramount']), PT_CUSTOMER, $_POST['customername'],
-                                        $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby']);
+                                        $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
 
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
 
                     //add other entry to bank trans table
                     if (count($OtherEGrid) != 0){
                         foreach($OtherEGrid as $value=>$OTdata) {
-                            add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'], $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1);
+                            add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'], 
+                                        $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1, $_POST['transtype']);
                         }
                     }
 
@@ -1454,7 +1455,7 @@ if(isset($_GET['submit']))
                                                 ($_POST['tenderd_amount'] + $_POST['total_otheramount']), 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
 
                     add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], ($_POST['tenderd_amount'] + $_POST['total_otheramount']), PT_CUSTOMER, $_POST['customername'],
-                                    $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby']);
+                                    $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
                     
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
     
@@ -1462,7 +1463,7 @@ if(isset($_GET['submit']))
                     if (count($OtherEGrid) != 0){
                         foreach($OtherEGrid as $value=>$OTdata) {
                             add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no'], $_POST['trans_date'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername'],
-                                    $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1);
+                                    $_POST['cashier'], $_POST['pay_type'], $_POST['trans_date'], $OTdata['otref_no'], null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 1, $_POST['transtype']);
                         }
                     }
 
@@ -2387,12 +2388,12 @@ if(isset($_GET['submitSICash']))
                                             $_POST['tenderd_amount_cash'], 0, $_POST['remarks_cash'], 0, 0, input_num('bank_amount', $_POST['tenderd_amount_cash']),
                                             0, $_POST['paymentType_cash'], $_POST['collectType_cash'], $_POST['moduletype_cash'], $_POST['cashier_cash'], $_POST['pay_type_cash'],
                                             $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'],
-                                            null, null, 0,0, $_POST['transtype_cash'], null, $_POST['total_otheramount_cashpay']);
+                                            null, null, 0, 0, $_POST['transtype_cash'], null, $_POST['total_otheramount_cashpay']);
 
             //add other entry to bank trans table
             if (count($OtherEGrid) != 0){
                 foreach($OtherEGrid as $value=>$OTdata) {
-                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no_cash'], $_POST['trans_date_cash'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername_cash'], $_POST['cashier_cash'], $_POST['pay_type_cash'], $_POST['trans_date_cash'], $OTdata['otref_no'], null, $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'], null, null, null, null, null, 0, null, 0, 1);
+                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no_cash'], $_POST['trans_date_cash'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername_cash'], $_POST['cashier_cash'], $_POST['pay_type_cash'], $_POST['trans_date_cash'], $OTdata['otref_no'], null, $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'], null, null, null, null, null, 0, null, 0, 1, $_POST['transtype_cash']);
                 }
             }
 

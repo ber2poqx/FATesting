@@ -652,9 +652,9 @@ if(isset($_GET['submitAllocDP']))
 
             $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
                                         $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
-            
+                    
             add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
-                            $_POST['cashier'], $_POST['paymentType'], '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['syspk'], $_POST['preparedby']);
+                            $_POST['cashier'], $_POST['paymentType'], '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['syspk'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
         
             add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
 
@@ -906,7 +906,7 @@ if(isset($_GET['submitAllocInterB']))
                                         $_POST['tenderd_amount_aib'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType_aib'], $_POST['collectType_aib'], $_POST['moduletype_aib']);
             
             add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no_aib'], $_POST['trans_date_aib'], $_POST['tenderd_amount_aib'], PT_CUSTOMER, $_POST['customername_aib'],
-                            0, $_POST['paymentType_aib'], '0000-00-00', 0, null, $_POST['InvoiceNo_aib'], $_POST['syspk_aib'], $_POST['preparedby_aib']);
+                            0, $_POST['paymentType_aib'], '0000-00-00', 0, null, $_POST['InvoiceNo_aib'], $_POST['syspk_aib'], $_POST['preparedby_aib'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype_aib']);
         
             add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_aib'], $_POST['remarks_aib']);
 
@@ -1219,7 +1219,7 @@ if(isset($_GET['submitAdj']))
 
 
         add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no_wv'], $_POST['trans_date_wv'], $_POST['total_cred_wv'], PT_CUSTOMER, $_POST['customername_wv'],
-                        0, 'alloc', '0000-00-00', 0, null, $_POST['InvoiceNo_wv'], 0, $_POST['preparedby_wv']);
+                        0, 'alloc', '0000-00-00', 0, null, $_POST['InvoiceNo_wv'], 0, $_POST['preparedby_wv'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype_wv']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date_wv'], $_POST['remarks_wv']);
 

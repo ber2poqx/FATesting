@@ -1854,8 +1854,8 @@ Ext.onReady(function() {
 			tooltip: 'Close window',
 			icon: '../js/ext4/examples/shared/icons/cancel.png',
 			handler:function(){
-				submit_form_view.getForm().reset();
-				submit_window_view.close();
+				submit_form_cashview.getForm().reset();
+				submit_window_cashview.close();
 			}
 		}]
 	});
