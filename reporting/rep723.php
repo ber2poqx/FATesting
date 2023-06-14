@@ -105,7 +105,7 @@ function getEnding_bal($to, $gl_account, $masterfile)
 		FROM ".TB_PREF."gl_trans gl
 			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 			LEFT JOIN ".TB_PREF."`voided` void ON gl.type = void.type AND gl.type_no = void.id
-		WHERE gl.account = '$gl_account' AND gl.tran_date <= '$to' AND void.cancel IS NULL ";
+		WHERE gl.account = '$gl_account' AND gl.tran_date <= '$to'"; //" AND void.cancel IS NULL ";
 
 	if($masterfile != ALL_TEXT){
 		$sql .=	"AND dt.debtor_no = '$masterfile'";
@@ -138,7 +138,7 @@ function getBalance_forwarded($from, $gl_account, $masterfile)
 				FROM ".TB_PREF."gl_trans gl 
 					LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
 					LEFT JOIN ".TB_PREF."`voided` void ON gl.type = void.type AND gl.type_no = void.id
-				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from' AND void.cancel IS NULL ";
+				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from'";  //" AND void.cancel IS NULL ";
 
 	if($masterfile != ALL_TEXT){
 		$sql .=	"AND dt.debtor_no = '$masterfile'";
