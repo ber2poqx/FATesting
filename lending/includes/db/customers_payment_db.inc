@@ -196,7 +196,7 @@ function get_ARinvoice_debtor_trans($Trans_no=null, $debtor_no=null)
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 				INNER JOIN ".TB_PREF."debtors_master F ON F.debtor_no = A.debtor_no
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
-			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM.") 
+			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM."  OR A.type =".ST_SALESINVOICEREPO.") 
 			".$sWhere."
 				AND A.status != 'fully-paid'
 			ORDER BY A.tran_date ASC";
