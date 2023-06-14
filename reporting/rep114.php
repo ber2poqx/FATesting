@@ -146,7 +146,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		}
 	}
 		
-		$sql .= " AND void.void_status IS NULL ORDER BY dt1.tran_date "; 
+		$sql .= " ORDER BY dt1.tran_date "; 
 
 	// if($terms != 'ALL')
 	// {
