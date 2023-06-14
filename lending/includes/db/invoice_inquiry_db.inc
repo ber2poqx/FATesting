@@ -114,7 +114,7 @@ function get_invoice_incoming($InvType, $status, $start, $limit, $search, $showa
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 				INNER JOIN ".TB_PREF."debtors_master F ON F.debtor_no = A.debtor_no
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
-			WHERE A.type = 10 AND A.payment_terms != 0 AND B.payment_location = 'Lending'
+			WHERE (A.type = 10 OR A.type = 57) AND A.payment_terms != 0 AND B.payment_location = 'Lending'
 			".$sWhere."
 			ORDER BY A.tran_date ASC limit $start, $limit";
 
