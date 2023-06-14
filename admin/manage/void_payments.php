@@ -132,7 +132,7 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $info = get_debtor_trans_all($_GET['trans_type'], $chkres['payment_trans_no']);
 
-        $dsplymsg = _('Error. Make sure to void this payment reference no. '.$info['reference'].' first. ');
+        $dsplymsg = _('Error. Make sure to void this payment reference no. <u>'.$info['reference'].'</u> first. ');
     }
 
     if ($InputError != 1){
