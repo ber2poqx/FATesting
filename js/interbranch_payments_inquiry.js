@@ -407,7 +407,7 @@ Ext.onReady(function(){
 					
 					cashierStore.load({
 						callback: function(records) {                 
-							Ext.getCmp('cashier').setValue(records[i].get('id'));
+							//Ext.getCmp('cashier').setValue(records[i].get('id'));
 						}
 					});
 					
