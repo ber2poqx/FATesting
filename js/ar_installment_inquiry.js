@@ -418,6 +418,7 @@ Ext.onReady(function(){
             summaryRenderer: function(value, summaryData, record, dataIndex) {
 				//added sumdebit & sumcredit kay dili sakto ang display kung naay gi void nga ledger
 				value = sumdebit - sumcredit;
+				sumdebit = sumcredit = 0;
 				return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 				//return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(Ext.getCmp('balance_amount').getValue(), '0,000.00') + '</span>';
 			}
