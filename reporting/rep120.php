@@ -210,7 +210,7 @@ function print_SMI_report()
 	
 	$rep->fontSize -= 2;
     $rep->Info($params, $cols, $headers, $aligns, 
-		null, null, null, true, true, true);
+		null, null, null, true, '', true);
     $rep->SetHeaderType('PO_Header');
 	$rep->NewPage();
 

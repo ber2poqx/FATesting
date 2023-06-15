@@ -244,7 +244,7 @@ function print_SL_summary_particulars()
 
 	$headers = array(
 		_('Date'), 
-		_('CR Num'),
+		_('Ref #'),
 		_('Trans Num'),
 		_('Name'), 
 		_('Particulars'),
