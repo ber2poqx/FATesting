@@ -2397,7 +2397,7 @@ if(isset($_GET['submitSICash']))
                 }
             }
 
-            add_cust_allocation(($_POST['tenderd_amount_cash'] + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);  
+            add_cust_allocation((($_POST['tenderd_amount_cash'] + $cash_discount) + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);  
             update_debtor_trans_allocation($_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash']);
 
             //allocate payment to
