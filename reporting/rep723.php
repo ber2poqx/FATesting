@@ -62,16 +62,15 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 				LEFT JOIN  ".TB_PREF."`debtors_master` pdebt ON bt.person_id = pdebt.debtor_no
 				LEFT JOIN  ".TB_PREF."`debtors_master` gldebt ON gl.person_id = gldebt.debtor_no
 				LEFT JOIN  ".TB_PREF."`debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
-				LEFT JOIN ".TB_PREF."`voided` void ON gl.type = void.type AND gl.type_no = void.id
 		";
 		
 		if ($from == 0)
 		{
-			$sql .= " WHERE gl.tran_date <= '$to' "; //"AND void.cancel IS NULL ";
+			$sql .= " WHERE gl.tran_date <= '$to' "; 
 		}
 		else if ($from != 0)
 		{
-			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to'"; //" AND void.cancel IS NULL ";
+			$sql .= " WHERE gl.tran_date BETWEEN '$from' AND '$to'"; 
 		}
 
 		if($masterfile != ALL_TEXT)
@@ -103,9 +102,8 @@ function getEnding_bal($to, $gl_account, $masterfile)
 			CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit1`
 			, CASE WHEN gl.amount < 0 THEN -amount ELSE 0 END AS `Credit1`
 		FROM ".TB_PREF."gl_trans gl
-			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
-			LEFT JOIN ".TB_PREF."`voided` void ON gl.type = void.type AND gl.type_no = void.id
-		WHERE gl.account = '$gl_account' AND gl.tran_date <= '$to'"; //" AND void.cancel IS NULL ";
+			LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no			
+		WHERE gl.account = '$gl_account' AND gl.tran_date <= '$to'"; 
 
 	if($masterfile != ALL_TEXT){
 		$sql .=	"AND dt.debtor_no = '$masterfile'";
@@ -137,8 +135,7 @@ function getBalance_forwarded($from, $gl_account, $masterfile)
 					, CASE WHEN gl.amount < 0 THEN -amount ELSE 0 END AS `Credit1`
 				FROM ".TB_PREF."gl_trans gl 
 					LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
-					LEFT JOIN ".TB_PREF."`voided` void ON gl.type = void.type AND gl.type_no = void.id
-				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from'";  //" AND void.cancel IS NULL ";
+				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from'"; 
 
 	if($masterfile != ALL_TEXT){
 		$sql .=	"AND dt.debtor_no = '$masterfile'";
