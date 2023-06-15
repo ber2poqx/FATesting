@@ -348,7 +348,13 @@ class FrontReport extends Cpdf
 			$this->cols[$i] += $this->leftMargin;
 		$this->headers = $headers;
 		$this->aligns = $aligns;
-		$this->bottomMargin  =150; // Added by Albert 04/20/2023
+
+		if($footerenable){
+			$this->bottomMargin  =150; // Added by Albert 04/20/2023
+		}else{
+			$this->bottomMargin  =50;
+		}
+
 		$this->cols2 = $cols2;
 		if ($this->cols2 != null)
 		{

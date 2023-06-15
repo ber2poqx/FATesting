@@ -198,7 +198,7 @@ function print_dailycash_sales()
 
 	$rep->Font('bold');
 	//$rep->SetCommonData($myrow, null, $myrow, $baccount, ST_BANKPAYMENT, $contacts);
-    $rep->Info($params, $cols, $headers, $aligns);
+    $rep->Info($params, $cols, $headers, $aligns, '', '', '', false, true);
     $rep->SetHeaderType('DCPR_Header');
     $rep->NewPage();
 	$rep->Font();
