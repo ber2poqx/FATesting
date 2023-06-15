@@ -277,7 +277,7 @@ $cols = array(
     array('insert' => true, 'fun' => 'gl_update', 'align' => 'center'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
     array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
-    array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
+    // array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
 	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
 );
 
