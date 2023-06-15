@@ -135,7 +135,7 @@ function getBalance_forwarded($from, $gl_account, $masterfile)
 					, CASE WHEN gl.amount < 0 THEN -amount ELSE 0 END AS `Credit1`
 				FROM ".TB_PREF."gl_trans gl 
 					LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type = dt.type AND gl.type_no = dt.trans_no
-				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from'"; 
+				WHERE gl.account = '$gl_account' AND gl.tran_date < '$from'";  //" AND void.cancel IS NULL ";
 
 	if($masterfile != ALL_TEXT){
 		$sql .=	"AND dt.debtor_no = '$masterfile'";
@@ -262,7 +262,7 @@ function print_SL_summary_particulars()
 	
 	$rep->fontSize -= 1;
     $rep->Info($params, $cols, $headers, $aligns, 
-		null, null, null, true, true, true);
+		null, null, null, true, '', true);
     $rep->SetHeaderType('SL_Summary_Header');
 	$rep->NewPage();
 	

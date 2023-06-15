@@ -226,7 +226,7 @@ function print_SL_summary_particulars()
 	
 	$rep->fontSize -= 1;
     $rep->Info($params, $cols, $headers, $aligns, 
-		null, null, null, true, true, true);
+		null, null, null, true, '', true);
     $rep->SetHeaderType('SL_Summary_Header');
 	$rep->NewPage();
 	
