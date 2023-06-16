@@ -230,10 +230,10 @@ function print_sales_summary_report()
 	$cols = array(0,      30,     80,  	     125,      160, 
 
 	//       name     model     serial     chassis    type       term       qty
-		215,      275,       335,       395,       445,     475,     500,   
+		215,      275,       335,       395,       445,     465,     485,   
 
-	//      LCP     Cost     gross     discount1  discount2  Net_Sales   Agent
-		515,    555,     590,      625,         650,         670,         705,      0);
+	//      LCP     Cost     gross	  lending_sale	 discount1   discount2	 Net_Sales		 Agent
+		495,    525,     560,     590,		       625,       650,         670,         705,      0);
 
 	$headers = array(
 		_('Brand'), 
@@ -250,7 +250,8 @@ function print_sales_summary_report()
 		_('Qty'),
 		_('Unit Cost'),
 		_('LCP'),
-		_('Gross Amount'),
+		_('Gross Amnt'),
+		_('Lend Sales'),
 		_('Dscount1'),
 		_('Dscount2'),
 		_('Net Sales'),
@@ -258,7 +259,7 @@ function print_sales_summary_report()
 		);
 
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
+	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
 
@@ -276,6 +277,7 @@ function print_sales_summary_report()
 	$Tot_lcp=0;
 	$Tot_ucost = 0;
 	$Tot_gross = 0;
+	$Tot_lend = 0;
 	$row_gross = 0;
 	$row_unitcost = 0;
 	$Tot_discount1 = 0;	
@@ -284,6 +286,7 @@ function print_sales_summary_report()
 	$row_total_lcp = 0;
 	$row_total_discount1 = 0;
 	$row_total_discount2 = 0;
+	$lending_sales = 0;
 	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
 
 	While ($GRNs = db_fetch($res))
@@ -301,6 +304,7 @@ function print_sales_summary_report()
 		$row_total_lcp = $GRNs['LCP'] * $GRNs['Qty'];
 		$row_total_discount1 = $GRNs['discount1'] * $GRNs['Qty'];
 		$row_total_discount2 = $GRNs['discount2'] * $GRNs['Qty'];
+		$lending_sales = $GRNs['grossAmnt'];
 		$row_netsales = $row_gross - $row_total_discount1 - $row_total_discount2;
 
 		$dec2 = get_qty_dec($GRNs['Model']);
@@ -321,10 +325,11 @@ function print_sales_summary_report()
 		$rep->AmountCol2(12, 13, $row_unitcost);
 		$rep->AmountCol2(13, 14, $row_total_lcp);				
 		$rep->AmountCol2(14, 15, $row_gross);
-		$rep->AmountCol2(15, 16, $row_total_discount1);
-		$rep->AmountCol2(16, 17, $row_total_discount2);
-		$rep->AmountCol2(17, 18, $row_netsales);
-		$rep->TextCol(18, 19, $GRNs['SalesAgent']);
+		$rep->AmountCol2(15, 16, $lending_sales);
+		$rep->AmountCol2(16, 17, $row_total_discount1);
+		$rep->AmountCol2(17, 18, $row_total_discount2);
+		$rep->AmountCol2(18, 19, $row_netsales);
+		$rep->TextCol(19, 20, $GRNs['SalesAgent']);
 
 		$qty = $GRNs['Qty'];
 		$Tot_qty += $qty;
@@ -337,6 +342,9 @@ function print_sales_summary_report()
 
 		$grossAmnt = $row_gross;
 		$Tot_gross += $grossAmnt;
+
+		$lendSale = $lending_sales;
+		$Tot_lend += $lendSale;
 
 		$discount1 = $row_total_discount1;
 		$Tot_discount1 += $discount1;
@@ -360,9 +368,10 @@ function print_sales_summary_report()
 	$rep->AmountCol(12, 13, $Tot_ucost, $dec);
 	$rep->AmountCol(13, 14, $Tot_lcp, $dec);
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
-	$rep->AmountCol(15, 16, $Tot_discount1, $dec);
-	$rep->AmountCol(16, 17, $Tot_discount2, $dec);
-	$rep->AmountCol(17, 18, $Tot_netsales, $dec);
+	$rep->AmountCol(15, 16, $Tot_lend, $dec);
+	$rep->AmountCol(16, 17, $Tot_discount1, $dec);
+	$rep->AmountCol(17, 18, $Tot_discount2, $dec);
+	$rep->AmountCol(18, 19, $Tot_netsales, $dec);
 
 	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
