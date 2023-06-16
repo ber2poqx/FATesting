@@ -91,7 +91,7 @@ function getTransactions($from, $to)
         LEFT JOIN chart_types E ON B.account_type = E.id
         WHERE A.tran_date>='$from'
         AND A.tran_date<='$to'
-        AND B.account_type = '11' OR B.account_type = '12'
+        AND B.account_type = '16' OR B.account_type = '17' OR B.account_type = '18' OR B.account_type = '19'
         GROUP BY A.account";
     return db_query($sql, "No transactions were returned");
 }
@@ -145,8 +145,7 @@ function print_PO_Report()
         recalculate_cols($cols);
     
     $rep->fontSize -= 1;
-    $rep->Info($params, $cols, $headers, $aligns, 
-        null, null, null, true, true, true);
+    $rep->Info($params, $cols, $headers, $aligns);
     //$rep->SetHeaderType('COLLECTION_Header');
     if ($destination) {
         $rep->SetHeaderType('PO_Header');
@@ -161,6 +160,9 @@ function print_PO_Report()
     $jantotal = $febtotal = $martotal = $aprtotal = $maytotal = $juntotal = $jultotal = $augtotal = 
     $septotal = $octtotal = $novtotal = $dectotal = 0.0;
 
+    $jansub = $febsub = $marsub = $aprsub = $maysub = $junsub = $julsub = $augsub = $sepsub = 
+    $octsub = $novsub = $desub = $allsub = 0.0;
+
     $res = getTransactions($from, $to);
     $catt = '';
 
@@ -168,14 +170,38 @@ function print_PO_Report()
     {
         if ($catt != $DSOC['ChartType'])
         {
+            if ($catt != '') {
+                $rep->NewLine(2);
+                $rep->Font('bold');
+                $rep->Line($rep->row  - 4);
+                $rep->TextCol(0, 2, _('Total'));
+                $rep->AmountCol(2, 3, $jansub, $dec);
+                $rep->AmountCol(3, 4, $febsub, $dec);
+                $rep->AmountCol(4, 5, $marsub, $dec);
+                $rep->AmountCol(5, 6, $aprsub, $dec);
+                $rep->AmountCol(6, 7, $maysub, $dec);
+                $rep->AmountCol(7, 8, $junsub, $dec);
+                $rep->AmountCol(8, 9, $julsub, $dec);
+                $rep->AmountCol(9, 10, $augsub, $dec);
+                $rep->AmountCol(10, 11, $sepsub, $dec);
+                $rep->AmountCol(11, 12, $octsub, $dec);
+                $rep->AmountCol(12, 13, $novsub, $dec);
+                $rep->AmountCol(13, 14, $desub, $dec);
+                $rep->AmountCol(14, 15, $allsub, $dec);
+                $rep->Line($rep->row  - 4);
+                $rep->Font();
+                $rep->NewLine(2);
+                $jansub = 0.0; $febsub = 0.0; $marsub = 0.0; $aprsub = 0.0; $maysub = 0.0; $junsub = 0.0; $julsub = 0.0; $augsub = 0.0;
+                $sepsub = 0.0; $octsub = 0.0; $novsub = 0.0; $desub = 0.0; $allsub = 0.0; 
+            }    
             $rep->Font('bold');
             $rep->SetTextColor(0, 0, 255);     
             $rep->TextCol(0, 5, $DSOC['ChartType']);
             $catt = $DSOC['ChartType'];
             $rep->Font();
             $rep->SetTextColor(0, 0, 0);
-            $rep->NewLine();    
-        }
+            $rep->NewLine();  
+        }	 
 
         $totalamount = $DSOC['January'] + $DSOC['February'] + $DSOC['March'] + $DSOC['April'] +
         $DSOC['May'] + $DSOC['June'] + $DSOC['July'] + $DSOC['August'] + $DSOC['September'] +
@@ -184,19 +210,19 @@ function print_PO_Report()
         $rep->NewLine();
         $rep->TextCol(0, 1, $DSOC['account_name']);
         $rep->TextCol(1, 2, $DSOC['']);
-        $rep->AmountCol(2, 3, $DSOC['January']);
-        $rep->AmountCol(3, 4, $DSOC['February']);
-        $rep->AmountCol(4, 5, $DSOC['March']);
-        $rep->AmountCol(5, 6, $DSOC['April']);
-        $rep->AmountCol(6, 7, $DSOC['May']);
-        $rep->AmountCol(7, 8, $DSOC['June']);
-        $rep->AmountCol(8, 9, $DSOC['July']);
-        $rep->AmountCol(9, 10, $DSOC['August']);
-        $rep->AmountCol(10, 11, $DSOC['September']);
-        $rep->AmountCol(11, 12, $DSOC['October']);
-        $rep->AmountCol(12, 13, $DSOC['November']);
-        $rep->AmountCol(13, 14, $DSOC['December']);
-        $rep->AmountCol(14, 15, $totalamount);
+        $rep->AmountCol(2, 3, $DSOC['January'], $dec);
+        $rep->AmountCol(3, 4, $DSOC['February'], $dec);
+        $rep->AmountCol(4, 5, $DSOC['March'], $dec);
+        $rep->AmountCol(5, 6, $DSOC['April'], $dec);
+        $rep->AmountCol(6, 7, $DSOC['May'], $dec);
+        $rep->AmountCol(7, 8, $DSOC['June'], $dec);
+        $rep->AmountCol(8, 9, $DSOC['July'], $dec);
+        $rep->AmountCol(9, 10, $DSOC['August'], $dec);
+        $rep->AmountCol(10, 11, $DSOC['September'], $dec);
+        $rep->AmountCol(11, 12, $DSOC['October'], $dec);
+        $rep->AmountCol(12, 13, $DSOC['November'], $dec);
+        $rep->AmountCol(13, 14, $DSOC['December'], $dec);
+        $rep->AmountCol(14, 15, $totalamount, $dec);
         $rep->NewLine(0.5);
 
         $jantotal +=  $DSOC['January'];
@@ -211,13 +237,51 @@ function print_PO_Report()
         $octtotal +=  $DSOC['October'];
         $novtotal +=  $DSOC['November'];
         $dectotal +=  $DSOC['December'];
-
         $alltotal +=  $totalamount;
+
+        $jansub += $DSOC['January'];
+        $febsub += $DSOC['February'];
+        $marsub += $DSOC['March'];
+        $aprsub += $DSOC['April'];
+        $maysub += $DSOC['May'];
+        $junsub += $DSOC['June'];
+        $julsub += $DSOC['July'];
+        $augsub += $DSOC['August'];
+        $sepsub += $DSOC['September'];
+        $octsub += $DSOC['October'];
+        $novsub += $DSOC['November'];
+        $desub += $DSOC['December'];
+        $allsub += $totalamount;
     }
-    $rep->Line($rep->row - 2);
+	$rep->NewLine(0);
 
     if ($catt != $DSOC['ChartType'])
     {
+        if ($catt != '') {
+            $rep->NewLine(2);
+            $rep->Font('bold');
+            $rep->Line($rep->row  - 4);
+            $rep->TextCol(0, 2, _('Total'));
+            $rep->AmountCol(2, 3, $jansub, $dec);
+            $rep->AmountCol(3, 4, $febsub, $dec);
+            $rep->AmountCol(4, 5, $marsub, $dec);
+            $rep->AmountCol(5, 6, $aprsub, $dec);
+            $rep->AmountCol(6, 7, $maysub, $dec);
+            $rep->AmountCol(7, 8, $junsub, $dec);
+            $rep->AmountCol(8, 9, $julsub, $dec);
+            $rep->AmountCol(9, 10, $augsub, $dec);
+            $rep->AmountCol(10, 11, $sepsub, $dec);
+            $rep->AmountCol(11, 12, $octsub, $dec);
+            $rep->AmountCol(12, 13, $novsub, $dec);
+            $rep->AmountCol(13, 14, $desub, $dec);
+            $rep->AmountCol(14, 15, $allsub, $dec);
+            $rep->Line($rep->row  - 4);
+            $rep->Font();
+            $rep->NewLine(2);
+            $jansub = 0.0; $febsub = 0.0; $marsub = 0.0; $aprsub = 0.0; $maysub = 0.0; $junsub = 0.0; $julsub = 0.0; $augsub = 0.0;
+            $sepsub = 0.0; $octsub = 0.0; $novsub = 0.0; $desub = 0.0; $allsub = 0.0; 
+        }    
+        $rep->NewLine();    
         $rep->Font('bold');
         $rep->SetTextColor(0, 0, 255);     
         $rep->TextCol(0, 5, $DSOC['ChartType']);
@@ -228,24 +292,24 @@ function print_PO_Report()
     }
 
     
-    $rep->NewLine(2.5);
+    $rep->NewLine(1);
     $rep->Font('bold');
     $rep->Line($rep->row - 2);
     $rep->fontSize += 1;    
-    $rep->TextCol(0, 2, _('TOTAL:'));
-    $rep->AmountCol(2, 3, $jantotal);
-    $rep->AmountCol(3, 4, $febtotal);
-    $rep->AmountCol(4, 5, $martotal);
-    $rep->AmountCol(5, 6, $aprtotal);
-    $rep->AmountCol(6, 7, $maytotal);
-    $rep->AmountCol(7, 8, $juntotal);
-    $rep->AmountCol(8, 9, $jultotal);
-    $rep->AmountCol(9, 10, $augtotal);
-    $rep->AmountCol(10, 11, $septotal);
-    $rep->AmountCol(11, 12, $octtotal);
-    $rep->AmountCol(12, 13, $novtotal);
-    $rep->AmountCol(13, 14, $dectotal);
-    $rep->AmountCol(14, 15, $alltotal);
+    $rep->TextCol(0, 2, _('Grand Total:'));
+    $rep->AmountCol(2, 3, $jantotal, $dec);
+    $rep->AmountCol(3, 4, $febtotal, $dec);
+    $rep->AmountCol(4, 5, $martotal, $dec);
+    $rep->AmountCol(5, 6, $aprtotal, $dec);
+    $rep->AmountCol(6, 7, $maytotal, $dec);
+    $rep->AmountCol(7, 8, $juntotal, $dec);
+    $rep->AmountCol(8, 9, $jultotal, $dec);
+    $rep->AmountCol(9, 10, $augtotal, $dec);
+    $rep->AmountCol(10, 11, $septotal, $dec);
+    $rep->AmountCol(11, 12, $octtotal, $dec);
+    $rep->AmountCol(12, 13, $novtotal, $dec);
+    $rep->AmountCol(13, 14, $dectotal, $dec);
+    $rep->AmountCol(14, 15, $alltotal, $dec);
     //$rep->SetFooterType('compFooter');
     $rep->End();
 }
