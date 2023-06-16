@@ -118,7 +118,7 @@ label_row(_("Rebate: "), price_format($debt_loans['rebate']), "class='tableheade
 label_row(_("Financing Rate: "), $debt_loans['financing_rate']. "%", "class='tableheader2'");
 label_row(_("Due/Amortization: "), price_format($debt_loans['amortization_amount']), "class='tableheader2'");
 label_row(null, ''); label_row(null, '');
-//label_row(_("LCP Amount: "), price_format($debt_loans['lcp_amount']), "class='tableheader2'");
+label_row(_("Gross Amount: "), price_format($debt_loans['financing_gross']), "class='tableheader2'");
 label_row(_("A/R Amount: "), price_format($debt_loans['ar_amount']), "class='tableheader2'");
 if($header["opening_balances"] == 1)
 {
