@@ -616,6 +616,7 @@ function get_repo_cost_average($stock_id, $location, $serial_no = "", $chassis_n
 			AND a.loc_code =". db_escape($location) ." 
 			AND a.lot_no =". db_escape($serial_no) ."
 			AND a.chassis_no =". db_escape($chassis_no);
+			$sql .= "Order By a.trans_id desc limit 1";
 	
 	}
 	$result = db_query($sql, "could not retreive the unit cost for $stock_id");

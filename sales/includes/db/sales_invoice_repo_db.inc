@@ -259,7 +259,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 			$invoice_line->discount2,
 			0,
 			Get_Item_Incentive_Price($invoice->category_id, $invoice_line->stock_id, "BII"),
-			Get_Policy_Installment_Price(getCompDet('branch_code'), $invoice->category_id, $invoice_line->stock_id)		//Added by Albert 03/09/2023
+			get_repo_cost_average($invoice_line->stock_id, getCompDet('branch_code'), $invoice_line->lot_no, $invoice_line->chasis_no)		//Added by Albert 03/09/2023
 
 
 		);
