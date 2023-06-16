@@ -291,13 +291,13 @@ function print_sales_summary_report()
 
 	While ($GRNs = db_fetch($res))
 	{
-		if($GRNs['Type']=='INSTALLMENT')
-		{
-			$row_gross = $GRNs['Qty']*$GRNs['grossAmnt'];
-		}
-		else 
+		if($GRNs['Type']=='CASH')
 		{
 			$row_gross = $GRNs['Qty']*$GRNs['Unit_price'];
+		}
+		else 
+		{			
+			$row_gross = $GRNs['Qty']*$GRNs['grossAmnt'];
 		}
 				
 		$row_unitcost = $GRNs['UnitCost']*$GRNs['Qty'];
