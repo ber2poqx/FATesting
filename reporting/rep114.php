@@ -304,7 +304,7 @@ function print_sales_summary_report()
 		$row_total_lcp = $GRNs['LCP'] * $GRNs['Qty'];
 		$row_total_discount1 = $GRNs['discount1'] * $GRNs['Qty'];
 		$row_total_discount2 = $GRNs['discount2'] * $GRNs['Qty'];
-		$lending_sales = $GRNs['grossAmnt'];
+		$lending_sales = $GRNs['LCP'];
 		$row_netsales = $row_gross - $row_total_discount1 - $row_total_discount2;
 
 		$dec2 = get_qty_dec($GRNs['Model']);
