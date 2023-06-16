@@ -87,7 +87,7 @@ function disbursement_transactions($from, $cashier = '') {
 function opening_balance($from, $cashier = '') {
 	$date = date2sql($from);
 
-	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)) + 
+	$sql = "SELECT SUM(IF(A.bank_act = 1, A.amount, 0)) + SUM(IF(A.bank_act = 2, A.amount, 0)) +
 	IFNULL((SELECT sum(z.amount) 
 	FROM ".TB_PREF."remittance z where z.remit_to =".db_escape($cashier)." And z.remit_stat = 'Approved' 
 	And (CASE WHEN z.remit_date < '$date' Then z.remit_date < '$date' else (z.remit_date < '$date' and z.remit_no_from =0) end)),0)
