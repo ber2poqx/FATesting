@@ -1375,7 +1375,14 @@ Ext.onReady(function(){
 								width: 50,
 								margin: '2 0 2 0',
 								fieldStyle: 'font-weight: bold;color: #4a235a; text-align: right;',
-								
+								listeners: {
+									afterrender: function (component) {
+											Ext.create('Ext.tip.ToolTip', {
+												target: component.getEl(),
+												html: "Please enter Gross Profit Margin. This is a required field."
+											});
+									}
+								}
 							}]
 						},{
 							xtype: 'fieldcontainer',

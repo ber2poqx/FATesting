@@ -14,7 +14,6 @@ $path_to_root = "..";
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/lending/includes/lending_cfunction.inc");
 include_once($path_to_root . "/admin/db/voiding_db.inc");
-//header('Content-Type: text/html; charset=utf-8');
 
 //----------------------------------------------------------------------------------------------------
 
@@ -692,12 +691,12 @@ if(isset($_GET['get_interBPaymnt']))
         $intoB_result = get_CPbank_accounts($_GET['debitTo']);
         $intoB_row = db_fetch($intoB_result);
         $customer = get_customer($_GET['debtor_id']);
-
+        
         $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
                                 'gl_code'=>$gl_row["account_code"],
                                 'gl_name'=>$gl_row["account_name"],
                                 'sl_code'=>$customer["debtor_no"],
-                                'sl_name'=>$customer["name"],
+                                'sl_name'=>htmlentities($customer["name"]),
                                 'debtor_id'=>$_GET['debtor_id'],
                                 'debit_amount'=>$_GET['amounttenderd'],
                                 'credit_amount'=>0,
