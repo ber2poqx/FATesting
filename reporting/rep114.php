@@ -97,6 +97,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 			,dtd4.discount1
 			,dtd4.discount2
 			,dl2.ar_amount
+			,sc10.category_id
 		FROM ".TB_PREF."debtor_trans_details dtd4
 		    INNER JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
 			LEFT JOIN ".TB_PREF."debtor_loans dl2 on dtd4.debtor_trans_no = dl2.trans_no
@@ -305,7 +306,20 @@ function print_sales_summary_report()
 		$row_total_lcp = $GRNs['LCP'] * $GRNs['Qty'];
 		$row_total_discount1 = $GRNs['discount1'] * $GRNs['Qty'];
 		$row_total_discount2 = $GRNs['discount2'] * $GRNs['Qty'];
-		$lending_sales = $GRNs['ar_amount'];
+
+		if($GRNs['category_id'] == '18'/*others*/ || $GRNs['category_id'] == '22'/*sp-appl*/ || $GRNs['category_id'] == '23'/*sp-gen*/ || $GRNs['category_id'] == '24'/*sp-rep*/ )
+		{
+			$lending_sales = $row_gross;
+		}
+		else if($GRNs['category_id'] == '17'/*promo item*/ && $GRNs['Serial'] == '')
+		{
+			$lending_sales = $row_gross;
+		}
+		else
+		{
+			$lending_sales = $GRNs['ar_amount'];
+		}
+		
 		$row_netsales = $row_gross - $row_total_discount1 - $row_total_discount2;
 
 		$dec2 = get_qty_dec($GRNs['Model']);
