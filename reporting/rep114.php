@@ -96,6 +96,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		        ELSE sn9.salesman_name END AS `SalesAgent`	
 			,dtd4.discount1
 			,dtd4.discount2
+			,dl2.ar_amount
 		FROM ".TB_PREF."debtor_trans_details dtd4
 		    INNER JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
 			LEFT JOIN ".TB_PREF."debtor_loans dl2 on dtd4.debtor_trans_no = dl2.trans_no
@@ -304,7 +305,7 @@ function print_sales_summary_report()
 		$row_total_lcp = $GRNs['LCP'] * $GRNs['Qty'];
 		$row_total_discount1 = $GRNs['discount1'] * $GRNs['Qty'];
 		$row_total_discount2 = $GRNs['discount2'] * $GRNs['Qty'];
-		$lending_sales = $GRNs['LCP'];
+		$lending_sales = $GRNs['ar_amount'];
 		$row_netsales = $row_gross - $row_total_discount1 - $row_total_discount2;
 
 		$dec2 = get_qty_dec($GRNs['Model']);
