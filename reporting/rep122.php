@@ -47,56 +47,66 @@ function getTransactions($from, $to)
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 			LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
      		WHERE E.category_id = 14 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')MOTOR,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)MOTOR,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 15 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')APPLIANCE,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)APPLIANCE,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 16 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')COMPUTERS,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)COMPUTERS,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 17 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')PROMOITEM,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)PROMOITEM,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 18 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')OTHERS,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)OTHERS,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 19 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')FURNITURES,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)FURNITURES,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 21 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')POWERPRODUCT,
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)POWERPRODUCT,
 
 			(SELECT SUM(C.quantity) AS AMOUNT FROM debtor_trans_details C 
 		    LEFT JOIN debtor_loans E ON E.trans_no = C.debtor_trans_no
 			LEFT JOIN debtor_trans F ON  F.reference = E.reference
+			LEFT JOIN voided G ON E.reference = G.reference_from
 		    WHERE E.category_id = 23 AND C.debtor_trans_type = A.type AND E.months_term = B.months_term
-			AND F.tran_date>='$from' AND F.tran_date<='$to')SPGEN
+			AND F.tran_date>='$from' AND F.tran_date<='$to' AND G.void_status IS NULL)SPGEN
 
 			FROM debtor_trans A
 			LEFT JOIN debtor_loans B ON B.reference = A.reference
+			LEFT JOIN voided D ON B.reference = D.reference_from
 			WHERE A.type = 10
 			AND A.tran_date>='$from'
 			AND A.tran_date<='$to'
+			AND D.void_status IS NULL
 			GROUP BY B.months_term ORDER BY B.months_term";
 
     return db_query($sql, "No transactions were returned");

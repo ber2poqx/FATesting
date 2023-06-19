@@ -47,56 +47,66 @@ function getTransactions($from, $to)
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
-			WHERE X.category_id = 14 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')MOTOR,
+			LEFT JOIN voided E ON X.reference = E.reference_from
+			WHERE X.category_id = 14 AND X.months_term = B.months_term
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)MOTOR,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 15 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')APPLIANCE,
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)APPLIANCE,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 16 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')COMPUTERS,
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)COMPUTERS,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 17 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')PROMOITEM,
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)PROMOITEM,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 18 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')OTHERS,
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)OTHERS,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 19 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')FURNITURES,
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)FURNITURES,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 21 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')POWERPRODUCT,
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)POWERPRODUCT,
 
 			(SELECT SUM(X.ar_amount) AS AMOUNT FROM debtor_loans X 
 			LEFT JOIN debtor_trans F ON F.reference = X.reference
 			LEFT JOIN debtor_trans_details C ON X.trans_no = C.debtor_trans_no
+			LEFT JOIN voided E ON X.reference = E.reference_from
 			WHERE X.category_id = 23 AND X.months_term = B.months_term 
-			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to')SPGEN
+			AND C.debtor_trans_type = A.type AND F.tran_date>='$from' AND F.tran_date<='$to' AND E.void_status IS NULL)SPGEN
 
 			FROM debtor_trans A
 			LEFT JOIN debtor_loans B ON B.reference = A.reference
+			LEFT JOIN voided D ON B.reference = D.reference_from
 			WHERE A.type = 10
 			AND A.tran_date>='$from'
 			AND A.tran_date<='$to'
+			AND D.void_status IS NULL
 			GROUP BY B.months_term ORDER BY B.months_term";
 
     return db_query($sql, "No transactions were returned");
@@ -184,15 +194,15 @@ function print_PO_Report()
 				$rep->Font('bold');
 				$rep->Line($rep->row  - 4);
 				$rep->TextCol(0, 2, _('Sub Total'));
-				$rep->AmountCol(1, 2, $Motorsubtotal);
-				$rep->AmountCol(2, 3, $Applsubtotal);
-				$rep->AmountCol(3, 4, $Poweproductsubtotal);
-				$rep->AmountCol(4, 5, $Furnituresubtotal);
-				$rep->AmountCol(5, 6, $Computersubtotal);
-				$rep->AmountCol(6, 7, $Spgensubtotal);
-				$rep->AmountCol(7, 8, $Othersubtotal);
-				$rep->AmountCol(8, 9, $Promosubtotal);
-				$rep->AmountCol(9, 10, $Allgrandtotal);
+				$rep->AmountCol(1, 2, $Motorsubtotal, $dec);
+				$rep->AmountCol(2, 3, $Applsubtotal, $dec);
+				$rep->AmountCol(3, 4, $Poweproductsubtotal, $dec);
+				$rep->AmountCol(4, 5, $Furnituresubtotal, $dec);
+				$rep->AmountCol(5, 6, $Computersubtotal, $dec);
+				$rep->AmountCol(6, 7, $Spgensubtotal, $dec);
+				$rep->AmountCol(7, 8, $Othersubtotal, $dec);
+				$rep->AmountCol(8, 9, $Promosubtotal, $dec);
+				$rep->AmountCol(9, 10, $Allgrandtotal, $dec);
 				$rep->Font();
 				$rep->NewLine(2);
 				$Motorsubtotal = 0.0;
@@ -233,15 +243,15 @@ function print_PO_Report()
 		$rep->fontSize -= 1;
 		$rep->NewLine(1.3);
 		$rep->TextCol(0, 1, $SSBA['months_term'] . '  ' . $month);
-		$rep->AmountCol(1, 2, $SSBA['MOTOR']);
-		$rep->AmountCol(2, 3, $SSBA['APPLIANCE']);
-		$rep->AmountCol(3, 4, $SSBA['POWERPRODUCT']);
-		$rep->AmountCol(4, 5, $SSBA['FURNITURES']);
-		$rep->AmountCol(5, 6, $SSBA['COMPUTERS']);
-		$rep->AmountCol(6, 7, $SSBA['SPGEN']);
-		$rep->AmountCol(7, 8, $SSBA['OTHERS']);
-		$rep->AmountCol(8, 9, $SSBA['PROMOITEM']);
-		$rep->AmountCol(9, 10, $Alltotal);
+		$rep->AmountCol(1, 2, $SSBA['MOTOR'], $dec);
+		$rep->AmountCol(2, 3, $SSBA['APPLIANCE'], $dec);
+		$rep->AmountCol(3, 4, $SSBA['POWERPRODUCT'], $dec);
+		$rep->AmountCol(4, 5, $SSBA['FURNITURES'], $dec);
+		$rep->AmountCol(5, 6, $SSBA['COMPUTERS'], $dec);
+		$rep->AmountCol(6, 7, $SSBA['SPGEN'], $dec);
+		$rep->AmountCol(7, 8, $SSBA['OTHERS'], $dec);
+		$rep->AmountCol(8, 9, $SSBA['PROMOITEM'], $dec);
+		$rep->AmountCol(9, 10, $Alltotal, $dec);
 		
 		$rep->fontSize += 1;
 
@@ -283,15 +293,15 @@ function print_PO_Report()
 		$rep->Font('bold');
 		$rep->Line($rep->row  - 4);
 		$rep->TextCol(0, 2, _('Sub Total'));
-		$rep->AmountCol(1, 2, $Motorsubtotal);
-		$rep->AmountCol(2, 3, $Applsubtotal);
-		$rep->AmountCol(3, 4, $Poweproductsubtotal);
-		$rep->AmountCol(4, 5, $Furnituresubtotal);
-		$rep->AmountCol(5, 6, $Computersubtotal);
-		$rep->AmountCol(6, 7, $Spgensubtotal);
-		$rep->AmountCol(7, 8, $Othersubtotal);
-		$rep->AmountCol(8, 9, $Promosubtotal);
-		$rep->AmountCol(9, 10, $Allgrandtotal);
+		$rep->AmountCol(1, 2, $Motorsubtotal, $dec);
+		$rep->AmountCol(2, 3, $Applsubtotal, $dec);
+		$rep->AmountCol(3, 4, $Poweproductsubtotal, $dec);
+		$rep->AmountCol(4, 5, $Furnituresubtotal, $dec);
+		$rep->AmountCol(5, 6, $Computersubtotal, $dec);
+		$rep->AmountCol(6, 7, $Spgensubtotal, $dec);
+		$rep->AmountCol(7, 8, $Othersubtotal, $dec);
+		$rep->AmountCol(8, 9, $Promosubtotal, $dec);
+		$rep->AmountCol(9, 10, $Allgrandtotal, $dec);
 		$rep->Font();
 		$rep->NewLine(2);
 	}
@@ -302,15 +312,15 @@ function print_PO_Report()
 	$rep->Font('bold');
 	$rep->fontSize += 0;	
 	$rep->TextCol(0, 7, _('Grand Total'));
-	$rep->AmountCol(1, 2, $Motorgrandtotal);
-	$rep->AmountCol(2, 3, $Applgrandtotal);
-	$rep->AmountCol(3, 4, $Poweproductgrandtotal);
-	$rep->AmountCol(4, 5, $Furnituregrandtotal);
-	$rep->AmountCol(5, 6, $Computergrandtotal);
-	$rep->AmountCol(6, 7, $Spgengrandtotal);
-	$rep->AmountCol(7, 8, $Othergrandtotal);
-	$rep->AmountCol(8, 9, $Promograndtotal);
-	$rep->AmountCol(9, 10, $Allgrandtotals);
+	$rep->AmountCol(1, 2, $Motorgrandtotal, $dec);
+	$rep->AmountCol(2, 3, $Applgrandtotal, $dec);
+	$rep->AmountCol(3, 4, $Poweproductgrandtotal, $dec);
+	$rep->AmountCol(4, 5, $Furnituregrandtotal, $dec);
+	$rep->AmountCol(5, 6, $Computergrandtotal, $dec);
+	$rep->AmountCol(6, 7, $Spgengrandtotal, $dec);
+	$rep->AmountCol(7, 8, $Othergrandtotal, $dec);
+	$rep->AmountCol(8, 9, $Promograndtotal, $dec);
+	$rep->AmountCol(9, 10, $Allgrandtotals, $dec);
 	//$rep->SetFooterType('compFooter');
     $rep->End();
 }
