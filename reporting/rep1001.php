@@ -140,7 +140,7 @@ function print_transaction() {
     // 6months and above
     $res2 = get_AR_transactions($date, $customer, $group, $filter,false, 6);
 
-    $col_name = $gl_name =  $area_name = '';
+    $col_name = $gl_name =  $area_name = $year ='';
   
     //Parent
     $total_payment_this_month = $advance_payment = $current_balance = 
@@ -278,6 +278,23 @@ function print_transaction() {
                     $rep->SetTextColor(0, 0, 0);
                     $rep->NewLine();	
                 }
+            }
+            else if($year != $trans['inv_year'])
+            {
+                if ($year != '') 
+                {
+                    $rep->NewLine();
+                    $rep->fontSize += 1;
+                    $rep->Font('bold');
+                    $rep->SetTextColor(0, 0, 255);
+                    $rep->TextCol(0, 10, $trans['user_id']. ' - ' . $trans['inv_year']);
+                    $year = $trans['inv_year'];
+                    $rep->Font();
+                    $rep->fontSize -= 1;
+                    $rep->SetTextColor(0, 0, 0);
+                    $rep->NewLine();
+                }
+
             }
             else {
                 if ($area_name != $trans['area_name']) {
@@ -551,6 +568,21 @@ function print_transaction() {
                     $rep->SetTextColor(0, 0, 0);
                     $rep->NewLine();	
                 }
+            }
+            if($year != $trans['inv_year'])
+            {
+                $rep->NewLine();
+                $rep->fontSize += 1;
+                $rep->Font('bold');
+                $rep->SetTextColor(0, 0, 255);
+                $rep->TextCol(0, 10, $trans['inv_year']);
+                $year = $trans['inv_year'];
+                $rep->Font();
+                $rep->fontSize -= 1;
+                $rep->SetTextColor(0, 0, 0);
+                $rep->NewLine();
+
+                // 
             }
 
             $rep->NewLine();

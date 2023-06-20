@@ -1228,16 +1228,16 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         }
 
         if ($group == 1) {
-            $sql .= " ORDER BY GL.gl_code ASC, DM.name ASC";
+            $sql .= " ORDER BY GL.gl_code ASC, inv_year DESC, DM.name ASC";
         }
         else if ($group == 2) {
-            $sql .= " ORDER BY CN.user_id ASC, DM.name ASC";
+            $sql .= " ORDER BY CN.user_id ASC, inv_year DESC, DM.name ASC";
         }
         else if ($group == 3) {
-            $sql .= " ORDER BY DM.area, A.description, DM.name ASC";
+            $sql .= " ORDER BY DM.area, inv_year DESC, A.description, DM.name ASC";
         }     
     }
- 
+
     return db_query($sql,"No transactions were returned");
 }
 
