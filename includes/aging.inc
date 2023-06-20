@@ -1127,7 +1127,8 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type,
         CT.term_mode_fullpayment,
         CT.si_trans_no,
-        DL.invoice_type
+        DL.invoice_type,
+        DL.category_id
 
     FROM " . TB_PREF . "debtor_loans DL
         LEFT JOIN " . TB_PREF . "debtors_master DM ON DL.debtor_no = DM.debtor_no
@@ -1226,6 +1227,9 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         else if ($group == 3 && $filter != '') {
             $sql .= " AND DM.area = ".db_escape($filter);
         }
+        else if ($group == 4 && $filter != -1) {
+            $sql .= " AND DL.category_id = ".db_escape($filter);
+        }
 
         if ($group == 1) {
             $sql .= " ORDER BY GL.gl_code ASC, inv_year DESC, DM.name ASC";
@@ -1235,7 +1239,10 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         }
         else if ($group == 3) {
             $sql .= " ORDER BY DM.area, inv_year DESC, A.description, DM.name ASC";
-        }     
+        }
+        else if ($group == 4) {
+            $sql .= " ORDER BY DL.category_id, inv_year DESC, DM.name ASC";
+        }      
     }
 
     return db_query($sql,"No transactions were returned");

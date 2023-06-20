@@ -248,7 +248,8 @@ class BoxReports
 						array(
 							_('COA'),
 							_('COLLECTOR'),
-							_('AREA')
+							_('AREA'),
+							_('CATEGORY')
 						), null, true, '', '', false, true
 					);
 
@@ -258,6 +259,9 @@ class BoxReports
 					}
 					else if (get_post('PARAM_2') == 3) {
 						return sales_areas_list($name, null, _("No Areas Filter"));
+					}
+					else if (get_post('PARAM_2') == 4) {
+						return category_list($name, null, _("All Categories"));
 					}
 					else {
 						return gl_account_list($name, null, _("No Account Filter"), true, false);
