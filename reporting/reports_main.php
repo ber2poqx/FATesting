@@ -1376,6 +1376,16 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 			_('Destination') => 'DESTINATION'
 		)
 	);
+
+	//Created by Robert (06-21-2023) =====================================
+	$reports->addReport(RC_GL,  712, _('Other Income Report'),
+		array(	
+			_('Start Date') => 'DATEBEGIN',
+			_('End Date') => 'DATEEND',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'DESTINATION'
+		)
+	);
 	//=================================================================
 
 
