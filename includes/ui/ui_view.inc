@@ -226,14 +226,10 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 
 	if ($type == Official_receipt)
 		$viewer .= "prnt_official_receipt.php?reference=$trans_no";
-	elseif ($type == Collection_receipt)
-		$viewer .= "prnt_collection_receipt.php";
 	elseif ($type == Delivery_receipt)
-		$viewer .= "prnt_delivery_receipt.php";
+		$viewer .= "prnt_delivery_receipt.php?trans_no=$trans_no";
 	elseif ($type == Cash_SI)
 		$viewer .= "prnt_cash_SalesInvoice.php";
-	elseif ($type == Cash_SI_serialized)
-		$viewer .= "prnt_cash_SI_serialized.php";
 	elseif ($type == Charge_SI)
 		$viewer .= "prnt_charge_SalesInvoice.php";
 	elseif ($type == Charge_SI_serialized)
