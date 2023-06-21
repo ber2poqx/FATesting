@@ -67,7 +67,7 @@ Ext.onReady(function() {
         fields: [
 			{name:'debtor_no', mapping:'debtor_no'},
 			{name:'debtor_ref', mapping:'debtor_ref'},
-			{name:'name', mapping:'name'}
+			{name:'name', mapping:'name', type: 'string'}
 		]
     });
 	Ext.define('comboModel',{
@@ -116,7 +116,7 @@ Ext.onReady(function() {
 			{name:'gl_code',mapping:'gl_code'},
 			{name:'gl_name',mapping:'gl_name'},
 			{name:'sl_code',mapping:'sl_code'},
-			{name:'sl_name',mapping:'sl_name'},
+			{name:'sl_name',mapping:'sl_name', type: 'string'},
 			{name:'debtor_id',mapping:'debtor_id'},
 			{name:'debit_amount',mapping:'debit_amount',type:'float'},
 			{name:'credit_amount',mapping:'credit_amount',type:'float'},

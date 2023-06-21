@@ -195,7 +195,7 @@ if(isset($_GET['get_Customer']))
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                                'debtor_ref'=>$myrow["debtor_ref"],
-                               'name'=>htmlentities($myrow["name"])
+                               'name'=>$myrow["name"] //htmlentities($myrow["name"])
                             );
     }
     $jsonresult = json_encode($status_array);
@@ -691,12 +691,11 @@ if(isset($_GET['get_interBPaymnt']))
         $intoB_result = get_CPbank_accounts($_GET['debitTo']);
         $intoB_row = db_fetch($intoB_result);
         $customer = get_customer($_GET['debtor_id']);
-        
         $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
                                 'gl_code'=>$gl_row["account_code"],
                                 'gl_name'=>$gl_row["account_name"],
                                 'sl_code'=>$customer["debtor_no"],
-                                'sl_name'=>htmlentities($customer["name"]),
+                                'sl_name'=>utf8_decode($customer["name"]),
                                 'debtor_id'=>$_GET['debtor_id'],
                                 'debit_amount'=>$_GET['amounttenderd'],
                                 'credit_amount'=>0,
@@ -715,7 +714,6 @@ if(isset($_GET['get_interBPaymnt']))
                                 'credit_amount'=>$_GET['amounttotal']
                             );
     }
-
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
