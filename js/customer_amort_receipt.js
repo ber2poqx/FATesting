@@ -5444,7 +5444,7 @@ Ext.onReady(function() {
 				cls: 'rptbtn',
 				width: 200,
 				text:'<b>Collection Receipt</b>',
-				icon: '../js/ext4/examples/shared/icons/cash-register-icon.png',
+				icon: '../js/ext4/examples/shared/icons/script.png',
 				margin: '2 2 2 2',
 				handler : function() {
 					window.open('../reports/prnt_collection_receipt.php?reference='+ Ext.getCmp('rpt_syspk').getValue());
@@ -5455,6 +5455,7 @@ Ext.onReady(function() {
 			},{
 				xtype: 'button',
 				cls: 'rptbtn',
+				hidden: true,
 				width: 200,
 				text:'<b>Official Receipt</b>',
 				icon: '../js/ext4/examples/shared/icons/script.png',
@@ -5483,10 +5484,10 @@ Ext.onReady(function() {
 		}]
 	});
 	var report_window = Ext.create('Ext.Window',{
-		width 	: 430,
+		width 	: 220,
 		modal	: true,
 		plain 	: true,
-		border 	: false,
+		border 	: true,
 		resizable: false,
 		closeAction:'hide',
 		//closable: false,

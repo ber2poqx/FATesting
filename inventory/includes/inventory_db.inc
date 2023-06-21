@@ -107,14 +107,19 @@ function get_cr_trans($cr_ref, $trans_type)
 }
 
 // for Official Receipt query; Added by AJE 10/06/2021
-function get_or_trans($cr_ref, $trans_type)
+/*function get_or_trans($or_num, $trans_type)
 {
 		set_global_connection();
 		
-		$sql = "";	
+		$sql = "SELECT BT.*, DM.name AS customer, DM.tax_id, DM.address, CM.memo_ AS remarks, USR.real_name AS cashier 
+				FROM " . TB_PREF . "bank_trans BT 
+				LEFT JOIN " . TB_PREF . "debtors_master DM ON BT.person_id = DM.debtor_no
+				LEFT JOIN " . TB_PREF . "comments CM ON BT.trans_no = CM.id AND BT.type = CM.type
+                LEFT JOIN " . TB_PREF . "users USR ON BT.cashier_user_id = USR.id
+				WHERE BT.ref = '" . $or_num . "' AND BT.type = '" . $trans_type . "'  ";	
 		
 		return db_query($sql, "No transactions were returned");
-}
+}*/
 
 //Added by AJE 03/12/2021
 function get_rr_details($rr_num, $trans_num, $trans_type)

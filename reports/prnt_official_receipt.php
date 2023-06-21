@@ -105,6 +105,21 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 ** Converts a given integer (in range [0..1T-1], inclusive) into
 ** alphabetical format ("one", "two", etc.).
 */
+
+function get_or_trans($or_num, $trans_type)
+{
+		set_global_connection();
+		
+		$sql = "SELECT BT.*, DM.name AS customer, DM.tax_id, DM.address, CM.memo_ AS remarks, USR.real_name AS cashier 
+				FROM " . TB_PREF . "bank_trans BT 
+				LEFT JOIN " . TB_PREF . "debtors_master DM ON BT.person_id = DM.debtor_no
+				LEFT JOIN " . TB_PREF . "comments CM ON BT.trans_no = CM.id AND BT.type = CM.type
+                LEFT JOIN " . TB_PREF . "users USR ON BT.cashier_user_id = USR.id
+				WHERE BT.ref = '" . $or_num . "' AND BT.type = '" . $trans_type . "'  ";	
+		
+		return db_query($sql, "No transactions were returned");
+}
+
 function convert_number($number)
 {
 	if (($number < 0) || ($number > 99999999))
@@ -182,24 +197,24 @@ function convert_number($number)
 ?> 
 <?php
 	// $or_num = "AGOR-SI00222021";
-	// $or_num = $_REQUEST['reference']; 
-	// $dlvry_tag = 0;
-	// $or_result = get_or_trans($or_num,$trans_type = ST_SALESINVOICE);
+	$or_num = $_REQUEST['reference']; 
+	//$dlvry_tag = 0;
+	$or_result = get_or_trans($or_num,$trans_type = ST_BANKDEPOSIT);
 	
-	// $myrow=db_fetch($or_result);
+	$myrow=db_fetch($or_result);
 
-	$amount = "";
+	$amount = $myrow["amount"];
 	$lessVAT = "";
 	$noVAT = "";
-	$date = "";
-	$name = "";
-	$TIN = "";
-	$address = "";
+	$date = $myrow["trans_date"];
+	$name = strtoupper($myrow["customer"]);
+	$TIN = $myrow["tax_id"];
+	$address = $myrow["address"];
 	$business_style = "";
-	$payment_for = "";
-	$cashier = "";
+	$payment_for = $myrow["remarks"];
+	$cashier = strtoupper($myrow["cashier"]);
 	//$amount_in_words = "One Hundred Only";
-	$taxable = "";
+	$taxable = "Y";
 
 
 	$whole = intval($amount); /* check for centavo amount */
@@ -214,15 +229,19 @@ function convert_number($number)
 
 	if ($decimal == 0 && convert_number($amount) != "Zero")
 	{
-		$amnt_in_words = strtoupper(convert_number($amount)) . " PESOS ONLY";
+		$amnt_in_words = strtoupper(convert_number($amount)) . "";
 	}
-	if ($decimal != 0 && convert_number($amount) != "Zero")
+	else if ($decimal != 0 && convert_number($amount) != "Zero")
 	{
-		$amnt_in_words = strtoupper(convert_number($amount)). " AND " . $decimal . "/100 PESOS ONLY";
+		$amnt_in_words = strtoupper(convert_number($amount)). " Pesos AND " . $decimal . "/100 Cents";
 	}
-	if ( convert_number($amount) == "Zero" )
+	else if ( convert_number($amount) == "Zero" && $decimal != 0)
 	{
-		$amnt_in_words = strtoupper(convert_number($amount));
+		$amnt_in_words = $decimal . "/100 Cents";
+	}
+	else
+	{
+		$amnt_in_words = "ZERO AMOUNT";
 	}
 		
 ?>

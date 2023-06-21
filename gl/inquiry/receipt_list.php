@@ -85,6 +85,42 @@ function gl_view($row) {
     return $gl_link;
 }
 
+function prt_link($row) {
+	$link = '';
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
+
+	if ($void_entry['void_status'] == "Voided") {
+		$link = '';
+	}
+	else {
+		if ($row['type'] == ST_CUSTPAYMENT) {
+			//$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Receipt"), true, ST_CUSTPAYMENT, ICON_PRINT);
+            $link = '';
+		}
+  		elseif ($row['type'] == ST_BANKDEPOSIT) {
+			$link = pager_link(
+				_("Print Official Receipt"),
+				"/reports/prnt_official_receipt.php?reference=" . $row["ref"],
+				ICON_PRINT
+			);
+		}
+        elseif ($row['type'] == ST_BANKPAYMENT) {
+			$link = '';
+		}
+		else if($row['type'] == ST_CUSTDELIVERY) {
+			$link = '';
+		}
+ 		else {
+			/*if ($row['type'] != ST_CUSTDELIVERY) {
+ 				$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Invoice"), true, $row['type'], ICON_PRINT);
+	 		}*/
+            $link = '';
+		}
+	}
+  	
+ 	return $link;
+}
+
 function cancel_row($row) {
     $cancel_link = '';
 
@@ -255,6 +291,7 @@ $cols = array(
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'prt_link', 'align' => 'center'),
     array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center')
 );
