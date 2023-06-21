@@ -88,19 +88,9 @@ function gl_update($row) {
 }
 
 #Added by Prog6 (03/31/2022)
-function print_voucher($row) {
-
-    if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_JE')) {
-        $print_link = pager_link(_("Print: Journal Voucher"),
-            "/reports/journal_voucher.php?trans_num=" . $row["trans_no"] . "&trans_type=0",
-            ICON_PRINT
-        );
-    }
-    else {
-        $print_link = '';
-    }
-
-	return $print_link;
+function print_voucher($row)
+{
+	return printable_receipts_and_vouchers(Journal_voucher, $row["trans_no"], _("Print Journal Voucher"), ICON_PRINT);
 }
 
 function cancel_row($row) {

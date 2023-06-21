@@ -241,7 +241,7 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 	elseif ($type == Disbursement_voucher)
 		$viewer .= "disbursement_voucher.php?trans_num=$trans_no";
 	elseif ($type == Journal_voucher)
-		$viewer .= "journal_voucher.php";
+		$viewer .= "journal_voucher.php?trans_type=0&trans_num=$trans_no";
 	else
 		return null;
 	//$viewer .= "?trans_no=$trans_no";
