@@ -120,14 +120,9 @@ function prt_link($row) {
   		elseif ($row['type'] == ST_BANKPAYMENT) {
 			$link = '';
 		}
-		else if($row['type'] == ST_CUSTDELIVERY) {
-			/*$link = pager_link(
-				_("Print Delivery Receipt"),
-				"/reports/prnt_delivery_receipt.php?trans_no=" . $row["trans_no"],
-				ICON_PRINT
-			);*/
+		else if($row['type'] == ST_CUSTDELIVERY) {			
 			$link = printable_receipts_and_vouchers(Delivery_receipt, $row["trans_no"], _("Print Delivery receipt"), ICON_PRINT);
-		}
+		}		
  		else {
 			if ($row['type'] != ST_CUSTDELIVERY) {
  				$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Invoice"), true, $row['type'], ICON_PRINT);
