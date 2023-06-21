@@ -219,6 +219,39 @@ function get_inventory_trans_view_rr($type, $trans_no, $label="",
 	return viewer_link($label, $viewer, $class, $id,  $icon);
 }
 
+function printable_receipts_and_vouchers($type, $trans_no, $label="", 
+	$icon=true, $class='', $id='')
+{
+	$viewer = "reports/";
+
+	if ($type == Official_receipt)
+		$viewer .= "prnt_official_receipt.php?reference=$trans_no";
+	elseif ($type == Collection_receipt)
+		$viewer .= "prnt_collection_receipt.php";
+	elseif ($type == Delivery_receipt)
+		$viewer .= "prnt_delivery_receipt.php";
+	elseif ($type == Cash_SI)
+		$viewer .= "prnt_cash_SalesInvoice.php";
+	elseif ($type == Cash_SI_serialized)
+		$viewer .= "prnt_cash_SI_serialized.php";
+	elseif ($type == Charge_SI)
+		$viewer .= "prnt_charge_SalesInvoice.php";
+	elseif ($type == Charge_SI_serialized)
+		$viewer .= "prnt_charge_SI_serialized.php";
+	elseif ($type == Disbursement_voucher)
+		$viewer .= "disbursement_voucher.php";
+	elseif ($type == Journal_voucher)
+		$viewer .= "journal_voucher.php";
+	else
+		return null;
+	//$viewer .= "?trans_no=$trans_no";
+
+	if ($label == "")
+		$label = $trans_no;
+
+	return viewer_link($label, $viewer, $class, $id,  $icon);
+}
+
 //--------------------------------------------------------------------------------------
 
 function get_manufacturing_trans_view_str($type, $trans_no, $label="", 
