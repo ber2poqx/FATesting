@@ -229,11 +229,13 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 	elseif ($type == Delivery_receipt)
 		$viewer .= "prnt_delivery_receipt.php?trans_no=$trans_no";
 	elseif ($type == Cash_SI)
-		$viewer .= "prnt_cash_SalesInvoice.php";
+		$viewer .= "prnt_cash_SalesInvoice.php?SI_num=$trans_no";
+	elseif ($type == Cash_SI_serialized)
+		$viewer .= "prnt_cash_SI_serialized.php?SI_num=$trans_no";
 	elseif ($type == Charge_SI)
 		$viewer .= "prnt_charge_SalesInvoice.php";
 	elseif ($type == Charge_SI_serialized)
-		$viewer .= "prnt_charge_SI_serialized.php";
+		$viewer .= "prnt_charge_SI_serialized.php?SI_num=$trans_no";
 	elseif ($type == Disbursement_voucher)
 		$viewer .= "disbursement_voucher.php?trans_num=$trans_no";
 	elseif ($type == Journal_voucher)
