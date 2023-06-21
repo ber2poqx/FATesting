@@ -85,17 +85,10 @@ function gl_view($row) {
 }
 
 //Added by Prog6(03/31/2022)
-function print_voucher($row) {
-
-    if ($_SESSION["wa_current_user"]->can_access_page('SA_PRINT_DE')) {
-        $print_link = pager_link(_("Print: Disbursement Voucher"),
-            "/reports/disbursement_voucher.php?trans_num=" . $row["trans_no"], ICON_PRINT
-        );
-    }
-    else {
-        $print_link = '';
-    }
-	return $print_link;
+//Modified 06/21/2023
+function print_voucher($row)
+{
+	return printable_receipts_and_vouchers(Disbursement_voucher, $row["trans_no"], _("Print Disbursement Voucher"), ICON_PRINT);
 }
 
 

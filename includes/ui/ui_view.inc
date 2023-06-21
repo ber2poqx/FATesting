@@ -239,7 +239,7 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 	elseif ($type == Charge_SI_serialized)
 		$viewer .= "prnt_charge_SI_serialized.php";
 	elseif ($type == Disbursement_voucher)
-		$viewer .= "disbursement_voucher.php";
+		$viewer .= "disbursement_voucher.php?trans_num=$trans_no";
 	elseif ($type == Journal_voucher)
 		$viewer .= "journal_voucher.php";
 	else
