@@ -204,7 +204,7 @@ function get_gl_deferred($type, $trans_no, $account)
 				CASE WHEN A.amount < 0 THEN A.amount
 					ELSE 0
 				END AS credit,
-				CASE WHEN A.type = 70 THEN (SELECT Z.reference_no FROM ".TB_PREF."repo_accounts Z WHERE Z.id = A.type_no)
+				CASE WHEN A.type = 70 OR A.type = 80 THEN (SELECT Z.reference_no FROM ".TB_PREF."repo_accounts Z WHERE Z.id = A.type_no)
 					ELSE (SELECT Z.reference FROM ".TB_PREF."debtor_trans Z WHERE Z.trans_no = A.type_no AND Z.type = A.type)
 				END AS ref_no,
 				Y.debtor_no,
@@ -218,7 +218,7 @@ function get_gl_deferred($type, $trans_no, $account)
 			WHERE A.account = ".db_escape($account)."
 				AND A.loan_trans_no = ".db_escape($trans_no)."
 			ORDER BY A.tran_date ASC, A.counter ASC";
-			
+		
 	return db_query($sql, "could not get a/r ledger entries because ");
 }
 
