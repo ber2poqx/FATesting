@@ -416,6 +416,9 @@ Ext.onReady(function(){
 			submit_form.getForm().reset();
 
 			Ext.getCmp('moduletype').setValue('TEMP-REPO');
+			
+			SIitemStore.proxy.extraParams = {transNo: 0};
+			SIitemStore.load();
 
 			submit_window.show();
 			submit_window.setTitle('Repo Inquiry Maintenance - Add');

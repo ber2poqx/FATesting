@@ -177,7 +177,7 @@ function get_invoice_to_repo($debtor_no, $view=false)
             	INNER JOIN ".TB_PREF."debtor_trans_details B ON B.debtor_trans_no = A.trans_no AND B.debtor_trans_type = A.type
                 INNER JOIN ".TB_PREF."debtor_loans C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
                 INNER JOIN ".TB_PREF."stock_category D ON D.category_id = C.category_id
-			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM.")
+			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.")
 				AND (A.status != 'fully-paid' AND A.status != 'closed')
 				". $sWhere ."
 				AND A.debtor_no = ".db_escape($debtor_no)."
@@ -226,7 +226,7 @@ function get_item_detials_to_repo($trans_no, $trans_type)
 function get_ar_account_temprepo($start, $limit, $search)
 {
 	if($search != ''){
-		$sWhere .= " AND (D.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%') ";
+		$sWhere .= " AND (B.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%') ";
 	}
 
 	$sql = "SELECT DATEDIFF(CURRENT_DATE(), A.repo_date) AS COUNTDOWN , A.trans_no, A.reference, A.module_type, A.repo_date, A.type,
@@ -237,7 +237,7 @@ function get_ar_account_temprepo($start, $limit, $search)
 				LEFT JOIN ".TB_PREF."stock_category D ON D.category_id = C.category_id
 				LEFT JOIN ".TB_PREF."debtor_trans_details E ON E.debtor_trans_no = A.trans_no  AND E.debtor_trans_type = A.type
 			WHERE A.module_type = 'TEMP-REPO'
-				AND (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type = ".ST_SITERMMOD." OR A.type = ".ST_SALESRETURN.") "
+				AND (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type = ".ST_SITERMMOD." OR A.type = ".ST_SALESRETURN." OR A.type =".ST_SALESINVOICEREPO.") "
 			.$sWhere."
 			ORDER BY A.repo_date DESC";
 	
