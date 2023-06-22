@@ -24,6 +24,7 @@ Ext.onReady(function(){
 	var showlend = false;
 	var sumdebit = 0;
 	var sumcredit = 0;
+	var isDGP = 0;
 
 	////define model for policy installment
     Ext.define('ARInstlqmodel',{
@@ -386,7 +387,16 @@ Ext.onReady(function(){
 		new Ext.grid.RowNumberer(),
 		{header:'<b>Date</b>', dataIndex:'tran_date', sortable:true, width:90},
 		{header:'<b>Reference No.</b>', dataIndex:'reference', sortable:true, width:118},
-		{header:'<b>GL Account</b>', dataIndex:'account_name', sortable:false, width:300},
+		{header:'<b>GL Account</b>', dataIndex:'account_name', sortable:false, width:300,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				if(record.get('account') == '204001'){
+					isDGP = 1;
+				}else{
+					isDGP = 0;
+				}
+				return value;
+			}
+		},
 		{header:'<b>Debit</b>', dataIndex:'debit', sortable:false, width:110,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				sumdebit = sumdebit + value;
@@ -417,7 +427,11 @@ Ext.onReady(function(){
             summaryType: 'min',
             summaryRenderer: function(value, summaryData, record, dataIndex) {
 				//added sumdebit & sumcredit kay dili sakto ang display kung naay gi void nga ledger
-				value = sumdebit - sumcredit;
+				if(isDGP == 1){
+					value = sumcredit - sumdebit;
+				}else{
+					value = sumdebit - sumcredit;
+				}
 				sumdebit = sumcredit = 0;
 				return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 				//return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(Ext.getCmp('balance_amount').getValue(), '0,000.00') + '</span>';
