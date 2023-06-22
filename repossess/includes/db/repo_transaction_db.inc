@@ -269,7 +269,7 @@ function get_invoice_per_customer_repo($debtor_no, $rtype)
             	INNER JOIN ".TB_PREF."debtor_trans_details B ON B.debtor_trans_no = A.trans_no AND B.debtor_trans_type = A.type
                 INNER JOIN ".TB_PREF."debtor_loans C ON C.trans_no = A.trans_no AND C.debtor_no = A.debtor_no
                 INNER JOIN ".TB_PREF."stock_category D ON D.category_id = C.category_id
-			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM.")
+			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.")
 				AND (A.status != 'fully-paid' AND A.status != 'close')
 				AND A.payment_terms != 0
 				AND A.debtor_no = ".db_escape($debtor_no)
