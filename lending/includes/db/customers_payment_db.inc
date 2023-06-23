@@ -353,10 +353,10 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 			FROM ".TB_PREF."debtor_trans A 
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
 				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.trans_no AND C.type = A.type AND C.isotherentry = 0
-				LEFT JOIN ".TB_PREF."comments D ON D.type = A.type AND D.id = A.trans_no
-				LEFT JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
-				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
-				LEFT JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
+				INNER JOIN ".TB_PREF."comments D ON D.type = A.type AND D.id = A.trans_no
+				INNER JOIN ".TB_PREF."bank_accounts E ON E.id = C.bank_act
+				INNER JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
+				INNER JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
 				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
 			WHERE A.type = ".db_escape($type).$sWhere."
 			ORDER BY A.tran_date DESC, A.reference DESC";
