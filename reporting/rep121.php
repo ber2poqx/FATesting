@@ -75,8 +75,9 @@ function getTransactions($from, $to, $cat_id)
 			AND dt1.tran_date <= '$to'
 			AND	dt1.tran_date >='$from'";
 
-	if ($cat_id != ALL_TEXT)
-	 	$sql .= " AND so8.category_id =".db_escape($cat_id);
+	if ($cat_id != ALL_TEXT){
+		$sql .= " AND sc10.category_id =".db_escape($cat_id);
+	}
 
 		$sql .= " ORDER BY sc10.description, dt1.reference";
 
@@ -118,7 +119,7 @@ function print_sales_summary_report()
 		2 => array('text' => _('Category'), 'from' => $cat, 'to' => ''));
 
 	//              1    2    3    4   model chassis serial color  LCP  term  type     ===> allign LEFT
-	$cols = array(0,  50,  95,  150,   215,  285,    335,   390,   470, 510,  540,   0);
+	$cols = array(0,  5,  55,  125,   215,  285,    335,   390,   470, 510,  540,   0);
 
 	$headers = array(
 		_(''),
@@ -134,7 +135,7 @@ function print_sales_summary_report()
 		_('Sales Type')
 		);
     //                               model                           serial #
-	$aligns = array('right', 'center', 'left', 'left', 'left', 'left', 'left', 'left', 'right', 
+	$aligns = array('left', 'center', 'left', 'left', 'left', 'left', 'left', 'left', 'right', 
 	'center', 'center');
 
 	$rep = new FrontReport(_('Sales Summary (Insurance) Report'), "SSIReport", "letter", 9, $orientation);
@@ -181,7 +182,7 @@ function print_sales_summary_report()
 			}
 			$rep->fontSize += 0.7;
 			$rep->Font('bold');
-			$rep->TextCol(0, 1, $myRow121['Category']);
+			$rep->TextCol(0, 2, $myRow121['Category']);
 			$rep->fontSize -= 0.7;
 			$rep->Font();
 			$rep->Line($rep->row - 1);
