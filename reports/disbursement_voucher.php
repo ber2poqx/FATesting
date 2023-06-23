@@ -26,7 +26,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <title>DV Form</title>
 <style type="text/css">
 	.main{
-		width: 8.3in;
+		width: 8.5in;
 		height: 11in;
 		background: #fff;
 		margin: 0 auto;
@@ -68,7 +68,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	.text-params{
 		text-align: left;
 		font-size: 11px;
-		font-weight: bold;
+		/*font-weight: bold;*/
 	}
 	.text-center{
 		text-align: center;
@@ -172,12 +172,12 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 
 	.text-left {
 		font-size: 65%;
-		font-weight: bold;
+		/*font-weight: bold;*/
 	}
 	
 	.table1-headers {
 		font-size: 11px;
-		font-weight: bold;
+		/*font-weight: bold;*/
 	}
 
 	.text-design {
@@ -191,7 +191,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 
 	.text-sample {
 		font-size: 90%;
-		font-weight: bold;
+		/*font-weight: bold;*/
 	}
 
 	.companyDes {
@@ -213,7 +213,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	.foot {
 		text-align: center;
 		margin-right: 70px;
-		font-family: monospace;
+		font-family: Century Gothic;
 	}
 	#header{
 	   font-size: 11px; width: 100%; float: left; border: 0px solid black;
@@ -243,7 +243,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		padding-top: 100px; 
 		padding-left: 50px; 
 		font-style: italic; 
-		//font-weight: bold; 
+		/*font-weight: bold; */
 	}
 	.footnote2{
 		width: 90%; 
