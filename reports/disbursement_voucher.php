@@ -39,6 +39,21 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		margin: 0px;
 		font-size: 14;
 	}
+
+	@page  {
+		margin: 10px;
+		padding: 0px 25px;
+	}
+	@media  print {
+	  html, body {
+
+		width: 8.5in;
+		height: 11in;
+		padding-left: 10px;
+		/*padding-right: 15px;*/
+		  }
+	  /* ... the rest of the rules ... */
+	}
 	
 	*{
 		font-family: century gothic;
@@ -90,22 +105,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		text-align: center;
 		font-family: century gothic;
 	}
-
-
-	@page  {
-		margin: 0;
-		padding: 0px 25px;
-	}
-	@media  print {
-	  html, body {
-
-		width: 8.5in;
-		height: 11.5in;
-		padding-left: 5px;
-		padding-right: 5px;
-		  }
-	  /* ... the rest of the rules ... */
-	}
+	
 	.underline_input{
 	    border: 0px;
 	    text-decoration: underline;
@@ -504,11 +504,11 @@ function convert_number($number)
 
 						
 		<div class="row">
-			<div class="left" style="width: 100%; padding: 0px; float: left;">			
+			<div class="left" style="width: 95%; padding: 0px; float: left;">			
 				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>						
                         <tr class="table1-headers">
-							<th align=left style="border-bottom:0.5px solid;">Acct. Code</th>
+							<th align=left style="border-bottom:0.5px solid;">Code</th>
 							<th align=left style="border-bottom:0.5px solid;">Account Name</th>
 							<th align=left style="border-bottom:0.5px solid;">MCode</th>
 							<th align=left style="border-bottom:0.5px solid;">Masterfile</th>			
