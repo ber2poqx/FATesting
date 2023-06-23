@@ -129,7 +129,7 @@ function get_detailed_unit($itemcode)
 	$address = $myrow["Address"];
 	$date = date('m/d/Y', strtotime($myrow["Date"]));
 	$terms = $myrow["Terms"];
-	
+		
 	$itemcode = $myrow["stock_id"];
 	
 	$ic_result = get_detailed_unit($itemcode);
@@ -158,6 +158,16 @@ function get_detailed_unit($itemcode)
 	$TOTAL_amount_due = $amount_due + $add_VAT;
 	$cashier = $_SESSION["wa_current_user"]->name;
 	$sales_agent = $myrow["salesman"];
+
+	if($terms == 0)
+	{
+		$DiscountLabel = "Discount: ";
+		$DiscountAmount = price_format($discount,2);
+	}
+	else{
+		$DiscountLabel = " ";
+		$DiscountAmount = " ";
+	}
 ?>
 
 
@@ -215,8 +225,8 @@ function get_detailed_unit($itemcode)
 					
 					echo '<tr >'; // 2nd ROW
 					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Model : '.($model).'</td>'; // MODEL
-					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.10cm;">Discount: </td>'; // DISCOUNT LABEL
-					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.10cm;">'.price_format($discount,2).'</td>'; // DISCOUNT AMOUNT
+					echo '<td align=left style="width: 2.9cm; text-align: right; padding-bottom: 0.10cm;">'.$DiscountLabel.'</td>'; // DISCOUNT LABEL
+					echo '<td align=left style="width: 2.5cm; text-align: right; padding-bottom: 0.10cm;">'.$DiscountAmount.'</td>'; // DISCOUNT AMOUNT
 					echo '</tr>';
 
 					echo '<tr >'; // 3rd ROW
