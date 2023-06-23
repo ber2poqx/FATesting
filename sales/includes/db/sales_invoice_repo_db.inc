@@ -134,7 +134,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		$invoice_no,
 		$invoice->customer_id,
 		$invoice->reference,
-		$invoice->dr_ref_no == '' ? $invoice->dr_ref : $invoice->dr_ref_no,
+		$invoice->dr_ref,
 		$invoice->reference,
 		$date_,
 		$company_data["branch_code"],
@@ -162,7 +162,8 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		$invoice->document_ref,//Added by spyrax10
 		0,
 		$invoice->discount_dp_amount2,
-		$invoice->ar_amount //Added by Albert 06/30/2022
+		$invoice->ar_amount, //Added by Albert 06/30/2022
+		$invoice->dr_ref_no
 	);
 
 	if ($invoice->payment_policy != 0 && ST_SALESINVOICEREPO && 

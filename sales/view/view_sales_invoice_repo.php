@@ -40,7 +40,7 @@ $branch = get_branch($myrow["branch_code"]);
 
 //Added by spyrax10
 $debt_loans = get_debtor_loans($trans_id, 'repo');
-$dr_ref = get_delivery_data($debt_loans['delivery_ref_no']);
+$dr_ref = $debt_loans['dr_ref_no'] != ''? $debt_loans['dr_ref_no'] : $debt_loans['delivery_ref_no'];
 $total_unit_cost = $header["opening_balances"] == 0 ? get_cost_of_sales_for_si($header['delivery_ref_no']) : 
 	get_ob_standard_cost($trans_id);
 $payment_location_id = get_company_pref('payment_location');
