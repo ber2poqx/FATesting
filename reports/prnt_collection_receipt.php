@@ -40,8 +40,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		background: #eee;
 		margin: 0px;
 		font-size: 12px;
-		font-family: monospace;
-		font-weight: bold;
+		font-family: Century Gothic;
+		/*font-weight: bold;*/
 		color: blue;
 	}	
 
@@ -72,7 +72,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		font-size: 12px;
 		display: inline-block;
 		vertical-align: top; 
-		font-family: monospace;
+		font-family: Century Gothic;
 	}
 
 	td{
