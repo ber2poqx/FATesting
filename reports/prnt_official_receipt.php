@@ -47,9 +47,9 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		background: #eee;
 		margin: 0px;
 		font-size: 10.5px;
-		font-family: century gothic;
+		font-family: Calibri;
 		/*font-weight: bold;*/
-		color: blue;
+		color: black;
 	}	
 
 	@page  {
@@ -79,7 +79,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		font-size: 10.5px;
 		display: inline-block;
 		vertical-align: top; 
-		font-family: century gothic;
+		font-family: Calibri;
 
 	}
 
@@ -229,15 +229,15 @@ function convert_number($number)
 
 	if ($decimal == 0 && convert_number($amount) != "Zero")
 	{
-		$amnt_in_words = strtoupper(convert_number($amount)) . " Pesos Only";
+		$amnt_in_words = convert_number($amount) . " Pesos Only";
 	}
 	else if ($decimal != 0 && convert_number($amount) != "Zero")
 	{
-		$amnt_in_words = strtoupper(convert_number($amount)). " Pesos and " . strtoupper(convert_number($decimal)) . " Centavos Only";
+		$amnt_in_words = convert_number($amount). " Pesos and " . convert_number($decimal) . " Centavos Only";
 	}
 	else if ( convert_number($amount) == "Zero" && $decimal != 0)
 	{
-		$amnt_in_words = strtoupper(convert_number($decimal)). " Centavos Only";
+		$amnt_in_words = convert_number($decimal). " Centavos Only";
 	}
 	else
 	{

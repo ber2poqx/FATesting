@@ -38,9 +38,9 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		background: #eee;
 		margin: 0px;
 		font-size: 12px;
-		font-family: monospace;
+		font-family: Calibri;
 		/*font-weight: bold;*/
-		color: blue;
+		color: black;
 	}	
 
 	@page  {
@@ -70,7 +70,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		font-size: 12px;
 		display: inline-block;
 		vertical-align: top; 
-		font-family: monospace;
+		font-family: Calibri;
 	}
 
 	td{
