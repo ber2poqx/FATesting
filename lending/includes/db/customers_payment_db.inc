@@ -336,7 +336,16 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	}else{
 		$sWhere .= " AND A.opening_balances != 1 ";
 	}
-	
+	if($module_type == 'CR'){
+		$sWhere .= " AND (A.module_type = 'CR-AMORT' OR A.module_type = 'CR-INTERB' OR A.module_type = 'CR-ADJ' OR A.module_type = 'CR-DPWOSI') ";
+	}elseif($module_type == 'CI'){
+		$sWhere .= " AND A.module_type = 'CI-CASH' ";
+	}elseif($module_type == 'ALCN'){
+		$sWhere .= " AND (A.module_type = 'ALCN-DP' OR A.module_type = 'ALCN-INTERB' OR A.module_type = 'ALCN-ADJ') ";
+	}elseif($module_type == 'BEG'){
+		$sWhere .= " AND A.module_type = 'BEG-DP' ";
+	}
+
 	if($cashier != ''){
 		$sWhere .= " AND C.cashier_user_id = ".db_escape($cashier);
 	}
@@ -349,9 +358,7 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 				LEFT JOIN ".TB_PREF."collection_types F ON F.collect_id = A.collect_id
 				LEFT JOIN ".TB_PREF."users G ON G.id = C.cashier_user_id
 				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
-			WHERE A.type = ".db_escape($type). "
-				AND A.module_type LIKE '".$module_type."%'"
-				.$sWhere."
+			WHERE A.type = ".db_escape($type).$sWhere."
 			ORDER BY A.tran_date DESC, A.reference DESC";
 	
 	$sqllimit = $sql ." limit $start, $limit";
