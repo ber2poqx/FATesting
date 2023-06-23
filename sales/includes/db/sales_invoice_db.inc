@@ -143,7 +143,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice_no,
 		$invoice->customer_id,
 		$invoice->reference,
-		$invoice->dr_ref_no == '' ? $invoice->dr_ref : $invoice->dr_ref_no,
+		$invoice->dr_ref,
 		$invoice->reference,
 		$date_,
 		$company_data["branch_code"],
@@ -171,7 +171,8 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->document_ref, //Added by spyrax10
 		$opening_balances == 1 ? $invoice->old_trans_no : 0,
 		$invoice->discount_dp_amount2, //Added by Albert
-		$invoice->ar_amount //Added by Albert 06/30/2022
+		$invoice->ar_amount, //Added by Albert 06/30/2022
+		$invoice->dr_ref_no
 
 	);
 

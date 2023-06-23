@@ -67,7 +67,7 @@ function write_customer_trans(
 	$rate = 0, $dimension_id = 0, $dimension2_id = 0,
 	$payment_terms = null, $tax_included = 0, $prep_amount = 0,
 	$opening_balances = 0, $payment_type = null,
-	$collection_type = 0, $module_type = null, $fullpayment = false, $dr_ref_no ='') {
+	$collection_type = 0, $module_type = null, $fullpayment = false) {
 
 	$new = $trans_no == 0;
 	$curr = get_customer_currency($debtor_no);
@@ -126,7 +126,7 @@ function write_customer_trans(
 			reference, tpe, order_, ov_amount, ov_discount, ov_gst, ov_freight, ov_freight_tax,
 			rate, ship_via, alloc,
 			dimension_id, dimension2_id, payment_terms, tax_included, prep_amount, opening_balances, 
-			status, payment_type, collect_id, module_type, dr_ref_no
+			status, payment_type, collect_id, module_type
 		) 
 		VALUES (
 			" . db_escape($trans_no) . ", 
@@ -155,8 +155,7 @@ function write_customer_trans(
 			" . db_escape($status) . ", 
 			" . db_escape($payment_type) . ", 
 			" . db_escape($collection_type) . ", 
-			" . db_escape($module_type) . ",
-			" . db_escape($dr_ref_no) . "
+			" . db_escape($module_type) . "
 		)";
 	} else {	// may be optional argument should stay unchanged ?
 
@@ -589,7 +588,8 @@ function add_debtor_loans(
 	$document_ref = "",//Added by spyrax10
 	$old_trans_no = 0,
 	$discount_dp_amount2, //Added by Albert
-	$financing_gross = 0	//Added by Albert
+	$financing_gross = 0,	//Added by Albert
+	$dr_ref_no = ""
 ) {
 	// $outstanding_ar_amount = $ar_amount - $downpayment_amount; //comment by albert
 	if ($installmentplcy_id == 0) {
@@ -634,7 +634,9 @@ function add_debtor_loans(
 		ref_no,
 		old_trans_no,
 		discount_downpayment2,
-		financing_gross
+		financing_gross,
+		recovered_cost,
+		dr_ref_no
 		) VALUES (
 		" . db_escape($trans_no) . ",
 		" . db_escape($debtor_no) . ",
@@ -667,7 +669,10 @@ function add_debtor_loans(
 		" . db_escape($document_ref) . ",
 		".db_escape($old_trans_no).",
 		$discount_dp_amount2,
-		$financing_gross)"; //modified by Albert 06/30/2022
+		$financing_gross,
+		0,
+		" . db_escape($dr_ref_no) . "
+		)"; //modified by Albert 06/30/2022
 
 	db_query($sql, "The debtor loans record could not be inserted");
 }
