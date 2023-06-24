@@ -172,14 +172,14 @@ Ext.onReady(function(){
 	//------------------------------------: stores :----------------------------------------
 	var PaymentTypeStore = Ext.create('Ext.data.Store',{
 		fields: ['id','name'],
-		autoLoad: true,
+		//autoLoad: true,
 		data : 	[
 			{"id":"other","name":"Other Payment"}
         ]
 	});
 	var CollectionTypeStore = Ext.create('Ext.data.Store', {
 		fields: ['id','name'],
-		autoLoad : true,
+		//autoLoad : true,
 		proxy: {
 			url: '?get_CollectionType=00',
 			type: 'ajax',
@@ -194,7 +194,7 @@ Ext.onReady(function(){
 	var Branchstore = Ext.create('Ext.data.Store', {
 		name: 'Branchstore',
 		fields:['id','name','area'],
-		autoLoad : true,
+		//autoLoad : true,
         proxy: {
 			url: '?getbranch=00',
 			type: 'ajax',
