@@ -530,13 +530,22 @@ function serial_summary_input()
     //Modified by spyrax10 28 Mar 2022
     $k = $line = 0; //row colour counter
 
+    $company = get_company_prefs();
+    $branch_code = $company["branch_code"];
     if (count($_SESSION['PO']->line_items) > 0) {
         foreach ($_SESSION['PO']->line_items as $ln_itm) {
             if ($ln_itm->serialised) {
                 $ctr = 0;
                 while ($ctr < $ln_itm->receive_qty) {
                     alt_table_row_color($k);
-                    text_cells(null, "serial_no$line", null, "", "", false, "", "", 'placeholder="Serial No."');
+                    
+                    if ($_SESSION['PO']->category_id == 19) {
+                        label_cell($branch_code.date('YmdHis').gettimeofday()['usec'].$line);
+                        hidden("serial_no$line", $branch_code.date('YmdHis').gettimeofday()['usec'].$line);
+                    }
+                    else{
+                        text_cells(null, "serial_no$line", null, "", "", false, "", "", 'placeholder="Serial No."');
+                    }
 
                     if ($_SESSION['PO']->category_id == 14) {
                         text_cells(null, "chassis_no$line", null, "", "", false, "", "", 'placeholder="Chassis No."');
