@@ -652,3 +652,15 @@ function get_stock_items($category, $stock_id= '', $item_code='')
  //echo $sql;
 	return db_query($sql, "could not get stock items because ");
 }
+
+function get_deferred_balance($trans_no, $account)
+{
+	$sql = "SELECT abs(SUM(amount))
+			FROM ".TB_PREF."gl_trans A 
+			WHERE A.loan_trans_no = ".db_escape($trans_no) ."
+				AND A.account = ".db_escape($account);
+
+	$result = db_query($sql, "could not get account deferred balance ");
+	$row = db_fetch($result);
+	return $row[0];
+}
