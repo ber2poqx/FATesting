@@ -305,7 +305,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <body>
 	<div class="main printable">
 		<div>
-			<table style="border: 0px; font-family: monospace; font-size: 9px; width: 100%;">
+			<table style="border: 0px; font-family: monospace; font-size: 9px; width: 97%;">
 			<td align=right>Print date: <?php echo Date("m/d/Y")?> | <?php echo Date("h:iA")?></td>
 			</table>
 		</div>
@@ -364,7 +364,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		<div style="height: 18px"></div>				
 		<div class="row">
 			<div class="left" style="width: 100%; padding: 0px; float: left;">			
-				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
+				<table style="width: 97%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>						
                         <tr class="table1-headers">
 							<th style="border:0.5px solid;">Qty</th>
@@ -441,7 +441,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				</table>				
 			</div>		
 			
-			<div class="left" style="width: 100%; padding: 0px; float: left;font-size: 100%; margin-top: 10px;">			
+			<div class="left" style="width: 97%; padding: 0px; float: left;font-size: 100%; margin-top: 10px;">			
 				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>
 						<tr class="table1-headers">	
