@@ -488,7 +488,7 @@ function display_order_header(&$order, $editable, $date_text)
 		$reference = $Refs->get_next($order->trans_type, null, array('date' => @$_POST['OrderDate']));
 		label_row(_("Reference #: "), $reference);
 		hidden('ref', $reference);
-		if ($order->category_id == 14) {
+		if ($order->category_id == 14 || $order->category_id == 15 || $order->category_id == 19) {
 
 			$dr_reference = $Refs->get_next(ST_CUSTDELIVERY, null, array('date' => @$_POST['OrderDate']));
 			hidden('dr_ref', $dr_reference);
