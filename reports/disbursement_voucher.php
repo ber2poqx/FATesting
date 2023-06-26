@@ -455,7 +455,7 @@ function convert_number($number)
 <body>
 	<div class="main printable">
 		<div>
-			<table style="border: 0px; font-family: monospace; font-size: 9px; width: 100%;">
+			<table style="border: 0px; font-family: Calibri; font-size: 9px; width: 97%;">
 			<td align=right>Print date: <?php echo Date("m/d/Y")?> | <?php echo Date("h:iA")?></td>
 			</table>
 		</div>
@@ -489,7 +489,7 @@ function convert_number($number)
 				<td align=left class="text-params"></td>
 				<th style="width: 50%;" align=left><input type="text" value="<?php echo $null1 ?>" class="underline_input_long" readonly></th>
 				<td class="text-params">Date:</td>
-				<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
+				<th align=left><input type="text" value="<?php echo sql2date($date) ?>" class="underline_input" readonly></th>
 			</tr>
 			<tr>
 				<td style="width: 83px;" align=left class="text-params">Amount:</td>
