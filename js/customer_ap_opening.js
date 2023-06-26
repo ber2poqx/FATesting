@@ -765,6 +765,7 @@ Ext.onReady(function() {
 					width: 560,
 					labelWidth: 106,
 					//margin: '0 5 0 0',
+					anyMatch: true,
 					forceSelection: true,
 					selectOnFocus:true,
 					fieldStyle: 'font-weight: bold; color: #210a04;',

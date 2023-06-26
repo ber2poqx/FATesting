@@ -811,6 +811,7 @@ Ext.onReady(function(){
 						queryMode: 'local',
 						margin: '2 0 0 0',
 						width: 507,
+						anyMatch: true,
 						forceSelection: true,
 						selectOnFocus:true,
 						fieldStyle: 'font-weight: bold; color: #210a04;',

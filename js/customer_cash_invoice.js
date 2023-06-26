@@ -924,6 +924,7 @@ Ext.onReady(function() {
 					valueField: 'debtor_no',
 					queryMode: 'local',
 					width: 310,
+					anyMatch: true,
 					forceSelection: true,
 					selectOnFocus:true,
 					fieldStyle: 'font-weight: bold; color: #210a04;',
