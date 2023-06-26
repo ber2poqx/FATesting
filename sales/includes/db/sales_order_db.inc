@@ -1157,24 +1157,23 @@ function get_so_repo_status($lot_no)
 {
 	set_global_connection();
 	$sql = "SELECT
-				sorder.status
-			FROM " . TB_PREF . "sales_orders as sorder,"
-			. TB_PREF . "sales_order_details as line 
-				WHERE sorder.order_no = line.order_no
-				AND sorder.trans_type = line.trans_type
-				AND sorder.so_item_type = 'repo'";
-			$sql .= " AND line.lot_no =" . db_escape($lot_no);
-			/*modified by Albert*/
-			$sql .= " GROUP BY line.lot_no, sorder.order_no";
-			$sql .= " ORDER BY sorder.order_no DESC LIMIT 1";
-			//
-			$result = db_query($sql, "Can't Get Status!!!");
-			
-			if (db_num_rows($result) == 1) {
-				$row = db_fetch_row($result);
-				
-				return $row[0];
-			}
+	sorder.status
+	FROM sales_orders sorder
+	INNER JOIN sales_order_details line  ON sorder.order_no = line.order_no AND sorder.trans_type = line.trans_type
+	LEFT JOIN debtor_trans dt ON sorder.order_no = dt.order_
+	WHERE sorder.so_item_type = 'repo'AND dt.status !='Cancelled'";
+	$sql .= " AND line.lot_no =" . db_escape($lot_no);
+	/*modified by Albert*/
+	$sql .= " GROUP BY line.lot_no, sorder.order_no";
+	$sql .= " ORDER BY sorder.order_no DESC LIMIT 1";
+	//
+	$result = db_query($sql, "Can't Get Status!!!");
+	
+	if (db_num_rows($result) == 1) {
+		$row = db_fetch_row($result);
+		
+		return $row[0];
+	}
 }
 function get_so_item_type($order_no, $type)
 {

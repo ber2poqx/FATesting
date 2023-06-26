@@ -1196,7 +1196,7 @@ function get_available_item_for_si(
 					b.category_id = " . db_escape($category_id) . "
 		  		) x1
 				WHERE
-					x1.type <> 80 AND  
+					a.item_type = 'new' AND  
 					x1.qty > x1.OutQty > 0 AND x1.lot_no not in (
                 SELECT a.lot_no 
                 FROM debtor_trans_details a
@@ -1315,7 +1315,7 @@ function get_available_item_for_si_repo(
 			INNER JOIN item_brand e 
 				ON e.id = b.brand 
 			WHERE 
-				a.type=80 AND
+				a.item_type = 'repo' AND
 				b.serialised = 1 AND 
 				b.category_id = " . db_escape($category_id). " AND 
 				(SELECT SUM(t1.qty) 
