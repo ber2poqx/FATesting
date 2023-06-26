@@ -478,14 +478,15 @@ function get_serial_no($lot_no)
 /* Added by Ronelle  */
 function get_available_items($stock_id, $location, $date, $serial_no = "", $chassis_no = "") {
 	
-	//Modified by spyrax10 16 Aug 2022
+	//Modified by Albert 26 june 2023
 	$sql = 
 	"SELECT x1.trans_id, x1.trans_no, x1.type, x1.stock_id,
 		x1.qty as InQty, x1.OutQty as OutQty,
 		(x1.qty - x1.OutQty) as qoh, x1.category_id, x1.standard_cost, x1.tran_date
 	FROM
 		(SELECT a.trans_id, a.trans_no, a.stock_id, 
-		    a.type, a.qty, a.category_id,
+		    a.type, (SELECT sum(b.qty) FROM stock_moves b 
+			where b.stock_id = a.stock_id and b.trans_no = a.trans_no  and b.type = a.type) as qty, a.category_id,
 		    (SELECT IFNULL(SUM(t1.qty * -1), 0)
 			FROM stock_moves t1
 		    WHERE t1.transno_out = a.trans_no AND t1.type_out = a.type
@@ -511,6 +512,7 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 	$sql .= ") x1 WHERE x1.qty > x1.OutQty";
 
 	$result = db_query($sql, "retrieve available items failed");
+	display_error($sql);
 	return $result;
 }
 /*Added by Albert */
