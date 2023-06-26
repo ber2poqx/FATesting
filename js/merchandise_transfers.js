@@ -554,6 +554,27 @@ Ext.onReady(function(){
 			}
 		}
 	});
+
+	var BranchListingStore = Ext.create('Ext.data.Store', {
+		fields: ['loc_code', 'location_name', 'branch_id'],
+		autoLoad: false,
+		//pageSize: itemsPerPage, // items per page
+		proxy : {
+			type: 'ajax',
+			url	: '?action=branch_location',
+			reader:{
+				type : 'json',
+				root : 'result',
+				totalProperty : 'total'
+			}
+		}
+	});
+
+	/*var columnBranches = [
+		{header:'id', dataIndex:'branch_id', sortable:true, width:60,hidden: true},
+		{header:'Branch Code', dataIndex:'loc_code', sortable:true, width:45, renderer: columnWrap,hidden: false},
+		{header:'Branch Name', dataIndex:'location_name', sortable:true, width:200, renderer: columnWrap,hidden: false}
+	]*/
 	
 	var columnItemSerial = [
 		{header:'id', dataIndex:'serialise_id', sortable:true, width:60,hidden: true},
@@ -633,7 +654,96 @@ Ext.onReady(function(){
 		{header:'Status', dataIndex:'status_msg', sortable:true, width:70,renderer: columnWrap, hidden: false, renderer: Status},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
+
+	/*Ext.define('windowItemListBranch', {
+		extend: 'Ext.window.Window',
+		title:'Branches Listing',
+		id:'windowItemListBranch',
+		modal: true,
+		width: 700,
+		height:470,
+		bodyPadding: 3,
+		layout:'fit',
+		items:[{
+			xtype:'panel',
+			autoScroll: true,
+			frame:false,
+			items:[{
+				xtype:'grid',
+				forceFit: true,
+				layout:'fit',
+				id:'branchlisting',
+				store: BranchListingStore,
+				columns: columnBranches,
+				selModel: {
+					selType: 'checkboxmodel',
+					id: 'checkidboxbranch',
+					checkOnly: true,
+					mode: 'Single'			
+				},				
+				dockedItems:[{
+					dock:'top',
+					xtype:'toolbar',
+					name:'searchSerialBar',
+					items:[{
+						width		: 300,
+						xtype		: 'textfield',
+						name 		: 'searchBranchList',
+						id			:'searchBranchList',
+						fieldLabel	: 'Branch',
+						labelWidth	: 120,
+						listeners 	: {													
+							change: function(field) {
+								var class_type = Ext.getCmp('searchBranchList').getValue();
+								BranchListingStore.proxy.extraParams = { 											 
+									query:field.getValue()
+								}
+								BranchListingStore.load();								
+							}								
+						}		
+					}]
+				}],
+				bbar : {
+					xtype : 'pagingtoolbar',
+					store : BranchListingStore,
+					pageSize : itemsPerPage,
+					displayInfo : true
+				}
+			}]
+		}],
+		
+		buttons:[{
+			text:'Add Branch',
+			disabled: false,
+			id:'btnAddBranch',			
+			handler: function(grid, rowIndex, colIndex) {
+				var grid = Ext.getCmp('branchlisting');
+				var selected = grid.getSelectionModel().getSelection();
+				for (i = 0; i < selected.length; i++) {
+					var record = selected[i];
+					Ext.getCmp('ToStockLocation').setValue(record.get('loc_code'));
 	
+					Ext.toast({
+						icon   	: '../js/ext4/examples/shared/icons/accept.png',
+						html: '<b>' + 'Branch Name:' + record.get('location_name') + '<b/>',
+						title: 'Selected Branch',
+						width: 250,
+						bodyPadding: 10,
+						align: 'tr'
+					});	
+					BranchListingStore.load();					
+					this.up('window').close();
+				}
+			}						
+		},{
+			text:'Close',
+			iconCls:'cancel-col',
+			handler: function(){				
+				this.up('window').close();
+			}
+		}]
+	});*/
+
 	var gridMT = {
 		xtype:'grid',
 		id:'mtgrid',
@@ -958,46 +1068,62 @@ Ext.onReady(function(){
 												xtype:'fieldcontainer',
 												layout:'hbox',
 												margin: '2 0 2 5',
-												items:[
-													{
-														xtype:'combobox',
-														fieldLabel:'Transfer To',
-														name:'ToStockLocation',
-														id:'ToStockLocation',
-														queryMode:'local',
-														triggerAction : 'all',
-                    									displayField  : 'location_name',
-                    									valueField    : 'loc_code',
-                    									editable      : true,
-                    									forceSelection: true,
-                                                        allowBlank: false,
-                    									required: true,
-                    									width:785,
-                    									hiddenName: 'loc_code',
-                    									typeAhead: true,
-                    									emptyText:'Select Transder Location',
-                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-                    									selectOnFocus:true,
-														store: Ext.create('Ext.data.Store',{
-                    										fields: ['loc_code', 
-																	'location_name', 
-																	'delivery_address', 
-																	'phone', 
-																	'phone2'
-															],
-                                                    		autoLoad: true,
-															proxy: {
-																type:'ajax',
-																url: '?action=branch_location',
-																reader:{
-																	type : 'json',
-																	root : 'result',
-																	totalProperty : 'total'
-																}
+												items:[{
+													xtype:'combobox',
+													fieldLabel:'Transfer To',
+													name:'ToStockLocation',
+													id:'ToStockLocation',
+													queryMode:'local',
+													triggerAction : 'all',
+													displayField  : 'location_name',
+													valueField    : 'loc_code',
+													editable      : true,
+													forceSelection: true,
+													allowBlank: false,
+													required: true,
+													width:785,
+													hiddenName: 'loc_code',
+													typeAhead: true,
+													readOnly: false,
+													anyMatch: true,
+													emptyText:'Select Transder Location',
+													fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+													selectOnFocus:true,
+													store: Ext.create('Ext.data.Store',{
+														fields: ['loc_code', 
+																'location_name', 
+																'delivery_address', 
+																'phone', 
+																'phone2'
+														],
+														autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=branch_location',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
 															}
-                    									})
-													}					
-												]
+														}
+													}),
+												}/*,{		
+													xtype:'fieldcontainer',
+													layout:'hbox',
+													margin: '0 0 2 5',
+													items:[{												
+														xtype	: 'button',																									
+														name 	: 'newsearchbranch',														
+														icon   	: '../js/ext4/examples/shared/icons/application_form_add.png',
+														tooltip	: 'Select Branches',
+														text 	: 'Select Branch',
+														handler: function(){												
+															var win = Ext.create('windowItemListBranch');
+															win.show();
+															BranchListingStore.load();
+														}
+													}]
+												}*/]
 											},{
 												xtype:'fieldcontainer',
 												layout:'hbox',
@@ -1136,8 +1262,7 @@ Ext.onReady(function(){
 											}
 										]
 									}
-								],buttons:[
-									{
+								],buttons:[{
 										text:'Process Transfers',
 										disabled: true,
 										id:'btnProcess',
@@ -1253,8 +1378,7 @@ Ext.onReady(function(){
 												}
 											}
 										}
-									},
-									{
+									},{
 										text:'Close',
 										handler: function(){
 											windowNewTransfer.close();

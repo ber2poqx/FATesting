@@ -959,6 +959,7 @@ Ext.onReady(function(){
                     									width:785,
                     									hiddenName: 'loc_code',
                     									typeAhead: true,
+														anyMatch: true,
                     									emptyText:'Select Branches',
                     									fieldStyle: 'background: #F2F3F4; color: green; font-weight: bold;',
                     									selectOnFocus:true,

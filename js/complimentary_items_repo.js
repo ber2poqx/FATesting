@@ -2146,6 +2146,7 @@ Ext.onReady(function(){
 		                                        typeAhead: true,
                                                 labelWidth: 80,
                                                 width: 415,
+												anyMatch: true,
 									            triggerAction: 'all',
 									            store: MasterfileStore,
 												queryMode: 'local',

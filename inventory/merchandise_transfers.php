@@ -1031,16 +1031,13 @@ if(!is_null($action) || !empty($action)){
                         'location_name' => $db_connections[$i]["name"],
                         'branch_id' => $i
                     );
-                }
-                
-                
+                }  
             }
             
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
-            
-            exit;
-            break;
+        exit;
+        break;
     }
 }
 
