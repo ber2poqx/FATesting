@@ -512,7 +512,6 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 	$sql .= ") x1 WHERE x1.qty > x1.OutQty";
 
 	$result = db_query($sql, "retrieve available items failed");
-	display_error($sql);
 	return $result;
 }
 /*Added by Albert */
