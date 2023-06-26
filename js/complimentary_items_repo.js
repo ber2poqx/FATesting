@@ -436,7 +436,7 @@ Ext.onReady(function(){
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
 						reference = record.get('reference');
-						var win = new Ext.Window({
+						/*var win = new Ext.Window({
 							autoLoad:{
 								url:'../reports/complimentary_items_report.php?reference='+reference,
 								discardUrl: true,
@@ -463,8 +463,8 @@ Ext.onReady(function(){
 				            frameborder:0
 				        }
 						win.show();
-						Ext.DomHelper.insertFirst(win.body, iframe)
-						//window.open('../reports/merchandise_receipts.php?reference='+reference);
+						Ext.DomHelper.insertFirst(win.body, iframe)*/
+						window.open('../reports/complimentary_items_report.php?reference='+reference);
 					},
 					getClass : function(value, meta, record, rowIx, ColIx, store) {
 	                    if(record.get('status') != 'Closed') {

@@ -16,6 +16,27 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 	include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
 	include_once($path_to_root . "/includes/cost_and_pricing.inc");
+
+
+	function get_nameuser(){
+		$sql = "SELECT A.real_name 
+				FROM ".TB_PREF."users A 
+				WHERE A.role_id = '19'";
+		$result = db_query($sql, "could not get user ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
+
+	function get_nameuseraccounting(){
+		$sql = "SELECT A.real_name 
+				FROM ".TB_PREF."users A 
+				WHERE A.role_id = '12'";
+		$result = db_query($sql, "could not get user ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
 	
 ?>
 
@@ -205,6 +226,21 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		padding-top: 3px;
 		padding-left: 50px; 
 		font-style: italic; 
+	}
+	#accountingname{
+		display: inline-block;
+		border: none;
+		background: white;
+	}
+	#managername{
+		display: inline-block;
+		border: none;
+		background: white;
+	}
+	#crrntname{
+		display: inline-block;
+		border: none;
+		background: white;
 	}
 </style>
 </head>
@@ -469,22 +505,20 @@ function getreceipt($reference)
 		<table id="footer">
 			<tr>
 				<th style="text-align: left; padding-left: 15px;">Prepared By:</th>
+				<th style="text-align: left; padding-left: 15px;">Reviewed By:</th>
 				<th style="text-align: left; padding-left: 15px;">Approved By:</th>
-				<th style="text-align: left; padding-left: 15px;">Released By:</th>
-				<th style="text-align: left; padding-left: 15px;">Received By:</th>
 			</tr>
-			<tr><td>.</td></tr>
-			<tr><td>.</td></tr>
+			<tr><td></td></tr>
+			<tr><td></td></tr>
 			<tr style="height: 1px;">
-				<td align=left>__________________________</td>
-				<td align=left>__________________________</td>
-				<td align=left>__________________________</td>
-				<td align=left>__________________________</td>
+				<td align=left>__________________________________</td>
+				<td align=left>__________________________________</td>
+				<td align=left>__________________________________</td>
 			</tr>
 			<tr>
-				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name?></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic;"></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic;"></td>							
+				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $_SESSION["wa_current_user"]->name?>" > <?php echo $_SESSION["wa_current_user"]->name?></option></select></td>
+				<td class="footer_names"><select name="accountingname" id="accountingname"><option value="<?php echo get_nameuseraccounting() ?>" > <?php echo get_nameuseraccounting()?></option></select></td>
+				<td class="footer_names"><select name="managername" id="managername"><option value="<?php echo get_nameuser() ?>" > <?php echo get_nameuser()?></option></select></td>							
 			</tr>
 			
 		</table>		
