@@ -1253,7 +1253,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
             $sql .= " ORDER BY DL.category_id, inv_year DESC, DM.name ASC";
         }      
     }
-display_error($sql);
+    
     return db_query($sql,"No transactions were returned");
 }
 
