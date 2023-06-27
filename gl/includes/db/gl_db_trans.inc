@@ -261,7 +261,7 @@ function get_gl_trans($type = '', $trans_id = '', $order = "ASC", $counter = '')
 	$sql = "SELECT Distinct gl.*, cm.account_name, IFNULL(refs.reference, '') AS reference, user.real_name, 
 			COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) AS doc_date,
 			IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference, 
-			audit.gl_date AS ob_date
+			audit.gl_date AS ob_date, bt.prepared_by, bt.checked_by AS reviewed_by, bt.approved_by, bt.receipt_no, bt.amount as DA_amount
 
 	FROM ".TB_PREF."gl_trans AS gl
 		LEFT JOIN ".TB_PREF."chart_master AS cm ON gl.account = cm.account_code
