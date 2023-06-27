@@ -457,6 +457,7 @@ Ext.onReady(function(){
 		emptyText:'Select Branch',
 		labelWidth: 60,
 		width: 350,
+		anyMatch: true,
 		forceSelection: true,
 		selectOnFocus:true,
 		fieldStyle : 'text-transform: capitalize; background-color: #F2F3F4; color:green; ',
