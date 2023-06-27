@@ -433,7 +433,7 @@ function convert_number($number)
 	}
 	if ($decimal != 0 && convert_number($amount) != "Zero")
 	{
-		$amnt_in_words = strtoupper(convert_number($amount)). " AND " . $decimal . "/100 PESOS ONLY";
+		$amnt_in_words = strtoupper(convert_number($amount)). " AND " . strtoupper(convert_number($decimal)) . " CENTS";
 	}
 	if ( convert_number($amount) == "Zero" )
 	{

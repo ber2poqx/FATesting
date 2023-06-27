@@ -93,6 +93,11 @@ function print_voucher($row)
 	return printable_receipts_and_vouchers(Journal_voucher, $row["trans_no"], _("Print Journal Voucher"), ICON_PRINT);
 }
 
+function print_debit_advice()
+{
+    return printable_receipts_and_vouchers(Debit_advice1, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
+}
+
 function cancel_row($row) {
     $cancel_link = '';
 
@@ -268,7 +273,8 @@ $cols = array(
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
     array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     // array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
-	array('insert'=>true, 'fun'=>'print_voucher') //Added by Prog6(03/31/2022)
+	array('insert'=>true, 'fun'=>'print_voucher'), //Added by Prog6(03/31/2022)
+	array('insert'=>true, 'fun'=>'print_debit_advice') //Added by Prog6(03/31/2022)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);

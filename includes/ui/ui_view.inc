@@ -240,6 +240,12 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 		$viewer .= "disbursement_voucher.php?trans_num=$trans_no";
 	elseif ($type == Journal_voucher)
 		$viewer .= "journal_voucher.php?trans_type=0&trans_num=$trans_no";
+	elseif ($type == Debit_advice)
+		$viewer .= "Debit_Advice.php?trans_num=$trans_no&doc=DE";
+	elseif ($type == Debit_advice1)
+		$viewer .= "Debit_Advice.php?trans_num=$trans_no&doc=JV";
+	elseif ($type == Credit_advice)
+		$viewer .= "Credit_Advice.php?trans_type=0&trans_num=$trans_no";
 	else
 		return null;
 	//$viewer .= "?trans_no=$trans_no";
