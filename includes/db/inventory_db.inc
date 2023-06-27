@@ -1189,14 +1189,13 @@ function get_available_item_for_si(
 				LEFT JOIN item_brand d ON d.id = b.brand
 
 				WHERE
-					a.qty > 0
+					a.item_type = 'new' And  a.qty > 0
 				AND
 					a.loc_code = " . db_escape($loc_code) . "
 				AND
 					b.category_id = " . db_escape($category_id) . "
 		  		) x1
 				WHERE
-					a.item_type = 'new' AND  
 					x1.qty > x1.OutQty > 0 AND x1.lot_no not in (
                 SELECT a.lot_no 
                 FROM debtor_trans_details a
