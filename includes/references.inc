@@ -195,11 +195,14 @@ class references
 
 		// retrieve last ref number in the refline from original transaction table
 		$sql = "SELECT MAX(CAST(SUBSTR($ref_fld, ".(strlen($prefix)+1).",LENGTH($ref_fld)-".(strlen($postfix)+strlen($prefix)).") AS UNSIGNED))"
-				." FROM `$trans_table` tbl
-					LEFT JOIN ".TB_PREF."voided v ON tbl.`$tno_fld`=v.id AND v.type=$type 
-					AND v.void_status = 'Voided'" // Modified by spyrax10 24 Jun 2022
-				." WHERE ISNULL(v.id)"
-				.($type_fld ? " AND tbl.`$type_fld`=$type" : '')
+				." FROM `$trans_table` tbl"
+				/*comment by Albert fix reference number makes not unique 6/28/2023*/
+					// LEFT JOIN ".TB_PREF."voided v ON tbl.`$tno_fld`=v.id AND v.type=$type
+					// AND v.void_status = 'Voided'" // Modified by spyrax10 24 Jun 2022	
+				// ." WHERE ISNULL(v.id)"
+				/**/
+				." WHERE "
+				.($type_fld ? " tbl.`$type_fld`=$type" : '')
 				." AND `$ref_fld` REGEXP ".db_escape('^'.preg_quote($prefix).'[0-9]*'.preg_quote($postfix).'$');
 		$result = db_query($sql, 'cannot retrieve last reference');
 		$result = db_fetch_row($result);
