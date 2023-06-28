@@ -38,7 +38,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 	
 	
 		$sql = "		
-			SELECT DISTINCT bt.receipt_no AS cr_num
+			SELECT bt.receipt_no AS cr_num
 			, gl.tran_date
 			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) AS reference			
             , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
