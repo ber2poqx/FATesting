@@ -1371,11 +1371,7 @@ Ext.onReady(function() {
 					}
 					//console.log(Ext.decode(gridData));
 					submit_form_cash.submit({
-						url: '?submitSICash=payment',
-						params: {
-							DataOnGrid: Ext.encode(gridData),
-							DataOEGrid: Ext.encode(OEData)
-						},
+						url: '?submitPDCAck=payment',
 						waitMsg: 'Saving payment for Invoice No.' + Ext.getCmp('InvoiceNo_cash').getRawValue() + '. please wait...',
 						method:'POST',
 						submitEmptyText: false,
