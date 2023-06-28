@@ -1821,7 +1821,7 @@ Ext.onReady(function() {
 														icon: Ext.MessageBox.ERROR
 													});
 												}
-												submit_window_view.close();
+												submit_window_cashview.close();
 											},
 											failure: function () {
 												Ext.Msg.show({
