@@ -344,6 +344,8 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 		$sWhere .= " AND (A.module_type = 'ALCN-DP' OR A.module_type = 'ALCN-INTERB' OR A.module_type = 'ALCN-ADJ') ";
 	}elseif($module_type == 'BEG'){
 		$sWhere .= " AND A.module_type = 'BEG-DP' ";
+	}elseif($module_type == 'PDC'){
+		$sWhere .= " AND A.module_type = 'PDC-ACK' ";
 	}
 
 	if($cashier != ''){

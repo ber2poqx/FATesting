@@ -20,6 +20,8 @@ include_once($path_to_root . "/admin/db/voiding_db.inc");
 add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
 if($_GET['type']=='cash'){
     add_js_ufile($path_to_root ."/js/customer_cash_invoice.js");
+}elseif($_GET['type']=='pdcack'){
+        add_js_ufile($path_to_root ."/js/pdcacknowldgementrecpt.js");
 }else{
     add_js_ufile($path_to_root ."/js/customer_amort_receipt.js");
 }
@@ -682,7 +684,6 @@ if(isset($_GET['get_CashierTellerCol']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
-
 if(isset($_GET['get_interBPaymnt']))
 {
     //into bank/debit to bank
@@ -2467,6 +2468,8 @@ if(isset($_GET['submitVoid']))
 //simple_page_mode(true);
 if($_GET['type']=='cash'){
     page(_($help_context = "Cash Invoice Receipt"), false, false, "", null);
+}elseif($_GET['type']=='pdcack'){
+    page(_($help_context = "PDC Acknowledgement Receipt"), false, false, "", null);
 }else{
     page(_($help_context = "Office Collection Receipt"), false, false, "", null);
 }
