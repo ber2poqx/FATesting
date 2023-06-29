@@ -201,8 +201,8 @@ class references
 					// AND v.void_status = 'Voided'" // Modified by spyrax10 24 Jun 2022	
 				// ." WHERE ISNULL(v.id)"
 				/**/
-				." WHERE "
-				.($type_fld ? " tbl.`$type_fld`=$type" : '')
+				." WHERE $type <> ''"
+				.($type_fld ? " AND tbl.`$type_fld`=$type" : '')
 				." AND `$ref_fld` REGEXP ".db_escape('^'.preg_quote($prefix).'[0-9]*'.preg_quote($postfix).'$');
 		$result = db_query($sql, 'cannot retrieve last reference');
 		$result = db_fetch_row($result);
