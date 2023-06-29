@@ -378,7 +378,7 @@ function get_all_customer($debtorno=null)
 			LEFT JOIN ".TB_PREF."crm_persons D ON D.ref=A.debtor_ref
 			LEFT JOIN ".TB_PREF."users E ON E.user_id=A.collectors_name
 			LEFT JOIN ".TB_PREF."sales_type F ON F.id=A.sales_type
-			lEFT JOIN ".TB_PREF."tax_groups G ON G.id=B.tax_group_id ";
+			LEFT JOIN ".TB_PREF."tax_groups G ON G.id=B.tax_group_id ";
 		if($debtorno != null || $debtorno != '' || $debtorno != 0){
 			$sql .= " WHERE  A.debtor_no =".db_escape($debtorno);
 		}
