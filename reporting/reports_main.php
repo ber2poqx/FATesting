@@ -71,7 +71,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_AGING_REP')) {
 		)	
 	);
 
-	$reports->addReport(RC_CUSTOMER,  126, _('Aging Collectors Report'),
+	/*$reports->addReport(RC_CUSTOMER,  126, _('Aging Collectors Report'),
 		array(	
 			_('As Of Date') => 'DATEENDM',
 			_('Customer') => 'CUSTOMERS_NO_FILTER',
@@ -79,7 +79,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_AGING_REP')) {
 			_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'DESTINATION'
 		)
-	);
+	);*/
 
 }
 
@@ -410,6 +410,24 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_DCPR')) {
 if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
 	
 	$reports->addReport(RC_CUSTOMER, 118, _('&Daily Summary Of Collection V2'),
+		array(	
+			_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Customer') => 'CUSTOMERS_NO_FILTER',
+			_('Collector') => 'COLLECTOR_COLLECTION',
+			_('Cashier') => 'CASHIER_COLLECTION',
+			_('Group By') => 'COA_COL',
+			_('Orientation') => 'ORIENTATION',
+			_('Destination') => 'EXCELDESTINATION'
+		)
+	);
+
+}
+
+//Added by robert 28 June 2023
+if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
+	
+	$reports->addReport(RC_CUSTOMER, 132, _('&Daily Summary Of Collection - Allocation V2'),
 		array(	
 			_('Start Date') => 'DATEBEGINM',
 			_('End Date') => 'DATEENDM',
