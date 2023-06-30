@@ -892,6 +892,7 @@ function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balanc
                 END as payment_type,
 				c.invoice_type,
 				a.tran_date,
+				c.payment_location,
 				c.months_term,
 				-- a.due_date,
 				-- (SELECT t1.trans_no FROM " . TB_PREF . "debtor_trans t1 WHERE t1.type = 13 AND t1.order_ = a.order_) as dr_no,
