@@ -1078,7 +1078,8 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     global $db_connections;
 	$coy = user_company();
 	$db_branch_type = $db_connections[$coy]['type'];
-    if($db_branch_type = 'LENDING'){
+
+    if($db_branch_type == 'LENDING'){
         $payment_location = 'Lending';
     }else{
         $payment_location = 'Branch';
