@@ -99,7 +99,8 @@
 						$date_cut_off,
 						$invoice_type,
 						$recovered_cost,
-						$memo_) = $data;
+						$memo_,
+						$payment_location) = $data;
 				$invoice_type = strtolower(trim($invoice_type));	
 				$debtor_no = utf8_encode($debtor_no);
 
@@ -427,7 +428,8 @@
 									$ref_no,
 									$loans_status,
 									$invoice_type,
-									$recovered_cost);
+									$recovered_cost,
+									$payment_location);
 									
 									$item_color_code = check_color_exist($stock_id, $color_code);
 									add_debtor_trans_det(
