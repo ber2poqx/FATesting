@@ -747,6 +747,10 @@ function write_bank_transaction(
 			//
 		);
 	}else{
+		$status = "";
+		if ($trans_type == ST_BANKPAYMENT){
+			$status = "Draft";
+		}
 		add_bank_trans(
 			$trans_type,
 			$trans_no,
@@ -770,7 +774,12 @@ function write_bank_transaction(
 			null, //Module type
 			$currency, // 19
 			"Cannot insert a source bank transaction || ",// 20
-			$open_bal
+			$open_bal,
+			"",
+			0,
+			0,
+			0,
+			$status
 			// 
 		);
 	}

@@ -53,6 +53,7 @@ class items_cart
 	var $tax_info;	// tax info for the GL transaction
     //var $item_type; //Added by Herald 08/27/2021 for type=new or repo
 	var $fixed_asset;
+	var $status = "";
 
 	function __construct($type, $trans_no=0)
 	{
