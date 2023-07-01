@@ -274,7 +274,7 @@ Ext.onReady(function() {
 	var CustomerStore = Ext.create('Ext.data.Store', {
 		model: 'CustomersModel',
 		autoLoad : true,
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_Customer=xx',
 			type: 'ajax',
@@ -293,7 +293,7 @@ Ext.onReady(function() {
 	var IntoBankAcctStore = Ext.create('Ext.data.Store', {
 		model: 'comboModel',
 		autoLoad : true,
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_IntoBank=xx',
 			type: 'ajax',
@@ -312,7 +312,7 @@ Ext.onReady(function() {
 	var cashierStore = Ext.create('Ext.data.Store', {
 		model: 'comboModel',
 		autoLoad : true,
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_CashierTellerCol=xx',
 			type: 'ajax',
@@ -331,7 +331,7 @@ Ext.onReady(function() {
 	var ARInvoiceStore = Ext.create('Ext.data.Store', {
 		model: 'InvoiceModel',
 		//autoLoad : true,
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_InvoiceNo=xx',
 			type: 'ajax',

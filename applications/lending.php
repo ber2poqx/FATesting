@@ -20,6 +20,28 @@ class lending_app extends application
 		//	"lending/ar_installment_incoming.php?", 'SA_ARINVCINSTL', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("A/R Installment Incoming"),
 			"lending/inquiry/ar_invoice_inquiry.php?", 'SA_INVCINQ', MENU_INQUIRY);
+		$this->add_lapp_function(0, "","");
+		//
+		$this->add_lapp_function(0, _("Sales Invoice Opening Balances"),
+			"sales/sales_invoice_ob_list.php?", 'SA_SALES_INVOICE_OB', MENU_TRANSACTION);
+		
+		//Modified by spyrax10 13 Jul 2022
+		$this->add_lapp_function(0, _("Sales Invoice Term Modification"),
+			"sales/sales_invoice_term_modification.php?", 'SA_SITERM_INQ', MENU_TRANSACTION
+		);
+		$this->add_lapp_function(0, _("Sales Invoice Restructured"),//Added by Albert 12/08/2021
+			"sales/sales_invoice_restructured.php?", 'SA_SIRES_INQ', MENU_TRANSACTION
+		);
+
+		$this->add_lapp_function(0, "","");
+		$this->add_lapp_function(0, _("Sales Order Repossessed"),	//Added by Albert
+			"sales/inquiry/sales_orders_repo_view.php?", 'SA_SO_REPO_VIEW', MENU_TRANSACTION
+		);
+
+		$this->add_lapp_function(0, _("Sales Invoice Repossessed"),
+			"sales/si_repo.php?", 'SA_SALESINVOICEREPO', MENU_TRANSACTION);
+		$this->add_lapp_function(0, _("Sales Return Replacement Repossessed"),
+			"sales/sales_return_replacement.php?type=repo", 'SA_SALES_RETURN_REPLACEMENT', MENU_TRANSACTION);
 
 		$this->add_rapp_function(0, _("Office &Collection Receipt"),
 			"lending/customer_amort_receipt.php?", 'SA_LCUSTAMORT', MENU_TRANSACTION);
@@ -63,6 +85,7 @@ class lending_app extends application
 			"reporting/reports_main.php?Class=3", 'SA_ARINVCINQ', MENU_REPORT);
 
 		$this->add_module(_("Maintenance"));
+
 		$this->add_lapp_function(2, _("Add and Manage &Customers"),
 			"sales/manage/customers.php?", 'SA_CUSTOMER', MENU_ENTRY);
 		$this->add_lapp_function(2, _("Customer &Branches"),
@@ -73,6 +96,12 @@ class lending_app extends application
 		$this->add_rapp_function(2, _("Inventory &Locations"),
 			"inventory/manage/locations.php?", 'SA_INVENTORYLOCATION', MENU_MAINTENANCE);
 			
+
+		$this->add_lapp_function(2, "","");
+
+		$this->add_lapp_function(2, _("Import &Customers CSV"),
+			"sales/manage/sales_customer_import.php?", 'SA_CUSTOMERSIMPORTS', MENU_MAINTENANCE); //Added by: Robert
+
 		$this->add_extensions();
 	}
 }

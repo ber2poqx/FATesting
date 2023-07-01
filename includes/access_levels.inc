@@ -525,7 +525,7 @@ $security_areas =array(
 	'SA_LCUSTAMORT'=> array(SS_LEND|2, _("Office &Collection Receipt")),
 	'SA_INTRBPAYINQ'=> array(SS_LEND|3, _("Inter-branch (From Not FA)")),
 	'SA_APCUSTDPOPEN'=> array(SS_LEND|4, _("AP Customer Deposit Opening")),
-	'SA_PCDACKRCT'=> array(SS_LEND|4, _("PDC Acknowledgement Receipt")),
+	'SA_PCDACKRCT'=> array(SS_LEND|5, _("PDC Acknowledgement Receipt")),
 
 	//'SA_LENDING_A' => array(SS_LEND_A|1, _("Lending analytics")),
 	'SA_INVCINQ'=> array(SS_LEND_A|1, _("Incoming Invoice Inquiry")),
