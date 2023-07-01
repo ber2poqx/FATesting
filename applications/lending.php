@@ -13,7 +13,7 @@ class lending_app extends application
 {
 	function __construct()
 	{
-		parent::__construct("lending", _($this->help_context = "&Lending"));
+		parent::__construct("orders", _($this->help_context = "&Lending"));
 
 		$this->add_module(_("Transactions"));
 		//$this->add_lapp_function(0, _("A/R Incoming"),
@@ -96,6 +96,8 @@ class lending_app extends application
 		$this->add_rapp_function(2, _("Inventory &Locations"),
 			"inventory/manage/locations.php?", 'SA_INVENTORYLOCATION', MENU_MAINTENANCE);
 			
+		$this->add_rapp_function(2, _("Collector &Area Setup"),
+			"sales/manage/sales_areas.php?", 'SA_SALESAREA', MENU_MAINTENANCE);
 
 		$this->add_lapp_function(2, "","");
 
