@@ -489,6 +489,10 @@ $security_areas =array(
 	'SA_INTER_BANK_POST' => array(SS_GL|15, _("Post Bank Interbranch Transactions")),
 	//
 
+	/*Added by Albert 06/29/2023*/
+	'SA_DISBURMENT_UPDATE_STATUS'=> array(SS_GL_C|22, _("Disbursement Update Status")),
+	/**/
+
 	//Modified by spyrax10 20 Jun 2022
 	'SA_GLANALYTIC' => array(SS_GL_A|1, _("GL Analytical Reports")),
 	'SA_GLANALYTIC_LIST' => array(SS_GL_A|14, _("GL Analytical Inquiries")),

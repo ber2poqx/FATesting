@@ -310,6 +310,7 @@ $cols = array(
 	_("Payment Type"),
 	_("Invoice Type"),
 	_("Invoice Date") => array('name' => 'tran_date', 'type' => 'date', 'ord' => 'desc'),
+	_("Payment Location"),
 	_("Months Term"),
     // _("Due Date") => array('name' => 'due_date', 'type' => 'date', 'ord' => 'desc'),
 	// _("DR Trans #") => array('fun'=>'dr_trans_view', 'ord'=>'', 'align'=>'right'),

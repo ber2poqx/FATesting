@@ -167,7 +167,8 @@ function add_debtor_loan(
 						$ref_no = 0, 
 						$status,
 						$invoice_type,
-						$recovered_cost)
+						$recovered_cost,
+						$payment_location = 'Branch')
 {
 	set_global_connection();
 	// $first_due_date = date("Y-m-d", strtotime("+1 month", strtotime( $tran_date)));
@@ -204,7 +205,9 @@ function add_debtor_loan(
 						profit_margin,
 						ref_no,
 						old_trans_no,
-						recovered_cost) 
+						financing_gross,
+						recovered_cost,
+						dr_ref_no) 
 				VALUES (
 						'$trans_no',
 						'$debtor_no',
@@ -230,14 +233,16 @@ function add_debtor_loan(
 						'$status', 
 						'$warranty_code', 
 						'',
-						'Branch', 
+						'$payment_location', 
 						'', 
 						'0', 
 						'$deferred_gross_profit', 
 						'$profit_margin', 
 						'$ref_no',
 						'$old_trans_no',
-						'$recovered_cost')";
+						'$ov_amount',
+						'$recovered_cost',
+						'')";
 
     db_query($sql,"The Ar Installment Opening Balances could not be added");
 

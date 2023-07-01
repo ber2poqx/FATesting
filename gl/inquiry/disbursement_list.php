@@ -177,6 +177,23 @@ function check_void($row) {
 
     return $void_entry['void_status'] == 'Voided' ? true : false;
 }
+function update_status_link($row) {
+	global $page_nested;
+
+	if ($_SESSION["wa_current_user"]->can_access_page('SA_DISBURMENT_UPDATE_STATUS')) {
+		$status_link = 
+		$row["status"] == "Draft" ? pager_link(
+			$row['status'],
+			"/gl/inquiry/disbursement_update_status.php?DisburseNo=" . $row["trans_no"],
+			false
+		) : $row["status"];
+	}
+	else {
+		$status_link = $row["status"];
+	}
+
+	return $status_link;
+}
 
 //---------------------------------------------------------------
 
@@ -250,6 +267,7 @@ $sql = get_banking_transactions(ST_BANKPAYMENT,
 $cols = array(
     _('Entry Type') => array('align' => 'left', 'fun' => 'is_interbranch'),
     _('Trans #') => array('align' => 'left', 'fun' => 'trans_num'),
+    _("Status") => array('insert' => true, 'fun' => 'update_status_link'),
     _('Reference') => array('align' => 'center', 'fun' => 'reference_row'),
     _('Date') => array('align' => 'center', 'fun' => 'trans_date'),
     _("Pay To ") => array('align' => 'left', 'fun' => 'pay_to'),
