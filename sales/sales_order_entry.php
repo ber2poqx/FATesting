@@ -723,7 +723,15 @@ if (get_post('StockLocation')) {
 function can_process()
 {
 
-	global $Refs, $SysPrefs;
+	global $Refs, $SysPrefs, $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
+
+	if($db_branch_type == 'LENDING'){
+		$type = ST_ARINVCINSTLITM;
+	}else{
+		$type = ST_SALESINVOICE;
+	}
 
 	$row = get_DL_by_reference(get_post('document_ref'), ST_SALESINVOICE); //Added by spyrax10
 
@@ -907,20 +915,20 @@ function can_process()
 	// 	display_error(_("Cant proceed! Transaction has already advance payment!"));
 	// 	return false;
 	// }
-
+	
 	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 && 
-		debtor_last_month_balance($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')), true) != 0) {
+		debtor_last_month_balance($row['trans_no'], $type, $row['debtor_no'], date2sql(get_post('OrderDate')), true) != 0) {
 		display_error(_("Cant proceed! Last month amortization must be fully paid!"));
 		return false;
 	}
 
 	/*Added by Albert*/
 	//amortization - payment this month 
-	if (total_payment_this_month($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0 && get_post('termmode_id') == 0)
+	if (total_payment_this_month($row['trans_no'], $type, $row['debtor_no'], date2sql(get_post('OrderDate'))) != 0 && get_post('termmode_id') == 0)
 	{
 		if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 &&
-			(amort_this_month($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')))
-			- last_month_payment($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')), true) 
+			(amort_this_month($row['trans_no'], $type, $row['debtor_no'], date2sql(get_post('OrderDate')))
+			- last_month_payment($row['trans_no'], $type, $row['debtor_no'], date2sql(get_post('OrderDate')), true) 
 			) > 0) 
 		{
 			display_error(_("Cant proceed! Current month amortization must be fully paid!"));
@@ -929,7 +937,7 @@ function can_process()
 	}
 
 	if ($_SESSION['Items']->trans_type == ST_SITERMMOD && get_post('termmode_id') == 0 &&
-		(total_current_payment($row['trans_no'], ST_SALESINVOICE, $row['debtor_no'], date2sql(get_post('OrderDate')))
+		(total_current_payment($row['trans_no'], $type, $row['debtor_no'], date2sql(get_post('OrderDate')))
 		+ (get_post('amount_to_be_paid') - get_post('opportunity_cost'))) > get_post('new_ar_amount')) {
 		display_error(_("Cant proceed! amortization paid greater than new Gross!"));
 		return false;
@@ -1126,6 +1134,9 @@ function installment_computation()
 
 function new_installment_computation()
 {
+	global $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 	$company = get_company_prefs();
 	$price = 0;
 	foreach ($_SESSION['Items']->get_items() as $line_no => $line) {
@@ -1197,7 +1208,11 @@ function new_installment_computation()
 		$_POST['months_paid'] = $terms;
 
 	}else{
-		$_POST['months_paid'] = $terms;
+		if($db_branch_type == 'LENDING'){
+			$_POST['months_paid'] = count_months_paid($_POST['document_ref'], true);
+		}else{
+			$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+		}
 	}
 
 	$_POST['amort_delay'] = $_POST['new_due_amort'] > $_POST['due_amort']

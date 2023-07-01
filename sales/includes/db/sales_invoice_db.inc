@@ -916,11 +916,16 @@ function done_check_qty_replace_invoice($debtor_trans_ref)
 /* */
 
 /* Count months paid amortization schedule - Added by Ronelle 8/14/2021 */
-function count_months_paid($debtor_trans_ref)
+function count_months_paid($debtor_trans_ref, $Lending = 'false')
 {
+	if($Lending == 'true'){
+		$type = ST_ARINVCINSTLITM;
+	}else{
+		$type = ST_SALESINVOICE;
+	}
 	$sql = "SELECT COUNT(a.status) FROM " . TB_PREF . "debtor_loan_schedule a 
 		INNER JOIN debtor_trans b ON b.trans_no = a.trans_no
-		WHERE a.trans_type=" . ST_SALESINVOICE . " 
+		WHERE a.trans_type=" . db_escape($type) . " 
 		AND b.reference=" . db_escape($debtor_trans_ref) . " AND a.status = 'paid' AND a.month_no > 0";
 	$result = db_query($sql, "not read sales invoice count months paid");
 	$row = db_fetch($result);

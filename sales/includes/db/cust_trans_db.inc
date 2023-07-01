@@ -90,10 +90,10 @@ function write_customer_trans(
 	if ($new || !exists_customer_trans($trans_type, $trans_no)) {
 		if ($new) { //Modified by spyrax10 7 Apr 2022
 			if ($trans_type == ST_SALESINVOICEREPO || $trans_type == ST_SALESINVOICE 
-				|| $trans_type == ST_SITERMMOD || $trans_type == ST_RESTRUCTURED) {
+				|| $trans_type == ST_SITERMMOD || $trans_type == ST_ARINVCINSTLITM || $trans_type == ST_ARINVCINSTLITM) {
 				$max_num = max(
 					get_max_trans_no(ST_SALESINVOICE), get_max_trans_no(ST_SALESINVOICEREPO),
-					get_max_trans_no(ST_SITERMMOD), get_max_trans_no(ST_RESTRUCTURED)
+					get_max_trans_no(ST_SITERMMOD), get_max_trans_no(ST_RESTRUCTURED),get_max_trans_no(ST_ARINVCINSTLITM)
 				);
 				$trans_no =  $max_num + 1;
 			}
