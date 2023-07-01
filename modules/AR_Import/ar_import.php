@@ -103,14 +103,17 @@
 						$payment_location) = $data;
 				$invoice_type = strtolower(trim($invoice_type));	
 				$debtor_no = utf8_encode($debtor_no);
-
-				if($invoice_type == 'repo'){
-					$trans_type = ST_SALESINVOICEREPO;
+				if($payment_location == 'Lending'){
+					$trans_type = ST_ARINVCINSTLITM;
 				}else{
-					if($invoice_type == 'new'){
-						$trans_type = ST_SALESINVOICE;
+					if($invoice_type == 'repo'){
+						$trans_type = ST_SALESINVOICEREPO;
 					}else{
-						$trans_type = '';
+						if($invoice_type == 'new'){
+							$trans_type = ST_SALESINVOICE;
+						}else{
+							$trans_type = '';
+						}
 					}
 				}
 
