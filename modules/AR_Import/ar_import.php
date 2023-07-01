@@ -312,10 +312,14 @@
 								$loans_status = 'unpaid';
 							}
 							//Modified by spyrax10
-							$max_num = max(
-								get_max_trans_no(ST_SALESINVOICE), get_max_trans_no(ST_SALESINVOICEREPO),
-								get_max_trans_no(ST_SITERMMOD), get_max_trans_no(ST_RESTRUCTURED)
-							);
+							if($payment_location = 'Lending'){
+								$max_num = max(get_max_trans_no(ST_ARINVCINSTLITM), get_max_trans_no(ST_RESTRUCTURED), get_max_trans_no(ST_SITERMMOD));
+							}else{
+								$max_num = max(
+									get_max_trans_no(ST_SALESINVOICE), get_max_trans_no(ST_SALESINVOICEREPO),
+									get_max_trans_no(ST_SITERMMOD), get_max_trans_no(ST_RESTRUCTURED)
+								);
+							}
 							$trans_no = $max_num + 1;
 							//
 							$principal_run_bal = $ov_amount - $d_amount;
