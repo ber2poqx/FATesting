@@ -119,9 +119,9 @@ class customers_app extends application
 
 		$this->add_rapp_function(0, "","");
 		$this->add_rapp_function(0, _("Temporary Repo Accounts &Inquiry"),
-			"repossess/inquiry/temporary_repo_accounts.php?", 'SA_TEMPREPOINQRY', MENU_TRANSACTION); //Robert Added
+			"repossess/inquiry/temporary_repo_accounts.php?", 'SA_TEMPREPOINQRY', MENU_TRANSACTION); 
 		$this->add_rapp_function(0, _("Receiving Report &Repo"),
-			"repossess/manage/repo_accounts.php?rtype=REPO", 'SA_GRNREPO', MENU_TRANSACTION); //Robert Added
+			"repossess/manage/repo_accounts.php?rtype=REPO", 'SA_GRNREPO', MENU_TRANSACTION); 
 
 		$this->add_module(_("Inquiries and Reports"));
 		$this->add_lapp_function(1, _("Incoming Inter-branch Payments Inquiry"),
