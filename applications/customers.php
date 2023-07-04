@@ -100,7 +100,7 @@ class customers_app extends application
 		$this->add_rapp_function(0, _("Inter-branch (From Not FA)"),
 			"lending/inquiry/interbranch_payments_inquiry.php?type=aloneinb", 'SA_INTRBPAYINQ', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("PDC Acknowledgement Receipt"),
-			"lending/customer_amort_receipt.php?type=pdcack", 'SA_LCUSTAMORT', MENU_TRANSACTION);
+			"lending/customer_amort_receiptx.php?type=pdcack", 'SA_LCUSTAMORT', MENU_TRANSACTION);
 
 		$this->add_rapp_function(0, "","");
 
