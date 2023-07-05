@@ -181,7 +181,7 @@ if(isset($_GET['get_deferedLed'])){
     $company_record = get_company_prefs();
     $balance = 0;
 
-    $result = get_gl_deferred($_GET['type'], $_GET['trans_no'], $company_record["deferred_income_act"]);
+    $result = get_gl_deferred($_GET['type'], $_GET['trans_no'], $company_record["dgp_account"]);
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         if ($balance == 0 ){
