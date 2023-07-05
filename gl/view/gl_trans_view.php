@@ -300,7 +300,8 @@ function _gl_details() {
 		}
 		//Added by Albert
 		//modify jr 03/21/22
-		else if ($termmode|| $restructured || $payments || $rrepo || $arlending) {
+		//removed Ar lending para ang masterfile name sa customer as requested by maam helen on july 05-2023
+		else if ($termmode|| $restructured || $payments || $rrepo) { // || $arlending
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 			get_subaccount_code($_GET['type_id'],$_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 
