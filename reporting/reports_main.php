@@ -417,16 +417,12 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
 			_('Collector') => 'COLLECTOR_COLLECTION',
 			_('Cashier') => 'CASHIER_COLLECTION',
 			_('Group By') => 'COA_COL',
-			_('Orientation') => 'ORIENTATION',
+			/*_('Orientation') => 'ORIENTATION',*/
 			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
 
-}
-
-//Added by robert 28 June 2023
-if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
-	
+	//Added by robert 28 June 2023
 	$reports->addReport(RC_CUSTOMER, 132, _('&Daily Summary Of Collection - Allocation V2'),
 		array(	
 			_('Start Date') => 'DATEBEGINM',
@@ -435,11 +431,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_COLLECT_REP')) {
 			_('Collector') => 'COLLECTOR_COLLECTION',
 			_('Cashier') => 'CASHIER_COLLECTION',
 			_('Group By') => 'COA_COL',
-			_('Orientation') => 'ORIENTATION',
+			//_('Orientation') => 'ORIENTATION',
 			_('Destination') => 'EXCELDESTINATION'
 		)
 	);
-
 }
 
 //Modified by spyrax10 31 Mar 2022

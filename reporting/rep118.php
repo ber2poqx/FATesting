@@ -47,13 +47,13 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 	$advanceDate = endCycle($to, 1);
 	
 	$sql ="SELECT A.type AS No_type, A.trans_no AS No_trans, A.masterfile, A.trans_date, A.ref, A.receipt_no, abs(A.amount) AS amt, B.ov_discount AS rebate,
-			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty,
-			F.month_no, I.collection, K.account_name AS Coa_name, M.description AS AREA,
+			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty, E.trans_no AS trans_ledge,
+			F.month_no, F.principal_due, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
 
 			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,*/
-			A.amount + B.ov_discount AS downtotal,
-			A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS advancetotal,
+			/*A.amount + B.ov_discount AS downtotal,*/
+			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS advancetotal,*/
 			/*A.amount - E.payment_applied + B.ov_discount - IFNULL(E.penalty, 0) AS advance,*/
 
 			CASE 
@@ -77,6 +77,8 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 			LEFT JOIN ".TB_PREF."comments P ON P.id = A.trans_no AND P.type = A.type
 			WHERE A.trans_date>='$from'
 			AND A.trans_date<='$to'
+			AND (A.pay_type <> 'alloc' OR B.payment_type <> 'alloc') 
+			AND A.remit_no = 0			
 			AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
 
 			if ($cust_name != 'ALL') {
@@ -132,8 +134,8 @@ function remittance_transactions_for_collection($from, $to, $fcashier = '', $tca
 	return db_query($sql, "No transactions were returned");
 }
 
-function get_category_invoice_date($trans_no){
-
+function get_category_invoice_date($trans_no)
+{
     $sql = "SELECT A.invoice_date FROM debtor_loans A
 		LEFT JOIN stock_category B ON B.category_id = A.category_id
 		WHERE A.trans_no = '".$trans_no."'";
@@ -146,8 +148,8 @@ function get_category_invoice_date($trans_no){
 	return $invcdate;
 }
 
-function get_category_descrpton($trans_no){
-
+function get_category_descrpton($trans_no)
+{
     $sql = "SELECT B.description FROM debtor_loans A
 		LEFT JOIN stock_category B ON B.category_id = A.category_id
 		WHERE A.trans_no = '".$trans_no."'";
@@ -180,8 +182,8 @@ function get_cashier_name($id)
 	return $row[0];
 }
 
-function get_payment_applied($type, $trans_no){
-
+function get_payment_applied($type, $trans_no)
+{
     $sql = "SELECT SUM(payment_applied) AS applied_pay FROM debtor_loan_ledger
 			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
 
@@ -193,8 +195,8 @@ function get_payment_applied($type, $trans_no){
 	return $payment_appl;
 }
 
-function get_penalty_applied($type, $trans_no){
-
+function get_penalty_applied($type, $trans_no)
+{
     $sql = "SELECT SUM(penalty) AS penalty_pay FROM debtor_loan_ledger
 			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
 
@@ -204,6 +206,62 @@ function get_penalty_applied($type, $trans_no){
 
 	$penalty_appl =  $myrow[0];
 	return $penalty_appl;
+}
+
+function get_rabate_applied($type, $trans_no)
+{
+    $sql = "SELECT SUM(rebate) AS rebate_pay FROM debtor_loan_ledger
+			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
+
+    $result = db_query($sql, "Penalty applied failed");
+
+	$myrow = db_fetch_row($result);
+
+	$rebate_appl =  $myrow[0];
+	return $rebate_appl;
+}
+
+function get_transaction_ledger($trans_no)
+{
+	$sql ="SELECT A.id, A.trans_no, A.payment_applied, A.date_paid, A.loansched_id, B.date_due, B.id, B.principal_due, B.status 
+		FROM ".TB_PREF."debtor_loan_ledger A
+			INNER JOIN ".TB_PREF."debtor_loan_schedule B ON B.id = A.loansched_id
+		WHERE A.trans_no = '".$trans_no."'";
+    return db_query($sql, "No transactions were returned");
+}
+
+function get_partial_applied($trans_no, $to)
+{
+	$to = date2sql($to);
+
+    $sql = "SELECT SUM(A.payment_applied)
+				FROM ".TB_PREF."debtor_loan_ledger A	
+			WHERE A.trans_no = '".$trans_no."' AND A.date_paid < '$to'";
+
+    $result = db_query($sql, "Partial applied failed");
+
+	$myrow = db_fetch_row($result);
+
+	$partial_appl = $myrow[0];
+	return $partial_appl;
+}
+
+function get_principal_applied($trans_no, $to)
+{
+	$to = date2sql($to);
+
+    $sql = "SELECT A.principal_due, A.date_due, A.id, B.date_paid
+				FROM ".TB_PREF."debtor_loan_schedule A	
+				INNER JOIN ".TB_PREF."debtor_loan_ledger B ON B.loansched_id = A.id
+			WHERE A.trans_no = '".$trans_no."' AND (B.date_paid < '$to') AND (A.date_due < '$to') GROUP BY A.id";
+    $result = db_query($sql, "Partial applied failed");
+
+	//$myrow = db_fetch_row($result);
+
+	while ($myrow = db_fetch($result)) {
+		$principal_appl +=  $myrow['principal_due'];
+	}	
+	return $principal_appl;
 }
 
 function print_PO_Report()
@@ -216,8 +274,8 @@ function print_PO_Report()
 	$collector 	= $_POST['PARAM_3'];
 	$cashier 	= $_POST['PARAM_4'];
     $group = $_POST['PARAM_5'];
-	$orientation= $_POST['PARAM_6'];
-	$destination= $_POST['PARAM_7'];
+	//$orientation= $_POST['PARAM_6'];
+	$destination= $_POST['PARAM_6'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -453,36 +511,68 @@ function print_PO_Report()
 
 		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
+		$rebate_appl  =	get_rabate_applied($DSOC['No_type'], $DSOC['No_trans']);
+		$partial_appl = get_partial_applied($DSOC['trans_ledge'], $to);
+		$principal_appl = get_principal_applied($DSOC['trans_ledge'], $to);
 
+		$partial_pay = $principal_appl - $partial_appl;
+
+		if($penalty_appl < 0) {
+			$penalty = -$penalty_appl;
+		}else{
+			$penalty = $penalty_appl;
+		}
+
+		$ar_total = $DSOC['amt'] - $penalty + $rebate_appl;
+		$downtotal = $DSOC['amt'] + $rebate_appl;
+
+		if($partial_pay < 0) {
+			$partial_payment = -$partial_pay;
+			$pricipal_due = $DSOC['principal_due'] - $partial_payment;
+		}else{
+			$partial_payment = $partial_pay;
+			$pricipal_due = $DSOC['principal_due'];
+		}
+
+		$ar_advance = $ar_total - $pricipal_due;
+
+		if($ar_advance < 0) {
+			$advance_payment = -$ar_advance;
+		}else{
+			$advance_payment = $ar_advance;
+		}
 		
-		$ar_total = $DSOC['amt'] - $penalty_appl + $DSOC['rebate'];
-		$advance_total = $DSOC['amt'] - $payment_appl + $DSOC['rebate'] - $penalty_appl;
-		
-
-
 		$month_no = $DSOC['month_no'];
-		if ($month_no == 0) {
+		if($month_no == 0) {
 			$advance = 0;
 		}else {
-			$advance = $advance_total;
+			$advance = $advance_payment;
+		}
+
+		if($rebate_appl == 0) {
+			$arpayment = $ar_total;
+			$advanceF_payment = 0;
+		}else{
+			$arpayment = $ar_total - $advance;
+			$advanceF_payment = $advance;
 		}
 
 		$Type = $DSOC['Type'];
 	    if ($Type == 'amort'){
-			$Ar = $ar_total - $advance_total;
+			$Ar = $arpayment;
 			$Dw = '';
 	    }elseif($Type == 'down'){
-			$Dw = $DSOC['downtotal'] - $advance_total;
+			$Dw = $downtotal;
 	   		$Ar = '';
 		}elseif($Type == 'other'){
-			$Dw = $DSOC['downtotal'];
+			$Dw = $downtotal;
 	   		$Ar1 = 0;
 	   		$Ar2 = 0;
 	   		$Ar3 = 0;
 	   		$Ar4 = 0;
 	   		$Ar = 0;
 		}elseif ($Type == 'alloc') {
-			$Dw = $DSOC['downtotal'] - $advance_total;
+			$Dw = $downtotal - $advance;
 	   		$Ar1 = 0;
 	   		$Ar2 = 0;
 	   		$Ar3 = 0;
@@ -532,7 +622,7 @@ function print_PO_Report()
 		$rebate = $DSOC['rebate'];
 		//$penalty = $DSOC['penalty'];
 
-		if($DSOC['collection'] == '') {
+		if($category == '') {
 			$category = '';
 			$invcdate = $DSOC['trans_date'];
 		}else{
@@ -553,14 +643,14 @@ function print_PO_Report()
 		$rep->TextCol(6, 7, $category);
 		$rep->TextCol(7, 8, sql2date($invcdate));
 		$rep->AmountCol(8, 9, $amt, $dec);
-		$rep->AmountCol(9, 10, $advance, $dec);
+		$rep->AmountCol(9, 10, $advanceF_payment, $dec);
 		$rep->AmountCol(10, 11, $Ar1, $dec);
 		$rep->AmountCol(11, 12, $Ar2, $dec);
 		$rep->AmountCol(12, 13, $Ar3, $dec);
 		$rep->AmountCol(13, 14, $Ar4, $dec);
 		$rep->AmountCol(14, 15, $rebate, $dec);
 		$rep->SetTextColor(255, 0, 0);
-		$rep->AmountCol(15, 16, $penalty_appl, $dec);
+		$rep->AmountCol(15, 16, $penalty, $dec);
         $rep->SetTextColor(0, 0, 0);
 		$rep->AmountCol(16, 17, $Dw, $dec);
 		$rep->AmountCol(17, 18, $DSOC[''], $dec);
@@ -570,8 +660,8 @@ function print_PO_Report()
 		$Tot_Val += $amt;
 		$grandtotal += $amt;
 
-		$totaladvance += $advance;
-		$grandtotaladvance += $advance;
+		$totaladvance += $advanceF_payment;
+		$grandtotaladvance += $advanceF_payment;
 
 		$ar1 += $Ar1;
 		$grandar1 += $Ar1;
@@ -588,8 +678,8 @@ function print_PO_Report()
 		$rb += $rebate;
 		$grandrebate += $rebate;
 
-		$pn += $penalty_appl;
-		$grandpenalty += $penalty_appl;
+		$pn += $penalty;
+		$grandpenalty += $penalty;
 
 		$cr += $Dw;
 		$grandcr += $Dw;
