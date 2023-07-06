@@ -232,8 +232,6 @@ function get_transaction_ledger($trans_no)
 
 function get_partial_applied($trans_no, $to)
 {
-	$to = date2sql($to);
-
     $sql = "SELECT SUM(A.payment_applied)
 				FROM ".TB_PREF."debtor_loan_ledger A	
 			WHERE A.trans_no = '".$trans_no."' AND A.date_paid < '$to'";
@@ -248,8 +246,6 @@ function get_partial_applied($trans_no, $to)
 
 function get_principal_applied($trans_no, $to)
 {
-	$to = date2sql($to);
-
     $sql = "SELECT A.principal_due, A.date_due, A.id, B.date_paid
 				FROM ".TB_PREF."debtor_loan_schedule A	
 				INNER JOIN ".TB_PREF."debtor_loan_ledger B ON B.loansched_id = A.id
@@ -512,8 +508,8 @@ function print_PO_Report()
 		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$rebate_appl  =	get_rabate_applied($DSOC['No_type'], $DSOC['No_trans']);
-		$partial_appl = get_partial_applied($DSOC['trans_ledge'], $to);
-		$principal_appl = get_principal_applied($DSOC['trans_ledge'], $to);
+		$partial_appl = get_partial_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
+		$principal_appl = get_principal_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
 
 		$partial_pay = $principal_appl - $partial_appl;
 
@@ -619,7 +615,7 @@ function print_PO_Report()
 	    }
 
 		$amt = $DSOC['amt'];
-		$rebate = $DSOC['rebate'];
+		//$rebate = $DSOC['rebate'];
 		//$penalty = $DSOC['penalty'];
 
 		if($category == '') {
@@ -648,7 +644,7 @@ function print_PO_Report()
 		$rep->AmountCol(11, 12, $Ar2, $dec);
 		$rep->AmountCol(12, 13, $Ar3, $dec);
 		$rep->AmountCol(13, 14, $Ar4, $dec);
-		$rep->AmountCol(14, 15, $rebate, $dec);
+		$rep->AmountCol(14, 15, $rebate_appl, $dec);
 		$rep->SetTextColor(255, 0, 0);
 		$rep->AmountCol(15, 16, $penalty, $dec);
         $rep->SetTextColor(0, 0, 0);
@@ -675,8 +671,8 @@ function print_PO_Report()
 		$ar4 += $Ar4;
 		$grandar4 += $Ar4;
 
-		$rb += $rebate;
-		$grandrebate += $rebate;
+		$rb += $rebate_appl;
+		$grandrebate += $rebate_appl;
 
 		$pn += $penalty;
 		$grandpenalty += $penalty;
