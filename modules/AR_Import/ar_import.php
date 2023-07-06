@@ -99,13 +99,18 @@
 						$date_cut_off,
 						$invoice_type,
 						$recovered_cost,
-						$memo_,
-						$payment_location) = $data;
+						$memo_) = $data;
 				$invoice_type = strtolower(trim($invoice_type));	
 				$debtor_no = utf8_encode($debtor_no);
-				if($payment_location == 'Lending'){
+				global $db_connections;
+				$coy = user_company();
+				$db_branch_type = $db_connections[$coy]['type'];
+			
+				if($db_branch_type == 'LENDING'){
+					$payment_location = 'Lending';
 					$trans_type = ST_ARINVCINSTLITM;
 				}else{
+					$payment_location = 'Branch';
 					if($invoice_type == 'repo'){
 						$trans_type = ST_SALESINVOICEREPO;
 					}else{
@@ -312,7 +317,7 @@
 								$loans_status = 'unpaid';
 							}
 							//Modified by spyrax10
-							if($payment_location = 'Lending'){
+							if($payment_location == 'Lending'){
 								$max_num = max(get_max_trans_no(ST_ARINVCINSTLITM), get_max_trans_no(ST_RESTRUCTURED), get_max_trans_no(ST_SITERMMOD));
 							}else{
 								$max_num = max(
