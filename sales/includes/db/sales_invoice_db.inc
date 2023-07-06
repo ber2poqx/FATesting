@@ -1100,7 +1100,7 @@ function get_ar_amount($reference) {
 function get_ob_standard_cost($invoice_no) {
 
 	$sql = "SELECT standard_cost FROM " . TB_PREF . "debtor_trans_details 
-		WHERE (debtor_trans_type = 10 OR debtor_trans_type = 57) AND  debtor_trans_no =" . db_escape($invoice_no);
+		WHERE (debtor_trans_type = 10 OR debtor_trans_type = 57 OR debtor_trans_type = 70) AND  debtor_trans_no =" . db_escape($invoice_no);
 
 	$result = db_query($sql, "No loans details return! (Albert)");
 	$row = db_fetch_row($result);
