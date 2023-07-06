@@ -763,7 +763,9 @@ function get_debtor_invoice_date($trans_no, $debtor_no, $type)
 
 function get_deptors_termmode($trans_no, $debtor_no, $type)
 {
-	//modify if termode to full payment then get old invoice account; else new term mode account
+	//modify on 7-6-23
+	// if change term - not full payment -> get new invoice 
+	// if full payment -> get old invoice
 	if($type == ST_SALESINVOICE || $type == ST_SALESINVOICEREPO || $type == ST_ARINVCINSTLITM ){
 		$sql = "SELECT A.*
 				FROM ".TB_PREF."debtor_term_modification A
