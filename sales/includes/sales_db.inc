@@ -921,7 +921,7 @@ function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balanc
 			ON
 				a.reference = d.invoice_ref_no and  a.debtor_no = d.debtor_no
 			WHERE
-				(a.type = 10 OR a.type = 57 ) AND a.opening_balances = " . db_escape($opening_balances);
+				(a.type = 10 OR a.type = 57 OR a.type = 70 ) AND a.opening_balances = " . db_escape($opening_balances);
 			
 	if ($trans_no != '') {
 		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);

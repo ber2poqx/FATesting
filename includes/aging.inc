@@ -1088,6 +1088,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     $date = date2sql($endDate);
     $sales_invoice = ST_SALESINVOICE;
     $sales_invoice_repo = ST_SALESINVOICEREPO;
+    $lending_type = ST_ARINVCINSTLITM;
     $change_term = ST_SITERMMOD;
     $restruct = ST_RESTRUCTURED;
 
@@ -1134,6 +1135,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         CASE 
 	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
+            When DL.payment_location =  '$payment_location' Then $lending_type
         ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type,
         CT.term_mode_fullpayment,
         CT.si_trans_no,
