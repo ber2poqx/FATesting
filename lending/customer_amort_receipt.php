@@ -124,7 +124,11 @@ if(isset($_GET['get_CollectionType']))
 }
 if(isset($_GET['get_IntoBank']))
 {
-    $result = get_CPbank_accounts();
+    if($_GET['get_IntoBank'] == 'PDC'){
+        $result = get_CPbank_accounts('101003');
+    }else{
+        $result = get_CPbank_accounts();
+    }
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('id'=>$myrow["id"],
