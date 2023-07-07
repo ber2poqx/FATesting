@@ -91,22 +91,19 @@ class lending_app extends application
 			"sales/manage/customers.php?", 'SA_CUSTOMER', MENU_ENTRY);
 		$this->add_lapp_function(2, _("Customer &Branches"),
 			"sales/manage/customer_branches.php?", 'SA_CUSTOMER', MENU_ENTRY);
-
-		$this->add_rapp_function(2, _("Add Inter-Branch Customers"),
-			"lending/manage/auto_add_interb_customers.php?", 'SA_ADDCUSTINTERB', MENU_MAINTENANCE);
-		$this->add_rapp_function(2, _("Inventory &Locations"),
-			"inventory/manage/locations.php?", 'SA_INVENTORYLOCATION', MENU_MAINTENANCE);
-		$this->add_lapp_function(2, _("Item &Categories"),
-			"inventory/manage/item_categories.php?", 'SA_ITEMCATEGORY', MENU_MAINTENANCE);
-			
-		$this->add_rapp_function(2, _("Collector &Area Setup"),
-			"sales/manage/sales_areas.php?", 'SA_SALESAREA', MENU_MAINTENANCE);
-
 		$this->add_lapp_function(2, "","");
-
 		$this->add_lapp_function(2, _("Import &Customers CSV"),
 			"sales/manage/sales_customer_import.php?", 'SA_CUSTOMERSIMPORTS', MENU_MAINTENANCE); //Added by: Robert
 
+		$this->add_rapp_function(2, _("Add Inter-Branch Customers"),
+			"lending/manage/auto_add_interb_customers.php?", 'SA_ADDCUSTINTERB', MENU_MAINTENANCE);
+		$this->add_rapp_function(2, _("Collector &Area Setup"),
+			"sales/manage/sales_areas.php?", 'SA_SALESAREA', MENU_MAINTENANCE);
+		$this->add_rapp_function(2, "","");
+		$this->add_rapp_function(2, _("Inventory &Locations"),
+			"inventory/manage/locations.php?", 'SA_INVENTORYLOCATION', MENU_MAINTENANCE);
+		$this->add_rapp_function(2, _("Item &Categories"),
+			"inventory/manage/item_categories.php?", 'SA_ITEMCATEGORY', MENU_MAINTENANCE);
 		$this->add_extensions();
 	}
 }
