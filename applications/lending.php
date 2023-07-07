@@ -96,6 +96,8 @@ class lending_app extends application
 			"lending/manage/auto_add_interb_customers.php?", 'SA_ADDCUSTINTERB', MENU_MAINTENANCE);
 		$this->add_rapp_function(2, _("Inventory &Locations"),
 			"inventory/manage/locations.php?", 'SA_INVENTORYLOCATION', MENU_MAINTENANCE);
+		$this->add_lapp_function(2, _("Item &Categories"),
+			"inventory/manage/item_categories.php?", 'SA_ITEMCATEGORY', MENU_MAINTENANCE);
 			
 		$this->add_rapp_function(2, _("Collector &Area Setup"),
 			"sales/manage/sales_areas.php?", 'SA_SALESAREA', MENU_MAINTENANCE);
