@@ -1255,7 +1255,8 @@ if(isset($_GET['submit']))
                                                 $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null,
                                                 $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"], $_POST['transtype'], $_POST['paylocation'], $_POST['total_otheramount']);
 
-                add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
                 
                 //add other entry to bank trans table
@@ -2398,8 +2399,9 @@ if(isset($_GET['submitSICash']))
                     add_bank_trans(ST_CUSTPAYMENT, $payment_no, $OTdata['bankaccount'], $_POST['ref_no_cash'], $_POST['trans_date_cash'], $OTdata['debit_amount'], PT_CUSTOMER, $_POST['customername_cash'], $_POST['cashier_cash'], $_POST['pay_type_cash'], $_POST['trans_date_cash'], $OTdata['otref_no'], null, $_POST['InvoiceNo_cash'], $_POST['receipt_no_cash'], $_POST['preparedby_cash'], null, null, null, null, null, 0, null, 0, 1, $_POST['transtype_cash']);
                 }
             }
-
-            add_cust_allocation((($_POST['tenderd_amount_cash'] + $cash_discount) + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);  
+            //modify kay kun naay discount dli na mag balance ang ov_amount ug ang alloc field / total nga na allocate sa debtor trans
+            //add_cust_allocation((($_POST['tenderd_amount_cash'] + $cash_discount) + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);  
+            add_cust_allocation((($_POST['tenderd_amount_cash']) + $_POST['total_otheramount_cashpay']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['trans_date_cash']);  
             update_debtor_trans_allocation($_POST['transtype_cash'], $_POST['InvoiceNo_cash'], $_POST['customername_cash']);
 
             //allocate payment to

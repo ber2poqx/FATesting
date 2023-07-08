@@ -107,5 +107,3 @@ class lending_app extends application
 		$this->add_extensions();
 	}
 }
-
-
