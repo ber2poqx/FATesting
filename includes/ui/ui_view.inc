@@ -241,7 +241,9 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 	elseif ($type == Journal_voucher)
 		$viewer .= "journal_voucher.php?trans_type=0&trans_num=$trans_no";
 	elseif ($type == Debit_advice)
-		$viewer .= "Debit_Advice.php?trans_num=$trans_no&doc=DE";
+		$viewer .= "Debit_Advice.php?trans_num=$trans_no&doc=DE&interb=0";
+	elseif ($type == Debit_advice_interb)
+		$viewer .= "Debit_Advice.php?trans_num=$trans_no&doc=DE&interb=1";
 	elseif ($type == Debit_advice1)
 		$viewer .= "Debit_Advice.php?doc=JV&trans_num=$trans_no";
 	elseif ($type == Credit_advice)
