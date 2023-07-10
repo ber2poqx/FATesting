@@ -653,14 +653,20 @@ $interbranch = '', $open_bal = '', $trans_no = 0, $person_id = '', $person_type 
 	
 	set_global_connection();
 
-	$sql = "SELECT BT.* 
+	$sql = "SELECT BT.*, GL.interbranch 
 		FROM " . TB_PREF . "bank_trans BT ";
 	
+	$sql .= " LEFT JOIN (
+			SELECT GL.* FROM " . TB_PREF . "gl_trans GL GROUP BY GL.type, GL.type_no
+		) GL ON BT.trans_no = GL.type_no AND BT.type = GL.type";
+
+	/*
 	if ($interbranch != '') {
 		$sql .= " LEFT JOIN (
 			SELECT GL.* FROM " . TB_PREF . "gl_trans GL GROUP BY GL.type, GL.type_no
 		) GL ON BT.trans_no = GL.type_no AND BT.type = GL.type";
 	} 
+	*/
 	
 
 	$sql .= " WHERE BT.type <> 0";
