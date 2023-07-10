@@ -93,7 +93,15 @@ function print_voucher($row)
 
 function print_debit_advice($row)
 {
-    return printable_receipts_and_vouchers(Debit_advice, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
+    if($row["interbranch"] == 1) //Interbranch Entry
+    {
+        return printable_receipts_and_vouchers(Debit_advice_interb, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
+    }
+    else //Normal Entry
+    {
+        return printable_receipts_and_vouchers(Debit_advice, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
+    }
+    
 }
 
 

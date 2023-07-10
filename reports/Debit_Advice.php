@@ -1,3 +1,4 @@
+
 <?php
 $path_to_root = '..';
 if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_to_root']))
@@ -24,6 +25,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <title>RR Branch</title>
+<title>DEBIT ADVICE</title>
 <style type="text/css">
 	.main{
 		width: 8.3in;
@@ -69,6 +71,9 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		text-align: left;
 		font-size: 14px;
 		/*font-weight: bold;*/
+	}
+	.ReportTitle{
+		font-size: 20px;
 	}
 	.text-center{
 		text-align: center;
@@ -202,6 +207,10 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	}
 
 	.datatable {
+		font-size: 14px;
+	}
+
+	.datatable-entry {
 		font-size: 14px;
 	}
 
@@ -353,12 +362,81 @@ function convert_number($number)
 
 	return $res;
 }
+
+function get_journal_trans($type,$trans_id)
+{
+	$sql = "SELECT * FROM `journal` WHERE type = '$type' AND trans_no = '$trans_id'";
+
+	return db_query($sql, "get_journal_trans query could not be retrieved");
+}
+
+
+
+function searchForId($brcode, $db_connections) {
+   foreach ($db_connections as $key => $val) {
+       if ($val['branch_code'] === $brcode) {
+           return $key;
+       }
+   }
+   return null;
+}
+
+function get_comp_id1($branch_code) {
+
+	global $db_connections;
+	$company_id = '';
+
+	for ($i = 0; $i < count($db_connections); $i++) {
+		if ($db_connections[$i]['branch_code'] == $branch_code) {
+			$company_id = $i;
+			break;
+		}
+	}
+	return $company_id;
+}
+
+function get_branch_gl_trans($trans_type,$trans_num,$limit = '')
+{
+	$sql =" SELECT gl.account, cm.account_name, gl.amount, usr.real_name
+			FROM ".TB_PREF."gl_trans gl 
+			LEFT JOIN ".TB_PREF."chart_master cm ON gl.account = cm.account_code
+			LEFT JOIN ".TB_PREF."audit_trail audit ON gl.type = audit.type AND gl.type_no = audit.trans_no AND NOT ISNULL(gl_seq)
+			LEFT JOIN ".TB_PREF."users usr ON audit.user = usr.id
+			WHERE gl.type = ".db_escape($trans_type)." AND gl.type_no = '$trans_num' ";
+	if($limit != '')
+	{
+		$sql .= " LIMIT '$limit' ";
+	}
+
+	return db_query($sql, "get_branch_gl_trans query could not be retrieved");
+}
+
+function get_receiving_branch($transnum, $type)
+{
+	$sql =" SELECT *  FROM ".TB_PREF."gl_trans WHERE amount>0 AND type = '$type' AND type_no = '$transnum' ";
+
+	return db_query($sql, "get_receiving_branch query could not be retrieved");
+}
+
+function get_to_branch_gl_trans($refnum,$comp_id)
+{
+	set_global_connection($comp_id);
+
+	$sql = "    SELECT bi.sug_mcode AS account, cm.account_name, bi.amount
+				FROM ".TB_PREF."bank_interbranch_trans bi
+				LEFT JOIN ".TB_PREF."chart_master cm ON bi.sug_mcode = cm.account_code
+				WHERE ref_no LIKE '$refnum' ";
+
+	return db_query($sql, "get_to_branch_gl_trans query could not be retrieved");
+}
+
 ?> 
 
 <?php
 	// $rr_num = "AGOR-RRBR000012021";
 	$trans_num = $_REQUEST['trans_num'];
 	$code = $_REQUEST['doc'];
+	$IB = $_REQUEST['interb'];
 	
 	if($code == "DE"){
 		$trans_type = ST_BANKPAYMENT;
@@ -379,11 +457,57 @@ function convert_number($number)
 	//$Amount_in_words = convert_number($Amount_in_digit);
 	$refnum = $myrow3["reference"];
 	$JVnum = $myrow3["receipt_no"];
-	$payee = "Head Office";
+	if($code == "JV")
+	{
+		$journ_res = get_journal_trans($trans_type,$trans_num);
+		$journalrow = db_fetch($journ_res);
+
+		$result1 = get_branch_gl_trans($trans_type,$trans_num);
+		$myrow4 = db_fetch($result1);
+
+		$amount = abs($journalrow["amount"]);
+		$Date = sql2date($journalrow["doc_date"]);
+		$refnum = $journalrow["reference"];
+		$JVnum = $journalrow["trans_no"];
+		$prepared_by = $myrow4["real_name"];
+		$reviewed_by = "";
+		$approved_by = "";
+	}
+	else if($code == "DE")
+	{ 
+		$suggested_entry_code = $IB;
+		if($IB == 1){
+			$entry_title = "ACCOUNTING ENTRY - Originating Branch";
+
+			$to_branch_result = get_receiving_branch($trans_num,$trans_type);
+			$to_branch_row = db_fetch($to_branch_result);
+
+			$brCode = $to_branch_row["mcode"];
+
+			$comp_id = get_comp_id1($brCode);
+		}
+		else{
+			$entry_title = "ACCOUNTING ENTRY";
+		}
+
+		$res = get_gl_trans($trans_type,$trans_num);
+		$myrow3=db_fetch($res);
+
+		$amount = abs($myrow3["DA_amount"]);
+		$Date = sql2date($myrow3["tran_date"]);
+		$refnum = $myrow3["reference"];
+		$JVnum = $myrow3["receipt_no"];
+		$prepared_by = $myrow3["prepared_by"];
+		$reviewed_by = $myrow3["reviewed_by"];
+		$approved_by = $myrow3["approved_by"];
+		
+		
+	}
+	
+	$to_branch = $brCode;	
+	//$Amount_in_words = convert_number($Amount_in_digit);	
+	$payee = $brCode;
 	$particulars = $commentrow["memo_"];
-	$prepared_by = $myrow3["prepared_by"];
-	$reviewed_by = $myrow3["reviewed_by"];
-	$approved_by = $myrow3["approved_by"];
 
 
 	$whole = intval($amount); /* check for centavo amount */
@@ -398,11 +522,11 @@ function convert_number($number)
 
 	if ($decimal == 0 && convert_number($amount) != "Zero")
 	{
-		$Amount_in_words = strtoupper(convert_number($amount)) . " PESOS ONLY";
+		$Amount_in_words = strtoupper(convert_number($amount)) . " PESOS";
 	}
 	else if ($decimal != 0 && convert_number($amount) != "Zero")
 	{
-		$Amount_in_words = strtoupper(convert_number($amount)). " PESOS AND " . strtoupper(convert_number($decimal)) . " CENTS ONLY";
+		$Amount_in_words = strtoupper(convert_number($amount)). " PESOS AND " . strtoupper(convert_number($decimal)) . " CENTS";
 	}
 	else if ( convert_number($amount) == "Zero" )
 	{
@@ -413,13 +537,17 @@ function convert_number($number)
 
 <?php
 	$brchcode = $db_connections[user_company()]["branch_code"];
+	$brchcode = $db_connections[user_company()]["host"];
 	//echo '({"branchcode":"'.$brcode.'"})';
 			
 	$compcode = $db_connections[user_company()]["name"];
 	//$brscode = get_company_pref("name")
 
 	$comadd =  $db_connections[user_company()]["postal_address"];
-	$comadd = get_company_pref("postal_address")
+	//$comadd = get_company_pref("postal_address")
+	$comadd = get_company_pref("postal_address");
+
+	$testing = get_company_pref("name");
 ?>
 
 <body>
@@ -438,32 +566,34 @@ function convert_number($number)
 			</h3>
 			
 			<div class="BranchName">
-				<p><b><?php  echo $compcode?> - <?php echo $brchcode?></b></p>
+				<p><b><?php  echo $compcode .' - '.$brchcode?></b></p>
 			</div>			
 				
 			<div class="CompanyAdd">
 				<p><?php echo $comadd?></p>
 			</div>
 			
-			<h4>
-				<div class="Merchandise">
-					<label>DEBIT ADVICE</label>
+			
+			<h3>
+				<div class="ReportTitle">
+					<label ">DEBIT ADVICE</label>
 				</div>			
 			</h4>
+			</h3>
 		</div>
 		<table id="header" cellspacing="0" cellpadding="0">
 			<tr><td>&nbsp;</td></tr>
 			<tr>
 				<td align=left class="text-params" style="">To:</td>
-				<th align=left><input style="width:600px; padding-left:40px;" type="text" value="<?php echo strtoupper($to_branch)?>" class="underline_input_long" readonly></th>
+				<th align=left><input style="width:500px; padding-left:40px;" type="text" value="<?php echo strtoupper($to_branch)?>" class="underline_input_long" readonly></th>
 				<td class="text-params">Date:</td>
 				<th align=left><input type="text" value="<?php echo $Date?>" class="underline_input" readonly></th>
 			</tr>
 		</table>
 		<table id="header" cellspacing="0" cellpadding="0">
 			<tr>
-				<td align=left class="text-params">Amount:</td>
-				<th align=left><input style="width:675px;" type="text" value="<?php echo $Amount_in_words.' - (Php '. price_format($amount) .' )'?>" class="underline_input_long" readonly></th>				
+				<td align=left class="text-params" style="width: 50px;">Amount:</td>
+				<td align=left style="white-space: normal"><u><?php echo $Amount_in_words.' - (Php '. price_format($amount) .' )'?></u></td>							
 			</tr>
 			<tr>
 				<td align=left class="text-params"></td>
@@ -478,20 +608,25 @@ function convert_number($number)
 							<th colspan= "2" align=left style="font-weight: bold; padding-bottom: 7px; font-size: 14px; border-top: 1px solid black">We have debited today Home Office Current Account for the following:</th>
 						</tr>
 						<tr >							
-							<td style="width: 50px;"align=left class="text-params">JV#:</td>
-							<th align=left><input style="width:675px;" type="text" value="<?php echo $JVnum?>" class="underline_input_long" readonly></th>
+							<td style="width: 50px;"align=left class="text-params">JV#:</td>							
+							<td align=left><?php echo '<u>'.$JVnum.'</u>'; ?></td>
 						</tr>
 						<tr >							
-							<td style="width: 50px;"align=left class="text-params">Ref#:</td>
-							<th align=left><input style="width:675px;" type="text" value="<?php echo $refnum?>" class="underline_input_long" readonly></th>
+							<td style="width: 50px;"align=left class="text-params">Ref#:</td>							
+							<td align=left><?php echo '<u>'.$refnum.'</u>'; ?></td>
 						</tr>
 						<tr >								
 							<td style="width: 50px;"align=left class="text-params">Payee:</td>
-							<th align=left><input style="width:675px;" type="text" value="<?php echo strtoupper($payee)?>" class="underline_input_long" readonly></th>
+							<td align=left><?php echo '<u>'.strtoupper($payee).'</u>'; ?></td
+						</tr>
+						<tr >								
+							<td style="width: 50px;"align=left class="text-params"></td>
+							<td align=left></td
 						</tr>
 						<tr >	    
+						<tr >
 							<td style="width: 50px;"align=left class="text-params">Particulars:</td>
-							<th align=left><input style="width:675px;" type="text" value="<?php echo $particulars?>" class="underline_input_long" readonly></th>
+							<td align=left style="white-space: normal"><?php echo '<u>'.$particulars.'</u>'; ?></td>							
 						</tr>										
 				    </tbody>					
 				</table>				
@@ -500,20 +635,78 @@ function convert_number($number)
 			<div class="left" style="width: 100%; padding: 0px; float: left;font-size: 100%; margin-top: 10px;">			
 				<table style="width: 100%; float: left;" cellspacing="0" cellpadding="0">
 					<tbody>
-						<tr class="table1-headers">	
-							<th align=left style="padding-bottom: 7px;width: 60%; padding-left: 5px;">ACCOUNTING ENTRY</th>
-							<th align=right style="padding-bottom: 7px;border-left: 1px solid; width: 20%; padding-right: 5px;">DEBIT</th>
-							<th align=right style="padding-bottom: 7px;border-left: 1px solid; width: 20%; padding-right: 5px;">CREDIT</th>					
+						<tr class="table1-headers">				
+							<th align=left style="padding-bottom: 7px;width: 60%; padding-left: 5px;"></th>
+							<th align=center style="padding-bottom: 7px;border-left: 1px dotted gray; width: 20%; padding-right: 5px;">DEBIT</th>
+							<th align=center style="padding-bottom: 7px;border-left: 1px dotted gray; width: 20%; padding-right: 5px;">CREDIT</th>					
 						</tr>
 						
 						<?php				  
 							$type = $trans_type;
 							$trans_num_result = get_gl_trans($type,$trans_num);
 							
+							if($code == "JV")
+							{
+								$trans_num_result = get_branch_gl_trans($type,$trans_num);
+								
+							}
+							else
+							{
+								$trans_num_result = get_gl_trans($type,$trans_num);
+								$sugg_entry_result = get_to_branch_gl_trans($refnum,$comp_id);
+							}
+							
+
+							//$gl_data_res = get_branch_gl_trans($trans_type,$trans_num);
+							//$datarow = db_fetch($gl_data_res);
+							
 							$acct_code = '';
 							$acct_name = '';
 							$debit = '';
 							$credit = '';
+								
+							if($code == "DE" && $suggested_entry_code == "1")
+							{
+								echo '<tr class="datatable-entry">';					      
+								echo '<td align=left style="width: 60%; padding-left: 5px;font-weight: bold;border-top: 1px solid gray">SUGGESTED ENTRY - Receiving Branch</td>';
+								echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;border-top: 1px solid gray"></td>';							      
+								echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;border-top: 1px solid gray"></td>';
+								echo '</tr>';
+
+								while($transrow1=db_fetch($sugg_entry_result))
+								{
+									$acct_code = $transrow1["account"];
+									$acct_name = $transrow1["account_name"];
+
+									if($transrow1["amount"]==0)
+									{
+										$debit = 0;
+										$credit = 0;
+									}
+									else if($transrow1["amount"]>0)
+									{
+										$debit = price_format($transrow1["amount"]);
+										$credit = '-';
+									}
+									else if($transrow1["amount"]<0)
+									{
+										$debit = '-';
+										$credit = price_format(-$transrow1["amount"]);
+									}
+
+									echo '<tr class="datatable">';							      
+									echo '<td align=left style="width: 60%; padding-left: 15px;">'.$acct_code.' - '.$acct_name.'</td>';
+									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">'.$debit.'</td>';							      
+									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">'.$credit.'</td>';
+									echo '</tr>';
+								}
+							}
+
+							echo '<tr class="datatable-entry">';							      
+							echo '<td align=left style="width: 60%; padding-left: 5px;font-weight: bold; bold;border-top: 1px solid gray; padding-top: 15px;">'.$entry_title.'</td>';
+							echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;border-top: 1px solid gray; padding-top: 15px;"></td>';							      
+							echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;border-top: 1px solid gray; padding-top: 15px;"></td>';
+							echo '</tr>';
 
 							while($transrow=db_fetch($trans_num_result))
 							{
@@ -537,9 +730,9 @@ function convert_number($number)
 								}
 
 								echo '<tr class="datatable">';							      
-								echo '<td align=left style="width: 60%; padding-left: 5px;">'.$acct_code.' - '.$acct_name.'</td>';
-								echo '<td align=right style="border-left: 1px solid; width: 20%; padding-right: 5px;">'.$debit.'</td>';							      
-								echo '<td align=right style="border-left: 1px solid; width: 20%; padding-right: 5px;">'.$credit.'</td>';
+								echo '<td align=left style="width: 60%; padding-left: 15px;">'.$acct_code.' - '.$acct_name.'</td>';
+								echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">'.$debit.'</td>';							      
+								echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">'.$credit.'</td>';
 								echo '</tr>';
 							}
 							/*
