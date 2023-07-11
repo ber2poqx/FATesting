@@ -99,7 +99,7 @@ function print_debit_advice($row)
     }
     else //Normal Entry
     {
-        return printable_receipts_and_vouchers(Debit_advice, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
+        //return printable_receipts_and_vouchers(Debit_advice, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
     }
     
 }
@@ -287,8 +287,8 @@ $cols = array(
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
     array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
-	array('insert'=>true, 'fun'=>'print_voucher'), //Added by Prog6(03/31/2022)
-	array('insert'=>true, 'fun'=>'print_debit_advice') //Added by Prog6(06/26/2023)
+	_('DV') => array('insert'=>true, 'fun'=>'print_voucher'), //Added by Prog6(03/31/2022)
+	_('DA') => array('insert'=>true, 'fun'=>'print_debit_advice') //Added by Prog6(06/26/2023)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);

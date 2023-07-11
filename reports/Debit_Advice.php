@@ -479,16 +479,18 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 		if($IB == 1){
 			$entry_title = "ACCOUNTING ENTRY - Originating Branch";
 
-			$to_branch_result = get_receiving_branch($trans_num,$trans_type);
-			$to_branch_row = db_fetch($to_branch_result);
-
-			$brCode = $to_branch_row["mcode"];
-
-			$comp_id = get_comp_id1($brCode);
+			
 		}
 		else{
 			$entry_title = "ACCOUNTING ENTRY";
 		}
+
+		$to_branch_result = get_receiving_branch($trans_num,$trans_type);
+		$to_branch_row = db_fetch($to_branch_result);
+
+		$brCode = $to_branch_row["mcode"];
+
+		$comp_id = get_comp_id1($brCode);
 
 		$res = get_gl_trans($trans_type,$trans_num);
 		$myrow3=db_fetch($res);
@@ -653,7 +655,11 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 							else
 							{
 								$trans_num_result = get_gl_trans($type,$trans_num);
-								$sugg_entry_result = get_to_branch_gl_trans($refnum,$comp_id);
+								
+								if($suggested_entry_code == "1")
+								{
+									$sugg_entry_result = get_to_branch_gl_trans($refnum,$comp_id);
+								}								
 							}
 							
 
@@ -672,9 +678,11 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 								echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;border-top: 1px solid gray"></td>';							      
 								echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;border-top: 1px solid gray"></td>';
 								echo '</tr>';
-
+																										
+								$rowcount = 0;
 								while($transrow1=db_fetch($sugg_entry_result))
 								{
+									
 									$acct_code = $transrow1["account"];
 									$acct_name = $transrow1["account_name"];
 
@@ -693,13 +701,28 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 										$debit = '-';
 										$credit = price_format(-$transrow1["amount"]);
 									}
-
+									$rowcount = $rowcount+1;
 									echo '<tr class="datatable">';							      
 									echo '<td align=left style="width: 60%; padding-left: 15px;">'.$acct_code.' - '.$acct_name.'</td>';
 									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">'.$debit.'</td>';							      
 									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">'.$credit.'</td>';
 									echo '</tr>';
 								}
+									
+								if($rowcount==0)
+								{
+									echo '<tr class="datatable">';							      
+									echo '<td align=left style="width: 60%; padding-left: 15px;">000000 - NO SUGGESTED ACCOUNT</td>';
+									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">0.00</td>';							      
+									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">0.00</td>';
+									echo '</tr>';
+								}	
+											/*
+									echo '<tr class="datatable">';							      
+									echo '<td align=left style="width: 60%; padding-left: 15px;">000000 - NO ACCOUNT and rowcount = '.$rowcount.'</td>';
+									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">0.00</td>';							      
+									echo '<td align=right style="border-left: 1px dotted gray; width: 20%; padding-right: 5px;">0.00</td>';
+									echo '</tr>';*/
 							}
 
 							echo '<tr class="datatable-entry">';							      
