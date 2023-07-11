@@ -428,7 +428,8 @@ function get_stock_movements($stock_id, $Inventory_type, $StockLocation, $Before
 			WHERE moveinner.stock_id = move.stock_id 
 			AND moveinner.type_out = move.type_out 
 			AND moveinner.transno_out = move.transno_out
-			GROUP BY moveinner.type_out, moveinner.transno_out
+			AND moveinner.standard_cost = move.standard_cost
+			GROUP BY moveinner.type_out, moveinner.transno_out, moveinner.standard_cost
 			ORDER BY `move`.`tran_date`  DESC LIMIT 1) > 0 THEN 'Available'
 			ELSE 'Unavailable' END AS `TYPE_SPGEN`,
 
@@ -471,7 +472,7 @@ function get_stock_movements($stock_id, $Inventory_type, $StockLocation, $Before
 	$sql .= " move.tran_date >= '" . $after_date . "'
 		AND move.tran_date <= '" . $before_date . "'
 		AND move.stock_id = " . db_escape($stock_id) . " GROUP BY move.lot_no, move.type_out, move.transno_out, move.reference, 
-		move.item_type
+		move.item_type, move.standard_cost
 		ORDER BY move.tran_date, move.trans_id";
 
 
