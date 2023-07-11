@@ -457,6 +457,7 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 	//$Amount_in_words = convert_number($Amount_in_digit);
 	$refnum = $myrow3["reference"];
 	$JVnum = $myrow3["receipt_no"];
+
 	if($code == "JV")
 	{
 		$journ_res = get_journal_trans($trans_type,$trans_num);
@@ -475,23 +476,6 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 	}
 	else if($code == "DE")
 	{ 
-		$suggested_entry_code = $IB;
-		if($IB == 1){
-			$entry_title = "ACCOUNTING ENTRY - Originating Branch";
-
-			
-		}
-		else{
-			$entry_title = "ACCOUNTING ENTRY";
-		}
-
-		$to_branch_result = get_receiving_branch($trans_num,$trans_type);
-		$to_branch_row = db_fetch($to_branch_result);
-
-		$brCode = $to_branch_row["mcode"];
-
-		$comp_id = get_comp_id1($brCode);
-
 		$res = get_gl_trans($trans_type,$trans_num);
 		$myrow3=db_fetch($res);
 
@@ -502,9 +486,25 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 		$prepared_by = $myrow3["prepared_by"];
 		$reviewed_by = $myrow3["reviewed_by"];
 		$approved_by = $myrow3["approved_by"];
-		
-		
 	}
+
+	$suggested_entry_code = $IB;
+
+	if($IB == 1){
+		$entry_title = "ACCOUNTING ENTRY - Originating Branch";
+
+			
+	}
+	else{
+		$entry_title = "ACCOUNTING ENTRY";
+	}
+
+	$to_branch_result = get_receiving_branch($trans_num,$trans_type);
+	$to_branch_row = db_fetch($to_branch_result);
+
+	$brCode = $to_branch_row["mcode"];
+
+	$comp_id = get_comp_id1($brCode);
 	
 	$to_branch = $brCode;	
 	//$Amount_in_words = convert_number($Amount_in_digit);	
@@ -655,13 +655,13 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 							else
 							{
 								$trans_num_result = get_gl_trans($type,$trans_num);
-								
-								if($suggested_entry_code == "1")
-								{
-									$sugg_entry_result = get_to_branch_gl_trans($refnum,$comp_id);
-								}								
-							}
+																
+							}							
 							
+							if($suggested_entry_code == "1")
+							{
+								$sugg_entry_result = get_to_branch_gl_trans($refnum,$comp_id);
+							}
 
 							//$gl_data_res = get_branch_gl_trans($trans_type,$trans_num);
 							//$datarow = db_fetch($gl_data_res);
@@ -671,7 +671,7 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 							$debit = '';
 							$credit = '';
 								
-							if($code == "DE" && $suggested_entry_code == "1")
+							if($suggested_entry_code == "1")
 							{
 								echo '<tr class="datatable-entry">';					      
 								echo '<td align=left style="width: 60%; padding-left: 5px;font-weight: bold;border-top: 1px solid gray">SUGGESTED ENTRY - Receiving Branch</td>';
