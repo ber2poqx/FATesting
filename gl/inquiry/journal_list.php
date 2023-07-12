@@ -98,8 +98,7 @@ function print_debit_advice($row)
     if(has_interbranch_entry($row['trans_no'], ST_JOURNAL)) //Interbranch Entry
     {
         return printable_receipts_and_vouchers(Debit_advice1, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
-    }
-    
+    }    
 }
 
 function cancel_row($row) {
