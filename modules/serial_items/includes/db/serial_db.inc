@@ -159,9 +159,10 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
      AND QTYOUT.stock_id = serial.stock_id AND QTYOUT.lot_no = serial.lot_no
 
     LEFT JOIN ( 
-    SELECT jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.lot_no, SUM(jayhil.qty) AS QTY 
-    FROM stock_moves jayhil GROUP BY jayhil.type_out, jayhil.transno_out, jayhil.stock_id
+    SELECT jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.lot_no, jayhil.standard_cost, SUM(jayhil.qty) AS QTY 
+    FROM stock_moves jayhil GROUP BY jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.standard_cost
     )SPGEN ON SPGEN.type_out = serial.type_out AND SPGEN.transno_out = SPGEN.transno_out AND SPGEN.stock_id = serial.stock_id 
+    AND SPGEN.standard_cost = serial.standard_cost
  
     WHERE ISNULL(v.id) AND serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
 
@@ -187,8 +188,7 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
     if($querystr!=''){
         $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
     }
-    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
-    
+    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no, serial.standard_cost ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
     /*if($all){
         
     }else{
@@ -236,9 +236,10 @@ function get_all_stockmoves_compli($start,$limit,$querystr='',$category=0,$branc
      AND QTYOUT.stock_id = serial.stock_id AND QTYOUT.lot_no = serial.lot_no
 
     LEFT JOIN ( 
-    SELECT jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.lot_no, SUM(jayhil.qty) AS QTY 
-    FROM stock_moves jayhil GROUP BY jayhil.type_out, jayhil.transno_out, jayhil.stock_id
+    SELECT jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.lot_no, jayhil.standard_cost, SUM(jayhil.qty) AS QTY 
+    FROM stock_moves jayhil GROUP BY jayhil.type_out, jayhil.transno_out, jayhil.stock_id, jayhil.standard_cost
     )SPGEN ON SPGEN.type_out = serial.type_out AND SPGEN.transno_out = SPGEN.transno_out AND SPGEN.stock_id = serial.stock_id 
+    AND SPGEN.standard_cost = serial.standard_cost
  
     WHERE ISNULL(v.id) AND serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
 
@@ -272,7 +273,7 @@ function get_all_stockmoves_compli($start,$limit,$querystr='',$category=0,$branc
     if($querystr!=''){
         $sql.=" AND (serial.color_code LIKE '%".$querystr."%' OR smaster.description LIKE '%".$querystr."%' OR icode.description LIKE '%".$querystr."%')";
     }
-    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
+    $sql.=" GROUP BY serial.type_out, serial.transno_out, serial.stock_id, serial.lot_no, serial.standard_cost ORDER BY serial.stock_id,serial.tran_date, serial.standard_cost";
     
     /*if($all){
         
