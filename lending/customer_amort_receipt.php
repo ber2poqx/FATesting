@@ -2415,7 +2415,7 @@ if(isset($_GET['submitSICash']))
                 }
             }
 
-            if((check_ar_balance($_POST['InvoiceNo_cash'], $_POST['transtype_cash']) - $cash_discount) == 0){
+            if((check_ar_balance($_POST['InvoiceNo_cash'], $_POST['transtype_cash'])) == 0){
                 update_status_debtor_trans($_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['transtype_cash'], "fully-paid");
                 update_status_debtor_loans($_POST['InvoiceNo_cash'], $_POST['customername_cash'], "fully-paid");
             }else{
@@ -2431,6 +2431,126 @@ if(isset($_GET['submitSICash']))
     }
     return;
 }
+
+if(isset($_GET['submitpdcack']))
+{
+    $InputError = 0;
+    
+    if (empty($_POST['transtype_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+    }
+    if (empty($_POST['pay_type_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+    }
+    if (empty($_POST['moduletype_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+    }
+    if (empty($_POST['customercode_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Customer code must not be empty.');
+    }
+    if (empty($_POST['customername_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Customer name must not be empty.');
+    }
+    if (empty($_POST['trans_date_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Transaction date must not be empty.');
+    }else{
+        $trans_date = date('Y-m-d',strtotime($_POST['trans_date_cash']));
+    }
+    if (empty($_POST['InvoiceNo_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Invoice number must not be empty.');
+    }
+    if (empty($_POST['receipt_no_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('CR number must not be empty.');
+    }
+    if (empty($_POST['intobankacct_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Into bank account must not be empty.');
+    }
+    if (empty($_POST['total_amount_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Total amount must not be empty.');
+    }
+    if ($_POST['total_amount_cash'] == 0) {
+        $InputError = 1;
+        $dsplymsg = _('Total amount must be greater than 0.');
+    }
+    if (empty($_POST['tenderd_amount_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Tendered amount must not be empty.');
+    }
+    if ($_POST['tenderd_amount_cash'] == 0) {
+        $InputError = 1;
+        $dsplymsg = _('Tendered amount must be greater than 0.');
+    }
+    if (empty($_POST['remarks_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('remarks must not be empty.');
+    }
+    if (empty($_POST['paymentType_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Payment type must not be empty.');
+    }
+    if (empty($_POST['cashier_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Cashier must not be empty.');
+    }
+    if (empty($_POST['preparedby_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Prepared by must not be empty.');
+    }
+    if (empty($_POST['collectType_cash'])) {
+        $InputError = 1;
+        $dsplymsg = _('Collection type must not be empty.');
+    }
+    if($_POST['total_amount_cash'] < ($_POST['tenderd_amount_cash'])){
+        $InputError = 1;
+        $dsplymsg = _('Tendered amount and total payment amount must be equal');
+    }
+
+    $invoice_date = get_debtor_invoice_date($_POST['InvoiceNo_cash'], $_POST['customername_cash'], $_POST['transtype_cash']);
+    if(check_two_dates($invoice_date, $_POST['trans_date_cash']) < 0){
+        $InputError = 1;
+        $dsplymsg = _('Transaction date must be greater than invoice date.');
+    }
+
+    if($_POST['pay_type_cash'] == "Check"){
+        if (empty($_POST['check_date_cash'])) {
+            $InputError = 1;
+            $dsplymsg = _('Check date must not be empty.');
+        }
+        if (empty($_POST['check_no_cash'])) {
+            $InputError = 1;
+            $dsplymsg = _('Check number must not be empty.');
+        }
+        if (empty($_POST['bank_branch_cash'])) {
+            $InputError = 1;
+            $dsplymsg = _('Bank branch must not be empty.');
+        }
+    }
+
+    if ($InputError != 1){
+        begin_transaction();
+
+        add_customer($_POST['customer_name'], $cust_ref, $_POST['address'], $_POST['barangay'], $_POST['Municipality'], $_POST['province'],
+                    $_POST['Zip_Code'], $customerrow['tax_id'], $birth_date, $_POST['gender'], $_POST['maritalstatus'], $customerrow['spouse'], $_POST['father'],
+                    $_POST['mother'], $_POST['collector'], $customerrow['curr_code'], $_POST['area'], 0, 0, 0, $customerrow['payment_terms'], 0, 0, $customerrow['credit_limit'],
+                    $customerrow['sales_type'], 'AutoCreatedCustomer-InterBranch-'.$customerrow['notes'], $customerrow['debtor_ref']);
+
+        echo '({"success":"true","message":"'.$dsplymsg.'"})';
+    }else{
+        echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+    }
+    return;
+}
+
 //void transaction
 if(isset($_GET['submitVoid']))
 {
