@@ -90,6 +90,11 @@ function print_OR_receipt($row)
 	return printable_receipts_and_vouchers(Official_receipt, $row["ref"], _("Print Official receipt"), ICON_PRINT);
 }
 
+function print_credit_advice($row)
+{
+	return printable_receipts_and_vouchers(Credit_advice_re, $row["ref"], _("Print Credit Advice"), ICON_PRINT);
+}
+
 function cancel_row($row) {
     $cancel_link = '';
 
@@ -260,7 +265,8 @@ $cols = array(
     _('Payment Type') => array('align' => 'center', 'fun' => 'pay_type'),
     _('Document Total') => array('align' => 'right', 'type' => 'amount', 'fun' => 'amount_total'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
-    array('insert' => true, 'fun' => 'print_OR_receipt', 'align' => 'center'),
+    _('OR') => array('insert' => true, 'fun' => 'print_OR_receipt', 'align' => 'center'),
+    _('CA') => array('insert' => true, 'fun' => 'print_credit_advice', 'align' => 'center'),
     array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center')
 );

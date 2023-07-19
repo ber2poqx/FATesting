@@ -246,8 +246,10 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 		$viewer .= "Debit_Advice.php?trans_num=$trans_no&doc=DE&interb=1";
 	elseif ($type == Debit_advice1)
 		$viewer .= "Debit_Advice.php?doc=JV&trans_num=$trans_no&interb=1";
-	elseif ($type == Credit_advice)
-		$viewer .= "Credit_Advice.php?trans_type=0&trans_num=$trans_no";
+	elseif ($type == Credit_advice_re)
+		$viewer .= "Credit_Advice.php?trans_type=2&trans_num=$trans_no&doc=RE";
+	elseif ($type == Credit_advice_jv)
+		$viewer .= "Credit_Advice.php?trans_type=2&trans_num=$trans_no&doc=JV";
 	else
 		return null;
 	//$viewer .= "?trans_no=$trans_no";
