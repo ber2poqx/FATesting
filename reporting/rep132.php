@@ -13,8 +13,8 @@ $page_security = 'SA_COLLECT_REP'; //Modified by spyrax10 20 Jun 2022
 // ----------------------------------------------------------------
 // $ Revision:	2.0 $
 // Creator:	RobertGwapo
-// date:	2021-04-29
-// Title:	Daily Summary Of Collection V2
+// date:	2023-06-27
+// Title:	Daily Summary Of Collection - Allocate V2
 // ----------------------------------------------------------------
 
 /**
@@ -40,25 +40,29 @@ include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_PO_Report();
 
-function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Type, $group = 0)
+function getTransactions($from, $cust_name = "", $collector, $cashier, $Type, $group = 0)
 {
 	$from = date2sql($from);
-	$to = date2sql($to);
+	//$to = date2sql($to);
 	$advanceDate = endCycle($to, 1);
 	
 	$sql ="SELECT A.type AS No_type, A.trans_no AS No_trans, A.masterfile, A.trans_date, A.ref, A.receipt_no, abs(A.amount) AS amt, B.ov_discount AS rebate,
-			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty, E.trans_no AS trans_ledge,
-			F.month_no, F.principal_due, I.collection, K.account_name AS Coa_name, M.description AS AREA,
+			B.payment_type AS Type, B.module_type AS Type_Alloc, C.name, E.payment_applied AS payment, E.penalty, E.trans_no AS loan_trans, E.date_paid,
+			F.month_no, F.principal_due, F.date_due, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
 
 			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,*/
 			/*A.amount + B.ov_discount AS downtotal,*/
 			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS advancetotal,*/
 			/*A.amount - E.payment_applied + B.ov_discount - IFNULL(E.penalty, 0) AS advance,*/
+			CASE
+				WHEN B.module_type = 'ALCN-DP' THEN 'Allocate Down-payment'
+				WHEN B.module_type = 'ALCN-INTERB' THEN 'Allocate Inter-branch Payment'
+				WHEN B.module_type = 'ALCN-ADJ' THEN 'Allocate Other Adjustment'
+			END AS 'alolocate_type',
 
 			CASE 
 			    WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt'
-			    WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries'
 			END AS 'receipt_type'
 
 			FROM ".TB_PREF."bank_trans A
@@ -76,9 +80,9 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 			LEFT JOIN ".TB_PREF."users O ON O.user_id = M.collectors_id
 			LEFT JOIN ".TB_PREF."comments P ON P.id = A.trans_no AND P.type = A.type
 			WHERE A.trans_date = '$from'
-			AND (A.pay_type <> 'alloc' OR B.payment_type <> 'alloc') 
-			AND A.remit_no = 0			
-			AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
+			AND A.type IN (" . ST_CUSTPAYMENT . ")
+            AND A.pay_type = 'alloc'
+            ";
 
 			if ($cust_name != 'ALL') {
             $sql .= " AND C.name =".db_escape($cust_name);              
@@ -105,32 +109,6 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
             }
 
     return db_query($sql, "No transactions were returned");
-}
-
-function remittance_transactions_for_collection($from, $to, $fcashier = '', $tcashier = '') {
-	
-	$from = date2sql($from);
-	$to = date2sql($to);
-
-	$sql = "SELECT RT.*, SUM(BT.amount) AS total_amt
-		FROM ".TB_PREF."remittance RT
-			INNER JOIN ".TB_PREF."bank_trans BT ON BT.remit_no = RT.id";
-
-	$sql .= " WHERE BT.trans_date>='$from' AND BT.trans_date<='$to'";
-
-	if ($fcashier != '') {
-		$sql .= " AND RT.remit_from = ".db_escape($fcashier);
-	}
-
-	if ($tcashier != '') {
-		$sql .= " AND RT.remit_to = ".db_escape($tcashier);
-	} 
-
-	$sql .= " AND RT.remit_stat <> 'Disapproved'"; 
-
-	$sql .= " GROUP BY RT.remit_ref";
-
-	return db_query($sql, "No transactions were returned");
 }
 
 function get_category_invoice_date($trans_no)
@@ -268,9 +246,9 @@ function print_PO_Report()
 	$customer = $_POST['PARAM_1'];
 	$collector 	= $_POST['PARAM_2'];
 	$cashier 	= $_POST['PARAM_3'];
-    $group = $_POST['PARAM_4'];
+    //$group = $_POST['PARAM_5'];
 	//$orientation= $_POST['PARAM_6'];
-	$destination= $_POST['PARAM_5'];
+	$destination= $_POST['PARAM_4'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -298,13 +276,13 @@ function print_PO_Report()
 	else
    		$cashier_collection = get_cashier_name($cashier);
 
-	if($group == 1) {
+	/*if($group == 1) {
 		$groupName = 'Chart of Accounts';
 	}elseif($group == 2) {
 		$groupName = 'Collector';
 	}else{
 		$groupName = 'Area';
-	}
+	}*/
 
 	$date = explode('/', $from);
 	$year1 = $date[2];
@@ -318,11 +296,11 @@ function print_PO_Report()
 	$year9 = $year8 - 1;
 
 	$params = array(0 => $comments,
-		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
+		1 => array('text' => _('Transaction Date'),'from' => $from, 'to' => ''),
 		2 => array('text' => _('Customer'), 'from' => htmlentities($cust), 'to' => ''),
 		3 => array('text' => _('Collector'), 'from' => $collector_collection, 'to' => ''),
-		4 => array('text' => _('Cashier'), 'from' => $cashier_collection, 'to' => ''),
-		5 => array('text' => _('Group by'), 'from' => $groupName, 'to' => '')
+		4 => array('text' => _('Cashier'), 'from' => $cashier_collection, 'to' => '')
+		//5 => array('text' => _('Group by'), 'from' => $groupName, 'to' => '')
 	);
 
 	$cols = array(0, 50, 110, 230, 430, 530, 570, 640, 700, 
@@ -352,7 +330,7 @@ function print_PO_Report()
 	'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
 	'left', 'left', 'left', 'left');
 
-    $rep = new FrontReport(_('Daily Summary Of Collection V2'), "DailySummaryCollection", "Legal", 9, $orientation);
+    $rep = new FrontReport(_('Daily Summary Of Collection - Allocation V2'), "DailySummaryCollectionAllocation", "Legal", 9, $orientation);
     if ($orientation == 'L')
     	recalculate_cols($cols);
 	
@@ -373,137 +351,51 @@ function print_PO_Report()
 	$grandtotal = $grandtotaladvance = $grandar1 = $grandar2 = $grandar3 = $grandar4 = $grandrebate = $grandpenalty = $grandcr = 
 	$remit_total = $grandtotalall = $grandcrall = 0.0;
 
-	$res = getTransactions($from, $to, $cust, $collector, $cashier, $Type, $group);
-	$remit_result = remittance_transactions_for_collection($from, $to, '', $cashier);
-    $Collector_Name = $Coa_name = $AREA = '';
+	$res = getTransactions($from, $cust, $collector, $cashier, $Type, $group);
+    $Alloc_name = '';
 
 	while ($DSOC = db_fetch($res))
 	{
-		if ($group == 1) {
-            if ($Coa_name != $DSOC['Coa_name']) {
-
-                if ($Coa_name != '') {
-                    $rep->NewLine(2);
-					$rep->Font('bold');
-					$rep->Line($rep->row  - 4);
-					$rep->TextCol(6, 8, _('Total Per') . " " .$groupName);
-					$rep->AmountCol(8, 9, $Tot_Val);
-					$rep->AmountCol(9, 10, $totaladvance);
-					$rep->AmountCol(10, 11, $ar1);
-					$rep->AmountCol(11, 12, $ar2);
-					$rep->AmountCol(12, 13, $ar3);
-					$rep->AmountCol(13, 14, $ar4);
-					$rep->AmountCol(14, 15, $rb);
-					$rep->AmountCol(15, 16, $pn);
-					$rep->AmountCol(16, 17, $cr);
-					$rep->AmountCol(17, 18, $dr);
-					$rep->Line($rep->row  - 4);
-					$rep->Font();
-					$rep->NewLine(2);
-					$Tot_Val = 0.0;
-					$totaladvance = 0.0;
-					$ar1 = 0.0;
-					$ar2 = 0.0;
-					$ar3 = 0.0;
-					$ar4 = 0.0;
-					$pn = 0.0;
-					$rb = 0.0;
-					$cr = 0.0;
-                }
-
-                $rep->Font('bold');
-				$rep->SetTextColor(0, 0, 255);
-				//$rep->TextCol(0, 1, $DSOC['user_id']);		
-				$rep->TextCol(0, 3, $DSOC['Coa_name']);
-				$Coa_name = $DSOC['Coa_name'];
+		if ($Alloc_name != $DSOC['alolocate_type']) {
+			if ($Alloc_name != '') {
+				$rep->NewLine(2);
+				$rep->Font('bold');
+				$rep->Line($rep->row  - 4);
+				$rep->TextCol(5, 8, _('Total Per') . " " .$Alloc_name);
+				$rep->AmountCol(8, 9, $Tot_Val);
+				$rep->AmountCol(9, 10, $totaladvance);
+				$rep->AmountCol(10, 11, $ar1);
+				$rep->AmountCol(11, 12, $ar2);
+				$rep->AmountCol(12, 13, $ar3);
+				$rep->AmountCol(13, 14, $ar4);
+				$rep->AmountCol(14, 15, $rb);
+				$rep->AmountCol(15, 16, $pn);
+				$rep->AmountCol(16, 17, $cr);
+				$rep->AmountCol(17, 18, $dr);
+				$rep->Line($rep->row  - 4);
 				$rep->Font();
-	            $rep->SetTextColor(0, 0, 0);
-	            $rep->NewLine();	 
-            }
-        } else if ($group == 2){
-            if ($Collector_Name != $DSOC['Collector_Name']) {
+				$rep->NewLine(2);
+				$Tot_Val = 0.0;
+				$totaladvance = 0.0;
+				$ar1 = 0.0;
+				$ar2 = 0.0;
+				$ar3 = 0.0;
+				$ar4 = 0.0;
+				$pn = 0.0;
+				$rb = 0.0;
+				$cr = 0.0;
+			}
 
-                if ($Collector_Name != '') {
-                    $rep->NewLine(2);
-					$rep->Font('bold');
-					$rep->Line($rep->row  - 4);
-					$rep->TextCol(6, 8, _('Total Per') . " " .$groupName);
-					$rep->AmountCol(8, 9, $Tot_Val);
-					$rep->AmountCol(9, 10, $totaladvance);
-					$rep->AmountCol(10, 11, $ar1);
-					$rep->AmountCol(11, 12, $ar2);
-					$rep->AmountCol(12, 13, $ar3);
-					$rep->AmountCol(13, 14, $ar4);
-					$rep->AmountCol(14, 15, $rb);
-					$rep->AmountCol(15, 16, $pn);
-					$rep->AmountCol(16, 17, $cr);
-					$rep->AmountCol(17, 18, $dr);
-					$rep->Line($rep->row  - 4);
-					$rep->Font();
-					$rep->NewLine(2);
-					$Tot_Val = 0.0;
-					$totaladvance = 0.0;
-					$ar1 = 0.0;
-					$ar2 = 0.0;
-					$ar3 = 0.0;
-					$ar4 = 0.0;
-					$pn = 0.0;
-					$rb = 0.0;
-					$cr = 0.0;
-                }
-
-                $rep->Font('bold');
-				$rep->SetTextColor(0, 0, 255);
-				//$rep->TextCol(0, 1, $DSOC['user_id']);		
-				$rep->TextCol(0, 3, $DSOC['Collector_Name']);
-				$Collector_Name = $DSOC['Collector_Name'];
-				$rep->Font();
-	            $rep->SetTextColor(0, 0, 0);
-	            $rep->NewLine();	 
-            }
-        } else {
-            if ($AREA != $DSOC['AREA']) {
-
-                if ($AREA != '') {
-                    $rep->NewLine(2);
-					$rep->Font('bold');
-					$rep->Line($rep->row  - 4);
-					$rep->TextCol(6, 8, _('Total Per') . " " .$groupName);
-					$rep->AmountCol(8, 9, $Tot_Val);
-					$rep->AmountCol(9, 10, $totaladvance);
-					$rep->AmountCol(10, 11, $ar1);
-					$rep->AmountCol(11, 12, $ar2);
-					$rep->AmountCol(12, 13, $ar3);
-					$rep->AmountCol(13, 14, $ar4);
-					$rep->AmountCol(14, 15, $rb);
-					$rep->AmountCol(15, 16, $pn);
-					$rep->AmountCol(16, 17, $cr);
-					$rep->AmountCol(17, 18, $dr);
-					$rep->Line($rep->row  - 4);
-					$rep->Font();
-					$rep->NewLine(2);
-					$Tot_Val = 0.0;
-					$totaladvance = 0.0;
-					$ar1 = 0.0;
-					$ar2 = 0.0;
-					$ar3 = 0.0;
-					$ar4 = 0.0;
-					$pn = 0.0;
-					$rb = 0.0;
-					$cr = 0.0;
-                }
-
-                $rep->Font('bold');
-				$rep->SetTextColor(0, 0, 255);
-				//$rep->TextCol(0, 1, $DSOC['user_id']);		
-				$rep->TextCol(0, 3, $DSOC['AREA']);
-				$AREA = $DSOC['AREA'];
-				$rep->Font();
-	            $rep->SetTextColor(0, 0, 0);
-	            $rep->NewLine();	 
-            }
-        }
-
+			$rep->Font('bold');
+			$rep->SetTextColor(0, 0, 255);
+			//$rep->TextCol(0, 1, $DSOC['user_id']);		
+			$rep->TextCol(0, 3, $DSOC['alolocate_type']);
+			$Alloc_name = $DSOC['alolocate_type'];
+			$rep->Font();
+			$rep->SetTextColor(0, 0, 0);
+			$rep->NewLine();	 
+		}
+        
 		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$rebate_appl  =	get_rabate_applied($DSOC['No_type'], $DSOC['No_trans']);
@@ -538,7 +430,7 @@ function print_PO_Report()
 		}
 		
 		$month_no = $DSOC['month_no'];
-		if($month_no == 0) {
+		if ($month_no == 0) {
 			$advance = 0;
 		}else {
 			$advance = $advance_payment;
@@ -548,13 +440,18 @@ function print_PO_Report()
 			$arpayment = $ar_total;
 			$advanceF_payment = 0;
 		}else{
+			/*if($DSOC['date_due']) {
+				# code...
+			}else{
+
+			}*/
 			$arpayment = $ar_total - $advance;
 			$advanceF_payment = $advance;
 		}
 
 		$Type = $DSOC['Type'];
 	    if ($Type == 'amort'){
-			$Ar = $arpayment;
+			$Ar = $ar_total - $advance;
 			$Dw = '';
 	    }elseif($Type == 'down'){
 			$Dw = $downtotal;
@@ -567,12 +464,21 @@ function print_PO_Report()
 	   		$Ar4 = 0;
 	   		$Ar = 0;
 		}elseif ($Type == 'alloc') {
-			$Dw = $downtotal - $advance;
-	   		$Ar1 = 0;
-	   		$Ar2 = 0;
-	   		$Ar3 = 0;
-	   		$Ar4 = 0;
-	   		$Ar = 0;
+			if($DSOC['Type_Alloc'] == 'ALCN-DP') {
+				$Dw = $downtotal;
+				$Ar1 = 0;
+				$Ar2 = 0;
+				$Ar3 = 0;
+				$Ar4 = 0;
+				$Ar = 0;
+			}else{
+				$Dw = 0;
+				$Ar1 = 0;
+				$Ar2 = 0;
+				$Ar3 = 0;
+				$Ar4 = 0;
+				$Ar = $ar_total - $advance;
+			}		
 		}elseif($Type == '') {
 			$Dw = $DSOC['amt'];
 	   		$Ar1 = 0;
@@ -628,7 +534,7 @@ function print_PO_Report()
 		$rep->NewLine();
 		$rep->TextCol(0, 1, sql2date($DSOC['trans_date']));
 		//$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $DSOC['ref'])); 
-		$rep->TextCol(1, 2, $DSOC['receipt_no']);
+		$rep->TextCol(1, 2, $DSOC['ref']);
         $rep->SetTextColor(0, 102, 0);
 		$rep->TextCol(2, 3, htmlentities($DSOC['name']));
         $rep->SetTextColor(0, 0, 0);
@@ -655,8 +561,8 @@ function print_PO_Report()
 		$Tot_Val += $amt;
 		$grandtotal += $amt;
 
-		$totaladvance += $advanceF_payment;
-		$grandtotaladvance += $advanceF_payment;
+		$totaladvance += $advance;
+		$grandtotaladvance += $advance;
 
 		$ar1 += $Ar1;
 		$grandar1 += $Ar1;
@@ -682,199 +588,50 @@ function print_PO_Report()
 
 	$rep->NewLine(0);
 
-	if ($group == 1) {
-        if ($Coa_name != $DSOC['Coa_name']) {
+	
+	if ($Alloc_name != $DSOC['alolocate_type']) {
 
-            if ($Coa_name != '') {
-                $rep->NewLine(2);
-				$rep->Font('bold');
-				$rep->Line($rep->row  - 4);
-				$rep->TextCol(6, 8, _('Total Per') . " " .$groupName);
-				$rep->AmountCol(8, 9, $Tot_Val, $dec);
-				$rep->AmountCol(9, 10, $totaladvance, $dec);
-				$rep->AmountCol(10, 11, $ar1, $dec);
-				$rep->AmountCol(11, 12, $ar2, $dec);
-				$rep->AmountCol(12, 13, $ar3, $dec);
-				$rep->AmountCol(13, 14, $ar4, $dec);
-				$rep->AmountCol(14, 15, $rb, $dec);
-				$rep->AmountCol(15, 16, $pn, $dec);
-				$rep->AmountCol(16, 17, $cr, $dec);
-				$rep->AmountCol(17, 18, $dr, $dec);
-				$rep->Line($rep->row  - 4);
-				$rep->Font();
-				$rep->NewLine(2);
-				$Tot_Val = 0.0;
-				$totaladvance = 0.0;
-				$ar1 = 0.0;
-				$ar2 = 0.0;
-				$ar3 = 0.0;
-				$ar4 = 0.0;
-				$pn = 0.0;
-				$rb = 0.0;
-				$cr = 0.0;
-            }
-
-            $rep->Font('bold');
-			$rep->SetTextColor(0, 0, 255);
-			//$rep->TextCol(0, 1, $DSOC['user_id']);		
-			$rep->TextCol(0, 3, $DSOC['Coa_name']);
-			$Coa_name = $DSOC['Coa_name'];
+		if ($Alloc_name != '') {
+			$rep->NewLine(2);
+			$rep->Font('bold');
+			$rep->Line($rep->row  - 4);
+			$rep->TextCol(5, 8, _('Total Per') . " " .$Alloc_name);
+			$rep->AmountCol(8, 9, $Tot_Val, $dec);
+			$rep->AmountCol(9, 10, $totaladvance, $dec);
+			$rep->AmountCol(10, 11, $ar1, $dec);
+			$rep->AmountCol(11, 12, $ar2, $dec);
+			$rep->AmountCol(12, 13, $ar3, $dec);
+			$rep->AmountCol(13, 14, $ar4, $dec);
+			$rep->AmountCol(14, 15, $rb, $dec);
+			$rep->AmountCol(15, 16, $pn, $dec);
+			$rep->AmountCol(16, 17, $cr, $dec);
+			$rep->AmountCol(17, 18, $dr, $dec);
+			$rep->Line($rep->row  - 4);
 			$rep->Font();
-            $rep->SetTextColor(0, 0, 0);
-            $rep->NewLine();	 
-        }
-    } else if ($group == 2){
-        if ($Collector_Name != $DSOC['Collector_Name']) {
+			$rep->NewLine(2);
+			$Tot_Val = 0.0;
+			$totaladvance = 0.0;
+			$ar1 = 0.0;
+			$ar2 = 0.0;
+			$ar3 = 0.0;
+			$ar4 = 0.0;
+			$pn = 0.0;
+			$rb = 0.0;
+			$cr = 0.0;
+		}
 
-            if ($Collector_Name != '') {
-                $rep->NewLine(2);
-				$rep->Font('bold');
-				$rep->Line($rep->row  - 4);
-				$rep->TextCol(6, 8, _('Total Per') . " " .$groupName);
-				$rep->AmountCol(8, 9, $Tot_Val, $dec);
-				$rep->AmountCol(9, 10, $totaladvance, $dec);
-				$rep->AmountCol(10, 11, $ar1, $dec);
-				$rep->AmountCol(11, 12, $ar2, $dec);
-				$rep->AmountCol(12, 13, $ar3, $dec);
-				$rep->AmountCol(13, 14, $ar4, $dec);
-				$rep->AmountCol(14, 15, $rb, $dec);
-				$rep->AmountCol(15, 16, $pn, $dec);
-				$rep->AmountCol(16, 17, $cr, $dec);
-				$rep->AmountCol(17, 18, $dr, $dec);
-				$rep->Line($rep->row  - 4);
-				$rep->Font();
-				$rep->NewLine(2);
-				$Tot_Val = 0.0;
-				$totaladvance = 0.0;
-				$ar1 = 0.0;
-				$ar2 = 0.0;
-				$ar3 = 0.0;
-				$ar4 = 0.0;
-				$pn = 0.0;
-				$rb = 0.0;
-				$cr = 0.0;
-            }
-
-            $rep->Font('bold');
-			$rep->SetTextColor(0, 0, 255);
-			//$rep->TextCol(0, 1, $DSOC['user_id']);		
-			$rep->TextCol(0, 3, $DSOC['Collector_Name']);
-			$Collector_Name = $DSOC['Collector_Name'];
-			$rep->Font();
-            $rep->SetTextColor(0, 0, 0);
-            $rep->NewLine();	 
-        }
-    } else {
-        if ($AREA != $DSOC['AREA']) {
-
-            if ($AREA != '') {
-                $rep->NewLine(2);
-				$rep->Font('bold');
-				$rep->Line($rep->row  - 4);
-				$rep->TextCol(6, 8, _('Total Per') . " " .$groupName);
-				$rep->AmountCol(8, 9, $Tot_Val, $dec);
-				$rep->AmountCol(9, 10, $totaladvance, $dec);
-				$rep->AmountCol(10, 11, $ar1, $dec);
-				$rep->AmountCol(11, 12, $ar2, $dec);
-				$rep->AmountCol(12, 13, $ar3, $dec);
-				$rep->AmountCol(13, 14, $ar4, $dec);
-				$rep->AmountCol(14, 15, $rb, $dec);
-				$rep->AmountCol(15, 16, $pn, $dec);
-				$rep->AmountCol(16, 17, $cr, $dec);
-				$rep->AmountCol(17, 18, $dr, $dec);
-				$rep->Line($rep->row  - 4);
-				$rep->Font();
-				$rep->NewLine(2);
-				$Tot_Val = 0.0;
-				$totaladvance = 0.0;
-				$ar1 = 0.0;
-				$ar2 = 0.0;
-				$ar3 = 0.0;
-				$ar4 = 0.0;
-				$pn = 0.0;
-				$rb = 0.0;
-				$cr = 0.0;
-            }
-
-            $rep->Font('bold');
-			$rep->SetTextColor(0, 0, 255);
-			//$rep->TextCol(0, 1, $DSOC['user_id']);		
-			$rep->TextCol(0, 3, $DSOC['AREA']);
-			$AREA = $DSOC['AREA'];
-			$rep->Font();
-            $rep->SetTextColor(0, 0, 0);
-            $rep->NewLine();	 
-        }
-    }
-
-    while ($remitdsoc = db_fetch($remit_result)) {
-
-		$bank_row = db_fetch(get_bank_trans($remit_transT['type'], null, null, null, $remit_transT['remit_ref']));
-		$void_entry = get_voided_entry(ST_REMITTANCE, $remit_transT['id']); 
-
-		$cr_remittance = $remitdsoc['total_amt'];
-
-
-		$rep->NewLine();
-		$rep->TextCol(0, 1, sql2date($remitdsoc['remit_date']));
-		$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $remitdsoc['remit_ref']));
-        $rep->SetTextColor(0, 102, 0);
-		$rep->TextCol(2, 3,	get_user_name($remitdsoc['remit_from']));
-        $rep->SetTextColor(0, 0, 0);
-		$rep->TextCol(3, 4, $remitdsoc['remit_memo']);
-		$rep->TextCol(4, 5, _('REMITTANCE ENTRIES'));
-		$rep->TextCol(7, 8, sql2date($remitdsoc['remit_date']));
-		$rep->AmountCol(8, 9, $remitdsoc['total_amt'], $dec);
-		$rep->AmountCol(9, 10, $remitdsoc[''], $dec);
-		$rep->AmountCol(10, 11, $remitdsoc[''], $dec);
-		$rep->AmountCol(11, 12, $remitdsoc[''], $dec);
-		$rep->AmountCol(12, 13, $remitdsoc[''], $dec);
-		$rep->AmountCol(13, 14, $remitdsoc[''], $dec);
-		$rep->AmountCol(14, 15, $remitdsoc[''], $dec);
-		$rep->SetTextColor(255, 0, 0);
-		$rep->AmountCol(15, 16, $remitdsoc[''], $dec);
-        $rep->SetTextColor(0, 0, 0);
-		$rep->AmountCol(16, 17, $cr_remittance, $dec);
-		$rep->AmountCol(17, 18, $remitdsoc[''], $dec);
-        $rep->NewLine(0.5);
-
-		$remit_total += $remitdsoc['total_amt'];
-		$remit_cr += $cr_remittance;
-	}
-
-	$total = db_num_rows($remit_result);
-	if($total !=0) {
-		$rep->NewLine(2);
 		$rep->Font('bold');
-		$rep->Line($rep->row  - 4);
-		$rep->TextCol(6, 8, _('Total Remittance'));
-		$rep->AmountCol(8, 9, $remit_total, $dec);
-		$rep->AmountCol(9, 10, $remit1, $dec);
-		$rep->AmountCol(10, 11, $remit2, $dec);
-		$rep->AmountCol(11, 12, $remit3, $dec);
-		$rep->AmountCol(12, 13, $remit4, $dec);
-		$rep->AmountCol(13, 14, $remit5, $dec);
-		$rep->AmountCol(14, 15, $remit6, $dec);
-		$rep->AmountCol(15, 16, $remit7, $dec);
-		$rep->AmountCol(16, 17, $remit_cr, $dec);
-		$rep->AmountCol(17, 18, $remit8, $dec);
-		$rep->Line($rep->row  - 4);
+		$rep->SetTextColor(0, 0, 255);
+		//$rep->TextCol(0, 1, $DSOC['user_id']);		
+		$rep->TextCol(0, 3, $DSOC['alolocate_type']);
+		$Alloc_name = $DSOC['alolocate_type'];
 		$rep->Font();
-		$rep->NewLine(2);
-		//$remit_total = 0.0;
-		//$remit_cr = 0.0;
-		//$remit1 = 0.0;
-		//$remit2 = 0.0;
-		//$remit3 = 0.0;
-		//$remit4 = 0.0;
-		//$remit5 = 0.0;
-		//$remit6 = 0.0;
-		//$remit7 = 0.0;
-		//$remit8 = 0.0;
+		$rep->SetTextColor(0, 0, 0);
+		$rep->NewLine();	 
 	}
-
-	$grandtotalall = $grandtotal + $remit_total;
-	$grandcrall = $grandcr + $remit_cr;
+    
+	$grandtotalall = $grandtotal;
+	$grandcrall = $grandcr;
 	
 	$rep->NewLine(2);
 	$rep->Line($rep->row - 2);
