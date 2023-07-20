@@ -279,7 +279,7 @@ function print_SL_summary_particulars()
 		$GL_title = db_fetch($account);
 		$account_name = $GL_title['account_name'];
 	
-		$Tot_bal = 0;
+		$Tot_bal = null;
 		$Tot_deb = 0;
 		$Tot_cred = 0;
 		$running_bal = 0;
@@ -381,21 +381,25 @@ function print_SL_summary_particulars()
 			$rep->Line($rep->row + 10);
 		}
 			
-		if($Tot_bal == 0)
+		if(isset($Tot_bal))
 		{
-				While ($F_bal = db_fetch($Forwarded_bal))
-				{	
-					$rep->Font('bold');
-					$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);
-					$rep->TextCol(4, 5, _('Balance Forwarded'));
-					$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
-					$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
-					$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
-					$rep->Font();
-					$running_bal = $F_bal['Forwarded_Bal'];
-					$Forwarded_deb = $F_bal['Debit'];
-					$Forwarded_cred = $F_bal['Credit'];
-				}		
+			While ($F_bal = db_fetch($Forwarded_bal))
+			{	
+				$rep->Font('bold');
+				$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);
+				$rep->TextCol(4, 5, _('Balance Forwarded'));
+				$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
+				$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
+				$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
+				$rep->Font();
+				$running_bal = $F_bal['Forwarded_Bal'];
+				$Forwarded_deb = $F_bal['Debit'];
+				$Forwarded_cred = $F_bal['Credit'];
+			}				
+		}
+
+		if(!isset($Tot_bal))
+		{
 			$rep->Line($rep->row);
 			$rep->NewLine(2);
 			$rep->TextCol(2, 7, _('-  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  '));
@@ -416,44 +420,51 @@ function print_SL_summary_particulars()
 
 		$rep->Line($rep->row - 7);
 
-		$rep->NewLine(1.3);			
-		$rep->Font('bold');		
-		$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
-		$rep->TextCol(4, 5, _('Ending Balance'));
-		$rep->Font();		
-		$rep->Font('bold');
-		$Total1 = getEnding_bal($to, $gl_account, $masterfile);
-		While ($Total_amount = db_fetch($Total1))
+		if(isset($Tot_bal))
 		{
-			$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
-			$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+			$rep->NewLine(1.3);			
+			$rep->Font('bold');		
+			$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
+			$rep->TextCol(4, 5, _('Ending Balance'));
+			$rep->Font();		
+			$rep->Font('bold');
+			$Total1 = getEnding_bal($to, $gl_account, $masterfile);
+			While ($Total_amount = db_fetch($Total1))
+			{
+				$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
+				$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+			}
+			if ($running_bal < 0)
+				$rep->AmountCol(7, 8, -$running_bal, $dec);
+			else		
+				$rep->AmountCol(7, 8, $running_bal, $dec);
+			$rep->Line($rep->row - 2, 0.5);	
+			$rep->Font();
 		}
-		if ($running_bal < 0)
-			$rep->AmountCol(7, 8, -$running_bal, $dec);
-		else		
-			$rep->AmountCol(7, 8, $running_bal, $dec);
-		$rep->Line($rep->row - 2, 0.5);	
-		$rep->Font();
+		
+		
 
 		$rep->NewLine(5);
-	
-		//$rep->fontSize += 1;	
-		$rep->Font('bold');
-		$rep->TextCol(3, 4, _('Grand Total'));
-		$rep->AmountCol(5, 6, $Tot_deb + $Forwarded_deb, $dec);
-		$rep->AmountCol(6, 7, $Tot_cred + $Forwarded_cred, $dec);
-		$rep->fontSize -= 1;	
-		$rep->Font();
-		$rep->Line($rep->row - 2);
-		//$rep->SetFooterType('');
-		//$rep->fontSize -= 1;
-
+		
+		if(isset($Tot_bal))
+		{
+			//$rep->fontSize += 1;	
+			$rep->Font('bold');
+			$rep->TextCol(3, 4, _('Grand Total'));
+			$rep->AmountCol(5, 6, $Tot_deb + $Forwarded_deb, $dec);
+			$rep->AmountCol(6, 7, $Tot_cred + $Forwarded_cred, $dec);
+			$rep->fontSize -= 1;	
+			$rep->Font();
+			$rep->Line($rep->row - 2);
+			//$rep->SetFooterType('');
+			//$rep->fontSize -= 1;
+		}
 	}	
 	else if($gl_account == ALL_TEXT)
 	{
 		$res = getTransactions($from, $to, $gl_account, $masterfile);
 
-		$Tot_bal = 0;
+		$Tot_bal = null;
 		$Tot_deb = 0;
 		$Tot_cred = 0;
 		$running_bal = 0;
@@ -475,7 +486,7 @@ function print_SL_summary_particulars()
 
 				$Forwarded_bal = getBalance_forwarded($from, $SLsum['account'], $masterfile);
 				
-				if($Tot_bal != 0)
+				if(isset($Tot_bal))
 				{
 					$rep->Line($rep->row - 2);
 
@@ -612,73 +623,76 @@ function print_SL_summary_particulars()
 			$Forwarded_deb = $F_bal['Debit'];
 			$Forwarded_cred = $F_bal['Credit'];
 		}	
-			/*
+
+		if(!isset($Tot_bal))
+		{			
 			$rep->Line($rep->row);
 			$rep->NewLine(2);
 			$rep->TextCol(2, 7, _('-  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  '));
-			$rep->NewLine(1);*/
+			$rep->NewLine(1);
+		}
+		
 		
 		$rep->fontSize -= 1;
 		$rep->Line($rep->row - 2);
 		$rep->NewLine();
-		$rep->Font('bold');
-		$rep->TextCol(4, 6, _('Subtotal'));
-		$rep->Font('italic');
-		$rep->AmountCol(5, 6, $Tot_deb, $dec);
-		$rep->AmountCol(6, 7, $Tot_cred, $dec);
-		$grand_deb = $grand_deb + $Tot_deb;
-		$grand_cred = $grand_cred + $Tot_cred;
-		$Tot_deb = 0;
-		$Tot_cred = 0;
-		$rep->fontSize += 1;
-		$rep->Font();
 
-		$rep->NewLine(0.2);
-		$rep->Line($rep->row - 3);
-
-		$account = get_GL_Title($gl_account);
-		$GL_title = db_fetch($account);
-		$account_name = $GL_title['account_name'];
-
-		//ending balance
-		$rep->NewLine();			
-		$rep->Font('bold');		
-		$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
-		$rep->TextCol(4, 5, _('Ending Balance'));
-		$rep->Font();		
-		$rep->Font('bold');
-		$Total1 = getEnding_bal($to, $gl_account, $masterfile);
-		While ($Total_amount = db_fetch($Total1))
+		if(isset($Tot_bal))
 		{
-			$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
-			$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+			$rep->Font('bold');
+			$rep->TextCol(4, 6, _('Subtotal'));
+			$rep->Font('italic');
+			$rep->AmountCol(5, 6, $Tot_deb, $dec);
+			$rep->AmountCol(6, 7, $Tot_cred, $dec);
+			$grand_deb = $grand_deb + $Tot_deb;
+			$grand_cred = $grand_cred + $Tot_cred;
+			$Tot_deb = 0;
+			$Tot_cred = 0;
+			$rep->fontSize += 1;
+			$rep->Font();
+
+			$rep->NewLine(0.2);
+			$rep->Line($rep->row - 3);
+
+			$account = get_GL_Title($gl_account);
+			$GL_title = db_fetch($account);
+			$account_name = $GL_title['account_name'];
+
+			//ending balance
+			$rep->NewLine();			
+			$rep->Font('bold');		
+			$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
+			$rep->TextCol(4, 5, _('Ending Balance'));
+			$rep->Font();		
+			$rep->Font('bold');
+			$Total1 = getEnding_bal($to, $gl_account, $masterfile);
+			While ($Total_amount = db_fetch($Total1))
+			{
+				$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
+				$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
+			}
+			if ($running_bal < 0)
+				$rep->AmountCol(7, 8, -$running_bal, $dec);
+			else		
+				$rep->AmountCol(7, 8, $running_bal, $dec);
+
+
+			$rep->Font();
+			$rep->Line($rep->row - 3,1);
+
+			$rep->NewLine(5);
+
+			//$rep->fontSize += 1;	
+			$rep->Font('bold');
+			$rep->TextCol(3, 4, _('Grand Total'));
+			$rep->AmountCol(5, 6, $grand_deb + $grand_forwarded_deb, $dec);
+			$rep->AmountCol(7, 8, $grand_cred + $grand_forwarded_cred, $dec);
+			$rep->fontSize -= 1;	
+			$rep->Font();
+			$rep->Line($rep->row - 2);
+			//$rep->SetFooterType('');
+			//$rep->fontSize -= 1;
 		}
-		if ($running_bal < 0)
-			$rep->AmountCol(7, 8, -$running_bal, $dec);
-		else		
-			$rep->AmountCol(7, 8, $running_bal, $dec);
-
-
-		$rep->Font();
-		$rep->Line($rep->row - 3,1);
-
-		$rep->NewLine(5);
-
-		//$rep->fontSize += 1;	
-		$rep->Font('bold');
-		$rep->TextCol(3, 4, _('Grand Total'));
-		$rep->AmountCol(5, 6, $grand_deb + $grand_forwarded_deb, $dec);
-		$rep->AmountCol(7, 8, $grand_cred + $grand_forwarded_cred, $dec);
-		$rep->fontSize -= 1;	
-		$rep->Font();
-		$rep->Line($rep->row - 2);
-		//$rep->SetFooterType('');
-		//$rep->fontSize -= 1;
-		
-		
 	}
-	
-		
-	
     $rep->End();
 }
