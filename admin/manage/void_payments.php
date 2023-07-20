@@ -124,6 +124,12 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
     }
+    //check if done voiding transaction
+    $isdone = check_if_void_done($_GET['void_id']);
+    if($isdone['void_status'] == 'Voided'){
+        $InputError = 1;
+        $dsplymsg = _('Error Payment already voided.');
+    }
     //check if cash or dili
     $info = get_debtor_trans_all($_GET['trans_type'], $_GET['trans_no']);
     $banktrans_info = get_bank_trans_perno($_GET['trans_type'], $_GET['trans_no']);
@@ -197,12 +203,17 @@ if(isset($_GET['submit']))
             //check kung last payment ba sa ledger
             $loaninfo = get_loan_ledger_payment_per_transno($_GET['trans_type'], $_GET['trans_no']);
             $loanrow = db_fetch($loaninfo);
-            $chkres = check_ledger_to_void($loanrow["trans_type"], $loanrow["trans_no"]);
-            if($chkres['payment_trans_no'] != $_GET['trans_no']){
-                $InputError = 1;
-                $info = get_debtor_trans_all($_GET['trans_type'], $chkres['payment_trans_no']);
+            $chkresult = check_ledger_to_void($loanrow["trans_type"], $loanrow["trans_no"]);
+            $total = DB_num_rows($chkresult);
+            $chkres = db_fetch($result);
 
-                $dsplymsg = _('Error. Make sure to void this payment reference no. <u>'.$info['reference'].'</u> first. ');
+            if($total != 0){
+                if($chkres['payment_trans_no'] != $_GET['trans_no']){
+                    $InputError = 1;
+                    $info = get_debtor_trans_all($_GET['trans_type'], $chkres['payment_trans_no']);
+    
+                    $dsplymsg = _('Error. Make sure to void this payment reference no. <u>'.$info['reference'].'</u> first. ');
+                }
             }
 
             if ($InputError != 1){

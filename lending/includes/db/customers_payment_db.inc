@@ -102,6 +102,21 @@ function add_loan_ledger($trans_no, $debtor_no, $loansched_id, $typeto, $typefro
 	db_query($sql, $ErrMsg);
 }
 
+function add_pdc_trans($debtor_no, $reference, $trans_date, $masterfile, $masterfile_type, $amount, $check_date, $check_no, $bank_branch, $cashier_id, $prepared_by)
+{
+	$sql = "INSERT INTO ".TB_PREF." pdc_trans(
+				debtor_no ,ref ,trans_date, masterfile, masterfile_type, amount, check_date, check_no, bank_branch, cashier_user_id, prepared_by
+			) VALUES (
+					".db_escape($debtor_no)." ,".db_escape($reference)." ,".db_escape($trans_date)." ,".db_escape($masterfile)."
+					,".db_escape($masterfile_type)." ,".db_escape($amount)." ,".db_escape($check_date)." ,".db_escape($check_no)."
+					,".db_escape($bank_branch)." ,".db_escape($cashier_id)." ,".db_escape($prepared_by)."
+			)";
+
+	$ErrMsg = _('Could not insert pdc because ');
+	
+	db_query($sql, $ErrMsg);
+}
+
 function auto_allocate_payment($trans_no, $trans_type, $amount)
 {
 	$sql = "UPDATE ".TB_PREF."debtor_trans 
@@ -169,6 +184,22 @@ function update_status_debtor_trans($trans_no, $debtor_no, $type, $status, $modu
 			AND type = ".db_escape($type);
 		
 	db_query($sql, "could not update table debtor trans because ");
+}
+
+function update_pdc_trans($syspk, $debtor_no, $masterfile, $trans_date, $amount, $check_date, $check_no, $bank_branch, $cashier_id)
+{
+	$sql = "UPDATE ".TB_PREF."pdc_trans 
+			SET cashier_user_id = ".db_escape($cashier_id).",
+				amount = ".db_escape($amount).",
+				check_date = ".db_escape($check_date).",
+				check_no = ".db_escape($check_no).",
+				bank_branch = ".db_escape($bank_branch).",
+				trans_date = ".db_escape($trans_date)."
+		WHERE id = ".db_escape($syspk)."
+			AND debtor_no = ".db_escape($debtor_no)."
+			AND masterfile = ".db_escape($masterfile);
+		
+	db_query($sql, "could not update table pdc trans because ");
 }
 
 function get_CPbank_accounts($account_code=null)
@@ -1083,7 +1114,16 @@ function check_ledger_to_void($type, $trans_no)
 				AND B.trans_type_to = ".db_escape($type)." 
 			ORDER BY B.loansched_id DESC";
 
-	$result = db_query($sql,"could not get loan ledger because ");
+	return db_query($sql,"could not get loan ledger because ");
+}
+
+function check_if_void_done($id)
+{
+	$sql = "SELECT A.*
+			FROM ".TB_PREF."voided A 
+			WHERE A.void_id = ".db_escape($id);
+
+	$result = db_query($sql,"could not get voided data ");
 	return db_fetch($result);
 }
 
@@ -1096,4 +1136,18 @@ function get_bank_trans_perno($type, $trans_no)
 
 	$result = db_query($sql, "The bank trans per trans number could not be retrieved");
 	return db_fetch($result);
+}
+
+function exists_pdc_trans($id, $masterfile, $masterfile_type)
+{
+	$sql = "SELECT COUNT(A.*) pdc
+			FROM ".TB_PREF." pdc_trans a
+			WHERE id = ".db_escape($type)."
+				AND masterfile = ".db_escape($masterfile)."
+				AND masterfile_type = ".db_escape($masterfile_type);
+
+	$result = db_query($sql, "Cannot retreive pdc info");
+	$ret = db_fetch($result);
+
+	return $ret[0];
 }
