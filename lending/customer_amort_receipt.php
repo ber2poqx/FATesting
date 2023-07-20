@@ -1371,6 +1371,7 @@ if(isset($_GET['submit']))
                     */
                     $amort_delay = $termoderow['outstanding_ar_amount'];
                     $opportunity_cost = $termoderow['opportunity_cost'];
+                    $termrebate = $termoderow['adv_payment_rebate'];
 
                     while ($myrow = db_fetch($result)) {
                         if($amort_delay > 0){
@@ -1437,7 +1438,12 @@ if(isset($_GET['submit']))
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
-                    
+
+                    if ($termrebate != 0)	{
+                        /* Now Debit discount account with discounts allowed*/
+
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $branch_data["payment_discount_account"], 0, 0, -$termrebate, $_POST['customername'], "Cannot insert a GL transaction for the payment discount debit", 0, null, null, 0, $_POST['InvoiceNo']);
+                    }
                     //commented kay mag adjust pa sila sa remaining balance - full payment term mode
                     /*if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
                         $termode_status = 'Closed';
