@@ -2539,10 +2539,12 @@ if(isset($_GET['submitpdcack']))
     if ($InputError != 1){
         begin_transaction();
 
-        add_customer($_POST['customer_name'], $cust_ref, $_POST['address'], $_POST['barangay'], $_POST['Municipality'], $_POST['province'],
-                    $_POST['Zip_Code'], $customerrow['tax_id'], $birth_date, $_POST['gender'], $_POST['maritalstatus'], $customerrow['spouse'], $_POST['father'],
-                    $_POST['mother'], $_POST['collector'], $customerrow['curr_code'], $_POST['area'], 0, 0, 0, $customerrow['payment_terms'], 0, 0, $customerrow['credit_limit'],
-                    $customerrow['sales_type'], 'AutoCreatedCustomer-InterBranch-'.$customerrow['notes'], $customerrow['debtor_ref']);
+        if($_POST['syspk_cash'] != 0 || $_POST['syspk_cash'] != ''){
+            update_pdc_trans($_POST['syspk_cash'], $_POST['customername_cash'], $_POST['InvoiceNo_cash'], $_POST['trans_date_cash'],
+                             $_POST['total_amount_cash'], $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['cashier_cash']);
+        }else{
+            add_pdc_trans($_POST['customer_name']);
+        }
 
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
     }else{

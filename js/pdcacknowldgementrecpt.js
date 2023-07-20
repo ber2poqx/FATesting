@@ -334,11 +334,11 @@ Ext.onReady(function() {
 		}
 	}, '-', {
 		text:'<b>Add</b>',
-		tooltip: 'Add new PDC acknowldgement receipt payment',
+		tooltip: 'Add new PDC acknowledgement receipt payment',
 		icon: '../js/ext4/examples/shared/icons/coins-in-hand-icon.png',
 		scale: 'small',
 		handler: function(){
-			submit_form_cash.getForm().reset();
+			submit_form.getForm().reset();
 			
 			Ext.getCmp('check_cash').setVisible(false);
 			
@@ -348,13 +348,15 @@ Ext.onReady(function() {
 			ARInvoiceStore.proxy.extraParams = {debtor_id: 0};
 			ARInvoiceStore.load();
 
+			Ext.getCmp('intobankacct_cash').setValue("2");
 			Ext.getCmp('debit_acct_cash').setValue("1050");
 			Ext.getCmp('paymentType_cash').setValue('other');
 			Ext.getCmp('collectType_cash').setValue(1);//'office'
-			Ext.getCmp('moduletype_cash').setValue('CI-CASH');
+			Ext.getCmp('moduletype_cash').setValue('PDC');
+			GetCashierPrep();
 
 			submit_window_cash.show();
-			submit_window_cash.setTitle('Cash Payment Receipt Entry - Add');
+			submit_window_cash.setTitle('PDC acknowledgement Payment Receipt Entry - Add');
 			submit_window_cash.setPosition(320,23);
 		}
 	}, '->' ,{
@@ -368,16 +370,11 @@ Ext.onReady(function() {
 			icon: '../js/ext4/examples/shared/icons/map_magnify.png',
 			href: '../lending/inquiry/ar_installment_inquiry.php?',
 			hrefTarget : '_blank'
-		},'-',{
-			text: '<b>Add Inter-Branch Customers</b>',
-			icon: '../js/ext4/examples/shared/icons/door_in.png',
-			href: '../lending/manage/auto_add_interb_customers.php?',
-			hrefTarget : '_blank'
 		}]
 	}];
 
-	var submit_form_cash = Ext.create('Ext.form.Panel', {
-		id: 'submit_form_cash',
+	var submit_form = Ext.create('Ext.form.Panel', {
+		id: 'submit_form',
 		model: 'AllocationModel',
 		frame: true,
 		defaultType: 'field',
@@ -415,13 +412,6 @@ Ext.onReady(function() {
 				id: 'debit_acct_cash',
 				name: 'debit_acct_cash',
 				fieldLabel: 'debit_acct',
-				allowBlank: false,
-				hidden: true
-			},{
-				xtype: 'textfield',
-				id: 'ref_no_cash',
-				name: 'ref_no_cash',
-				fieldLabel: 'ref_no',
 				allowBlank: false,
 				hidden: true
 			},{
@@ -466,20 +456,6 @@ Ext.onReady(function() {
 							}
 							ARInvoiceStore.proxy.extraParams = {debtor_id: record.get('debtor_no'), tag: $tag};
 							ARInvoiceStore.load();
-
-							Ext.Ajax.request({
-								url : '?getReference=CI',
-								params: {
-									debtor_id: record.get('debtor_no'),
-									date: Ext.getCmp('trans_date_cash').getValue()
-								},
-								async:false,
-								success: function (response){
-									var result = Ext.JSON.decode(response.responseText);
-									Ext.getCmp('ref_no_cash').setValue(result.reference);
-									submit_window_cash.setTitle('Cash Payment Receipt Entry - Reference No. : '+ result.reference + ' *new');
-								}
-							});
 						}
 					}
 				},{
@@ -667,16 +643,7 @@ Ext.onReady(function() {
 							Ext.getCmp('debit_acct_cash').setValue(record.get("type"));
 							Ext.getCmp('tenderd_amount_cash').setValue();
 							Ext.getCmp('tenderd_amount_cash').focus(false, 200);
-						},
-						change: function(object, value) {
-							//console.log(value);
-							if(value == 1){ //object.getRawValue()
-								Ext.getCmp('check_cash').setVisible(false);
-								Ext.getCmp('pay_type_cash').setValue('Cash');
-							}else{
-								Ext.getCmp('check_cash').setVisible(true);
-								Ext.getCmp('pay_type_cash').setValue('Check');
-							}
+							Ext.getCmp('pay_type_cash').setValue('Check');
 						}
 					}
 				},{
@@ -696,17 +663,7 @@ Ext.onReady(function() {
 							field.focus(true);
 						},
 						change: function(object, value) {
-
-							if(Ext.getCmp('InvoiceNo_cash').getValue() != null){
-								Ext.getCmp('alloc_amount_cash').setValue(value);
-								
-								var totalamnt = (parseFloat(value) + parseFloat(Math.floor(Ext.getCmp('total_otheramount_cashpay').getValue())));
-
-								var ItemModel = Ext.getCmp('allocgrid_cash').getSelectionModel();
-								var GridRecords = ItemModel.getLastSelected(); //getLastSelected();
-
-								GridRecords.set("alloc_amount_cash",totalamnt);
-							}
+							Ext.getCmp('total_amount_cash').setValue(value);
 						}
 					}
 				}]
@@ -759,92 +716,31 @@ Ext.onReady(function() {
 		resizable: false,
 		closeAction:'hide',
 		//closable: false,
-		items:[submit_form_cash],
+		items:[submit_form],
 		buttons:[{
 			text: '<b>Save</b>',
 			tooltip: 'Save customer payment',
 			icon: '../js/ext4/examples/shared/icons/add.png',
 			single : true,
 			handler:function(){
-				var HaveErrors = 0;
-				var $message;
-				var submit_form_cash = Ext.getCmp('submit_form_cash').getForm();
-				if(Ext.getCmp('alloc_amount_cash').getValue() != Ext.getCmp('tenderd_amount_cash').getValue()){
-					$message = "Tendered amount and credit amount are not equal. Please review all data before saving.";
-					HaveErrors = 1;
-				}
-				if (HaveErrors == 1){
-					Ext.Msg.show({
-						title: 'Error!',
-						msg: '<font color="red">' + $message + '</font>',
-						buttons: Ext.Msg.OK,
-						icon: Ext.MessageBox.ERROR
-					});
-					return false;
-				}
-				if(submit_form_cash.isValid()) {
-					var AllocationModel = allocCash_store.model;
-					var TotalFld = AllocationModel.getFields().length -1;
-					var records = allocCash_store.getModifiedRecords();
-					var gridData = [];
-					var params = {};
-					var count = 0;
-					for(var i = 0; i < records.length; i++){
-						Ext.each(AllocationModel.getFields(), function(field){
-							params[field.name] = records[i].get(field.name);
-							//params[field.name+'['+ i +']'] = records[i].get(field.name);
-							count++;
-							if(count == TotalFld){
-								gridData.push(params);
-								params = {};
-								count = 0;
-							}
-						});
+				submit_form.submit({
+					url: '?submitpdcack=pdc',
+					waitMsg: 'Saving pdc acknowledgement Invoice No.' + Ext.getCmp('InvoiceNo_cash').getRawValue() + '. please wait...',
+					method:'POST',
+					submitEmptyText: false,
+					success: function(submit_form, action) {
+						PaymentStore.load()
+						Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
+						submit_window_cash.close();
+					},
+					failure: function(submit_form, action) {
+						Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
 					}
-					//other entries
-					if(Ext.getCmp('total_otheramount_cashpay').getValue() != 0){
-						var gridOEData = OtherEntryStore.getRange();
-						var OEData = [];
-						
-						Ext.each(gridOEData, function(item) {
-							var ObjItem = {
-								id: item.get('id'),  
-								gl_code: item.get('gl_code'),
-								gl_name: item.get('gl_name'),
-								sl_code: item.get('sl_code'),
-								sl_name: item.get('sl_name'),
-								debtor_id: item.get('debtor_id'),
-								debit_amount: item.get('debit_amount'),
-								bankaccount: item.get('bankaccount'),
-								otref_no: item.get('otref_no')
-							};
-							OEData.push(ObjItem);
-						});
-					}
-					//console.log(Ext.decode(gridData));
-					submit_form_cash.submit({
-						url: '?submitSICash=payment',
-						params: {
-							DataOnGrid: Ext.encode(gridData),
-							DataOEGrid: Ext.encode(OEData)
-						},
-						waitMsg: 'Saving payment for Invoice No.' + Ext.getCmp('InvoiceNo_cash').getRawValue() + '. please wait...',
-						method:'POST',
-						submitEmptyText: false,
-						success: function(submit_form_cash, action) {
-							PaymentStore.load()
-							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
-							submit_window_cash.close();
-						},
-						failure: function(submit_form_cash, action) {
-							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
-						}
-					});
-					window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
-						//alert('An error has occurred!')
-						Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
-						return true;
-					}
+				});
+				window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
+					//alert('An error has occurred!')
+					Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
+					return true;
 				}
 			}
 		},{
@@ -855,7 +751,7 @@ Ext.onReady(function() {
 				Ext.MessageBox.confirm('Confirm:', 'Are you sure you wish to close this window?', function (btn, text) {
 					if (btn == 'yes') {
 						//Ext.Msg.alert('Close','close.');
-						submit_form_cash.getForm().reset();
+						submit_form.getForm().reset();
 						submit_window_cash.close();
 					}
 				})  ;
@@ -953,4 +849,16 @@ Ext.onReady(function() {
 			}
 		}]
 	});
+
+	function GetCashierPrep(){
+		Ext.Ajax.request({
+			url : '?get_cashierPrep=zHun',
+			async:false,
+			success: function (response){
+				var result = Ext.JSON.decode(response.responseText);
+					//Ext.getCmp('cashier').setValue(result.cashier);
+					Ext.getCmp('preparedby_cash').setValue(result.prepare);
+			}
+		});
+	};
 });
