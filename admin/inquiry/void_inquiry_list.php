@@ -125,6 +125,15 @@ function trans_no($row) {
     return $row['id'];
 }
 
+#Added by Prog6 (07/21/2023)
+function print_voucher($row)
+{
+    if($row["void_status"] == "Voided")
+    {
+        return printable_receipts_and_vouchers($row["type"],  $row["id"], _("Print voided trans"), ICON_PRINT);	
+    }    
+}
+
 function post_void($row) {
     $post_link = '';
     
@@ -259,7 +268,8 @@ $cols = array(
     _('Voided By') => array('align' => 'center', 'fun' => 'voided_by'),
     _('Memo') => array('align' => 'left', 'fun' => 'get_memo'),
     array('insert' => true, 'fun' => 'gl_view', 'align' => 'center'),
-    array('insert' => true, 'fun' => 'post_void', 'align' => 'center')
+    array('insert' => true, 'fun' => 'post_void', 'align' => 'center'),
+    array('insert' => true, 'fun' => 'print_voucher', 'align' => 'center')
 );
 
 $table = &new_db_pager('void_items', $sql, $cols, null, null, 25);

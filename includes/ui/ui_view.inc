@@ -250,6 +250,8 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 		$viewer .= "Credit_Advice.php?trans_type=2&trans_num=$trans_no&doc=RE";
 	elseif ($type == Credit_advice_jv)
 		$viewer .= "Credit_Advice.php?trans_type=2&trans_num=$trans_no&doc=JV";
+	elseif ($label == "Print voided trans")
+		$viewer .= "Voided_voucher.php?trans_type=$type&trans_num=$trans_no&doc=JV";
 	else
 		return null;
 	//$viewer .= "?trans_no=$trans_no";
