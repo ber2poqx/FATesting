@@ -527,68 +527,26 @@ function convert_number($number)
 			</h4>
 		</div>
 
-		<?php 
-			if ($type==ST_CUSTPAYMENT) 
-			{ 
-		?>
-
-				<table id="header" cellspacing="0" cellpadding="0">
-				<tr><td>&nbsp;</td></tr>
-				<tr>
-					<td align=left class="text-params">GL Details:</td>
-					<th style="width: 50%;" align=left><input type="text" value="<?php echo $mod_type_name?>" class="underline_input_long" readonly></th>
-					<td class="text-params">Journal_#:</td>
-					<th align=left><input type="text" value="<?php echo $voucher_num?>" class="underline_input" readonly></th>
-				</tr>
-				<tr>
-					<td align=left class="text-params">Originating Branch:</td>
-					<th style="width: 50%;" align=left><input type="text" value="<?php echo $fromBranch ?>" class="underline_input_long" readonly></th>
-					<td class="text-params">Date:</td>
-					<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
-				</tr>
-				<tr>
-					<td align=left class="text-params">Customer:</td>
-					<th style="width: 50%;" align=left><input type="text" value="<?php echo $debtor_name ?>" class="underline_input_long" readonly></th>
-					<td class="text-params"></td>
-					<th align=left><input type="text" value="<?php echo $null1?>" class="underline_input" readonly></th>
-				</tr>
-				<tr>
-					<td style="width: 83px;" align=left class="text-params">Particulars:</td>
-					<td align=left style="white-space: normal"><?php echo '<u>'.$particulars.'</u>'; ?></td>
-				</tr>
-				<tr><td>&nbsp;</td></tr>
-				</table>
-		<?php
-			}
-			else
-			{ 
-		?>
-				<table id="header" cellspacing="0" cellpadding="0">
-				<tr><td>&nbsp;</td></tr>
-				<tr>
-					<td align=left class="text-params">GL Details:</td>
-					<td align=left style="white-space: normal"><?php echo '<u>'.$mod_type_name.' #: '.$trans_no.'</u>'; ?></td>					
-					<td class="text-params">Ref.#:</td>
-					<td align=left style="white-space: normal"><?php echo '<u>'.$voucher_num.'</u>'; ?></td>		
-				</tr>
-				<tr>
-					<td align=left class="text-params"></td>
-					<th style="width: 50%;" align=left><input type="text" value="<?php echo $null1 ?>" class="underline_input_long" readonly></th>
-					<td class="text-params">Date:</td>
-					<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
-				</tr>
-				<tr>
-					<td style="width: 83px;" align=left class="text-params">Particulars:</td>
-					<td align=left style="white-space: normal"><?php echo '<u>'.$particular.'</u>'; ?></td>
-				</tr>
-				<tr><td>&nbsp;</td></tr>
-				</table>
-		<?php 
-			}
-		?>
-
-		
-
+		<table id="header" cellspacing="0" cellpadding="0">
+			<tr><td>&nbsp;</td></tr>
+			<tr>
+				<td align=left class="text-params">GL Details:</td>
+				<td align=left style="white-space: normal"><?php echo '<u>'.$mod_type_name.' #: '.$trans_no.'</u>'; ?></td>					
+				<td class="text-params">Ref.#:</td>
+				<td align=left style="white-space: normal"><?php echo '<u>'.$voucher_num.'</u>'; ?></td>		
+			</tr>
+			<tr>
+				<td align=left class="text-params"></td>
+				<th style="width: 50%;" align=left><input type="text" value="<?php echo $null1 ?>" class="underline_input_long" readonly></th>
+				<td class="text-params">Date:</td>
+				<th align=left><input type="text" value="<?php echo $date?>" class="underline_input" readonly></th>
+			</tr>
+			<tr>
+				<td style="width: 83px;" align=left class="text-params">Particulars:</td>
+				<td align=left style="white-space: normal"><?php echo '<u>'.$particular.'</u>'; ?></td>
+			</tr>
+			<tr><td>&nbsp;</td></tr>
+		</table>
 						
 		<div class="row">
 			<div class="left" style="width: 100%; padding: 0px; float: left;">			
