@@ -766,7 +766,7 @@ function update_to_glaccount($code, $code2, $name, $type, $inactive, $control, $
 	set_global_connection($db_coy2);
 
 	$sql = "UPDATE ".TB_PREF."chart_master
-			SET account_code2 = ".db_escape($code)."
+			SET account_code2 = ".db_escape($code2)."
 				,account_name = ".db_escape($name)."
 				,account_type = ".db_escape($type)."
 				,inactive = ".db_escape($inactive)."
