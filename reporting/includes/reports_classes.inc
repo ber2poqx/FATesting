@@ -325,6 +325,9 @@ class BoxReports
 				case 'SYS_TYPES_ALL':
 					return systypes_list($name, null, _("No Type Filter"));
 
+				case 'SELECT_SYS_TYPES':
+					return gl_systypes_list($name, null, _("Please Select Module"));
+
 				case 'TEXT':
 					return "<input type='text' name='$name'>";
 

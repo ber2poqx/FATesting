@@ -1434,6 +1434,18 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 			_('Destination') => 'PDFDESTINATION'
 		)
 	);
+
+	$reports->addReport(RC_GL, 730, _('Daily Entries'),
+		array(	
+			_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Entry') => 'SELECT_SYS_TYPES',
+			/*_('GL Title') => 'GL_ACCOUNTS', 			
+			_('Name') => 'CUSTOMERS_LIST',*/
+			_('Comments') => 'TEXTBOX',
+			_('Destination') => 'PDFDESTINATION'
+		)
+	);
 }
 
 if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
