@@ -48,7 +48,7 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 	
 	$sql ="SELECT A.type AS No_type, A.trans_no AS No_trans, A.masterfile, A.trans_date, A.ref, A.receipt_no, abs(A.amount) AS amt, B.ov_discount AS rebate,
 			B.payment_type AS Type, C.name, E.payment_applied AS payment, E.penalty, E.trans_no AS trans_ledge,
-			F.month_no, F.principal_due, I.collection, K.account_name AS Coa_name, M.description AS AREA,
+			F.month_no, F.principal_due, F.date_due, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
 
 			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,*/
@@ -504,6 +504,10 @@ function print_PO_Report()
             }
         }
 
+		$datetime1 = new DateTime($DSOC['trans_date']);
+		$datetime2 = new DateTime($DSOC['date_due']);
+		$datedifferent = $datetime1->diff($datetime2)->format("%r%a");
+
 		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$rebate_appl  =	get_rabate_applied($DSOC['No_type'], $DSOC['No_trans']);
@@ -511,6 +515,7 @@ function print_PO_Report()
 		$principal_appl = get_principal_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
 
 		$partial_pay = $principal_appl - $partial_appl;
+		$principal_due_late = $DSOC['principal_due'];
 
 		if($penalty_appl < 0) {
 			$penalty = -$penalty_appl;
@@ -529,12 +534,20 @@ function print_PO_Report()
 			$pricipal_due = $DSOC['principal_due'];
 		}
 
-		$ar_advance = $ar_total - $pricipal_due;
+		//$ar_advance = $ar_total - $pricipal_due;
 
-		if($ar_advance < 0) {
-			$advance_payment = -$ar_advance;
+		if($partial_pay < 0) {
+			$arpayment_advance = $ar_total - $pricipal_due;
+		}else if($partial_pay == 0) {
+			$arpayment_advance = 0;
 		}else{
-			$advance_payment = $ar_advance;
+			$arpayment_advance = $ar_total - $partial_payment;
+		}
+
+		if($arpayment_advance < 0) {
+			$advance_payment = -$arpayment_advance;
+		}else{
+			$advance_payment = $arpayment_advance;
 		}
 		
 		$month_no = $DSOC['month_no'];
@@ -550,6 +563,34 @@ function print_PO_Report()
 		}else{
 			$arpayment = $ar_total - $advance;
 			$advanceF_payment = $advance;
+		}
+
+		if($penalty > 0) {
+			if($partial_pay != 0) {
+				$advanceF_payment = $advance - $principal_due_late;
+				$arpayment = $partial_payment + $principal_due_late;
+			}else{
+				$advanceF_payment = $advanceF_payment;
+				$arpayment = $arpayment;
+			}	
+		}else{
+			$arpayment = $arpayment;
+		}
+
+		if ($arpayment < 0) {
+			$arpayment = $ar_total;
+			$advanceF_payment = 0;
+		}else{
+			$arpayment = $arpayment;
+			$advanceF_payment = $advanceF_payment;
+		}
+
+		if($datedifferent > 31) {
+			$arpayment = 0;
+			$advanceF_payment = $ar_total;
+		}else{
+			$arpayment = $arpayment;
+			$advanceF_payment = $advanceF_payment;
 		}
 
 		$Type = $DSOC['Type'];
@@ -649,6 +690,7 @@ function print_PO_Report()
         $rep->SetTextColor(0, 0, 0);
 		$rep->AmountCol(16, 17, $Dw, $dec);
 		$rep->AmountCol(17, 18, $DSOC[''], $dec);
+		//$rep->AmountCol(18, 19, $datedifferent, $dec);
         $rep->NewLine(0.5);
 
 
