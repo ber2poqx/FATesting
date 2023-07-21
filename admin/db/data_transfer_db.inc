@@ -767,11 +767,11 @@ function update_to_glaccount($code, $code2, $name, $type, $inactive, $control, $
 
 	$sql = "UPDATE ".TB_PREF."chart_master
 			SET account_code2 = ".db_escape($code)."
-				,account_name = ".db_escape($inactive)."
-				,account_type = ".db_escape($inactive)."
+				,account_name = ".db_escape($name)."
+				,account_type = ".db_escape($type)."
 				,inactive = ".db_escape($inactive)."
-				,control = ".db_escape($inactive)."
-				,normal_balance = ".db_escape($inactive)."
+				,control = ".db_escape($control)."
+				,normal_balance = ".db_escape($balance)."
 			WHERE account_code = ".db_escape($code);
 
 	db_query($sql, "could not update gl account");
