@@ -21,7 +21,9 @@ print_transaction();
 //----------------------------------------------------------------------------------------------------
 
 function print_transaction() {
-    global $path_to_root, $SysPrefs;
+    global $path_to_root, $SysPrefs, $db_connections;
+    $coy = user_company();
+    $db_branch_type = $db_connections[$coy]['type'];
 
     $date = $_POST['PARAM_0'];
     $customer = $_POST['PARAM_1'];
@@ -191,7 +193,14 @@ function print_transaction() {
         if($void_entry['void_status'] <> "Voided"){
 
             if ($group == 1) {
-                if ($gl_name != $trans['gl_name']) {
+                if($db_branch_type == 'LENDING'){
+
+                    $trans_gl_name = $trans['gl_name']." Short Term";
+                }else{
+                    $trans_gl_name = "Accounts Receivable - Regular Current";
+                }
+
+                if ($gl_name != $trans_gl_name) {
 
                     if ($gl_name != '') {
                         $rep->NewLine(2);
@@ -229,8 +238,8 @@ function print_transaction() {
                     $rep->fontSize += 1;
                     $rep->Font('bold');
                     $rep->SetTextColor(0, 0, 255);
-                    $rep->TextCol(0, 10, 'Accounts Receivable - Regular Current');
-                    $gl_name = 'Accounts Receivable - Regular Current';
+                    $rep->TextCol(0, 10, $trans_gl_name );
+                    $gl_name = $trans_gl_name;
                     $rep->Font();
                     $rep->fontSize -= 1;
                     $rep->SetTextColor(0, 0, 0);
@@ -499,7 +508,13 @@ function print_transaction() {
 
         if($void_entry['void_status'] <> "Voided"  ){
             if ($group == 1) {
-                if ($gl_name != $trans['gl_name']) {
+                if($db_branch_type == 'LENDING'){
+
+                    $trans_gl_name = $trans['gl_name']." Long Term";
+                }else{
+                    $trans_gl_name = $trans['gl_name'];
+                }
+                if ($gl_name != $trans_gl_name) {
 
                     if ($gl_name != '') {
                         $rep->NewLine(2);
@@ -537,8 +552,8 @@ function print_transaction() {
                     $rep->fontSize += 1;
                     $rep->Font('bold');
                     $rep->SetTextColor(0, 0, 255);
-                    $rep->TextCol(0, 10, $trans['gl_name']);
-                    $gl_name = $trans['gl_name'];
+                    $rep->TextCol(0, 10, $trans_gl_name );
+                    $gl_name = $trans_gl_name;
                     $rep->Font();
                     $rep->fontSize -= 1;
                     $rep->SetTextColor(0, 0, 0);
