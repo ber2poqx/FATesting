@@ -102,12 +102,12 @@ function add_loan_ledger($trans_no, $debtor_no, $loansched_id, $typeto, $typefro
 	db_query($sql, $ErrMsg);
 }
 
-function add_pdc_trans($debtor_no, $reference, $trans_date, $masterfile, $masterfile_type, $amount, $check_date, $check_no, $bank_branch, $cashier_id, $prepared_by)
+function add_pdc_trans($debtor_no, $trans_date, $masterfile, $masterfile_type, $amount, $check_date, $check_no, $bank_branch, $cashier_id, $prepared_by)
 {
 	$sql = "INSERT INTO ".TB_PREF." pdc_trans(
-				debtor_no ,ref ,trans_date, masterfile, masterfile_type, amount, check_date, check_no, bank_branch, cashier_user_id, prepared_by
+				debtor_no, trans_date, masterfile, masterfile_type, amount, check_date, check_no, bank_branch, cashier_user_id, prepared_by
 			) VALUES (
-					".db_escape($debtor_no)." ,".db_escape($reference)." ,".db_escape($trans_date)." ,".db_escape($masterfile)."
+					".db_escape($debtor_no)." ,".db_escape($trans_date)." ,".db_escape($masterfile)."
 					,".db_escape($masterfile_type)." ,".db_escape($amount)." ,".db_escape($check_date)." ,".db_escape($check_no)."
 					,".db_escape($bank_branch)." ,".db_escape($cashier_id)." ,".db_escape($prepared_by)."
 			)";
@@ -897,6 +897,19 @@ function get_NoSchedDownPaymnt($trans_no, $debtor_no)
 			AND A.debtor_no = ".db_escape($debtor_no);
 		
 	return db_query($sql, "could not get down-payment amount schedule");
+}
+
+function get_DownPaymnt_paid($trans_no, $type)
+{
+	$sql = "SELECT SUM(A.ov_amount)
+		FROM ".TB_PREF."debtor_trans A
+			INNER JOIN ".TB_PREF."bank_trans B ON B.trans_no = A.trans_no AND B.type = A.type
+		WHERE B.masterfile = ".db_escape($trans_no)."
+			AND B.masterfile_type = ".db_escape($type);
+		
+	$result = db_query($sql, "could not get down-payment paid amount");
+	$row = db_fetch($result);
+	return $row[0];
 }
 
 function get_deferdBal($trans_no, $glcode)

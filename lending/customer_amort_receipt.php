@@ -309,7 +309,7 @@ if(isset($_GET['get_schedule']))
 }
 if(isset($_GET['get_aloc']))
 {
-    $PartialPayment = $Penalty = $PartialBal = $RebateAmount = $TotalBalance = $DP_Discount = 0;
+    $PartialPayment = $Penalty = $PartialBal = $RebateAmount = $TotalBalance = $DP_Discount = $paymentAppld = $DPamountPd = 0;
     
     $ar_balance = check_ar_balance($_GET['transNo'], $_GET['transtype']);
 
@@ -324,12 +324,21 @@ if(isset($_GET['get_aloc']))
         $dprow = db_fetch($result);
         
         if($_GET['payloc'] == "Lending"){
+            $DPamountPd = get_DownPaymnt_paid($_GET['transNo'], $_GET['transtype']);
             $DP_Discount = ($dprow["discount_downpayment"] + $dprow["discount_downpayment2"]);
+            
+            //$Totalpayment = (($dprow["downpayment_amount"] - $DP_Discount) - $DPamountPd);
             $Totalpayment = ($dprow["downpayment_amount"] - $DP_Discount);
             $month_no = $PartialPayment = 0;
             $total_runbal = $ar_balance;
             $loansched_id = $_GET['transNo'];
             $date_due = date('m-d-Y', strtotime($dprow["invoice_date"]));
+
+            if($DPamountPd != 0){
+                //$DP_Discount = 0; //make 0 para dli mag gen. entries
+                $PartialPayment = $DPamountPd;
+                $Totalpayment -= $DPamountPd;
+            }
         }else{
             if($dprow['status'] == 'unpaid'){
                 $DP_Discount = ($dprow["discount_downpayment"] + $dprow["discount_downpayment2"]);
@@ -1049,8 +1058,7 @@ if(isset($_GET['submit']))
 {
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
-    $InputError = 0;
-    $islastPay = 0;
+    $InputError = $islastPay = $DPamountPd = 0;
     
     if (empty($_POST['transtype']) || empty($_POST['ref_no'])) {
         $InputError = 1;
@@ -1249,11 +1257,24 @@ if(isset($_GET['submit']))
                 $row_dpd = get_dp_discount($_POST['InvoiceNo'], $_POST['customername']);
                 $custtype = get_customer_type($_POST['customername']);
 
+                if($_POST['paylocation'] == "Lending"){
+                    $DPamountPd = get_DownPaymnt_paid($_POST['InvoiceNo'],  $_POST['transtype']);
+                    if($DPamountPd != 0 && $dp_discount != 0){
+                        $dp_discount = $discount_downpayment = $discount_downpayment2 = 0;
+                    }else{
+                        $discount_downpayment = $row_dpd["discount_downpayment"];
+                        $discount_downpayment2 = $row_dpd["discount_downpayment2"];
+                    }
+                }else{
+                    $discount_downpayment = $row_dpd["discount_downpayment"];
+                    $discount_downpayment2 = $row_dpd["discount_downpayment2"];
+                }
+
                 $payment_no = write_customer_payment(0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['intobankacct'], $_POST['trans_date'], $_POST['ref_no'],
                                                 $_POST['tenderd_amount'], check_isempty($dp_discount), $_POST['remarks'], 0, 0, input_num('bank_amount', $_POST['tenderd_amount']),
                                                 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype'], $_POST['cashier'], $_POST['pay_type'],
                                                 $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null,
-                                                $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"], $_POST['transtype'], $_POST['paylocation'], $_POST['total_otheramount']);
+                                                $discount_downpayment, $discount_downpayment2, $_POST['transtype'], $_POST['paylocation'], $_POST['total_otheramount']);
 
                 //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
@@ -1295,7 +1316,21 @@ if(isset($_GET['submit']))
                     }
 
                 }else{
-                    update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
+                    $dpresult = get_NoSchedDownPaymnt($_POST['InvoiceNo'], $_POST['customername']);
+                    $dprow = db_fetch($dpresult);
+                    $DPamountPd = get_DownPaymnt_paid($_POST['InvoiceNo'],  $_POST['transtype']);
+
+                    $DPtotalPay = ($dprow["downpayment_amount"] - $data['dp_discount']) - $DPamountPd;
+                    
+                    if($DPtotalPay == 0){
+                        update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], 'Open');
+                    }else{
+                        //if($DPamountPd != 0){
+                        //    update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], 'part-paid');
+                       // }else{
+                            update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
+                       // }
+                    }
                 }
                 //for other entry
                 if (count($OtherEGrid) != 0){
@@ -2546,12 +2581,15 @@ if(isset($_GET['submitpdcack']))
         begin_transaction();
 
         if($_POST['syspk_cash'] != 0 || $_POST['syspk_cash'] != ''){
-            update_pdc_trans($_POST['syspk_cash'], $_POST['customername_cash'], $_POST['InvoiceNo_cash'], $_POST['trans_date_cash'],
-                             $_POST['total_amount_cash'], $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['cashier_cash']);
+            update_pdc_trans($_POST['syspk_cash'], $_POST['customername_cash'], $_POST['InvoiceNo_cash'], $_POST['transtype_cash'], $_POST['total_amount_cash'], 
+                                $_POST['check_date_cash'], $_POST['check_no_cash'], $_POST['bank_branch_cash'], $_POST['cashier_cash']);
         }else{
-            add_pdc_trans($_POST['customer_name']);
+            add_pdc_trans($_POST['customername_cash'], date2sql($_POST['trans_date_cash']), $_POST['InvoiceNo_cash'], $_POST['transtype_cash'], $_POST['total_amount_cash'], date2sql($_POST['check_date_cash']), $_POST['check_no_cash'],
+                            $_POST['bank_branch_cash'], $_POST['cashier_cash'], $_POST['preparedby_cash'],);
         }
-
+        commit_transaction();
+        
+        $dsplymsg = _("Payment has been successfully entered...");
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
     }else{
         echo '({"failure":"false","message":"'.$dsplymsg.'"})';
