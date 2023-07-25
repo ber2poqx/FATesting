@@ -134,11 +134,13 @@ if(!is_null($action) || !empty($action)){
             $cr_amount = str_replace(',','',$filter['credit']);
             if($db_amount>0){
                 $amount=$db_amount;
-            }else $amount=-$cr_amount;
+            }else{
+                $amount=-$cr_amount;
+            }
             $_SESSION['transfer_items']->update_gl_item($filter['line'], $filter['code_id'],'','',$amount, $filter['memo'], null, $filter['person_id'], $filter['mcode'], $filter['master_file'],0, null,null, $filter['master_file_type']);
         
         
-            echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$amount.'"})';
+            echo '({"success":true,"Update":"","id":"'.$filter['id'].'","amount":"'.$amount.'"})';
             exit;
             break;
         
@@ -163,8 +165,8 @@ if(!is_null($action) || !empty($action)){
             exit;
             break;
         case 'getTotalBalance';
-            $totalDebit=$_SESSION['transfer_items']->gl_items_total_debit();
-            $totalCredit=abs($_SESSION['transfer_items']->gl_items_total_credit());
+            $totalDebit = abs($_SESSION['transfer_items']->gl_items_total_debit());
+            $totalCredit = abs($_SESSION['transfer_items']->gl_items_total_credit());
             echo '({"TotalDebit":"'.number_format2($totalDebit,2).'","TotalCredit":"'.number_format2($totalCredit,2).'"})';
             exit;
             break;
@@ -245,8 +247,8 @@ if(!is_null($action) || !empty($action)){
 
             $totaldebit = $_POST['totaldebit'];
             $totalcredit = $_POST['totalcredit'];
-            $totalDebit=abs($_SESSION['transfer_items']->gl_items_total_debit());
-            $totalCredit=abs($_SESSION['transfer_items']->gl_items_total_credit());
+            $totalDebit = abs($_SESSION['transfer_items']->gl_items_total_debit());
+            $totalCredit = abs($_SESSION['transfer_items']->gl_items_total_credit());
 
             $person_type = $_POST['person_type'];
             $person_id_header = $_POST['person_id'];
@@ -320,7 +322,7 @@ if(!is_null($action) || !empty($action)){
                 $result = db_query($sql, 'cannot retrieve counterparty name');
                 $rowresult = db_fetch($result);
                 
-                if($totalDebit!=$totalCredit) {
+                if($totaldebit != $totalcredit) {
                     $errmsg = "Sorry, Debit you entered '".$totalDebit."' is not equal on Credit you entered: '".$totalCredit."'";
                 }elseif(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
                     $errmsg="Select Location";
@@ -332,7 +334,7 @@ if(!is_null($action) || !empty($action)){
                     $errmsg="This document cannot be processed because there is insufficient quantity for items marked.";
                     //echo '({"success":false,"errmsg":"'.$errmg.'"})';
                     
-                }elseif($totalDebit==$totalCredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
+                }elseif($totaldebit==$totalcredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
                     //$_POST['ref']=$Refs->get_next(ST_COMPLIMENTARYITEM, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
                     $trans_no = add_stock_Complimentary_Items($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
                     
