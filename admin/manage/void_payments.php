@@ -136,7 +136,8 @@ if(isset($_GET['submit']))
 
     //$module_type = substr($info['module_type'], 0, 2);
     $module_type = $info['module_type'];
-    $trans_date = sql2date(date('Y-m-d', strtotime(Today())));
+    //$trans_date = sql2date(date('Y-m-d', strtotime(Today()))); //modify as maam helen requested to follow the transaction date 
+    $trans_date = sql2date($info["tran_date"]);
     $debtor_no = $info["debtor_no"];
 
     $invoice_trans_no = $banktrans_info['masterfile'];
@@ -273,6 +274,15 @@ if(isset($_GET['submit']))
             break;
 
         case 'CR-INTERB':
+            if ($InputError != 1){
+                //$dsplymsg = _("Payment was successfully voided.");
+                //echo '({"success":"true","message":"'.$dsplymsg.'"})';
+            }else{
+                echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+            }
+
+            break;
+
         case 'CR-DPWOSI':
             break;
     }
