@@ -259,7 +259,7 @@ function print_Daily_Entries()
 	$Tot_bal = null;
 	$Tot_deb = 0;
 	$Tot_cred = 0;
-	$running_bal = 0;
+	$running_bal = null;
 	$amount_val = 0;
 	$Forwarded_deb = 0;
 	$Forwarded_cred = 0;
@@ -269,7 +269,7 @@ function print_Daily_Entries()
 
 	While ($SLsum = db_fetch($res))
 	{
-		if($running_bal == 0)
+		if(!isset($running_bal))
 		{	
 			//$rep->NewLine();
 			$rep->Font('bold');
