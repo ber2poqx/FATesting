@@ -322,7 +322,7 @@ if(!is_null($action) || !empty($action)){
                 $result = db_query($sql, 'cannot retrieve counterparty name');
                 $rowresult = db_fetch($result);
 
-                if($totalDebit!=$totalCredit) {
+                if($totaldebit != $totalcredit) {
                     $errmsg = "Sorry, Debit you entered '".$totalDebit."' is not equal on Credit you entered: '".$totalCredit."'";
                 }elseif(empty($_POST['FromStockLocation']) || $_POST['FromStockLocation']==''){
                     $errmsg="Select Location";
@@ -330,7 +330,7 @@ if(!is_null($action) || !empty($action)){
                     $errmsg="Select Category";
                 }elseif($total_rrdate>0){
                     $errmsg="This document cannot be processed because there is insufficient quantity for items marked.";                    
-                }elseif($totalDebit==$totalCredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
+                }elseif($totaldebit==$totalcredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
                     $trans_no = add_stock_Complimentary_Items_repo($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
                     
                     $totalline=count($objDataGrid);
