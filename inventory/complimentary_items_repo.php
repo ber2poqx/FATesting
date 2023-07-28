@@ -412,7 +412,7 @@ if(!is_null($action) || !empty($action)){
                 }else{
                     $demand_qty = get_demand_qty($myrow["model"], $branchcode);
                     $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
-                    $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, null);
+                    $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, null, $myrow["serialise_lot_no"]);
                     $qty-=$demand_qty;
                 }
                 if($qty>0){
@@ -789,7 +789,7 @@ if(!is_null($action) || !empty($action)){
                 $isError = 0;
                 while ($myrow01 = db_fetch($result2))
                 {                    
-                    $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], $PostDate, 
+                    $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], null, 
                         $myrow01['lot_no']);
 
                     if($qoh == 0) {

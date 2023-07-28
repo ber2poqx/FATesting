@@ -143,12 +143,10 @@ function get_qoh_on_date_new($type = 0, $transno = 0, $stock_id, $location = nul
 	$date = date2sql($date_);
 	$sql = "SELECT SUM(qty)
      	FROM " . TB_PREF . "stock_moves st
-   		LEFT JOIN " . TB_PREF . "voided v ON st.type=v.type AND st.trans_no=v.id
-          WHERE ISNULL(v.id)
-          AND stock_id=" . db_escape($stock_id) . "
-          AND type_out=" . db_escape($type) . "
-          AND transno_out=" . db_escape($transno) . "
-          AND tran_date <= '$date'";
+        WHERE stock_id=" . db_escape($stock_id) . "
+        AND type_out=" . db_escape($type) . "
+        AND transno_out=" . db_escape($transno) . "
+        AND tran_date <= '$date'";
 
 	if ($location != null) {
 		$sql .= " AND loc_code = " . db_escape($location);

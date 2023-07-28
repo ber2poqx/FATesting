@@ -6,8 +6,7 @@ function get_all_stockmoves_repo($start,$limit,$querystr='',$category=0,$branchc
     smaster.description as stock_description, icode.description as item_description, smaster.serialised, serial.type_out,
     serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,repo.repo_id, 
     categstock.dflt_repo_invty_act, IFNULL(QTYOUT.QTY, NULL) AS qty_serialise /*Added by Robert */
-    FROM ".TB_PREF."stock_moves serial 
-    LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
+    FROM ".TB_PREF."stock_moves serial  
     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code 
     INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
     INNER JOIN ".TB_PREF."stock_category categstock ON serial.category_id=categstock.category_id 
@@ -20,7 +19,7 @@ function get_all_stockmoves_repo($start,$limit,$querystr='',$category=0,$branchc
     AND QTYOUT.stock_id = serial.stock_id AND QTYOUT.lot_no = serial.lot_no
 
     LEFT JOIN repo_item_details repo ON serial.stock_id=repo.stock_id AND serial.lot_no=repo.serial_no
-    WHERE ISNULL(v.id) AND serial.item_type = 'repo' AND IFNULL(QTYOUT.QTY, 1) > 0"; /*Added by Robert */
+    WHERE serial.item_type = 'repo' AND IFNULL(QTYOUT.QTY, 1) > 0"; /*Added by Robert */
     
     if($category!=0){
         $sql.=" AND smaster.category_id=$category";

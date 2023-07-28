@@ -146,7 +146,6 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
     categstock.dflt_inventory_act, IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
     IFNULL(SPGEN.QTY, NULL) /*Added by Robert */
     FROM ".TB_PREF."stock_moves serial 
-    LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code
     INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id
     INNER JOIN ".TB_PREF."stock_category categstock ON serial.category_id=categstock.category_id  
@@ -164,7 +163,7 @@ function get_all_stockmoves($start,$limit,$querystr='',$category=0,$branchcode='
     )SPGEN ON SPGEN.type_out = serial.type_out AND SPGEN.transno_out = SPGEN.transno_out AND SPGEN.stock_id = serial.stock_id 
     AND SPGEN.standard_cost = serial.standard_cost
  
-    WHERE ISNULL(v.id) AND serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
+    WHERE serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
 
     if($category!=0){
         $sql.=" AND smaster.category_id=$category";
@@ -222,8 +221,7 @@ function get_all_stockmoves_compli($start,$limit,$querystr='',$category=0,$branc
     serial.type_out, serial.transno_out,serial.tran_date, serial.reference, serial.standard_cost, serial.item_type,
     categstock.dflt_inventory_act, IFNULL(QTYOUT.QTY, NULL) AS qty_serialise, /*Added by Robert */
     IFNULL(SPGEN.QTY, NULL) /*Added by Robert */
-    FROM ".TB_PREF."stock_moves serial 
-    LEFT JOIN ".TB_PREF."voided v ON serial.type=v.type AND serial.trans_no=v.id 
+    FROM ".TB_PREF."stock_moves serial  
     INNER JOIN ".TB_PREF."item_codes icode ON serial.color_code=icode.item_code
     INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id
     INNER JOIN ".TB_PREF."stock_category categstock ON serial.category_id=categstock.category_id  
@@ -241,7 +239,7 @@ function get_all_stockmoves_compli($start,$limit,$querystr='',$category=0,$branc
     )SPGEN ON SPGEN.type_out = serial.type_out AND SPGEN.transno_out = SPGEN.transno_out AND SPGEN.stock_id = serial.stock_id 
     AND SPGEN.standard_cost = serial.standard_cost
  
-    WHERE ISNULL(v.id) AND serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
+    WHERE serial.item_type = 'new' AND IFNULL(QTYOUT.QTY, 1) > 0 AND IFNULL(SPGEN.QTY, 1) > 0"; /*Added by Robert */
 
     if($category!=0){
         $sql.=" AND smaster.category_id=$category";
