@@ -136,7 +136,7 @@ if (isset($_POST['submit']) && can_process())
 		'isd_account', 'dgp_account', 'isa_employee', 'rgp_account', 'ar_customer_account', 'ap_customer_account', 
 		'payment_location', 'default_rebate_valid_days', 'addon_amount', 'ar_supp_discount_act', 
 		'cos_free_item', 'open_inty', 'default_si_repo_act', 'ap_account', 'arlending_account', 'ffe_accum_repo_act', 
-		'ffe_repo_act', 'gain_of_sale_repo', 'loss_on_sale_repo'
+		'ffe_repo_act', 'gain_of_sale_repo', 'loss_on_sale_repo', 'duetofrom_account'
 )));
 
 	display_notification(_("The general GL setup has been updated."));
@@ -214,6 +214,7 @@ $_POST['rgp_account'] = $myrow['rgp_account'];
 $_POST['default_rebate_valid_days'] = $myrow['default_rebate_valid_days'];
 $_POST['ap_account'] = $myrow['ap_account'];
 $_POST['arlending_account'] = $myrow['arlending_account'];
+$_POST['duetofrom_account'] = $myrow['duetofrom_account'];
 
 /* 
 ---> for repo added by jr on 08-24-2021 :--------------- 
@@ -410,6 +411,7 @@ gl_all_accounts_list_row(_("Interest Income:"), 'default_int_income', $_POST['de
 gl_all_accounts_list_row(_("Penalty Account:"), 'penalty_act', $_POST['penalty_act']);
 gl_all_accounts_list_row(_("A/P Account Lending:"), 'ap_account', $_POST['ap_account']);
 gl_all_accounts_list_row(_("A/R Account Lending:"), 'arlending_account', $_POST['arlending_account']);
+gl_all_accounts_list_row(_("Due To/From Lending:"), 'duetofrom_account', $_POST['duetofrom_account']);
 
 //----------------
 
