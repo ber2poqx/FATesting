@@ -3653,6 +3653,14 @@ Ext.onReady(function() {
 				allowBlank: false,
 				hidden: true
 			},{
+				xtype: 'textfield',
+				id: 'trans_ref',
+				name: 'trans_ref',
+				fieldLabel: 'trans_ref',
+				allowBlank: false,
+				value: 'CR',
+				hidden: true
+			},{
 				xtype: 'fieldcontainer',
 				layout: 'hbox',
 				margin: '2 0 2 5',

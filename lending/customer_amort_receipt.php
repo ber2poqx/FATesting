@@ -1224,6 +1224,9 @@ if(isset($_GET['submit']))
         $schedresult = get_deptor_loan_schedule($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], false);
         $schedrow = db_fetch($schedresult);
 
+        //regenerate reference number para iwas double for multiple users 
+        $_POST['ref_no'] = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('CR'), array('date' => Today()), true, ST_CUSTPAYMENT);
+
         foreach($objDataGrid as $value=>$data) {
             $Loansched_ID = $data['loansched_id'];
             $debtor_id = $data['debtor_id'];
@@ -2042,6 +2045,9 @@ if(isset($_GET['submitInterB']))
         $BranchNo = get_newcust_branch($_POST['customername_inb'], $_POST['customercode_inb']);
         $bank = get_bank_account($_POST['intobankacct_inb']);
 
+        //regenerate reference number para iwas double for multiple users 
+        $_POST['ref_no_inb'] = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('CR'), array('date' => Today()), true, ST_CUSTPAYMENT);
+
         $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername_inb'], check_isempty($BranchNo['branch_code']), $_POST['trans_date_inb'], $_POST['ref_no_inb'],
                                     $_POST['total_amount_inb'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType_inb'], $_POST['collectType_inb'], $_POST['moduletype_inb']);
 
@@ -2226,6 +2232,9 @@ if(isset($_GET['submitDPnoAmort']))
         $BranchNo = get_newcust_branch($_POST['customername_dp'], $_POST['customercode_dp']);
         $bank = get_bank_account($_POST['intobankacct_dp']);
 
+        //regenerate reference number para iwas double for multiple users 
+        $_POST['ref_no_dp'] = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('CR'), array('date' => Today()), true, ST_CUSTPAYMENT);
+
         $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername_dp'], check_isempty($BranchNo['branch_code']), $_POST['trans_date_dp'], $_POST['ref_no_dp'],
                                     $_POST['total_amount_dp'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType_dp'], $_POST['collectType_dp'], $_POST['moduletype_dp']);
 
@@ -2284,7 +2293,7 @@ if(isset($_GET['submitSICash']))
 {
     $InputError = 0;
     
-    if (empty($_POST['transtype_cash']) || empty($_POST['ref_no_cash'])) {
+    if (empty($_POST['transtype_cash']) || empty($_POST['ref_no_cash'])  || empty($_POST['trans_ref'])) {
         $InputError = 1;
         $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
     }
@@ -2415,6 +2424,9 @@ if(isset($_GET['submitSICash']))
         
         begin_transaction();
         $BranchNo = get_newcust_branch($_POST['customername_cash'], $_POST['customercode_cash']);
+
+        //regenerate reference number para iwas double for multiple users 
+        $_POST['ref_no_cash'] = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID($_POST['trans_ref']), array('date' => Today()), true, ST_CUSTPAYMENT);
 
         foreach($objDataGrid as $value=>$data) {
             $debtor_id = $data['debtor_id'];

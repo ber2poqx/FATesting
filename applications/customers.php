@@ -97,10 +97,14 @@ class customers_app extends application
 			"lending/allocation_payment.php?", 'SA_ALLOCPYMNT', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("AP Customer Deposit Opening"),
 			"lending/customer_ap_opening.php?", 'SA_APCUSTDPOPEN', MENU_TRANSACTION);
-		$this->add_rapp_function(0, _("Inter-branch (From Not FA)"),
-			"lending/inquiry/interbranch_payments_inquiry.php?type=aloneinb", 'SA_INTRBPAYINQ', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("PDC Acknowledgement Receipt"),
 			"lending/customer_amort_receiptx.php?type=pdcack", 'SA_LCUSTAMORT', MENU_TRANSACTION);
+		$this->add_rapp_function(0, "","");
+
+		$this->add_rapp_function(0, _("Inter-branch For Lending"),
+		"lending/inquiry/interbranch_payments_inquiry.php?type=inblending", 'SA_INTRBPAYINQ', MENU_TRANSACTION);
+		$this->add_rapp_function(0, _("Inter-branch (From Not FA)"),
+			"lending/inquiry/interbranch_payments_inquiry.php?type=aloneinb", 'SA_INTRBPAYINQ', MENU_TRANSACTION);
 
 		$this->add_rapp_function(0, "","");
 
