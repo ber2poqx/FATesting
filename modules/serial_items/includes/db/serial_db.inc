@@ -377,7 +377,7 @@ function get_all_receiving_item_branch($start,$limit,$branchcode='',$fromlocatio
     LEFT JOIN ".TB_PREF."stock_category sc ON mh.mt_header_category_id=sc.category_id 
     WHERE mh.mt_header_tolocation='$branchcode' $str_fromlocation $str_category AND mh.mt_header_item_type = 'new'
     AND (mh.mt_header_reference LIKE '%".$search_ref."%' OR mh.mt_header_rrbranch_reference LIKE '%".$search_ref."%')
-    GROUP BY mh.mt_header_reference ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
+    GROUP BY mh.mt_header_id ORDER BY mh.mt_header_date DESC, mh.mt_header_id DESC";
 
     /*Added by Robert */
     $sqllimit = $sql ." limit $start, $limit";
