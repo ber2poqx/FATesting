@@ -709,7 +709,7 @@ if(isset($_GET['get_interBPaymnt']))
                                 'gl_code'=>$gl_row["account_code"],
                                 'gl_name'=>$gl_row["account_name"],
                                 'sl_code'=>$customer["debtor_no"],
-                                'sl_name'=>utf8_decode($customer["name"]),
+                                'sl_name'=>$customer["name"],
                                 'debtor_id'=>$_GET['debtor_id'],
                                 'debit_amount'=>$_GET['amounttenderd'],
                                 'credit_amount'=>0,
