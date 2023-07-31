@@ -293,7 +293,7 @@ function print_SL_summary_particulars()
 			{	
 				$rep->NewLine(0.5);
 				$rep->Font('bold');
-				//$rep->Line($rep->row + 9, 0.5); //put a borderline above the balance forwarded
+				$rep->Line($rep->row + 9, 1); //put a borderline above the balance forwarded
 				$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);
 				if($from == 0)
 				{
@@ -400,6 +400,20 @@ function print_SL_summary_particulars()
 
 		if(!isset($Tot_bal))
 		{
+			While ($F_bal = db_fetch($Forwarded_bal))
+			{	
+				$rep->Font('bold');
+				$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);
+				$rep->TextCol(4, 5, _('Balance Forwarded'));
+				$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
+				$rep->AmountCol2(6, 7, $F_bal['Credit'], $dec);
+				$rep->AmountCol2(7, 8, $F_bal['Forwarded_Bal'], $dec);
+				$rep->Font();
+				$running_bal = $F_bal['Forwarded_Bal'];
+				$Forwarded_deb = $F_bal['Debit'];
+				$Forwarded_cred = $F_bal['Credit'];
+			}	
+			$rep->NewLine(0.2);
 			$rep->Line($rep->row);
 			$rep->NewLine(2);
 			$rep->TextCol(2, 7, _('-  -  -  -  -  -  -  No Transaction in the given Parameter  -  -  -  -  -  -  '));
@@ -420,7 +434,7 @@ function print_SL_summary_particulars()
 
 		$rep->Line($rep->row - 7);
 
-		if(isset($Tot_bal))
+		/*if(isset($Tot_bal))
 		{
 			$rep->NewLine(1.3);			
 			$rep->Font('bold');		
@@ -440,7 +454,26 @@ function print_SL_summary_particulars()
 				$rep->AmountCol(7, 8, $running_bal, $dec);
 			$rep->Line($rep->row - 2, 0.5);	
 			$rep->Font();
+		}*/
+
+		$rep->NewLine(1.3);			
+		$rep->Font('bold');		
+		$rep->TextCol(0, 4, $gl_account . _(' - ') . $account_name);	
+		$rep->TextCol(4, 5, _('Ending Balance'));
+		$rep->Font();		
+		$rep->Font('bold');
+		$Total1 = getEnding_bal($to, $gl_account, $masterfile);
+		While ($Total_amount = db_fetch($Total1))
+		{
+			$rep->AmountCol(5, 6, $Total_amount['Debit'], $dec);
+			$rep->AmountCol(6, 7, $Total_amount['Credit'], $dec);
 		}
+		if ($running_bal < 0)
+			$rep->AmountCol(7, 8, -$running_bal, $dec);
+		else		
+			$rep->AmountCol(7, 8, $running_bal, $dec);
+		$rep->Line($rep->row - 2, 0.5);	
+		$rep->Font();
 		
 		
 

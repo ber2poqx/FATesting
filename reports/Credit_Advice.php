@@ -24,7 +24,6 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>RR Branch</title>
 <title>CREDIT ADVICE</title>
 <style type="text/css">
 	.main{
@@ -443,6 +442,9 @@ function get_to_branch_gl_trans($refnum,$comp_id)
 	}
 	else if ($code == "JV"){
 		$trans_type = ST_JOURNAL;
+	}
+	else if ($code == "RE"){
+		$trans_type = ST_BANKDEPOSIT;
 	}
 	
 	$res = get_gl_trans($trans_type,$trans_num);

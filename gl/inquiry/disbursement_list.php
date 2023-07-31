@@ -88,7 +88,7 @@ function gl_view($row) {
 //Modified 06/21/2023
 function print_voucher($row)
 {
-	return printable_receipts_and_vouchers(Disbursement_voucher, $row["trans_no"], _("Print Disbursement Voucher"), ICON_PRINT);
+	return printable_receipts_and_vouchers(Disbursement_voucher, $row["trans_no"], _("Print to Disbursement Voucher"), ICON_PRINT);
 }
 
 function print_debit_advice($row)
@@ -288,7 +288,7 @@ $cols = array(
     array('insert' => true, 'fun' => 'cancel_row', 'align' => 'center'),
     array('insert' => true, 'fun' => 'void_row', 'align' => 'center'),
 	_('DV') => array('insert'=>true, 'fun'=>'print_voucher'), //Added by Prog6(03/31/2022)
-	_('DA') => array('insert'=>true, 'fun'=>'print_debit_advice') //Added by Prog6(06/26/2023)
+	array('insert'=>true, 'fun'=>'print_debit_advice') //Added by Prog6(06/26/2023)
 );
 
 $table = &new_db_pager('bank_items', $sql, $cols, null, null, 25);
