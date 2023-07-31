@@ -536,6 +536,9 @@ if(isset($_GET['submit']))
                 update_status_interbranch_trans($_POST['syspk'], $_SESSION["wa_current_user"]->username, 'approved', $payment_no, ST_CUSTPAYMENT, null);
 
             }else{
+                //allocate interbranch payments
+                $interBTrans = get_interB_transNo_from($_POST['syspk']);
+
                 $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
                                                     $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
 
@@ -543,9 +546,13 @@ if(isset($_GET['submit']))
                                 /*$_POST['cashier']*/ 0, $_POST['pay_type'], '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['syspk'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
 
                 add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
-
+                
                 /* Bank account entry first */
-                $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['debit_acct'], 0, 0, '', $_POST['tenderd_amount'], null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                if($interBTrans['module_type'] == 'LNTB'){
+                    $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $company_record["duetofrom_account"], 0, 0, '', $_POST['tenderd_amount'], null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                }else{
+                    $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['debit_acct'], 0, 0, '', $_POST['tenderd_amount'], null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+                }
 
                 $result = get_loan_schedule($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                 while ($myrow = db_fetch($result)) {
@@ -777,7 +784,6 @@ if(isset($_GET['submit']))
 
                 update_status_interbranch_trans($_POST['syspk'], $_SESSION["wa_current_user"]->username, 'approved', $payment_no, ST_CUSTPAYMENT, null);
 
-                $interBTrans = get_interB_transNo_from($_POST['syspk']);
                 update_status_interbranch_trans_HO($interBTrans['ref_no'], $_SESSION["wa_current_user"]->username, 'approved', $payment_no, ST_CUSTPAYMENT, $interBTrans['transno_from_branch'], $interBTrans['trantype_from_branch'] );
 
             }
@@ -1343,8 +1349,8 @@ if(isset($_GET['get_interb_flending']))
                                 'debtor_id'=>$myrow['debtor_no'],
                                 'debtor_ref'=>$myrow['debtor_ref'],
                                 'debtor_name'=>$myrow['name'],
-                                'cashier_id'=>$myrow['cashier_user_id'],
-                                'cashier_name'=>$myrow['real_name'],
+                                //'cashier_id'=>$myrow['cashier_user_id'],
+                                //'cashier_name'=>$myrow['real_name'],
                                 'total_amount'=>$myrow['ov_amount'],
                                 'payment_type'=>$myrow['payment_type'],
                                 'payment_type_v'=>$paymentType,
@@ -1410,10 +1416,10 @@ if(isset($_GET['submitInterB_lending']))
         $InputError = 1;
         $dsplymsg = _('Payment type must not be empty.');
     }
-    if (empty($_POST['cashier'])) {
+    /*if (empty($_POST['cashier'])) {
         $InputError = 1;
         $dsplymsg = _('Cashier must not be empty.');
-    }
+    }*/
     if (empty($_POST['preparedby'])) {
         $InputError = 1;
         $dsplymsg = _('Prepared by must not be empty.');
@@ -1448,7 +1454,7 @@ if(isset($_GET['submitInterB_lending']))
                                     $_POST['total_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], 0, $_POST['moduletype']);
 
         add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no'], $_POST['trans_date'], $_POST['total_amount'], PT_CUSTOMER, $_POST['customername'],
-                        $_POST['cashier'], 'other', 0, 0, 0, $_POST['frombranch'], $_POST['receipt_no'], $_POST['preparedby']);
+                        0, 'other', 0, 0, 0, $_POST['frombranch'], $_POST['receipt_no'], $_POST['preparedby']);
 
         add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
 
@@ -1478,7 +1484,7 @@ if(isset($_GET['submitInterB_lending']))
 
         //send to lending branch
         interbranch_send_payment_add($conn['partner_code'], $interb_ref, $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['total_amount'],
-                                        'from Branch '.$_POST['frombranch']. '. ' .$_POST['remarks'], $_POST['preparedby'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $conn['partner_code']);
+                                        'from Branch '.$_POST['frombranch']. '. ' .$_POST['remarks'], $_POST['preparedby'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $conn['partner_code'], $_POST['moduletype']);
 
         $Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no']);
 

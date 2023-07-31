@@ -40,8 +40,8 @@ Ext.onReady(function(){
 			{name:'payment_type_v', mapping:'payment_type_v'},
 			{name:'payment_type', mapping:'payment_type'},
 			{name:'total_amount', mapping:'total_amount'},
-			{name:'cashier_name', mapping:'cashier_name'},
-			{name:'cashier_id', mapping:'cashier_id'},
+			//{name:'cashier_name', mapping:'cashier_name'},
+			//{name:'cashier_id', mapping:'cashier_id'},
 			{name:'remarks', mapping:'remarks'},
 			{name:'branch_gl', mapping:'branch_gl'},
 			{name:'branch_code', mapping:'branch_code'},
@@ -311,12 +311,12 @@ Ext.onReady(function(){
 				return '<span style="color:green;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 			}
 		},
-		{header:'<b>Cashier</b>', dataIndex:'cashier_name', sortable:true, width:150,
+		/*{header:'<b>Cashier</b>', dataIndex:'cashier_name', sortable:true, width:150,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
-		},
+		},*/
 		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:180,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
@@ -345,7 +345,7 @@ Ext.onReady(function(){
 					Ext.getCmp('customercode').setValue(records.get('debtor_ref'));
 					Ext.getCmp('customername').setValue(records.get('debtor_id'));
 					Ext.getCmp('receipt_no').setValue(records.get('orref_no'));
-					Ext.getCmp('cashier').setValue(records.get('cashier_id'))
+					//Ext.getCmp('cashier').setValue(records.get('cashier_id'))
 					Ext.getCmp('tenderd_amount').setValue(records.get('amount'));
 					Ext.getCmp('trans_date').setValue(records.get('tran_date'));
 					Ext.getCmp('preparedby').setValue(records.get('preparedby'));
@@ -523,7 +523,7 @@ Ext.onReady(function(){
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
-				xtype: 'combobox',
+				/*xtype: 'combobox',
 				fieldLabel: 'Cashier/Teller ',
 				id: 'cashier',
 				name: 'cashier',
@@ -536,7 +536,7 @@ Ext.onReady(function(){
 				forceSelection: true,					
 				selectOnFocus:true,
 				allowBlank: false,
-				fieldStyle: 'font-weight: bold; color: #210a04;'
+				fieldStyle: 'font-weight: bold; color: #210a04;'*/
 			},{
 				xtype: 'textfield',
 				fieldLabel: 'Prepared By ',
@@ -546,6 +546,7 @@ Ext.onReady(function(){
 				readOnly: true,
 				labelWidth: 105,
 				width: 280,
+				padding: '0 280 0 0',
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
 				xtype: 'combobox',
@@ -689,7 +690,7 @@ Ext.onReady(function(){
 						method:'POST',
 						submitEmptyText: false,
 						success: function(form_submit_InterB, action) {
-							//PaymentStore.load()
+							qqinterb_store.load();
 							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
 							submit_window.close();
 						},
@@ -816,7 +817,7 @@ Ext.onReady(function(){
 			async:false,
 			success: function (response){
 				var result = Ext.JSON.decode(response.responseText);
-				Ext.getCmp('cashier').setValue(result.cashier);
+				//Ext.getCmp('cashier').setValue(result.cashier);
 				Ext.getCmp('preparedby').setValue(result.prepare);
 			}
 		});

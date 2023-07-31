@@ -10,18 +10,18 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 function interbranch_send_payment_add($target_branch, $debtor_ref, $name, $trans_date, $ref_no, $amount, $remarks, $prepared_by, $branch_code,
-		$trans_no, $tran_type, $branch_to, $type=0)
+		$trans_no, $tran_type, $branch_to, $module_type=null, $type=0)
 {
 	$db_coy = Get_db_coy($target_branch);
     set_global_connection($db_coy);
 
 	$sql = "INSERT INTO ".TB_PREF."interbranch_trans (
 					branch_code_from, debtor_ref, debtor_name, trans_date, ref_no, amount, remarks ,prepared_by,
-					transno_from_branch, trantype_from_branch, branch_code_to, type
+					transno_from_branch, trantype_from_branch, branch_code_to, type, module_type
 			) VALUES (
 			        ".db_escape($branch_code).", ".db_escape($debtor_ref).", ".db_escape($name).", ".db_escape($trans_date)."
 					,".db_escape($ref_no).", ".db_escape($amount)." ,".db_escape($remarks)." ,".db_escape($prepared_by)."
-					,".db_escape($trans_no).", ".db_escape($tran_type).", ".db_escape($branch_to).", ".db_escape($type)."
+					,".db_escape($trans_no).", ".db_escape($tran_type).", ".db_escape($branch_to).", ".db_escape($type).", ".db_escape($module_type)."
 			)";
 	
 	$ErrMsg = _('could not send data to other branch because ');
@@ -156,7 +156,7 @@ function check_done_alloc_inq($trans_no)
 
 function get_interB_transNo_from($id)
 {
-	$sql = "SELECT A.ref_no, A.transno_from_branch, A.trantype_from_branch
+	$sql = "SELECT A.ref_no, A.transno_from_branch, A.trantype_from_branch, A.module_type
 	FROM ".TB_PREF."interbranch_trans A
 	WHERE A.id =".db_escape($id);
 
@@ -224,12 +224,12 @@ function get_interb_flending($start, $limit, $showall=false, $query=null)
 		WHERE A.module_type = 'LNTB' ".$sWhere."
 		ORDER BY A.tran_date DESC, A.reference DESC";
 
-		$sqllimit = $sql ." limit $start, $limit";
+	$sqllimit = $sql ." limit $start, $limit";
 
-		if($showall){
-			$result = db_query($sql, "could not get inter-branch payment");
-		}else{
-			$result = db_query($sqllimit, "could not get inter-branch payment");
-		}
-		return $result;
+	if($showall){
+		$result = db_query($sql, "could not get inter-branch payment");
+	}else{
+		$result = db_query($sqllimit, "could not get inter-branch payment");
+	}
+	return $result;
 }
