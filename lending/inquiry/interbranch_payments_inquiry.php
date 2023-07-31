@@ -23,6 +23,8 @@ simple_page_mode(true);
 add_js_ufile($path_to_root ."/js/ext620/build/examples/classic/shared/include-ext.js?theme=triton");
 if($_GET['type']=='aloneinb'){
     add_js_ufile($path_to_root ."/js/interbranch_paysalone.js");
+}else if($_GET['type'] == 'inblending'){
+    add_js_ufile($path_to_root ."/js/interbranch_lending.js");
 }else{
     add_js_ufile($path_to_root ."/js/interbranch_payments_inquiry.js");
 }
@@ -31,6 +33,8 @@ if($_GET['type']=='aloneinb'){
 if(isset($_GET['getReference'])){
     if($_GET['getReference'] == 'paysalone'){
         $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('NTFA'), array('date' => Today()), true, ST_CUSTPAYMENT);
+    }else if($_GET['getReference'] == 'inblending'){
+        $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('LNTB'), array('date' => Today()), true, ST_CUSTPAYMENT);
     }else{
         $reference = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('ALCN'), array('date' => Today()), true, ST_CUSTPAYMENT);
     }
@@ -64,7 +68,7 @@ if(isset($_GET['get_Customer']))
         if($myrow["debtor_no"] == $_GET['debtor_id'] || $myrow["name"] == $_GET['name']){
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                 'debtor_ref'=>$myrow["debtor_ref"],
-                'name'=>htmlentities($myrow["name"])
+                'name'=>$myrow["name"]
             );
         }
     }
@@ -89,12 +93,18 @@ if(isset($_GET['get_InvoiceNo']))
 }
 if(isset($_GET['get_PaymentType']))
 {
-    $status_array[] = array('id'=>"down",
-                            'name'=>"Down Payment"
-                        );
-    $status_array[] = array('id'=>"amort",
-                            'name'=>"Amort Payment"
-                        );
+    if($_GET['type'] == "interb"){
+        $status_array[] = array('id'=>"other",
+                                'name'=>"Other Payment"
+                            );
+    }else{
+        $status_array[] = array('id'=>"down",
+            'name'=>"Down Payment"
+        );
+        $status_array[] = array('id'=>"amort",
+            'name'=>"Amort Payment"
+        );
+    }
 
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
@@ -806,7 +816,7 @@ if(isset($_GET['get_aloneCustomer']))
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                                'debtor_ref'=>$myrow["debtor_ref"],
-                               'name'=>htmlentities($myrow["name"])
+                               'name'=>$myrow["name"]
                             );
     }
     $jsonresult = json_encode($status_array);
@@ -998,7 +1008,7 @@ if(isset($_GET['submit_inbpaysalone']))
                     $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                 }
 
-                interbranch_notfa_add($_POST['branch_inb'], $db_connections[user_company()]["branch_code"], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
+                interbranch_notfa_add($_POST['frombranch'], $db_connections[user_company()]["branch_code"], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
                                         $_POST['preparedby'], 'approved', $_SESSION["wa_current_user"]->username, $payment_no, ST_CUSTPAYMENT, 3);
 
                 $dsplymsg = _("Down-payment has been successfully entered...");
@@ -1248,7 +1258,7 @@ if(isset($_GET['submit_inbpaysalone']))
                         update_status_debtor_loans($_POST['InvoiceNo'], $_POST['customername'], "part-paid");
                     }
                     
-                    interbranch_notfa_add($_POST['branch_inb'], $db_connections[user_company()]["branch_code"], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
+                    interbranch_notfa_add($_POST['frombranch'], $db_connections[user_company()]["branch_code"], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
                                                 $_POST['preparedby'], 'approved', $_SESSION["wa_current_user"]->username, $payment_no, ST_CUSTPAYMENT, 3);
                 
                 }
@@ -1263,8 +1273,227 @@ if(isset($_GET['submit_inbpaysalone']))
     return;
 }
 
+//------------------------------------------- inter b for lending ---------------------------------
+
+if(isset($_GET['get_interBPaymnt']))
+{
+    //into bank/debit to bank
+    if(isset($_GET['debitTo'])){
+        $gl_row = get_gl_account($_GET['gl_account']);
+        $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                'gl_code'=>$gl_row["account_code"],
+                                'gl_name'=>$gl_row["account_name"],
+                                'sl_code'=>$_GET['branch_code'],
+                                'sl_name'=>$_GET['branch_name'],
+                                'debtor_id'=>$_GET['debtor_id'],
+                                'debit_amount'=>$_GET['amounttotal'],
+                                'credit_amount'=>0
+                            );
+    }
+    //branch current/credit to
+    if(isset($_GET['gl_account'])){
+        $company_record = get_company_prefs();
+
+        $gl_row = get_gl_account($company_record["duetofrom_account"]);
+        $customer = get_customer($_GET['debtor_id']);
+        $status_array[] = array('trans_date'=>date('Y-m-d',strtotime($_GET['date_issue'])),
+                                'gl_code'=>$gl_row["account_code"],
+                                'gl_name'=>$gl_row["account_name"],
+                                'sl_code'=>$customer["debtor_no"],
+                                'sl_name'=>$customer["name"],
+                                'debtor_id'=>$_GET['debtor_id'],
+                                'debit_amount'=>0,
+                                'credit_amount'=>$_GET['amounttenderd']
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
+
+if(isset($_GET['get_interb_flending']))
+{
+
+    $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
+    $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+
+    $result = get_interb_flending($start, $limit, false, $_GET['query']);
+    $total_result = get_interb_flending($start, $limit, true, $_GET['query']);
+    
+    while ($myrow = db_fetch($result)) {
+        $branch = get_branch_info($myrow['masterfile']);
+
+        if($myrow["payment_type"] == "down"){
+            $paymentType = "Down Payment";
+        }elseif($myrow["payment_type"] == "amort"){
+            $paymentType = "Amort Payment";
+        }elseif($myrow["payment_type"] == "other"){
+            $paymentType = "Other Payment";
+        }elseif($myrow["payment_type"] == "adjmt"){
+            $paymentType = "Adjustment";
+        }else{
+            $paymentType = $myrow["payment_type"];
+        }
+
+        $status_array[] = array('trans_no'=>$myrow['trans_no'],
+                                'type'=>$myrow['type'],
+                                'tran_date'=>$myrow['tran_date'],
+                                'reference'=>$myrow['ref'],
+                                'orref_no'=>$myrow['receipt_no'],
+                                'debtor_id'=>$myrow['debtor_no'],
+                                'debtor_ref'=>$myrow['debtor_ref'],
+                                'debtor_name'=>$myrow['name'],
+                                'cashier_id'=>$myrow['cashier_user_id'],
+                                'cashier_name'=>$myrow['real_name'],
+                                'total_amount'=>$myrow['ov_amount'],
+                                'payment_type'=>$myrow['payment_type'],
+                                'payment_type_v'=>$paymentType,
+                                'remarks'=>$myrow['memo_'],
+                                'branch_gl'=>array_column($branch, 'gl_account'),
+                                'branch_name'=>array_column($branch, 'name'),
+                                'branch_code'=>$myrow['masterfile'],
+                                'preparedby'=>$myrow['prepared_by']
+                            );
+     }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
+
+    set_global_connection();
+    return;
+}
+
+if(isset($_GET['submitInterB_lending']))
+{
+    //initialise no input errors assumed initially before we proceed
+    //0 is by default no errors
+    $InputError = 0;
+
+    if (empty($_POST['debit_acct']) || empty($_POST['moduletype']) || empty($_POST['ref_no']) || empty($_POST['custname'])) {
+        $InputError = 1;
+        $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
+    }
+    if (empty($_POST['customercode'])) {
+        $InputError = 1;
+        $dsplymsg = _('Customer code must not be empty.');
+    }
+    if (empty($_POST['customername'])) {
+        $InputError = 1;
+        $dsplymsg = _('Customer name must not be empty.');
+    }
+    if (empty($_POST['trans_date'])) {
+        $InputError = 1;
+        $dsplymsg = _('Transaction date must not be empty.');
+    }else{
+        $trans_date = date('Y-m-d',strtotime($_POST['trans_date']));
+    }
+    if (empty($_POST['frombranch'])) {
+        $InputError = 1;
+        $dsplymsg = _('Branch must not be empty.');
+    }
+    if (empty($_POST['receipt_no'])) {
+        $InputError = 1;
+        $dsplymsg = _('CR number must not be empty.');
+    }
+    if (empty($_POST['total_amount'])) {
+        $InputError = 1;
+        $dsplymsg = _('Total amount must not be empty.');
+    }
+    if (empty($_POST['tenderd_amount'])) {
+        $InputError = 1;
+        $dsplymsg = _('Tendered amount must not be empty.');
+    }
+    if (empty($_POST['remarks'])) {
+        $InputError = 1;
+        $dsplymsg = _('remarks must not be empty.');
+    }
+    if (empty($_POST['paymentType'])) {
+        $InputError = 1;
+        $dsplymsg = _('Payment type must not be empty.');
+    }
+    if (empty($_POST['cashier'])) {
+        $InputError = 1;
+        $dsplymsg = _('Cashier must not be empty.');
+    }
+    if (empty($_POST['preparedby'])) {
+        $InputError = 1;
+        $dsplymsg = _('Prepared by must not be empty.');
+    }
+
+    $DataOnGrid = stripslashes(html_entity_decode($_POST['InterBDataOnGrid']));
+    $objDataGrid = json_decode($DataOnGrid, true);
+
+    //var_dump($objDataGrid);
+    if (count($objDataGrid) == 0){
+        $InputError = 1;
+        $dsplymsg = _('Credit amount must not be empty! Please try again.');
+    }
+
+    //check data
+	if(check_cr_number($_POST['receipt_no'], 'LNTB')){
+        $InputError = 1;
+        $dsplymsg = _("CR number already exists.");
+    }
+
+    if ($InputError != 1){
+        //begin_transaction();
+        global $Refs;
+        $company_prefs = get_company_prefs();
+        $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
+        $conn = $db_connections[user_company()];
+        
+        //regenerate reference number para iwas double for multiple users 
+        $_POST['ref_no'] = $Refs->get_next(ST_CUSTPAYMENT, GetReferenceID('LNTB'), array('date' => Today()), true, ST_CUSTPAYMENT);
+
+        $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
+                                    $_POST['total_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], 0, $_POST['moduletype']);
+
+        add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no'], $_POST['trans_date'], $_POST['total_amount'], PT_CUSTOMER, $_POST['customername'],
+                        $_POST['cashier'], 'other', 0, 0, 0, $_POST['frombranch'], $_POST['receipt_no'], $_POST['preparedby']);
+
+        add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
+
+        //gl------
+        foreach($objDataGrid as $value=>$data) {
+            /* Now credit bank account with penalty */
+            
+            if(!empty($data['gl_code'])){
+                if($data['credit_amount'] != 0){
+                    $amount = -$_POST['total_amount']; //-$data['credit_amount'];
+                }else{
+                    $amount = $_POST['total_amount']; //$data['debit_amount'];
+                }
+                if($data['sl_code'] == $_POST['customername']){
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $data['gl_code'], 0, 0, '', $amount, null, PT_CUSTOMER, $_POST['customername'], '', 0, null, null, 0, 0);
+                }else{
+                    add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $data['gl_code'], 0, 0, '', $amount, null, PT_CUSTOMER, $_POST['customername'], '', 0, $data['sl_code'], $data['sl_name'], 0, 0);
+                }
+            }
+        }
+        //commit_transaction();
+        
+        //send data to target branch
+        $interb_ref = get_debtor_interb_ref($_POST['customername']);
+
+        //get lending branch
+
+        //send to lending branch
+        interbranch_send_payment_add($conn['partner_code'], $interb_ref, $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['total_amount'],
+                                        'from Branch '.$_POST['frombranch']. '. ' .$_POST['remarks'], $_POST['preparedby'], $conn['branch_code'], $payment_no, ST_CUSTPAYMENT, $conn['partner_code']);
+
+        $Refs->save(ST_CUSTPAYMENT, $payment_no, $_POST['ref_no']);
+
+        $dsplymsg = _("Inter branch payment has been successfully entered...</br> Reference No.: ".$payment_no);
+        echo '({"success":"true","message":"'.$dsplymsg.'"})';
+    }else{
+        echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+    }
+    return;
+}
+
 if($_GET['type']=='aloneinb'){
     page(_($help_context = "Inter-branch (From Not FA)"));
+}else if($_GET['type'] == 'inblending'){
+    page(_($help_context = "Inter-branch Lending"));
 }else{
     page(_($help_context = "Incoming Inter-branch Payments Inquiry"));
 }

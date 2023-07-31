@@ -203,3 +203,33 @@ function interbranch_notfa_add($branch_code_from, $branch_code_to, $debtor_ref, 
 	$ErrMsg = _('Could not insert data because  ');
 	db_query($sql, $ErrMsg);
 }
+
+function get_interb_flending($start, $limit, $showall=false, $query=null)
+{
+	$sWhere = "";
+
+	if(!empty($query)){
+		$sWhere .= " AND (A.ov_amount LIKE '%".$query."%' 
+							OR B.masterfile LIKE '%".$query."%' 
+							OR C.name LIKE '%".$query."%'
+							OR E.real_name LIKE '%".$query."%')";
+	}
+
+	$sql = "SELECT A.trans_no, A.type, A.tran_date, A.ov_amount, A.payment_type, B.amount, B.ref, B.pay_type, B.receipt_no, B.cashier_user_id, B.prepared_by, B.masterfile, C.debtor_no, C.debtor_ref, C.name, D.memo_, E.real_name
+		FROM ".TB_PREF."debtor_trans A 
+				INNER JOIN ".TB_PREF."bank_trans B ON B.trans_no = A.trans_no
+				INNER JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.debtor_no
+				LeFT JOIN ".TB_PREF."comments D On D.id = A.trans_no AND D.type = A.type
+				LEFT JOIN ".TB_PREF."users E ON E.id = B.cashier_user_id
+		WHERE A.module_type = 'LNTB' ".$sWhere."
+		ORDER BY A.tran_date DESC, A.reference DESC";
+
+		$sqllimit = $sql ." limit $start, $limit";
+
+		if($showall){
+			$result = db_query($sql, "could not get inter-branch payment");
+		}else{
+			$result = db_query($sqllimit, "could not get inter-branch payment");
+		}
+		return $result;
+}
