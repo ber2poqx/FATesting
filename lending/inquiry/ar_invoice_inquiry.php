@@ -319,12 +319,17 @@ if(isset($_GET['submit']))
         //detailed A/R info
         if(isset($trans_no)){
 
+            //new profit_margin modify 08-01-2023 as requested by maam helen
+            $unearned = ($_POST['ar_amount'] - $_POST['lcp_amount']);
+            $newGPM = ($unearned / $_POST['outs_ar_amount']); //$loansrow["profit_margin"]
+            
+
             add_ar_installment($trans_no, $_POST['customername'], $_POST['invoice_no'], $reference, $invoice_date, $_POST['branch_code'],
                             $_POST['invoice_type'], check_isempty($_POST['policy_id']), $_POST['months_term'], $_POST['rebate'],
                             $_POST['financing_rate'], $firstdue_date, $maturity_date, $_POST['outs_ar_amount'], $_POST['ar_amount'], $_POST['lcp_amount'],
                             $_POST['dp_amount'], $_POST['amort_amount'], $_POST['total_amount'], check_isempty($_POST['category_id']), check_isempty($_POST['delivery_no']),
                             'unpaid', $loansrow["warranty_code"], $loansrow["fsc_series"], $loansrow["co_maker"], $loansrow["discount_downpayment"], $loansrow["discount_downpayment2"],
-                            $loansrow["deferred_gross_profit"], $loansrow["profit_margin"], $loansrow["ref_no"], $loansrow["old_trans_no"]);
+                            $loansrow["deferred_gross_profit"], bcdiv($newGPM, 1, 2), $loansrow["ref_no"], $loansrow["old_trans_no"]);
                             
             add_comments(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $_POST['comments']);
 
@@ -389,7 +394,7 @@ if(isset($_GET['submit']))
 
             //pay to branch
             interbranch_send_payment_add($_POST['branch_code'], $_POST['descustcode'], $_POST['descustname'], date("Y-m-d", strtotime($approved_date)), $reference, $ap_capital,
-            $_POST['comments'], $_SESSION["wa_current_user"]->name, $conn['branch_code'], $trans_no, ST_ARINVCINSTLITM, $_POST['branch_code'], 1);
+                                            $_POST['comments'], $_SESSION["wa_current_user"]->name, $conn['branch_code'], $trans_no, ST_ARINVCINSTLITM, $_POST['branch_code'], null, 1);
 
             $Refs->save(ST_ARINVCINSTLITM, $trans_no, $reference, null);
             Update_debtor_trans_status(ST_ARINVCINSTLITM, $trans_no, "unpaid", null);

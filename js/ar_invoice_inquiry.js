@@ -758,12 +758,10 @@ Ext.onReady(function(){
 					layout: 'hbox',
 					margin: '2 0 2 5',
 					items:[{
-
-					},{
 						xtype: 'numericfield',
 						id: 'profitmargin',
 						name: 'profitmargin',
-						fieldLabel: '<b>Profit Margin </b>',
+						fieldLabel: '<b>Old GP Margin </b>',
 						allowBlank:false,
 						useThousandSeparator: true,
 						decimalPrecision: 2,
@@ -772,7 +770,25 @@ Ext.onReady(function(){
 						//currencySymbol: '₱',
 						labelWidth: 117,
 						width: 250,
-						margin: '0 0 0 255',
+						margin: '0 5 0 0',
+						readOnly: true,
+						thousandSeparator: ',',
+						minValue: 0,
+						fieldStyle: 'font-weight: bold;color: #008000; text-align: right;'
+					},{
+						xtype: 'numericfield',
+						id: 'newprofitmargin',
+						name: 'newprofitmargin',
+						fieldLabel: '<b>New GP Margin </b>',
+						allowBlank:false,
+						useThousandSeparator: true,
+						decimalPrecision: 2,
+						alwaysDisplayDecimals: true,
+						allowNegative: false,
+						//currencySymbol: '₱',
+						labelWidth: 117,
+						width: 250,
+						//margin: '0 0 0 255',
 						readOnly: true,
 						thousandSeparator: ',',
 						minValue: 0,
@@ -1412,6 +1428,8 @@ Ext.onReady(function(){
 		var Rebate = Ext.getCmp('rebate').getValue();
 		var LCPAmount = Ext.getCmp('lcp_amount').getValue();
 		var DPAmount = Ext.getCmp('dp_amount').getValue();
+		var unearned_amount = 0;
+		var newgpm = 0;
 
 		Factor = (FR / 100); //parseInt(FR)
 		Amortization = GetMonthlyAmort(LCPAmount,DPAmount,Factor,Rebate,Term);
@@ -1422,6 +1440,10 @@ Ext.onReady(function(){
 		Ext.getCmp('outs_ar_amount').setValue(OutstandingAR);
 		Ext.getCmp('total_amount').setValue(ARamount);
 		Ext.getCmp('amort_amount').setValue(Amortization);
+
+		unearned_amount = (ARamount - LCPAmount);
+		newgpm = (unearned_amount / OutstandingAR);
+		Ext.getCmp('newprofitmargin').setValue(newgpm);
 	};
 	function GetMonthlyAmort(LCP, DP, Factor, Rebate, Term){
 		/*get the amortization amount*/

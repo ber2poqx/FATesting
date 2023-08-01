@@ -59,7 +59,7 @@ Ext.onReady(function() {
         extend: 'Ext.data.Model',
         fields: [
 			{name:'id', mapping:'id'},
-			{name:'name', mapping:'name'},
+			{name:'name', mapping:'name', type: 'string'},
 			{name:'type', mapping:'type'}
 		]
     });
@@ -340,7 +340,7 @@ Ext.onReady(function() {
 		handler: function(){
 			submit_form.getForm().reset();
 			
-			Ext.getCmp('check_cash').setVisible(false);
+			//Ext.getCmp('check_cash').setVisible(false);
 			
 			CustomerStore.load();
 			PaymentTypeStore.proxy.extraParams = {type: "cash"};
@@ -353,6 +353,7 @@ Ext.onReady(function() {
 			Ext.getCmp('paymentType_cash').setValue('other');
 			Ext.getCmp('collectType_cash').setValue(1);//'office'
 			Ext.getCmp('moduletype_cash').setValue('PDC');
+			Ext.getCmp('pay_type_cash').setValue('Check');
 			GetCashierPrep();
 
 			submit_window_cash.show();
@@ -638,6 +639,10 @@ Ext.onReady(function() {
 					forceSelection: true,
 					selectOnFocus:true,
 					fieldStyle: 'font-weight: bold; color: #210a04;',
+					/*setRawValue: function(value) {
+						//this.callParent([ decodeEntities(value) ]);
+						value;
+					},*/
 					listeners: {
 						select: function(combo, record, index) {
 							Ext.getCmp('debit_acct_cash').setValue(record.get("type"));
@@ -723,24 +728,27 @@ Ext.onReady(function() {
 			icon: '../js/ext4/examples/shared/icons/add.png',
 			single : true,
 			handler:function(){
-				submit_form.submit({
-					url: '?submitpdcack=pdc',
-					waitMsg: 'Saving pdc acknowledgement Invoice No.' + Ext.getCmp('InvoiceNo_cash').getRawValue() + '. please wait...',
-					method:'POST',
-					submitEmptyText: false,
-					success: function(submit_form, action) {
-						PaymentStore.load()
-						Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
-						submit_window_cash.close();
-					},
-					failure: function(submit_form, action) {
-						Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
+				var form_submit = Ext.getCmp('submit_form').getForm();
+				if(form_submit.isValid()) {
+					form_submit.submit({
+						url: '?submitpdcack=pdc',
+						waitMsg: 'Saving pdc acknowledgement Invoice No.' + Ext.getCmp('InvoiceNo_cash').getRawValue() + '. please wait...',
+						method:'POST',
+						submitEmptyText: false,
+						success: function(form_submit, action) {
+							PaymentStore.load()
+							Ext.Msg.alert('Success!', '<font color="green">' + action.result.message + '</font>');
+							submit_window_cash.close();
+						},
+						failure: function(form_submit, action) {
+							Ext.Msg.alert('Failed!', JSON.stringify(action.result.message));
+						}
+					});
+					window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
+						//alert('An error has occurred!')
+						Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
+						return true;
 					}
-				});
-				window.onerror = function(note_msg, url, linenumber) { //, column, errorObj
-					//alert('An error has occurred!')
-					Ext.Msg.alert('Error: ', note_msg + ' Script: ' + url + ' Line: ' + linenumber);
-					return true;
 				}
 			}
 		},{
