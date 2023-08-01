@@ -643,12 +643,13 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 										$penalty_due_date = $myrow["date_paid"];
 									}
 
-									if($myrow["receipt_no"] == '') {
-										$ref_trans_no = $myrow["reference"];
-									}elseif($myrow["receipt_no"] == 0){
+									if($myrow["reference"] == '') {
 										$ref_trans_no = $myrow["ref"];
-									}else{
-										$ref_trans_no = $myrow["receipt_no"];
+									}/*elseif($myrow["receipt_no"] == 0){
+										$ref_trans_no = $myrow["ref"];
+									}*/
+									else{
+										$ref_trans_no = $myrow["reference"];
 									}
 
 									echo '<tr class="datatable">';
