@@ -17,11 +17,14 @@ include_once($path_to_root . "/includes/date_functions.inc");
 include_once($path_to_root . "/includes/data_checks.inc");
 include_once($path_to_root . "/includes/ui.inc");
 include_once($path_to_root . "/reporting/includes/reports_classes.inc");
+include_once($path_to_root . "/admin/db/company_db.inc");
+
 $js = "";
 if ($SysPrefs->use_popup_windows && $SysPrefs->use_popup_search)
 	$js .= get_js_open_window(900, 500);
 if (user_use_date_picker())
 	$js .= get_js_date_picker();
+
 
 add_js_file('reports.js');
 
@@ -1400,10 +1403,10 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 		)
 	);
 	//=================================================================
-
-
+	
+	
 	//Created by Prog6 (10-14-2021) =====================================
-	$reports->addReport(RC_GL, 726, _('SL RGP Report - Realized Gross Profit (per transaction)'),
+	$reports->addReport(RC_GL, 726, _('SL RGP Report (per transaction)'),
 		array(	
 			_('Start Date') => 'DATEBEGINM',
 			_('End Date') => 'DATEENDM',			
@@ -1415,7 +1418,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 	//=================================================================
 
 	//Created by Prog6 (10-14-2021) =====================================
-	$reports->addReport(RC_GL, 727, _('RGP Report - Realized Gross Profit (summarized per year)'),
+	$reports->addReport(RC_GL, 727, _('SL RGP Report (summarized per year)'),
 		array(	
 			_('Select Month') => 'SELECTMONTHS',
 			_('Comments') => 'TEXTBOX',
@@ -1497,6 +1500,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 	);
 	//=================================================================
 }
+
 
 add_custom_reports($reports);
 
