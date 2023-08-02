@@ -76,8 +76,7 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 			LEFT JOIN ".TB_PREF."users O ON O.user_id = M.collectors_id
 			LEFT JOIN ".TB_PREF."comments P ON P.id = A.trans_no AND P.type = A.type
 			WHERE A.trans_date = '$from'
-			AND (A.pay_type <> 'alloc' OR B.payment_type <> 'alloc') 
-			AND A.remit_no = 0			
+			AND (A.pay_type <> 'alloc' OR B.payment_type <> 'alloc') 						
 			AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
 
 			if ($cust_name != 'ALL') {
@@ -607,6 +606,7 @@ function print_PO_Report()
 	   		$Ar3 = 0;
 	   		$Ar4 = 0;
 	   		$Ar = 0;
+			$advanceF_payment = 0;
 		}elseif ($Type == 'alloc') {
 			$Dw = $downtotal - $advance;
 	   		$Ar1 = 0;
@@ -621,6 +621,7 @@ function print_PO_Report()
 	   		$Ar3 = 0;
 	   		$Ar4 = 0;
 	   		$Ar = 0;
+			$advanceF_payment = 0;
 		} 
 
 		if($DSOC['collection'] == '') {
