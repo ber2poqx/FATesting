@@ -206,7 +206,7 @@ if(isset($_GET['submit']))
             $loanrow = db_fetch($loaninfo);
             $chkresult = check_ledger_to_void($loanrow["trans_type"], $loanrow["trans_no"]);
             $total = DB_num_rows($chkresult);
-            $chkres = db_fetch($result);
+            $chkres = db_fetch($chkresult);
 
             if($total != 0){
                 if($chkres['payment_trans_no'] != $_GET['trans_no']){
@@ -274,6 +274,7 @@ if(isset($_GET['submit']))
             break;
 
         case 'CR-INTERB':
+            
             if ($InputError != 1){
                 //$dsplymsg = _("Payment was successfully voided.");
                 //echo '({"success":"true","message":"'.$dsplymsg.'"})';
