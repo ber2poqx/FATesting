@@ -28,6 +28,8 @@ include_once($path_to_root . "/taxes/tax_calc.inc");
 include_once($path_to_root . "/includes/banking.inc");
 include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
+include_once($path_to_root . "/admin/db/company_db.inc");
+
 print_RGP_summarized();
 
 function getTransactions($month, $account)
@@ -38,6 +40,13 @@ function getTransactions($month, $account)
 			WHERE gl.`account` = '$account' 
 				AND MONTH(gl.tran_date) = '$month' 
 			GROUP BY YEAR(gl.tran_date)";
+
+	return db_query($sql,"No transactions were returned");
+}
+
+function get_GL_Title($account)
+{	
+	$sql = " SELECT * FROM `chart_master` WHERE account_code = '$account' ";
 
 	return db_query($sql,"No transactions were returned");
 }
@@ -60,6 +69,13 @@ function print_RGP_summarized()
 
 	$orientation = 'P';
     $dec = user_price_dec();
+	
+	$myrow_1 = get_company_prefs();
+	$account = $myrow_1['rgp_account'];
+
+	$account_res = get_GL_Title($account);
+    $GL_title = db_fetch($account_res);
+    $account_name = $GL_title['account_name'];
 
     $month = date("m",strtotime($month_param));
     $month_name = '';
@@ -109,7 +125,7 @@ function print_RGP_summarized()
 
 	$aligns = array('center', 'right', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('RGP Report - Summarized per Year'), "RGPSummarizedReport", "letter", 9, $orientation);
+	$rep = new FrontReport(_('RGP Report - ').$account_name._(' (Summarized per Year)'), "RGPSummarizedReport", "letter", 9, $orientation);
 
     //if ($orientation == 'L')
     //	recalculate_cols($cols);
@@ -119,8 +135,8 @@ function print_RGP_summarized()
 		null, null, null, true, true, true);
     $rep->SetHeaderType('SL_Summary_Header');
 	$rep->NewPage();
-	
-	$res = getTransactions($month, $account = '402016'); //Old code = 4465
+		
+	$res = getTransactions($month, $account); //Old code = 4465
 
 	$RGP1 = 0;
 	$RGP2 = 0;

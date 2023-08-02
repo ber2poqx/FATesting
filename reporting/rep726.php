@@ -27,6 +27,7 @@ include_once($path_to_root . "/sales/includes/sales_db.inc");
 include_once($path_to_root . "/taxes/tax_calc.inc");
 include_once($path_to_root . "/includes/banking.inc");
 include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
+include_once($path_to_root . "/admin/db/company_db.inc");
 
 print_SL_RGP();
 
@@ -184,7 +185,10 @@ function print_SL_RGP()
 	$masterfile = $_POST['PARAM_2'];
 	$comments = $_POST['PARAM_3'];
 	$destination = $_POST['PARAM_4'];
-	$gl_account = 402016;//4465;
+	//$gl_account = 402016;//4465;
+
+	$myrow_1 = get_company_prefs();
+	$gl_account = $myrow_1['rgp_account'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
@@ -243,7 +247,7 @@ function print_SL_RGP()
 
 	$aligns = array('left', 'left', 'center', 'left', 'left', 'left', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('SL RGP Report - Realized Gross Profit (per transaction)'), "SalesSummaryReport", "letter", 9, $orientation);
+	$rep = new FrontReport(_('SL RGP Report - '.$account_name.' (per transaction)'), "SalesSummaryReport", "letter", 9, $orientation);
 
     //if ($orientation == 'L')
     //	recalculate_cols($cols);
