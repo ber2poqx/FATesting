@@ -1417,7 +1417,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 	//Created by Prog6 (10-14-2021) =====================================
 	$reports->addReport(RC_GL, 727, _('RGP Report - Realized Gross Profit (summarized per year)'),
 		array(	
-			_('Select Month (mm/dd/yyyy)') => 'DATEBEGIN',
+			_('Select Month') => 'SELECTMONTHS',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'PDFDESTINATION'
 		)

@@ -68,12 +68,14 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			, gl.amount
 			, CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit`
 		    , CASE WHEN gl.amount <  0 THEN -amount ELSE 0 END AS `Credit`
+			, YEAR(dl.invoice_date) AS `invoice_year`
 		FROM `gl_trans` gl
 			LEFT JOIN `refs` ref ON gl.type = ref.type AND gl.type_no = ref.id
 		    LEFT JOIN `debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
 		    LEFT JOIN `debtors_master` dm ON dt.debtor_no = dm.debtor_no
 		    LEFT JOIN `comments` com ON gl.type = com.type AND gl.type_no = com.id 
 		    LEFT JOIN `chart_master` cm ON gl.account = cm.account_code
+			LEFT JOIN `debtor_loans` dl ON gl.type_no = dl.trans_no
 		WHERE gl.`account` = '$gl_account'";
 
 
@@ -92,7 +94,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to'";
 	}
 		//$sql .= " ORDER BY ref.reference";
-		$sql .= " ORDER BY gl.`tran_date`, gl.`counter`";
+		$sql .= " ORDER BY dl.invoice_date";
 		
 		
 	
@@ -101,7 +103,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 
 function Invoice_year($loan_trans_no)
 {
-	$sql = "SELECT `trans_no`, YEAR(`tran_date`) AS `invoice_year` FROM `debtor_trans` WHERE `trans_no` = '$loan_trans_no' AND type = '".ST_SALESINVOICE."' ORDER BY `trans_no`";
+	$sql = "SELECT `trans_no`, YEAR(`invoice_date`) AS `invoice_year` FROM `debtor_loans` WHERE `trans_no` = '$loan_trans_no'";
 
 	return db_query($sql,"No invoice year");
 }
@@ -231,7 +233,7 @@ function print_SL_RGP()
 		3 => array('text' => _('Masterfile Name'), 'from' => $Masterfile_name, 'to' => ''));
 	}
 
-	$cols = array(5, 55, 105,  150, 180, 290,  360, 435,   500,	0);
+	$cols = array(5, 50, 100,  140, 163, 263,  415, 465,   517,	0);
 
 	$headers = array(
 		_('Date'), 
@@ -330,7 +332,7 @@ function print_SL_RGP()
 		$rep->TextCol(0, 1, $SLsum['tran_date']);
 		$rep->TextCol(1, 2, $SLsum['reference']);
 		$rep->TextCol(2, 3, $trans_number);
-		$rep->TextCol(3, 4, $rowYear['invoice_year']);
+		$rep->TextCol(3, 4, $SLsum['invoice_year']);
 		$rep->TextCol(4, 5, $SLsum['name']);
 		$rep->TextCol(5, 6, $SLsum['memo_']);
 		$rep->AmountCol2(6, 7, $SLsum['Debit'], $dec);

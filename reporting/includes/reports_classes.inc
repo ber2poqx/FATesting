@@ -293,6 +293,23 @@ class BoxReports
 					//	$def = 1;
 					return array_selector($name, $def, $sel);
 				//================================================
+				case 'SELECTMONTHS':
+					return value_type_list(null, $name, 
+						array(
+							1 => 'JANUARY',
+							2 => 'FEBRUARY',
+							3 => 'MARCH',
+							4 => 'APRIL',
+							5 => 'MAY',
+							6 => 'JUNE',
+							7 => 'JULY',
+							8 => 'AUGUST',
+							9 => 'SEPTEMBER',
+							10 => 'OCTOBER',
+							11 => 'NOVEMBER',
+							12 => 'DECEMBER'
+						), '', null, true, '', true, false, true
+					);	
 
 				case 'ORIENTATION':
 					$sel = array(_("Portrait"), _("Landscape"));
