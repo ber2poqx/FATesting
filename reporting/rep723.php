@@ -285,6 +285,7 @@ function print_SL_summary_particulars()
 		$amount_val = 0;
 		$Forwarded_deb = 0;
 		$Forwarded_cred = 0;
+		$Bal_forwarded_opt = 0; // 0 for debit, 1 for credit
 	
 		While ($SLsum = db_fetch($res))
 		{
@@ -305,6 +306,15 @@ function print_SL_summary_particulars()
 				{
 					While ($F_bal = db_fetch($Forwarded_bal))
 					{	
+						if($F_bal['Credit']>$F_bal['Debit'])
+						{
+							$Bal_forwarded_opt = 1;
+						}
+						else
+						{
+							$Bal_forwarded_opt = 0;
+						}
+
 						$rep->Font('bold');
 						$rep->TextCol(4, 5, _('Balance Forwarded'));
 						$rep->AmountCol2(5, 6, $F_bal['Debit'], $dec);
@@ -318,12 +328,23 @@ function print_SL_summary_particulars()
 						
 				}										
 			}
-	
-			$amount_val = $SLsum['amount'];
+
+			$amount_val = $SLsum['amount'];// + for debit, - for credit
+				
 	
 			//$running_bal = $running_bal + $amount_val;
 			$Tot_bal = $Tot_bal + $amount_val;
 	
+			if($Bal_forwarded_opt == 0)
+			{
+				$running_bal = $running_bal + $amount_val;
+			}
+			else if($Bal_forwarded_opt == 1)
+			{
+				$running_bal = $running_bal - $amount_val;
+			}
+
+			/*
 			if($amount_val >= 0)
 			{
 				$running_bal = $running_bal + $amount_val;
@@ -332,7 +353,7 @@ function print_SL_summary_particulars()
 			{
 				$amount_val = -$SLsum['amount'];
 				$running_bal = $running_bal - $amount_val;
-			}
+			}*/
 	
 			$dec2 = get_qty_dec($SLsum['reference']);
 	
