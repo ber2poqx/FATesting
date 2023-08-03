@@ -111,7 +111,7 @@ if(isset($_GET['get_Customer']))
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                                'debtor_ref'=>$myrow["debtor_ref"],
-                               'name'=>htmlentities($myrow["name"])
+                               'name'=>$myrow["name"]
                             );
     }
     $jsonresult = json_encode($status_array);
