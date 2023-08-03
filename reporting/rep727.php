@@ -148,13 +148,13 @@ function print_RGP_summarized()
 	While ($RGPsum = db_fetch($res))
 	{
 		if($RGPsum['year'] == $curr_year)
-			$RGP1 = $RGPsum['amount'];
+			$RGP1 = abs($RGPsum['amount']);
 		if($RGPsum['year'] == $prev1_year)
-			$RGP2 = $RGPsum['amount'];
+			$RGP2 = abs($RGPsum['amount']);
 		if($RGPsum['year'] == $prev2_year)
-			$RGP3 = $RGPsum['amount'];
+			$RGP3 = abs($RGPsum['amount']);
 		if($RGPsum['year'] <= $prev3_year)
-			$RGP4 = $RGP4 + $RGPsum['amount'];
+			$RGP4 = abs($RGP4) + abs($RGPsum['amount']);
 
 	}
 
