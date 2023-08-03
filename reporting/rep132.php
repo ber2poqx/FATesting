@@ -458,7 +458,7 @@ function print_PO_Report()
 		if ($get_payment_this_month || $get_advance_payment == 0) {
 			$ar_payment = $ar_total;
 		}else{
-			$ar_payment = $get_payment_this_month - $get_payment_this_month;
+			$ar_payment = $get_payment_this_month;
 		}
 
 		$Type = $DSOC['PayType'];
