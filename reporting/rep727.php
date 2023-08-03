@@ -35,12 +35,12 @@ print_RGP_summarized();
 function getTransactions($month, $account)
 {	
 	$sql = "		
-			SELECT YEAR(dl.invoice_date) AS year , SUM(ABS(gl.amount)) AS amount 
+			SELECT YEAR(gl.tran_date) AS year , SUM(ABS(gl.amount)) AS amount 
 			FROM `gl_trans` gl 
 				LEFT JOIN debtor_loans dl ON gl.type_no = dl.trans_no
 			WHERE gl.`account` = '$account' 
-				AND MONTH(dl.invoice_date) = '$month' 
-			GROUP BY YEAR(dl.invoice_date)";
+				AND MONTH(gl.tran_date) = '$month' 
+			GROUP BY YEAR(gl.tran_date)";
 
 	return db_query($sql,"No transactions were returned");
 }
