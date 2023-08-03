@@ -51,11 +51,6 @@ function getTransactions($from, $to, $cust_name = "", $collector, $cashier, $Typ
 			E.trans_no AS trans_ledge, F.month_no, F.principal_due, F.date_due, I.collection, K.account_name AS Coa_name, M.description AS AREA,
 			O.real_name AS Collector_Name, P.memo_,
 
-			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS artotal,*/
-			/*A.amount + B.ov_discount AS downtotal,*/
-			/*A.amount - IFNULL(E.penalty, 0) + B.ov_discount AS advancetotal,*/
-			/*A.amount - E.payment_applied + B.ov_discount - IFNULL(E.penalty, 0) AS advance,*/
-
 			CASE 
 			    WHEN A.type = " . ST_CUSTPAYMENT . " THEN 'Office Collection Receipt'
 			    WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Receipt Entries'
