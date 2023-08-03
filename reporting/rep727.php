@@ -35,7 +35,7 @@ print_RGP_summarized();
 function getTransactions($month, $account)
 {	
 	$sql = "		
-			SELECT YEAR(gl.tran_date) AS year , SUM(ABS(gl.amount)) AS amount 
+			SELECT YEAR(gl.tran_date) AS year , SUM(gl.amount) AS amount 
 			FROM `gl_trans` gl 
 				LEFT JOIN debtor_loans dl ON gl.type_no = dl.trans_no
 			WHERE gl.`account` = '$account' 
