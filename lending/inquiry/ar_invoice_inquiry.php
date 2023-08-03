@@ -106,7 +106,8 @@ if(isset($_GET['get_aritem'])){
 }
 if(isset($_GET['get_Customer']))
 {
-    $result = get_customers_search('');
+    //$result = get_customers_search('');
+    $result = get_all_customer();
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
