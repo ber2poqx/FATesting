@@ -455,7 +455,7 @@ function print_PO_Report()
 		$ar_total = $DSOC['amt'] - $penalty + $rebate_appl;
 		$downtotal = $DSOC['amt'] + $rebate_appl;
 
-		if ($get_payment_this_month || $get_advance_payment == 0) {
+		if ($get_payment_this_month & $get_advance_payment == 0) {
 			$ar_payment = $ar_total;
 		}else{
 			$ar_payment = $get_payment_this_month;
