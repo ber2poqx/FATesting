@@ -455,6 +455,12 @@ function print_PO_Report()
 		$ar_total = $DSOC['amt'] - $penalty + $rebate_appl;
 		$downtotal = $DSOC['amt'] + $rebate_appl;
 
+		if ($get_payment_this_month || $get_advance_payment == 0) {
+			$ar_payment = $ar_total;
+		}else{
+			$ar_payment = $get_payment_this_month - $get_payment_this_month;
+		}
+
 		$Type = $DSOC['PayType'];
 	    if ($Type == 'amort'){
 			$Ar = $get_payment_this_month;
@@ -483,7 +489,7 @@ function print_PO_Report()
 				$Ar2 = 0;
 				$Ar3 = 0;
 				$Ar4 = 0;
-				$Ar = $ar_total - $get_payment_this_month;
+				$Ar = $ar_payment;
 			}		
 		}elseif($Type == '') {
 			$Dw = $DSOC['amt'];
