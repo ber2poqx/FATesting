@@ -115,13 +115,14 @@ if (isset($_GET['NewDelivery']) && is_numeric($_GET['NewDelivery'])) {
 
 	$_SESSION['page_title'] = $_GET['opening_balance'] == 1 ? _($help_context = "Sales Invoice - OB Term Modification") : 
 		_($help_context = "Sales Invoice Term Modification");
-
-	create_cart(ST_SITERMMOD, $_GET['NewChangeTerm']);
+	$pay_type = $_GET['paytype']=='Lending' ? 'Lending' : 'Branch';
+	create_cart(ST_SITERMMOD, $_GET['NewChangeTerm'], $pay_type);
 
 
 }elseif (isset($_GET['NewRestructured']) && is_numeric($_GET['NewRestructured'])) {
 
-	create_cart(ST_RESTRUCTURED, $_GET['NewRestructured']);
+	$pay_type = $_GET['paytype']=='Lending' ? 'Lending' : 'Branch';
+	create_cart(ST_RESTRUCTURED, $_GET['NewRestructured'], $pay_type);
 	$_SESSION['page_title'] = $_GET['opening_balance'] == 1 && $_GET['NewRestructured'] ? _($help_context = "Sales Invoice - OB Restructured")
 	: _($help_context = "Sales Invoice Restructured");
 
@@ -1345,7 +1346,7 @@ function calculate_dp_discount()
 }
 //--------------------------------------------------------------------------------
 
-function create_cart($type, $trans_no)
+function create_cart($type, $trans_no, $pay_type)
 {
 	global $Refs, $SysPrefs;
 
@@ -1359,7 +1360,15 @@ function create_cart($type, $trans_no)
 		$doc->Comments = _("Sales Quotation") . " # " . $trans_no;
 		$_SESSION['Items'] = $doc;
 	} elseif ($type != ST_SALESORDER && $type != ST_SALESQUOTE && $trans_no != 0) { // this is template
-		$doc = new Cart($type == ST_SALESINVOICEREPO ? ST_SALESORDER : ST_SALESINVOICEREPO, array($trans_no), false, true);
+		if($pay_type =='Lending'){
+			$company = get_company_prefs();
+			$doc = new Cart(70, array($trans_no));
+			$doc->Location = $company["branch_code"];
+			$doc->payment_location = $pay_type;
+		
+		}else{
+			$doc = new Cart($type == ST_SALESINVOICEREPO ? ST_SALESORDER : ST_SALESINVOICEREPO, array($trans_no), false, true);
+		}
 		$doc->trans_type = $type;
 		$doc->trans_no = 0;
 		$doc->document_date = new_doc_date();
@@ -1454,10 +1463,11 @@ start_form();
 hidden('cart_id');
 //modified by albert
 if($_SESSION['Items']->trans_type == ST_SITERMMOD){
-	$customer_error = display_change_term_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate,get_OB_status());
+	$customer_error =  display_change_term_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, 
+	get_OB_status(), $_SESSION['Items']->payment_location);
 }else{
 	$customer_error =$_SESSION['Items']->trans_type == ST_RESTRUCTURED
-		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, get_OB_status())
+		? display_restructured_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, get_OB_status(), $_SESSION['Items']->payment_location)
 		: display_order_header($_SESSION['Items'], !$_SESSION['Items']->is_started(), $idate, $_SESSION['page_title']);	
 }
 if ($customer_error == "") {
