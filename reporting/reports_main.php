@@ -1420,7 +1420,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_GLANALYTIC')) {
 	//Created by Prog6 (10-14-2021) =====================================
 	$reports->addReport(RC_GL, 727, _('SL RGP Report (summarized per year)'),
 		array(	
-			_('Select Month') => 'SELECTMONTHS',
+			_('Select Month') => 'DATEBEGINM',
 			_('Comments') => 'TEXTBOX',
 			_('Destination') => 'PDFDESTINATION'
 		)

@@ -78,8 +78,8 @@ function print_RGP_summarized()
     $GL_title = db_fetch($account_res);
     $account_name = $GL_title['account_name'];
 
-    //$month = date("m",strtotime($month_param));
-	$month = $month_param;
+    $month = date("m",strtotime($month_param));
+	//$month = $month_param;
     $month_name = '';
     $curr_date = date("Y-m-d");
     $curr_year = date("Y");
