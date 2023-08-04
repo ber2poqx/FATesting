@@ -82,10 +82,10 @@ function print_RGP_summarized()
 	//$month = $month_param;
     $month_name = '';
     $curr_date = date("Y-m-d");
-    $curr_year = date("Y");
-    $prev1_year = date("Y",strtotime("-1 year"));
-    $prev2_year = date("Y",strtotime("-2 year"));    
-    $prev3_year = date("Y",strtotime("-3 year"));
+    $curr_year = date("Y",strtotime($month_param));
+    $prev1_year = date("Y",strtotime($month_param."-1 year"));
+    $prev2_year = date("Y",strtotime($month_param."-2 year"));    
+    $prev3_year = date("Y",strtotime($month_param."-3 year"));
 
     if ($month == '1')
     	$month_name = 'JANUARY';
