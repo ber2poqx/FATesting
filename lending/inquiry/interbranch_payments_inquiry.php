@@ -84,7 +84,8 @@ if(isset($_GET['get_InvoiceNo']))
         $status_array[] = array('id'=>$myrow["trans_no"],
                                'name'=>($myrow["reference"].' > '.$myrow["category"].' > '.$myrow["stock_id"].' > '.$myrow["itemdesc"]),
                                'type'=>$myrow["type"],
-                               'status'=>$myrow["status"]
+                               'status'=>$myrow["status"],
+                               'paylocation'=>$myrow["payment_location"]
                             );
     }
     $jsonresult = json_encode($status_array);
@@ -211,25 +212,51 @@ if(isset($_GET['get_aloc']))
     $PartialPayment = $Penalty = $RebateAmount = $TotalBalance = $DP_Discount = 0;
     
     if($_GET['pay_type'] == "down"){
-        $result = get_amort_downpayment($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype']);
+        if($_GET['payloc'] == "Lending"){
+            $result = get_NoSchedDownPaymnt($_GET['transNo'], $_GET['debtor_no']);
+        }else{
+            $result = get_amort_downpayment($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype']);
+        }
+        
         $total = DB_num_rows($result);
         $dprow = db_fetch($result);
-
-        if($dprow['status'] == 'unpaid'){
+        
+        if($_GET['payloc'] == "Lending"){
+            $DPamountPd = get_DownPaymnt_paid($_GET['transNo'], $_GET['transtype']);
             $DP_Discount = ($dprow["discount_downpayment"] + $dprow["discount_downpayment2"]);
-        }
-        $Totalpayment = ($dprow["downpayment_amount"] - $DP_Discount);
-        $paymentAppld = get_payment_appliedSUM($_GET['transtype'],$_GET['transNo'], $dprow["loansched_id"]);
-        $total_runbal = $dprow["total_runbal"];
-        $month_no = $dprow["month_no"];
-        $date_due = date('m-d-Y', strtotime($dprow["date_due"]));
-        $loansched_id = $dprow["loansched_id"];
+            
+            //$Totalpayment = (($dprow["downpayment_amount"] - $DP_Discount) - $DPamountPd);
+            $Totalpayment = ($dprow["downpayment_amount"] - $DP_Discount);
+            $month_no = $PartialPayment = 0;
+            $total_runbal = $ar_balance;
+            $loansched_id = $_GET['transNo'];
+            $date_due = date('m-d-Y', strtotime($dprow["invoice_date"]));
 
+            if($DPamountPd != 0){
+                //$DP_Discount = 0; //make 0 para dli mag gen. entries
+                $PartialPayment = $DPamountPd;
+                $Totalpayment -= $DPamountPd;
+            }
+        }else{
+            if($dprow['status'] == 'unpaid'){
+                $DP_Discount = ($dprow["discount_downpayment"] + $dprow["discount_downpayment2"]);
+            }
+            $Totalpayment = ($dprow["downpayment_amount"] - $DP_Discount);
+            $paymentAppld = get_payment_appliedSUM($_GET['transtype'],$_GET['transNo'], $dprow["loansched_id"]);
+            $total_runbal = $dprow["total_runbal"];
+            $month_no = $dprow["month_no"];
+            $date_due = date('m-d-Y', strtotime($dprow["date_due"]));
+            $loansched_id = $dprow["loansched_id"];
+        }
+        
         if($paymentAppld != 0){
             $PartialPayment = $paymentAppld;
             $Totalpayment -= $paymentAppld;
         }
         $grossPM = $dprow["profit_margin"];
+
+        //check if can avail rebate
+        //$RebateAmount = GetRebate($_GET['transdate'], $dprow["date_due"], $dprow["rebate"]);
 
         $status_array[] = array('loansched_id'=>$loansched_id,
             'debtor_id'=>$_GET['debtor_no'],
@@ -251,7 +278,6 @@ if(isset($_GET['get_aloc']))
             'comptdGPM'=>0,
             'balance'=>$ar_balance
         );
-        
     }else if($_GET['islending'] ==  1){
         $result = get_ARinvoice_debtor_trans($_GET['transNo'], $_GET['debtor_no']);
         $invoicerow = db_fetch($result);
@@ -973,45 +999,112 @@ if(isset($_GET['submit_inbpaysalone']))
                 //$result = get_amort_downpayment($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                 //$dprow = db_fetch($result);
                 $row_dpd = get_dp_discount($_POST['InvoiceNo'], $_POST['customername']);
+                $custtype = get_customer_type($_POST['customername']);
 
-                $payment_no = write_customer_payment(0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['intobankacct'], $_POST['trans_date'], $_POST['ref_no'],
+                if($_POST['paylocation'] == "Lending"){
+                    $DPamountPd = get_DownPaymnt_paid($_POST['InvoiceNo'],  $_POST['transtype']);
+                    if($DPamountPd != 0 && $dp_discount != 0){
+                        $dp_discount = $discount_downpayment = $discount_downpayment2 = 0;
+                    }else{
+                        $discount_downpayment = $row_dpd["discount_downpayment"];
+                        $discount_downpayment2 = $row_dpd["discount_downpayment2"];
+                    }
+                }else{
+                    $discount_downpayment = $row_dpd["discount_downpayment"];
+                    $discount_downpayment2 = $row_dpd["discount_downpayment2"];
+                }
+
+                /*$payment_no = write_customer_payment(0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['debit_acct'], $_POST['trans_date'], $_POST['ref_no'],
                                                 $_POST['tenderd_amount'], check_isempty($dp_discount), $_POST['remarks'], 0, 0, input_num('bank_amount', $_POST['tenderd_amount']),
                                                 0, $_POST['paymentType'], 0, $_POST['moduletype'], 0, 'Cash', '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null,
-                                                $row_dpd["discount_downpayment"], $row_dpd["discount_downpayment2"], $_POST['transtype'], null, 0);
+                                                $discount_downpayment, $discount_downpayment2, $_POST['transtype'], null, 0);
+                */
+                $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
+                                                    $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType2'], 0, $_POST['moduletype']);
 
-                add_cust_allocation(($_POST['tenderd_amount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
+                /*$_POST['cashier']*/ 0, $_POST['paymentType'], '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
+
+                add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
+
+                /* Bank account entry first */
+                $GLtotal += add_gl_trans(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['debit_acct'], 0, 0, '', $_POST['tenderd_amount'], null, PT_CUSTOMER, $_POST['customername'], "", 0, null, null, 0, $_POST['InvoiceNo']);
+
+                add_cust_allocation(($_POST['tenderd_amount']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
                 
-
-                if($_POST['total_amount'] == $_POST['tenderd_amount']){
-                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount']  + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
-                    update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
-                    update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
-
-                    $tenderd_amount = 0;
-
-                }elseif($_POST['total_amount'] > $_POST['tenderd_amount']) {
-                    $nextDPBal = ($_POST['total_amount'] - $_POST['tenderd_amount']);
-
-                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, $_POST['tenderd_amount'], 0, 0, 0, $trans_date, $payment_no);
-                    update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
-                
-                }
-                
-                $ar_balance = check_ar_balance($_POST['InvoiceNo'], $_POST['transtype']);
-
-                if($grossPM != 0){
-                    $dgp_account = $company_record["dgp_account"];
-                    $rgp_account = $company_record["rgp_account"];
-
-                    if($ar_balance == 0){
-                        $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
+                if($custtype != 1){
+                        
+                    $term = get_mos_term($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
+                    if($term <= 3) {
+                        $debtors_account = $company_record["ar_reg_current_account"];
                     }else{
-                        $DeferdAmt = ($_POST['tenderd_amount'] + $dp_discount) * $grossPM;
+                        $debtors_account = $company_record["debtors_act"];
                     }
 
-                    $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
-                    $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                }else if($custtype == 1){
+                    $debtors_account = $company_record["isa_employee"];
+                }else{
+                    $debtors_account = $company_record["debtors_act"];
+                }
+
+                if($_POST['paylocation'] != "Lending"){
+                    if($_POST['total_amount'] == $_POST['tenderd_amount']){
+                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, ($_POST['tenderd_amount']  + check_isempty($dp_discount)), 0, 0, 0, $trans_date, $payment_no);
+                        update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "paid", 0, "paid");
+                        update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
+    
+                        $tenderd_amount = 0;
+    
+                    }elseif($_POST['total_amount'] > $_POST['tenderd_amount']) {
+                        $nextDPBal = ($_POST['total_amount'] - $_POST['tenderd_amount']);
+    
+                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $Loansched_ID, $_POST['transtype'], ST_CUSTPAYMENT, $_POST['tenderd_amount'], 0, 0, 0, $trans_date, $payment_no);
+                        update_loan_schedule($Loansched_ID, $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial");
+                    
+                    }
+                    //AR account
+                    if ($_POST['tenderd_amount'] != 0)	{
+                        /* Now Credit Debtors account with receipts + discounts */
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -$_POST['tenderd_amount'], $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                    }
+
+                    if($grossPM != 0){
+                        $dgp_account = $company_record["dgp_account"];
+                        $rgp_account = $company_record["rgp_account"];
+    
+                        if($ar_balance == 0){
+                            $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
+                        }else{
+                            $DeferdAmt = ($_POST['tenderd_amount'] + $dp_discount) * $grossPM;
+                        }
+    
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                    }
+
+                }else{
+                    $debtors_account = $company_record["ar_cash_sales_account"];
+                    $dpresult = get_NoSchedDownPaymnt($_POST['InvoiceNo'], $_POST['customername']);
+                    $dprow = db_fetch($dpresult);
+                    $DPamountPd = get_DownPaymnt_paid($_POST['InvoiceNo'],  $_POST['transtype']);
+
+                    $DPtotalPay = ($dprow["downpayment_amount"] - $data['dp_discount']) - $DPamountPd;
+                    
+                    if($DPtotalPay == 0){
+                        update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], 'Open');
+                    }else{
+                        //if($DPamountPd != 0){
+                        //    update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], 'part-paid');
+                       // }else{
+                            update_dp_status($_POST['InvoiceNo'], $_POST['transtype']);
+                       // }
+                    }
+
+                    if ($_POST['tenderd_amount'] != 0)	{
+                        /* Now Credit Debtors account with receipts + discounts */
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -$_POST['tenderd_amount'], $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                    }
                 }
 
                 interbranch_notfa_add($_POST['frombranch'], $db_connections[user_company()]["branch_code"], $_POST['customercode'], $_POST['custname'], $trans_date, $_POST['ref_no'], $_POST['tenderd_amount'], $_POST['remarks'],
@@ -1027,10 +1120,10 @@ if(isset($_GET['submit_inbpaysalone']))
                 $branch_data = get_branch_accounts($BranchNo['branch_code']);
 
                 $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
-                $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], 0, $_POST['moduletype']);
+                                                $_POST['tenderd_amount'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType2'], 0, $_POST['moduletype']);
 
                 add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
-                /*$_POST['cashier']*/ 0, $_POST['pay_type'], '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
+                /*$_POST['cashier']*/ 0, $_POST['paymentType'], '0000-00-00', 0, null, $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
 
                 add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
 

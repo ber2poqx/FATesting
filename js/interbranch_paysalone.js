@@ -67,6 +67,16 @@ Ext.onReady(function(){
 			{name:'type', mapping:'type'}
 		]
     });
+	Ext.define('InvoiceModel',{
+        extend: 'Ext.data.Model',
+        fields: [
+			{name:'id', mapping:'id'},
+			{name:'name', mapping:'name'},
+			{name:'type', mapping:'type'},
+			{name:'status', mapping:'status'},
+			{name:'paylocation', mapping:'paylocation'}
+		]
+    });
 	Ext.define('AllocationModel',{
 		extend : 'Ext.data.Model',
 		fields  : [
@@ -288,6 +298,20 @@ Ext.onReady(function(){
 		{header:'<b>Monthly</b>', dataIndex:'amortization', align:'right', width:130,
 			renderer : function(value, metaData, summaryData, dataIndex){
 				return Ext.util.Format.number(value, '0,000.00');
+			}
+		},
+		{header:'<b>Down-Payment</b>', dataIndex:'downpayment', align:'right', width:145,
+			renderer : function(value, metaData, summaryData, dataIndex){
+				return Ext.util.Format.number(value, '0,000.00');
+			}
+		},
+		{header:'<b>DP Discount</b>', dataIndex:'dp_discount', align:'right', width:130, 
+			renderer : function(value, metaData, summaryData, dataIndex){
+				if (value==0) {
+					return Ext.util.Format.number(value, '0,000.00');
+				}else{
+					return '<span style="color:green;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
+				}
 			}
 		},
 		{header:'<b>Penalty</b>', dataIndex:'penalty', width:95, align:'right',
@@ -522,6 +546,12 @@ Ext.onReady(function(){
 			fieldStyle: 'font-weight: bold; color: #210a04;',
 			hidden: true
 		},{
+			xtype: 'textfield',
+			id: 'paylocation',
+			name: 'paylocation',
+			fieldLabel: 'pay location',
+			hidden: true
+		},{
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 5',
@@ -641,10 +671,12 @@ Ext.onReady(function(){
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
 					select: function(combo, record, index) {
+						var allocgrid = Ext.getCmp('AllocTabGrid');
 						Getreference();
 						Ext.getCmp('transtype').setValue(record.get('type'));
+						Ext.getCmp('paylocation').setValue(record.get('paylocation'));
 
-						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue()};
+						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue(), payloc: Ext.getCmp('paylocation').getValue()};
 						AllocationStore.load();
 						SIitemStore.proxy.extraParams = {transNo: record.get('id'), transtype: record.get('type')};
 						SIitemStore.load();
@@ -658,7 +690,7 @@ Ext.onReady(function(){
 							allocgrid.columns[9].setVisible(false);
 							allocgrid.columns[10].setVisible(false);
 
-							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue()};
+							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue(), payloc: Ext.getCmp('paylocation').getValue()};
 							AllocationStore.load();
 
 						}else{
@@ -670,7 +702,7 @@ Ext.onReady(function(){
 							allocgrid.columns[9].setVisible(true);
 							allocgrid.columns[10].setVisible(true);
 
-							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue()};
+							AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue(), payloc: Ext.getCmp('paylocation').getValue()};
 							AllocationStore.load();
 						}
 					}
@@ -693,15 +725,7 @@ Ext.onReady(function(){
 				fieldStyle: 'font-weight: bold; color: #210a04;',
 				listeners: {
 					select: function(combo, record, index) {
-						AllocationStore.proxy.extraParams = {transNo: Ext.getCmp('InvoiceNo').getValue(), debtor_no: Ext.getCmp('customername').getValue(), transtype: Ext.getCmp('transtype').getValue(), transdate: Ext.getCmp('trans_date').getValue(), pay_type: record.get('id') };
-						AllocationStore.load();
-					}
-
-					/*select: function(combo, record, index) {
-						Ext.getCmp('tenderd_amount').setValue();
-						Ext.getCmp('tenderd_amount').focus(false, 200);
-
-						AllocationStore.proxy.extraParams = {transNo: Ext.getCmp('InvoiceNo').getValue(), debtor_no: Ext.getCmp('customername').getValue(), transtype: Ext.getCmp('transtype').getValue(), transdate: Ext.getCmp('trans_date').getValue(), pay_type: record.get('id'), colltype: Ext.getCmp('collectType').getValue(), payloc: Ext.getCmp('paylocation').getValue() };
+						AllocationStore.proxy.extraParams = {transNo: Ext.getCmp('InvoiceNo').getValue(), debtor_no: Ext.getCmp('customername').getValue(), transtype: Ext.getCmp('transtype').getValue(), transdate: Ext.getCmp('trans_date').getValue(), pay_type: record.get('id'), payloc: Ext.getCmp('paylocation').getValue()};
 						AllocationStore.load();
 
 						var allocgrid = Ext.getCmp('AllocTabGrid');
@@ -718,7 +742,7 @@ Ext.onReady(function(){
 							allocgrid.columns[9].setVisible(true);
 							allocgrid.columns[10].setVisible(true);
 						}
-					}*/
+					}
 				}
 			}]
 		},{
