@@ -72,10 +72,12 @@ function get_repo_schedule($to)
             LEFT JOIN (
             SELECT EEY.id, EEY.trans_no, EEY.debtor_no, AAY.maturity_date, 
             SUM(EEY.principal_due) AS past_due_month
-            FROM debtor_loan_schedule EEY 
+            FROM debtor_loan_schedule EEY
+            LEFT JOIN repo_accounts GGWP ON EEY.trans_no = GGWP.ar_trans_no AND EEY.debtor_no = GGWP.debtor_no 
+            AND EEY.trans_type = GGWP.ar_trans_type 
             INNER JOIN debtor_loans AAY ON EEY.trans_no = AAY.trans_no AND EEY.debtor_no AND AAY.debtor_no AND AAY.invoice_type = 'new'
-            WHERE AAY.maturity_date < '$to' AND 
-            EEY.status != 'paid' GROUP BY EEY.debtor_no, EEY.trans_no) PASTDUE ON F.trans_no = PASTDUE.trans_no AND F.debtor_no = PASTDUE.debtor_no
+            WHERE AAY.maturity_date < '$to' AND EEY.status != 'paid' AND YEAR(GGWP.repo_date) >= YEAR(EEY.date_due) 
+            GROUP BY EEY.debtor_no, EEY.trans_no) PASTDUE ON F.trans_no = PASTDUE.trans_no AND F.debtor_no = PASTDUE.debtor_no
 
             LEFT JOIN (
             SELECT EET.id, EET.trans_no, EET.debtor_no,  
