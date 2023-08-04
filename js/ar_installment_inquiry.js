@@ -546,7 +546,12 @@ Ext.onReady(function(){
 				icon: '../../js/ext4/examples/shared/icons/cash-register-icon.png',
 				margin: '2 2 2 2',
 				handler : function() {
-					window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + Ext.getCmp('rpt_transno').getValue() + '&opening_balance=1&paytype=' + Ext.getCmp('rpt_transtype').getValue());
+					if(Ext.getCmp('invtype').getValue() == 'repo'){
+						window.open('../../sales/si_repo_install.php?NewChangeTerm=' + Ext.getCmp('rpt_transno').getValue() + '&opening_balance=1&paytype=' + Ext.getCmp('rpt_transtype').getValue());
+					}else{
+						window.open('../../sales/sales_order_entry.php?NewChangeTerm=' + Ext.getCmp('rpt_transno').getValue() + '&opening_balance=1&paytype=' + Ext.getCmp('rpt_transtype').getValue());
+					}
+					
 					submit_window_InterB.close();
 				}
 			},{
