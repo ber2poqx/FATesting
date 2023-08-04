@@ -393,7 +393,8 @@ if(isset($_GET['get_aloc']))
 
             $AmortDelay = $termoderow["amort_delay"];
             $Penalty = $termoderow["opportunity_cost"];
-            $Totalpayment = $termoderow["amount_to_be_paid"];
+            $Totalpayment = ($termoderow["amount_to_be_paid"] - $termoderow["adv_payment_rebate"]);
+            $RebateAmount = $termoderow["adv_payment_rebate"];
 
             $TotalRunBal = $schedrow["total_runbal"];
 
@@ -420,7 +421,7 @@ if(isset($_GET['get_aloc']))
 
         }else{
             $result = get_deptor_loan_schedule($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype'], false);
-        
+            
             $total = DB_num_rows($result);
             $absAmount = 0;
             $schedrow = db_fetch($result);
