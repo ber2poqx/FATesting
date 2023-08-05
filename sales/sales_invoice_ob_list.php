@@ -101,11 +101,14 @@ function check_pending($row)
 
 //Added by spyrax10
 function sales_return_replacement($row) {
+	global $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 	$link = '';
 
-	if ($void_entry['void_status'] == "Voided") {
+	if ($void_entry['void_status'] == "Voided" || $db_branch_type == 'LENDING') {
 		$link = '';
 	}
 	else {
@@ -125,12 +128,14 @@ function sales_return_replacement($row) {
 	return $link;
 }
 function sales_return_approval($row) {
-	global $page_nested;
+	global $page_nested, $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 	$link = '';
 
-	if ($void_entry['void_status'] == "Voided") {
+	if ($void_entry['void_status'] == "Voided" || $db_branch_type == 'LENDING') {
 		$link = '';
 	}
 	else {
@@ -151,11 +156,14 @@ function sales_return_approval($row) {
 }
 
 function change_term_link($row) {
+	global $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 	$link = '';
 
-	if ($void_entry['void_status'] == "Voided") {
+	if ($void_entry['void_status'] == "Voided" || $db_branch_type == 'LENDING') {
 		$link = '';
 	}
 	else {
@@ -187,12 +195,14 @@ function change_term_link($row) {
 }
 //Added by Albert
 function sales_restructured_approval($row) {
-	global $page_nested;
+	global $page_nested, $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 	
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 	$link = '';
 
-	if ($void_entry['void_status'] == "Voided") {
+	if ($void_entry['void_status'] == "Voided" || $db_branch_type == 'LENDING') {
 		$link = '';
 	}
 	else {
@@ -212,11 +222,14 @@ function sales_restructured_approval($row) {
 	return $link;
 }
 function restructured_link($row) {
+	global $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 	$link = '';
 
-	if ($void_entry['void_status'] == "Voided") {
+	if ($void_entry['void_status'] == "Voided" || $db_branch_type == 'LENDING') {
 		$link = '';
 	}
 	else {
