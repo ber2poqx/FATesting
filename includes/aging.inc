@@ -358,7 +358,7 @@ function advance_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $
     }
 
     $sql .= " AND DATE_FORMAT(A.date_paid, '%Y-%m') = DATE_FORMAT('$end_date', '%Y-%m')";
-    
+
     $res = db_query($sql, 'Cant get advance payment!');
     $row = db_fetch_row($res);
 	$total = $row[0];
@@ -1118,7 +1118,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE DL.invoice_date END AS buy_date,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.ar_amount
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m')  AND CT.term_mode_fullpayment = 0 THEN CT.ar_amount
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.ar_amount
         ELSE DL.ar_amount END AS gross,
             
@@ -1128,14 +1128,14 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE DL.months_term END AS Term,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN CT.trans_no
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
         ELSE DL.trans_no END AS trans_no,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN $change_term
+	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN $change_term
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
-            When DL.payment_location =  '$payment_location' Then $lending_type
+            WHEN DL.payment_location =  '$payment_location' Then $lending_type
         ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type,
         CT.term_mode_fullpayment,
         CT.si_trans_no,
