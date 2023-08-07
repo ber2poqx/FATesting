@@ -395,24 +395,24 @@ function print_transaction() {
                     $rep->NewLine(2);
                     $rep->Font('bold');
                     $rep->TextCol(1, 2, _('Year Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                    $rep->AmountCol(5, 6, $tot_gross2, $dec);
+                    $rep->AmountCol(6, 7, $tot_down2, $dec);
+                    $rep->AmountCol(7, 8, $tot_adj2, $dec);
+                    $rep->AmountCol(8, 9, $tot2_rest, $dec);
+                    $rep->AmountCol(9, 10, $tot2_pay, $dec);
+                    $rep->AmountCol(10, 11, $tot2_adv, $dec);
+                    $rep->AmountCol(11, 12, $tot2_bal, $dec);
+                    $rep->AmountCol(12, 13, $tot2_notDue, $dec);
+                    $rep->AmountCol(13, 14, $tot2_dueNxt, $dec);
+                    $rep->AmountCol(14, 15, $tot2_dueThis, $dec);
                     $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                    $rep->AmountCol(15, 16, $tot2_ovr1, $dec);
+                    $rep->AmountCol(16, 17, $tot2_ovr2, $dec);
                     $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
+                    $rep->AmountCol(17, 18, $tot2_past, $dec);
+                    $rep->AmountCol(18, 19, $tot2_grand, $dec);
                     if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        $rep->AmountCol(19, 20, $tot2_penalty, $dec);
                     }
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
@@ -707,24 +707,24 @@ function print_transaction() {
                     $rep->NewLine(2);
                     $rep->Font('bold');
                     $rep->TextCol(1, 2, _('Year Sub_Total'));
-                    $rep->AmountCol(5, 6, $tot_gross, $dec);
-                    $rep->AmountCol(6, 7, $tot_down, $dec);
-                    $rep->AmountCol(7, 8, $tot_adj, $dec);
-                    $rep->AmountCol(8, 9, $tot_rest, $dec);
-                    $rep->AmountCol(9, 10, $tot_pay, $dec);
-                    $rep->AmountCol(10, 11, $tot_adv, $dec);
-                    $rep->AmountCol(11, 12, $tot_bal, $dec);
-                    $rep->AmountCol(12, 13, $tot_notDue, $dec);
-                    $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-                    $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+                    $rep->AmountCol(5, 6, $tot2_gross, $dec);
+                    $rep->AmountCol(6, 7, $tot2_down, $dec);
+                    $rep->AmountCol(7, 8, $tot2_adj, $dec);
+                    $rep->AmountCol(8, 9, $tot2_rest, $dec);
+                    $rep->AmountCol(9, 10, $tot2_pay, $dec);
+                    $rep->AmountCol(10, 11, $tot2_adv, $dec);
+                    $rep->AmountCol(11, 12, $tot2_bal, $dec);
+                    $rep->AmountCol(12, 13, $tot2_notDue, $dec);
+                    $rep->AmountCol(13, 14, $tot2_dueNxt, $dec);
+                    $rep->AmountCol(14, 15, $tot2_dueThis, $dec);
                     $rep->SetTextColor(255, 0, 0);
-                    $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-                    $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+                    $rep->AmountCol(15, 16, $tot2_ovr1, $dec);
+                    $rep->AmountCol(16, 17, $tot2_ovr2, $dec);
                     $rep->SetTextColor(0, 0, 0);
-                    $rep->AmountCol(17, 18, $tot_past, $dec);
-                    $rep->AmountCol(18, 19, $tot_grand, $dec);
+                    $rep->AmountCol(17, 18, $tot2_past, $dec);
+                    $rep->AmountCol(18, 19, $tot2_grand, $dec);
                     if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        $rep->AmountCol(19, 20, $tot2_penalty, $dec);
                     }
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
@@ -787,24 +787,24 @@ function print_transaction() {
             $rep->fontSize += .5;
             $rep->NewLine(.5);
 
-            //Sub - Total                               //Grand Total                                  //Year Total
-            $tot_gross += $trans['gross'];              $tot1_gross += $trans['gross'];                $tot2_gross += $trans['gross'];
-            $tot_down += $trans['down_pay'];            $tot1_down += $trans['down_pay'];              $tot2_down += $trans['down_pay'];
-            $tot_adj += $total_adjusment;               $tot1_adj += $total_adjusment;                 $tot2_adj += $total_adjusment;
-            $tot_rest += $trans['restruct'];            $tot1_rest += $trans['restruct'];              $tot2_rest += $trans['restruct'];
-            $tot_pay += $total_payment_this_month;      $tot1_pay += $total_payment_this_month;        $tot2_pay += $total_payment_this_month;
-            $tot_adv += $advance_payment;               $tot1_adv += $advance_payment;                 $tot2_adv += $advance_payment;
-            $tot_bal += $current_balance;               $tot1_bal += $current_balance;                 $tot2_bal += $current_balance;
-            $tot_notDue += $not_yet_due;                $tot1_notDue += $not_yet_due;                  $tot2_notDue += $not_yet_due;
-            $tot_dueNxt += $due_nxt_month;              $tot1_dueNxt += $due_nxt_month;                $tot2_dueNxt += $due_nxt_month;
-            $tot_dueThis += $due_this_month;            $tot1_dueThis += $due_this_month;              $tot2_dueThis += $due_this_month;
-            $tot_ovr1 += $overdue_1month;               $tot1_ovr1 += $overdue_1month;                 $tot2_ovr1 += $overdue_1month;
-            $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;                $tot2_ovr2 += $overdue_2months;
-            $tot_past += $past_due;                     $tot1_past += $past_due;                       $tot2_past += $past_due;
-            $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;            $tot2_grand += $total_collectibles;
+            //Sub - Total                               //Grand Total                                 //Year Total
+            $tot_gross += $trans['gross'];              $tot1_gross += $trans['gross'];               $tot2_gross += $trans['gross'];
+            $tot_down += $trans['down_pay'];            $tot1_down += $trans['down_pay'];             $tot2_down += $trans['down_pay'];
+            $tot_adj += $total_adjusment;               $tot1_adj += $total_adjusment;                $tot2_adj += $total_adjusment;
+            $tot_rest += $trans['restruct'];            $tot1_rest += $trans['restruct'];             $tot2_rest += $trans['restruct'];
+            $tot_pay += $total_payment_this_month;      $tot1_pay += $total_payment_this_month;       $tot2_pay += $total_payment_this_month;
+            $tot_adv += $advance_payment;               $tot1_adv += $advance_payment;                $tot2_adv += $advance_payment;
+            $tot_bal += $current_balance;               $tot1_bal += $current_balance;                $tot2_bal += $current_balance;
+            $tot_notDue += $not_yet_due;                $tot1_notDue += $not_yet_due;                 $tot2_notDue += $not_yet_due;
+            $tot_dueNxt += $due_nxt_month;              $tot1_dueNxt += $due_nxt_month;               $tot2_dueNxt += $due_nxt_month;
+            $tot_dueThis += $due_this_month;            $tot1_dueThis += $due_this_month;             $tot2_dueThis += $due_this_month;
+            $tot_ovr1 += $overdue_1month;               $tot1_ovr1 += $overdue_1month;                $tot2_ovr1 += $overdue_1month;
+            $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;               $tot2_ovr2 += $overdue_2months;
+            $tot_past += $past_due;                     $tot1_past += $past_due;                      $tot2_past += $past_due;
+            $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;           $tot2_grand += $total_collectibles;
 
             if ($show_add == 1) {
-                $tot_penalty += $penalty;               $tot1_penalty += $penalty;                     $tot2_penalty += $penalty;
+                $tot_penalty += $penalty;               $tot1_penalty += $penalty;                    $tot2_penalty += $penalty;
             }
         }
       
@@ -813,22 +813,22 @@ function print_transaction() {
         $rep->NewLine(2);
         $rep->Font('bold');
         $rep->TextCol(1, 2, _('Year Sub_Total'));
-        $rep->AmountCol(5, 6, $tot_gross, $dec);
-        $rep->AmountCol(6, 7, $tot_down, $dec);
-        $rep->AmountCol(7, 8, $tot_adj, $dec);
-        $rep->AmountCol(8, 9, $tot_rest, $dec);
-        $rep->AmountCol(9, 10, $tot_pay, $dec);
-        $rep->AmountCol(10, 11, $tot_adv, $dec);
-        $rep->AmountCol(11, 12, $tot_bal, $dec);
-        $rep->AmountCol(12, 13, $tot_notDue, $dec);
-        $rep->AmountCol(13, 14, $tot_dueNxt, $dec);
-        $rep->AmountCol(14, 15, $tot_dueThis, $dec);
+        $rep->AmountCol(5, 6, $tot2_gross, $dec);
+        $rep->AmountCol(6, 7, $tot2_down, $dec);
+        $rep->AmountCol(7, 8, $tot2_adj, $dec);
+        $rep->AmountCol(8, 9, $tot2_rest, $dec);
+        $rep->AmountCol(9, 10, $tot2_pay, $dec);
+        $rep->AmountCol(10, 11, $tot2_adv, $dec);
+        $rep->AmountCol(11, 12, $tot2_bal, $dec);
+        $rep->AmountCol(12, 13, $tot2_notDue, $dec);
+        $rep->AmountCol(13, 14, $tot2_dueNxt, $dec);
+        $rep->AmountCol(14, 15, $tot2_dueThis, $dec);
         $rep->SetTextColor(255, 0, 0);
-        $rep->AmountCol(15, 16, $tot_ovr1, $dec);
-        $rep->AmountCol(16, 17, $tot_ovr2, $dec);
+        $rep->AmountCol(15, 16, $tot2_ovr1, $dec);
+        $rep->AmountCol(16, 17, $tot2_ovr2, $dec);
         $rep->SetTextColor(0, 0, 0);
-        $rep->AmountCol(17, 18, $tot_past, $dec);
-        $rep->AmountCol(18, 19, $tot_grand, $dec);
+        $rep->AmountCol(17, 18, $tot2_past, $dec);
+        $rep->AmountCol(18, 19, $tot2_grand, $dec);
         if ($show_add == 1) {
             $rep->AmountCol(19, 20, $tot_penalty, $dec);
         }
