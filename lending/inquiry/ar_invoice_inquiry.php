@@ -369,7 +369,7 @@ if(isset($_GET['submit']))
                 $result = get_loan_schedule_dP_lending($trans_no, $_POST['customername'], ST_ARINVCINSTLITM);
                 $Loansched = db_fetch($result);
                 
-                add_loan_ledger($trans_no, $_POST['customername'], $Loansched["loansched_id"], ST_ARINVCINSTLITM, ST_CUSTPAYMENT, $_POST['dp_amount'], 0, 0, 0, $approved_date, $trans_no);
+                add_loan_ledger($trans_no, $_POST['customername'], $Loansched["loansched_id"], ST_ARINVCINSTLITM, ST_ARINVCINSTLITM, $_POST['dp_amount'], 0, 0, 0, $approved_date, $trans_no);
                 update_loan_schedule($Loansched["loansched_id"], $_POST['customername'], $trans_no, ST_ARINVCINSTLITM, "paid", 0, "paid");
             }
 
