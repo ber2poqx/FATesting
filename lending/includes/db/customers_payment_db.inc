@@ -451,6 +451,19 @@ function get_loan_schedule($trans_no, $deptor_no, $type)
 	return db_query($sql, "could not get loan schedule");
 }
 
+function get_loan_schedule_dP_lending($trans_no, $deptor_no, $type)
+{
+	$sql = "SELECT A.id loansched_id, A.*
+		FROM ".TB_PREF."debtor_loan_schedule A
+		WHERE A.trans_no = ".db_escape($trans_no) ."
+			AND A.debtor_no = ".db_escape($deptor_no) ."
+			AND A.trans_type = ".db_escape($type). "
+			AND A.month_no = 0 
+		ORDER BY month_no ASC";
+
+	return db_query($sql, "could not get loan schedule");
+}
+
 function get_loan_schedule_penalty($trans_no, $deptor_no, $type)
 {
 	$sql = "SELECT A.id loansched_id, A.*
