@@ -1690,9 +1690,11 @@ Ext.onReady(function(){
 					Ext.getCmp('rpt_transtype').setValue(records.get('payment_loc'));
 					Ext.getCmp('fldstatus').setValue(records.get('restructured_status'));
 
-					link_window.setTitle('Selection List');
-					link_window.show();
-					link_window.setPosition(500,150);
+					if(records.get('ar_balance') != 0){
+						link_window.setTitle('Selection List');
+						link_window.show();
+						link_window.setPosition(500,150);
+					}
 				},
 				isDisabled: function(view, rowIndex, colIndex, item, record) {
 				//hidden : function(view, record) {
