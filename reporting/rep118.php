@@ -607,6 +607,12 @@ function print_PO_Report()
 			$invcdate = get_category_invoice_date($DSOC['masterfile']);
 		}
 
+		if($DSOC['receipt_no'] == 0) {
+			$receiptno = $DSOC['ref'];
+		}else{
+			$receiptno = $DSOC['receipt_no'];
+		}
+
 		$invoice_date = $invcdate;
 		if (date('Y', strtotime($invoice_date)) == $year1){
 			if(isset($Ar)){ $Ar1 = $Ar; $Ar2 = ''; $Ar3 = ''; $Ar4 = ''; }else{ $Ar1 = ''; $Ar2 = ''; $Ar3 = ''; $Ar4 = ''; }
@@ -643,7 +649,7 @@ function print_PO_Report()
 		$rep->NewLine();
 		$rep->TextCol(0, 1, sql2date($DSOC['trans_date']));
 		//$rep->TextCol(1, 2, str_replace(getCompDet('branch_code') . "-", "", $DSOC['ref'])); 
-		$rep->TextCol(1, 2, $DSOC['receipt_no']);
+		$rep->TextCol(1, 2, $receiptno);
         $rep->SetTextColor(0, 102, 0);
 		$rep->TextCol(2, 3, htmlentities($DSOC['name']));
         $rep->SetTextColor(0, 0, 0);
