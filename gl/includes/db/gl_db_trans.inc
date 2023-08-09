@@ -298,9 +298,9 @@ function get_gl_trans($type = '', $trans_id = '', $order = "ASC", $counter = '')
 	if ($counter != '') {
 		$sql .= " AND gl.counter = ".db_escape($counter);
 	}
-
+	$sql .= " GROUP BY gl.counter";
 	$sql .= " ORDER BY tran_date, counter $order"; //Added by spyrax10 24 Jun 2022
-
+	
 	return db_query($sql, "The gl transactions could not be retrieved");
 }
 
