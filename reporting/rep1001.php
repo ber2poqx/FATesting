@@ -422,6 +422,17 @@ function print_transaction() {
                     $tot2_bal = $tot2_notDue = $tot2_dueNxt = $tot2_dueThis = $tot2_ovr1 = 
                     $tot2_ovr2 = $tot2_past = $tot2_grand = $tot2_penalty =  0.0;
                 }
+                $rep->NewLine();
+                $rep->fontSize += 1;
+                $rep->Font('bold');
+                $rep->SetTextColor(0, 0, 255);
+                $rep->TextCol(0, 10, $trans['inv_year']);
+                $year = $trans['inv_year'];
+                $rep->Font();
+                $rep->fontSize -= 1;
+                $rep->SetTextColor(0, 0, 0);
+                $rep->NewLine();
+
             }
 
             $rep->NewLine();
