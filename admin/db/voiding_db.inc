@@ -356,6 +356,7 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 		$delivery_row = get_SI_by_reference('','' ,'' ,'' ,$debtor_row['delivery_ref_no']);
 		$delivery_gl = get_gl_trans($delivery_row['type'], $delivery_row['trans_no'], "DESC");
 		$promo_item = get_promo_item_delivery($delivery_row['order_']); //Added by Albert Delete Dispatch qty out 05/06/2023
+		$promo_item_gl = get_gl_trans($promo_item['type'], $promo_item['trans_no'], "DESC");
 	}
 
 	while ($row = db_fetch($gl_sql)) {
@@ -499,6 +500,33 @@ function void_entries($void_id, $trans_type, $ref_to = '') {
 					$void['void_id'],
 					$row_delivery['item_type']
 				);
+			}
+			while ($row = db_fetch($promo_item_gl)) {
+			
+				update_gl_memo($row['counter'], $row['memo_'] . " - " . $memo_);
+	
+				add_gl_trans(
+					$row['type'],
+					$row['type_no'],
+					sql2date($row['tran_date']),
+					$row['account'],
+					0, 0,
+					$void_row['memo_'],
+					-$row['amount'],
+					'PHP',
+					$row['person_type_id'],
+					$row['person_id'],
+					"",
+					0,
+					$row['mcode'],
+					$row['master_file'],
+					$row['hocbc_id'],
+					$row['loan_trans_no'],
+					$row['interbranch'],
+					false,
+					1
+				);
+	
 			}
 		}
 		
