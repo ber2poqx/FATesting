@@ -347,7 +347,9 @@ if(isset($_GET['get_custPayment']))
     //echo "as".$_GET['transno'];
 
     $result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno']);
-    $total = DB_num_rows($result);
+
+    $total_result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno']);
+    
     while ($myrow = db_fetch($result)) {
         $trans_typeTo = get_Trans_Type($myrow["trans_no"]);
         if($myrow["payment_type"] == "down"){
@@ -389,7 +391,7 @@ if(isset($_GET['get_custPayment']))
                             );
     }
     $jsonresult = json_encode($status_array);
-    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    echo '({"total":"'.DB_num_rows($total_result).'","result":'.$jsonresult.'})';
     return;
 }
 if(isset($_GET['get_loan_ledger']))
