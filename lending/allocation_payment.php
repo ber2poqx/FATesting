@@ -366,7 +366,7 @@ if(isset($_GET['get_custPayment']))
                                 'trans_typeTo'=>$trans_typeTo,
                                 'debtor_no'=>$myrow["debtor_no"],
                                 'debtor_ref'=>$myrow["debtor_ref"],
-                                'customer_name'=>htmlentities($myrow["name"]),
+                                'customer_name'=>$myrow["name"],
                                 'reference'=>$myrow["reference"],
                                 'receipt_no'=>$myrow["receipt_no"],
                                 'total_amount'=>$myrow["ov_amount"],
