@@ -346,9 +346,9 @@ if(isset($_GET['get_custPayment']))
     
     //echo "as".$_GET['transno'];
 
-    $result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno']);
+    $result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno'], 0, false);
 
-    $total_result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno']);
+    $total_result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno'], 0, true);
     
     while ($myrow = db_fetch($result)) {
         $trans_typeTo = get_Trans_Type($myrow["trans_no"]);

@@ -362,11 +362,11 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	if($tagtrans != 0){
 		$sWhere .= " AND A.trans_no = ".db_escape($tagtrans);
 	}
-	/*if($beg == 1){
+	if($beg == 1){
 		$sWhere .= " AND A.opening_balances = 1 ";
 	}else{
 		$sWhere .= " AND A.opening_balances != 1 ";
-	}*/
+	}
 	if($module_type == 'CR'){
 		$sWhere .= " AND (A.module_type = 'CR-AMORT' OR A.module_type = 'CR-INTERB' OR A.module_type = 'CR-ADJ' OR A.module_type = 'CR-DPWOSI') ";
 	}elseif($module_type == 'CI'){
