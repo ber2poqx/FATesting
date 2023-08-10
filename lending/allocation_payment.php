@@ -349,7 +349,7 @@ if(isset($_GET['get_custPayment']))
     $result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno'], false);
 
     $total_result = get_debtor_payment_info(ST_CUSTPAYMENT, $_GET['module_type'], $start, $limit, $_GET['query'], $_GET['transno'], true);
-    
+    echo 'saaaaa-'. DB_num_rows($result).'baaaaaa-'. DB_num_rows($total_result);
     while ($myrow = db_fetch($result)) {
         $trans_typeTo = get_Trans_Type($myrow["trans_no"]);
         if($myrow["payment_type"] == "down"){

@@ -397,6 +397,7 @@ function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $
 	$sqllimit = $sql ." limit $start, $limit";
 
 	if($showall){
+		echo 'mmmmmmmmmmmmmmmmmmmmmmmm-'. $sql;
 		$result = db_query($sql, "could not get debtor trans payment");
 	}else{
 		$result = db_query($sqllimit, "could not get debtor trans payment");
