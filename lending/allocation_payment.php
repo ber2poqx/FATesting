@@ -1251,7 +1251,7 @@ if(isset($_GET['submitAdj']))
                 if($data['credit_amount'] != 0){
                     $PenaltyAmount = $data['credit_amount'];
                 }else{
-                    $PenaltyAmount = $data['debit_amount'];
+                    $PenaltyAmount = 0; //$data['debit_amount'];
                 }
             }
             //get AR amount
