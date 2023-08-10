@@ -28,7 +28,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 
 			FROM ".TB_PREF."bank_trans A
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
-				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
+				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type and a.trans_date = c.date_
 				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
                 LEFT JOIN ".TB_PREF."debtor_trans E ON A.type = E.type and A.trans_no = E.trans_no
                 WHERE opening_balance = 0";
@@ -93,7 +93,8 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
     WHEN A.type = " . ST_CUSTPAYMENT . " AND E.module_type <> 'CI-CASH'  THEN 'Collection Receipt:'
     WHEN A.type = " . ST_CUSTPAYMENT . " AND E.module_type = 'CI-CASH'  THEN 'Cash Receipt:'
     WHEN A.type = " . ST_BANKDEPOSIT . " THEN 'Official Receipt:' END) asc";
-    
+    display_error($trans_date);
+    display_error($sql);
     if ($report) {
         return db_query($sql,"No transactions were returned from bank transaction!");
     }

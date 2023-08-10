@@ -65,7 +65,7 @@ if (isset($_POST['Approved'])) {
     display_error($_GET['DisburseNo']);
     // $_SESSION['pay_items']->memo_ = $_POST['Comments'];
     $update_message = update_disbursement_status($_SESSION['pay_items']);
-    update_comments(ST_BANKPAYMENT, $_SESSION['pay_items']->order_id, '', $_POST['Comments']);
+    
     meta_forward($path_to_root . "/gl/inquiry/disbursement_list.php?");
 }
 
@@ -73,7 +73,6 @@ if (isset($_POST['Disapproved'])) {
     $_SESSION['pay_items']->status = "Disapproved";
 	// $_SESSION['pay_items']->memo_ = $_POST['Comments'];
     $update_message = update_disbursement_status($_SESSION['pay_items']);
-    update_comments(ST_BANKPAYMENT,$_SESSION['pay_items']->order_id, '', $_POST['Comments']);
     meta_forward($path_to_root . "/gl/inquiry/disbursement_list.php?");
 }
 
