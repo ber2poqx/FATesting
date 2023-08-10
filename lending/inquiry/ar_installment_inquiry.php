@@ -85,7 +85,7 @@ if(isset($_GET['get_arinstallment'])){
                                'type'=>$myrow["type"],
                                'debtor_no'=>$myrow["debtor_no"],
                                'debtor_ref'=>$myrow["debtor_ref"],
-                               'debtor_name'=>htmlentities($myrow["name"]),
+                               'debtor_name'=>$myrow["name"],
                                'Status'=>$myrow["status"],
                                'gender'=>$myrow["gender"],
                                'age'=>$myrow["age"],
