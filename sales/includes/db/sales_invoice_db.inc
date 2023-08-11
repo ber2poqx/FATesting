@@ -136,7 +136,13 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->payment,
 		$invoice->tax_included,
 		$invoice->prep_amount,
-		$opening_balances
+		$opening_balances,
+		null,
+		0,
+		null,
+		false,
+		$invoice->payment_location,
+		$invoice->dp_amount
 	);
 
 	add_debtor_loans(
