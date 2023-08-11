@@ -176,7 +176,7 @@ function get_cashier_name($id)
 	return $row[0];
 }
 
-function get_payment_applied($type, $trans_no)
+/*function get_payment_applied($type, $trans_no)
 {
     $sql = "SELECT SUM(payment_applied) AS applied_pay FROM debtor_loan_ledger
 			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
@@ -187,7 +187,7 @@ function get_payment_applied($type, $trans_no)
 
 	$payment_appl =  $myrow[0];
 	return $payment_appl;
-}
+}*/
 
 function get_penalty_applied($type, $trans_no)
 {
@@ -215,7 +215,7 @@ function get_rabate_applied($type, $trans_no)
 	return $rebate_appl;
 }
 
-function get_partial_applied($trans_no, $from)
+/*function get_partial_applied($trans_no, $from)
 {
     $sql = "SELECT SUM(A.payment_applied)
 				FROM ".TB_PREF."debtor_loan_ledger A	
@@ -227,9 +227,9 @@ function get_partial_applied($trans_no, $from)
 
 	$partial_appl = $myrow[0];
 	return $partial_appl;
-}
+}*/
 
-function get_principal_applied($trans_no, $from)
+/*function get_principal_applied($trans_no, $from)
 {
     $sql = "SELECT A.principal_due, A.date_due, A.id, B.date_paid
 				FROM ".TB_PREF."debtor_loan_schedule A	
@@ -243,7 +243,7 @@ function get_principal_applied($trans_no, $from)
 		$principal_appl +=  $myrow['principal_due'];
 	}	
 	return $principal_appl;
-}
+}*/
 
 function get_advance_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date) {
 
@@ -540,17 +540,17 @@ function print_PO_Report()
 		$datetime2 = new DateTime($DSOC['date_due']);
 		$datedifferent = $datetime1->diff($datetime2)->format("%r%a");
 
-		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
+		//$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$rebate_appl  =	get_rabate_applied($DSOC['No_type'], $DSOC['No_trans']);
-		$partial_appl = get_partial_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
-		$principal_appl = get_principal_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
+		//$partial_appl = get_partial_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
+		//$principal_appl = get_principal_applied($DSOC['trans_ledge'], $DSOC['trans_date']);
 
 		$get_payment_this_month	= get_payment_this_month($DSOC['No_trans'], $DSOC['No_type'], $DSOC['debtor_nos'], $DSOC['trans_date']);
 		$get_advance_payment = get_advance_payment($DSOC['No_trans'], $DSOC['No_type'], $DSOC['debtor_nos'], $DSOC['trans_date']);
 
-		$partial_pay = $principal_appl - $partial_appl;
-		$principal_due_late = $DSOC['principal_due'];
+		//$partial_pay = $principal_appl - $partial_appl;
+		//$principal_due_late = $DSOC['principal_due'];
 
 		if($penalty_appl < 0) {
 			$penalty = -$penalty_appl;
