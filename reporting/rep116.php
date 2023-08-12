@@ -77,7 +77,7 @@ function disbursement_transactions($from, $cashier = '') {
 			A.remit_from = ".db_escape($cashier) . ")";
 	}
 	
-	$sql .= " AND A.remit_stat <> 'Disapproved'";
+	$sql .= " AND A.remit_stat <> 'Disapproved' AND A.status = 'Approved' ";
 			
 	$sql .= " GROUP BY A.ref, A.type ORDER BY A.trans_date DESC, A.receipt_no";
 
@@ -98,7 +98,8 @@ function opening_balance($from, $cashier = '') {
 		LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 		LEFT JOIN ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id AND C.void_status = 'Voided' 
 		LEFT JOIN ".TB_PREF."remittance D ON A.remit_no = D.remit_num and A.remit_from = D.remit_from  
-	WHERE A.type <> 0 AND A.trans_date < '$date' AND ISNULL(C.void_id)";
+	WHERE A.type <> 0 AND A.trans_date < '$date' 
+	AND ISNULL(C.void_id) AND A.status <> 'Draft'";
 
 	if ($cashier != '') {
 		$sql .= " AND A.cashier_user_id = ".db_escape($cashier);
@@ -120,7 +121,7 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id AND C.void_status = 'Voided' 
 			LEFT JOIN ".TB_PREF."bank_accounts D ON A.bank_act = D.ID
 
-		WHERE A.type <> 0 AND ISNULL(C.void_id) And 
+		WHERE A.type <> 0 AND ISNULL(C.void_id) And A.status <> 'Draft' AND
 		(CASE WHEN (SELECT remit_date FROM ".TB_PREF."remittance z where z.remit_num = A.remit_no and z.remit_stat ='Approved' And z.remit_date > '$date') > A.trans_date THEN 'OPEN' else A.remit_stat end) <> 'Approved'";
 
 	if ($bank_id != '') {
