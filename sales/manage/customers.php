@@ -124,56 +124,56 @@ function can_process()
 		return false;
 	}*/ 
 
-	if (strstr($_POST['CustName'], "\"") || strstr($_POST['CustName'], "&") || strstr($_POST['CustName'], "?") 
+	if (strstr($_POST['CustName'], "\"") || strstr($_POST['CustName'], "?") 
 		|| strstr($_POST['CustName'], "%") || strstr($_POST['CustName'], "$") || strstr($_POST['CustName'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Customer name cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Customer name cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('CustName');
 		return false;
 	}
 
-	if (strstr($_POST['address'], "\"") || strstr($_POST['address'], "&") || strstr($_POST['address'], "%")
+	if (strstr($_POST['address'], "\"") || strstr($_POST['address'], "%")
 		|| strstr($_POST['address'], "?") || strstr($_POST['address'], "$") || strstr($_POST['address'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Address cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Address cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('address');
 		return false;	
 	}
 
-	if (strstr($_POST['barangay'], "\"") || strstr($_POST['barangay'], "&") || strstr($_POST['barangay'], "?") 
+	if (strstr($_POST['barangay'], "\"") || strstr($_POST['barangay'], "?") 
 		|| strstr($_POST['barangay'], "%") || strstr($_POST['barangay'], "$") || strstr($_POST['barangay'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Barangay cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Barangay cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('barangay');
 		return false;	
 	}
 
-	if (strstr($_POST['province'], "\"") || strstr($_POST['province'], "&") || strstr($_POST['province'], "?") 
+	if (strstr($_POST['province'], "\"") || strstr($_POST['province'], "?") 
 		|| strstr($_POST['province'], "%") || strstr($_POST['province'], "$") || strstr($_POST['province'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Province cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Province cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('province');
 		return false;		
 	}
 
-	if (strstr($_POST['name_mother'], "\"") || strstr($_POST['name_mother'], "&") || strstr($_POST['name_mother'], "?") 
+	if (strstr($_POST['name_mother'], "\"") || strstr($_POST['name_mother'], "?") 
 		|| strstr($_POST['name_mother'], "%") || strstr($_POST['name_mother'], "$") || strstr($_POST['name_mother'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Mother name cannot contain any of the following characters  %, $, *, ?, & OR quotes'));
+		display_error( _('The Mother name cannot contain any of the following characters  %, $, *, ? OR quotes'));
 		set_focus('name_mother');
 		return false;
 	}
 
-	if (strstr($_POST['name_father'], "\"") || strstr($_POST['name_father'], "&") || strstr($_POST['name_father'], "?") 
+	if (strstr($_POST['name_father'], "\"") || strstr($_POST['name_father'], "?") 
 		|| strstr($_POST['name_father'], "%") || strstr($_POST['name_father'], "$") || strstr($_POST['name_father'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Father name cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Father name cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('name_father');
 		return false;
 	}
