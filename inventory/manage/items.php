@@ -13,6 +13,8 @@ $page_security = 'SA_ITEM';
 $path_to_root = "../..";
 include($path_to_root . "/includes/session.inc");
 
+$_SESSION['language']->encoding = "UTF-8";
+
 $js = "";
 if ($SysPrefs->use_popup_windows)
 	$js .= get_js_open_window(900, 500);
@@ -200,7 +202,7 @@ if (isset($_POST['addupdate']))
 	//strstr($_POST['NewStockID'], "+")
 	//Modified by Herald - 02/25/2021
 	elseif (strstr($_POST['NewStockID'],"'") || strstr($_POST['NewStockID'], "\"") || 
-		strstr($_POST['NewStockID'], "&") || strstr($_POST['NewStockID'], "\t")) 
+		strstr($_POST['NewStockID'], "\t")) 
 	{
 		$input_error = 1;
 		display_error( _('The item code cannot contain any of the following characters -  &, tab OR quotes'));
