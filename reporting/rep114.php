@@ -98,8 +98,9 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 			,dtd4.discount2
 			,dl2.ar_amount
 			,sc10.category_id
+			,dl2.downpayment_amount AS dp_amount
 		FROM ".TB_PREF."debtor_trans_details dtd4
-		    INNER JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
+		    LEFT JOIN ".TB_PREF."debtor_trans dt1 on dt1.trans_no = dtd4.debtor_trans_no and dt1.type = dtd4.debtor_trans_type
 			LEFT JOIN ".TB_PREF."debtor_loans dl2 on dtd4.debtor_trans_no = dl2.trans_no
 		    LEFT JOIN ".TB_PREF."debtors_master dm3 on dt1.debtor_no = dm3.debtor_no
 		    LEFT JOIN ".TB_PREF."stock_master sm5 on sm5.stock_id = dtd4.stock_id
@@ -229,13 +230,13 @@ function print_sales_summary_report()
 		// 7 => array('text' => _('Months Term'), 'from' => $terms, 'to' => ''));
 
 	//              brand    cat      sub-cat   date       SIno.
-	$cols = array(0,      30,     80,  	     125,      160, 
+	$cols = array(0,      30,     80,  	     105,      140, 
 
-	//       name     model     serial     chassis    type       term       qty
-		215,      275,       335,       395,       445,     465,     485,   
+	//       name     model     serial     chassis    type       term      qty
+		195,      255,       315,       375,       425,     445,     455,   
 
-	//      LCP     Cost     gross	  lending_sale	 discount1   discount2	 Net_Sales		 Agent
-		495,    525,     560,     590,		       625,       650,         670,         705,      0);
+	//      LCP     Cost     gross		DP		lending_sale	 discount1   discount2	 Net_Sales		 Agent
+		465,    495,     530,     560,	590,	       625,       650,         670,         705,      0);
 
 	$headers = array(
 		_('Brand'), 
@@ -253,6 +254,7 @@ function print_sales_summary_report()
 		_('Unit Cost'),
 		_('LCP'),
 		_('Gross Amnt'),
+		_('DP Amnt'),
 		_('Lend Sales'),
 		_('Dscount1'),
 		_('Dscount2'),
@@ -261,7 +263,7 @@ function print_sales_summary_report()
 		);
 
 	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
+	'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('Sales Summary Report'), "SalesSummaryReport", "legal", 9, $orientation);
 
@@ -279,8 +281,10 @@ function print_sales_summary_report()
 	$Tot_lcp=0;
 	$Tot_ucost = 0;
 	$Tot_gross = 0;
+	$Tot_dp = 0;
 	$Tot_lend = 0;
 	$row_gross = 0;
+	$row_dp = 0;
 	$row_unitcost = 0;
 	$Tot_discount1 = 0;	
 	$Tot_discount2 = 0;
@@ -306,6 +310,7 @@ function print_sales_summary_report()
 		$row_total_lcp = $GRNs['LCP'] * $GRNs['Qty'];
 		$row_total_discount1 = $GRNs['discount1'] * $GRNs['Qty'];
 		$row_total_discount2 = $GRNs['discount2'] * $GRNs['Qty'];
+		$row_dp = $GRNs['dp_amount'];
 
 		if($GRNs['category_id'] == '18'/*others*/ || $GRNs['category_id'] == '22'/*sp-appl*/ || $GRNs['category_id'] == '23'/*sp-gen*/ || $GRNs['category_id'] == '24'/*sp-rep*/ )
 		{
@@ -339,12 +344,13 @@ function print_sales_summary_report()
 		$rep->TextCol(11, 12, $GRNs['Qty']);
 		$rep->AmountCol2(12, 13, $row_unitcost);
 		$rep->AmountCol2(13, 14, $row_total_lcp);				
-		$rep->AmountCol2(14, 15, $row_gross);
-		$rep->AmountCol2(15, 16, $lending_sales);
-		$rep->AmountCol2(16, 17, $row_total_discount1);
-		$rep->AmountCol2(17, 18, $row_total_discount2);
-		$rep->AmountCol2(18, 19, $row_netsales);
-		$rep->TextCol(19, 20, $GRNs['SalesAgent']);
+		$rep->AmountCol2(14, 15, $row_gross);				
+		$rep->AmountCol2(15, 16, $row_dp);
+		$rep->AmountCol2(16, 17, $lending_sales);
+		$rep->AmountCol2(17, 18, $row_total_discount1);
+		$rep->AmountCol2(18, 19, $row_total_discount2);
+		$rep->AmountCol2(19, 20, $row_netsales);
+		$rep->TextCol(20, 21, $GRNs['SalesAgent']);
 
 		$qty = $GRNs['Qty'];
 		$Tot_qty += $qty;
@@ -357,6 +363,8 @@ function print_sales_summary_report()
 
 		$grossAmnt = $row_gross;
 		$Tot_gross += $grossAmnt;
+
+		$Tot_dp += $row_dp;
 
 		$lendSale = $lending_sales;
 		$Tot_lend += $lendSale;
@@ -383,10 +391,11 @@ function print_sales_summary_report()
 	$rep->AmountCol(12, 13, $Tot_ucost, $dec);
 	$rep->AmountCol(13, 14, $Tot_lcp, $dec);
 	$rep->AmountCol(14, 15, $Tot_gross, $dec);
-	$rep->AmountCol(15, 16, $Tot_lend, $dec);
-	$rep->AmountCol(16, 17, $Tot_discount1, $dec);
-	$rep->AmountCol(17, 18, $Tot_discount2, $dec);
-	$rep->AmountCol(18, 19, $Tot_netsales, $dec);
+	$rep->AmountCol(15, 16, $Tot_dp, $dec);
+	$rep->AmountCol(16, 17, $Tot_lend, $dec);
+	$rep->AmountCol(17, 18, $Tot_discount1, $dec);
+	$rep->AmountCol(18, 19, $Tot_discount2, $dec);
+	$rep->AmountCol(19, 20, $Tot_netsales, $dec);
 
 	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
