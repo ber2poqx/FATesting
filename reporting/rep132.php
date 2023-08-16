@@ -156,7 +156,7 @@ function get_cashier_name($id)
 	return $row[0];
 }
 
-function get_payment_applied($type, $trans_no)
+/*function get_payment_applied($type, $trans_no)
 {
     $sql = "SELECT SUM(payment_applied) AS applied_pay FROM debtor_loan_ledger
 			WHERE trans_type_from = '".$type."' AND payment_trans_no = '".$trans_no."'";
@@ -167,7 +167,7 @@ function get_payment_applied($type, $trans_no)
 
 	$payment_appl =  $myrow[0];
 	return $payment_appl;
-}
+}*/
 
 function get_penalty_applied($type, $trans_no)
 {
@@ -195,7 +195,7 @@ function get_rabate_applied($type, $trans_no)
 	return $rebate_appl;
 }
 
-function get_partial_applied($trans_no, $from)
+/*function get_partial_applied($trans_no, $from)
 {
     $sql = "SELECT SUM(A.payment_applied)
 				FROM ".TB_PREF."debtor_loan_ledger A	
@@ -223,7 +223,7 @@ function get_principal_applied($trans_no, $from)
 		$principal_appl +=  $myrow['principal_due'];
 	}	
 	return $principal_appl;
-}
+}*/
 
 function get_advance_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor_no, $end_date) {
 
@@ -396,16 +396,16 @@ function print_PO_Report()
 				$rep->Font('bold');
 				$rep->Line($rep->row  - 4);
 				$rep->TextCol(5, 8, _('Total Per') . " " .$Alloc_name);
-				$rep->AmountCol(8, 9, $Tot_Val);
-				$rep->AmountCol(9, 10, $totaladvance);
-				$rep->AmountCol(10, 11, $ar1);
-				$rep->AmountCol(11, 12, $ar2);
-				$rep->AmountCol(12, 13, $ar3);
-				$rep->AmountCol(13, 14, $ar4);
-				$rep->AmountCol(14, 15, $rb);
-				$rep->AmountCol(15, 16, $pn);
-				$rep->AmountCol(16, 17, $cr);
-				$rep->AmountCol(17, 18, $dr);
+				$rep->AmountCol(8, 9, $Tot_Val, $dec);
+				$rep->AmountCol(9, 10, $totaladvance, $dec);
+				$rep->AmountCol(10, 11, $ar1, $dec);
+				$rep->AmountCol(11, 12, $ar2, $dec);
+				$rep->AmountCol(12, 13, $ar3, $dec);
+				$rep->AmountCol(13, 14, $ar4, $dec);
+				$rep->AmountCol(14, 15, $rb, $dec);
+				$rep->AmountCol(15, 16, $pn, $dec);
+				$rep->AmountCol(16, 17, $cr, $dec);
+				$rep->AmountCol(17, 18, $dr, $dec);
 				$rep->Line($rep->row  - 4);
 				$rep->Font();
 				$rep->NewLine(2);
@@ -434,17 +434,17 @@ function print_PO_Report()
 		$datetime2 = new DateTime($DSOC['date_due']);
 		$datedifferent = $datetime1->diff($datetime2)->format("%r%a");
         
-		$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
+		//$payment_appl = get_payment_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$penalty_appl = get_penalty_applied($DSOC['No_type'], $DSOC['No_trans']);
 		$rebate_appl  =	get_rabate_applied($DSOC['No_type'], $DSOC['No_trans']);
-		$partial_appl = get_partial_applied($DSOC['loan_trans'], $DSOC['trans_date']);
-		$principal_appl = get_principal_applied($DSOC['loan_trans'], $DSOC['trans_date']);
+		//$partial_appl = get_partial_applied($DSOC['loan_trans'], $DSOC['trans_date']);
+		//$principal_appl = get_principal_applied($DSOC['loan_trans'], $DSOC['trans_date']);
 
 		$get_payment_this_month	= get_payment_this_month($DSOC['No_trans'], $DSOC['No_type'], $DSOC['debtor_nos'], $DSOC['trans_date']);
 		$get_advance_payment = get_advance_payment($DSOC['No_trans'], $DSOC['No_type'], $DSOC['debtor_nos'], $DSOC['trans_date']);
 
-		$partial_pay = $principal_appl - $partial_appl;
-		$principal_due_late = $DSOC['principal_due'];
+		//$partial_pay = $principal_appl - $partial_appl;
+		//$principal_due_late = $DSOC['principal_due'];
 
 		if($penalty_appl < 0) {
 			$penalty = -$penalty_appl;

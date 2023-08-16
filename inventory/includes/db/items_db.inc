@@ -98,7 +98,7 @@ function update_item(
 
 	db_query($sql, "The item could not be updated");
 
-	update_item_code(-1, $stock_id, $stock_id, $description, $category_id, 1, 0, $brand, $manufacturer, $distributor, $importer, $itemstatus);
+	update_item_code(-1, $stock_id, null, $stock_id, $description, null, $category_id, 1, 0, $brand, $manufacturer, $distributor, $importer, $itemstatus, null, $currentdate);
 }
 
 function add_item($stock_id, $description, $long_description, $category_id, $tax_type_id, $units, $brand, $manufacturer, $distributor, 
@@ -159,7 +159,7 @@ function add_item($stock_id, $description, $long_description, $category_id, $tax
 	db_query($sql, "The item locstock could not be added");
 
 	//add_item_code($stock_id, $stock_id, $stock_id, $description, $category_id, 1, 0);
-	add_item_code($stock_id, '', $stock_id, $description, '', $category_id, 1, 0);
+	add_item_code($stock_id, '', $stock_id, $description, '', $category_id, 1, 0, $brand, $manufacturer, $distributor, $importer, 0, '', $currentdate);
 }
 
 function delete_item($stock_id)

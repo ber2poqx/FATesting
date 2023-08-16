@@ -393,7 +393,7 @@ if(isset($_GET['get_aloc']))
 
             $AmortDelay = $termoderow["amort_delay"];
             $Penalty = $termoderow["opportunity_cost"];
-            $Totalpayment = ($termoderow["amount_to_be_paid"] - $termoderow["adv_payment_rebate"]);
+            $Totalpayment = $termoderow["amount_to_be_paid"];
             $RebateAmount = $termoderow["adv_payment_rebate"];
 
             $TotalRunBal = $schedrow["total_runbal"];

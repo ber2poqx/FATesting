@@ -124,56 +124,56 @@ function can_process()
 		return false;
 	}*/ 
 
-	if (strstr($_POST['CustName'], "\"") || strstr($_POST['CustName'], "&") || strstr($_POST['CustName'], "?") 
+	if (strstr($_POST['CustName'], "\"") || strstr($_POST['CustName'], "?") 
 		|| strstr($_POST['CustName'], "%") || strstr($_POST['CustName'], "$") || strstr($_POST['CustName'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Customer name cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Customer name cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('CustName');
 		return false;
 	}
 
-	if (strstr($_POST['address'], "\"") || strstr($_POST['address'], "&") || strstr($_POST['address'], "%")
+	if (strstr($_POST['address'], "\"") || strstr($_POST['address'], "%")
 		|| strstr($_POST['address'], "?") || strstr($_POST['address'], "$") || strstr($_POST['address'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Address cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Address cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('address');
 		return false;	
 	}
 
-	if (strstr($_POST['barangay'], "\"") || strstr($_POST['barangay'], "&") || strstr($_POST['barangay'], "?") 
+	if (strstr($_POST['barangay'], "\"") || strstr($_POST['barangay'], "?") 
 		|| strstr($_POST['barangay'], "%") || strstr($_POST['barangay'], "$") || strstr($_POST['barangay'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Barangay cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Barangay cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('barangay');
 		return false;	
 	}
 
-	if (strstr($_POST['province'], "\"") || strstr($_POST['province'], "&") || strstr($_POST['province'], "?") 
+	if (strstr($_POST['province'], "\"") || strstr($_POST['province'], "?") 
 		|| strstr($_POST['province'], "%") || strstr($_POST['province'], "$") || strstr($_POST['province'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Province cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Province cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('province');
 		return false;		
 	}
 
-	if (strstr($_POST['name_mother'], "\"") || strstr($_POST['name_mother'], "&") || strstr($_POST['name_mother'], "?") 
+	if (strstr($_POST['name_mother'], "\"") || strstr($_POST['name_mother'], "?") 
 		|| strstr($_POST['name_mother'], "%") || strstr($_POST['name_mother'], "$") || strstr($_POST['name_mother'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Mother name cannot contain any of the following characters  %, $, *, ?, & OR quotes'));
+		display_error( _('The Mother name cannot contain any of the following characters  %, $, *, ? OR quotes'));
 		set_focus('name_mother');
 		return false;
 	}
 
-	if (strstr($_POST['name_father'], "\"") || strstr($_POST['name_father'], "&") || strstr($_POST['name_father'], "?") 
+	if (strstr($_POST['name_father'], "\"") || strstr($_POST['name_father'], "?") 
 		|| strstr($_POST['name_father'], "%") || strstr($_POST['name_father'], "$") || strstr($_POST['name_father'], "*")) 
 	{
 		$InputError = 1;
-		display_error( _('The Father name cannot contain any of the following characters %, $, *, ?, & OR quotes'));
+		display_error( _('The Father name cannot contain any of the following characters %, $, *, ? OR quotes'));
 		set_focus('name_father');
 		return false;
 	}
@@ -383,20 +383,20 @@ function customer_settings($selected_id)
 
 		$age = date('m/d/Y', strtotime($myrow["age"]));
 
-		$_POST['CustName'] = $myrow["name"];
+		$_POST['CustName'] = utf8_encode($myrow["name"]);
 		$_POST['cust_ref'] = $myrow["debtor_ref"];
-		$_POST['address']  = $myrow["address"];
-		$_POST['barangay']  = $myrow["barangay"];
-		$_POST['municipality']  = $myrow["municipality"];
-		$_POST['province']  = $myrow["province"];
+		$_POST['address']  = utf8_encode($myrow["address"]);
+		$_POST['barangay']  = utf8_encode($myrow["barangay"]);
+		$_POST['municipality']  = utf8_encode($myrow["municipality"]);
+		$_POST['province']  = utf8_encode($myrow["province"]);
 		//$_POST['zip_code']  = $myrow["zip_code"];
 		$_POST['tax_id']  = $myrow["tax_id"];
 		$_POST['age']  = $age;
 		$_POST['gender']  = $myrow["gender"];
 		$_POST['status']  = $myrow["status"];
-		$_POST['spouse']  = $myrow["spouse"];
-		$_POST['name_father']  = $myrow["name_father"];
-		$_POST['name_mother']  = $myrow["name_mother"];
+		$_POST['spouse']  = utf8_encode($myrow["spouse"]);
+		$_POST['name_father']  = utf8_encode($myrow["name_father"]);
+		$_POST['name_mother']  = utf8_encode($myrow["name_mother"]);
 		//$_POST['collectors_name']  = $myrow["collectors_name"];
 		$_POST['dimension_id']  = $myrow["dimension_id"];
 		$_POST['dimension2_id']  = $myrow["dimension2_id"];

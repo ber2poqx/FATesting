@@ -67,7 +67,7 @@ function write_customer_trans(
 	$rate = 0, $dimension_id = 0, $dimension2_id = 0,
 	$payment_terms = null, $tax_included = 0, $prep_amount = 0,
 	$opening_balances = 0, $payment_type = null,
-	$collection_type = 0, $module_type = null, $fullpayment = false) {
+	$collection_type = 0, $module_type = null, $fullpayment = false, $payment_location = "Branch", $dp_amount = 1) {
 
 	$new = $trans_no == 0;
 	$curr = get_customer_currency($debtor_no);
@@ -105,7 +105,7 @@ function write_customer_trans(
 			}			
 		}
 		$status = "Pending";
-		if ($payment_terms == 0 || $payment_terms == null)
+		if ($payment_terms == 0 || $payment_terms == null || ($payment_location == "Lending" && $dp_amount == 0 ))
 			$status = "Open";
 
 		if ($trans_type == ST_CUSTPAYMENT) {

@@ -238,7 +238,11 @@ Ext.onReady(function(){
 				totalProperty  : 'total'
 			}
 		},
-		simpleSortMode : true
+		simpleSortMode : true,
+		sorters : [{
+			property : 'tran_date',
+			direction : 'DESC'
+		}]
 	});
 	var CustomerStore = Ext.create('Ext.data.Store', {
 		model: 'CustomersModel',

@@ -137,7 +137,7 @@ function db_escape($value = "", $nullify = false)
 	global $db;
 
 	$value = @html_entity_decode($value, ENT_QUOTES, $_SESSION['language']->encoding=='iso-8859-2' ? 'ISO-8859-1' : $_SESSION['language']->encoding);
-	$value = html_specials_encode($value);
+	//$value = html_specials_encode($value); //commented on 08-14-2023 zHun specials characters
 
   	//reset default if second parameter is skipped
 	$nullify = ($nullify === null) ? (false) : ($nullify);

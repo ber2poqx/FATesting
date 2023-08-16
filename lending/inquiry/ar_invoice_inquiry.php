@@ -354,14 +354,23 @@ if(isset($_GET['submit']))
                     //insert amort schedule
                     $datedue = date("Y-m-d", strtotime($item["datedue"]));
 
-                    if($item["amortization"] == $_POST['dp_amount']){
-                        $status = "paid";
-                    }else{
+                    //if($item["amortization"] == $_POST['dp_amount']){
+                     //   $status = "paid";
+                    //}else{
                         $status = "unpaid";
-                    }
+                    //}
                     add_loan_schedule(ST_ARINVCINSTLITM, $trans_no, $_POST['customername'], check_isempty($item["no"]), $datedue, $item["weekday"], 
                                 check_isempty($item["amortization"]), check_isempty($item["runbalance"]), check_isempty($item["totalamort"]), check_isempty($item["runtotalamort"]), 0, 0, $status);
                 }
+            }
+
+            //auto create ledger
+            if($_POST['dp_amount'] != 0){
+                $result = get_loan_schedule_dP_lending($trans_no, $_POST['customername'], ST_ARINVCINSTLITM);
+                $Loansched = db_fetch($result);
+                
+                add_loan_ledger($trans_no, $_POST['customername'], $Loansched["loansched_id"], ST_ARINVCINSTLITM, ST_ARINVCINSTLITM, $_POST['dp_amount'], 0, 0, 0, $approved_date, $trans_no);
+                update_loan_schedule($Loansched["loansched_id"], $_POST['customername'], $trans_no, ST_ARINVCINSTLITM, "paid", 0, "paid");
             }
 
             //now for gl entries
