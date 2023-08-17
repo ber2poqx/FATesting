@@ -275,7 +275,7 @@ function can_process()
     }
     //Added by Albert 05/16/2022
 	foreach ($_SESSION['PO']->line_items as $order_line) {
-		if ($order_line->price == 0) {
+		if ($order_line->price == 0 && $_SESSION['PO']->category_id <> 17) {
 			display_error(_("Can't Proceed Price Zero!"));
 			return false;
 		}

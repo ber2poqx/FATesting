@@ -146,7 +146,7 @@ function can_process()
 
 	//Added by Albert 05/16/2022
 	foreach ($_SESSION['PR']->line_items as $request_line) {
-		if ($request_line->price == 0 && $request_line->category_id == 17) {
+		if ($request_line->price == 0 && $_SESSION['PR']->category_id <> 17) {
 			display_error(_("Can't Proceed Price Zero!"));
 			return false;
 		}
