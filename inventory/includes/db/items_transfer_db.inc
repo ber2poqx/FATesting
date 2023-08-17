@@ -80,17 +80,21 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
                 add_stock_merchandise_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
                 
                 $originating = 0;
-                if($coy_target_branches_status == '') {
-                    $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity, $line_item->quantity, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
-                }else{
-                    $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_from,$originating);
+                if(!empty($company_prefs["deployment_status"])){
+                    if($coy_target_branches_status == '') {
+                        $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity, $line_item->quantity, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 2, $location_from,$originating);
+                    }
+                }elseif($company_prefs["deployment_status"] == '') {
+                    if($coy_target_branches_status == '') {
+                        $originating = add_stock_mt_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0, $location_from,$originating);
+                    }
                 }
 
                 if(!empty($company_prefs["deployment_status"])){
-                    add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+                    add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0, $location_to,$originating);
                 }elseif($company_prefs["deployment_status"] == '') {
                     if($coy_target_branches_status == '') {
-                        add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code,$location_to,$originating);
+                        add_stock_mt_details($mt_header_id_target,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0, $location_to,$originating);
                     }
                 }
             //}
@@ -172,7 +176,7 @@ function add_stock_merchandise_transfer_manual($Items, $location_from, $location
             
             //add_stock_merchandise_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost, $line_item->type_out, $line_item->transno_out);
             
-            add_stock_mt_details($mt_header_id,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code);
+            add_stock_mt_details($mt_header_id,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0);
             
             
             
@@ -491,7 +495,7 @@ function add_stock_transfer($Items, $location_from, $location_to, $date_, $refer
 		
 			add_stock_transfer_item($transfer_id, $line_item->stock_id, $location_from, $location_to, $date_, $reference, $line_item->quantity, $line_item->lot_no, $line_item->chasis_no, $line_item->category_id, $line_item->item_code, $line_item->standard_cost);
 			
-			add_stock_mt_details($mt_header_id,$line_item->stock_id,1,0,$line_item->standard_cost,0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code);
+			add_stock_mt_details($mt_header_id,$line_item->stock_id,1,0,$line_item->standard_cost,0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0);
 			
 	}
 
@@ -667,7 +671,7 @@ function update_mt_header($reference, $mtreference, $postdate, $targetdb){
     return true;
 }
 
-function add_stock_mt_details($header_id, $stock_id, $quantity=0, $received_qty=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='', $targetdb, 
+function add_stock_mt_details($header_id, $stock_id, $quantity=0, $received_qty=0, $std_cost, $price=0, $lot_no='',$chasis_no='', $color_code='', $status=0, $targetdb, 
     $originating)
 {
     //$date = date2sql($date_);
@@ -679,14 +683,15 @@ function add_stock_mt_details($header_id, $stock_id, $quantity=0, $received_qty=
     $db_coy = Get_db_coy($targetdb);
     set_global_connection($db_coy);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_details (mt_details_header_id, mt_details_stock_id, mt_details_item_code, mt_details_serial_no, mt_details_chasis_no, mt_details_total_qty, mt_details_st_cost, mt_details_price, mt_details_recvd_qty, originating_id) VALUES ("
+    $sql = "INSERT INTO ".TB_PREF."mt_details (mt_details_header_id, mt_details_stock_id, mt_details_item_code, mt_details_serial_no, mt_details_chasis_no, mt_details_total_qty, mt_details_st_cost, mt_details_price, mt_details_recvd_qty, mt_details_status, originating_id) VALUES ("
         .db_escape($header_id).","
             .db_escape($stock_id).", ".db_escape($color_code).", "
                 .db_escape($lot_no).", ".db_escape($chasis_no).", ".db_escape($quantity).", "
                     .db_escape($std_cost).", "
                         .db_escape($price).", "
                             .db_escape($received_qty).", "
-                                .db_escape($originating).")";
+                                .db_escape($status).", "
+                                    .db_escape($originating).")";
                 
     db_query($sql, "The MT details record cannot be inserted");
                 
