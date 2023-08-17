@@ -473,7 +473,9 @@ if(isset($_GET['get_aloc']))
     
             //for penalty
             //get month interval penalty last payment and trans date
-                    //change date to due date
+            //change date to due date
+            $penalty_duedate = get_deptor_loan_penalty_sched($_GET['transNo'], $_GET['debtor_no'], $_GET['transtype']);
+
             $lpmos = date('m', strtotime($lastpayment_date));
             $lpyer = date('Y', strtotime($lastpayment_date));
             $duedate = date('d', date('Y/m/d', strtotime($schedrow["date_due"])));
@@ -482,12 +484,12 @@ if(isset($_GET['get_aloc']))
 
             $penltymos = mos_interval($lastpayment_date, $_GET['transdate']);
 
-            $MonthNo = CalcMonthsDue_pnlty($_GET['transdate'], $schedrow["date_due"], $schedrow["maturity_date"]);
+            $MonthNo = CalcMonthsDue_pnlty($_GET['transdate'], $penalty_duedate["date_due"], $schedrow["maturity_date"]);
 
             //check if pastdue account
             $pdvalue = check_transdate($schedrow["maturity_date"], $_GET['transdate']);
             if($pdvalue == 0){
-                $PastDueNo = CalculateMonthsPastDue($_GET['transdate'], $schedrow["date_due"], $schedrow["maturity_date"]);
+                $PastDueNo = CalculateMonthsPastDue($_GET['transdate'], $penalty_duedate["date_due"], $schedrow["maturity_date"]);
                 if(date('Y/m', strtotime($lastpayment_date)) != date('Y/m', strtotime($_GET['transdate']))){
                     $Penalty = per_Penalty($PastDueNo, $ar_balance);
                 }
@@ -495,6 +497,7 @@ if(isset($_GET['get_aloc']))
                 if($MonthNo != 0){
                     $TotalBalance = $Totalpayment;
                     $withpartial = $PartialPayment;
+
                     $count=0;
                     for ($MonthNo; $MonthNo >= 1; $MonthNo--) {
                         //$Penalty += CalculatePenalty($_GET['transdate'], $schedrow["maturity_date"], $schedrow["amortization_amount"], $TotalBalance, $MonthNo, 'DUE', false);
@@ -514,7 +517,6 @@ if(isset($_GET['get_aloc']))
                             $Penalty += per_Penalty($MonthNo, $due);
                             //echo "Penalty a-".$Penalty." = ". $MonthNo. " * ". $due;
                         }
-                       
                         //echo "</br>";
                         $count++;
                     }
@@ -1587,22 +1589,27 @@ if(isset($_GET['submit']))
                                             }
                                         }else{
                                             //check penalty for unpaid monthly amort
-                                            if($count_paid_penalty != 0){
-                                                //echo "xxx".$count_paid_penalty.'</br>';
-                                                $pnty_result = get_paid_penalty($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']);
-        
-                                                while ($pntyrow = db_fetch($pnty_result)){
-                                                    $penalty = per_Penalty($penltymos, ($pntyrow["principal_due"]- $partialpay));
-        
-                                                    if($penalty > 0){
-                                                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $penalty, 0, 0, $trans_date, $payment_no);
-                                                        //echo "paid-penalty-".$penalty.'</br>';
-                                                        $total_penalty -= $penalty;
-                                                        $GLPenalty += $penalty;
-                                                        $partialpay = 0;
+                                            //check if same date
+                                            $lastpaydate = get_debtor_last_payment_date($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']);
+                                            
+                                            if($trans_date != date('Y-m-d',strtotime($lastpaydate))){
+                                                if($count_paid_penalty != 0){
+                                                    //echo "xxx".$count_paid_penalty.'</br>';
+                                                    $pnty_result = get_paid_penalty($_POST['InvoiceNo'], $_POST['transtype'], $_POST['customername']);
+            
+                                                    while ($pntyrow = db_fetch($pnty_result)){
+                                                        $penalty = per_Penalty($penltymos, ($pntyrow["principal_due"]- $partialpay));
+            
+                                                        if($penalty > 0){
+                                                            add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $penalty, 0, 0, $trans_date, $payment_no);
+                                                            //echo "paid-penalty-".$penalty.'</br>';
+                                                            $total_penalty -= $penalty;
+                                                            $GLPenalty += $penalty;
+                                                            $partialpay = 0;
+                                                        }
                                                     }
+                                                    $count_paid_penalty = $penltymos = 0;
                                                 }
-                                                $count_paid_penalty = $penltymos = 0;
                                             }
                                             //set penalty status paid in table schedule
                                             $pnty_result = get_loan_schedule_penalty($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);

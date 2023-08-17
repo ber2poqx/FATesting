@@ -268,3 +268,16 @@ function get_debtor_schedule_last_inserted_id_pd($trans_no, $deptor_no, $type, $
 	$row = db_fetch_row($result);
 	return $row[0];
 }
+
+function get_deptor_loan_penalty_sched($trans_no, $deptor_no, $type){
+	$sql = "SELECT A.id loansched_id, A.* 
+		FROM ".TB_PREF."debtor_loan_schedule A 
+			WHERE A.trans_no = ".db_escape($trans_no) ."
+			AND A.debtor_no = ".db_escape($deptor_no) ."
+			AND A.trans_type = ".db_escape($type). "
+			AND A.penalty_status is null
+		ORDER BY month_no ASC LIMIT 1 ";
+
+	$result = db_query($sql, "could not get loan penalty schedule");
+	return db_fetch($result);
+}

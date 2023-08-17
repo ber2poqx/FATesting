@@ -191,7 +191,7 @@ function CalculatePenalty($TransDate, $MaturityDate, $PrincipalDue, $TotalBalanc
     //def_penalty = 0.04
     $company_prefs = get_company_prefs();
 
-    if(date('Y-m-d', strtotime($TransDate)) > date('Y-m-d', strtotime($MaturityDate)) AND $Remarks == 'PASTDUE'){
+    if(date('Y-m-d', strtotime($TransDate)) >= date('Y-m-d', strtotime($MaturityDate)) AND $Remarks == 'PASTDUE'){
         //Past Due Accounts...
         $Penalty = (($TotalBalance * check_isempty($company_prefs["penalty_rate"])) * $MonthNo);
     }else{
