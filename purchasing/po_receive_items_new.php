@@ -314,7 +314,7 @@ function can_process()
     /* Added by Ronelle 7/17/2021 Check if Allow Zero Cost */
     if ($_SESSION['PO']->trans_type == ST_SUPPRECEIVE) {
         foreach ($_SESSION['PO']->line_items as $order_line) {
-            if (!check_allow_zero_cost_item($order_line->stock_id) && $order_line->price == 0) {
+            if (!check_allow_zero_cost_item($order_line->stock_id) && $order_line->price == 0 && $_SESSION['PO']->category_id <> 17) {
                 display_error(_("Items contains 0 cost"));
                 return false;
             }
