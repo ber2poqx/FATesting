@@ -615,6 +615,15 @@ function can_process()
 		display_error(_("Invoice total amount cannot be less than zero."));
 	return false;
 	}
+	/*Added by Albert 08/19/2023*/
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICEREPO){
+		foreach ($_SESSION['Items']->line_items as $line_no => $item) {
+			if ($item->price == 0) {
+				display_error(_("Can't Procced Unit Price is 0"));
+					return false;
+			}
+		}
+	}
 
 
 	// modified by Albert 09/23/2021

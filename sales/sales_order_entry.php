@@ -866,7 +866,14 @@ function can_process()
 		set_focus('ref');
 		return false;
 	}
-
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE){
+		foreach ($_SESSION['Items']->line_items as $line_no => $item) {
+			if ($item->price == 0) {
+				display_error(_("Can't Procced Unit Price is 0"));
+					return false;
+			}
+		}
+	}
 	/* Commented by spyrax10 for Mantis Issue #619 11-24-2021
 	if (!db_has_currency_rates($_SESSION['Items']->customer_currency, $_POST['OrderDate'])) {
 		display_error(_("Exchange Rate Setup Missing!"));
