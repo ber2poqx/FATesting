@@ -110,13 +110,13 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
             
             $originating = 0;           
             if(!empty($company_prefs["deployment_status"])){
-                if($coy_target_branches_status == '') {        
+                if($coy_target_branches_status_repo == '') {        
                     $originating = add_stock_mt_repo_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity,$line_item->quantity,str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 2, $location_from,$originating);
                 }else{
                     $originating = add_stock_mt_repo_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0, $location_from,$originating);
                 }
             }elseif($company_prefs["deployment_status"] == '') {
-                if($coy_target_branches_status == '') {                  
+                if($coy_target_branches_status_repo == '') {                  
                     $originating = add_stock_mt_repo_details($mt_header_id_local,$line_item->stock_id,$line_item->quantity, 0, str_replace(",","",$line_item->standard_cost),0,$line_item->lot_no,$line_item->chasis_no,$line_item->item_code, 0, $location_from,$originating);
                 }
             }
