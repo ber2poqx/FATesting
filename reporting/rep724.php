@@ -76,12 +76,12 @@ function getTransactions($from, $to, $gl_account)
 		WHERE gl.account = '$gl_account' ";
 
 	if ($from == 0)	
-		$sql .= " AND gl.tran_date <= '$to' ) A";	
+		$sql .= " AND gl.tran_date <= '$to' ";	
 	else
-		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to' ) A";
+		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to' ";
 	
 		
-	$sql .= " GROUP BY `name` ORDER BY name	";
+	$sql .= " GROUP BY dt.debtor_no, IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file), IFNULL(IFNULL(ref.reference, bt.ref),dl.reference), IFNULL(gl.mcode, gl.person_id), gl.amount, gl.counter, gl.type, gl.type_no,gl.tran_date, gl.account,gl.memo_,gl.dimension_id,gl.dimension2_id,gl.person_type_id,gl.person_id,gl.mcode,gl.master_file,gl.hocbc_id,gl.loan_trans_no,gl.interbranch,gl.void_entry,gl.link_type,gl.balance_due,gl.ischecked ) A GROUP BY `name` ORDER BY name	";
 		
 	
 	return db_query($sql,"No transactions were returned");
