@@ -1621,6 +1621,52 @@ function update_to_incentive($id, $descrip, $module, $inactive, $targetbranch5)
 
 	db_query($sql, "could not update sales incentive");
 }
+
+function get_location_to_transfer($targetbranch)
+{
+	$db_coy = Get_db_coy($targetbranch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.loc_code
+			FROM ".TB_PREF."locations A";
+
+	$result = db_query($sql, "could not get location ");
+
+	set_global_connection();
+	return $result;
+}
+
+function check_location($location, $stock_id, $targetbranch)
+{
+	$db_coy = Get_db_coy($targetbranch);
+	set_global_connection($db_coy);
+
+	$sql = "SELECT A.stock_id
+			FROM ".TB_PREF."loc_stock A 
+			WHERE A.stock_id = ".db_escape($stock_id)." 
+			AND A.loc_code = ".db_escape($location);
+
+	$result = db_query($sql, "could not get stock location ");
+
+	set_global_connection();
+	return $result;
+}
+
+function add_to_loc_stock($location, $stock_id, $targetbranch)
+{
+	$db_coy = Get_db_coy($targetbranch);
+	set_global_connection($db_coy);
+
+	$sql = "INSERT INTO ".TB_PREF."loc_stock (
+		loc_code 			
+		,stock_id																		
+	) VALUES (
+		".db_escape($location)."
+		,".db_escape($stock_id)."
+	)";
+	$MessageError = _('Could not insert stock location');
+	db_query($sql, $MessageError);
+}
 //
 
 function add_branchplcy($dateadded, $branchcode, $branchname, $brpolicyid, $brcategoryid, $moduletype, $affectedfld)

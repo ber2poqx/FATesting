@@ -71,11 +71,11 @@ if(isset($_GET['get_datadesc'])){
         'description'=>"GL Account Group / GL Account Classes"
     );
     $status_array[] = array('id'=>"item",
-        'description'=>"Products"
+        'description'=>"Products and Item Codes"
     );
-    $status_array[] = array('id'=>"color",
+    /*$status_array[] = array('id'=>"color",
         'description'=>"Product Codes"
-    );
+    );*/
     $status_array[] = array('id'=>"salcash",
         'description'=>"Sales Price / Cash Price"
     );
@@ -151,7 +151,7 @@ if(isset($_GET['submit'])){
             $branchcode = (isset($_POST['branch']) ? $_POST['branch'] : $_GET['branch']);
             $user_name = $_SESSION["wa_current_user"]->username;
             $currentdate = date('Y-m-d');
-            $remarks = 'Product' . '  -  ' . 'Filter Date: ' . date('Y-m-d',strtotime($_POST['date_from'])) . ' - ' . date('Y-m-d',strtotime($_POST['date_to']));
+            $remarks = 'Product and Item Code' . '  -  ' . 'Filter Date: ' . date('Y-m-d',strtotime($_POST['date_from'])) . ' - ' . date('Y-m-d',strtotime($_POST['date_to']));
             
             if (is_array($branchcode) || is_object($branchcode))
             {
@@ -180,13 +180,50 @@ if(isset($_GET['submit'])){
                             $myrow["cogs_account"], $myrow["inventory_account"], $myrow["adjustment_account"], $myrow["wip_account"], $myrow["dimension_id"], $myrow["dimension2_id"],
                             $myrow["brand"], $myrow["manufacturer"], $myrow["distributor"], $myrow["importer"], $myrow["old_code"], $myrow["sap_code"], $myrow["serialised"], 
                             $myrow["date_modified"], $data);
-                        }                                                                
+                        } 
+                        
+                        $result1 = get_location_to_transfer($data);
+                        while ($myrow1 = db_fetch($result1)) {
+                            $counter1 = 0;
+
+                            $checkresloc = check_location($myrow1["loc_code"], $myrow["stock_id"], $data);
+                            while ($checkrow1 = db_fetch($checkresloc))
+                            {
+                                $counter1++;
+                            }
+
+                            if ($counter1 == 0) {
+                                add_to_loc_stock($myrow1["loc_code"], $myrow["stock_id"], $data);
+                            }
+                        }      
                     }
+
+                    $result = get_itemcodes_to_transfer(date('Y-m-d',strtotime($_POST['date_from'])), date('Y-m-d',strtotime($_POST['date_to'])));
+                    while ($myrow = db_fetch($result)) {
+                        $counter = 0;
+
+                        $checkrescode = check_item_codes($myrow["item_code"], $data);
+                        while ($checkrow = db_fetch($checkrescode))
+                        {
+                            $counter++;
+                        }
+
+                        if ($counter > 0) {
+                            update_to_itemcodes($myrow["item_code"], $myrow["stock_id"], $myrow["description"], $myrow["category_id"], $myrow["quantity"], $myrow["is_foreign"],
+                            $myrow["inactive"], $myrow["brand"], $myrow["manufacturer"], $myrow["distributor"], $myrow["importer"], $myrow["product_status"], $myrow["pnp_color"],
+                            $myrow["color"], $myrow["old_code"], $myrow["date_modified"], $data);
+                        }else{
+                            add_to_itemcodes($myrow["item_code"], $myrow["stock_id"], $myrow["description"], $myrow["category_id"], $myrow["quantity"], $myrow["is_foreign"],
+                            $myrow["inactive"], $myrow["brand"], $myrow["manufacturer"], $myrow["distributor"], $myrow["importer"], $myrow["product_status"], $myrow["pnp_color"],
+                            $myrow["color"], $myrow["old_code"], $myrow["date_modified"], $data);
+                        }
+                    }                                
                 }
             }
             add_to_datalogs($currentdate, $remarks, $user_name);
-            $dsplymsg = _("The Product has been successfully entered...");
-        }elseif($_POST['datadesc'] == "color") {
+            $dsplymsg = _("The Product and Item Code has been successfully entered...");
+        }
+        /*elseif($_POST['datadesc'] == "color") {
             $branchcode = (isset($_POST['branch']) ? $_POST['branch'] : $_GET['branch']);
             $user_name = $_SESSION["wa_current_user"]->username;
             $currentdate = date('Y-m-d');
@@ -220,7 +257,8 @@ if(isset($_GET['submit'])){
             }           
             add_to_datalogs($currentdate, $remarks, $user_name);
             $dsplymsg = _("The Product codes has been successfully entered...");
-        }elseif ($_POST['datadesc'] == "plcy") {
+        }*/
+        elseif ($_POST['datadesc'] == "plcy") {
             $branchcode = (isset($_POST['branch']) ? $_POST['branch'] : $_GET['branch']);
             $user_name = $_SESSION["wa_current_user"]->username;
             $currentdate = date('Y-m-d');
