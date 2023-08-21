@@ -1355,7 +1355,7 @@ function calculate_dp_discount()
 }
 //--------------------------------------------------------------------------------
 
-function create_cart($type, $trans_no, $pay_type)
+function create_cart($type, $trans_no, $pay_type = "Branch")
 {
 	global $Refs, $SysPrefs;
 
