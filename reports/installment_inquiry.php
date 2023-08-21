@@ -165,7 +165,7 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 	$db_coy = Get_db_coy($branch_code);
     set_global_connection($db_coy);
 
-	$sql = "SELECT (B.ar_amount - A.alloc) amount 
+	$sql = "SELECT (A.ov_amount - A.alloc) amount 
 			FROM ".TB_PREF."debtor_trans A 
 			INNER JOIN debtor_loans B ON B.trans_no = A.trans_no AND B.debtor_no = A.debtor_no
 			WHERE A.trans_no = ".db_escape($trans_no)." 
