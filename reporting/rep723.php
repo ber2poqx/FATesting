@@ -41,7 +41,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			SELECT bt.receipt_no AS cr_num
 			, gl.tran_date
 			, IFNULL(IFNULL(ref.reference, bt.ref),dl.reference) AS reference			
-            , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gldebt.name),gl.master_file) as name
+            , IFNULL(IFNULL(IFNULL(IFNULL(sup2.supp_name, debt.name), pdebt.name), gl.master_file ),gldebt.name) as name
 			, IF(ISNULL(c.memo_), gl.memo_, CONCAT(gl.memo_,' ',c.memo_)) AS memo_			
 			##, gl.memo_ AS memo_
 			, gl.account AS account
