@@ -447,6 +447,10 @@ Ext.onReady(function(){
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				metaData.tdAttr = 'data-qtip=' + Ext.util.Format.number(value, '0,000.00');
 				return '<span style="color:#793F3F;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
+			},
+			summaryType: 'sum',
+            summaryRenderer: function(value, summaryData, record, dataIndex) {
+				return '<span style="color:blue;font-weight:bold">' + Ext.util.Format.number(value, '0,000.00') + '</span>';
 			}
 		},
 		{header:'<b>Payment</br>Applied</b>', dataIndex:'payment_appld', sortable:false, width:120, align: 'center',

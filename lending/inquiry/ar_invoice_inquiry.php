@@ -371,6 +371,10 @@ if(isset($_GET['submit']))
                 
                 add_loan_ledger($trans_no, $_POST['customername'], $Loansched["loansched_id"], ST_ARINVCINSTLITM, ST_ARINVCINSTLITM, $_POST['dp_amount'], 0, 0, 0, $approved_date, $trans_no);
                 update_loan_schedule($Loansched["loansched_id"], $_POST['customername'], $trans_no, ST_ARINVCINSTLITM, "paid", 0, "paid");
+            
+                //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                add_cust_allocation($_POST['dp_amount'], ST_ARINVCINSTLITM, $trans_no, ST_ARINVCINSTLITM, $trans_no, $_POST['customername'], $approved_date);
+                update_debtor_trans_allocation(ST_ARINVCINSTLITM, $trans_no, $_POST['customername']);
             }
 
             //now for gl entries
