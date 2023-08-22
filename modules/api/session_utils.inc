@@ -341,7 +341,7 @@ function html_cleanup(&$parms)
 		if (is_array($value))
 			html_cleanup($parms[$name]);
 		else
-			$parms[$name] = html_specials_encode($value);
+			$parms[$name] = $value; //html_specials_encode($value); //"commented on 08-22-2023 robert specials characters"//
 	}
 	reset($parms); // needed for direct key() usage later throughout the sources
 }
