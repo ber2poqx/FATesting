@@ -906,6 +906,9 @@ function installment_computation()
 
 function new_installment_computation()
 {
+	global $db_connections;
+	$coy = user_company();
+	$db_branch_type = $db_connections[$coy]['type'];
 	$company = get_company_prefs();
 	$price = 0;
 	foreach ($_SESSION['Items']->get_items() as $line_no => $line) {
@@ -977,7 +980,13 @@ function new_installment_computation()
 		$_POST['months_paid'] = $terms;
 
 	}else{
-		$_POST['months_paid'] = $terms;
+		if($db_branch_type == 'LENDING'){
+			$_POST['months_paid'] = count_months_paid_repo($_POST['document_ref'], true);
+		}else{
+			$_POST['months_paid'] = count_months_paid_repo($_POST['document_ref']);
+
+			display_error($_POST['months_paid']);
+		}
 	}
 
 	$_POST['amort_delay'] = $_POST['new_due_amort'] > $_POST['due_amort']
@@ -1133,7 +1142,7 @@ function restuctured_computation(){
 	
 		$_POST['amort_diff'] = 0;
 	
-		$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
+		$_POST['months_paid'] = count_months_paid_repo($_POST['document_ref']);
 	
 		$_POST['amort_delay'] = 0;
 	
