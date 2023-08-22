@@ -41,10 +41,12 @@ if (user_use_date_picker())
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
-//  ahref_cell(_("New Sales Invoice Repo Installment"), "si_repo_install.php?NewInvoiceRepo=0");
-//  ahref_cell(_("New Sales Invoice Repo Cash"), "si_repo_cash.php?NewInvoiceRepo=0");
 ref_cells(_("#:"), 'search_val', '', null, '', true);
-
+date_cells(_("From:"), 'fromDate', '', null, -user_transaction_days());
+date_cells(_("To:"), 'toDate', '', null, 1);
+end_row();
+end_table();
+start_row();
 if (!$page_nested)
 	customer_list_cells(_("Select a customer: "), 'customer_id', null, true, true);
 	stock_categories_list_cells(_("Category:"), "category_id", null, _("All Categories"),true);//Added by Albert
@@ -332,7 +334,10 @@ $sql = get_sales_repo_invoices(
 	$_POST['category_id'],
 	$_POST['payment_terms'],
 	0,
-	$_POST['si_stat']); //Added by spyrax10
+	$_POST['si_stat'],
+	date2sql(get_post('fromDate')),
+	date2sql(get_post('toDate'))
+); //Added by spyrax10
 
 /*show a table of the Request returned by the sql */
 $cols = array(
