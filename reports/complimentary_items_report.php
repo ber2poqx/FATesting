@@ -37,7 +37,16 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	
 		return $ret[0];
 	}
+
+	function get_name_masterfile($reference){
+		$sql = "SELECT A.masterfile 
+				FROM ".TB_PREF."complimentary_items A 
+				WHERE A.reference = '$reference'";
+		$result = db_query($sql, "could not get masterfile ");
+		$ret = db_fetch($result);
 	
+		return $ret[0];
+	}
 ?>
 
 <!DOCTYPE html>
@@ -219,14 +228,14 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		width: 100%;
 		border: 0px solid;
 	}
-	.footnote2{
+	/*.footnote2{
 		width: 90%; 
 		font-size: 70%; 
 		text-align: left; 
 		padding-top: 3px;
 		padding-left: 50px; 
 		font-style: italic; 
-	}
+	}*/
 	#accountingname{
 		display: inline-block;
 		border: none;
@@ -249,8 +258,10 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 function getreceipt($reference)
 {
     
-    $sql = "SELECT smoves.*, loc.location_name, comments.memo_,smaster.units, smaster.description as sdescription, item_codes.description as dcolor, smaster.category_id
-	FROM ".TB_PREF."stock_moves smoves LEFT JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code
+    $sql = "SELECT smoves.*, loc.location_name, comments.memo_,smaster.units, smaster.description as sdescription, 
+		item_codes.description as dcolor, smaster.category_id
+	FROM ".TB_PREF."stock_moves smoves 
+	LEFT JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code
     LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id
     INNER JOIN ".TB_PREF."stock_master smaster ON smaster.stock_id = smoves.stock_id
 	LEFT JOIN ".TB_PREF."item_codes ON item_codes.item_code = smoves.color_code
@@ -286,6 +297,8 @@ function getreceipt($reference)
 			$headertype_new_repo = '';
 		}
 	}	
+	
+	$name_masterfile = get_name_masterfile($reference);
 ?>
 
 <?php
@@ -325,17 +338,21 @@ function getreceipt($reference)
 			<tr><td>&nbsp;</td></tr>
 			<tr><td>&nbsp;</td></tr>
 			<tr>
-				<td align=left>Inventory Location:</td>
-				<th style="width: 40%;" align=left><?php echo $mt_header_tolocation;?></th>
+				<td align=left>Name:</td>
+				<th style="width: 40%;" align=left><?php echo $name_masterfile;?></th>
 				<td>Reference no.:</td>
 				<th style="width: 20%;" align="left"><input style="width: 95%;" type="text" value="<?php echo $reference;?>" class="underline_input" readonly></th>
+			</tr>
+			<tr>
+				<td align=left>Inventory Location:</td>
+				<th style="width: 40%;" align=left><?php echo $mt_header_tolocation;?></th>
+				<td>Issue Date:</td>
+				<th style="width: 20%;" align="left"><input style="width: 95%;" type="text" value="<?php echo $mt_header_date;?>" class="underline_input" readonly></th>
 			</tr>
 			
 			<tr>
 				<td align=left>Particulars:</td>
-				<th style="width: 50%;" align=left><?php echo $mt_header_comments;?></th>
-				<td>Issue Date:</td>
-				<th style="width: 20%;" align="left"><input style="width: 95%;" type="text" value="<?php echo $mt_header_date;?>" class="underline_input" readonly></th>
+				<th style="width: 50%;" align=left><?php echo $mt_header_comments;?></th>				
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 		</table>
@@ -489,24 +506,13 @@ function getreceipt($reference)
 	</tbody>
 	</table>
 	<div>
-		<div class="footnote2">
-					* Received the above mentioned items in good order and condition.
-				</div>
-				<div class="footnote2">
-					<?php 
-						if($trans_category == 14)
-							echo '* Motorcycle is complete with keys, tools, manual, coupon, battery and side mirrors.';
-						else
-							echo '';
-					 ?>
-				</div>	
-		<div>		
 		<br/><br/><br/><br/>
 		<table id="footer">
 			<tr>
 				<th style="text-align: left; padding-left: 15px;">Prepared By:</th>
 				<th style="text-align: left; padding-left: 15px;">Reviewed By:</th>
 				<th style="text-align: left; padding-left: 15px;">Approved By:</th>
+				<th style="text-align: left; padding-left: 15px;">Received By:</th>
 			</tr>
 			<tr><td></td></tr>
 			<tr><td></td></tr>
@@ -514,11 +520,13 @@ function getreceipt($reference)
 				<td align=left>__________________________________</td>
 				<td align=left>__________________________________</td>
 				<td align=left>__________________________________</td>
+				<td align=left>__________________________________</td>
 			</tr>
 			<tr>
 				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $_SESSION["wa_current_user"]->name?>" > <?php echo $_SESSION["wa_current_user"]->name?></option></select></td>
 				<td class="footer_names"><select name="accountingname" id="accountingname"><option value="<?php echo get_nameuseraccounting() ?>" > <?php echo get_nameuseraccounting()?></option></select></td>
-				<td class="footer_names"><select name="managername" id="managername"><option value="<?php echo get_nameuser() ?>" > <?php echo get_nameuser()?></option></select></td>							
+				<td class="footer_names"><select name="managername" id="managername"><option value="<?php echo get_nameuser() ?>" > <?php echo get_nameuser()?></option></select></td>
+				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $name_masterfile ?>" > <?php echo $name_masterfile ?></option></select></td>							
 			</tr>
 			
 		</table>		
