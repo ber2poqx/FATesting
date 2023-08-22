@@ -598,10 +598,13 @@ if(isset($_GET['submit']))
         //new added field naming 03/02/2023 zhunx...
         if($_POST['repo_type'] == 'replcmnt') {
             $quantity = $item_row['quantity'];
+            $serial = $item_row['lot_no'];
         }else if($_POST['repo_type'] == 'mt') {
             $quantity = $item_row['qty'];
+            $serial = $item_row['serial_no'];
         }else{
             $quantity = $item_row['quantity'];
+            $serial = $item_row['lot_no'];
         }
 
         if($_POST['repo_type'] == 'mt') {
@@ -635,13 +638,13 @@ if(isset($_GET['submit']))
                                             $repoacct_row['over_due'], $repoacct_row['past_due'], $repoacct_row['category_id'], $branch_code, $_POST['remarks'], $repoacct_row['gpm'], $_POST['mt_ref']);
 
             $repo_item_id = add_repo_item($repoacct_row['ar_trans_no'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $unit_price, $_POST['unrecovrd_cost'],
-                                            $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
+                                            $serial, $item_row['chassis_no'], $item_row['color_code']);
 
             add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $quantity, $_POST['unrecovrd_cost'],
-                            0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+                            0, $serial, $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
 
             //item serialize
-            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $item_row['lot_no'], $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
+            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $serial, $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
             //for gl entry
             //Repossessed Inventory - debit
             $repo_invty_act =  get_repo_invty_act($_POST['category']);
@@ -705,13 +708,13 @@ if(isset($_GET['submit']))
                                             check_isempty($_POST['over_due']), check_isempty($_POST['past_due']), $_POST['category'], $branch_code, $_POST['remarks'], $_POST['gpm']);
 
             $repo_item_id = add_repo_item($_POST['InvoiceNo'], $repo_id, $item_row['stock_id'], $item_row['description'], $quantity, $unit_price, $_POST['unrecovrd_cost'],
-                                            $item_row['lot_no'], $item_row['chassis_no'], $item_row['color_code']);
+                                            $serial, $item_row['chassis_no'], $item_row['color_code']);
 
             add_stock_move(ST_RRREPO, $item_row['stock_id'], $repo_id, $loc_code, $_POST['repo_date'], $_POST['reference_no'], $quantity, $_POST['unrecovrd_cost'],
-                            0, $item_row['lot_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+                            0, $serial, $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
         
             //item serialize
-            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $item_row['lot_no'], $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
+            add_item_serialise(ST_RRREPO, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $serial, $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');
 
             //for gl entry
             //Repossessed Inventory - debit
