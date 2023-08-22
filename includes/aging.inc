@@ -515,7 +515,7 @@ function total_current_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor
     }
 
     $sql .= " AND DATE_FORMAT(DLL.date_paid, '%Y-%m') <= DATE_FORMAT('$end_date', '%Y-%m')";
-    display_error($sql);
+ 
     $res = db_query($sql, 'Cant get total_current_payment!');
     $row = db_fetch_row($res);
     $total = $row[0];
@@ -1078,7 +1078,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     global $db_connections;
 	$coy = user_company();
 	$db_branch_type = $db_connections[$coy]['type'];
-    
+
     if($db_branch_type == 'LENDING'){
         $payment_location = 'Lending';
     }else{
