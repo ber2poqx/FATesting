@@ -515,7 +515,7 @@ function total_current_payment($trans_no, $trans_type = ST_SALESINVOICE, $debtor
     }
 
     $sql .= " AND DATE_FORMAT(DLL.date_paid, '%Y-%m') <= DATE_FORMAT('$end_date', '%Y-%m')";
-    
+    display_error($sql);
     $res = db_query($sql, 'Cant get total_current_payment!');
     $row = db_fetch_row($res);
     $total = $row[0];
@@ -1078,7 +1078,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     global $db_connections;
 	$coy = user_company();
 	$db_branch_type = $db_connections[$coy]['type'];
-
+    
     if($db_branch_type == 'LENDING'){
         $payment_location = 'Lending';
     }else{
@@ -1135,7 +1135,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         CASE 
 	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN $change_term
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN $restruct
-            WHEN DL.payment_location =  '$payment_location' Then $lending_type
+            WHEN DL.payment_location =  'Lending' Then $lending_type
         ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END AS trans_type,
         CT.term_mode_fullpayment,
         CT.si_trans_no,
