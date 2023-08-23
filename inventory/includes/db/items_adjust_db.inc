@@ -139,7 +139,7 @@ function add_stock_adjustment_item($id, $type = 1,
 	add_stock_serialitems(ST_INVADJUST, $color, $adj_id, $location,
         $date_, $reference, $quantity, $standard_cost, 0, $lot_no, $adj_item_id, $chasis_no
 	); 
-		
+
 	$inv_value = $standard_cost * $quantity;
 	$adj_value = $standard_cost * -($quantity);
 
@@ -181,7 +181,7 @@ function add_stock_adjustment_item($id, $type = 1,
 				$masterfile2 = $row2['master_file'];
 					
 				//Child GL Entry
-						
+
 				add_gl_trans_std_cost(ST_INVADJUST, $row2['sa_trans_no'], $date_, $account2, 
 					$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
 					$amount2
@@ -195,7 +195,7 @@ function add_stock_adjustment_item($id, $type = 1,
 				add_gl_trans_std_cost(ST_INVADJUST, $adj_id, $date_, 
 					$item_type == 'repo' ? $stock_gl_codes['wip_account'] : get_default_adjGL_account($adj_id), 
 					$stock_gl_codes['dimension_id'], $stock_gl_codes['dimension2_id'], $memo_, 
-					$type == 1 ? $amount2 : -$amount2
+					-$amount2 //modified by albert 8-23-2023
 				);
 
 				add_gl_masterfile(ST_INVADJUST, $adj_id, 
