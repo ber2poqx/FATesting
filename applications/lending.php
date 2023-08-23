@@ -55,6 +55,8 @@ class lending_app extends application
 		$this->add_rapp_function(0, "","");
 		$this->add_rapp_function(0, _("Merchandise Transfers - Repo"),
 			"inventory/merchandise_transfers_repo.php", 'SA_MERCHANDISETRANSFERREPO', MENU_TRANSACTION);
+		$this->add_rapp_function(0, _("Inventory &Adjustments - Repo"),
+			"inventory/inquiry/adjustment_repo_view.php?", 'SA_INVTY_INQ', MENU_TRANSACTION); 
 		$this->add_rapp_function(0, _("Temporary Repo Accounts &Inquiry"),
 			"repossess/inquiry/temporary_repo_accounts.php?", 'SA_TEMPREPOINQRY', MENU_TRANSACTION); 
 		$this->add_rapp_function(0, _("Receiving Report &Repo"),
