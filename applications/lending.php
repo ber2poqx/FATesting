@@ -32,12 +32,10 @@ class lending_app extends application
 		$this->add_lapp_function(0, _("Sales Invoice Restructured"),//Added by Albert 12/08/2021
 			"sales/sales_invoice_restructured.php?", 'SA_SIRES_INQ', MENU_TRANSACTION
 		);
-
 		$this->add_lapp_function(0, "","");
 		$this->add_lapp_function(0, _("Sales Order Repossessed"),	//Added by Albert
 			"sales/inquiry/sales_orders_repo_view.php?", 'SA_SO_REPO_VIEW', MENU_TRANSACTION
 		);
-
 		$this->add_lapp_function(0, _("Sales Invoice Repossessed"),
 			"sales/si_repo.php?", 'SA_SALESINVOICEREPO', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Sales Return Replacement Repossessed"),
@@ -55,6 +53,8 @@ class lending_app extends application
 			"lending/customer_amort_receiptx.php?type=pdcack", 'SA_LCUSTAMORT', MENU_TRANSACTION);
 
 		$this->add_rapp_function(0, "","");
+		$this->add_rapp_function(0, _("Merchandise Transfers - Repo"),
+			"inventory/merchandise_transfers_repo.php", 'SA_MERCHANDISETRANSFERREPO', MENU_TRANSACTION);
 		$this->add_rapp_function(0, _("Temporary Repo Accounts &Inquiry"),
 			"repossess/inquiry/temporary_repo_accounts.php?", 'SA_TEMPREPOINQRY', MENU_TRANSACTION); 
 		$this->add_rapp_function(0, _("Receiving Report &Repo"),
