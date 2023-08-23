@@ -449,7 +449,7 @@ function add_stock_Complimentary_Items($Items, $location_from, $date_, $referenc
     //$total += add_gl_trans_mtbranch(ST_COMPLIMENTARYITEM, $transfer_id, $date_, $accs, '', '', -$total, null);
     
     $Refs->save(ST_COMPLIMENTARYITEM, $transfer_id, $reference);
-    add_audit_trail(ST_COMPLIMENTARYITEM, $transfer_id, $date_,'');
+    //add_audit_trail(ST_COMPLIMENTARYITEM, $transfer_id, $date_,'');
     
     $args->trans_no = $transfer_id;
     hook_db_postwrite($args, ST_COMPLIMENTARYITEM);

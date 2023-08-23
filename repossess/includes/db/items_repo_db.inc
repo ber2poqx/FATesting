@@ -331,7 +331,7 @@ function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $ref
     add_comments(ST_COMPLIMENTARYITEMREPO, $transfer_id, $date_, $memo_);
     
     $Refs->save(ST_COMPLIMENTARYITEMREPO, $transfer_id, $reference);
-    add_audit_trail(ST_COMPLIMENTARYITEMREPO, $transfer_id, $date_,'');
+    //add_audit_trail(ST_COMPLIMENTARYITEMREPO, $transfer_id, $date_,'');
     
     $args->trans_no = $transfer_id;
     hook_db_postwrite($args, ST_COMPLIMENTARYITEMREPO);

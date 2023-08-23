@@ -1000,7 +1000,8 @@ if(!is_null($action) || !empty($action)){
                 $result2 = get_transaction_from_stock_adjusment_check(ST_COMPLIMENTARYITEM, $trans_no, $reference);
 
                 $errmsg="";
-                $isError = 0;
+                $isError = 0;             
+
                 while ($myrow01 = db_fetch($result2))
                 {
                     $qoh = get_qoh_on_date_new($myrow01['trans_type_out'], $myrow01['trans_no_out'], $myrow01['stock_id'], $myrow01['loc_code'], null, 
@@ -1040,6 +1041,7 @@ if(!is_null($action) || !empty($action)){
                         add_gl_trans(ST_COMPLIMENTARYITEM, $myrow1["sa_trans_no"], $PostDate, $myrow1["account"], '', '', $myrow1["memo_"], $myrow1["amount"], null, null, 
                             null, '', 0, $myrow1["mcode"], $myrow1["master_file"]);
                     }
+                    add_audit_trail(ST_COMPLIMENTARYITEM, $trans_no, $PostDate,'');           
                 }
             }
             echo '({"success":true,"totalItem":"'.$totalitem.'","totalGL":"'.$totalgl.'","reference":"'.$reference.'","trans_no":"'.$trans_no.'",

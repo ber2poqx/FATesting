@@ -824,6 +824,7 @@ if(!is_null($action) || !empty($action)){
                         //$date = sql2date($myrow1["tran_date"]);
                         add_gl_trans(ST_COMPLIMENTARYITEMREPO, $myrow1["sa_trans_no"], $PostDate, $myrow1["account"], '', '', $myrow1["memo_"], $myrow1["amount"], null, null, null, '', 0, $myrow1["mcode"], $myrow1["master_file"]);
                     }
+                    add_audit_trail(ST_COMPLIMENTARYITEMREPO, $trans_no, $PostDate,'');
                 }
             }
             echo '({"success":true,"totalItem":"'.$totalitem.'","totalGL":"'.$totalgl.'","reference":"'.$reference.'","trans_no":"'.$trans_no.'",
