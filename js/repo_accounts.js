@@ -1464,7 +1464,7 @@ Ext.onReady(function(){
 					padding: '3px',
 					margin: '2px 2px 6px 580px',
 					icon: '../../js/ext4/examples/shared/icons/lorry_add.png',
-					tooltip: 'Void Transaction',
+					tooltip: 'Click to show List of Items',
 					style : {
 						'color': 'black',
 						'font-size': '30px',

@@ -1061,7 +1061,7 @@ if(isset($_GET['submit']))
 {
     //initialise no input errors assumed initially before we proceed
     //0 is by default no errors
-    $InputError = $islastPay = $DPamountPd = 0;
+    $InputError = $islastPay = $DPamountPd = $amort_delay = $AmortToPaid = 0;
     
     if (empty($_POST['transtype']) || empty($_POST['ref_no'])) {
         $InputError = 1;
@@ -1410,7 +1410,14 @@ if(isset($_GET['submit']))
                         break;
                     }
                     */
-                    $amort_delay = $termoderow['outstanding_ar_amount'];
+                    //check if full payment
+                    if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
+                        $amort_delay = $termoderow['outstanding_ar_amount'];
+                        $AmortToPaid = $termoderow['outstanding_ar_amount'];
+                    }else{
+                        $amort_delay = $termoderow['amort_delay'];
+                        $AmortToPaid = $termoderow['amort_delay'];
+                    }
                     $opportunity_cost = $termoderow['opportunity_cost'];
                     $termrebate = $termoderow['adv_payment_rebate'];
 
@@ -1445,7 +1452,7 @@ if(isset($_GET['submit']))
                     }
 
                     //allocate payment to trans number sales invoice
-                    add_cust_allocation($termoderow["outstanding_ar_amount"], ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                    add_cust_allocation($AmortToPaid, ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                     update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
 
                     //save reference
@@ -1462,7 +1469,7 @@ if(isset($_GET['submit']))
                         $debtors_account = $company_record["debtors_act"];
                     }
                     //A/R
-                    $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -$termoderow["outstanding_ar_amount"], $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                    $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -$AmortToPaid, $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
 
                     $ar_balance = check_ar_balance($_POST['InvoiceNo'], $_POST['transtype']);
 
@@ -1473,7 +1480,7 @@ if(isset($_GET['submit']))
                         if($ar_balance == 0){
                             $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
                         }else{
-                            $DeferdAmt = $termoderow["outstanding_ar_amount"] * $GPM;
+                            $DeferdAmt = $AmortToPaid * $GPM;
                         }
 
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
@@ -1489,7 +1496,7 @@ if(isset($_GET['submit']))
                     /*if(isTermFullpayment($_POST['InvoiceNo'], $_POST['transtype']) == 1){
                         $termode_status = 'Closed';
                     }else{
-                        if($termoderow["outstanding_ar_amount"] <= ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
+                        if($AmortToPaid <= ($_POST['tenderd_amount'] + $_POST['total_otheramount'])){
                             $termode_status = 'Closed';
                         }else{*/
                             $termode_status = 'part-paid';
@@ -1497,7 +1504,7 @@ if(isset($_GET['submit']))
                     //}
 
                     update_status_debtor_trans($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype'], $termode_status);
-                    update_termmode_status($_POST['InvoiceNo'], $_POST['customername'], "paid");
+                    update_termmode_status($termoderow['si_trans_no'], $_POST['customername'], "paid");
                     
                 }else{
                     
