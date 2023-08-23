@@ -275,7 +275,7 @@ function get_deptor_loan_penalty_sched($trans_no, $deptor_no, $type){
 			WHERE A.trans_no = ".db_escape($trans_no) ."
 			AND A.debtor_no = ".db_escape($deptor_no) ."
 			AND A.trans_type = ".db_escape($type). "
-			AND A.penalty_status is null
+			AND (A.penalty_status is null OR A.penalty_status = '')
 		ORDER BY month_no ASC LIMIT 1 ";
 
 	$result = db_query($sql, "could not get loan penalty schedule");
