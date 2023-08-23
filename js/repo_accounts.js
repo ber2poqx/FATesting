@@ -907,6 +907,8 @@ Ext.onReady(function(){
 								});
 								//Ext.getCmp('remarks').readOnly = false;
 								Ext.getCmp('remarks').setReadOnly(false);
+								Ext.getCmp('cBranch').setReadOnly(false);
+								Ext.getCmp('customername').setReadOnly(false);
 
 								if(record.get('id') == 'mt'){
 
