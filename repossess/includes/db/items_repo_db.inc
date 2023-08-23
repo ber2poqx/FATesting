@@ -180,8 +180,8 @@ function add_mt_header_repo($transdate, $reference, $fromlocation, $tolocation, 
 
 function get_stock_repo_gl_code($cat_id)
 {
-    global $def_coy;
-    set_global_connection($def_coy);
+    //global $def_coy;
+    set_global_connection();
     $sql = "SELECT dflt_repo_invty_act FROM " . TB_PREF . "stock_category WHERE category_id = " . db_escape($cat_id);
     $get = db_query($sql, "retreive stock repo gl code");
     set_global_connection();
