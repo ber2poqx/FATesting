@@ -324,10 +324,12 @@ function check_null_stock_adjustment($item_type = 'new') {
 
 function revert_stock_adjustment($trans_no) {
 
+	$type = ST_INVADJUST;
+
 	$sql = "UPDATE ".TB_PREF."stock_adjustment 
         SET status = 'Draft', date_approved = '0000-00-00', 
             approver = '' 
-		WHERE trans_no = " .db_escape($trans_no);
+		WHERE sa_adj_type = $type AND trans_no = " .db_escape($trans_no);
 
 	set_global_connection();
     db_query($sql, "Cannot revert stock_adjustment status! (spyrax10)");
@@ -346,7 +348,10 @@ function revert_stock_adjustment($trans_no) {
 function delete_stock_adjust_gl($trans_no = 0, $trans_id = 0) {
 
 	set_global_connection();
-	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl";
+	$type = ST_COMPLIMENTARYITEM;
+
+	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl
+			WHERE sa_adj_type != $type";
        
 	if ($trans_no != 0) {
 		$sql .= " WHERE sa_trans_no = " .db_escape($trans_no);
