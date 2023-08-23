@@ -603,7 +603,7 @@ function check_item_data() {
 			return false;
 		}
 	}
-	display_error("1".str_contains_val($row['account_name'], 'Branch Current'));
+
 	if (str_contains_val($row['account_name'], 'Branch Current') && getCompDet('deployment_status', $_POST['comp_id']) == 1) {
 		display_error(_('Cannot Entry Branch Current Account! Company Selected is Already Deployed!'));
 		return false;

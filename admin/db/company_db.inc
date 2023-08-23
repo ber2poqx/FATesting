@@ -345,8 +345,6 @@ function getCompDet($colName, $company_id = -1) {
 	
 	$result = db_query($sql, "Can't get value in sys_pref! (spyrax10)");
 	$row = db_fetch_row($result);
-	display_error($company_id);
-	display_error($sql);
 	return $row[0];
 }
 
