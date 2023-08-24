@@ -1008,7 +1008,6 @@ function get_sales_return_replacement($trans_no = 0, $repo = "new")
 			display_warning("You have missing or invalid sales document in database (type:Sales Return, number:$trans_no).");
 	}
 	$sql .= " ORDER BY a.trans_no DESC";
-	display_error($sql);
 	return $sql;
 }
 
