@@ -282,7 +282,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 			stock_disposable_fa_list_cells(null, 'stock_id', null, false, true, $order->line_items);
 		}	
 		else {
-	
+			
 			if (get_post("adj_type") == 2) {
 				inty_list_cells(null, 'stock_id', null, $_POST['category'], false, true, true, 2, $_POST['StockLocation'], 
 					null, $item_type
@@ -290,7 +290,6 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 			}
 			else {
 				if ($ob == 1) {
-
 					inty_list_cells(null, 'stock_id', null, $_POST['category'], false, true, true, 1, $_POST['StockLocation'], 
 						$_POST['supplier_id'], $item_type
 					);
@@ -404,7 +403,7 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 		hidden('std_cost');
 		label_cell(get_post('std_cost'), "nowrap align=right");
 	}
-	else {
+	else {		
 		if ($order->fixed_asset) {
 			hidden('std_cost');
 			label_cell($_POST['std_cost'], "nowrap align=right ", 'std_cost_view');
@@ -412,12 +411,12 @@ function adjustment_edit_item_controls(&$order, $line_no=-1, $item_type, $ob = 0
 			amount_cell($price, false, '', 'initial_price');
 		} else {
 			if (get_post('_qty_changed')) {
-				$Ajax->activate('items_table2');
+				$Ajax->activate('items_table2');		
 				set_focus(input_num('qty') >= 0 ? 'std_cost' : 'AddItem');
 			}
-			if (input_num('qty') >= 0)
-				amount_cells(null, 'std_cost', null, null, null, $dec);
-			else {
+			if (input_num('qty') >= 0){
+				unit_amount_cells(null, 'std_cost', null, null, null, $dec);
+			}else {
 				hidden('std_cost');
 				label_cell($_POST['std_cost'], "nowrap align=right");
 			}
