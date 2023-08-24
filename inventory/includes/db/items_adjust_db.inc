@@ -277,13 +277,13 @@ function get_stock_adjust_details($item_type = 'new') {
 
 	set_global_connection();
 
-	$sql = "SELECT * FROM ".TB_PREF."stock_adjustment A 
-		WHERE A.item_type = " .db_escape($item_type);
+	$sql = "SELECT B.sa_adj_type, A.* FROM ".TB_PREF."stock_adjustment A INNER JOIN ".TB_PREF."stock_adjustment_gl B ON A.trans_no = B.sa_trans_no
+		WHERE A.type = ".ST_INVADJUST." AND A.item_type = " .db_escape($item_type);
 
 	$sql .= "GROUP BY A.trans_no";
 
 	$result = db_query($sql, "No Items return for stock_adjustments!");
-	
+
 	return $result;
 }
 
@@ -315,26 +315,24 @@ function check_null_stock_adjustment($item_type = 'new') {
 	$result = get_stock_adjust_details($item_type);
 
 	while ($row = db_fetch_assoc($result)) {
-
+		
 		if ($row['status'] == 'Closed' && !smo_exists($row['trans_no'], ST_INVADJUST)) {
-			revert_stock_adjustment($row['trans_no']);
+			revert_stock_adjustment($row['trans_no'], $row['sa_adj_type']);
 		}
 	}
 }
 
-function revert_stock_adjustment($trans_no) {
-
-	$type = ST_INVADJUST;
+function revert_stock_adjustment($trans_no, $type = 0) {
 
 	$sql = "UPDATE ".TB_PREF."stock_adjustment 
         SET status = 'Draft', date_approved = '0000-00-00', 
             approver = '' 
-		WHERE sa_adj_type = $type AND trans_no = " .db_escape($trans_no);
+		WHERE type = ".ST_INVADJUST."  AND trans_no = " .db_escape($trans_no);
 
 	set_global_connection();
     db_query($sql, "Cannot revert stock_adjustment status! (spyrax10)");
 
-	delete_stock_adjust_gl($trans_no);
+	delete_stock_adjust_gl($trans_no, 0, $type);
 	delete_stock_adjust_gl_trans($trans_no);
 	delete_stock_adjust_audit($trans_no);
 	delete_stock_adjust_refs($trans_no);
@@ -345,20 +343,22 @@ function revert_stock_adjustment($trans_no) {
 	);
 }
 
-function delete_stock_adjust_gl($trans_no = 0, $trans_id = 0) {
+function delete_stock_adjust_gl($trans_no = 0, $trans_id = 0, $type = 0) {
 
 	set_global_connection();
-	$type = ST_COMPLIMENTARYITEM;
 
 	$sql = "DELETE FROM ".TB_PREF."stock_adjustment_gl
-			WHERE sa_adj_type != $type";
-       
+			WHERE id <> 0";
+
+	if ($type != 0) {
+		$sql .= " AND sa_adj_type = " .db_escape($type);
+	}  
 	if ($trans_no != 0) {
-		$sql .= " WHERE sa_trans_no = " .db_escape($trans_no);
+		$sql .= " AND sa_trans_no = " .db_escape($trans_no);
 	}
 
 	if ($trans_id != 0) {
-		$sql .= " WHERE id = " .db_escape($trans_id);
+		$sql .= " AND id = " .db_escape($trans_id);
 	}
 
     db_query($sql, "delete_stock_adjust_gl()");
