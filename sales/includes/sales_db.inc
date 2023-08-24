@@ -982,9 +982,9 @@ function get_sales_return_replacement($trans_no = 0, $repo = "new")
 				c.ov_amount - c.alloc AS ar_balance,
 				a.remarks,
 				DM.name, BR.br_name, BR.branch_ref,
-				(Select cpl_ret_status 
-				from " . TB_PREF . "returned_units r 
-				where r.debtor_trans_no = a.trans_no) as complimentary_status
+				(SELECT DISTINCT cpl_ret_status 
+				FROM " . TB_PREF . "returned_units r 
+				WHERE r.debtor_trans_no = a.trans_no) as complimentary_status
 
 			FROM " . TB_PREF . "sales_return_replacement a 
 			INNER JOIN " . TB_PREF . "debtor_trans b ON b.trans_no = a.trans_no
@@ -1008,6 +1008,7 @@ function get_sales_return_replacement($trans_no = 0, $repo = "new")
 			display_warning("You have missing or invalid sales document in database (type:Sales Return, number:$trans_no).");
 	}
 	$sql .= " ORDER BY a.trans_no DESC";
+	display_error($sql);
 	return $sql;
 }
 
