@@ -133,7 +133,12 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
     }
     
     add_comments(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $memo_);
-    $accs = $db_connections[Get_db_coy($location_to)]["gl_account"];
+    $lending_type = $db_connections[Get_db_coy($location_from)]["type"];
+    if($lending_type == 'LENDING') {
+        $accs = $db_connections[Get_db_coy($location_from)]["gl_account"];
+    }else{
+        $accs = $db_connections[Get_db_coy($location_to)]["gl_account"];
+    }
     //$accs = get_supplier_accounts($po->supplier_id);
     $total += add_gl_trans_mtbranch(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $accs, '', '', ($total)*-1, '', 0, null, $mcode, 
         $master_file);

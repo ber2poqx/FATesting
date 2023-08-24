@@ -727,17 +727,27 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'branch_location':
             $coy = user_company();
+            $brcode = $db_connections[user_company()]["branch_code"];
+            $lending_type = $db_connections[Get_db_coy($brcode)]["type"];
+            $lending_partner = $db_connections[Get_db_coy($brcode)]["partner_code"];
             
             for ($i = 0; $i < count($db_connections); $i++)
             {
-                if($i!=$coy){
-                    $group_array[] = array('loc_code'=>$db_connections[$i]["branch_code"],
-                        'location_name' => $db_connections[$i]["name"],
-                        'branch_id' => $i
-                    );
-                }
-                
-                
+                if($lending_type == 'LENDING') {                  
+                    if($db_connections[$i]["branch_code"] == $lending_partner){                      
+                        $group_array[] = array('loc_code'=>$db_connections[$i]["branch_code"],
+                            'location_name' => $db_connections[$i]["name"],
+                            'branch_id' => $i
+                        );
+                    } 
+                }else{
+                    if($i!=$coy){
+                        $group_array[] = array('loc_code'=>$db_connections[$i]["branch_code"],
+                            'location_name' => $db_connections[$i]["name"],
+                            'branch_id' => $i
+                        );
+                    }
+                }  
             }
             
             $jsonresult = json_encode($group_array);
