@@ -73,6 +73,8 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
 
     $mcode = $_POST['ToStockLocation'];
     $master_file = get_db_location_name($_POST['ToStockLocation']);
+    $coy_target_branches_status_repo = get_coy_target_branch_repo($location_to);
+    $lending_type = $db_connections[Get_db_coy($location_from)]["type"];
     
     if ($SysPrefs->loc_notification() == 1)
     {
@@ -83,8 +85,6 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
         $st_reorder = array();
     }
     $total = 0;
-
-    $coy_target_branches_status_repo = get_coy_target_branch_repo($location_to);
 
     $mt_header_id_local = add_mt_header_repo($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$repo_id,
         $location_from);
@@ -133,7 +133,6 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
     }
     
     add_comments(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $memo_);
-    $lending_type = $db_connections[Get_db_coy($location_from)]["type"];
     if($lending_type == 'LENDING') {
         $accs = $db_connections[Get_db_coy($location_from)]["gl_account"];
     }else{
