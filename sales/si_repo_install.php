@@ -815,9 +815,9 @@ if (isset($_POST['ProcessOrder']) && can_process()) {
 	$modified = ($_SESSION['Items']->trans_no != 0);
 	$so_type = $_SESSION['Items']->so_type;
   
-	if ($_SESSION['Items']->payment_policy != 0) {
+	if ($_SESSION['Items']->payment_policy != 0 && ($_SESSION['Items']->trans_type == ST_SALESORDER || $_SESSION['Items']->trans_type == ST_SALESINVOICEREPO)) {
 		$_SESSION['Items']->payment_location = get_payment_location_by_category(get_post('category_id')) ? "Lending" : "Branch";
-		$_SESSION['Items']->payment_location = "Branch";
+		// $_SESSION['Items']->payment_location = "Branch";
 	}
 	$ret = $_SESSION['Items']->write(1, 0, 0, get_post('waranty_code'), get_post('fsc_series'));
 	if ($ret == -1) {

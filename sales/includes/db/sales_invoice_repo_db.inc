@@ -345,9 +345,9 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id)){
 			$sales_account = $category_gl_code['dflt_installment_sales_act'];
 		}
-		// if ($invoice->payment_location == "Lending"){
-		// 	$sales_account = $category_gl_code['dflt_sales_act'];
-		// }
+		if ($invoice->payment_location == "Lending"){
+			$sales_account = $category_gl_code['dflt_sales_act'];
+		}
 		if (check_employee_customer($invoice->customer_id)){
 			$sales_account = $company_data['isa_employee'];
 			$entry_amount = $invoice->ar_amount;
@@ -521,7 +521,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 				
 				/*Added by Albert*/
 				if ($invoice->payment_location == "Lending"){
-					// $ar_account = $company_data["ar_cash_sales_account"];
+					$ar_account = $company_data["ar_cash_sales_account"];
 					$amount = $entry_amount;
 				}else{
 					$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
