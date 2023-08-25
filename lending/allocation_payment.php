@@ -1287,6 +1287,8 @@ if(isset($_GET['submitAdj']))
                         if($TotalRebateAmount == 0){
                             $TotalRebateAmount = 0;
                             $RebateAmount = 0;
+                        }else{
+                            $TotalRebateAmount = GetRebate($_POST['trans_date_wv'], $myrow["date_due"], $TotalRebateAmount);
                         }
                         if($aloc_amount > 0){
                             if($myrow["status"] == "partial"){
