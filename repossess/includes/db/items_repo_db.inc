@@ -134,7 +134,7 @@ function add_stock_merchandise_transfer_repo($Items, $location_from, $location_t
     
     add_comments(ST_MERCHANDISETRANSFERREPO, $transfer_id, $date_, $memo_);
     if($lending_type == 'LENDING') {
-        $accs = $db_connections[Get_db_coy($location_from)]["gl_account"];
+        $accs = $company_prefs["duetofrom_account"];
     }else{
         $accs = $db_connections[Get_db_coy($location_to)]["gl_account"];
     }
