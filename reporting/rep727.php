@@ -115,17 +115,18 @@ function print_RGP_summarized()
     $params = array(0 => $comments);	
 		// 1 => array('text' => _('RGP IN THE MONTH OF '), 'from' => $month_name, 'to' => ''));
 
-	$cols = array(5, 130, 230, 330, 430, 0);
+	$cols = array(5, 50, 150, 250, 350, 470, 0);
 
 	$headers = array(
 		_('Month'),
 		_($curr_year),
 		_($prev1_year),
 		_($prev2_year),
-		_($prev3_year.' and below')
+		_($prev3_year.' and below'),
+		_('Total')
 		);
 
-	$aligns = array('center', 'right', 'right', 'right', 'right');
+	$aligns = array('center', 'right', 'right', 'right', 'right', 'right');
 
 	$rep = new FrontReport(_('RGP Report - ').$account_name._(' (Summarized per Year)'), "RGPSummarizedReport", "letter", 9, $orientation);
 
@@ -144,6 +145,7 @@ function print_RGP_summarized()
 	$RGP2 = 0;
 	$RGP3 = 0;
 	$RGP4 = 0;
+	$Totalrgp = 0;
 
 	While ($RGPsum = db_fetch($res))
 	{
@@ -167,11 +169,14 @@ function print_RGP_summarized()
 	}
 	else 
 	{
+		$Totalrgp = $RGP1+$RGP2+$RGP3+$RGP4;
+
 		$rep->TextCol(0, 1, $month_name);
 		$rep->AmountCol2(1, 2, $RGP1, $dec);
 		$rep->AmountCol2(2, 3, $RGP2, $dec);
 		$rep->AmountCol2(3, 4, $RGP3, $dec);
 		$rep->AmountCol2(4, 5, $RGP4, $dec);
+		$rep->AmountCol2(5, 6, $Totalrgp, $dec);
 	}
 	$rep->NewLine(0.5);
 
