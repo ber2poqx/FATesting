@@ -1284,11 +1284,12 @@ if(isset($_GET['submitAdj']))
                     $result = get_loan_schedule($_POST['InvoiceNo_wv'], $_POST['customername_wv'], $_POST['transtype_wv']);
 
                     while ($myrow = db_fetch($result)) {
+                        $rebateAmt = $TotalRebateAmount;
                         if($TotalRebateAmount == 0){
                             $TotalRebateAmount = 0;
                             $RebateAmount = 0;
                         }else{
-                            $TotalRebateAmount = GetRebate($_POST['trans_date_wv'], $myrow["date_due"], $TotalRebateAmount);
+                            $TotalRebateAmount = GetRebate($_POST['trans_date_wv'], $myrow["date_due"], $rebateAmt);
                         }
                         if($aloc_amount > 0){
                             if($myrow["status"] == "partial"){
