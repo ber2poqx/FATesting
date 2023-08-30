@@ -311,17 +311,10 @@ if(isset($_GET['get_repodetails']))
     $total = DB_num_rows($result);
 
     while ($myrow = db_fetch($result)) {
-        if($myrow["transfer_id"] != 0){
-            $branch = get_branch_info($myrow['branch_code']);
-
+        $branch = get_branch_info($myrow['branch_code']);
+        //if($myrow["transfer_id"] != 0){
             $name = $branch[0]["name"];
-            $debtor_no = $myrow['branch_code'];
-            $debtor_ref = $myrow['branch_code'];
-        }else{
-            $name = htmlentities($myrow["name"]);
-            $debtor_no = $myrow["debtor_no"];
-            $debtor_ref = $myrow["debtor_ref"];
-        }
+        
         $status_array[] = array('id'=>$myrow["id"],
                                'ar_trans_no'=>$myrow["ar_trans_no"],
                                'ar_trans_type'=>$myrow["ar_trans_type"],
@@ -330,9 +323,9 @@ if(isset($_GET['get_repodetails']))
                                'repo_date'=>$myrow["repo_date"],
                                'repo_type'=>$myrow["repo_type"],
                                'reference_no'=>$myrow["reference_no"],
-                               'debtor_no'=>$debtor_no,
-                               'debtor_ref'=>$debtor_ref,
-                               'name'=>$name,
+                               'debtor_no'=>$myrow["debtor_no"],
+                               'debtor_ref'=>$myrow["debtor_ref"],
+                               'name'=>$myrow["name"],
                                'lcp_amount'=>$myrow["lcp_amount"],
                                'downpayment'=>$myrow["downpayment"],
                                'outstanding_ar'=>$myrow["outstanding_ar"],
@@ -352,7 +345,7 @@ if(isset($_GET['get_repodetails']))
                                'category_id'=>$myrow["category_id"],
                                'category_desc'=>$myrow["cat_desc"],
                                'branch_code'=>$myrow["branch_code"],
-                               'comments'=>$myrow["comments"],
+                               'comments'=>'From branch '. $branch[0]["name"] . '. ' . $myrow["comments"],
                                'gpm'=>$myrow["gpm"],
                                'transfer_id'=>$myrow["transfer_id"],
                                'accu_amount'=>$myrow["accu_amount"],
@@ -612,6 +605,7 @@ if(isset($_GET['submit']))
             $branch = get_branch_info($_POST['cBranch']);
             $PerBranchGL = $branch[0]["gl_account"];
             $Branch_name = $branch[0]["name"];
+            $Branch_type = $branch[0]["type"];
 
             //auto create customer
             $result = get_mt_customer($_POST['mtrep_fkid'], $_POST['cBranch']);
@@ -649,14 +643,18 @@ if(isset($_GET['submit']))
             //Repossessed Inventory - debit
             $repo_invty_act =  get_repo_invty_act($_POST['category']);
             if(isset($repo_invty_act)){
-
                 $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $repo_invty_act, 0, 0, $_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the repossessed inventory", 0, $_POST['cBranch'], $Branch_name, 0, $_POST['mt_ref']);
-            
             }
 
-            // Branch Current -credit
-            if(isset($PerBranchGL)){
-                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $PerBranchGL, 0, 0, -$_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['cBranch'], $Branch_name, 0, $_POST['mt_ref']);
+            //check if from lending
+            if($Branch_type == 'LENDING'){
+                $duetofrom_account = $company_record["duetofrom_account"];
+                $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $duetofrom_account, 0, 0, -$_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['cBranch'], $Branch_name, 0, $_POST['mt_ref']);
+            }else{
+                // Branch Current -credit
+                if(isset($PerBranchGL)){
+                    $GLtotal += add_gl_trans_customer(ST_RRREPO, $repo_id, $_POST['repo_date'], $PerBranchGL, 0, 0, -$_POST['unrecovrd_cost'], $_POST['customername'], "Cannot insert a GL transaction for the A/R account", 0, $_POST['cBranch'], $Branch_name, 0, $_POST['mt_ref']);
+                }
             }
 
             //update mt from branch/ho

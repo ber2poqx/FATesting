@@ -30,7 +30,8 @@ function get_branch_info($branch_code)
             $branch_arr[] = array('id'=>$conn[$i]['branch_code'],
                                     'name'=>$conn[$i]['name'],
                                     'area'=>$conn[$i]['branch_area'],
-                                    'gl_account'=>$conn[$i]['gl_account']
+                                    'gl_account'=>$conn[$i]['gl_account'],
+                                    'type'=>$conn[$i]['type']
                                 );
         }
 
@@ -160,7 +161,7 @@ function auto_create_customer($cust_code, $branch_code)
 function set_mt_repo_status($id, $stock_id, $branch)
 {
     //get info from mt details table
-    $mt_details = get_mt_details($id, $stock_id);
+    $mt_details = get_mt_details($id, $stock_id, $branch);
     //update status mt details
     repo_update_mt_details($mt_details['mt_details_id'], $branch);
     repo_update_mt_header($id, $branch);

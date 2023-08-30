@@ -498,15 +498,21 @@ function get_mt_customer($repo_id, $from_branch)
 	$db_coy = Get_db_coy($from_branch);
     set_global_connection($db_coy);
 
-	$sql = "SELECT B.*
+	$sql = "SELECT B.debtor_no, B.name
 			FROM ".TB_PREF."repo_accounts A
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no
 			WHERE A.id = ".db_escape($repo_id);
 
 	$result = db_query($sql, "could not get customer info from ".$from_branch. " because");
-
+	$row = db_fetch($result);
+		
 	set_global_connection();
-	
+
+	$sql = "SELECT B.*
+			FROM ".TB_PREF."debtors_master B 
+			WHERE B.name LIKE ".db_escape('%'. $row[1] .'%');
+
+	$result = db_query($sql, "could not get customer because");
 	return $result;
 }
 
@@ -550,11 +556,11 @@ function check_existing_customer($custname, $bdate)
 	return db_fetch($result);
 }
 
-function get_mt_details($id, $stock_id)
+function get_mt_details($id, $stock_id, $from_branch)
 {
-	global $def_coy;
-    set_global_connection($def_coy);
-
+	$db_coy = Get_db_coy($from_branch);
+    set_global_connection($db_coy);
+   
 	$sql = "SELECT A.* 
 			FROM ".TB_PREF."mt_details A 
 			WHERE  A.mt_details_stock_id = ".db_escape($stock_id)."
