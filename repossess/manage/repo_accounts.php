@@ -576,6 +576,11 @@ if(isset($_GET['submit']))
             $dsplymsg = _('Stock id and color code must not be empty.');
         }
     }
+    //check if entries balance
+    if(($_POST['unrecovrd_cost'] + $_POST['Accuamount']) == $_POST['lcp_amount']){
+        $InputError = 1;
+        $dsplymsg = _('Entries Not Balance...');
+    }
 
     $loc_code = get_default_location();
     if (empty($loc_code)) {
