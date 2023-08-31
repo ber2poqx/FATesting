@@ -618,7 +618,7 @@ if(!is_null($action) || !empty($action)){
                 
                 if($qty>0){
                     $serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
-                    $counteritem=$_SESSION['transfer_items']->find_cart_item_new($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
+                    $counteritem=$_SESSION['transfer_items']->find_cart_item_new_for_mtandcml($myrow["serialise_item_code"],$myrow["serialise_lot_no"], $myrow["type_out"], $myrow["transno_out"]);
                     if(!$counteritem){
                         $group_array[] = array('serialise_id'=>$serialise_id,
                             'type_out' => $myrow["type_out"],

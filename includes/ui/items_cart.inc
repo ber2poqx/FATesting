@@ -159,6 +159,16 @@ class items_cart
 	    }
 	    return null;
 	}
+
+	//Added by Robert 08/31/2023
+	function find_cart_item_new_for_mtandcml($item_code, $lot_no='', $type_out = 0, $transno_out = 0)
+	{
+	    foreach($this->line_items as $line_no=>$line) {
+	        if ($line->item_code == $item_code && $line->lot_no == $lot_no && $line->type_out == $type_out && $line->transno_out == $transno_out)
+	            return $this->line_items[$line_no];
+	    }
+	    return null;
+	}
 	//Added by Herald 03/08/2021
 	function find_cart_item_serialise($item_code)
 	{
