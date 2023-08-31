@@ -556,13 +556,15 @@ if(!is_null($action) || !empty($action)){
 
         case 'RemoveItem';
             $id = $_REQUEST['id'];
+            $line_item = $_REQUEST['line_item'];
             $serialise_id = $_REQUEST['serialise_id'];
             $AdjDate = $_POST['AdjDate'];
             $model = $_REQUEST['model'];
             $brcode = $db_connections[user_company()]["branch_code"];
             //echo "ID:".$serialise_id;
             //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
-            $_SESSION['transfer_items']->remove_from_cart($id);
+            //$_SESSION['transfer_items']->remove_from_cart($line_item);
+            $_SESSION['transfer_items']->remove_from_cart_line($line_item);
             display_transfer_items_serial($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
             exit;

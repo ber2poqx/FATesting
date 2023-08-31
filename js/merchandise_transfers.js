@@ -71,6 +71,7 @@ Ext.onReady(function(){
 			{name:'color', mapping:'color'},
 			{name:'type_out', mapping:'type_out'},
 			{name:'transno_out', mapping:'transno_out'},
+			{name:'line_item', mapping:'line_item'},
 			{name:'rr_date', mapping:'rr_date'},
 			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'}
 		]
@@ -489,6 +490,7 @@ Ext.onReady(function(){
 					handler: function(grid, rowIndex, colIndex){
 						var record = MerchandiseTransStore.getAt(rowIndex);
 						var id = record.get('id');
+						var line_item = record.get('line_item');
 						var serialise_id = record.get('serialise_id');
 						var model = record.get('model');	
 						var sdescription = record.get('stock_description');	
@@ -499,22 +501,19 @@ Ext.onReady(function(){
 						var chasis_no = record.get('chasis_no');	
 						var AdjDate = Ext.getCmp('AdjDate').getValue();	
 						
-						//MerchandiseTransStore.proxy.extraParams = {}
-						MerchandiseTransStore.load({
-							params:{action:'RemoveItem',id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model},
-							scope: this,
-							callback: function(records, operation, success){
-								var countrec = MerchandiseTransStore.getCount();
-								//console.log("count after load " + MerchandiseTransStore.getCount());
-								if(countrec>0){
-									setButtonDisabled(false);
-								}else{
-									setButtonDisabled(true);
-									
-								}
-								
+						//MerchandiseTransStore.proxy.extraParams = {}											
+						Ext.Ajax.request({
+							url : '?action=RemoveItem',
+							method: 'GET',
+							params:{
+								id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model, line_item: line_item
+							},
+							success: function (response){
+								MerchandiseTransStore.load({params: { 
+									view: 1
+								}});											
 							}
-						});		
+						});
 					}
 				}
 			]
