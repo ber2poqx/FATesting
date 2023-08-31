@@ -1156,7 +1156,7 @@ function get_total_discount($order_no, $dis1_only = false) {
 	set_global_connection();
 
 	if ($dis1_only) {
-		$sql = "SELECT  SUM(B.discount1 * B.quantity AS discount";
+		$sql = "SELECT  SUM(B.discount1 * B.quantity) AS discount";
 	}
 	else {
 		$sql = "SELECT SUM((B.discount1 * B.quantity) + (B.discount2 * B.quantity)) AS discount";

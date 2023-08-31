@@ -136,6 +136,7 @@ function Get_Policy_CashPrice($branchCode, $categoryID, $stockID)
 	$price = $row[0];
 
 	set_global_connection();
+	display_error($sql);
 	return $price;
 }
 
