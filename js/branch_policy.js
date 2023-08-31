@@ -1057,7 +1057,8 @@ Ext.onReady(function(){
 				allowBlank: false,
 				forceSelection: true,
 				selectOnFocus:true,
-				editable: false,
+				//editable: false,
+				anyMatch: true,
 				flex: 1,
 				listeners: {
 					afterrender: function(field) {
