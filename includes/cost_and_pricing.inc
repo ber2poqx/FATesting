@@ -136,7 +136,6 @@ function Get_Policy_CashPrice($branchCode, $categoryID, $stockID)
 	$price = $row[0];
 
 	set_global_connection();
-	display_error($sql);
 	return $price;
 }
 
@@ -159,7 +158,6 @@ function Get_Policy_Installment_Price($branchCode, $categoryID, $stockID)
 	$price = $row[0];
 
 	set_global_connection();
-	display_error($sql);
 	if($price <> null){
 		return $price;
 	}else{
