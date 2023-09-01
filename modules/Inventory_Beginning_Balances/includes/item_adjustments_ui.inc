@@ -38,7 +38,7 @@ function add_to_order(&$order, $new_item, $new_item_qty, $standard_cost, $manufa
 
 //--------------------------------------------------------------------------------
 
-function display_order_header(&$order, $id = 0, $line_items = 0)
+function display_order_header(&$order, $id = 0, $line_items = 0, $type = '')
 {
 	global  $Ajax, $Refs;
 
@@ -83,14 +83,24 @@ function display_order_header(&$order, $id = 0, $line_items = 0)
 		get_category_list(), 'category_id', 'description', 
 		'label', null, true, '', false, true
 	);
-
-	if ($id == 1) {
-		numeric_type_list(_("Adjustment Status: "), 'adj_type', 
-			array(
-				_('Inventory In'),
-				_('Inventory Out')
-			), null, true, '', 'label', false, false, true
-		);
+	
+	if($type == 'repo'){
+		if ($id == 1) {
+			numeric_type_list(_("Adjustment Status: "), 'adj_type', 
+				array(
+					_('Inventory Out')
+				), null, true, '', 'label', false, false, true
+			);
+		}
+	}else{
+		if ($id == 1) {
+			numeric_type_list(_("Adjustment Status: "), 'adj_type', 
+				array(
+					_('Inventory In'),
+					_('Inventory Out')
+				), null, true, '', 'label', false, false, true
+			);
+		}
 	}
 	end_outer_table(1);
 

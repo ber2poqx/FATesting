@@ -566,7 +566,7 @@ else {
 	$button_title = _("Process Adjustment");
 }
 
-display_order_header($_SESSION['adj_items'], 1);
+display_order_header($_SESSION['adj_items'], 1, 0, get_item_type());
 display_adjustment_items($items_title, $_SESSION['adj_items'], 1, $trans_no, get_item_type());
 
 div_start('adj_gl');
