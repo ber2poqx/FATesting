@@ -416,8 +416,9 @@ function can_process()
 	// 	return false;
 	// }
 
-
+	$total_qty_replace = 0;
 	foreach ($_SESSION['ReplaceItems']->line_items as $line_no => $stock_item) {
+		$total_qty_replace += input_num("replace_" . $line_no);
 		$qoh = get_qoh_si(
 			$stock_item->stock_id,
 			$_SESSION['Items']->Location,
@@ -438,11 +439,11 @@ function can_process()
 		}
 
 		//Added by spyrax10
-		if (input_num("replace_" . $line_no) != total_return_item_qty()) {
-			display_error(_("The total quantity of REPLACE ITEMS should be equal to total quantity of RETURN ITEMS!"));
-			return false;
-			break;
-		}
+		// if (input_num("replace_" . $line_no) != total_return_item_qty()) {
+		// 	display_error(_("The total quantity of REPLACE ITEMS should be equal to total quantity of RETURN ITEMS!"));
+		// 	return false;
+		// 	break;
+		// }
 		
 		if ($stock_item->price == 0) {
 			display_error(_("Cant Proceed! LCP Price of Replaced Item is Zero!"));
@@ -457,6 +458,11 @@ function can_process()
 		}
  		//
 
+	}
+	//Added by Albert 09/01/2023
+	if ($total_qty_replace != total_return_item_qty()) {
+		display_error(_("The total quantity of REPLACE ITEMS should be equal to total quantity of RETURN ITEMS!"));
+		return false;
 	}
 	foreach ($_SESSION['Items']->line_items as $line_no => $stock_item) {
 		$qty = input_num("return_" . $stock_item->id);

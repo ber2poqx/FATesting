@@ -460,7 +460,8 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
     }
     /* Returned Unit */
     foreach ($sales_return->line_items as $line_no => $sales_return_line) {
-        if ($replace_items_line->qty_dispatched > 0) {
+        /*Comment address Add Entry if no replace Items request by maam helen*/ 
+        //if ($replace_items_line->qty_dispatched > 0) {
             $stock_gl_code = get_stock_gl_code($sales_return_line->stock_id);
             $dim = ($sales_return->dimension_id != $customer['dimension_id'] ? $sales_return->dimension_id : ($customer['dimension_id'] != 0 ? $customer["dimension_id"] : $stock_gl_code["dimension_id"]));
             $dim2 = ($sales_return->dimension2_id != $customer['dimension2_id'] ? $sales_return->dimension2_id : ($customer['dimension2_id'] != 0 ? $customer["dimension2_id"] : $stock_gl_code["dimension2_id"]));
@@ -497,7 +498,7 @@ function write_sales_return_replacement(&$sales_return, $replace_items)
                     "The cost of sales GL posting could not be inserted"
                 );
             }
-        }
+        // }
     }
     /* */
     /* Replace Unit */
