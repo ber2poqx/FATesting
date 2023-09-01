@@ -33,11 +33,18 @@ if (isset($_GET["trans_no"])) {
 // 3 different queries to get the information - what a JOKE !!!!
 
 $header = get_sales_invoice_ct_header($trans_id);
-
-if ($header["invoice_type"] == 'repo'){
-	$type = ST_SALESINVOICEREPO;
-} else {
-	$type = ST_SALESINVOICE;
+global $db_connections;
+$coy = user_company();
+$db_branch_type = $db_connections[$coy]['type'];
+		
+if($db_branch_type == 'LENDING'){
+	$type = ST_ARINVCINSTLITM;	
+}else{
+	if ($header["invoice_type"] == 'repo'){
+		$type = ST_SALESINVOICEREPO;
+	} else {
+		$type = ST_SALESINVOICE;
+	}
 }
 $myrow = get_customer_trans($header["si_trans_no"], $type);
 
