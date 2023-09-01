@@ -364,19 +364,6 @@ if(isset($_GET['submit']))
                 }
             }
 
-            //auto create ledger
-            if($_POST['dp_amount'] != 0){
-                $result = get_loan_schedule_dP_lending($trans_no, $_POST['customername'], ST_ARINVCINSTLITM);
-                $Loansched = db_fetch($result);
-                
-                add_loan_ledger($trans_no, $_POST['customername'], $Loansched["loansched_id"], ST_ARINVCINSTLITM, ST_ARINVCINSTLITM, $_POST['dp_amount'], 0, 0, 0, $approved_date, $trans_no);
-                update_loan_schedule($Loansched["loansched_id"], $_POST['customername'], $trans_no, ST_ARINVCINSTLITM, "paid", 0, "paid");
-            
-                //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
-                //add_cust_allocation($_POST['dp_amount'], ST_ARINVCINSTLITM, $trans_no, ST_ARINVCINSTLITM, $trans_no, $_POST['customername'], $approved_date);
-                //update_debtor_trans_allocation(ST_ARINVCINSTLITM, $trans_no, $_POST['customername']);
-            }
-
             //now for gl entries
             $unearned_amount = 0;
             if($_POST['months_term'] <= 3) {
@@ -404,6 +391,19 @@ if(isset($_GET['submit']))
                 $DGP_amount = ($_POST['ar_amount'] - $_POST['lcp_amount']);
                 add_gl_trans_customer(ST_ARINVCINSTLITM, $trans_no, date("m/d/Y", strtotime($approved_date)), $company_prefs["deferred_income_act"], 0, 0,
                                 -$DGP_amount, $_POST['customername'], "The unearned interest amount GL posting could not be inserted", 0, null, null, 0, $_POST['invoice_no']);
+            }
+
+            //auto create ledger
+            if($_POST['dp_amount'] != 0){
+                $result = get_loan_schedule_dP_lending($trans_no, $_POST['customername'], ST_ARINVCINSTLITM);
+                $Loansched = db_fetch($result);
+                
+                add_loan_ledger($trans_no, $_POST['customername'], $Loansched["loansched_id"], ST_ARINVCINSTLITM, ST_ARINVCINSTLITM, $_POST['dp_amount'], 0, 0, 0, $approved_date, $trans_no);
+                update_loan_schedule($Loansched["loansched_id"], $_POST['customername'], $trans_no, ST_ARINVCINSTLITM, "paid", 0, "paid");
+            
+                //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                //add_cust_allocation($_POST['dp_amount'], ST_ARINVCINSTLITM, $trans_no, ST_ARINVCINSTLITM, $trans_no, $_POST['customername'], $approved_date);
+                //update_debtor_trans_allocation(ST_ARINVCINSTLITM, $trans_no, $_POST['customername']);
             }
 
             //pay to branch
