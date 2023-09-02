@@ -160,13 +160,13 @@ function CalcMonthsDue_pnlty($TransDate, $DueDate, $MaturityDate){
             $MonthNo = $MonthDiff;
         }
         
-        //check if accounts is past due then subtract the number to get exact month until maturity date
+        //check if account is past due then subtract the number to get exact month until maturity date
         $PastDueNo = CalculateMonthsPastDue($TransDate, $DueDate, $MaturityDate);
         
-        //echo $PastDueNo . ' - da -' . $MonthNo . ' --- ';
         if($PastDueNo != 0){
             $MonthNo -= $PastDueNo;
         }
+        //echo $PastDueNo . ' - da -' . $MonthNo . ' --- ';
     }else{
         $MonthNo = 0;
     }
@@ -237,7 +237,9 @@ function CalculateMonthsPastDue($TransDate, $DueDate, $MaturityDate){
         $DateDiff = ($StrTransDay - $StrDueDay);
         $MonthDiff = (($StrTransYear - $StrDueYear) * 12) + ($StrTransMonth - $StrDueMonth);
         //echo $StrTransDay .'-'. $StrDueDay. ' - v'.$DueDate. ' - '.$TransDate;
+        //echo $DateDiff .  '-'. $MonthDiff;
         if($DateDiff <= 0){
+        //if($StrTransDay > $StrDueDay){
             $MonthNo = ($MonthDiff - 1);
             if($MonthNo < 0){
                 $MonthNo = 0;

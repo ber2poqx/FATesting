@@ -981,16 +981,17 @@ function get_InvoiceCOA($trans_no, $type)
 	return $row[0];
 }
 
-function isTermFullpayment($trans_no, $type)
+function isTermFullpayment($trans_no, $type, $debtor_no)
 {
 	$sql = "SELECT z.term_mode_fullpayment 
 			FROM ".TB_PREF."debtor_term_modification z 
-			WHERE z.trans_no=".db_escape($trans_no)."
-				And z.type = ".db_escape($type);
+			WHERE z.type = ".db_escape($type) . "
+				and z.debtor_no = ".db_escape($debtor_no) . "
+				and (z.trans_no = ".db_escape($trans_no)." OR z.si_trans_no = ".db_escape($trans_no) .") " ;
 			
 	$result = db_query($sql, "could not get defered balance");
 	$row =  db_fetch($result);
-
+	
 	return $row[0];
 }
 
