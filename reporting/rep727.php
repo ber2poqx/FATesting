@@ -33,14 +33,33 @@ include_once($path_to_root . "/admin/db/company_db.inc");
 print_RGP_summarized();
 
 function getTransactions($month, $account)
-{	
+{	/*
 	$sql = "		
-			SELECT YEAR(dl.invoice_date) AS year , SUM(gl.amount) AS amount 
+			SELECT 				
+				CASE WHEN dl.invoice_date IS NULL THEN YEAR(CONCAT(LEFT(com.memo_,4),'-01-01')) ELSE YEAR(dl.invoice_date) END AS `year`
+				, SUM(gl.amount) AS amount 
 			FROM `gl_trans` gl 
-				LEFT JOIN debtor_loans dl ON gl.type_no = dl.trans_no
+				LEFT JOIN debtor_loans dl ON gl.loan_trans_no = dl.trans_no
+				LEFT JOIN `comments` com ON gl.type = com.type AND gl.type_no = com.id 
 			WHERE gl.`account` = '$account' 
 				AND MONTH(gl.tran_date) = '$month' 
-			GROUP BY YEAR(dl.invoice_date)";
+			GROUP BY YEAR(dl.invoice_date)";*/
+
+	$sql = "SELECT 
+				A.year
+				, SUM(amount) AS amount 
+			FROM
+				(SELECT 				
+					CASE WHEN dl.invoice_date IS NULL THEN YEAR(CONCAT(LEFT(com.memo_,4),'-01-01')) ELSE YEAR(dl.invoice_date) END AS `year`
+					, gl.amount AS amount 
+				FROM `gl_trans` gl 
+					LEFT JOIN debtor_loans dl ON gl.loan_trans_no = dl.trans_no
+					LEFT JOIN `comments` com ON gl.type = com.type AND gl.type_no = com.id 
+				WHERE gl.`account` = '402016' 
+					AND MONTH(gl.tran_date) = '7' 
+					) A 
+				GROUP BY A.year
+				ORDER BY A.year";
 
 	return db_query($sql,"No transactions were returned");
 }
