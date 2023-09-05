@@ -36,11 +36,11 @@ if(isset($_GET['getbranch'])){
     global $db_connections;
     $conn = $db_connections;
     $total = count($conn);
-    $company_prefs = get_company_prefs();
-
+    //$company_prefs = get_company_prefs();
+ //echo 'zxZ-'. $conn[$i]['branch_code'];
 	for ($i = 0; $i < $total; $i++)
 	{
-        $islive = get_islive($conn[$i]['branch_code']);
+        //$islive = get_islive($conn[$i]['branch_code']);
 
         if(!empty($company_prefs["deployment_status"])){
             $status_array[] = array('id'=>$conn[$i]['branch_code'],
