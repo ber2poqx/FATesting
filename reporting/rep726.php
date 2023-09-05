@@ -56,6 +56,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 		    LEFT JOIN `chart_master` cm ON gl.account = cm.account_code
 		WHERE gl.`account` = '$gl_account'";*/
 		$sql = "
+		SELECT * FROM (
 		SELECT gl.tran_date
 			, YEAR(dt.tran_date) AS year
 			, ref.reference
@@ -70,6 +71,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 			, CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit`
 		    , CASE WHEN gl.amount <  0 THEN -amount ELSE 0 END AS `Credit`
 			##, YEAR(dl.invoice_date) AS `invoice_year`
+			,dl.invoice_date
             ,CASE WHEN dl.invoice_date IS NULL THEN YEAR(CONCAT(LEFT(com.memo_,4),'-01-01')) ELSE YEAR(dl.invoice_date) END AS `invoice_year`
 		FROM `gl_trans` gl
 			LEFT JOIN `refs` ref ON gl.type = ref.type AND gl.type_no = ref.id
@@ -96,7 +98,7 @@ function getTransactions($from, $to, $gl_account,$masterfile)
 		$sql .= " AND gl.tran_date BETWEEN '$from' AND '$to'";
 	}
 		//$sql .= " ORDER BY ref.reference";
-		$sql .= " ORDER BY dl.invoice_date";
+		$sql .= ") A ORDER BY A.invoice_year, A.invoice_date";
 		
 		
 	
