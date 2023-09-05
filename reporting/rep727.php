@@ -55,8 +55,8 @@ function getTransactions($month, $account)
 				FROM `gl_trans` gl 
 					LEFT JOIN debtor_loans dl ON gl.loan_trans_no = dl.trans_no
 					LEFT JOIN `comments` com ON gl.type = com.type AND gl.type_no = com.id 
-				WHERE gl.`account` = '402016' 
-					AND MONTH(gl.tran_date) = '7' 
+				WHERE gl.`account` = '$account' 
+					AND MONTH(gl.tran_date) = '$month' 
 					) A 
 				GROUP BY A.year
 				ORDER BY A.year";
