@@ -125,7 +125,8 @@ function _bank_transactions_onremit($from_date = null, $cashier = '', $report = 
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.person_id
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
 				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
-                WHERE A.trans_no <> 0 AND A.status <> 'Draft'";
+                LEFT JOIN ".TB_PREF."voided E ON E.id = A.trans_no and E.type = A.type
+                WHERE A.trans_no <> 0 AND A.status <> 'Draft' AND (E.void_status is null OR E.void_status  = 'Draft')";
 
     $sql .= " AND (A.opening_balance = 0 OR A.opening_balance = 1) ";
     if ($report) {
