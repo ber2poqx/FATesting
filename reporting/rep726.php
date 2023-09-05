@@ -62,20 +62,22 @@ function getTransactions($from, $to, $gl_account,$masterfile)
             , dt.trans_no
 			, gl.loan_trans_no
             , dt.debtor_no
-			, dm.name
+			##, dm.name
+			, CASE WHEN dm.name IS NULL THEN gl.master_file ELSE dm.name END AS name
 			, IF(ISNULL(com.memo_), gl.memo_, CONCAT(gl.memo_,' ',com.memo_)) AS memo_
 			, cm.account_name
 			, gl.amount
 			, CASE WHEN gl.amount >= 0 THEN amount ELSE 0 END AS `Debit`
 		    , CASE WHEN gl.amount <  0 THEN -amount ELSE 0 END AS `Credit`
-			, YEAR(dl.invoice_date) AS `invoice_year`
+			##, YEAR(dl.invoice_date) AS `invoice_year`
+            ,CASE WHEN dl.invoice_date IS NULL THEN YEAR(CONCAT(LEFT(com.memo_,4),'-01-01')) ELSE YEAR(dl.invoice_date) END AS `invoice_year`
 		FROM `gl_trans` gl
 			LEFT JOIN `refs` ref ON gl.type = ref.type AND gl.type_no = ref.id
 		    LEFT JOIN `debtor_trans` dt ON gl.type = dt.type AND gl.type_no = dt.trans_no AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
 		    LEFT JOIN `debtors_master` dm ON dt.debtor_no = dm.debtor_no
 		    LEFT JOIN `comments` com ON gl.type = com.type AND gl.type_no = com.id 
 		    LEFT JOIN `chart_master` cm ON gl.account = cm.account_code
-			LEFT JOIN `debtor_loans` dl ON gl.type_no = dl.trans_no
+			LEFT JOIN `debtor_loans` dl ON gl.loan_trans_no = dl.trans_no
 		WHERE gl.`account` = '$gl_account'";
 
 
