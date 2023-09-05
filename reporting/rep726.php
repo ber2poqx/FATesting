@@ -383,12 +383,14 @@ function print_SL_RGP()
 	}
 	else
 	{
+		$Total_month = $Tot_deb - $Tot_cred;
 
 		$rep->Font('bold');
 		$rep->TextCol(5, 6, _('Subtotal'));
 		$rep->Font('italic');
 		$rep->AmountCol(6, 7, $Tot_deb, $dec);
 		$rep->AmountCol(7, 8, $Tot_cred, $dec);
+		$rep->AmountCol(8, 9, abs($Total_month), $dec);
 		$rep->Font();
 		$rep->Line($rep->row - 25);
 
