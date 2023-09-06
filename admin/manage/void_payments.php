@@ -42,7 +42,7 @@ if(isset($_GET['get_voidPayment'])){
                             'type'=>$myrow["type"],
                             'debtor_no'=>$myrow["debtor_no"],
                             'customer_code'=>$myrow["debtor_ref"],
-                            'customer_name'=>htmlentities($myrow["name"]),
+                            'customer_name'=>$myrow["name"],
                             'tran_date'=>$myrow["tran_date"],
                             'reference'=>$myrow["reference"],
                             'recpt_no'=>$myrow["receipt_no"],

@@ -76,7 +76,7 @@ if(isset($_GET['get_InterB_Customers']) AND $_GET['branch'] != ""){
         $loan_raw = get_debtor_per_customer($myrow['debtor_ref'], $_GET['branch']);
         
         $status_array[] = array('customer_code'=>$myrow['debtor_ref'],
-                                'customer_name'=>htmlentities($myrow['name']),
+                                'customer_name'=>$myrow['name'],
                                 'address'=>$myrow['address'],
                                 'tel_no'=>$myrow['phone'],
                                 'barangay'=>$myrow['barangay'],

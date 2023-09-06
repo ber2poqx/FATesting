@@ -50,7 +50,7 @@ if(isset($_GET['get_invcincome'])){
                             'invoice_date'=>date('m/d/Y',strtotime($myrow["tran_date"])),
                             'invoice_no'=>$myrow["reference"],
                             'customer_code'=>$myrow["debtor_ref"],
-                            'customer_name'=>htmlentities($myrow["name"]),
+                            'customer_name'=>$myrow["name"],
                             'branch_code'=>$myrow["orig_branch_code"],
                             'delivery_no'=>$myrow["delivery_ref_no"],
                             'invoice_type'=>$myrow["invoice_type"],

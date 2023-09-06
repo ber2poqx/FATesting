@@ -34,7 +34,7 @@ if(isset($_GET['get_Customer']))
         while ($myrow = db_fetch($result)) {
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                                    'debtor_ref'=>$myrow["debtor_ref"],
-                                   'name'=>htmlentities($myrow["name"])
+                                   'name'=>$myrow["name"]
                                 );
         }
     }else if($_GET['module'] == "DP"){
@@ -42,7 +42,7 @@ if(isset($_GET['get_Customer']))
         while ($myrow = db_fetch($result)) {
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                 'debtor_ref'=>$myrow["debtor_ref"],
-                'name'=>htmlentities($myrow["name"]),
+                'name'=>$myrow["name"],
                 'amount'=>$myrow["ov_amount"],
                 'trans_no'=>$myrow["trans_no"],
                 'brcode'=>0,
@@ -56,7 +56,7 @@ if(isset($_GET['get_Customer']))
             $branch = get_branch_info($myrow['branch_code_from']);
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
                 'debtor_ref'=>$myrow["debtor_ref"],
-                'name'=>htmlentities($myrow["name"]),
+                'name'=>$myrow["name"],
                 'amount'=>$myrow["amount"],
                 'trans_no'=>$myrow["id"],
                 'brcode'=>array_column($branch, 'gl_account'),
