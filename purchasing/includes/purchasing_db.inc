@@ -237,4 +237,15 @@ function add_direct_supp_trans($cart)
 	commit_transaction(); // save PO+GRN+PI(+SP)
 	return $inv_no;
 }
+/*Added by Albert 09/06/2023*/
+function pr_reference_exist($reference)
+{
+	set_global_connection();
+
+	$sql = "SELECT COUNT(*) FROM purch_request A 
+		WHERE A.reference=" . db_escape($reference);
+	$result = db_query($sql, "Can't get PR reference count! ");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
 

@@ -323,10 +323,14 @@ function handle_commit_request()
 	new_doc_date($cart->orig_order_date);
 
 	if (empty($cart->pr_no)) {
-		$pr_no = add_pr_trans($cart);
-		unset($_SESSION['PR']);
-		if ($cart->trans_type == ST_PURCHREQUEST)
-		meta_forward($_SERVER['PHP_SELF'], "AddedID=$pr_no");
+		if(!pr_reference_exist($cart->reference)){
+			$pr_no = add_pr_trans($cart);
+			unset($_SESSION['PR']);
+			if ($cart->trans_type == ST_PURCHREQUEST)
+			meta_forward($_SERVER['PHP_SELF'], "AddedID=$pr_no");
+		}else{
+			display_error('Transaction Reference Duplicated...');
+		}
 	} else {
 		$pr_no = update_pr($cart);
 		unset($_SESSION['PR']);
