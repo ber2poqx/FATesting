@@ -139,7 +139,7 @@ function sales_return_approval($row) {
 		$link = '';
 	}
 	else {
-		if ($_SESSION["wa_current_user"]->can_access_page('SA_SR_APPROVAL')) {
+		if ($_SESSION["wa_current_user"]->can_access_page('SA_SR_APPROVAL') && $row["status"] != "Open") {
 			$link = done_check_qty_return_invoice($row["reference"]) || ($row["status"] == "Close"|| $row["status"] == "Closed") || ($row["return_status"] == 1 || $row["return_status"] == 2)  ? '' :  
 			pager_link(
 				'SR Approval',

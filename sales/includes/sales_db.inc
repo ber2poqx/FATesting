@@ -953,10 +953,15 @@ function get_sales_invoices_aropening($trans_no = 0, $debtor_no, $opening_balanc
 /* */
 /* Added by Ronelle 6/1/2021 Retrieving Sales Return Replacement */
 //Modified by spyrax10 2021-12-23
-function get_sales_return_replacement($trans_no = 0, $repo = "new")
+function get_sales_return_replacement($trans_no = 0, $item_type = 0, $debtor_no = '', $from_date = '', $to_date = '')
 {
 	//modified by albert 05/10/2022
 	set_global_connection();
+	if($item_type == 0){
+		$type = 'new';
+	}else{
+		$type = 'repo';
+	}
 	
 	$sql = "SELECT
 				a.trans_no,
@@ -993,8 +998,22 @@ function get_sales_return_replacement($trans_no = 0, $repo = "new")
 			LEFT JOIN " . TB_PREF . "cust_branch BR ON DM.debtor_no = BR.debtor_no
 
 			WHERE b.type = 55";
-	if ($trans_no == 0) {
-		$sql .= " AND a.sr_item_type =" . db_escape($repo);
+	if ($trans_no != '') {
+		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);
+	}
+	if ($item_type != '') {
+		$sql .= " AND a.sr_item_type =" . db_escape($type);
+	}
+
+	if ($debtor_no != '') {
+		$sql .= " AND b.debtor_no = " . db_escape($debtor_no);
+	}
+	if($from_date != ''){
+		$sql .= " AND b.tran_date >= " .db_escape($from_date);
+	}
+
+	if($to_date != ''){
+		$sql .= " AND b.tran_date <= " .db_escape($to_date);
 	}
 	if ($trans_no != 0) {
 		$sql .= " AND a.trans_no=$trans_no";

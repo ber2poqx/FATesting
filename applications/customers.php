@@ -40,7 +40,7 @@ class customers_app extends application
 		
 		//Modified by spyrax10 13 Jul 2022
 		$this->add_lapp_function(0, _("Sales Return Replacement"),
-			"sales/sales_return_replacement.php?type=new", 'SA_SR_INQ', MENU_TRANSACTION
+			"sales/sales_return_replacement.php?", 'SA_SR_INQ', MENU_TRANSACTION
 		);
 		//
 		$this->add_lapp_function(0, _("Sales Invoice Opening Balances"),
@@ -64,7 +64,7 @@ class customers_app extends application
 		$this->add_lapp_function(0, _("Sales Invoice Repossessed"),
 			"sales/si_repo.php?", 'SA_SALESINVOICEREPO', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Sales Return Replacement Repossessed"),
-			"sales/sales_return_replacement.php?type=repo", 'SA_SALES_RETURN_REPLACEMENT', MENU_TRANSACTION);
+			"sales/sales_return_replacement_repo.php?", 'SA_SRREPO_INQ', MENU_TRANSACTION);
 			
 		$this->add_lapp_function(0, "","");
 		$this->add_lapp_function(0, _("&Delivery Against Sales Orders"),

@@ -252,6 +252,7 @@ $security_areas =array(
 	//Added by spyrax10 13 Jul 2022
 	'SA_CUST_LIST' => array(SS_SALES|42, _("Customer List")), 
 	//
+	'SA_SRREPO_INQ' => array(SS_SALES|43, _("Sales Return Replacement Repo Inquiry List")), 
 
 	'SA_SALES_REPORT' => array(SS_SALES_A|8, _("Customer and Sales Report")),
 	'SA_SALESANALYTIC' => array(SS_SALES_A|1, _("Sales Analytical Reports")),

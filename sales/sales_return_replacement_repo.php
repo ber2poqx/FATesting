@@ -11,7 +11,7 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
  ***********************************************************************/
 $path_to_root = "..";
-$page_security = 'SA_SR_INQ'; //Modified by spyrax10 13 Jul 2022
+$page_security = 'SA_SRREPO_INQ'; //Modified by spyrax10 13 Jul 2022
 include($path_to_root . "/includes/db_pager.inc");
 include_once($path_to_root . "/includes/session.inc");
 include_once($path_to_root . "/includes/date_functions.inc");
@@ -23,8 +23,7 @@ if ($SysPrefs->use_popup_windows)
     $js .= get_js_open_window(900, 500);
 if (user_use_date_picker())
     $js .= get_js_date_picker();
-
-$_SESSION['page_title'] = _("Sales Return Replacement");
+$_SESSION['page_title'] = _( "Sales Return Replacement Repossessed");
 
 page($_SESSION['page_title'], false, false, "", $js);
 
@@ -138,7 +137,7 @@ function return_defective($row)
 }
 
 // Retrieve Sales Return Replacement
-$sql = get_sales_return_replacement( get_post('sr_number'), 0, get_post('customer_id'), date2sql(get_post('fromDate')),date2sql(get_post('toDate')));
+$sql = get_sales_return_replacement( get_post('sr_number'), 1, get_post('customer_id'), date2sql(get_post('fromDate')),date2sql(get_post('toDate')));
 $cols = array(
     _("Trans #") => array('align' => 'right'),
     // _("Status"), //added by spyrax10
