@@ -147,7 +147,7 @@ if(!is_null($action) || !empty($action)){
                 if(!isset($_REQUEST['view'])){
                     $line_item_header = rand();
                     $line_item = count($_SESSION['transfer_items']->line_items);
-                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', $line_item_header, null, null, null, null, null);
+                    $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, 0, $stock_description, '0000-00-00','0000-00-00', '', '', $item_description, $item_code, 0, 0, 0,'', 'new', '', '', '', $line_item_header, null, null);
                 }
             }
             display_transfer_items_serial_for_rr($_SESSION['transfer_items'], $brcode, $AdjDate);
@@ -855,9 +855,14 @@ if(!is_null($action) || !empty($action)){
             $querystr = (isset($_POST['query']) ? $_POST['query'] : $_GET['query']);
 
             $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
+            $fromdate = (isset($_POST['fromdate']) ? $_POST['fromdate'] : $_GET['fromdate']);
+            $todate = (isset($_POST['todate']) ? $_POST['todate'] : $_GET['todate']);
 
-            $result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,$search_ref,false,'');
-            $total_result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,$search_ref,true,'');
+            $fromdate_f = sql2date($fromdate);
+            $todate_f = sql2date($todate);
+
+            $result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,$search_ref,$fromdate_f,$todate_f,false);
+            $total_result = get_all_merchandise_transfer($start,$limit,$querystr,$branchcode,$search_ref,$fromdate_f,$todate_f,true);
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
 
@@ -901,6 +906,12 @@ if(!is_null($action) || !empty($action)){
             $fromlocation = (isset($_POST['fromlocation']) ? $_POST['fromlocation'] : $_GET['fromlocation']);
             $search_ref = (isset($_POST['search_ref']) ? $_POST['search_ref'] : $_GET['search_ref']);
             $branchcode = $db_connections[user_company()]["branch_code"];
+
+            $fromdate = (isset($_POST['fromdate']) ? $_POST['fromdate'] : $_GET['fromdate']);
+            $todate = (isset($_POST['todate']) ? $_POST['todate'] : $_GET['todate']);
+
+            $fromdate_f = sql2date($fromdate);
+            $todate_f = sql2date($todate);
             
             //if($start < 1)  $start = 0; if($end < 1) $end = 25;
             
@@ -919,8 +930,8 @@ if(!is_null($action) || !empty($action)){
             
             //$result = db_query($sql, "could not get all Serial Items");
 
-            $result = get_all_receiving_item_branch($start,$limit,$branchcode,$fromlocation,$catcode,$search_ref,false);
-            $total_result = get_all_receiving_item_branch($start,$limit,$branchcode,$fromlocation,$catcode,$search_ref,true);
+            $result = get_all_receiving_item_branch($start,$limit,$branchcode,$fromlocation,$catcode,$search_ref,$fromdate_f,$todate_f,false);
+            $total_result = get_all_receiving_item_branch($start,$limit,$branchcode,$fromlocation,$catcode,$search_ref,$fromdate_f,$todate_f,true);
             //$total_result = get_all_serial($start,$end,$querystr,$catcode,$branchcode,true);
             $total = DB_num_rows($result);
 

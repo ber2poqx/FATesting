@@ -91,6 +91,7 @@ Ext.onReady(function(){
 			{name:'color', mapping:'color'},
 			{name:'type_out', mapping:'type_out'},
 			{name:'transno_out', mapping:'transno_out'},
+			{name:'line_item', mapping:'line_item'},
 			{name:'rr_date', mapping:'rr_date'},
 			{name:'brand_name', mapping:'brand_name'},
 			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'}
@@ -914,6 +915,7 @@ Ext.onReady(function(){
 					handler: function(grid, rowIndex, colIndex){
 						var record = MerchandiseTransStore.getAt(rowIndex);
 						var id = record.get('id');
+						var line_item = record.get('line_item');
 						var serialise_id = record.get('serialise_id');
 						var model = record.get('model');	
 						var sdescription = record.get('stock_description');	
@@ -925,7 +927,7 @@ Ext.onReady(function(){
 						var AdjDate = Ext.getCmp('AdjDate').getValue();	
 						
 						//MerchandiseTransStore.proxy.extraParams = {}
-						MerchandiseTransStore.load({
+						/*MerchandiseTransStore.load({
 							params:{action:'RemoveItem',id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model},
 							scope: this,
 							callback: function(records, operation, success){
@@ -939,7 +941,20 @@ Ext.onReady(function(){
 								}
 								
 							}
-						});						
+						});*/
+						
+						Ext.Ajax.request({
+							url : '?action=RemoveItem',
+							method: 'GET',
+							params:{
+								id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model, line_item: line_item
+							},
+							success: function (response){
+								MerchandiseTransStore.load({params: { 
+									view: 1
+								}});											
+							}
+						});
 					}
 				}
 			]
@@ -1054,6 +1069,7 @@ Ext.onReady(function(){
 					handler: function(grid, rowIndex, colIndex){
 						var record = MerchandiseTransStore.getAt(rowIndex);
 						var id = record.get('id');
+						var line_item = record.get('line_item');
 						var serialise_id = record.get('serialise_id');
 						var model = record.get('model');	
 						var sdescription = record.get('stock_description');	
@@ -1065,7 +1081,7 @@ Ext.onReady(function(){
 						var AdjDate = Ext.getCmp('AdjDate').getValue();	
 						
 						//MerchandiseTransStore.proxy.extraParams = {}
-						MerchandiseTransStore.load({
+						/*MerchandiseTransStore.load({
 							params:{action:'RemoveItem',id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model},
 							scope: this,
 							callback: function(records, operation, success){
@@ -1079,7 +1095,20 @@ Ext.onReady(function(){
 								}
 								
 							}
-						});						
+						});*/
+						
+						Ext.Ajax.request({
+							url : '?action=RemoveItem',
+							method: 'GET',
+							params:{
+								id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model, line_item: line_item
+							},
+							success: function (response){
+								MerchandiseTransStore.load({params: { 
+									view: 1
+								}});											
+							}
+						});
 					}
 				}
 			]
@@ -1714,13 +1743,22 @@ Ext.onReady(function(){
             xtype	: 'toolbar',
 			name 	: 'search',
             items: [{
-					width	: 200,
-					xtype	: 'searchfield',
-					store	: myInsurance,
-					name 	: 'search',
-					fieldLabel: 'Search',
-					labelWidth: 50,
-					hidden: true
+				xtype:'fieldset',
+				layout:'anchor',
+				defaultType:'textfield',
+				fieldDefaults:{labelAlign:'right'},
+				items:[{
+					xtype:'fieldcontainer',
+					layout:'hbox',
+					margin: '2 0 2 5',
+					items:[{
+						xtype	: 'searchfield',
+						width	: 200,
+						store	: myInsurance,
+						name 	: 'search',
+						fieldLabel: 'Search',
+						labelWidth: 50,
+						hidden: true
 				},Branches_Filter,{
 					xtype:'textfield',
 					fieldLabel:'Branch',
@@ -1751,421 +1789,453 @@ Ext.onReady(function(){
 							}
 						}						
 					}
-				},Supplier_Filter,{
-					icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
-					tooltip	: 'Manual RR Branch',
-					text 	: 'Manual RR Branch',
-					hidden: false,
-					handler: function(){
-						//var catcode = Ext.getCmp('category').getValue();
-						
-						if(!windowNewTransfer){
-							var brcode = Ext.getCmp('from_location').getValue();
-							/*if(!brcode){
-								Ext.Msg.alert('Error', 'Select From Branch');
-								return;
-							}*/
-							var windowNewTransfer = Ext.create('Ext.Window',{
-								title:'Receiving RR Branch - Manual Entry ',
-								modal: true,
-								width: 980,
-								//height:500,
-								bodyPadding: 5,
-								layout:'anchor',
-								items:[
-									{
-										xtype:'fieldset',
-										//title:'Receiving RR Branch Header',
-										layout:'anchor',
-										defaultType:'textfield',
-										fieldDefaults:{
-											labelAlign:'right'
-											
-										},
-										items:[
-											{
-												xtype:'fieldcontainer',
-												layout:'hbox',
-												margin: '2 0 2 5',
-												items:[
-													{
-														xtype:'combobox',
-														fieldLabel:'From Branches',
-														name:'From_StockLocation',
-														id:'From_StockLocation',
-														queryMode:'local',
-														triggerAction : 'all',
-                    									displayField  : 'location_name',
-                    									valueField    : 'loc_code',
-                    									editable      : true,
-                    									forceSelection: true,
-                                                        allowBlank: false,
-                    									required: true,
-                    									width:785,
-                    									hiddenName: 'loc_code',
-                    									typeAhead: true,
-														anyMatch: true,
-                    									emptyText:'Select Branches',
-                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-                    									selectOnFocus:true,
-														store: Ext.create('Ext.data.Store',{
-                    										fields: ['loc_code', 
-																	'location_name', 
-																	'delivery_address', 
-																	'phone', 
-																	'phone2'
-															],
-                                                    		autoLoad: true,
-															proxy: {
-																type:'ajax',
-																url: '?action=branch_location',
-																reader:{
-																	type : 'json',
-																	root : 'result',
-																	totalProperty : 'total'
-																}
-															}
-                    									})
-													}												
-												]
-											},{
-												xtype:'fieldcontainer',
-												layout:'hbox',
-												margin: '2 0 2 5',
-												items:[{
-														xtype:'combobox',
-														fieldLabel:'Category',
-														name:'category',
-														id:'category',
-														queryModel:'local',
-														triggerAction:'all',
-														displayField  : 'description',
-                    									valueField    : 'category_id',
-                    									editable      : true,
-                    									forceSelection: true,
-                                                        allowBlank: false,
-                                                        //labelWidth: 80,
-                    									required: true,
-                    									hiddenName: 'category_id',
-                    									typeAhead: true,
-                    									emptyText:'Select Category',
-                    									fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-                    									selectOnFocus:true,
-														store: Ext.create('Ext.data.Store',{
-                    										fields: ['category_id', 'description'],
-                                                    		autoLoad: true,
-															proxy: {
-																type:'ajax',
-																url: '?action=category',
-																reader:{
-																	type : 'json',
-																	root : 'result',
-																	totalProperty : 'total'
-																}
-															}
-                    									}),
-														listeners:{
-															select: function(cmb, rec, idx){
-																var v = this.getValue();
-																var mtgridcol = Ext.getCmp('gridMT');
-																var mtgridcolNon = Ext.getCmp('gridMTNonSerialize');
-																
-																if(v=='14'){
-																	mtgridcol.show();
-																	mtgridcolNon.hide();																	
-																}else{
-																	mtgridcol.hide();
-																	mtgridcolNon.show();																	
-																}																
-															}
-														}
-													},{
-														xtype:'datefield',
-														fieldLabel:'Trans Date',
-														name:'trans_date',
-														labelWidth: 80,
-														id:'AdjDate',
-														fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'/*,
-														value: new Date()*/
-												},{
-													xtype:'textfield',
-													name:'mtreferencemanual',
-													id:'mtreferencemanual',
-													labelWidth: 80,
-													fieldLabel:'MT Ref No.',
-													fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'
-												}]
-											},{
-												xtype:'fieldcontainer',
-												layout:'hbox',
-												margin: '2 0 2 5',
-												items:[{
-													xtype:'textfield',
-													name:'reference',
-													id:'reference',
-													fieldLabel:'RR Ref No.',
-													readOnly: true,
-													width:362,
-													fieldStyle : 'background-color: #F2F3F4; color:blue; font-weight:bold;'
-												}]
-											},{
-												xtype:'fieldcontainer',
-												width:785,
-												layout:'hbox',
-												margin: '2 0 2 5',
-												layout:'fit',
-												items:[{
-													xtype:'textareafield',
-													fieldLabel:'Remarks',
-													name:'memo',
-													id:'memo',
-													grow: true,
-													anchor:'100%'
-												}]
-											}
-										]	
-									},{
-										xtype:'panel',
-										title:'Items',
-										frame: true,
-										anchor:'100%',
-										id:'gridpanelserialize',
-										layout:'fit',
-										//autoScroll: true,
-										//layout:'fit',
-										//padding:'5px',
-										border: false,
-										items:[gridMTNonSerialize,gridMT]
-									},{
-										xtype:'fieldcontainer',
-										layout:'center',
-										margin: '2 0 2 5',
-										items:[
-											{
-												xtype:'textfield',
-												fieldLabel:'TOTAL COST:',
-												readOnly: true,
-												hidden: true,
-												labelWidth: 90,
-												fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
-												id:'totalcost'
-											}
-										]
-									}
-								],buttons:[{
-										text:'Process Manual Transfer',
-										id:'btnManualProcess',
-										handler:function(){									
-										
-									        var gridData = MerchandiseTransStore.getRange();
-											var gridRepoData = [];
-											count = 0;
-											Ext.each(gridData, function(item) {
-												var ObjItem = {															
-													stock_id: item.get('stock_id'),
-													item_code: item.get('item_code'),
-													stock_description: item.get('stock_description'),
-													item_description: item.get('item_description'),
-													qty: item.get('qty'),
-													standard_cost:item.get('standard_cost'),													
-													lot_no:item.get('lot_no'),													
-													chasis_no:item.get('chasis_no'),													
-													serialised:item.get('serialised'),
-													catcode: Ext.getCmp('category').getValue()												
-												};
-												gridRepoData.push(ObjItem);
-											});
-
-											/*Ext.each(gridData, function(item) {
-												//alert(item.get('qty') + ' - '+ item.get('standard_cost'));
-												if(item.get('qty') == 0){
-														Ext.MessageBox.alert('Error','Sorry, Quantity must not be zero');
-														return false;
-												}
-												if(item.get('standard_cost') == 0){
-														Ext.MessageBox.alert('Error','Sorry, Unit Cost must not be zero');
-														return false;
-												}	
-											});*/
-
-											var AdjDate = Ext.getCmp('AdjDate').getValue();	
-											var catcode = Ext.getCmp('category').getValue();
-											var FromStockLocation = Ext.getCmp('From_StockLocation').getValue();
-											var ToStockLocation = Ext.getCmp('currentbranch').getValue();
-											var br_reference = Ext.getCmp('reference').getValue();
-											var mt_reference = Ext.getCmp('mtreferencemanual').getValue();
-											var remarks = Ext.getCmp('memo').getValue();
-
-											Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
-												if (btn == 'yes') {
-													if(FromStockLocation==null || FromStockLocation==''){
-														Ext.MessageBox.alert('Error','From Branches field should not be empty.');
-														return false;
-													}
-													if(mt_reference==null || mt_reference==''){
-														Ext.MessageBox.alert('Error','MT Reference field should not be empty.');
-														return false;
-													}
-													if(catcode==null || catcode==''){
-														Ext.MessageBox.alert('Error','Category field should not be empty.');
-														return false;
-													}
-												
-													Ext.MessageBox.show({
-														msg: 'Saving Transaction, please wait...',
-														progressText: 'Saving...',
-														width:300,
-														wait:true,
-														waitConfig: {interval:200},
-														//icon:'ext-mb-download', //custom class in msg-box.html
-														iconHeight: 50
-													});
-																
-													Ext.Ajax.request({
-														url : '?action=SaveManualTransfer',
-														method: 'POST',
-														params:{
-															AdjDate:AdjDate,
-															catcode:catcode,
-															FromStockLocation: FromStockLocation,
-															ToStockLocation: ToStockLocation,
-															remarks: remarks,
-															br_reference: br_reference,
-															mt_reference: mt_reference,
-															DataOnGrid: Ext.encode(gridRepoData) 
-														},
-														success: function(response){
-															Ext.MessageBox.hide();
-															var jsonData = Ext.JSON.decode(response.responseText);
-															var errmsg = jsonData.message;
-															//Ext.getCmp('AdjDate').setValue(AdjDate);
-															if(errmsg!=''){
-																setButtonDisabled(false);
-																Ext.MessageBox.alert('Error',errmsg);
-															}else{
-																windowNewTransfer.close();
-																//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
-																myInsurance.load();
-																Ext.MessageBox.alert('Success','Success Processing');
-															}													
-														} 
-													});
-													//Ext.MessageBox.hide();
-													//this.setDisabled(true);	
-												}
-											});										
-										}
-									},{
-										text:'Close',
-										handler: function(){
-											windowNewTransfer.close();
-										}
-									}
-								]
-							});
-						}
-						//var AdjDate = Ext.getCmp('AdjDate').getValue();	
-						Ext.Ajax.request({
-							url : '?action=NewTransferManual',
-							method: 'POST',
-							success: function (response){
-								var jsonData = Ext.JSON.decode(response.responseText);
-								var AdjDate = jsonData.AdjDate;
-								var reference = jsonData.reference;
-								Ext.getCmp('AdjDate').setValue(AdjDate);
-								Ext.getCmp('reference').setValue(reference);
-								
-								MerchandiseTransStore.proxy.extraParams = {action: 'ManualAddItem'}
-								//MerchandiseTransStore.load();
-								//MerchandiseTransStore.proxy.extraParams = {action: 'view'}
-								MerchandiseTransStore.load({
-									params:{view:1},
-									scope: this,
-									callback: function(records, operation, success){
-										var countrec = MerchandiseTransStore.getCount();
-										if(countrec>0){
-											setButtonDisabled(false);
-										}else{
-											setButtonDisabled(true);
-											
-										}
-									}
-								});
-							},
-							failure: function (response){
-								//Ext.MessageBox.hide();
-								//var jsonData = Ext.JSON.decode(response.responseText);
-								Ext.MessageBox.alert('Error','Error Processing');
-							}
-						});
-						//Ext.getCmp('btnManualProcess').setDisabled(true);
-						windowNewTransfer.show();
-					}
 				},{
-					xtype:'fieldcontainer',
-					layout:'hbox',
-					//margin: '2 0 2 5',
-						items:[{
-							xtype:'combobox',
-							fieldLabel:'Category',
-							name:'categoryS',
-							id:'categoryS',
-							queryMode:'local',
-							triggerAction:'all',
-							displayField  : 'description',
-							valueField    : 'category_id',
-							editable      : true,
-							forceSelection: true,
-	                        allowBlank: false,
-	                        labelWidth: 60,
-	                        width: 220,
-							required: true,
-							hiddenName: 'category_id',
-							typeAhead: true,
-							emptyText:'Select Category',
-							selectOnFocus:true,
-							fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-							store: Ext.create('Ext.data.Store',{
-								fields: ['category_id', 'description'],
-	                    		autoLoad: true,
-								proxy: {
-									type:'ajax',
-									url: '?action=category',
-									reader:{
-										type : 'json',
-										root : 'result',
-										totalProperty : 'total'
-									}
-								}
-							}),
-					  		listeners: {
-								select: function(combo, record, index) {
-									//var catcode = Ext.getCmp('categoryS').getValue();
-									//var brcode = Ext.getCmp('from_location').getValue();
-									myInsurance.proxy.extraParams = {fromlocation:Ext.getCmp('from_location').getValue(), catcode: this.getValue(), search_ref:Ext.getCmp('search_ref').getValue()}
-									myInsurance.load();		
-								}
-							}	
-						}]
-					},{
-					xtype: 'searchfield',
-					id:'search_ref',
-					name:'search_ref',
-					fieldLabel: '<b>Search</b>',
-					labelWidth: 50,
-					width: 240,
-					emptyText: "Search by reference",
-					scale: 'small',
-	                fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-					store: myInsurance,
-					listeners: {
-						change: function(field) {
-							myInsurance.proxy.extraParams = {fromlocation: Ext.getCmp('from_location').getValue(), catcode:Ext.getCmp('categoryS').getValue(), search_ref: field.getValue()};
-							myInsurance.load();
+					xtype:'combobox',
+					fieldLabel:'Category',
+					name:'categoryS',
+					id:'categoryS',
+					queryMode:'local',
+					triggerAction:'all',
+					displayField  : 'description',
+					valueField    : 'category_id',
+					editable      : true,
+					forceSelection: true,
+					allowBlank: false,
+					labelWidth: 60,
+					width: 260,
+					required: true,
+					hiddenName: 'category_id',
+					typeAhead: true,
+					emptyText:'Select Category',
+					selectOnFocus:true,
+					fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+					store: Ext.create('Ext.data.Store',{
+						fields: ['category_id', 'description'],
+						autoLoad: true,
+						proxy: {
+							type:'ajax',
+							url: '?action=category',
+							reader:{
+								type : 'json',
+								root : 'result',
+								totalProperty : 'total'
+							}
 						}
+					}),
+					listeners: {
+						select: function(combo, record, index) {
+							//var catcode = Ext.getCmp('categoryS').getValue();
+							//var brcode = Ext.getCmp('from_location').getValue();
+							myInsurance.proxy.extraParams = {fromlocation:Ext.getCmp('from_location').getValue(), catcode: this.getValue(), search_ref:Ext.getCmp('search_ref').getValue()}
+							myInsurance.load();		
+						}
+					}
+				}]
+			},{
+				xtype:'fieldcontainer',
+				layout:'hbox',
+				margin: '2 0 2 5',
+				items:[{
+				xtype:'datefield',
+				fieldLabel:'From Date',
+				name:'filter_date1',
+				id:'fromdate',
+				width: 258,
+				labelWidth: 100,
+				fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
+				store: myInsurance,
+				listeners:{
+					change: function(field){
+						myInsurance.proxy.extraParams = {fromdate: field.getValue(), todate: Ext.getCmp('todate').getValue()};
+						myInsurance.load();
 					}
 				}
-			]
+					
+			},{
+				xtype:'datefield',
+				fieldLabel:'To Date',
+				name:'filter_date1',
+				id:'todate',
+				width: 242,
+				labelWidth: 80,
+				fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
+				store: myInsurance,
+				listeners:{
+					change: function(field){
+						myInsurance.proxy.extraParams = {fromdate: Ext.getCmp('fromdate').getValue(), todate: field.getValue()};
+						myInsurance.load();
+					}
+				}
+			},{
+				xtype: 'searchfield',
+				id:'search_ref',
+				name:'search_ref',
+					fieldLabel: '<b>Search</b>',
+					labelWidth: 60,
+					width: 260,
+					emptyText: "Search by reference",
+					scale: 'small',
+					fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+					store: myInsurance,
+						listeners: {
+							change: function(field) {
+								myInsurance.proxy.extraParams = {fromlocation: Ext.getCmp('from_location').getValue(), catcode:Ext.getCmp('categoryS').getValue(), search_ref: field.getValue()};
+								myInsurance.load();
+							}
+						}
+					}]
+				}]
+			},Supplier_Filter,{
+				icon   	: '../js/ext4/examples/shared/icons/fam/add.gif',
+				tooltip	: 'Manual RR Branch',
+				text 	: 'Manual RR Branch',
+				hidden: false,
+				handler: function(){
+					//var catcode = Ext.getCmp('category').getValue();
+					
+					if(!windowNewTransfer){
+						var brcode = Ext.getCmp('from_location').getValue();
+						/*if(!brcode){
+							Ext.Msg.alert('Error', 'Select From Branch');
+							return;
+						}*/
+						var windowNewTransfer = Ext.create('Ext.Window',{
+							title:'Receiving RR Branch - Manual Entry ',
+							modal: true,
+							width: 980,
+							//height:500,
+							bodyPadding: 5,
+							layout:'anchor',
+							items:[
+								{
+									xtype:'fieldset',
+									//title:'Receiving RR Branch Header',
+									layout:'anchor',
+									defaultType:'textfield',
+									fieldDefaults:{
+										labelAlign:'right'
+										
+									},
+									items:[
+										{
+											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[
+												{
+													xtype:'combobox',
+													fieldLabel:'From Branches',
+													name:'From_StockLocation',
+													id:'From_StockLocation',
+													queryMode:'local',
+													triggerAction : 'all',
+													displayField  : 'location_name',
+													valueField    : 'loc_code',
+													editable      : true,
+													forceSelection: true,
+													allowBlank: false,
+													required: true,
+													width:785,
+													hiddenName: 'loc_code',
+													typeAhead: true,
+													anyMatch: true,
+													emptyText:'Select Branches',
+													fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+													selectOnFocus:true,
+													store: Ext.create('Ext.data.Store',{
+														fields: ['loc_code', 
+																'location_name', 
+																'delivery_address', 
+																'phone', 
+																'phone2'
+														],
+														autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=branch_location',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+													})
+												}												
+											]
+										},{
+											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[{
+													xtype:'combobox',
+													fieldLabel:'Category',
+													name:'category',
+													id:'category',
+													queryModel:'local',
+													triggerAction:'all',
+													displayField  : 'description',
+													valueField    : 'category_id',
+													editable      : true,
+													forceSelection: true,
+													allowBlank: false,
+													//labelWidth: 80,
+													required: true,
+													hiddenName: 'category_id',
+													typeAhead: true,
+													emptyText:'Select Category',
+													fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+													selectOnFocus:true,
+													store: Ext.create('Ext.data.Store',{
+														fields: ['category_id', 'description'],
+														autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=category',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+													}),
+													listeners:{
+														select: function(cmb, rec, idx){
+															var v = this.getValue();
+															var mtgridcol = Ext.getCmp('gridMT');
+															var mtgridcolNon = Ext.getCmp('gridMTNonSerialize');
+															
+															if(v=='14'){
+																mtgridcol.show();
+																mtgridcolNon.hide();																	
+															}else{
+																mtgridcol.hide();
+																mtgridcolNon.show();																	
+															}																
+														}
+													}
+												},{
+													xtype:'datefield',
+													fieldLabel:'Trans Date',
+													name:'trans_date',
+													labelWidth: 80,
+													id:'AdjDate',
+													fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'/*,
+													value: new Date()*/
+											},{
+												xtype:'textfield',
+												name:'mtreferencemanual',
+												id:'mtreferencemanual',
+												labelWidth: 80,
+												fieldLabel:'MT Ref No.',
+												fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'
+											}]
+										},{
+											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[{
+												xtype:'textfield',
+												name:'reference',
+												id:'reference',
+												fieldLabel:'RR Ref No.',
+												readOnly: true,
+												width:362,
+												fieldStyle : 'background-color: #F2F3F4; color:blue; font-weight:bold;'
+											}]
+										},{
+											xtype:'fieldcontainer',
+											width:785,
+											layout:'hbox',
+											margin: '2 0 2 5',
+											layout:'fit',
+											items:[{
+												xtype:'textareafield',
+												fieldLabel:'Remarks',
+												name:'memo',
+												id:'memo',
+												grow: true,
+												anchor:'100%'
+											}]
+										}
+									]	
+								},{
+									xtype:'panel',
+									title:'Items',
+									frame: true,
+									anchor:'100%',
+									id:'gridpanelserialize',
+									layout:'fit',
+									//autoScroll: true,
+									//layout:'fit',
+									//padding:'5px',
+									border: false,
+									items:[gridMTNonSerialize,gridMT]
+								},{
+									xtype:'fieldcontainer',
+									layout:'center',
+									margin: '2 0 2 5',
+									items:[
+										{
+											xtype:'textfield',
+											fieldLabel:'TOTAL COST:',
+											readOnly: true,
+											hidden: true,
+											labelWidth: 90,
+											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+											id:'totalcost'
+										}
+									]
+								}
+							],buttons:[{
+									text:'Process Manual Transfer',
+									id:'btnManualProcess',
+									handler:function(){									
+									
+										var gridData = MerchandiseTransStore.getRange();
+										var gridRepoData = [];
+										count = 0;
+										Ext.each(gridData, function(item) {
+											var ObjItem = {															
+												stock_id: item.get('stock_id'),
+												item_code: item.get('item_code'),
+												stock_description: item.get('stock_description'),
+												item_description: item.get('item_description'),
+												qty: item.get('qty'),
+												standard_cost:item.get('standard_cost'),													
+												lot_no:item.get('lot_no'),													
+												chasis_no:item.get('chasis_no'),													
+												serialised:item.get('serialised'),
+												catcode: Ext.getCmp('category').getValue()												
+											};
+											gridRepoData.push(ObjItem);
+										});
+
+										/*Ext.each(gridData, function(item) {
+											//alert(item.get('qty') + ' - '+ item.get('standard_cost'));
+											if(item.get('qty') == 0){
+													Ext.MessageBox.alert('Error','Sorry, Quantity must not be zero');
+													return false;
+											}
+											if(item.get('standard_cost') == 0){
+													Ext.MessageBox.alert('Error','Sorry, Unit Cost must not be zero');
+													return false;
+											}	
+										});*/
+
+										var AdjDate = Ext.getCmp('AdjDate').getValue();	
+										var catcode = Ext.getCmp('category').getValue();
+										var FromStockLocation = Ext.getCmp('From_StockLocation').getValue();
+										var ToStockLocation = Ext.getCmp('currentbranch').getValue();
+										var br_reference = Ext.getCmp('reference').getValue();
+										var mt_reference = Ext.getCmp('mtreferencemanual').getValue();
+										var remarks = Ext.getCmp('memo').getValue();
+
+										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
+											if (btn == 'yes') {
+												if(FromStockLocation==null || FromStockLocation==''){
+													Ext.MessageBox.alert('Error','From Branches field should not be empty.');
+													return false;
+												}
+												if(mt_reference==null || mt_reference==''){
+													Ext.MessageBox.alert('Error','MT Reference field should not be empty.');
+													return false;
+												}
+												if(catcode==null || catcode==''){
+													Ext.MessageBox.alert('Error','Category field should not be empty.');
+													return false;
+												}
+											
+												Ext.MessageBox.show({
+													msg: 'Saving Transaction, please wait...',
+													progressText: 'Saving...',
+													width:300,
+													wait:true,
+													waitConfig: {interval:200},
+													//icon:'ext-mb-download', //custom class in msg-box.html
+													iconHeight: 50
+												});
+															
+												Ext.Ajax.request({
+													url : '?action=SaveManualTransfer',
+													method: 'POST',
+													params:{
+														AdjDate:AdjDate,
+														catcode:catcode,
+														FromStockLocation: FromStockLocation,
+														ToStockLocation: ToStockLocation,
+														remarks: remarks,
+														br_reference: br_reference,
+														mt_reference: mt_reference,
+														DataOnGrid: Ext.encode(gridRepoData) 
+													},
+													success: function(response){
+														Ext.MessageBox.hide();
+														var jsonData = Ext.JSON.decode(response.responseText);
+														var errmsg = jsonData.message;
+														//Ext.getCmp('AdjDate').setValue(AdjDate);
+														if(errmsg!=''){
+															setButtonDisabled(false);
+															Ext.MessageBox.alert('Error',errmsg);
+														}else{
+															windowNewTransfer.close();
+															//MerchandiseTransStore.proxy.extraParams = {action: 'AddItem'}
+															myInsurance.load();
+															Ext.MessageBox.alert('Success','Success Processing');
+														}													
+													} 
+												});
+												//Ext.MessageBox.hide();
+												//this.setDisabled(true);	
+											}
+										});										
+									}
+								},{
+									text:'Close',
+									handler: function(){
+										windowNewTransfer.close();
+									}
+								}
+							]
+						});
+					}
+					//var AdjDate = Ext.getCmp('AdjDate').getValue();	
+					Ext.Ajax.request({
+						url : '?action=NewTransferManual',
+						method: 'POST',
+						success: function (response){
+							var jsonData = Ext.JSON.decode(response.responseText);
+							var AdjDate = jsonData.AdjDate;
+							var reference = jsonData.reference;
+							Ext.getCmp('AdjDate').setValue(AdjDate);
+							Ext.getCmp('reference').setValue(reference);
+							
+							MerchandiseTransStore.proxy.extraParams = {action: 'ManualAddItem'}
+							//MerchandiseTransStore.load();
+							//MerchandiseTransStore.proxy.extraParams = {action: 'view'}
+							MerchandiseTransStore.load({
+								params:{view:1},
+								scope: this,
+								callback: function(records, operation, success){
+									var countrec = MerchandiseTransStore.getCount();
+									if(countrec>0){
+										setButtonDisabled(false);
+									}else{
+										setButtonDisabled(true);
+										
+									}
+								}
+							});
+						},
+						failure: function (response){
+							//Ext.MessageBox.hide();
+							//var jsonData = Ext.JSON.decode(response.responseText);
+							Ext.MessageBox.alert('Error','Error Processing');
+						}
+					});
+					//Ext.getCmp('btnManualProcess').setDisabled(true);
+					windowNewTransfer.show();
+				}
+			}]
 		}],
 		bbar : {
 			xtype : 'pagingtoolbar',

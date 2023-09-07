@@ -1437,6 +1437,36 @@ Ext.onReady(function(){
 							myInsurance.load();
 						}
 					}
+				},{
+					xtype:'datefield',
+					fieldLabel:'From Date',
+					name:'filter_date1',
+					id:'fromdate',
+					width: 232,
+					labelWidth: 80,
+					fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
+					store: myInsurance,
+					listeners:{
+						change: function(field){
+							myInsurance.proxy.extraParams = {fromdate: field.getValue(), todate: Ext.getCmp('todate').getValue()};
+							myInsurance.load();
+						}
+					}
+				},{
+					xtype:'datefield',
+					fieldLabel:'To Date',
+					name:'filter_date1',
+					id:'todate',
+					width: 232,
+					labelWidth: 80,
+					fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
+					store: myInsurance,
+					listeners:{
+						change: function(field){
+							myInsurance.proxy.extraParams = {fromdate: Ext.getCmp('fromdate').getValue(), todate: field.getValue()};
+							myInsurance.load();
+						}
+					}
 				}]
 		}],
 		bbar : {
