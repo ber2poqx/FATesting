@@ -143,12 +143,11 @@ function get_loan_amortization_ledgerss($type, $trans_no, $branch_code)
 	$db_coy = Get_db_coy($branch_code);
     set_global_connection($db_coy);
 
-	$sql = "SELECT A.id, A.debtor_no, A.trans_no, A.trans_type, A.month_no, A.date_due, A.principal_due, C.reference, D.receipt_no, D.ref,
+	$sql = "SELECT A.id, A.debtor_no, A.trans_no, A.trans_type, A.month_no, A.date_due, A.principal_due, C.reference,
 					B.date_paid, B.payment_applied, B.rebate, B.penalty, B.id ledger_id
 			FROM ".TB_PREF."debtor_loan_schedule A
 				LEFT JOIN ".TB_PREF."debtor_loan_ledger B ON B.loansched_id = A.id
-				LEFT JOIN ".TB_PREF."debtor_trans C ON C.trans_no = B.payment_trans_no AND C.type = B.trans_type_from
-				LEFT JOIN bank_trans D ON D.ref = C.reference AND D.trans_no = C.trans_no AND D.type = C.type
+				LEFT JOIN ".TB_PREF."debtor_trans C ON C.trans_no = B.payment_trans_no AND C.type = B.trans_type_from				
 			WHERE A.trans_no = ".db_escape($trans_no)."
 				AND A.trans_type = ".db_escape($type)."
 			ORDER BY A.month_no ASC, B.date_paid ASC, B.id ASC";
@@ -644,14 +643,14 @@ function get_ar_balances($trans_no, $trans_type, $branch_code)
 										$penalty_due_date = $myrow["date_paid"];
 									}
 
-									if($myrow["reference"] == '') {
-										$ref_trans_no = $myrow["ref"];
-									}/*elseif($myrow["receipt_no"] == 0){
-										$ref_trans_no = $myrow["ref"];
-									}*/
-									else{
+									//"] == '') {
+										//$ref_trans_no = $myrow["ref"];
+									//}/*elseif($myrow["receipt_no"] == 0){
+										//$ref_trans_no = $myrow["ref"];
+									//}*/
+									//else{
 										$ref_trans_no = $myrow["reference"];
-									}
+									//}
 
 									echo '<tr class="datatable">';
 									echo '<td align=center style= "border: 1px solid;">'.($myrow["month_no"]).'</td>';
