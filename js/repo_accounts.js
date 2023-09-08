@@ -811,7 +811,10 @@ Ext.onReady(function(){
 						tooltip: 'Reload all existing customers',
 						icon: '../../js/ext4/examples/shared/icons/table_lightning.png',
 						handler : function() {
-							//Ext.getCmp('autocreatecust').setValue();
+							window.open('../lending/manage/auto_add_interb_customers.php?');
+							submit_window_InterB.close();
+
+						/*	//Ext.getCmp('autocreatecust').setValue();
 							Ext.getCmp('customercode').setValue();
 							Ext.getCmp('customername').setValue();
 							Ext.getCmp('custname').setValue();
@@ -831,7 +834,7 @@ Ext.onReady(function(){
 										Ext.getCmp('loadcust').setValue(1);
 									}
 								});
-							}
+							}*/
 						}
 					},{
 						xtype: 'combobox',

@@ -36,18 +36,21 @@ if(isset($_GET['getbranch'])){
     global $db_connections;
     $conn = $db_connections;
     $total = count($conn);
+
     //$company_prefs = get_company_prefs();
- //echo 'zxZ-'. $conn[$i]['branch_code'];
+    //$ismainlive = $company_prefs["deployment_status"];
+    //echo 'zxZ-'. get_company_value(user_company(), 'branch_code');
+
 	for ($i = 0; $i < $total; $i++)
 	{
-        //$islive = get_islive($conn[$i]['branch_code']);
+        /*$islive = get_islive($conn[$i]['branch_code']);
 
-        if(!empty($company_prefs["deployment_status"])){
-            $status_array[] = array('id'=>$conn[$i]['branch_code'],
+        if(!empty($ismainlive)){
+*/           $status_array[] = array('id'=>$conn[$i]['branch_code'],
                                     'name'=>$conn[$i]['name'],
                                     'area'=>$conn[$i]['branch_area'],
                                     'gl_account'=>$conn[$i]['gl_account']);
-        }else{
+/*        }else{
 
             if(empty($company_prefs["deployment_status"]) == empty($islive)){
                 $status_array[] = array('id'=>$conn[$i]['branch_code'],
@@ -56,7 +59,7 @@ if(isset($_GET['getbranch'])){
                                     'gl_account'=>$conn[$i]['gl_account']);
             }
         }
-    }
+*/   }
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
