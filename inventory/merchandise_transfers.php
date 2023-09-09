@@ -258,7 +258,7 @@ if(!is_null($action) || !empty($action)){
                     $isError = 1;
                     $message="Quantity must not be zero.";
                     break;
-                }elseif($standard_cost == 0){
+                }elseif($catcode != '17' && $standard_cost == 0){
                     $isError = 1;
                     $message="Standard Cost must not be zero.";
                     break;
