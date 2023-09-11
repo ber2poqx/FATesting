@@ -516,6 +516,9 @@ $security_areas =array(
 	'SA_GL_MISC_REP2' => array(SS_GL_A|19, _("GL Miscellaneous Report")),
 	'SA_ACCOUNTS_RECON' => array(SS_GL_A|20, _("Internal Reconcillation")),
 
+	//Added by AJE 09/11/2023
+	'SA_RGP_REP' => array(SS_GL_A|21, _("RGP Reports")),
+
 	//Added by spyrax10 25 Mar 2022
 	'SA_REMIT' => array(SS_GL_B|1, _("Remittance Entry")),
 	'SA_REMIT_DRAFT' => array(SS_GL_B|2, _("Remittance Entry Approval")),
