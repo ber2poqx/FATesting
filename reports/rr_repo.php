@@ -577,7 +577,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				<div class="footnote2">
 					<?php 
 						if($trans_category == 14)
-							echo '* Motorcycle is complete with keys, tools, manual, coupon, battery and side mirrors.';
+							//echo '* Motorcycle is complete with keys, tools, manual, coupon, battery and side mirrors.';
+							echo '';
 						else
 							echo '';
 				    ?>
