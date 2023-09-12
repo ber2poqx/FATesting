@@ -222,9 +222,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec); 
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -270,9 +270,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past_g1, $dec);
                         $rep->AmountCol(18, 19, $tot_grand_g1, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty_g1, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty_g1, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -318,9 +318,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec);
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -365,9 +365,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec);
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -411,9 +411,9 @@ function print_transaction() {
                     $rep->SetTextColor(0, 0, 0);
                     $rep->AmountCol(17, 18, $tot2_past, $dec);
                     $rep->AmountCol(18, 19, $tot2_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot2_penalty, $dec);
-                    }
+                    // if ($show_add == 1) {
+                    //     $rep->AmountCol(19, 20, $tot2_penalty, $dec);
+                    // }
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
                     $rep->Font();
@@ -465,8 +465,8 @@ function print_transaction() {
             $rep->AmountCol(18, 19, $total_collectibles, $dec);
             
             if ($show_add == 1) {
-                $rep->SetTextColor(255, 0, 0);
-                $rep->AmountCol(19, 20, $penalty, $dec);
+                // $rep->SetTextColor(255, 0, 0);
+                // $rep->AmountCol(19, 20, $penalty, $dec);
                 $rep->SetTextColor(0, 0, 0);
                 $rep->TextCol(20, 21, $trans['address']);
             }
@@ -489,9 +489,9 @@ function print_transaction() {
               $tot_ovr2 += $overdue_2months;              $tot1_ovr2 += $overdue_2months;                $tot2_ovr2 += $overdue_2months;
               $tot_past += $past_due;                     $tot1_past += $past_due;                       $tot2_past += $past_due;
               $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;            $tot2_grand += $total_collectibles;  
-            if ($show_add == 1) {
-                $tot_penalty += $penalty;               $tot1_penalty += $penalty;                       $tot2_penalty += $penalty;
-            }
+            // if ($show_add == 1) {
+            //     $tot_penalty += $penalty;               $tot1_penalty += $penalty;                       $tot2_penalty += $penalty;
+            // }
         }
     } //END WHILE
                    
@@ -547,9 +547,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec);
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -594,9 +594,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec);
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -641,9 +641,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec);
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -688,9 +688,9 @@ function print_transaction() {
                         $rep->SetTextColor(0, 0, 0);
                         $rep->AmountCol(17, 18, $tot_past, $dec);
                         $rep->AmountCol(18, 19, $tot_grand, $dec);
-                        if ($show_add == 1) {
-                            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-                        }
+                        // if ($show_add == 1) {
+                        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+                        // }
                         $rep->Line($rep->row  - 4);
                         $rep->NewLine(2);
                         $rep->Font();
@@ -734,9 +734,9 @@ function print_transaction() {
                     $rep->SetTextColor(0, 0, 0);
                     $rep->AmountCol(17, 18, $tot2_past, $dec);
                     $rep->AmountCol(18, 19, $tot2_grand, $dec);
-                    if ($show_add == 1) {
-                        $rep->AmountCol(19, 20, $tot2_penalty, $dec);
-                    }
+                    // if ($show_add == 1) {
+                    //     $rep->AmountCol(19, 20, $tot2_penalty, $dec);
+                    // }
                     $rep->Line($rep->row  - 4);
                     $rep->NewLine(2);
                     $rep->Font();
@@ -789,8 +789,8 @@ function print_transaction() {
             $rep->AmountCol(18, 19, $total_collectibles, $dec);
             
             if ($show_add == 1) {
-                $rep->SetTextColor(255, 0, 0);
-                $rep->AmountCol(19, 20, $penalty, $dec);
+                // $rep->SetTextColor(255, 0, 0);
+                // $rep->AmountCol(19, 20, $penalty, $dec);
                 $rep->SetTextColor(0, 0, 0);
                 $rep->TextCol(20, 21, $trans['address']);
             }
@@ -814,9 +814,9 @@ function print_transaction() {
             $tot_past += $past_due;                     $tot1_past += $past_due;                      $tot2_past += $past_due;
             $tot_grand += $total_collectibles;          $tot1_grand += $total_collectibles;           $tot2_grand += $total_collectibles;
 
-            if ($show_add == 1) {
-                $tot_penalty += $penalty;               $tot1_penalty += $penalty;                    $tot2_penalty += $penalty;
-            }
+            // if ($show_add == 1) {
+            //     $tot_penalty += $penalty;               $tot1_penalty += $penalty;                    $tot2_penalty += $penalty;
+            // }
         }
       
     } //END WHILE
@@ -840,9 +840,9 @@ function print_transaction() {
         $rep->SetTextColor(0, 0, 0);
         $rep->AmountCol(17, 18, $tot2_past, $dec);
         $rep->AmountCol(18, 19, $tot2_grand, $dec);
-        if ($show_add == 1) {
-            $rep->AmountCol(19, 20, $tot_penalty, $dec);
-        }
+        // if ($show_add == 1) {
+        //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+        // }
         $rep->Line($rep->row  - 4);
         $rep->NewLine(2);
         $rep->Font();
@@ -868,9 +868,9 @@ function print_transaction() {
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
             $rep->AmountCol(18, 19, $tot_grand, $dec);
-            if ($show_add == 1) {
-                $rep->AmountCol(19, 20, $tot_penalty, $dec);
-            }
+            // if ($show_add == 1) {
+            //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+            // }
             $rep->Line($rep->row  - 4);
             +
             $rep->Font();
@@ -897,9 +897,9 @@ function print_transaction() {
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
             $rep->AmountCol(18, 19, $tot_grand, $dec);
-            if ($show_add == 1) {
-                $rep->AmountCol(19, 20, $tot_penalty, $dec);
-            }
+            // if ($show_add == 1) {
+            //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+            // }
             $rep->Line($rep->row  - 4);
             $rep->Font();
         }
@@ -926,9 +926,9 @@ function print_transaction() {
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
             $rep->AmountCol(18, 19, $tot_grand, $dec);
-            if ($show_add == 1) {
-                $rep->AmountCol(19, 20, $tot_penalty, $dec);
-            }
+            // if ($show_add == 1) {
+            //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+            // }
             $rep->Line($rep->row  - 4);
             $rep->Font();
         }
@@ -955,9 +955,9 @@ function print_transaction() {
             $rep->SetTextColor(0, 0, 0);
             $rep->AmountCol(17, 18, $tot_past, $dec);
             $rep->AmountCol(18, 19, $tot_grand, $dec);
-            if ($show_add == 1) {
-                $rep->AmountCol(19, 20, $tot_penalty, $dec);
-            }
+            // if ($show_add == 1) {
+            //     $rep->AmountCol(19, 20, $tot_penalty, $dec);
+            // }
             $rep->Line($rep->row  - 4);
             $rep->Font();
         }
@@ -985,9 +985,9 @@ function print_transaction() {
     $rep->SetTextColor(0, 0, 0);
     $rep->AmountCol(17, 18, $tot1_past, $dec);
     $rep->AmountCol(18, 19, $tot1_grand, $dec);
-    if ($show_add == 1) {
-        $rep->AmountCol(19, 20, $tot1_penalty, $dec);
-    }
+    // if ($show_add == 1) {
+    //     $rep->AmountCol(19, 20, $tot1_penalty, $dec);
+    // }
     
 	$rep->Line($rep->row  - 4);
     $rep->NewLine(1.5);

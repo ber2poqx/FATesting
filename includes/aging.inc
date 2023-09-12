@@ -1103,7 +1103,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE DL.invoice_ref_no END AS invoice_ref_no,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN YEAR(CT.term_mod_date)
+	        -- WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') AND CT.term_mode_fullpayment = 0 THEN YEAR(CT.term_mod_date)
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN YEAR(RT.term_mod_date)
         ELSE YEAR(DL.invoice_date) END AS inv_year,
 
@@ -1113,7 +1113,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
         ELSE DL.debtor_no END AS debtor_no,
 
         CASE 
-	        WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.term_mod_date
+	        -- WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.term_mod_date
             WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.term_mod_date
         ELSE DL.invoice_date END AS buy_date,
 
