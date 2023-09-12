@@ -110,9 +110,9 @@ function print_transaction() {
         _('Collectibles')
     );
 
-    if ($show_add == 1) {
-        array_push($headers, "Penalty", "Address");
-    }
+    // if ($show_add == 1) {
+    //     array_push($headers, "Penalty", "Address");
+    // }
     
     $params = array(0 => $comments,
         1 => array('text' => _('As of Date'), 'from' => $date, 'to' => ''),
