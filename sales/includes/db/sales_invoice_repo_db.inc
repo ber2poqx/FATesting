@@ -897,14 +897,21 @@ function update_repo_items_status($trans_no,$lot_no){
 function get_previous_owner($lot_no) {
 
 	set_global_connection();
-	$sql = "SELECT b.name, b.debtor_no
+	$sql = "SELECT a.name, a.debtor_no, a.trans_no from (";
+	$sql .= "(SELECT b.name, b.debtor_no, a.trans_no 
 			FROM ".TB_PREF."debtor_trans a  
-			Inner join ".TB_PREF."debtor_trans_details c ON c.debtor_trans_no = a.trans_no and a.type = c.debtor_trans_type 
-			Inner Join ".TB_PREF."debtors_master b ON a.debtor_no = b.debtor_no
+			INNER JOIN ".TB_PREF."debtor_trans_details c ON c.debtor_trans_no = a.trans_no and a.type = c.debtor_trans_type 
+			INNER JOIN ".TB_PREF."debtors_master b ON a.debtor_no = b.debtor_no
 			WHERE c.lot_no =" . db_escape($lot_no);
-
 	$sql.= " ORDER BY a.trans_no DESC LIMIT 1";
+	$sql .= ") UNION (SELECT c.name, a.debtor_no, a.id as trans_no FROM repo_accounts a INNER JOIN ".TB_PREF." repo_item_details b ON a.id = b.repo_id
+	INNER JOIN ".TB_PREF."debtors_master c ON a.debtor_no = c.debtor_no";
+	$sql .= " WHERE type = 80 AND b.serial_no =" . db_escape($lot_no);
+	
 
+	$sql.= ")) a";
+	$sql.= " ORDER BY a.trans_no DESC LIMIT 1";
+	display_error($sql);
 	$result = db_query($sql, "Can't get previous name!!!");
 	return db_fetch($result);
 }
