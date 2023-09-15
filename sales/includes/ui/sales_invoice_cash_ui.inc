@@ -715,7 +715,7 @@ function display_order_header(&$order, $editable, $date_text)
 
 		if ($_POST['category_id'] == 23 || $_POST['category_id'] == 18) {
 			
-			value_type_list(('With PDC Number?:&nbsp;'), 'pdc_chk', 
+			value_type_list(('With Discount?:&nbsp;'), 'pdc_chk', 
 				array(
 					0 => 'No', 
 					1 => 'Yes',

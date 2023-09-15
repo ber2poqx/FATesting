@@ -155,7 +155,11 @@ function display_po_receive_items()
             else
                 label_cell(number_format2($ln_itm->receive_qty, $dec), "align=right");
 
-            amount_decimal_cell($ln_itm->price);
+            if ($_SESSION['PO']->category_id == 18 || $_SESSION['PO']->category_id == 22 || $_SESSION['PO']->category_id == 23 ||$_SESSION['PO']->category_id == 24 ){
+                text_cells(null, "price", $ln_itm->price, 5, 5);
+            }else{
+                amount_decimal_cell($ln_itm->price);
+            }
             amount_cell($line_total);
 
             //echo "<td><center><a href='#' onclick='window_show(".$ln_itm->line_no.");return false;'>Serial Entry</a></center></td>";
