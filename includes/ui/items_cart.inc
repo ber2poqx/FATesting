@@ -339,6 +339,12 @@ class items_cart
 		$this->gl_items[$index]->amount = $amount;
 	}
 
+	function update_gl_masterfile($index, $mcode, $master_file) 
+	{
+		$this->gl_items[$index]->mcode = $mcode;
+		$this->gl_items[$index]->master_file = $master_file;
+	}
+
 	function remove_gl_item($index)
 	{
 		array_splice($this->gl_items, $index, 1);

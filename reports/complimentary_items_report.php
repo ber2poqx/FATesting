@@ -479,8 +479,8 @@ function getreceipt($reference)
 							        echo '<td style= "border-right: 1px solid;">'.($myrow2["account_name"]).'</td>';
 							        echo '<td style= "border-right: 1px solid;">'.($myrow2["mcode"]).'</td>';
 							        echo '<td style= "border-right: 1px solid;">'.($myrow2["master_file"]).'</td>';							      
-							        echo '<td align=right style= "border-right: 1px solid;">'.($debit<=0?"":price_format($debit)).'</td>';							      
-							        echo '<td align=right style= "border-right: 1px solid;">'.($credit==0?"":price_format(-$credit)).'</td>';
+							        echo '<td align=right style= "border-right: 1px solid;">'.(price_format($debit)).'</td>';							      
+							        echo '<td align=right style= "border-right: 1px solid;">'.(price_format(-$credit)).'</td>';
 									echo '</tr>';
 								    //end_row();
 

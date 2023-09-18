@@ -74,6 +74,8 @@ if(!is_null($action) || !empty($action)){
                 $inventory_account = $data['inventory_account'];
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
+                $mcode = $data['mcode'];
+                $masterfile = $data['masterfile'];
 
                 if($lot_no == ''){
                     $qty = 0;
@@ -93,7 +95,7 @@ if(!is_null($action) || !empty($action)){
                         $line_item_header, null, $currentqty);
 
                        $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
-                       $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
+                       $sdescription.' '.$color, '', '', $AdjDate, $mcode, $masterfile, 0, null, null, 99, $line_item_header);
                     }else{
                         $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                         $line_item = count($_SESSION['transfer_items']->line_items);
@@ -103,7 +105,7 @@ if(!is_null($action) || !empty($action)){
                         $line_item_header, null, $currentqty);
 
                         $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
-                        $sdescription.' '.$color, '', '', $AdjDate, null, null, 0, null, null, 99, $line_item_header);
+                        $sdescription.' '.$color, '', '', $AdjDate, $mcode, $masterfile, 0, null, null, 99, $line_item_header);
                     }
                 } 
             }
@@ -221,11 +223,11 @@ if(!is_null($action) || !empty($action)){
             $amount = input_num('AmountDebit');
             if ($_POST['person_type_id']==2)
             {
-                $sql1 = "SELECT d.debtor_ref as ref, branch.branch_code as id, d.name FROM ".TB_PREF."cust_branch branch
+                $sql1 = "SELECT d.debtor_no as ref, branch.branch_code as id, d.name FROM ".TB_PREF."cust_branch branch
 			     LEFT JOIN ".TB_PREF."debtors_master d ON branch.debtor_no = d.debtor_no
 		          WHERE d.debtor_no=".db_escape($_POST['person_id']);
             }elseif($_POST['person_type_id']==3){
-                $sql1 = "SELECT supp_ref as ref, supp_name as name, '' as id
+                $sql1 = "SELECT supplier_id as ref, supp_name as name, '' as id
 			     FROM ".TB_PREF."suppliers supp
 			     WHERE supplier_id=".db_escape($_POST['person_id']);
             }elseif($_POST['person_type_id']==6){
@@ -235,7 +237,7 @@ if(!is_null($action) || !empty($action)){
             }
 		    $result1 = db_query($sql1, 'cannot retrieve counterparty name');
 		    $rowresult = db_fetch($result1);
-		    $_SESSION['transfer_items']->update_gl_item($_POST['Index'], $_POST['code_id'],'','', $amount, $_POST['LineMemo'], null, $_POST['person_id'],$rowresult['ref'],$rowresult['name']);
+		    $_SESSION['transfer_items']->update_gl_masterfile($_POST['Index'], $rowresult['ref'], $rowresult['name']);
 		    display_gl_complimentaryitems($_SESSION['transfer_items'], $_POST['person_type_id']);
                 
             exit;
@@ -303,6 +305,15 @@ if(!is_null($action) || !empty($action)){
                         break;
                     }
                 }
+
+                foreach ($_SESSION['transfer_items']->gl_items AS $gl_m)
+                {         
+                    if($gl_m->master_file == ''){
+                        $isError = 1;
+                        $errmsg="Masterfile must not be empty.";                     
+                        break;
+                    }
+                }
             
                 if($person_type==2)
                     $sql = "SELECT d.debtor_no as id, d.debtor_ref as ref_gl, d.name AS name, 'Customer' as mastertype 
@@ -349,7 +360,7 @@ if(!is_null($action) || !empty($action)){
                         /*$total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, $gl->person_id,'',0,$rowresult['id'],$masterfile);*/
 
                         $total += add_adj_gl_complimentary($_SESSION['transfer_items']->trans_type, $trans_no, $gl->code_id, $gl->reference, $gl->amount,
-                            $rowresult['id'], $masterfile, $_POST['ref']);
+                        $gl->mcode, $gl->master_file, $_POST['ref']);
                             
                     }            
                     new_doc_date($AdjDate);
@@ -1294,7 +1305,7 @@ function display_gl_complimentaryitems(&$order)
             'debit' => $debit,
             'credit' => $credit,
             'mcode'=>is_null($item->mcode)?'':$item->mcode,
-            'master_file'=>is_null($item->master_file)?'':$item->master_file,
+            'master_file'=>$item->master_file,
             'memo'=> $item->reference,
             'mastertype' => is_null($mastertype)?'':$mastertype,
             'master_file_type'=>$item->master_file_type,

@@ -772,7 +772,7 @@ Ext.onReady(function(){
 		{header:'Account Name', dataIndex:'description', sortable:true, width:150, renderer: columnWrap,hidden: false},
 		{header:'Mcode', dataIndex:'mcode', sortable:true, width:50, renderer: columnWrap,hidden: true},
 		{header:'Person ID', dataIndex:'person_id', sortable:true, width:50, renderer: columnWrap,hidden: true},
-		{header:'Masterfile Type', dataIndex:'master_file_type', sortable:true, width:100, renderer: columnWrap,hidden: false},
+		{header:'Masterfile Type', dataIndex:'master_file_type', sortable:true, width:100, renderer: columnWrap,hidden: true},
 		{header:'Person Type', dataIndex:'mastertype', sortable:true, width:100, renderer: columnWrap,hidden: true,
 			editor:{
 				field:{
@@ -814,35 +814,8 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{
-			header:'Masterfile', dataIndex:'master_file', sortable:true, width:120,hidden: true,
-			editor:{
-				field:{
-					xtype:'combo',
-                    name:'masterfile2',
-					id:'masterfile2',
-                    anchor:'100%',
-                    typeAhead: true,
-		            triggerAction: 'all',
-		            store: MasterfileStore,
-					queryMode: 'local',
-					displayField  : 'namecaption',
-					valueField    : 'namecaption',
-					hiddenName: 'id',
-					listeners:{
-						select: function(combo, rec, index){
-							var record = GLItemsStore.getAt(rowIndex);
-							record.set('mcode',rec.data.id);
-							record.set('person_id',rec.data.id);
-							record.commit();
-							
-						}
-					} 
-				}
-			}
-		},
-		{
-			header:'Debit', dataIndex:'debit', sortable:true, width:80, hidden: false, align:'right',
+		{header:'Masterfile', dataIndex:'master_file', sortable:true, width:120,hidden: false},
+		{header:'Debit', dataIndex:'debit', sortable:true, width:80, hidden: false, align:'right',
 			editor:{
 				field:{
                     xtype:'numberfield',
@@ -894,26 +867,18 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40,
-			items:[
-				{
+			items:[{
 					icon:'../js/ext4/examples/shared/icons/report_go.png',
-					tooltip:'Edit',
-					hidden: true,
+					tooltip:'Edit Masterfile',
+					hidden: false,
 					handler: function(grid, rowIndex, colIndex){
 						var record = GLItemsStore.getAt(rowIndex);
 						var id = record.get('line');
-						var account_code = record.get('code_id');
-						var account_name = record.get('description');
+						var account_code = record.get('code_id');				
 						var person_type_id = record.get('person_type_id');
 						var person_id = record.get('person_id');
-						var mcode = record.get('mcode');
-						var master_file = record.get('master_file');
-						var memo = record.get('memo');
-						if(record.get('debit')>0)
-							var amount=record.get('debit').split(',').join('');
-						else
-						var amount = record.get('credit').split(',').join('');
-						
+						var master_file = record.get('master_file');	
+											
 						if(!editjewindow){
 							var editjewindow = Ext.create('Ext.Window',{
                                	width: 500,
@@ -944,14 +909,7 @@ Ext.onReady(function(){
 											name:'account_code',
 											readOnly: true,
 											hidden: true
-										},{
-											xtype:'textfield',
-											fieldLabel:'Account Name',
-											value:account_name,
-											name:'account_name',
-											readOnly: true,
-											hidden: true
-										},{
+										},{										
 	                                        xtype:'combo',
 	                                        fieldLabel:'Type',
 	                                        name:'masterfile_type',
@@ -997,6 +955,7 @@ Ext.onReady(function(){
                                         anchor:'100%',
                                         typeAhead: true,
 										anyMatch: true,
+										required: true,
 							            triggerAction: 'all',
 							            store: MasterfileStore,
 										queryMode: 'local',
@@ -1010,28 +969,23 @@ Ext.onReady(function(){
 											}
 										} 
 											
-                                    },{
-                                        xtype:'numberfield',
-										hideTrigger: true,
-										decimalPrecision: 2,
-                                        fieldLabel:'Amount',
-                                        name:'debit_amount',
-                                        id:'debit_amount',
-                                        anchor:'100%',
-                                        required: true,
-										value: amount											
-                                    },{
-                                        xtype:'textarea',
-                                        fieldLabel:'Memo',
-                                        name:'linememo',
-                                        id:'linememo',
-                                        anchor:'100%',
-										value: memo
                                     }],
                                     buttons:[{
                                         text:'Save',
+										id:'btnUpdateM',
 										handler: function(){
 											var updateje_form = Ext.getCmp('updateje_form').getForm();
+											var masterfile = Ext.getCmp('masterfile').getValue();
+											var masterfile_type = Ext.getCmp('masterfile_type').getValue();
+											if(masterfile==null){
+												Ext.MessageBox.alert('Error','Please Select Masterfile');
+												return false;
+											}
+
+											if(masterfile_type==null){
+												Ext.MessageBox.alert('Error','Please Select Type');
+												return false;
+											}
 				
 											if(updateje_form.isValid()) {
 												updateje_form.submit({
@@ -1065,6 +1019,30 @@ Ext.onReady(function(){
                                 }]
                             });
                         }
+						if(account_code ==104001) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104002) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104003) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104004) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104005) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104006) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104007) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104008) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104009) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else if(account_code == 104010) {
+							Ext.getCmp('btnUpdateM').setVisible(false);
+						}else{
+							Ext.getCmp('btnUpdateM').setVisible(true);
+						}
+
 						MasterfileModel=Ext.getCmp('masterfile');
                         MasterfileModel.clearValue();
 						if( person_type_id===99){
@@ -1081,11 +1059,10 @@ Ext.onReady(function(){
                         MasterfileModel.enable();
 						Ext.getCmp('masterfile').setValue(master_file);
 						Ext.getCmp('masterfile_type').setValue(person_type_id);
-						editjewindow.setTitle('Edit JE Window');
+						editjewindow.setTitle('Edit Masterfile Window');
 						editjewindow.show();
 					}
-				},
-				{
+				},{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
 					tooltip:'Delete',
 					handler: function(grid, rowIndex, colIndex){
@@ -1593,7 +1570,9 @@ Ext.onReady(function(){
 												transno_out: record.get('transno_out'),	
 												standard_cost: record.get('standard_cost'),	
 												serialised: record.get('serialised'),
-												inventory_account: record.get('inventory_account')		
+												inventory_account: record.get('inventory_account'),
+												masterfile: Ext.getCmp('masterfile_header').getRawValue(),
+												mcode: Ext.getCmp('masterfile_header').getValue()
 											};
 											gridRepoData.push(ObjItem);
 										});

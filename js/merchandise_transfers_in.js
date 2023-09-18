@@ -2087,7 +2087,7 @@ Ext.onReady(function(){
 									]
 								}
 							],buttons:[{
-									text:'Process Manual Transfer',
+									text:'Process Manual Received',
 									id:'btnManualProcess',
 									handler:function(){									
 									
