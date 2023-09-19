@@ -460,9 +460,11 @@ function can_process()
 
 	}
 	//Added by Albert 09/01/2023
-	if ($total_qty_replace != total_return_item_qty() && $total_qty_replace != 0) {
-		display_error(_("The total quantity of REPLACE ITEMS should be equal to total quantity of RETURN ITEMS!"));
-		return false;
+	if(total_return_item_qty() < $total_qty_replace ){
+		if ($total_qty_replace != total_return_item_qty() && $total_qty_replace != 0) {
+			display_error(_("The total quantity of REPLACE ITEMS should be equal to total quantity of RETURN ITEMS!"));
+			return false;
+		}
 	}
 	foreach ($_SESSION['Items']->line_items as $line_no => $stock_item) {
 		$qty = input_num("return_" . $stock_item->id);
