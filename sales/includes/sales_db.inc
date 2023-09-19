@@ -999,7 +999,7 @@ function get_sales_return_replacement($trans_no = 0, $item_type = 0, $debtor_no 
 
 			WHERE b.type = 55";
 	if ($trans_no != '') {
-		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR a.reference = " . db_escape($trans_no);
+		$sql .= " AND a.trans_no = " . db_escape($trans_no) . " OR b.reference = " . db_escape($trans_no);
 	}
 	if ($item_type != '') {
 		$sql .= " AND a.sr_item_type =" . db_escape($type);
