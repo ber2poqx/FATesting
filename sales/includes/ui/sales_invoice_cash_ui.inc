@@ -723,7 +723,7 @@ function display_order_header(&$order, $editable, $date_text)
 			);
 	
 			if (get_post('pdc_chk') == 1) {
-				text_row(_("Customer's PDC #: &nbsp;"), 'pdc_no', null, 28, 28);
+				text_row(_("Customer's Discount type: &nbsp;"), 'pdc_no', null, 28, 28);
 				value_type_list(_("Apply PDC Discount?: &nbsp;"), 'pdc_discount', 
 					array(
 						0 => 'No', 
