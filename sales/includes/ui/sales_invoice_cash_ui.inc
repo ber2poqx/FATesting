@@ -992,17 +992,18 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 
 	$line_total = input_num('qty') * input_num('price');
 
-	if ($order->trans_type != ST_SALESINVOICE && ($_POST['category_id'] == 23 || $_POST['category_id'] == 18)) {
-		if (get_post('pdc_chk') == 1) {
-			text_cells(null, "discount1", null, 5, 5);
-		}
-		else if ($id != -1) {
-			text_cells(null, "discount1", null, 5, 5);
-		}
-		else {
-			label_cell(get_post('discount1'));
-			hidden('discount1');	
-		}
+	if ($order->trans_type != ST_SALESINVOICE) {
+		// if (get_post('pdc_chk') == 1) {
+		// 	text_cells(null, "discount1", null, 5, 5);
+		// }
+		// else if ($id != -1) {
+		// 	text_cells(null, "discount1", null, 5, 5);
+		// }
+		// else {
+			// label_cell(get_post('discount1'));
+			// hidden('discount1');	
+		text_cells(null, "discount1", null, 5, 5);
+		// }
 	}
 	else {
 		label_cell(get_post('discount1'));
