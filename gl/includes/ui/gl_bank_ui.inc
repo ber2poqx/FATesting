@@ -166,7 +166,7 @@ function display_bank_header(&$order) {
 	}
 	
 	//Modified by spyrax10
-	if (get_user_role($_SESSION["wa_current_user"]->user) == 'Cashier/Teller') {
+	if (get_user_role($_SESSION["wa_current_user"]->user) == 'Cashier/Teller' || $order->trans_type == ST_BANKDEPOSIT) {
 		
 		$_POST['cashier_teller'] = $_SESSION["wa_current_user"]->user;
 		label_row(_("Cashier/Teller:"), $_POST['cashier_teller'] . " | " . get_current_user_fullname());
