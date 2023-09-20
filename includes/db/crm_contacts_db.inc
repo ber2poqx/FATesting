@@ -42,16 +42,17 @@ function add_crm_person($ref, $name, $name2, $address, $phone, $phone2, $fax, $e
 }
 
 //----Robert Added----//
-function add_comaker_person($selected_id, $firstname, $middlename, $lastname, $phone, $address, $facebook)
+function add_comaker_person($selected_id, $firstname, $middlename, $lastname, $phone, $address, $facebook, $remarks)
 {
-	$sql = "INSERT INTO ".TB_PREF."co_makers (debtor_no, firstname, middlename, lastname, phone, address, facebook) 
+	$sql = "INSERT INTO ".TB_PREF."co_makers (debtor_no, firstname, middlename, lastname, phone, address, facebook, remarks) 
 		VALUES (".db_escape($selected_id).", 
 				".db_escape($firstname).", 
 				".db_escape($middlename).", 
 				".db_escape($lastname).", 
 				".db_escape($phone).", 
 				".db_escape($address).",
-				".db_escape($facebook, true)."
+				".db_escape($facebook).",
+				".db_escape($remarks, true)."
 			)";
 
 	db_query($sql, "The co-maker cannot be inserted");
@@ -61,7 +62,7 @@ function get_comaker_customers()
 {
 
 	$selected_id = $_POST['customer_id'];
-	$sql = "SELECT comaker_id, firstname, middlename, lastname, phone, address, facebook,
+	$sql = "SELECT comaker_id, firstname, middlename, lastname, phone, address, facebook, remarks,
 	CASE 
 		WHEN inactive = 0 THEN 'Active'
 	ELSE 'Inactive' END AS Status
@@ -82,7 +83,7 @@ function get_comaker_customer($comaker_id)
 	return $customer_id;
 }
 
-function update_comaker_customer($comaker_id, $firstname, $middlename, $lastname, $phone, $address, $facebook, $inactive)
+function update_comaker_customer($comaker_id, $firstname, $middlename, $lastname, $phone, $address, $facebook, $remarks, $inactive)
 {
 	$sql = "UPDATE ".TB_PREF."co_makers SET "
 		  ."firstname=".db_escape($firstname) . ", "
@@ -91,6 +92,7 @@ function update_comaker_customer($comaker_id, $firstname, $middlename, $lastname
 		  ."phone=".db_escape($phone) . ", "
 		  ."address=".db_escape($address) . ", "
 		  ."facebook=".db_escape($facebook) . ", "
+		  ."remarks=".db_escape($remarks) . ", "
 		  ."inactive=".db_escape($inactive)
 		  ." WHERE comaker_id = ".db_escape($comaker_id);
 

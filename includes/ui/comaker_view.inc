@@ -22,7 +22,7 @@ class comaker extends simple_crud {
 	var $class;
 	
 	function __construct($name, $id, $class, $subclass=null) {
-		$fields = array('firstname','middlename','lastname', 'phone', 'address', 'facebook');
+		$fields = array('firstname','middlename','lastname', 'phone', 'address', 'facebook', 'remarks');
 
 		parent::__construct($name, $fields);
 		$this->class = $class;
@@ -37,7 +37,7 @@ class comaker extends simple_crud {
 				//$result = get_sales_areas(check_value('show_inactive'));
 			start_table(TABLESTYLE, "width='70%'");
 
-			$th = array(_("Full Name"), _("Phone"), _("Address"), _("Facebook"), _("Status"), '');
+			$th = array(_("Full Name"), _("Phone"), _("Address"), _("Facebook"), _("Remarks"), _("Status"), '');
 		
 			table_header($th);
 			$k = 0; 
@@ -49,6 +49,7 @@ class comaker extends simple_crud {
 				label_cell($myrow["phone"]);
 				label_cell($myrow["address"]);
 				label_cell($myrow["facebook"]);
+				label_cell($myrow["remarks"]);
 				label_cell($myrow["Status"]);
 			 	edit_button_cell("{$this->name}Edit[{$myrow['comaker_id']}]", _("Edit"));
 
@@ -81,7 +82,8 @@ class comaker extends simple_crud {
 		}
 		table_section(2);
 		table_section_title("&nbsp;");
-		textarea_row(_("Address:"), 'address', @$this->data['address'], 35, 4);
+		textarea_row(_("Address:"), 'address', @$this->data['address'], 35, 2);
+		textarea_row(_("Remarks:"), 'remarks', @$this->data['remarks'], 35, 2);
 		end_outer_table(1);
 	}
 
@@ -89,14 +91,14 @@ class comaker extends simple_crud {
 			$dat = $this->data;
 			$selected_id = $_POST['customer_id'];
 			return add_comaker_person($selected_id, $dat['firstname'], $dat['middlename'], $dat['lastname'],
-				$dat['phone'], $dat['address'], $dat['facebook']);
+				$dat['phone'], $dat['address'], $dat['facebook'], $dat['remarks']);
 	}
 
 	function db_update() {
 			//$selected_id = $_POST['customer_id'];
 			//return update_comaker_customer_before_insert($selected_id);
 			return update_comaker_customer($this->selected_id, $_POST['firstname'], $_POST['middlename'], $_POST['lastname'], 
-				$_POST['phone'], $_POST['address'], $_POST['facebook'], $_POST['inactive'], $this->class);			
+				$_POST['phone'], $_POST['address'], $_POST['facebook'], $_POST['remarks'], $_POST['inactive'], $this->class);			
 	}
 
 	function insert_check() {
