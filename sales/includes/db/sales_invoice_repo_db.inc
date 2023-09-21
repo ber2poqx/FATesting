@@ -911,7 +911,6 @@ function get_previous_owner($lot_no) {
 
 	$sql.= ")) a";
 	$sql.= " ORDER BY a.trans_no DESC LIMIT 1";
-	display_error($sql);
 	$result = db_query($sql, "Can't get previous name!!!");
 	return db_fetch($result);
 }

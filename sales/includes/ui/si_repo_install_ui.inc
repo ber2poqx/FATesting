@@ -731,10 +731,14 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 			$order->line_items[0]->lot_no,
 			$order->line_items[0]->chasis_no
 		);
-		
-		$deferred_gross_profit = get_post('ar_amount') - $total_unit_cost;
-		$half = 0.5 / pow(10, 2); //Added by Albert
-		$profit_margin = round(number_format($deferred_gross_profit / get_post('ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert
+		if((get_post('ar_amount') - $total_unit_cost) < 0){
+			$deferred_gross_profit = 0;
+			$profit_margin = 0;
+		}else{
+			$deferred_gross_profit = get_post('ar_amount') - $total_unit_cost;
+			$half = 0.5 / pow(10, 2); //Added by Albert
+			$profit_margin = round(number_format($deferred_gross_profit / get_post('ar_amount'), 5) - $half,2,PHP_ROUND_HALF_DOWN);//modified by Albert	
+		}
 		hidden('deferred_gross_profit', $deferred_gross_profit);
 		hidden('profit_margin', $profit_margin);
 		label_row(_("Total Unit Cost:"), price_format($total_unit_cost));
