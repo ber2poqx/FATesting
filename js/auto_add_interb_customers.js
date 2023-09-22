@@ -17,6 +17,8 @@ Ext.onReady(function(){
 	var itemsPerPage = 18;   // set the number of items you want per page on grid.
 	var showall = false;
 	var maxfields = 10; //change this number if you want to increase/decrease adding fields.
+	//var url_branch = getUrlParameter('branch');
+	//var url_debtorno = getUrlParameter('customer');
 
 	////define model for policy installment
     Ext.define('interb_cust_model',{
@@ -530,4 +532,23 @@ Ext.onReady(function(){
 			}
 		}]
 	});
+	/*alert('a');
+	InterB_Cust_store.proxy.extraParams = {query: url_debtorno, branch: url_branch };
+	InterB_Cust_store.load();
+	
+
+	function getUrlParameter(sParam) {
+		var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+			sURLVariables = sPageURL.split('&'),
+			sParameterName,
+			i;
+
+		for (i = 0; i < sURLVariables.length; i++) {
+			sParameterName = sURLVariables[i].split('=');
+
+			if (sParameterName[0] === sParam) {
+				return sParameterName[1] === undefined ? true : sParameterName[1];
+			}
+		}
+	};*/
 });

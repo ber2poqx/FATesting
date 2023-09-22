@@ -1519,6 +1519,7 @@ Ext.onReady(function() {
 			//CollectionTypeStore.proxy.extraParams = {type: "amort"};
 			//CollectionTypeStore.load();
 			Ext.getCmp('total_otheramount').setValue(0);
+			Ext.getCmp('manualpenalty').setValue(0);
 
 			//Ext.getCmp('intobankacct').setValue(3);
 			Ext.getCmp('debit_acct').setValue("1050");
@@ -1879,6 +1880,56 @@ Ext.onReady(function() {
 		}
 	}];
 
+	var Penalty_win = new Ext.create('Ext.Window',{
+		id: 'Penalty_win',
+		//width: 840,
+		//height: 400,
+		scale: 'small',
+		resizable: false,
+		closeAction:'hide',
+		//closable:true,
+		modal: true,
+		layout:'fit',
+		plain 	: true,
+		title: 'Manual Penalty',
+		items: [{
+			xtype: 'numericfield',
+			id: 'm_penalty',
+			name: 'm_penalty',
+			fieldLabel: 'Penalty Amount ',
+			allowBlank:false,
+			useThousandSeparator: true,
+			labelWidth: 123,
+			width: 275,
+			margin: '2 0 2 5',
+			thousandSeparator: ',',
+			minValue: 0,
+			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+			listeners: {
+				change: function(object, value) {
+					Ext.getCmp('manualpenalty').setValue(value);
+					Ext.getCmp('totalpenalty').setValue(value);
+
+					if(Ext.getCmp('InvoiceNo').getValue() != null){
+						var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
+						var GridRecords = ItemModel.getLastSelected();
+
+						if(Ext.getCmp('tenderd_amount').getValue() != 0){
+							GridRecords.set("penalty",value);
+						}
+					}
+				}
+			}
+		}],
+		buttons:[{
+			text:'<b>Ok</b>',
+			icon: '../js/ext4/examples/shared/icons/disk.png',
+			handler:function(){
+				Penalty_win.close();
+			}
+		}]
+	});
+
 	var submit_form = Ext.create('Ext.form.Panel', {
 		id: 'form_submit',
 		model: 'AllocationModel',
@@ -1947,6 +1998,12 @@ Ext.onReady(function() {
 				id: 'paylocation',
 				name: 'paylocation',
 				fieldLabel: 'pay location',
+				hidden: true
+			},{
+				xtype: 'textfield',
+				id: 'manualpenalty',
+				name: 'manualpenalty',
+				fieldLabel: 'manual penalty',
 				hidden: true
 			},{
 				xtype: 'fieldcontainer',
@@ -2335,6 +2392,9 @@ Ext.onReady(function() {
 								var GridRecords = ItemModel.getLastSelected();
 
 								GridRecords.set("alloc_amount",totalamnt);
+								if(Ext.getCmp('manualpenalty').getValue() != 0){
+									GridRecords.set("penalty",Ext.getCmp('manualpenalty').getValue());
+								}
 							}
 						}
 					}
@@ -2481,7 +2541,36 @@ Ext.onReady(function() {
 					store:	SIitemStore,
 					columns: Item_view,
 					columnLines: true
-				}]
+				}],
+				tabBar: {
+					items: [{
+						xtype: 'tbfill'
+					},{
+						xtype: 'button',
+						text: '',
+						padding: '3px',
+						margin: '2px 2px 6px 2px',
+						icon: '../js/ext4/examples/shared/icons/calculator_edit.png',
+						tooltip: 'Click to add your manual penalty calculation',
+						style : {
+							'color': 'blue',
+							'font-size': '30px',
+							'font-weight': 'bold',
+							'background-color': '#052b59',
+							'position': 'absolute',
+							'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+							'border': 'none',
+							//'border-radius':'10px'
+						},
+						handler: function(){
+							Ext.getCmp('manualpenalty').setValue(0);
+							Ext.getCmp('m_penalty').setValue(0);
+							Ext.getCmp('m_penalty').focus(false, 200);
+							Penalty_win.show();
+							Penalty_win.setPosition(700,100);
+						}
+					}]
+				}
 			}]
 	});
 	var submit_window = Ext.create('Ext.Window',{
