@@ -245,6 +245,8 @@ function create_cart($type = 0, $trans_no = 0, $void_id = 0) {
 	$_POST['_ex_rate'] = exrate_format($cart->rate);
 	$_POST['source_ref'] = $cart->source_ref;
 	$_POST['source_ref2'] = $cart->source_ref2;
+	$_POST['approved_id'] = $cart->approved_id;
+	$_POST['reviewed_id'] = $cart->reviewed_id;
 
 	if (isset($cart->tax_info['net_amount']) || (!$trans_no && get_company_pref('default_gl_vat'))) {
 		$_POST['taxable_trans'] = true;
@@ -394,6 +396,8 @@ if (isset($_POST['Process'])) {
 	$cart->source_ref2 = $_POST['ar_inv'];
 	$cart->cashier = '';
 	$cart->trans_db = '';
+	$cart->reviewed_id = $_POST['reviewed_id'];
+	$cart->approved_id = $_POST['approved_id'];
 	
 	if (check_value('ar_alloc') == 1) {
 		$cart->ar_alloc = $_POST['ar_alloc'];

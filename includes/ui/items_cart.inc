@@ -54,6 +54,9 @@ class items_cart
     //var $item_type; //Added by Herald 08/27/2021 for type=new or repo
 	var $fixed_asset;
 	var $status = "";
+	/*Added by Albert 09/22/2023*/
+	var $approved_id;
+	var $reviewed_id;
 
 	function __construct($type, $trans_no=0)
 	{

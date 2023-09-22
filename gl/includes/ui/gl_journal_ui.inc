@@ -82,7 +82,14 @@ function display_order_header(&$Order) {
 			hidden('si_gl', default_SI_gl($inv_row['trans_no'], $inv_row['type']));
 		}
 	}
-
+	sql_type_list(_("Approved By: "), 'approved_id', 
+		get_dcpr_approver_and_reviewer(1,0), 'admin_branches_admin_id', 'real_name', 
+		'label', null, true, _("Select Approved"), false
+	);
+	sql_type_list(_("Reviewed By: "), 'reviewed_id', 
+		get_dcpr_approver_and_reviewer(0,1), 'admin_branches_admin_id', 'real_name', 
+		'label', null, true, _("Select Reviewed"), false, true
+	);
 	// currencies_list_row(_('Currency:'), 'currency', null, true);
  	// if (list_updated('currency')) {
 	// 	unset($_POST['_ex_rate']);
