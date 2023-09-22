@@ -189,32 +189,62 @@ function can_proceed($id = 0) {
 	return true;
 }
 //------------------------------------------------------------------
+//modified by Albert 09/22/2023
+if(!isset($_GET['repo'])){
+	if (isset($_POST['Approved']) && can_proceed(0)) {
+		$_SESSION['Items']->status = "Approved";
+		$_SESSION['Items']->approval_remarks = $_POST['Comments'];
+		$update_message = update_so_draft_status($_SESSION['Items']);
+		processing_end();
+	
+		meta_forward($path_to_root . "/sales/inquiry/sales_orders_repo_view.php?");
+	}
+	
+	if (isset($_POST['Disapproved']) && can_proceed(2)) {
+		$_SESSION['Items']->status = "Disapproved";
+		$_SESSION['Items']->approval_remarks = $_POST['Comments'];
+		$update_message = update_so_draft_status($_SESSION['Items']);
+		processing_end();
+		meta_forward($path_to_root . "/sales/inquiry/sales_orders_repo_view.php?");
+	}
+	//Added by spyrax10
+	if (isset($_POST['Cancel']) && can_proceed(2)) {
+		$_SESSION['Items']->status = "Cancelled";
+		$_SESSION['Items']->approval_remarks = $_POST['Comments'];
+		$update_message = update_so_draft_status($_SESSION['Items']);
+		processing_end();
+		meta_forward($path_to_root . "/sales/inquiry/sales_orders_repo_view.php?");
+	}
+	//
+}else{
 
-if (isset($_POST['Approved']) && can_proceed(0)) {
-    $_SESSION['Items']->status = "Approved";
-	$_SESSION['Items']->approval_remarks = $_POST['Comments'];
-    $update_message = update_so_draft_status($_SESSION['Items']);
-	processing_end();
-
-    meta_forward($path_to_root . "/sales/inquiry/sales_orders_view.php?");
+	if (isset($_POST['Approved']) && can_proceed(0)) {
+		$_SESSION['Items']->status = "Approved";
+		$_SESSION['Items']->approval_remarks = $_POST['Comments'];
+		$update_message = update_so_draft_status($_SESSION['Items']);
+		processing_end();
+	
+		meta_forward($path_to_root . "/sales/inquiry/sales_orders_view.php?");
+	}
+	
+	if (isset($_POST['Disapproved']) && can_proceed(2)) {
+		$_SESSION['Items']->status = "Disapproved";
+		$_SESSION['Items']->approval_remarks = $_POST['Comments'];
+		$update_message = update_so_draft_status($_SESSION['Items']);
+		processing_end();
+		meta_forward($path_to_root . "/sales/inquiry/sales_orders_view.php?");
+	}
+	//Added by spyrax10
+	if (isset($_POST['Cancel']) && can_proceed(2)) {
+		$_SESSION['Items']->status = "Cancelled";
+		$_SESSION['Items']->approval_remarks = $_POST['Comments'];
+		$update_message = update_so_draft_status($_SESSION['Items']);
+		processing_end();
+		meta_forward($path_to_root . "/sales/inquiry/sales_orders_view.php?");
+	}
+	//
 }
 
-if (isset($_POST['Disapproved']) && can_proceed(2)) {
-    $_SESSION['Items']->status = "Disapproved";
-	$_SESSION['Items']->approval_remarks = $_POST['Comments'];
-    $update_message = update_so_draft_status($_SESSION['Items']);
-	processing_end();
-    meta_forward($path_to_root . "/sales/inquiry/sales_orders_view.php?");
-}
-//Added by spyrax10
-if (isset($_POST['Cancel']) && can_proceed(2)) {
-    $_SESSION['Items']->status = "Cancelled";
-	$_SESSION['Items']->approval_remarks = $_POST['Comments'];
-    $update_message = update_so_draft_status($_SESSION['Items']);
-	processing_end();
-    meta_forward($path_to_root . "/sales/inquiry/sales_orders_view.php?");
-}
-//
 start_form();
 
 display_sales_order_update_status_header($_SESSION['Items']);

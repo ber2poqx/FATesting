@@ -243,7 +243,7 @@ function update_status_link($row)
 		$status_link = 
 		$row["status"] == "Draft" ? pager_link(
 			$row['status'],
-			"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"],
+			"/sales/sales_order_update_status.php?SONumber=" . $row["order_no"]."&repo=1",
 			false
 		) : $row["status"];
 	}

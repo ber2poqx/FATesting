@@ -756,8 +756,9 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 	// small_amount_cells(null, 'Disc', percent_format($_POST['Disc']), null, null, user_percent_dec());
 
 	$line_total = input_num('qty') * input_num('price');
-	label_cell(get_post('discount1'));
-	hidden('discount1');
+	// label_cell(get_post('discount1'));
+	// hidden('discount1');
+	text_cells(null, "discount1", null, 5, 5);
 	label_cell(get_post('discount2'));
 	hidden('discount2');
 	amount_cell($line_total, false, '', 'line_total');

@@ -696,9 +696,14 @@ function display_order_header(&$order, $editable, $date_text, $title = '')
 	if ($order->trans_type == ST_SALESINVOICEREPO || $order->trans_type == ST_SALESORDER)
 		// text_row_ex1(_("Discount DP:"), 'discount_dp_amount', 16, null, null, 0); //modified by spyrax10
 		// text_row_ex1(_("Discount DP2:"), 'discount_dp2_amount', 16, null, null, 0); //modified by Albert
-		label_row(_("Discount DP:"), $_POST['discount_dp_amount'] );
+		
+		if ($order->trans_type == ST_SALESORDER){
+			text_row_ex1(_("Discount DP:"), 'discount_dp_amount', 16);
+		}else{
+			label_row(_("Discount DP:"), $_POST['discount_dp_amount'] );
+		}
 		label_row(_("Discount DP2:"), $_POST['discount_dp2_amount']);
-		hidden('discount_dp_amount');
+		// hidden('discount_dp_amount');
 		hidden('discount_dp2_amount');
 
 	date_row(

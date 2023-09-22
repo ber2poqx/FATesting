@@ -1351,12 +1351,12 @@ function  handle_cancel_order()
 
 function calculate_dp_discount()
 {
-	$_POST['discount_dp_amount'] = 0;
+	// $_POST['discount_dp_amount'] = 0;
 	$_POST['discount_dp2_amount'] = 0;
 	foreach ($_SESSION['Items']->get_items() as $line_no => $line) {
 		/*  Added by Ronelle Get DP discount 1 and 2 from Item Discount Tables */
 		if ($line->item_type == "Regular") {
-			$_POST['discount_dp_amount'] += Get_DP_Discount1($line->stock_id);
+			// $_POST['discount_dp_amount'] += Get_DP_Discount1($line->stock_id); //comment by Albert request by maam helen
 			$_POST['discount_dp2_amount'] += Get_DP_Discount2($line->stock_id);
 		}
 		/* */
