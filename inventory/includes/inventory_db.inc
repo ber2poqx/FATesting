@@ -264,7 +264,7 @@ function get_salesinvoice_trans($trans_no, $trans_type)
 		        WHEN dtd.quantity = 1 THEN 'unit'
 		        ELSE 'units' END as Unit
 		    ,CONCAT(dtd.stock_id,'-', dtd.description) as Articles
-		    ,dt.ov_amount as UnitCost       
+		    ,dtd.lcp_price as UnitCost       
 		FROM " . TB_PREF . "debtor_trans_details dtd
 			INNER JOIN " . TB_PREF . "debtor_trans dt on dtd.debtor_trans_no = dt.trans_no AND dtd.debtor_trans_type = dt.type
 			LEFT JOIN " . TB_PREF . "debtors_master dm on dt.debtor_no = dm.debtor_no
