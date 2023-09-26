@@ -5544,7 +5544,7 @@ Ext.onReady(function() {
 			items:[{
 				xtype: 'button',
 				cls: 'rptbtn',
-				width: 200,
+				width: 220,
 				text:'<b>Collection Receipt</b>',
 				icon: '../js/ext4/examples/shared/icons/script.png',
 				margin: '2 2 2 2',
@@ -5557,8 +5557,8 @@ Ext.onReady(function() {
 			},{
 				xtype: 'button',
 				cls: 'rptbtn',
-				hidden: true,
-				width: 200,
+				hidden: false,
+				width: 220,
 				text:'<b>Official Receipt</b>',
 				icon: '../js/ext4/examples/shared/icons/script.png',
 				margin: '2 2 2 2',
@@ -5574,23 +5574,37 @@ Ext.onReady(function() {
 			items:[{
 				xtype: 'button',
 				cls: 'rptbtn',
-				width: 200,
-				text: '<b>Cash Sales Invoice</b>',
+				width: 220,
+				text: '<b>Invoice Serialized</b>',
 				icon: '../js/ext4/examples/shared/icons/script.png',
 				margin: '2 2 2 2',
 				handler: function () {
 					window.open('../reports/prnt_cash_SI_serialized.php?SI_req=YES&SI_num=' + Ext.getCmp('rpt_receipt').getValue());
 					submit_window_InterB.close();
 				}
+			},{
+                xtype: 'splitter'
+			},{
+				xtype: 'button',
+				cls: 'rptbtn',
+				hidden: false,
+				width: 220,
+				text:'<b>Invoice Non-serialized</b>',
+				icon: '../js/ext4/examples/shared/icons/script.png',
+				margin: '2 2 2 2',
+				handler : function() {
+					window.open('../reports/prnt_cash_SalesInvoice.php?SI_num='+ Ext.getCmp('rpt_transnum').getValue());
+					submit_window_InterB.close();
+				}
 			}]
 		}]
 	});
 	var report_window = Ext.create('Ext.Window',{
-		width 	: 220,
+		width 	: 470,
 		modal	: true,
 		plain 	: true,
 		border 	: true,
-		resizable: false,
+		resizable: true,
 		closeAction:'hide',
 		//closable: false,
 		items:[report_form]
