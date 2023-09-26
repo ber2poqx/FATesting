@@ -39,7 +39,7 @@ function getTransactions($from, $to, $cat_id)
             ,CASE 
             	WHEN dtd4.color_code IS NULL THEN '-'
                 WHEN sc10.description <> 'MOTORCYCLE' THEN '-'
-                ELSE dtd4.color_code END as `color`
+                ELSE itmcode.description END as `color`
 			,dt1.type
 		    ,sc10.description as Category
 		    ,ii7.name as Subcategory
@@ -70,6 +70,7 @@ function getTransactions($from, $to, $cat_id)
 		    LEFT JOIN ".TB_PREF."sales_orders so8 on dt1.trans_no = so8.order_no
 		    LEFT JOIN ".TB_PREF."salesman sn9 on so8.salesman_id = sn9.salesman_code
 		    LEFT JOIN ".TB_PREF."stock_category sc10 on dl2.category_id = sc10.category_id
+		    LEFT JOIN ".TB_PREF."item_codes itmcode on dtd4.color_code = itmcode.item_code
 		WHERE dt1.type = ".ST_SALESINVOICE."
 			AND dtd4.standard_cost <> 0
 			AND dt1.tran_date <= '$to'
