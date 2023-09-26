@@ -408,9 +408,10 @@ Ext.onReady(function(){
 		queryMode: 'local',
 		emptyText:'Select Branch',
 		labelWidth: 50,
-		width: 250,
+		width: 400,
 		forceSelection: true,
 		selectOnFocus:true,
+		anyMatch: true,
 		fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
 		listeners: {
 			select: function(combo, record, index) {

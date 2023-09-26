@@ -214,8 +214,9 @@ if(!is_null($action) || !empty($action)){
                 if($isError != 1){
                     $AdjDate = sql2date($_POST['AdjDate']);
                     $catcode = $_POST['catcode'];
+                    $rsdno = strtoupper($_POST['rsdno']);
                     $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                    $trans_no = add_stock_merchandise_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $_POST['rsdno'],$_POST['servedby']);
+                    $trans_no = add_stock_merchandise_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'], $catcode, $rsdno, $_POST['servedby']);
                     //new_doc_date($AdjDate);
                     //$_SESSION['transfer_items']->clear_items();
                     //unset($_SESSION['transfer_items']);

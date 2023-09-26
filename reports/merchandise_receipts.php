@@ -23,7 +23,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	<title>MT Slip</title>
+	<title>Merchandise Transfer</title>
 <style type="text/css">
 	.main{
 		width: 9in;
@@ -285,8 +285,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 			<tr>
 				<td align=left>MT Served by:</td>
 				<th style="width: 60%;" align=left><?php echo $mt_header_servedby;?></th>
-				<!--<td>RSD #:</td>
-				<th style="width: 17%;" align="left"><input type="text" value="<?php echo $mt_header_rsd;?>" class="underline_input" readonly></th>-->
+				<td>RSD #:</td>
+				<th style="width: 19%;" align="left"><input style="width: 90%;" type="text" value="<?php echo $mt_header_rsd;?>" class="underline_input" readonly></th>
 			</tr>
 			<tr><td>&nbsp;</td></tr>
 		</table>

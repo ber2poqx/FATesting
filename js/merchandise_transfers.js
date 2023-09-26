@@ -270,7 +270,7 @@ Ext.onReady(function(){
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
 						reference = record.get('reference');
-						var win = new Ext.Window({
+						/*var win = new Ext.Window({
 							autoLoad:{
 								url:'../reports/merchandise_receipts.php?reference='+reference,
 								discardUrl: true,
@@ -297,8 +297,8 @@ Ext.onReady(function(){
 				            frameborder:0
 				        }
 						win.show();
-						Ext.DomHelper.insertFirst(win.body, iframe)
-						//window.open('../reports/merchandise_receipts.php?reference='+reference);
+						Ext.DomHelper.insertFirst(win.body, iframe)*/
+						window.open('../reports/merchandise_receipts.php?reference='+reference);
 					}
 				}
 			]
@@ -509,9 +509,18 @@ Ext.onReady(function(){
 								id:id, serialise_id: serialise_id, AdjDate:AdjDate, model:model, line_item: line_item
 							},
 							success: function (response){
-								MerchandiseTransStore.load({params: { 
-									view: 1
-								}});											
+								MerchandiseTransStore.load({
+									params: {view: 1},
+									scope: this,
+									callback: function(records, operation, success){
+										var countrec = MerchandiseTransStore.getCount();
+										if(countrec>0){
+											setButtonDisabled(false);
+										}else{
+											setButtonDisabled(true);
+										}								
+									}
+								});											
 							}
 						});
 					}
@@ -1085,7 +1094,7 @@ Ext.onReady(function(){
 													typeAhead: true,
 													readOnly: false,
 													anyMatch: true,
-													emptyText:'Select Transder Location',
+													emptyText:'Select Transfer Location',
 													fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
 													selectOnFocus:true,
 													store: Ext.create('Ext.data.Store',{
@@ -1201,14 +1210,7 @@ Ext.onReady(function(){
 																}
 															});
 														}
-													}
-												},{			
-													xtype:'textfield',
-													name:'rsdno',
-													id:'rsdno',
-													fieldLabel:'RSD #',
-													allowBlank: true,
-													hidden:true
+													}												
 												},{
 													xtype:'textfield',
 													name:'servedby',
@@ -1221,6 +1223,21 @@ Ext.onReady(function(){
 												}]
 											},{
 												xtype:'fieldcontainer',
+												width:507,
+												layout:'hbox',
+												margin: '2 0 2 5',
+												layout:'fit',
+												items:[{
+													xtype:'textfield',
+													name:'rsdno',
+													id:'rsdno',
+													fieldLabel:'RSD #',
+													fieldStyle : 'background-color: white; color:blue; font-weight:bold;',
+													allowBlank: false,
+													hidden:false	
+												}]										
+											},{
+												xtype:'fieldcontainer',
 												width:785,
 												layout:'hbox',
 												margin: '2 0 2 5',
@@ -1228,6 +1245,7 @@ Ext.onReady(function(){
 												items:[{
 													xtype:'textareafield',
 													fieldLabel:'Memo',
+                    								fieldStyle : 'background-color: white; color:black; font-weight:bold;',
 													name:'memo',
 													id:'memo',
 													grow: true,
@@ -1323,6 +1341,11 @@ Ext.onReady(function(){
 													if(catcode==null){
 														setButtonDisabled(false);
 														Ext.MessageBox.alert('Error','Select Category Item');
+														return false;
+													}
+													if(rsdno==""){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','RSD cannot be empty.');
 														return false;
 													}
 													/*var counteritem =countitem(); 

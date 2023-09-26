@@ -504,6 +504,33 @@ function display_transfer_items_serial_for_rr(&$order, $FromStockLocation, $AdjD
     echo '({"total":"'.$total.'","result":'.$jsonresult.',"AdjDate":"'.$AdjDate.'","branchcode":"'.$FromStockLocation.'"})';
 }
 
+function display_request_stock(&$order, $FromStockLocation, $AdjDate)
+{
+    foreach ($order->line_items as $line_no=>$stock_item)
+    {
+        $kit = get_item_kit($stock_item->item_code);
+        $myrow = db_fetch($kit);
+        
+        if($stock_item->stock_id != ''){
+            $group_array[] = array('id'=>$line_no,
+                'stock_id'=>$stock_item->stock_id,
+                'item_code'=>$stock_item->item_code,
+                'color' => $stock_item->color,
+                'stock_description' => $stock_item->item_description,
+                'qty' => $stock_quantity,
+                'remarks' => $stock_item->remarks,
+                'serialise_loc_code'=>$FromStockLocation,            
+                'serialised' => $myrow["serialised"],
+                'brand_name' => $myrow["brand_name"],
+                'item_type' => $stock_item->item_type,
+                'line_item' => $stock_item->line_item_row
+            );
+        }
+    }
+    $jsonresult = json_encode($group_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.',"AdjDate":"'.$AdjDate.'","branchcode":"'.$FromStockLocation.'"})';
+}
+
 function transfer_edit_item_controls(&$order, $line_no=-1)
 {
 	global $Ajax;

@@ -64,6 +64,9 @@ define('ST_SITERMMOD', 56);	// Added by Ronelle - 8/7/2021
 define('ST_SALESINVOICEREPO', 57);	// Added by Ronelle - 8/7/2021
 define('ST_RESTRUCTURED', 58);	//Added by Albert 12/09/2021
 
+//for rsd added by robert on 09/25/2023
+define('ST_REQUESTSTOCKDELIVER', 61);
+
 //for lending added by progjr on 3-13-2021
 define('ST_ARINVCINSTLITM', 70);
 define('ST_RRREPO', 80);

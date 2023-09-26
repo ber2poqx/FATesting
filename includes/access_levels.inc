@@ -382,6 +382,7 @@ $security_areas =array(
 	'SA_SERIAL_LIST' => array(SS_ITEMS|17, _("PNP Clearance Inquiry List")),
 	'SA_SERIAL_UPDATE' => array(SS_ITEMS|18, _("PNP Clearance Status Update")),
 	//
+    'SA_REQUESTSTOCKDELIVERY' => array(SS_ITEMS|19, _("Request Stock Delivery")), //Added by Robert 09/20/2023
 
     //----Robert Added----//
 	'SA_RRTRANSWORLDVIEW' => array(SS_ITEMS|9, _("RR Transworld view")),

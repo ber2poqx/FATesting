@@ -24,6 +24,8 @@ class inventory_app extends application
 		    "inventory/merchandise_transfers_repo.php", 'SA_MERCHANDISETRANSFERREPO', MENU_TRANSACTION);
 		$this->add_lapp_function(0, _("Receiving Report - Branch"),
 		    "inventory/merchandise_transfers.php?transtype=in", 'SA_MERCHANDISETRANSFER', MENU_TRANSACTION);
+		$this->add_lapp_function(0, _("Request Stock Delivery - RSD"),
+		    "inventory/request_stock_delivery.php", 'SA_REQUESTSTOCKDELIVERY', MENU_TRANSACTION);
 		
 		//Modified by spyrax10 20 Jun 2022
 		$this->add_rapp_function(0, _("Inventory &Adjustments"),
@@ -39,7 +41,7 @@ class inventory_app extends application
 
 		$this->add_rapp_function(0, _("&Complimentary Items - Repo"),
 		    "inventory/complimentary_items_repo.php", 'SA_COMPLIMENTARYITEM_REPO', MENU_TRANSACTION);
-		
+
 		$this->add_module(_("Inquiries and Reports"));
 		$this->add_lapp_function(1, _("Inventory Item &Movements"),
 			"inventory/inquiry/stock_movements.php?", 'SA_ITEMSTRANSVIEW', MENU_INQUIRY);

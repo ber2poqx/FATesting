@@ -997,6 +997,56 @@ function get_stock_voided($trans_no)
     return $data;
 }
 
+function add_rsd_header($date, $type, $ref='', $from_loc, $to_loc, $category, $memo, $created)
+{
+    $sql = "INSERT INTO ".TB_PREF."rsd_header 
+            (rsd_date, 
+            type,
+            rsd_ref, 
+            rsd_from_location,
+            rsd_to_loaction, 
+            category,
+            particulars, 
+            created_by) 
+            VALUES 
+            (".db_escape($date).",
+            ".db_escape($type).",
+            ".db_escape($ref).",
+            ".db_escape($from_loc).",
+            ".db_escape($to_loc).",
+            ".db_escape($category).",
+            ".db_escape($memo).",
+            ".db_escape($created).")";
+    db_query($sql, "The request stock deliver record cannot be inserted");
+                
+    $dbid = db_insert_id();
+                
+    set_global_connection();
+    return $dbid;
+}
+
+function add_rsd_details($header_id, $item_code, $descrip, $qty, $brand)
+{
+    $sql = "INSERT INTO ".TB_PREF."rsd_details
+            (rsd_detail_header_id,
+            item_code,
+            description,
+            quantity,
+            brand)
+            VALUES
+            (".db_escape($header_id).",
+            ".db_escape($item_code).",
+            ".db_escape($descrip).",
+            ".db_escape($qty).",
+            ".db_escape($brand).")";
+    db_query($sql, "The request stock deliver - details record cannot be inserted");
+
+    $dbid = db_insert_id();
+
+    set_global_connection();
+    return $dbid;
+}
+
 function get_stock_transfer_items($trans_no)
 {
     $result = get_stock_moves(ST_MERCHANDISETRANSFER, $trans_no);

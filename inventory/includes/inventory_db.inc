@@ -1025,3 +1025,135 @@ function get_serial_list($search = '', $branch_id = null, $trans_no = null, $cle
 
 	return $return_arr;
 }
+
+//Added by robert 09/26/2023
+function get_request_stock_deliver($trans_id)
+{
+	set_global_connection();
+	$sql = "SELECT A.rsd_date, A.rsd_ref, A.rsd_to_loaction, A.category, A.particulars, A.created_by,
+			B.item_code, B.description, B.quantity, C.name AS brandname
+		FROM ".TB_PREF."rsd_header A
+			LEFT JOIN ".TB_PREF."rsd_details B ON B.rsd_detail_header_id = A.rsd_header_id
+			LEFT JOIN ".TB_PREF."item_brand C ON C.id = B.brand
+		WHERE A.rsd_header_id='$trans_id'";
+
+	return db_query($sql, "No transactions were returned");
+}
+
+function get_onhand($itemcode, $date)
+{
+	set_global_connection();
+	$total = 0;
+
+    $sql = "SELECT SUM(A.qty) AS onhand
+        FROM ".TB_PREF."stock_moves A";
+
+    $sql .= " WHERE A.color_code = ".db_escape($itemcode);
+
+	$sql .= " AND A.tran_date <= '$date'";
+
+    $res = db_query($sql, 'Cant get on-hand!');
+    $row = db_fetch_row($res);
+	$total = $row[0];
+
+    return $total != null ? $total : 0;
+}
+
+function get_onhand_not_motor($itemcode, $date)
+{
+	set_global_connection();
+	$total = 0;
+
+    $sql = "SELECT SUM(A.qty) AS onhand
+        FROM ".TB_PREF."stock_moves A";
+
+    $sql .= " WHERE A.stock_id = ".db_escape($itemcode);
+
+    $sql .= " AND A.tran_date <= '$date'";
+
+    $res = db_query($sql, 'Cant get on-hand!');
+    $row = db_fetch_row($res);
+	$total = $row[0];
+
+    return $total != null ? $total : 0;
+}
+
+function get_sales_lastmonth($itemcode, $date)
+{
+	set_global_connection();
+	$total = 0;
+
+    $sql = "SELECT SUM(A.quantity) 
+		FROM ".TB_PREF."debtor_trans_details A
+		INNER JOIN debtor_trans B ON B.trans_no = A.debtor_trans_no AND B.type = A.debtor_trans_type";
+
+    $sql .= " WHERE A.color_code = ".db_escape($itemcode);
+
+    $sql .= " AND DATE_FORMAT(B.tran_date, '%Y-%m') = DATE_FORMAT(DATE_ADD('$date', INTERVAL -1 MONTH), '%Y-%m')";
+
+    $res = db_query($sql, 'Cant get sales last month!');
+    $row = db_fetch_row($res);
+	$total = $row[0];
+
+    return $total != null ? $total : 0;
+}
+
+function get_sales_lastmonth_not_motor($itemcode, $date)
+{
+	set_global_connection();
+	$total = 0;
+
+    $sql = "SELECT SUM(A.quantity) 
+		FROM ".TB_PREF."debtor_trans_details A
+		INNER JOIN debtor_trans B ON B.trans_no = A.debtor_trans_no AND B.type = A.debtor_trans_type";
+
+    $sql .= " WHERE A.stock_id = ".db_escape($itemcode);
+
+	$sql .= " AND DATE_FORMAT(B.tran_date, '%Y-%m') = DATE_FORMAT(DATE_ADD('$date', INTERVAL -1 MONTH), '%Y-%m')";
+
+    $res = db_query($sql, 'Cant get sales last month!');
+    $row = db_fetch_row($res);
+	$total = $row[0];
+
+    return $total != null ? $total : 0;
+}
+
+function get_sales_lastyear_samemonth($itemcode, $date)
+{
+	set_global_connection();
+	$total = 0;
+
+    $sql = "SELECT SUM(A.quantity) 
+		FROM ".TB_PREF."debtor_trans_details A
+		INNER JOIN debtor_trans B ON B.trans_no = A.debtor_trans_no AND B.type = A.debtor_trans_type";
+
+    $sql .= " WHERE A.color_code = ".db_escape($itemcode);
+
+    $sql .= " AND DATE_FORMAT(B.tran_date, '%Y-%m') = DATE_FORMAT(DATE_ADD(DATE_ADD('$date', INTERVAL -1 YEAR), INTERVAL -1 MONTH), '%Y-%m')";
+
+    $res = db_query($sql, 'Cant get sales last month!');
+    $row = db_fetch_row($res);
+	$total = $row[0];
+
+    return $total != null ? $total : 0;
+}
+
+function get_sales_lastyear_samemonth_notmotor($itemcode, $date)
+{
+	set_global_connection();
+	$total = 0;
+
+    $sql = "SELECT SUM(A.quantity) 
+		FROM ".TB_PREF."debtor_trans_details A
+		INNER JOIN debtor_trans B ON B.trans_no = A.debtor_trans_no AND B.type = A.debtor_trans_type";
+
+    $sql .= " WHERE A.stock_id = ".db_escape($itemcode);
+
+    $sql .= " AND DATE_FORMAT(B.tran_date, '%Y-%m') = DATE_FORMAT(DATE_ADD(DATE_ADD('$date', INTERVAL -1 YEAR), INTERVAL -1 MONTH), '%Y-%m')";
+
+    $res = db_query($sql, 'Cant get sales last month!');
+    $row = db_fetch_row($res);
+	$total = $row[0];
+
+    return $total != null ? $total : 0;
+}

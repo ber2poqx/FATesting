@@ -489,6 +489,26 @@ function get_all_location_transfer_item($start,$limit,$querystr='',$loc_stat='',
     return $result;
 }
 
+function get_all_request_stock($start, $limit, $branchcode='',$search_ref='', $all=false)
+{
+    $sql = "SELECT *, SUM(B.quantity) AS total_qty, C.description AS categorys
+            FROM rsd_header A
+                LEFT JOIN rsd_details B ON B.rsd_detail_header_id = A.rsd_header_id
+                LEFT JOIN stock_category C ON C.category_id = A.category
+            WHERE A.rsd_from_location='$branchcode'";
+
+    $sql .=" GROUP BY A.rsd_header_id ORDER BY A.rsd_date DESC, A.rsd_header_id DESC";
+
+    $sqllimit = $sql ." limit $start, $limit";
+
+    if ($all) {
+        $result = db_query($sql, "could not get all request stock");
+    }else{
+        $result = db_query($sqllimit, "could not get all request stock");
+    }
+    return $result;
+}
+
 //added by Herald 09/22/2021 for Manual Entry MT
 function get_all_items_listing($start,$end,$brand=0,$querystr='',$category=0,$all=false){
     $sql = "SELECT smaster.stock_id as model, icode.item_code as item_code, smaster.description as stock_description, icode.description as item_description, smaster.serialised, icode.color as color, icode.category_id, item_brand.name as brand_name, smaster.brand as brand_id FROM ".TB_PREF."item_codes icode INNER JOIN ".TB_PREF."stock_master smaster ON icode.stock_id=smaster.stock_id 
