@@ -294,7 +294,7 @@ function get_salesinvoice_trans_serialized($trans_no, $trans_type)
 		        WHEN dtd.quantity = 1 THEN 'unit'
 		        ELSE 'units' END as Unit
 		    ,CONCAT(dtd.stock_id,'-', dtd.description) as Articles
-		    ,dt.ov_amount as UnitCost 
+		    ,dtd.unit_price as UnitCost 
 			,dtd.stock_id
 			,dtd.lot_no as `serial`
 			,dtd.chassis_no as `chassis`
@@ -304,6 +304,7 @@ function get_salesinvoice_trans_serialized($trans_no, $trans_type)
 			,dl.rebate
 			,(dl.discount_downpayment + dl.discount_downpayment2) as `discount`
 			,SMAN.salesman_name AS `salesman`
+			,dtd.color_code AS `color_code`
 		FROM " . TB_PREF . "debtor_trans_details dtd
 			INNER JOIN " . TB_PREF . "debtor_trans dt on dtd.debtor_trans_no = dt.trans_no AND dtd.debtor_trans_type = dt.type
 			LEFT JOIN " . TB_PREF . "debtors_master dm on dt.debtor_no = dm.debtor_no

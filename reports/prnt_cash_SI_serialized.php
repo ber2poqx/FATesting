@@ -107,7 +107,7 @@ function get_detailed_unit($itemcode)
 {
 	set_global_connection();
 
-	$sql = "SELECT CONCAT(IFNULL(sc.description,'no category'), ' - ', IFNULL(ib.name,'no brand')) AS `brand`, `item_code` AS `model`, ic.color, sc.description as `cat_code`
+	$sql = "SELECT CONCAT(IFNULL(sc.description,'no category'), ' - ', IFNULL(ib.name,'no brand')) AS `brand`, CONCAT(ic.item_code,' - ',ic.description) AS `model`, ic.description AS `color`, sc.description as `cat_code`
 			FROM " . TB_PREF . "`item_codes` ic
 				LEFT JOIN " . TB_PREF . "`item_brand` ib ON ic.brand = ib.id
 				LEFT JOIN " . TB_PREF . "`stock_category` sc ON ic.category_id = sc.category_id
@@ -157,9 +157,13 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 	$terms = $myrow["Terms"];
 	
 	$itemcode = $myrow["stock_id"];
+	$color_code = $myrow["color_code"];
 	
 	$ic_result = get_detailed_unit($itemcode);
 	$ic_row = db_fetch($ic_result); //returns: brand, model & color
+
+	$color_result = get_detailed_unit($color_code);
+	$color_row = db_fetch($color_result); //color
 
 	$qty = $myrow["Qty"];
 	$cat_code = $ic_row["cat_code"];
@@ -167,7 +171,7 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 	$model = $ic_row["model"];
 	$serial = $myrow["serial"];
 	$chassis = $myrow["chassis"];
-	$color = $ic_row["color"];
+	$color = $color_row["color"];
 
 	$first_due_date = $myrow["firstdue_date"];
 	$downpayment = $myrow["downpayment"];
@@ -210,7 +214,7 @@ function get_SI_trans_no_from_amort_payments($trans_ref)
 		<div>
 			<div class="line1" style="width: 16.03cm;"></div>
 
-			<div class="line1" style="width: 3.1cm; text-align: center;"><?php echo $terms?> Months</div> <!-- Month Terms -->
+			<div class="line1" style="width: 3.1cm; text-align: center;"><?php echo $terms.' Month/s' ?> </div> <!-- Month Terms -->
 		</div>
 
 
