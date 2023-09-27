@@ -757,7 +757,7 @@ Ext.onReady(function() {
 					window.open('../gl/view/gl_trans_view.php?type_id=12&trans_no='+ records.get('trans_no'));
 				}
 			},'-',{
-				icon: '../js/ext4/examples/shared/icons/print-preview-icon.png',
+				icon: '../js/ext4/examples/shared/icons/page_white_magnify.png',
 				tooltip: 'view reports',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = PaymentStore.getAt(rowIndex);
