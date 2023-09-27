@@ -397,7 +397,7 @@ Ext.onReady(function(){
 					window.open('../../gl/view/gl_trans_view.php?type_id='+ records.get('type') +'&trans_no='+ records.get('id'));
 				}
 			},'-',{
-				icon: '../../js/ext4/examples/shared/icons/print-preview-icon.png',
+				icon: '../../js/ext4/examples/shared/icons/page_white_magnify.png',
 				tooltip: 'view receiving report repo',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = RepoDetailsStore.getAt(rowIndex);
