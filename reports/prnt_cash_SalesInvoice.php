@@ -178,7 +178,7 @@ prnt_cash_SalesInvoice
 					  
 				  	$result = get_salesinvoice_trans($si_num,$trans_type = ST_SALESINVOICE);				
 					// if (db_num_rows($result) > 0 && db_num_rows($result) <= 5)
-					if (db_num_rows($result) <= 5)
+					if (db_num_rows($result) > 0)
 					{
 						$total = 0;
 						$subtotal = 0;
@@ -202,9 +202,9 @@ prnt_cash_SalesInvoice
 						} //end while there are line items to print out
 						$display_total = price_format($total);
 					}
-					else if (db_num_rows($result) > 5) {
-						display_note(_("Number of items exceeded receipt lines."), 1, 2);
-					}
+					#else if (db_num_rows($result) > 5) {
+					#	display_note(_("Number of items exceeded receipt lines."), 1, 2);
+					#}
 					else
 					display_note(_("There are no line items on this dispatch."), 1, 2);										
 				?>
