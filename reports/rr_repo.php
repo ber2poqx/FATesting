@@ -572,7 +572,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				</table>				
 			</div>				
 				<div class="footnote2">
-					* Received the above mentioned items in good order and condition.
+					.
 				</div>
 				<div class="footnote2">
 					<?php 
