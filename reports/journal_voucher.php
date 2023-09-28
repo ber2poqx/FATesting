@@ -365,6 +365,7 @@ function convert_number($number)
 					, IF(ISNULL(gl.master_file), '', dm.name) AS `masterfile1`
 					, COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date
 					, IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
+					, user1.real_name AS reviewer1, user2.real_name AS approver1
 			FROM ".TB_PREF."gl_trans as gl
 				LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
 				LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
@@ -379,6 +380,8 @@ function convert_number($number)
 				LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
 						AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
 				LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no
+				LEFT JOIN ".TB_PREF."users user1 ON user.id = j.reviewed_id
+				LEFT JOIN ".TB_PREF."users user2 ON user.id = j.approved_id
 			WHERE gl.amount <> 0 AND gl.type= '$type' AND gl.type_no = '$trans_no'  ORDER BY tran_date, counter";	
 		
 		/*
@@ -446,7 +449,21 @@ function convert_number($number)
 	$particular = $get_comment["memo_"];
 	$fromBranch = $get_interB["branch_code_from"];
 	$debtor_name = $get_interB["debtor_name"];
-		
+	
+	//reviewer1 approver1
+	if(strlen($reviewed_by)==0){
+		$reviewed_by = "-";
+	}
+	elseif(strlen($reviewed_by)!=0){
+		$reviewed_by = $get_data["reviewer1"];
+	}
+	if(strlen($approved_by)==0){
+		$approved_by = "-";
+	}
+	elseif(strlen($approved_by)!=0){
+		$approved_by = $get_data["approver1"];
+	}
+
 	$null1 = "";
 
 	$whole = intval($amount); /* check for centavo amount */
@@ -653,9 +670,9 @@ function convert_number($number)
 				<td align=center>_________________________________</td>
 			</tr>
 			<tr>
-				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name?></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>	
+				<td class="footer_names"><?php echo strtoupper($_SESSION["wa_current_user"]->name)?></td>
+				<td class="footer_names"><?php echo strtoupper($reviewed_by)?></td>
+				<td class="footer_names"><?php echo strtoupper($approved_by)?></td>	
 				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>						
 			</tr>
 			
