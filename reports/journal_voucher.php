@@ -365,7 +365,8 @@ function convert_number($number)
 					, IF(ISNULL(gl.master_file), '', dm.name) AS `masterfile1`
 					, COALESCE(st.tran_date, dt.tran_date, bt.trans_date, grn.delivery_date, gl.tran_date) as doc_date
 					, IF(ISNULL(st.supp_reference), '', st.supp_reference) AS supp_reference
-					, user1.real_name AS reviewer1, user2.real_name AS approver1
+					, j.reviewed_id AS rev_id
+					, j.approved_id AS apv_id
 			FROM ".TB_PREF."gl_trans as gl
 				LEFT JOIN ".TB_PREF."chart_master as cm ON gl.account = cm.account_code
 				LEFT JOIN ".TB_PREF."refs as refs ON (gl.type=refs.type AND gl.type_no=refs.id)
@@ -379,9 +380,7 @@ function convert_number($number)
 				LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
 				LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
 						AND bt.person_type_id=gl.person_type_id AND bt.person_id=gl.person_id
-				LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no
-				LEFT JOIN ".TB_PREF."users user1 ON user.id = j.reviewed_id
-				LEFT JOIN ".TB_PREF."users user2 ON user.id = j.approved_id
+				LEFT JOIN ".TB_PREF."journal j ON j.type=gl.type AND j.trans_no=gl.type_no				
 			WHERE gl.amount <> 0 AND gl.type= '$type' AND gl.type_no = '$trans_no'  ORDER BY tran_date, counter";	
 		
 		/*
@@ -409,6 +408,13 @@ function convert_number($number)
 			SELECT * FROM `interbranch_trans` WHERE transno_to_branch = '$trans_no' ";
 
 		return db_query($sql, "DV_headers query could not be retrieved");
+	}
+
+	function get_user_by_ID($transnum)
+	{
+		$sql = "SELECT jl.*, usr1.real_name as review, usr2.real_name as approve FROM `journal` jl LEFT JOIN `users` usr1 ON jl.reviewed_id = usr1.id LEFT JOIN `users` usr2 ON jl.approved_id = usr2.id WHERE jl.type = '0' and jl.trans_no = '$transnum' ";
+
+		return db_query($sql, "get_user_by_ID query could not be retrieved");
 	}
 ?>
 
@@ -441,6 +447,9 @@ function convert_number($number)
 	$row_interB = InterB_trans($trans_no);
 	$get_interB = db_fetch($row_interB);
 
+	$jounal_result = get_user_by_ID($trans_no);
+	$row_names = db_fetch($jounal_result);
+
 
 	//$name = $headers_row["name"];
 	$voucher_num = $get_data["reference"];
@@ -449,6 +458,8 @@ function convert_number($number)
 	$particular = $get_comment["memo_"];
 	$fromBranch = $get_interB["branch_code_from"];
 	$debtor_name = $get_interB["debtor_name"];
+	$reviewer = $row_names["review"];
+	$approver = $row_names["approve"];
 	
 	//reviewer1 approver1
 	if(strlen($reviewed_by)==0){
@@ -671,8 +682,8 @@ function convert_number($number)
 			</tr>
 			<tr>
 				<td class="footer_names"><?php echo strtoupper($_SESSION["wa_current_user"]->name)?></td>
-				<td class="footer_names"><?php echo strtoupper($reviewed_by)?></td>
-				<td class="footer_names"><?php echo strtoupper($approved_by)?></td>	
+				<td class="footer_names"><?php echo strtoupper($reviewer)?></td>
+				<td class="footer_names"><?php echo strtoupper($approver)?></td>	
 				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>						
 			</tr>
 			
