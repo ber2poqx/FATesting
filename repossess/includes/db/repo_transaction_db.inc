@@ -74,15 +74,27 @@ function update_repo_reprice_stock_move($amount, $trans_id, $trans_no, $stock_id
 	set_global_connection();
 }
 
-function get_repo_accounts()
+function get_repo_accounts($start, $limit, $search, $showall=false)
 {
+	if($search != ''){
+		$sWhere .= " WHERE (C.name LIKE '%".$search."%' OR A.reference_no LIKE '%".$search."%' OR A.repo_date LIKE '%".$search."%' OR B.description LIKE '%".$search."%') ";
+	}
 	$sql = "SELECT A.*, B.description cat_desc, C.name, C.debtor_ref
 		FROM ".TB_PREF."repo_accounts A
 			INNER JOIN ".TB_PREF."stock_category B ON B.category_id  = A.category_id
 			LEFT JOIN ".TB_PREF."debtors_master C ON C.debtor_no = A.debtor_no 
+		".$sWhere."
 		ORDER BY A.trans_date DESC";
 
-	return db_query($sql, "could not get all customer repo accounts");
+		$sqllimit = $sql ." limit $start, $limit";
+
+		if($showall){
+			$result = db_query($sql, "could not get all customer repo accounts");
+		}else{
+			$result = db_query($sqllimit, "could not get all customer repo accounts");
+		}
+
+	return $result;
 }
 
 function get_repo_accounts_item_details($repo_id)

@@ -307,7 +307,10 @@ if(isset($_GET['getcategory'])){
 }
 if(isset($_GET['get_repodetails']))
 {
-    $result = get_repo_accounts();
+    $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
+    $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
+
+    $result = get_repo_accounts($start, $limit, $_GET['query']);
     $total = DB_num_rows($result);
 
     while ($myrow = db_fetch($result)) {
