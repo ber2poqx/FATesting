@@ -212,15 +212,9 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		$rsd_created_by = $myrow["created_by"];
 		$rsd_reference = $myrow["rsd_ref"];
 		$rsd_comments = $myrow["particulars"];
-		$mt_header_category_id = $myrow["mt_header_category_id"];
 		$rsd_request_date = date('m/d/Y', strtotime($myrow["rsd_date"]));
 		$delivery_address = get_db_location_address($myrow["rsd_to_loaction"]);
 
-		if ($myrow["mt_header_item_type"] == 'repo') {
-			$headertype_new_repo = 'Repo';
-		} else {
-			$headertype_new_repo = '';
-		}
 	}
 ?>
 
