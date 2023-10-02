@@ -2385,10 +2385,10 @@ if(isset($_GET['submitSICash']))
         $InputError = 1;
         $dsplymsg = _('Invoice number must not be empty.');
     }
-    if (empty($_POST['receipt_no_cash'])) {
+    /*if (empty($_POST['receipt_no_cash'])) {
         $InputError = 1;
         $dsplymsg = _('CR number must not be empty.');
-    }
+    }*/
     if (empty($_POST['intobankacct_cash'])) {
         $InputError = 1;
         $dsplymsg = _('Into bank account must not be empty.');
