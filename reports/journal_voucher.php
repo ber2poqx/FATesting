@@ -564,7 +564,7 @@ function convert_number($number)
 				</tr>
 				<tr>
 					<td style="width: 83px;" align=left class="text-params">Particulars:</td>
-					<th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php echo $particular?>" class="underline_input_long"></th>
+					<td align=left style="width: 100%;white-space: normal;"><?php echo '<u>'.$particular.'</u>'; ?></td>
 				</tr>
 				<tr><td>&nbsp;</td></tr>
 				</table>
@@ -589,7 +589,8 @@ function convert_number($number)
 				</tr>
 				<tr>
 					<td style="width: 83px;" align=left class="text-params">Particulars:</td>
-					<th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php echo $particular?>" class="underline_input_long"></th>
+					<td align=left style="width: 100%;white-space: normal;"><?php echo '<u>'.$particular.'</u>'; ?></td>
+					<!--th style="width: 87.5%; border: 0px solid; colspan: 2;" align=left><input  type="text" value="<?php //echo $particular?>" class="underline_input_long"></th-->
 				</tr>
 				<tr><td>&nbsp;</td></tr>
 				</table>
