@@ -536,7 +536,7 @@ Ext.onReady(function(){
 					handler: function(grid, rowIndex, colIndex) {
 						var record = myInsurance.getAt(rowIndex);
 						reference = record.get('rrbrreference');
-						var win = new Ext.Window({
+						/*var win = new Ext.Window({
 							autoLoad:{
 								url:'../reports/rr_branch.php?reference='+reference,
 								discardUrl: true,
@@ -563,8 +563,8 @@ Ext.onReady(function(){
 				            frameborder:0
 				        }
 						win.show();
-						Ext.DomHelper.insertFirst(win.body, iframe)
-						//window.open('../reports/merchandise_receipts.php?reference='+reference);
+						Ext.DomHelper.insertFirst(win.body, iframe)*/
+						window.open('../reports/rr_branch.php?reference='+reference);
 					},
 	                getClass : function(value, meta, record, rowIx, ColIx, store) {
 	                    // Determines at runtime whether to render the icon/link
