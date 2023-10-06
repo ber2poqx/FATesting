@@ -41,7 +41,7 @@
 	if (isset($_GET['action'])) $action = $_GET['action'];
 	if (isset($_POST['action'])) $action = $_POST['action'];
 
-	page("Import of CSV Area");
+	page("Import of CSV Collector Area Setup");
 
 	if (isset($_POST['import'])) {
 		if (isset($_FILES['impCSVS']) && $_FILES['impCSVS']['name'] != '') {
@@ -107,7 +107,7 @@
 		} else display_error("No CSV file selected");
 	}
 
-	if ($action == 'import') echo 'IMPORT AREA';
+	if ($action == 'import');
 	else hyperlink_params($_SERVER['PHP_SELF'], _("Import"), "action=import", false);
 	echo "<br><br>";
 
@@ -119,7 +119,7 @@
 		if (!isset($_POST['sep']))
 		$_POST['sep'] = ",";
 
-		table_section_title("Import Area");
+		table_section_title("Impor Collector Area Setup");
 		text_row("Field separator:", 'sep', $_POST['sep'], 2, 1);
 		label_row("CSV Import File:", "<input type='file' id='impCSVS' name='impCSVS'>");
 
