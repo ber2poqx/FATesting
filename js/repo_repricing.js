@@ -133,6 +133,24 @@ Ext.onReady(function(){
 			direction : 'ASC'
 		}]
 	});
+	var pricehistoryStore = Ext.create('Ext.data.Store', {
+		name: 'pricehistoryStore',
+		fields:['id','stockid','description','price','date_defined','status'],
+        proxy: {
+			url: '?getRepoPriceHistory=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true,
+		sorters : [{
+			property : 'date_defined',
+			direction : 'DESC'
+		}]
+	});
 			
 	var Item_view = [
 		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120},
@@ -182,6 +200,13 @@ Ext.onReady(function(){
 			name: 'trans_no',
 			fieldLabel: 'trans_no',
 			//allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'repo_id',
+			name: 'repo_id',
+			fieldLabel: 'repo_id',
+			allowBlank: false,
 			hidden: true
 		},{
 			xtype: 'textfield',
@@ -481,15 +506,44 @@ Ext.onReady(function(){
 					Ext.getCmp('unrecovered').setValue(records.get('unrecovered_cost'));
 					Ext.getCmp('branch').setValue(records.get('branch'));
 					Ext.getCmp('price').setValue(records.get('price'));
+					Ext.getCmp('repo_id').setValue(records.get('repo_id'));
 
 					submit_window.setTitle('Repo Re-pricing Items - ' + records.get('stock_id') );
 					submit_window.show();
 					submit_window.setPosition(330,90);
 				}
+			},'-',{
+				icon: '../js/ext4/examples/shared/icons/chart_curve.png',
+				tooltip: 'Price History',
+				handler: function(grid, rowIndex, colIndex) {
+					var records = RepoStockItem.getAt(rowIndex);
+
+					pricehistoryStore.proxy.extraParams = {repo_id: records.get('repo_id'), stock_id: records.get('stock_id')};
+					pricehistoryStore.load();
+
+					GLTitle_w.show();
+					GLTitle_w.setPosition(320,60);
+				}
 			}]
 		}
 	];
-
+	var column_Pricehistory = [
+		{header:'<b>id</b>', dataIndex:'id', width:120, hidden: true},
+		{header:'<b>Item Code</b>', dataIndex:'stockid', width:130},
+		{header:'<b>Description</b>', dataIndex:'description', width:140, flex: 1},
+		{header:'<b>Price</b>', dataIndex:'price', width:110,
+			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
+				metaData.tdAttr = 'data-qtip="' + value + '"';
+				return Ext.util.Format.number(value, '0,000.00');
+			}
+		},
+		{header:'<b>date Modify</b>', dataIndex:'date_defined', width:130,
+			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
+				return Ext.util.Format.date(value, 'M. d, Y');
+			}
+		},
+		{header:'<b>Active ?</b>', dataIndex:'status', width:110}
+	];
 	var tbar = [{
 		xtype: 'combobox',
 		id: 'branchcode',
@@ -580,6 +634,65 @@ Ext.onReady(function(){
 			hrefTarget : '_blank'
 		}]*/
 	}];
+
+	var GLTitle_w = new Ext.create('Ext.Window',{
+		id: 'GLTitle_w',
+		width: 840,
+		height: 400,
+		scale: 'small',
+		resizable: false,
+		closeAction:'hide',
+		//closable:true,
+		modal: true,
+		layout:'fit',
+		plain 	: true,
+		title: 'Repo Price History',
+		items: [{
+			xtype: 'gridpanel',
+			store: pricehistoryStore,
+			anchor:'100%',
+			layout:'fit',
+			frame: false,
+			loadMask: true,
+			columns: column_Pricehistory,
+			features: [{ftype: 'summary'}],
+			columnLines: true,
+			bbar : {
+				xtype : 'pagingtoolbar',
+				hidden: false,
+				store : pricehistoryStore,
+				pageSize : itemsPerPage,
+				displayInfo : false,
+				emptyMsg: "No records to display",
+				doRefresh : function(){
+					pricehistoryStore.load();
+				}
+			},
+			viewConfig: {
+				listeners: {
+					refresh: function(view) {
+						// get all grid view nodes
+						var nodes = view.getNodes();
+						
+						for (var i = 0; i < nodes.length; i++) {
+							var node = nodes[i];
+							var record = view.getRecord(node);
+							// get all td elements
+							var cells = Ext.get(node).query('td');  
+							// set bacground color to all row td elements
+							for(var j = 0; j < cells.length; j++) {
+								if(record.get('status') == "Yes"){
+									Ext.fly(cells[j]).setStyle('color', "#09710b");
+									Ext.fly(cells[j]).setStyle('font-weight', 'bold');
+									Ext.fly(cells[j]).setStyle('background-color', "#fffecc");
+								}
+							}
+						}
+					}
+				}
+			}
+		}]
+	});
 
 	var grid_panel =  Ext.create('Ext.panel.Panel', { 
         renderTo: 'ext-form',

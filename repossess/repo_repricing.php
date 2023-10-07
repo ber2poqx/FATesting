@@ -120,12 +120,29 @@ if(isset($_GET['get_Item_details']))
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
     return;
 }
+if(isset($_GET['getRepoPriceHistory']))
+{
+    $result = get_repoprice_history($_GET['repo_id'], $_GET['stock_id'], 'REPOPRC');
+    $total = DB_num_rows($result);
+    while ($myrow = db_fetch($result)) {
+        $status_array[] = array('id'=>$myrow["id"],
+                               'stockid'=>$myrow["stock_id"],
+                               'description'=>$myrow["description"],
+                               'price'=>$myrow["amount"],
+                               'date_defined'=>$myrow["date_defined"],
+                               'status'=>$myrow["inactive"] == 0 ? 'Yes' : 'No'
+                            );
+    }
+    $jsonresult = json_encode($status_array);
+    echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+    return;
+}
 //----------------------------------------------------: insert, update, delete :-------------------------------------------
 if(isset($_GET['submit'])){
     //0 is by default no errors
     $InputError = 0;
 
-    if (empty($_POST['stockmove_id']) || empty($_POST['trans_no']) || empty($_POST['type'])){
+    if (empty($_POST['stockmove_id']) || empty($_POST['trans_no']) || empty($_POST['type']) || empty($_POST['repo_id'])){
         $InputError = 1;
         $dsplymsg = _('Some fields are empty or contain an improper value. Please reload the page and fill up the required field.');
     }
@@ -167,6 +184,10 @@ if(isset($_GET['submit'])){
     if ($InputError != 1){
         //update info
         update_repo_reprice_stock_move($_POST['price'], $_POST['stockmove_id'], $_POST['trans_no'], $_POST['stock_id'], $_POST['branch']);
+        update_repoprice_history($_POST['repo_id'], $_POST['stock_id'], 'REPOPRC');
+
+        //insert to price archive 10-07-2023
+        add_repoprice_history($_POST['stock_id'], $_POST['price'], $_POST['repo_id'], 'REPOPRC');
 
         $dsplymsg = _('Repo item price has been updated.');
 

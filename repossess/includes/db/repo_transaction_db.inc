@@ -682,3 +682,40 @@ function get_deferred_balance($trans_no, $account)
 	$row = db_fetch($result);
 	return $row[0];
 }
+
+function get_repoprice_history($repo_id, $stock_id, $module)
+{
+	$sql = "SELECT a.id, a.stock_id, a.amount, a.prcecost_id, a.module_type, a.date_defined, a.inactive, b.description
+			FROM ".TB_PREF."price_cost_archive a 
+				INNER JOIN ".TB_PREF."stock_master b ON b.stock_id = a.stock_id
+			WHERE a.module_type = ".db_escape($module)."
+				AND a.stock_id = ".db_escape($stock_id)."
+				AND a.prcecost_id = ".db_escape($repo_id)."
+			ORDER BY a.date_defined DESC, a.inactive";
+
+	return db_query($sql, "could not get repo stock items history ");
+}
+
+function add_repoprice_history($stock_id, $amount, $repo_id, $module)
+{
+	$trans_date = date2sql(date('m/d/Y'));
+
+	$sql = "INSERT INTO ".TB_PREF."price_cost_archive (
+				stock_id, amount, prcecost_id, module_type, date_defined
+			) VALUES (
+					".db_escape($stock_id).", ".db_escape($amount).", ".db_escape($repo_id).", ".db_escape($module).", ".db_escape($trans_date)."
+			)";
+
+	return db_query($sql, "cannot make repo price history because ");
+}
+
+function update_repoprice_history($repo_id, $stock_id, $module)
+{
+	$sql = "UPDATE ".TB_PREF."price_cost_archive 
+			SET inactive = 1
+		WHERE stock_id = ".db_escape($stock_id)."
+			AND prcecost_id = ".db_escape($repo_id)."
+			AND module_type = ".db_escape($module);
+	
+	return db_query($sql, "could not update price history status ");
+}
