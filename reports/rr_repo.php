@@ -259,6 +259,7 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		background: white;
 	    font-size: 11px;
 		font-family: century gothic;
+		text-align: center;
 	}
 	#managername{
 		display: inline-block;
@@ -336,20 +337,30 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	}
 
 		 
-	function get_nameuser(){
-		$sql = "SELECT A.real_name 
-				FROM ".TB_PREF."users A 
-				WHERE A.role_id = '19'";
-		$result = db_query($sql, "could not get user ");
-		$ret = db_fetch($result);
-	
-		return $ret[0];
+	function get_nameuser($rolenum){
+		$sql = "SELECT real_name 
+				FROM ".TB_PREF."users";
+
+		if($rolenum==receiver){
+			$sql .= " WHERE role_id IN ('11','12','15','17','18','21')";
+		}
+		else if($rolenum==approver){
+			$sql .= " WHERE role_id IN ('19','21')";
+		}
+		else if($rolenum==reviewer){
+			$sql .= " WHERE role_id IN ('12','15','17','18','21')";
+		}
+		else{
+			$sql .= " WHERE role_id = '$rolenum'";
+		}
+
+		return db_query($sql, "No transactions were returned");
 	}
 
 	function get_nameuseraccounting(){
-		$sql = "SELECT A.real_name 
-				FROM ".TB_PREF."users A 
-				WHERE A.role_id = '12'";
+		$sql = "SELECT real_name 
+				FROM ".TB_PREF."users 
+				WHERE role_id = '12'";
 		$result = db_query($sql, "could not get user ");
 		$ret = db_fetch($result);
 	
@@ -663,16 +674,40 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 			</tr>
 			<tr>
 				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name?></td>
-				<td class="footer_names"><select name="accountingname" id="accountingname"><option value="<?php echo get_nameuseraccounting() ?>" > <?php echo get_nameuseraccounting()?></option></select></td>
-				<td class="footer_names"><select name="managername" id="managername"><option value="<?php echo get_nameuser() ?>" > <?php echo get_nameuser()?></option></select></td>	
-				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $name_masterfile ?>" > <?php echo $name_masterfile ?></option></select></td>							
+				<td class="footer_names">
+					<select name="accountingname" id="accountingname">
+						<?php
+							$nameresult = get_nameuser($role = reviewer);
+							while($rownames=db_fetch($nameresult)){					
+								echo '<option value="'.$rownames["real_name"].'">'.$rownames["real_name"].'</option>';					
+							}
+						?>						
+					</select></td>
+				<td class="footer_names">
+					<select name="accountingname" id="accountingname">
+						<?php
+							$nameresult1 = get_nameuser($role = approver);
+							while($rownames1=db_fetch($nameresult1)){					
+								echo '<option value="'.$rownames1["real_name"].'">'.$rownames1["real_name"].'</option>';					
+							}
+						?>						
+					</select></td>
+				<td class="footer_names">
+					<select name="accountingname" id="accountingname">
+						<?php
+							$nameresult1 = get_nameuser($role = receiver);
+							while($rownames1=db_fetch($nameresult1)){					
+								echo '<option value="'.$rownames1["real_name"].'">'.$rownames1["real_name"].'</option>';					
+							}
+						?>						
+					</select></td>						
 			</tr>
 			
 		</table>		
 	</div>
 	
 	<script type="text/javascript">
-		window.print();
+		//window.print();
 	</script>
 </body>
 </html>
