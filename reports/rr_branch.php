@@ -306,7 +306,13 @@ function get_name_masterfile($reference){
 		background: white;
 	    font-size: 11px;
 		font-family: century gothic;
-	
+	}
+	select {
+		  -webkit-appearance: none;
+		  -moz-appearance: none;
+		  text-indent: 1px;
+		  text-overflow: '';
+	}
 </style>
 </head>
 

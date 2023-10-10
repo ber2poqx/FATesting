@@ -253,6 +253,33 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		padding-left: 50px; 
 		font-style: italic; 
 	}
+	#accountingname{
+		display: inline-block;
+		border: none;
+		background: white;
+	    font-size: 11px;
+		font-family: century gothic;
+	}
+	#managername{
+		display: inline-block;
+		border: none;
+		background: white;
+	    font-size: 11px;
+		font-family: century gothic;
+	}
+	#crrntname{
+		display: inline-block;
+		border: none;
+		background: white;
+	    font-size: 11px;
+		font-family: century gothic;
+	}
+	select {
+		  -webkit-appearance: none;
+		  -moz-appearance: none;
+		  text-indent: 1px;
+		  text-overflow: '';
+	}
 	
 </style>
 </head>
@@ -306,6 +333,37 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				WHERE id = '$trans_num'";
 
 		return db_query($sql, "No transactions were returned");
+	}
+
+		 
+	function get_nameuser(){
+		$sql = "SELECT A.real_name 
+				FROM ".TB_PREF."users A 
+				WHERE A.role_id = '19'";
+		$result = db_query($sql, "could not get user ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
+
+	function get_nameuseraccounting(){
+		$sql = "SELECT A.real_name 
+				FROM ".TB_PREF."users A 
+				WHERE A.role_id = '12'";
+		$result = db_query($sql, "could not get user ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
+
+	function get_name_masterfile($reference){
+		$sql = "SELECT mt_header_servedby 
+				FROM ".TB_PREF."mt_header
+				WHERE mt_header_rrbranch_reference = '$reference'";
+		$result = db_query($sql, "could not get masterfile ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
 	}
 
 	function get_gl_repo_trans()
@@ -590,10 +648,10 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 		<br/><br/><br/><br/>
 		<table id="footer">
 			<tr>
-				<th style="text-align: left; padding-left: 15px;">Prepared By:</th>
-				<th style="text-align: left; padding-left: 15px;">Approved By:</th>
-				<th style="text-align: left; padding-left: 15px;">Checked By:</th>
-				<th style="text-align: left; padding-left: 15px;">Received By:</th>
+				<th style="text-align: left; padding-left: 15px;">Prepared by:</th>
+				<th style="text-align: left; padding-left: 15px;">Reviewed by:</th>
+				<th style="text-align: left; padding-left: 15px;">Approved by:</th>
+				<th style="text-align: left; padding-left: 15px;">Received by:</th>
 			</tr>
 			<tr><td>.</td></tr>
 			<tr><td>.</td></tr>
@@ -605,12 +663,12 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 			</tr>
 			<tr>
 				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name?></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>	
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic; width: 90%;"></td>
+				<td class="footer_names"><select name="accountingname" id="accountingname"><option value="<?php echo get_nameuseraccounting() ?>" > <?php echo get_nameuseraccounting()?></option></select></td>
+				<td class="footer_names"><select name="managername" id="managername"><option value="<?php echo get_nameuser() ?>" > <?php echo get_nameuser()?></option></select></td>	
+				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $name_masterfile ?>" > <?php echo $name_masterfile ?></option></select></td>							
 			</tr>
 			
-		</table>
+		</table>		
 	</div>
 	
 	<script type="text/javascript">

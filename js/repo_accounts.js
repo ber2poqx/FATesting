@@ -401,7 +401,7 @@ Ext.onReady(function(){
 				tooltip: 'view receiving report repo',
 				handler: function(grid, rowIndex, colIndex) {
 					var records = RepoDetailsStore.getAt(rowIndex);
-					var win = new Ext.Window({
+					/*var win = new Ext.Window({
 						autoLoad:{
 							url:'../../reports/rr_repo.php?&reference=' + records.get('reference_no'),
 							discardUrl: true,
@@ -427,8 +427,9 @@ Ext.onReady(function(){
 						frameborder:0
 					}
 					win.show();
-					Ext.DomHelper.insertFirst(win.body, iframe)
+					Ext.DomHelper.insertFirst(win.body, iframe)*/
 					//---//
+					window.open('../../reports/rr_repo.php?&reference=' + records.get('reference_no'));
 				}
 			}]
 		}
