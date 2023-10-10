@@ -950,8 +950,8 @@ function handle_new_item()
 		$_POST['chassis_no'],
 		$_POST['color_desc'],
 		$_POST['item_type'],
-		floor(input_num('discount1')),
-		input_num('discount2'),
+		round2(input_num('discount1'),2),
+		round2(input_num('discount2'),2),
 		input_num('lcp_price'),
 		$_POST['smi'],
 		$_POST['incentives']

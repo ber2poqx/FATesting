@@ -94,8 +94,8 @@ function add_to_order(
 				$chasis_no,
 				$color_desc,
 				$item_type,
-				$discount1,
-				$discount2,
+				round2($discount1, 2),
+				round2($discount2, 2),
 				//Added by spyrax10
 				$lcp_price,
 				$smi, 
@@ -266,8 +266,8 @@ function display_order_summary($title, &$order, $editable_items = false)
 				amount_cell(get_unit_cost_average($stock_item->stock_id, $order->Location, $stock_item->lot_no, $stock_item->chasis_no));
 			}
 
-			$dis1 = floor($stock_item->discount1);
-			$dis2 = floor($stock_item->discount2);
+			$dis1 = round2($stock_item->discount1, 2);
+			$dis2 = round2($stock_item->discount2, 2);
 
 			amount_cell($dis1);
 			amount_cell($dis2);
@@ -694,7 +694,7 @@ function display_order_header(&$order, $editable, $date_text)
 		$Ajax->activate('items_table');
 	} 
 	else {
-		$tot_discount = price_format(floor(get_post('total_discount')));
+		$tot_discount = price_format(round(get_post('total_discount'), 2));
 		//$tot_discount = get_post('lcp_amount') - get_post('total_amount');
 	}
 	label_row(_("Total Discount: &nbsp;"), $tot_discount);
@@ -849,8 +849,10 @@ function sales_order_item_controls(&$order, &$rowcounter, $line_no = -1)
 			label_cell($_POST['item_description']);
 		}
 		//Added by spyrax10
-		$_POST['discount1'] = price_format($order->line_items[$id]->discount1);
-		$_POST['discount2'] = price_format($order->line_items[$id]->discount2);
+		// $_POST['discount1'] = price_format($order->line_items[$id]->discount1);
+		// $_POST['discount2'] = price_format($order->line_items[$id]->discount2);
+		$_POST['discount1'] = round2($order->line_items[$id]->discount1, 2);
+		$_POST['discount2'] = round2($order->line_items[$id]->discount2, 2);
 		$_POST['lcp_price'] = $order->line_items[$id]->lcp_price;
 
 		$Ajax->activate('items_table');

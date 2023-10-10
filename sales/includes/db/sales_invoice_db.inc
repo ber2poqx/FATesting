@@ -113,6 +113,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	//
 	$outstanding_ar_amount = $entry_amount - $invoice->dp_amount; // added by albert
 	
+	$ar_balance_less_discount = round2($entry_amount - get_total_discount($sales_order), 2);
 	$invoice_no = write_customer_trans(
 		ST_SALESINVOICE,
 		$trans_no,
@@ -120,7 +121,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->Branch,
 		$date_,
 		$invoice->reference,
-		$opening_balances == 0  ? $entry_amount - price_format(get_total_discount($sales_order)) : $entry_amount,
+		$opening_balances == 0  ? $ar_balance_less_discount : $entry_amount,
 		0,
 		$items_added_tax,
 		$invoice->freight_cost,
@@ -160,7 +161,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->financing_rate,
 		$invoice->first_due_date, 
 		$invoice->maturity_date,
-		$opening_balances == 1 ? $ar_balance : $outstanding_ar_amount - price_format(get_total_discount($sales_order)),
+		$opening_balances == 1 ? $ar_balance : round2($outstanding_ar_amount - get_total_discount($sales_order), 2),
 		$entry_amount,
 		$invoice->lcp_amount,
 		$invoice->dp_amount,

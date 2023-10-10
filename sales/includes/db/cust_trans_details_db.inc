@@ -130,7 +130,7 @@ function write_customer_trans_detail_item(
 	$incentives = 0,
 	$lcp_price = 0
 ) {
-	if ($line_id != 0)
+	if ($line_id != 0){
 		$sql = "UPDATE " . TB_PREF . "debtor_trans_details SET
 			stock_id=" . db_escape($stock_id) . ",
 			description=" . db_escape($description) . ",
@@ -150,7 +150,9 @@ function write_customer_trans_detail_item(
 			incentives=$incentives,
 			lcp_price=$lcp_price
 			WHERE id=" . db_escape($line_id);
+	}
 	else
+	{
 		//Added by Albert 03/03/2023 to avoid Adding  zero Quatities 
 	 	if($quantity != 0){
 			$sql = "INSERT INTO " . TB_PREF . "debtor_trans_details (debtor_trans_no,
@@ -167,6 +169,6 @@ function write_customer_trans_detail_item(
 					$discount1, $discount2,
 					$smi, $incentives,$lcp_price)";
 		}
-
+	}
 	db_query($sql, "The debtor transaction detail could not be written");
 }
