@@ -155,6 +155,8 @@ Ext.onReady(function(){
 
 							var robert = UserRoleIdStore.getAt(0);
 							role_id = robert.get('role_id');
+							can_post = robert.get('can_post');
+							can_apprvd = robert.get('can_apprvd');
 
 							var windowItemSerialList = Ext.create('Ext.Window',{
 								title:'Item Details / Gl Entry Details',
@@ -379,7 +381,7 @@ Ext.onReady(function(){
 							});	
 						}	
 
-						if(role_id !=19 && (role_id !=2)) {
+						if(can_post == 1) {
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('disapproved_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
@@ -387,17 +389,22 @@ Ext.onReady(function(){
 							}else if(record.get('status') == 'Draft') {
 								Ext.getCmp('post_tran_btn').setVisible(false);
 							}
-						}else if(role_id == 19) {
+						}else if(can_apprvd == 1) {
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('approved_btn').setVisible(false);
 							}
-						}else if(role_id == 2) {
+						/*}else if(role_id == 2) {
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('approved_btn').setVisible(false);
 							}else if(record.get('status') == 'Draft') {
 								Ext.getCmp('post_tran_btn').setVisible(false);
-							}
+							}*/
+						}else{
+							Ext.getCmp('disapproved_btn').setVisible(false);
+							Ext.getCmp('approved_btn').setVisible(false);
+							Ext.getCmp('post_tran_btn').setVisible(false);
+							Ext.getCmp('PostDate').setVisible(false);
 						}
 
 						if(record.get('status') == 'Closed') {

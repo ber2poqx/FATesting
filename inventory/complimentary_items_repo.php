@@ -717,13 +717,18 @@ if(!is_null($action) || !empty($action)){
             $user_role = check_user_role($_SESSION["wa_current_user"]->username);
             $user_name = $_SESSION["wa_current_user"]->username;
 
-            $sql = "SELECT role_id FROM ".TB_PREF."users WHERE user_id = '$user_name'";
+            $sql = "SELECT A.role_id, B.admin_branches_canreview, B.admin_branches_canapprove 
+                FROM ".TB_PREF."users A
+                LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
+                WHERE user_id = '$user_name'";
             
             $result = db_query($sql, "could not get all Serial Items");
 
             while ($myrow = db_fetch($result))
             {
-                $group_array[] = array('role_id'=>$myrow["role_id"]); 
+                $group_array[] = array('role_id'=>$myrow["role_id"],
+                    'can_post'=>$myrow["admin_branches_canreview"],
+                    'can_apprvd'=>$myrow["admin_branches_canapprove"]); 
             }
 
             $jsonresult = json_encode($group_array);
