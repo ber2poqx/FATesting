@@ -2476,11 +2476,11 @@ if(isset($_GET['submitSICash']))
         }
     }
 
-    //check data
+   /* //check data
 	if(check_cr_number($_POST['receipt_no_cash'], $_POST['moduletype_cash'])){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
-    }
+    }*/
 
     if ($InputError != 1){
         
