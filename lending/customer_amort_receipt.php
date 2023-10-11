@@ -1756,9 +1756,14 @@ if(isset($_GET['submit']))
                             //no more penalty
                             if($tenderd_amount > 0){
                                 //check if maka kuha ba ug rebate
-                                if($_POST['collectType'] != 2){
-                                    $RebateAmount = GetRebate($_POST['trans_date'], $myrow["date_due"], $debtor_loans["rebate"]);
+                                if($_POST['manualrebate']){
+
+                                }else{
+                                    if($_POST['collectType'] != 2){
+                                        $RebateAmount = GetRebate($_POST['trans_date'], $myrow["date_due"], $debtor_loans["rebate"]);
+                                    }
                                 }
+                                
                                 $penaltyBal = get_Penalty_balance($_POST['transtype'], $_POST['InvoiceNo'], $myrow["loansched_id"]);
     
                                 if($myrow["status"] == "partial"){
@@ -2385,10 +2390,10 @@ if(isset($_GET['submitSICash']))
         $InputError = 1;
         $dsplymsg = _('Invoice number must not be empty.');
     }
-    /*if (empty($_POST['receipt_no_cash'])) {
+    if (empty($_POST['receipt_no_cash'])) {
         $InputError = 1;
         $dsplymsg = _('CR number must not be empty.');
-    }*/
+    }
     if (empty($_POST['intobankacct_cash'])) {
         $InputError = 1;
         $dsplymsg = _('Into bank account must not be empty.');
@@ -2476,11 +2481,11 @@ if(isset($_GET['submitSICash']))
         }
     }
 
-   /* //check data
+    //check data
 	if(check_cr_number($_POST['receipt_no_cash'], $_POST['moduletype_cash'])){
         $InputError = 1;
         $dsplymsg = _("CR number already exists.");
-    }*/
+    }
 
     if ($InputError != 1){
         
