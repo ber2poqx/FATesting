@@ -1520,6 +1520,7 @@ Ext.onReady(function() {
 			//CollectionTypeStore.load();
 			Ext.getCmp('total_otheramount').setValue(0);
 			Ext.getCmp('manualpenalty').setValue(0);
+			Ext.getCmp('manualrebate').setValue(0);
 
 			//Ext.getCmp('intobankacct').setValue(3);
 			Ext.getCmp('debit_acct').setValue("1050");
@@ -1889,7 +1890,7 @@ Ext.onReady(function() {
 		closeAction:'hide',
 		//closable:true,
 		modal: true,
-		layout:'fit',
+		//layout:'fit',
 		plain 	: true,
 		title: 'Manual Penalty',
 		items: [{
@@ -1907,15 +1908,47 @@ Ext.onReady(function() {
 			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
 			listeners: {
 				change: function(object, value) {
-					Ext.getCmp('manualpenalty').setValue(value);
-					Ext.getCmp('totalpenalty').setValue(value);
-
-					if(Ext.getCmp('InvoiceNo').getValue() != null){
-						var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
-						var GridRecords = ItemModel.getLastSelected();
-
-						if(Ext.getCmp('tenderd_amount').getValue() != 0){
-							GridRecords.set("penalty",value);
+					if(value != 0){
+						Ext.getCmp('manualpenalty').setValue(value);
+						Ext.getCmp('totalpenalty').setValue(value);
+	
+						if(Ext.getCmp('InvoiceNo').getValue() != null){
+							var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();
+	
+							if(Ext.getCmp('tenderd_amount').getValue() != 0) {
+								GridRecords.set("penalty",value);
+							}
+						}
+					}
+				}
+			}
+		},{
+			xtype: 'numericfield',
+			id: 'm_rebate',
+			name: 'm_rebate',
+			fieldLabel: 'Rebate Amount ',
+			allowBlank:false,
+			useThousandSeparator: true,
+			labelWidth: 123,
+			width: 275,
+			margin: '2 0 2 5',
+			thousandSeparator: ',',
+			minValue: 0,
+			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+			listeners: {
+				change: function(object, value) {
+					if(value != 0){
+						Ext.getCmp('manualrebate').setValue(value);
+						Ext.getCmp('totalrebate').setValue(value);
+	
+						if(Ext.getCmp('InvoiceNo').getValue() != null){
+							var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();
+	
+							if(Ext.getCmp('tenderd_amount').getValue() != 0){
+								GridRecords.set("rebate",value);
+							}
 						}
 					}
 				}
@@ -2004,6 +2037,13 @@ Ext.onReady(function() {
 				id: 'manualpenalty',
 				name: 'manualpenalty',
 				fieldLabel: 'manual penalty',
+				hidden: true
+			},{
+				xtype: 'textfield',
+				id: 'manualrebate',
+				name: 'manualrebate',
+				fieldLabel: 'manualrebate',
+				allowBlank: false,
 				hidden: true
 			},{
 				xtype: 'fieldcontainer',
@@ -2115,7 +2155,7 @@ Ext.onReady(function() {
 							scheduleStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), colltype: Ext.getCmp('collectType').getValue()};
 							scheduleStore.load({
 								callback: function(records) {
-									//alert("da");
+									//alert(records[i].get('totalrebate'));
 									for (var i = 0; i < records.length; i++) {
 										Ext.getCmp('totalrebate').setValue(records[i].get('totalrebate'));
 									}
@@ -2564,7 +2604,9 @@ Ext.onReady(function() {
 						},
 						handler: function(){
 							Ext.getCmp('manualpenalty').setValue(0);
+							Ext.getCmp('manualrebate').setValue(0);
 							Ext.getCmp('m_penalty').setValue(0);
+							Ext.getCmp('m_rebate').setValue(0);
 							Ext.getCmp('m_penalty').focus(false, 200);
 							Penalty_win.show();
 							Penalty_win.setPosition(700,100);
@@ -3851,18 +3893,18 @@ Ext.onReady(function() {
 						}
 					}
 				},{
-					/*xtype: 'textfield',
+					xtype: 'textfield',
 					fieldLabel: 'Receipt No. ',
 					id: 'receipt_no_cash',
 					name: 'receipt_no_cash',
 					margin: '2 0 0 0',
-					//allowBlank: false,
+					allowBlank: false,
 					enforceMaxLength: true,
 					labelWidth: 100,
 					width: 255,
 					maxLength : 7,
 					maskRe: /^([a-zA-Z0-9 _.,-`]+)$/,
-					fieldStyle: 'font-weight: bold; color: #210a04;',*/
+					fieldStyle: 'font-weight: bold; color: #210a04;',
 				}]
 			},{
 				xtype: 'fieldcontainer',

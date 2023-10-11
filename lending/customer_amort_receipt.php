@@ -1362,10 +1362,11 @@ if(isset($_GET['submit']))
 
             }else{
             //---->>>>>>> amortization payment -------------------------
-                $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = $RebateAmount = $pdlast_insrtd_id = 0;
+                $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = $RebateAmount = $pdlast_insrtd_id = $manualrebate = 0;
 
                 $partialpay = $partialpayment;
                 $tenderd_amount = ($_POST['tenderd_amount'] + $_POST['total_otheramount']);
+                $manualrebate = $_POST['manualrebate'];
 
                 $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
                 $bank = get_bank_account($_POST['intobankacct']);
@@ -1756,8 +1757,9 @@ if(isset($_GET['submit']))
                             //no more penalty
                             if($tenderd_amount > 0){
                                 //check if maka kuha ba ug rebate
-                                if($_POST['manualrebate']){
-
+                                if($manualrebate != 0){
+                                    $RebateAmount = $manualrebate;
+                                    $manualrebate = 0;
                                 }else{
                                     if($_POST['collectType'] != 2){
                                         $RebateAmount = GetRebate($_POST['trans_date'], $myrow["date_due"], $debtor_loans["rebate"]);
