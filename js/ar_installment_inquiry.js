@@ -1877,9 +1877,14 @@ Ext.onReady(function(){
 							for(var j = 0; j < cells.length; j++) {
 								//console.log(cells[j]);
 								if(record.get('module_type') == "REPO"){
-									Ext.fly(cells[j]).setStyle('background-color', "#fca678");
+									Ext.fly(cells[j]).setStyle('color', "#a95223");
+									Ext.fly(cells[j]).setStyle('font-weight', 'bold');
+									Ext.fly(cells[j]).setStyle('background-color', "#fae4d8 ");
+
 								}else if(record.get('module_type') == "TEMP-REPO"){
-									Ext.fly(cells[j]).setStyle('background-color', "#f7b86d");
+									Ext.fly(cells[j]).setStyle('color', "#fe945b");
+									Ext.fly(cells[j]).setStyle('font-weight', 'bold');
+									Ext.fly(cells[j]).setStyle('background-color', "#fae4d8 ");
 								}
 							}
 							//Ext.getCmp('changeterm');
