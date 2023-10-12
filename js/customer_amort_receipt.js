@@ -2037,6 +2037,7 @@ Ext.onReady(function() {
 				id: 'manualpenalty',
 				name: 'manualpenalty',
 				fieldLabel: 'manual penalty',
+				allowBlank: false,
 				hidden: true
 			},{
 				xtype: 'textfield',
@@ -2591,7 +2592,7 @@ Ext.onReady(function() {
 						padding: '3px',
 						margin: '2px 2px 6px 2px',
 						icon: '../js/ext4/examples/shared/icons/calculator_edit.png',
-						tooltip: 'Click to add your manual penalty calculation',
+						tooltip: 'Click to add your manual rebate/penalty calculation',
 						style : {
 							'color': 'blue',
 							'font-size': '30px',
@@ -2603,10 +2604,10 @@ Ext.onReady(function() {
 							//'border-radius':'10px'
 						},
 						handler: function(){
-							Ext.getCmp('manualpenalty').setValue(0);
-							Ext.getCmp('manualrebate').setValue(0);
-							Ext.getCmp('m_penalty').setValue(0);
-							Ext.getCmp('m_rebate').setValue(0);
+							//Ext.getCmp('manualpenalty').setValue(0);
+							//Ext.getCmp('manualrebate').setValue(0);
+							Ext.getCmp('m_penalty').setValue(Ext.getCmp('manualpenalty').getValue());
+							Ext.getCmp('m_rebate').setValue(Ext.getCmp('manualrebate').getValue());
 							Ext.getCmp('m_penalty').focus(false, 200);
 							Penalty_win.show();
 							Penalty_win.setPosition(700,100);

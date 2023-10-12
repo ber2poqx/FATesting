@@ -1140,6 +1140,10 @@ if(isset($_GET['submit']))
         $InputError = 1;
         $dsplymsg = _('Collection type must not be empty.');
     }
+    if(($_POST['tenderd_amount'] + $_POST['manualrebate']) < $_POST['manualpenalty']){
+        $InputError = 1;
+        $dsplymsg = _('Tendered amount must be greater than or equal to Penalty');
+    }
     
     $invoice_date = get_debtor_invoice_date($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
     if(check_two_dates($invoice_date, $_POST['trans_date']) < 0){
@@ -1257,10 +1261,6 @@ if(isset($_GET['submit']))
                 $islastPay = 1;
             }
 
-            if($_POST['manualpenalty'] != 0){
-                $manualpenalty = $_POST['manualpenalty'];
-            }
-
             set_global_connection();
             
             if($_POST['paymentType'] == "down"){
@@ -1362,12 +1362,17 @@ if(isset($_GET['submit']))
 
             }else{
             //---->>>>>>> amortization payment -------------------------
-                $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = $RebateAmount = $pdlast_insrtd_id = $manualrebate = 0;
+                $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = $RebateAmount = $pdlast_insrtd_id = $manualrebate = $manualpenalty = 0;
 
                 $partialpay = $partialpayment;
                 $tenderd_amount = ($_POST['tenderd_amount'] + $_POST['total_otheramount']);
-                $manualrebate = $_POST['manualrebate'];
 
+                if($_POST['manualpenalty'] != 0){
+                    $manualpenalty = $_POST['manualpenalty'];
+                }
+                if($_POST['manualrebate'] != 0){
+                    $manualrebate = $_POST['manualrebate'];
+                }
                 $BranchNo = get_newcust_branch($_POST['customername'], $_POST['customercode']);
                 $bank = get_bank_account($_POST['intobankacct']);
                 $bank_gl_account = get_bank_gl_account($_POST['intobankacct']);
