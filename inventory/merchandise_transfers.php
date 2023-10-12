@@ -173,6 +173,7 @@ if(!is_null($action) || !empty($action)){
                     $stock_qty = $data['qty'];
                     $currentqty = $data['currentqty'];
                     $standard_cost = $data['standard_cost'];
+                    $category = $data['catcode'];
 
                     if($total_rrdate>0){
                         $isError = 1;
@@ -191,7 +192,7 @@ if(!is_null($action) || !empty($action)){
                         $isError = 1;
                         $message = "Sorry, Quantity you entered '".$stock_qty."' is Greater than Available Quantity On Hand: '".$currentqty."'";
                         break;
-                    }elseif($standard_cost == 0) {
+                    }elseif($category != '17' && $standard_cost == 0) {
                         $isError = 1;
                         $message="Unit Cost must not be zero.";
                         break;

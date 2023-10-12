@@ -1321,7 +1321,8 @@ Ext.onReady(function(){
 														var ObjItem = {							
 															qty: item.get('qty'),
 															currentqty:item.get('currentqty'),
-															standard_cost:item.get('standard_cost')													
+															standard_cost:item.get('standard_cost')	,
+															catcode: Ext.getCmp('category').getValue()												
 														};
 														gridRepoData.push(ObjItem);
 													});
