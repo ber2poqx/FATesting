@@ -865,6 +865,86 @@ Ext.onReady(function(){
 		}]*/
 	});
 
+	var Penalty_win = new Ext.create('Ext.Window',{
+		id: 'Penalty_win',
+		//width: 840,
+		//height: 400,
+		scale: 'small',
+		resizable: false,
+		closeAction:'hide',
+		//closable:true,
+		modal: true,
+		//layout:'fit',
+		plain 	: true,
+		title: 'Manual Penalty',
+		items: [{
+			xtype: 'numericfield',
+			id: 'm_penalty',
+			name: 'm_penalty',
+			fieldLabel: 'Penalty Amount ',
+			allowBlank:false,
+			useThousandSeparator: true,
+			labelWidth: 123,
+			width: 275,
+			margin: '2 0 2 5',
+			thousandSeparator: ',',
+			minValue: 0,
+			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+			listeners: {
+				change: function(object, value) {
+					if(value != 0){
+						Ext.getCmp('manualpenalty').setValue(value);
+	
+						if(Ext.getCmp('InvoiceNo_aib').getValue() != null){
+							var ItemModel = Ext.getCmp('AllocTabGrid_aib').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();
+	
+							if(Ext.getCmp('tenderd_amount_aib').getValue() != 0) {
+								GridRecords.set("penalty",value);
+							}
+						}
+					}
+				}
+			}
+		},{
+			xtype: 'numericfield',
+			id: 'm_rebate',
+			name: 'm_rebate',
+			fieldLabel: 'Rebate Amount ',
+			allowBlank:false,
+			useThousandSeparator: true,
+			labelWidth: 123,
+			width: 275,
+			margin: '2 0 2 5',
+			thousandSeparator: ',',
+			minValue: 0,
+			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+			listeners: {
+				change: function(object, value) {
+					if(value != 0){
+						Ext.getCmp('manualrebate').setValue(value);
+	
+						if(Ext.getCmp('InvoiceNo_aib').getValue() != null){
+							var ItemModel = Ext.getCmp('AllocTabGrid_aib').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();
+	
+							if(Ext.getCmp('tenderd_amount_aib').getValue() != 0){
+								GridRecords.set("rebate",value);
+							}
+						}
+					}
+				}
+			}
+		}],
+		buttons:[{
+			text:'<b>Ok</b>',
+			icon: '../js/ext4/examples/shared/icons/disk.png',
+			handler:function(){
+				Penalty_win.close();
+			}
+		}]
+	});
+
 	var submit_form_ADP = Ext.create('Ext.form.Panel', {
 		id: 'submit_form_ADP',
 		model: 'AllocationModel',
@@ -1221,7 +1301,7 @@ Ext.onReady(function(){
 		id: 'submit_form_AIB',
 		model: 'AllocationModel',
 		frame: true,
-		height: 365,
+		//height: 365,
 		defaultType: 'field',
 		defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
 		items: [{
@@ -1271,6 +1351,20 @@ Ext.onReady(function(){
 			id: 'paymentType_aib',
 			name: 'paymentType_aib',
 			fieldLabel: 'paymentType',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'manualpenalty',
+			name: 'manualpenalty',
+			fieldLabel: 'manual penalty',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'manualrebate',
+			name: 'manualrebate',
+			fieldLabel: 'manualrebate',
 			allowBlank: false,
 			hidden: true
 		},{
@@ -1485,7 +1579,38 @@ Ext.onReady(function(){
 				store:	SIitemStore,
 				columns: Item_view,
 				columnLines: true
-			}]
+			}],
+			tabBar: {
+				items: [{
+					xtype: 'tbfill'
+				},{
+					xtype: 'button',
+					text: '',
+					padding: '3px',
+					margin: '2px 2px 6px 2px',
+					icon: '../js/ext4/examples/shared/icons/calculator_edit.png',
+					tooltip: 'Click to add your manual rebate/penalty calculation',
+					style : {
+						'color': 'blue',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#052b59',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						'border': 'none',
+						//'border-radius':'10px'
+					},
+					handler: function(){
+						//Ext.getCmp('manualpenalty').setValue(0);
+						//Ext.getCmp('manualrebate').setValue(0);
+						Ext.getCmp('m_penalty').setValue(Ext.getCmp('manualpenalty').getValue());
+						Ext.getCmp('m_rebate').setValue(Ext.getCmp('manualrebate').getValue());
+						Ext.getCmp('m_penalty').focus(false, 200);
+						Penalty_win.show();
+						Penalty_win.setPosition(700,100);
+					}
+				}]
+			}
 		}]
 	});
 	var submit_window_AIB = Ext.create('Ext.Window',{
@@ -2163,6 +2288,8 @@ Ext.onReady(function(){
 			Ext.getCmp('moduletype_aib').setValue('ALCN-INTERB');
 			Ext.getCmp('collectType_aib').setValue('0');
 			Ext.getCmp('paymentType_aib').setValue('alloc');
+			Ext.getCmp('manualpenalty').setValue(0);
+			Ext.getCmp('manualrebate').setValue(0);
 			GetCashierPrep("interb");
 
 			submit_window_AIB.show();
