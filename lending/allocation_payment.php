@@ -914,7 +914,6 @@ if(isset($_GET['submitAllocInterB']))
             }
             if($_POST['manualrebate'] != 0){
                 $manualrebate = $_POST['manualrebate'];
-                echo 'x1'. $_POST['manualrebate'];
             }
             
             $partialpay = $partialpayment;
@@ -1041,14 +1040,11 @@ if(isset($_GET['submitAllocInterB']))
                         //check if maka kuha ba ug rebate
                         if($manualrebate != 0){
                             $RebateAmount = $manualrebate;
-                            echo 'x2'. $RebateAmount;
-                            $manualrebate = 0;
+                            //$manualrebate = 0;
                         }else{
                             $RebateAmount = GetRebate($_POST['trans_date_aib'], $myrow["date_due"], $debtor_loans["rebate"]);
-                            echo 'xx1'. $RebateAmount;
                         }
                         if($myrow["status"] == "partial"){
-                            echo 'x3'. $RebateAmount;
                             $thismonthAmort = ($myrow["principal_due"] - $partialpayment);
 
                             if(($tenderd_amount + $RebateAmount) == $thismonthAmort){
@@ -1062,10 +1058,10 @@ if(isset($_GET['submitAllocInterB']))
 
                             }elseif(($tenderd_amount + $RebateAmount) < $thismonthAmort){
 
-                                add_loan_ledger($_POST['InvoiceNo_aib'], $_POST['customername_aib'], $myrow["loansched_id"], $_POST['transtype_aib'], ST_CUSTPAYMENT, $tenderd_amount, 0, 0, 0, $trans_date, $payment_no);
+                                add_loan_ledger($_POST['InvoiceNo_aib'], $_POST['customername_aib'], $myrow["loansched_id"], $_POST['transtype_aib'], ST_CUSTPAYMENT, ($tenderd_amount + $RebateAmount), 0, 0, 0, $trans_date, $payment_no);
                                 update_loan_schedule($myrow["loansched_id"], $_POST['customername_aib'], $_POST['InvoiceNo_aib'], $_POST['transtype_aib'], "partial");
-                                
-                                $allocatedAmount += $tenderd_amount;
+                                 
+                                $allocatedAmount += ($tenderd_amount + $RebateAmount);
                                 $tenderd_amount = 0;
 
                             }else{
@@ -1081,7 +1077,6 @@ if(isset($_GET['submitAllocInterB']))
                             }
 
                         }else{
-                            echo 'x4'. $RebateAmount;
                             if($tenderd_amount == ($myrow["principal_due"] - $RebateAmount)){
 
                                 add_loan_ledger($_POST['InvoiceNo_aib'], $_POST['customername_aib'], $myrow["loansched_id"], $_POST['transtype_aib'], ST_CUSTPAYMENT, $myrow["principal_due"], 0, $RebateAmount, 0, $trans_date, $payment_no);
@@ -1090,7 +1085,7 @@ if(isset($_GET['submitAllocInterB']))
                                 $allocatedAmount += $myrow["principal_due"];
                                 $GLRebate += $RebateAmount;
                                 $tenderd_amount = 0;
-
+                                
                             }elseif($tenderd_amount < ($myrow["principal_due"] - $RebateAmount)){
                                 
                                 add_loan_ledger($_POST['InvoiceNo_aib'], $_POST['customername_aib'], $myrow["loansched_id"], $_POST['transtype_aib'], ST_CUSTPAYMENT, $tenderd_amount, 0, 0, 0, $trans_date, $payment_no);
@@ -1098,7 +1093,7 @@ if(isset($_GET['submitAllocInterB']))
                                 
                                 $allocatedAmount += $tenderd_amount;
                                 $tenderd_amount = 0;
-
+                                
                             }else{
                                 add_loan_ledger($_POST['InvoiceNo_aib'], $_POST['customername_aib'], $myrow["loansched_id"], $_POST['transtype_aib'], ST_CUSTPAYMENT, $myrow["principal_due"], 0, $RebateAmount, 0, $trans_date, $payment_no);
                                 update_loan_schedule($myrow["loansched_id"], $_POST['customername_aib'], $_POST['InvoiceNo_aib'], $_POST['transtype_aib'], "paid", 0, "paid");

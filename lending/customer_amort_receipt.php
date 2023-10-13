@@ -1787,10 +1787,10 @@ if(isset($_GET['submit']))
     
                                     }elseif(($tenderd_amount + $RebateAmount) < $thismonthAmort){
     
-                                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, $tenderd_amount, 0, 0, 0, $trans_date, $payment_no);
+                                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, ($tenderd_amount + $RebateAmount), 0, 0, 0, $trans_date, $payment_no);
                                         update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "partial", 0, $penaltyBal['penalty_status']);
                                         
-                                        $allocatedAmount += $tenderd_amount;
+                                        $allocatedAmount += ($tenderd_amount + $RebateAmount);
                                         $tenderd_amount = 0;
     
                                     }else{
