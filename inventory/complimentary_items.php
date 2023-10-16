@@ -154,7 +154,7 @@ if(!is_null($action) || !empty($action)){
             }else{
                 $amount=-$cr_amount;
             }
-            $_SESSION['transfer_items']->update_gl_item($filter['line'], $filter['code_id'],'','',$amount, $filter['memo'], null, $filter['person_id'], $filter['mcode'], $filter['master_file'],0, null,null, $filter['master_file_type']);
+            $_SESSION['transfer_items']->update_gl_amount($filter['line'], $amount);
         
         
             echo '({"success":true,"Update":"","id":"'.$filter['id'].'","amount":"'.$amount.'"})';
@@ -399,7 +399,7 @@ if(!is_null($action) || !empty($action)){
                     //$total_gl = 0;
                     foreach($_SESSION['transfer_items']->gl_items as $gl)
                     {   
-                        if ($gl->sug_mcode == '') {
+                        if ($gl->sug_mcode == null) {
                             $suggestEntry = 0;
                         }else{
                             $suggestEntry = $gl->sug_mcode;
@@ -1178,21 +1178,17 @@ if(!is_null($action) || !empty($action)){
                         if ($myrow1["person_type"]==4) {
                             add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["account"], $myrow1["mcode"], $myrow1["master_file"], $PostDated, $myrow1["sa_reference"],
                             $myrow1["amount"], $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $brcode);
-                            
-                            if ($myrow1["amount"] > 0) {                                
+                                                                              
+                            if ($myrow1["suggest_entry"] != 0) {                              
                                 $master_file = get_db_location_name($brcode);
                                 $mcode = $brcode;
-                            }else{                               
-                                $master_file = $myrow1["master_file"];
-                                $mcode = $myrow1["mcode"];
-                            }                           
-                            if ($myrow1["suggest_entry"] != 0) {
-                                $accs = $myrow1["suggest_entry"];
-                            }else{
-                                $accs = $myrow1["account"];
+                            
+                                add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["account"], $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
+                                ($myrow1["amount"]*-1), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
+
+                                add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["suggest_entry"], $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
+                                ($myrow1["amount"]), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
                             }
-                            add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $accs, $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
-                            ($myrow1["amount"]*-1), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
                         }
                     }
                     add_audit_trail(ST_COMPLIMENTARYITEM, $trans_no, $PostDate,'');           

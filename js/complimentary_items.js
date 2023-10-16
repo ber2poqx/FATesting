@@ -1077,6 +1077,7 @@ Ext.onReady(function(){
 												Ext.MessageBox.alert('Error','Please Select Chart of Accounts');
 												return false;
 											}
+											Ext.getCmp('suggest_blocking').setValue(suggestentry);
 									
 											if(updatesuggest_form.isValid()) {
 												updatesuggest_form.submit({
@@ -1117,8 +1118,15 @@ Ext.onReady(function(){
 					getClass : function(value, meta, record, rowIx, ColIx, store) {
 	                    if(record.get('master_file_type') != 4) {
                 			return 'x-hidden-visibility';
-            			}	                    
-	                }
+            			}	 
+						
+						var found = record.get('description');
+						const found_bc = Boolean(found.match('^(.*)Branch Current'));							
+
+	                    if(found_bc == false) {
+                			return 'x-hidden-visibility';
+            			}	
+	                }					
 				},{
 					icon:'../js/ext4/examples/shared/icons/report_edit.png',
 					tooltip:'Edit Masterfile',
@@ -1297,9 +1305,9 @@ Ext.onReady(function(){
 					},
 					getClass : function(value, meta, record, rowIx, ColIx, store) {
 						var found = record.get('description');
-						const found_bc =	Boolean(found.match('^(.*)Branch Current'));	
-						const match_hoc =	Boolean(found.match('^(.*)Home Office Current'));
-						const match_merchandise =	Boolean(found.match('^(.*)Merchandise Inventory'));
+						const found_bc = Boolean(found.match('^(.*)Branch Current'));	
+						const match_hoc = Boolean(found.match('^(.*)Home Office Current'));
+						const match_merchandise = Boolean(found.match('^(.*)Merchandise Inventory'));
 
 	                    if(found_bc == true) {
                 			return 'x-hidden-visibility';
@@ -2502,6 +2510,14 @@ Ext.onReady(function(){
 												anchor:'100%'
 											}]
 										},{
+											xtype:'textfield',
+											fieldLabel:'Suggest Add:',
+											readOnly: true,
+											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+											id:'suggest_blocking',
+											name:'suggest_blocking',
+											hidden: true
+										},{
 											xtype:'fieldcontainer',
 											layout:'hbox',
 											margin: '2 0 2 5',
@@ -2626,7 +2642,8 @@ Ext.onReady(function(){
 										var item_models = Ext.getCmp('item_model').getValue();
 
 										var approver = Ext.getCmp('approvedby').getValue();
-										var reviwer = Ext.getCmp('reviewedby').getValue();
+										var reviwer = Ext.getCmp('reviewedby').getValue(); 
+										var suggest_blocking = Ext.getCmp('suggest_blocking').getValue();
 
 										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
 											if (btn == 'yes') {
@@ -2654,6 +2671,13 @@ Ext.onReady(function(){
 													setButtonDisabled(false);
 													Ext.MessageBox.alert('Error','Select Reviewer');
 													return false;
+												}
+												if (person_type == 4) {
+													if (suggest_blocking=='') {
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','Please select suggested entry');
+														return false;
+													}													
 												}
 												Ext.MessageBox.show({
 													msg: 'Saving Transaction, please wait...',
