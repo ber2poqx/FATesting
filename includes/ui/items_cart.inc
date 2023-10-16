@@ -354,6 +354,11 @@ class items_cart
 		$this->gl_items[$index]->master_file = $master_file;
 	}
 
+	function update_gl_suggested_entry($index, $sug_mcode) 
+	{
+		$this->gl_items[$index]->sug_mcode = $sug_mcode;
+	}
+
 	function remove_gl_item($index)
 	{
 		array_splice($this->gl_items, $index, 1);

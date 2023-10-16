@@ -408,13 +408,13 @@ function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_cod
     return $transfer_id;
 }
 
-function add_stock_Complimentary_Items($Items, $location_from, $date_, $reference, $memo_,$catcode=0, $person_type=99, $person_id_header='', $masterfile='')
+function add_stock_Complimentary_Items($Items, $location_from, $date_, $reference, $memo_,$catcode=0, $person_type=99, $person_id_header='', $masterfile='', $prepared=0, $approver=0, $reviewer=0)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('Items', 'location_from','date_', 'reference', 'memo_','catcode','person_type','person_id_header','masterfile'), $args);
+    $args = (object)array_combine(array('Items', 'location_from','date_', 'reference', 'memo_','catcode','person_type','person_id_header','masterfile', 'prepared', 'approver', 'reviewer'), $args);
     $args->trans_no = 0;
     hook_db_prewrite($args,ST_COMPLIMENTARYITEM);
     
@@ -431,7 +431,7 @@ function add_stock_Complimentary_Items($Items, $location_from, $date_, $referenc
     $total = 0;
     //include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
     
-    $complintary_header_id = add_complimentary_header($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile, $memo_);
+    $complintary_header_id = add_complimentary_header($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile, $memo_, $prepared, $approver, $reviewer);
     
     foreach ($Items as $line_item)
     {
@@ -643,14 +643,14 @@ function add_stock_mt_details_manual($header_id, $stock_id, $quantity=0, $std_co
 }
 
 //Added by Herald - 08/31/2021
-function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile='', $memo=''){
+function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile='', $memo='', $preparer, $approver, $reviewer){
     set_global_connection();
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, memo_) VALUES ('$trans_date', 
+    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, memo_, prepared_by, approver_id, reviewer_id) VALUES ('$trans_date', 
     ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", ".db_escape($masterfile).", 
-    ".db_escape($memo).")";
+    ".db_escape($memo).", ".db_escape($preparer).", ".db_escape($approver).", ".db_escape($reviewer).")";
     
     db_query($sql, "The complimentary Header record cannot be inserted");
     
@@ -803,6 +803,50 @@ function update_sales_return_status($type, $trans_no){
     AND debtor_trans_no=".db_escape($trans_no);
     
     db_query($sql, "The Return units Status record cannot be updated");
+    
+    return true;
+}
+
+//Added by Robert 10/12/2023
+function add_gl_to_bankInterbranch($from_brcode, $to_brcode, $account, $mcode, $masterfile, $date, $ref, $amount, $remarks, $comments='', $prepared='', 
+    $apprvd='', $transno_from=0, $transtype_from=0, $targetdb)
+{
+    $db_coy = Get_db_coy($targetdb);
+    set_global_connection($db_coy);
+
+    $sql = "INSERT INTO ".TB_PREF."bank_interbranch_trans (branch_code_from, branch_code_to, sug_mcode, mcode, masterfile, trans_date, ref_no,
+        amount, remarks, comments, prepared_by, approved_by, transno_from_branch, trantype_from_branch) 
+        VALUES ("
+        .db_escape($from_brcode).","
+            .db_escape($to_brcode).", "
+                .db_escape($account).", "
+                    .db_escape($mcode).", "
+                        .db_escape($masterfile).", "
+                            .db_escape($date).", "
+                                .db_escape($ref).", "
+                                    .db_escape($amount).", "
+                                        .db_escape($remarks).", "
+                                            .db_escape($comments).", "
+                                                .db_escape($prepared).", "                                       
+                                                    .db_escape($apprvd).", "                                       
+                                                        .db_escape($transno_from).", "                                       
+                                                            .db_escape($transtype_from).")";
+            
+    db_query($sql, "The Bank interbranch cannot be inserted");
+                
+    $dbid = db_insert_id();
+
+    set_global_connection();
+    return $dbid;
+}
+
+//Added by Robert 10/13/2023
+function update_compli_item_apprvd_revwd($reference, $approved, $reviewed){
+    set_global_connection();
+    
+    $sql = "UPDATE ".TB_PREF."complimentary_items SET approver_id='".$approved."', reviewer_id='".$reviewed."' WHERE reference= ".db_escape($reference);
+    
+    db_query($sql, "The Complimentary Status record cannot be updated");
     
     return true;
 }

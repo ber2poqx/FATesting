@@ -341,7 +341,8 @@ function get_all_complimentary_item($start,$limit,$querystr='',$comp_stat='',$se
     }
 
     $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
-    loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status
+    loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status, 
+    compl.prepared_by, compl.approver_id, compl.reviewer_id
     FROM ".TB_PREF."stock_adjustment smoves 
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
@@ -444,8 +445,9 @@ function get_transaction_from_stock_adjusment($type, $trans_no, $reference){
 /*Added by robert 10/06/2022*/
 function get_transaction_from_stock_adjusment_gl($type, $trans_no, $reference){
 
-    $sql = "SELECT gl.*, stock.tran_date FROM ".TB_PREF."stock_adjustment_gl gl
+    $sql = "SELECT gl.*, stock.tran_date, cmpl.person_type, cmpl.memo_ FROM ".TB_PREF."stock_adjustment_gl gl
     INNER JOIN stock_adjustment stock ON stock.type = gl.sa_adj_type AND stock.trans_no = gl.sa_trans_no
+    LEFT JOIN complimentary_items cmpl ON cmpl.reference = gl.sa_reference
     WHERE sa_adj_type='".$type."' AND sa_trans_no='".$trans_no."' AND sa_reference='".$reference."'
     GROUP BY gl.id";
 

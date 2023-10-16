@@ -1888,17 +1888,17 @@ function add_stock_adjustment_complimentary($type, $stock_id, $trans_no, $locati
 
 //added by robert 10/03/2022
 function add_adj_gl_complimentary($type, $trans_no, $account, $memo, $amount, $mcode = null, $masterfile = null, $reference = '', $stock_id = '', $color_code = '', 
-	$lot_no = '', $chasis_no = '', $gl_type = '', $item_type = "new")
+	$lot_no = '', $chasis_no = '', $gl_type = '', $item_type = "new", $suggest_entry=0)
 {
 	set_global_connection();
 
 	$sql = "INSERT INTO " . TB_PREF . "stock_adjustment_gl (sa_trans_no, sa_adj_type, sa_adj_item, sa_reference, 
-			stock_id, color_code, lot_no, chassis_no, gl_type, account, amount, mcode, master_file, memo_) 
+			stock_id, color_code, lot_no, chassis_no, gl_type, account, amount, mcode, master_file, memo_, suggest_entry) 
 		VALUES (
 		" . db_escape($trans_no) . ", " . db_escape($type) . ", " . db_escape($item_type) . ", 
 		" . db_escape($reference) . ", " . db_escape($stock_id) . ", " . db_escape($color_code) . ", " . db_escape($lot_no) . ", 
 		" . db_escape($chasis_no) . ", " . db_escape($gl_type) . ", " . db_escape($account) . ", " . db_escape($amount) . ", 
-		" . db_escape($mcode) . ", " . db_escape($masterfile) . ", " . db_escape($memo) . ")";
+		" . db_escape($mcode) . ", " . db_escape($masterfile) . ", " . db_escape($memo) . ", " . db_escape($suggest_entry) . ")";
 
 	db_query($sql, "Cannot add adjustment gl");
 }

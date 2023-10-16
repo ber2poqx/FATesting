@@ -259,6 +259,10 @@ if(!is_null($action) || !empty($action)){
             $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
             $brcode = $db_connections[user_company()]["branch_code"];
 
+            $prepared_by = get_user_id_autoincrement($_SESSION["wa_current_user"]->name);
+            $approver = $_POST['approver'];
+            $reviwer = $_POST['reviwer'];
+
             $Dataongrid = stripslashes(html_entity_decode($_POST['Dataongrid']));
             $objDataGrid = json_decode($Dataongrid, true);
 
@@ -331,7 +335,8 @@ if(!is_null($action) || !empty($action)){
                 }elseif($total_rrdate>0){
                     $errmsg="This document cannot be processed because there is insufficient quantity for items marked.";                    
                 }elseif($totaldebit==$totalcredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
-                    $trans_no = add_stock_Complimentary_Items_repo($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
+                    $trans_no = add_stock_Complimentary_Items_repo($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, 
+                        $masterfile, $prepared_by, $approver, $reviwer);
                     
                     $totalline=count($objDataGrid);
                     foreach($_SESSION['transfer_items']->gl_items as $gl)
@@ -458,7 +463,8 @@ if(!is_null($action) || !empty($action)){
             if($start < 1)	$start = 0;	if($end < 1) $end = 25;
                                  
             $sql = "SELECT move.trans_no, move.stock_id, move.reference, move.lot_no, move.chassis_no, move.qty, 
-            move.category_id, move.standard_cost, code.description, items.id, master.description AS description_item
+            move.category_id, move.standard_cost, code.description, items.id, items.prepared_by, items.approver_id, 
+            items.reviewer_id, master.description AS description_item
             FROM ".TB_PREF."stock_adjustment move 
             LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
             LEFT JOIN ".TB_PREF."complimentary_items items ON items.reference = move.reference
@@ -494,7 +500,10 @@ if(!is_null($action) || !empty($action)){
                     'lot_no' => $myrow["lot_no"],
                     'chasis_no' => $myrow["chassis_no"],
                     'standard_cost' => $myrow["standard_cost"],
-                    'subtotal_cost' => $myrow["standard_cost"] * -$myrow["qty"]
+                    'subtotal_cost' => $myrow["standard_cost"] * -$myrow["qty"],
+                    'prepared_by' => get_user_name($myrow["prepared_by"], false),
+                    'approver_by' => get_user_name($myrow["approver_id"], false),
+                    'reviewer_by' => get_user_name($myrow["reviewer_id"], false)
                 );    
             }
             
@@ -591,7 +600,10 @@ if(!is_null($action) || !empty($action)){
                     'category_name' => $myrow["category_name"],
                     'qty' => number_format(abs($myrow["total_item"]),2),
                     'status' => $myrow["compli_status"],
-                    'postdate' => $postdate
+                    'postdate' => $postdate,
+                    'prepared_by' => $myrow["prepared_by"],
+                    'approved_by' => $myrow["approver_id"],
+                    'reviewed_by' => $myrow["reviewer_id"]
                 );    
             }
             
@@ -714,21 +726,51 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'UserRoleId_apprv':
             
-            $user_role = check_user_role($_SESSION["wa_current_user"]->username);
-            $user_name = $_SESSION["wa_current_user"]->username;
+            $user_id = get_user_id_autoincrement($_SESSION["wa_current_user"]->name);
+            $user_name = $_SESSION["wa_current_user"]->name;
 
-            $sql = "SELECT A.role_id, B.admin_branches_canreview, B.admin_branches_canapprove 
+           
+            $group_array[] = array('user_id'=>$user_id,                  
+                'user_name'=>$user_name); 
+            
+            $jsonresult = json_encode($group_array);
+            echo '({"user_name":"'.$user_name.'","result":'.$jsonresult.'})';
+            exit;
+            break;
+        case 'approvedby_user':
+            $branchcode = $db_connections[user_company()]["branch_code"];
+            
+            $sql = "SELECT A.id, A.real_name
                 FROM ".TB_PREF."users A
                 LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
-                WHERE user_id = '$user_name'";
+                WHERE admin_branches_canapprove != 0 AND admin_branches_branchcode='".$branchcode."'";
             
-            $result = db_query($sql, "could not get all Serial Items");
+            $result = db_query($sql, "could not get all users");
 
             while ($myrow = db_fetch($result))
             {
-                $group_array[] = array('role_id'=>$myrow["role_id"],
-                    'can_post'=>$myrow["admin_branches_canreview"],
-                    'can_apprvd'=>$myrow["admin_branches_canapprove"]); 
+                $group_array[] = array('id'=>$myrow["id"],                  
+                    'real_name'=>$myrow["real_name"]); 
+            }
+
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            exit;
+            break;
+        case 'reviwedby_user':
+            $branchcode = $db_connections[user_company()]["branch_code"];
+
+            $sql = "SELECT A.id, A.real_name
+                FROM ".TB_PREF."users A
+                LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
+                WHERE admin_branches_canreview != 0 AND admin_branches_branchcode='".$branchcode."'";
+            
+            $result = db_query($sql, "could not get all users");
+
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('id'=>$myrow["id"],                  
+                    'real_name'=>$myrow["real_name"]); 
             }
 
             $jsonresult = json_encode($group_array);
@@ -777,7 +819,20 @@ if(!is_null($action) || !empty($action)){
             echo '({"total":"'.$total.'","ApprovalStatus":"'.$approval_value.'"})';
             exit;
             break;
-         case 'posting_transaction':
+        case 'updateapprvd_revwd':
+            $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
+            $approved_val = (isset($_POST['approver_user']) ? $_POST['approver_user'] : $_GET['approver_user']);
+            $reviewed_val = (isset($_POST['reviewer_user']) ? $_POST['reviewer_user'] : $_GET['reviewer_user']);
+            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
+
+            $total=0;
+            if($approval_value=='yes'){              
+                update_compli_item_apprvd_revwd($reference, $approved_val, $reviewed_val);
+            }
+            echo '({"total":"'.$total.'","ApprovalStatus":"'.$approval_value.'"})';
+            exit;
+            break;
+        case 'posting_transaction':
             
             $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
             $trans_no = (integer) (isset($_POST['trans_no']) ? $_POST['trans_no'] : $_GET['trans_no']);

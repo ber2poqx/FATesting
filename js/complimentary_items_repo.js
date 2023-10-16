@@ -38,7 +38,10 @@ Ext.onReady(function(){
 			{name:'statusmsg',mapping:'status'},
 			{name:'serialise_total_qty',mapping:'serialise_total_qty'},
 			{name:'delivery_date',mapping:'delivery_date'},
-			{name:'postdate',mapping:'postdate'}
+			{name:'postdate',mapping:'postdate'},
+			{name:'prepared_by',mapping:'prepared_by'},
+			{name:'approved_by',mapping:'approved_by'},
+			{name:'reviewed_by',mapping:'reviewed_by'}
 		]
 	});
 
@@ -137,6 +140,8 @@ Ext.onReady(function(){
                         reference = record.get('reference');
                         brcode = record.get('loc_code');
                         catcode = record.get('category_id');
+						prepared = record.get('prepared_by');
+                        aprroved = record.get('approved_by'); 
                         
 						if(!windowItemSerialList){
 							MTItemListingStore.proxy.extraParams = {
@@ -152,11 +157,9 @@ Ext.onReady(function(){
 							MTItemListingStore.load();
 							GlCompliEntyStore.load();	
 							UserRoleIdStore.load();
-
+							
 							var robert = UserRoleIdStore.getAt(0);
-							role_id = robert.get('role_id');
-							can_post = robert.get('can_post');
-							can_apprvd = robert.get('can_apprvd');
+							user_id = robert.get('user_id');
 
 							var windowItemSerialList = Ext.create('Ext.Window',{
 								title:'Item Details / Gl Entry Details',
@@ -179,6 +182,72 @@ Ext.onReady(function(){
     									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
     									value: new Date(),
     									readOnly: false
+									},{
+										xtype:'combo',
+										fieldLabel:'Approved By',
+										name:'approvedby_updt',
+										id:'approvedby_updt',
+										anchor:'100%',
+										typeAhead:true,
+										anyMatch:true,
+										labelWidth: 100,
+										width: 400,
+										forceSelection: true,
+										allowBlank: false,
+										queryMode:'local',
+										triggerAction: 'all',
+										displayField  : 'real_name',
+										valueField    : 'id',
+										hiddenName: 'id',
+										hidden: false,
+										fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+										emptyText:'Select Approver',
+										store: Ext.create('Ext.data.Store',{
+											fields: ['id', 'real_name'],
+											autoLoad: true,
+											proxy: {
+												type:'ajax',
+												url: '?action=approvedby_user',
+												reader:{
+													type : 'json',
+													root : 'result',
+													totalProperty : 'total'
+												}
+											}
+										})
+									},{
+										xtype:'combo',
+										fieldLabel:'Reviewed By',
+										name:'reviewedby_updt',
+										id:'reviewedby_updt',											
+										anchor:'100%',
+										typeAhead:true,
+										anyMatch:true,
+										labelWidth: 100,
+										width: 400,
+										forceSelection: true,
+										allowBlank: false,
+										queryMode:'local',
+										triggerAction: 'all',
+										displayField  : 'real_name',
+										valueField    : 'id',
+										hiddenName: 'id',
+										hidden: false,
+										fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+										emptyText:'Select Reviewer',
+										store: Ext.create('Ext.data.Store',{
+											fields: ['id', 'real_name'],
+											autoLoad: true,
+											proxy: {
+												type:'ajax',
+												url: '?action=reviwedby_user',
+												reader:{
+													type : 'json',
+													root : 'result',
+													totalProperty : 'total'
+												}
+											}
+										})
 									}]
 								}],
 								items:[
@@ -371,6 +440,55 @@ Ext.onReady(function(){
 						                    };
 						                }
 									},{
+										text:'Update Approver/Reviewer',
+										id: 'apprvdreviwer_btn',
+										icon: '../js/ext4/examples/shared/icons/add.png',
+										handler: function() {
+											var approver_user = Ext.getCmp('approvedby_updt').getValue();
+											var reviewer_user = Ext.getCmp('reviewedby_updt').getValue();
+
+						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Update this record?', ApprovalFunction);
+						                    function ApprovalFunction(btn) {
+						                    	if(btn == 'yes') {	
+													if(approver_user==null){														
+														Ext.MessageBox.alert('Error','Please, Select Approver');
+														return false;
+													}
+													if(reviewer_user==null){														
+														Ext.MessageBox.alert('Error','Please, Select Reviewer');
+														return false;
+													}
+						                    		Ext.MessageBox.show({
+														msg: 'Update Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
+							                        Ext.Ajax.request({
+														url : '?action=updateapprvd_revwd',
+														method: 'POST',
+														params:{
+															reference: reference,
+															approver_user: approver_user,
+															reviewer_user: reviewer_user,
+															value: btn
+														},
+														success: function (response){
+															Ext.Msg.alert('Success','Success Processing');
+															myInsurance.load();
+															windowItemSerialList.close();										
+														},	
+														failure: function (response){
+															Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+														}
+													});
+												}
+						                    };
+						                }
+									},{
 										text:'Close',
 										iconCls:'cancel-col',
 										handler: function(){
@@ -380,31 +498,35 @@ Ext.onReady(function(){
 								]
 							});	
 						}	
-
-						if(can_post == 1) {
+												
+						if(user_id == prepared) {
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('disapproved_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('post_tran_btn').setVisible(true);
+								Ext.getCmp('apprvdreviwer_btn').setVisible(false);
+								Ext.getCmp('approvedby_updt').setVisible(false);
+								Ext.getCmp('reviewedby_updt').setVisible(false);
 							}else if(record.get('status') == 'Draft') {
 								Ext.getCmp('post_tran_btn').setVisible(false);
 							}
-						}else if(can_apprvd == 1) {
+						}else if(user_id == aprroved) {
 							Ext.getCmp('post_tran_btn').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('approved_btn').setVisible(false);
-							}
-						/*}else if(role_id == 2) {
-							if(record.get('status') == 'Approved') {
-								Ext.getCmp('approved_btn').setVisible(false);
-							}else if(record.get('status') == 'Draft') {
-								Ext.getCmp('post_tran_btn').setVisible(false);
-							}*/
+								Ext.getCmp('PostDate').setVisible(false);
+							}												
 						}else{
 							Ext.getCmp('disapproved_btn').setVisible(false);
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
 						}
 
 						if(record.get('status') == 'Closed') {
@@ -412,6 +534,9 @@ Ext.onReady(function(){
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
 						}else if(record.get('status') == 'Draft') {
 							Ext.getCmp('PostDate').setVisible(false);
 						}else if(record.get('status') == 'Disapproved') {
@@ -419,7 +544,11 @@ Ext.onReady(function(){
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
-						}					
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
+						}
+
 						//var v = Ext.getCmp('category').getValue();
 						if(catcode=='14'){
 							Ext.ComponentQuery.query('#ItemSerialListingView gridcolumn[dataIndex^="chasis_no"]')[0].show();
@@ -2172,6 +2301,75 @@ Ext.onReady(function(){
 										]
 										},{
 											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[{
+												xtype:'combo',
+												fieldLabel:'Approved By',
+												name:'approvedby',
+												id:'approvedby',
+												anchor:'100%',
+												typeAhead:true,
+												anyMatch:true,
+												labelWidth: 100,
+												width: 500,
+												forceSelection: true,
+												allowBlank: false,
+												queryMode:'local',
+												triggerAction: 'all',
+												displayField  : 'real_name',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+												emptyText:'Select Approver',
+												store: Ext.create('Ext.data.Store',{
+													fields: ['id', 'real_name'],
+													autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=approvedby_user',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+												})
+											},{
+												xtype:'combo',
+												fieldLabel:'Reviewed By',
+												name:'reviewedby',
+												id:'reviewedby',											
+												anchor:'100%',
+												typeAhead:true,
+												anyMatch:true,
+												labelWidth: 100,
+												width: 500,
+												forceSelection: true,
+												allowBlank: false,
+												queryMode:'local',
+												triggerAction: 'all',
+												displayField  : 'real_name',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+												emptyText:'Select Reviewer',
+												store: Ext.create('Ext.data.Store',{
+													fields: ['id', 'real_name'],
+													autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=reviwedby_user',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+												})
+											}]
+										},{
+											xtype:'fieldcontainer',
 											margin: '2 0 2 5',
 											width: 1000,
 											layout:'fit',
@@ -2290,6 +2488,9 @@ Ext.onReady(function(){
 
 										var item_models = Ext.getCmp('item_model').getValue();
 
+										var approver = Ext.getCmp('approvedby').getValue();
+										var reviwer = Ext.getCmp('reviewedby').getValue();
+
 										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
 											if (btn == 'yes') {
 												if(FromStockLocation==null){
@@ -2305,6 +2506,16 @@ Ext.onReady(function(){
 												if(person_id==null){
 													setButtonDisabled(false);
 													Ext.MessageBox.alert('Error','Please select masterfile');
+													return false;
+												}
+												if(approver==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Select Approver');
+													return false;
+												}
+												if(reviwer==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Select Reviewer');
 													return false;
 												}
 												Ext.MessageBox.show({
@@ -2331,6 +2542,8 @@ Ext.onReady(function(){
 														person_id: person_id,
 														masterfile: masterfile,
 														item_models: item_models,
+														approver: approver,
+														reviwer: reviwer,
 														Dataongrid: Ext.encode(gridRepoData)
 													},
 													success: function(response){

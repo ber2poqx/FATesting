@@ -274,7 +274,8 @@ function get_all_complimentary_item_repo($start,$limit,$querystr='',$comp_stat='
     }
 
     $sql = "SELECT smoves.*,scat.description AS category_name, SUM(smoves.qty) as total_item, 
-    loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status
+    loc.location_name AS loc_name, compl.memo_ AS remarks, compl.status AS compli_status,
+    compl.prepared_by, compl.approver_id, compl.reviewer_id
     FROM ".TB_PREF."stock_adjustment smoves 
     INNER JOIN ".TB_PREF."stock_category scat ON smoves.category_id=scat.category_id 
     INNER JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code 
@@ -297,13 +298,13 @@ function get_all_complimentary_item_repo($start,$limit,$querystr='',$comp_stat='
 }
 
 //Added by Robert - 05/28/2022
-function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $reference, $memo_,$catcode=0, $person_type=99, $person_id_header='', $masterfile='')
+function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $reference, $memo_,$catcode=0, $person_type=99, $person_id_header='', $masterfile='', $prepared=0, $approver=0, $reviewer=0)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('Items', 'location_from','date_', 'reference', 'memo_','catcode','person_type','person_id_header','masterfile'), $args);
+    $args = (object)array_combine(array('Items', 'location_from','date_', 'reference', 'memo_','catcode','person_type','person_id_header','masterfile', 'prepared', 'approver', 'reviewer'), $args);
     $args->trans_no = 0;
     hook_db_prewrite($args,ST_COMPLIMENTARYITEMREPO);
     
@@ -319,7 +320,7 @@ function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $ref
     }
     $total = 0;
     
-    $complintary_header_id = add_complimentary_header_repo($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile, $memo_);
+    $complintary_header_id = add_complimentary_header_repo($date_,$reference,$location_from,$catcode,$person_type, $person_id_header, $masterfile, $memo_, $prepared, $approver, $reviewer);
     
     foreach ($Items as $line_item)
     {
@@ -345,14 +346,14 @@ function add_stock_Complimentary_Items_repo($Items, $location_from, $date_, $ref
 }
 
 //Added by Robert - 05/28/2022
-function add_complimentary_header_repo($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile='', $memo=''){
+function add_complimentary_header_repo($transdate, $reference, $fromlocation, $cat_id=0, $person_type=99, $mcode='', $masterfile='', $memo='', $preparer, $approver, $reviewer){
     set_global_connection();
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, item_type, memo_) 
+    $sql = "INSERT INTO ".TB_PREF."complimentary_items (trans_date, reference, location, category, person_type, mcode, masterfile, item_type, memo_, prepared_by, approver_id, reviewer_id) 
     VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", '".$cat_id."', ".db_escape($person_type).", ".db_escape($mcode).", 
-    ".db_escape($masterfile).", 'repo', ".db_escape($memo).")";
+    ".db_escape($masterfile).", 'repo', ".db_escape($memo).", ".db_escape($preparer).", ".db_escape($approver).", ".db_escape($reviewer).")";
     
     db_query($sql, "The complimentary Header record cannot be inserted");
     

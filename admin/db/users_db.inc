@@ -320,4 +320,15 @@ function allowed_dcpr_users() {
 	return db_query($sql, _("Cant get DCPR users!"));
 }
 
+//Added by robert 10/12/2023
+function get_user_id_autoincrement($name){
+	$sql = "SELECT A.id 
+			FROM ".TB_PREF."users A 
+			WHERE A.real_name = ".db_escape($name);
+	$result = db_query($sql, "could not get user ");
+	$ret = db_fetch($result);
+
+	return $ret[0];
+}
+
 //

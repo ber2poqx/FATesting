@@ -38,7 +38,10 @@ Ext.onReady(function(){
 			{name:'statusmsg',mapping:'status'},
 			{name:'serialise_total_qty',mapping:'serialise_total_qty'},
 			{name:'delivery_date',mapping:'delivery_date'},
-			{name:'postdate',mapping:'postdate'}
+			{name:'postdate',mapping:'postdate'},
+			{name:'prepared_by',mapping:'prepared_by'},
+			{name:'approved_by',mapping:'approved_by'},
+			{name:'reviewed_by',mapping:'reviewed_by'}
 		]
 	});
 
@@ -55,7 +58,10 @@ Ext.onReady(function(){
 			{name:'category_id',mapping:'category_id'},
 			{name:'reference',mapping:'reference'},
 			{name:'standard_cost',mapping:'standard_cost', type: 'float'},
-			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'}
+			{name:'subtotal_cost', mapping:'subtotal_cost', type: 'float'},
+			{name:'prepared_by',mapping:'prepared_by'},
+			{name:'approver_by',mapping:'approver_by'},
+			{name:'reviewer_by',mapping:'reviewer_by'}			
 		]
 	});
 
@@ -137,6 +143,8 @@ Ext.onReady(function(){
                         reference = record.get('reference');
                         brcode = record.get('loc_code');
                         catcode = record.get('category_id');
+                        prepared = record.get('prepared_by');
+                        aprroved = record.get('approved_by');                        
 
 						if(!windowItemSerialList){
 							MTItemListingStore.proxy.extraParams = {
@@ -154,10 +162,8 @@ Ext.onReady(function(){
 							UserRoleIdStore.load();
 
 							var robert = UserRoleIdStore.getAt(0);
-							role_id = robert.get('role_id');
-							can_post = robert.get('can_post');
-							can_apprvd = robert.get('can_apprvd');
-
+							user_id = robert.get('user_id');						
+							
 							var windowItemSerialList = Ext.create('Ext.Window',{
 								title:'Item Details / Gl Entry Details',
 								id:'windowItemSSerialList',
@@ -179,6 +185,72 @@ Ext.onReady(function(){
     									fieldStyle: 'background-color: #F2F3F4; color: black; font-weight: bold;',
     									value: new Date(),
     									readOnly: false
+									},{
+										xtype:'combo',
+										fieldLabel:'Approved By',
+										name:'approvedby_updt',
+										id:'approvedby_updt',
+										anchor:'100%',
+										typeAhead:true,
+										anyMatch:true,
+										labelWidth: 100,
+										width: 400,
+										forceSelection: true,
+										allowBlank: false,
+										queryMode:'local',
+										triggerAction: 'all',
+										displayField  : 'real_name',
+										valueField    : 'id',
+										hiddenName: 'id',
+										hidden: false,
+										fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+										emptyText:'Select Approver',
+										store: Ext.create('Ext.data.Store',{
+											fields: ['id', 'real_name'],
+											autoLoad: true,
+											proxy: {
+												type:'ajax',
+												url: '?action=approvedby_user',
+												reader:{
+													type : 'json',
+													root : 'result',
+													totalProperty : 'total'
+												}
+											}
+										})
+									},{
+										xtype:'combo',
+										fieldLabel:'Reviewed By',
+										name:'reviewedby_updt',
+										id:'reviewedby_updt',											
+										anchor:'100%',
+										typeAhead:true,
+										anyMatch:true,
+										labelWidth: 100,
+										width: 400,
+										forceSelection: true,
+										allowBlank: false,
+										queryMode:'local',
+										triggerAction: 'all',
+										displayField  : 'real_name',
+										valueField    : 'id',
+										hiddenName: 'id',
+										hidden: false,
+										fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+										emptyText:'Select Reviewer',
+										store: Ext.create('Ext.data.Store',{
+											fields: ['id', 'real_name'],
+											autoLoad: true,
+											proxy: {
+												type:'ajax',
+												url: '?action=reviwedby_user',
+												reader:{
+													type : 'json',
+													root : 'result',
+													totalProperty : 'total'
+												}
+											}
+										})
 									}]
 								}],
 								items:[
@@ -306,6 +378,7 @@ Ext.onReady(function(){
 														//icon:'ext-mb-download', //custom class in msg-box.html
 														iconHeight: 50
 													});
+													
 														
 													Ext.Ajax.request({
 														url : '?action=posting_transaction',
@@ -329,7 +402,7 @@ Ext.onReady(function(){
 															}	
 														} 
 													});
-													Ext.MessageBox.hide();
+													//Ext.MessageBox.hide();
 												}
 											};
 										}
@@ -371,6 +444,55 @@ Ext.onReady(function(){
 						                    };
 						                }
 									},{
+										text:'Update Approver/Reviewer',
+										id: 'apprvdreviwer_btn',
+										icon: '../js/ext4/examples/shared/icons/add.png',
+										handler: function() {
+											var approver_user = Ext.getCmp('approvedby_updt').getValue();
+											var reviewer_user = Ext.getCmp('reviewedby_updt').getValue();
+
+						                    Ext.MessageBox.confirm('Confirm', 'Are you sure you want to Update this record?', ApprovalFunction);
+						                    function ApprovalFunction(btn) {
+						                    	if(btn == 'yes') {	
+													if(approver_user==null){														
+														Ext.MessageBox.alert('Error','Please, Select Approver');
+														return false;
+													}
+													if(reviewer_user==null){														
+														Ext.MessageBox.alert('Error','Please, Select Reviewer');
+														return false;
+													}
+						                    		Ext.MessageBox.show({
+														msg: 'Update Transaction, please wait...',
+														progressText: 'Saving...',
+														width:300,
+														wait:true,
+														waitConfig: {interval:200},
+														//icon:'ext-mb-download', //custom class in msg-box.html
+														iconHeight: 50
+													});
+							                        Ext.Ajax.request({
+														url : '?action=updateapprvd_revwd',
+														method: 'POST',
+														params:{
+															reference: reference,
+															approver_user: approver_user,
+															reviewer_user: reviewer_user,
+															value: btn
+														},
+														success: function (response){
+															Ext.Msg.alert('Success','Success Processing');
+															myInsurance.load();
+															windowItemSerialList.close();										
+														},	
+														failure: function (response){
+															Ext.Msg.alert('Error', 'Processing ' + records.get('id'));
+														}
+													});
+												}
+						                    };
+						                }
+									},{
 										text:'Close',
 										iconCls:'cancel-col',
 										handler: function(){
@@ -378,33 +500,37 @@ Ext.onReady(function(){
 										}
 									}
 								]
-							});
+							});							
 						}
-
-						if(can_post == 1) {
+						
+						if(user_id == prepared) {
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('disapproved_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('post_tran_btn').setVisible(true);
+								Ext.getCmp('apprvdreviwer_btn').setVisible(false);
+								Ext.getCmp('approvedby_updt').setVisible(false);
+								Ext.getCmp('reviewedby_updt').setVisible(false);
 							}else if(record.get('status') == 'Draft') {
 								Ext.getCmp('post_tran_btn').setVisible(false);
 							}
-						}else if(can_apprvd == 1) {
+						}else if(user_id == aprroved) {
 							Ext.getCmp('post_tran_btn').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
 							if(record.get('status') == 'Approved') {
 								Ext.getCmp('approved_btn').setVisible(false);
-							}
-						/*}else if(role_id == 2) {
-							if(record.get('status') == 'Approved') {
-								Ext.getCmp('approved_btn').setVisible(false);
-							}else if(record.get('status') == 'Draft') {
-								Ext.getCmp('post_tran_btn').setVisible(false);
-							}*/
+								Ext.getCmp('PostDate').setVisible(false);
+							}												
 						}else{
 							Ext.getCmp('disapproved_btn').setVisible(false);
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
 						}
 
 						if(record.get('status') == 'Closed') {
@@ -412,6 +538,9 @@ Ext.onReady(function(){
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
 						}else if(record.get('status') == 'Draft') {
 							Ext.getCmp('PostDate').setVisible(false);
 						}else if(record.get('status') == 'Disapproved') {
@@ -419,6 +548,9 @@ Ext.onReady(function(){
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('post_tran_btn').setVisible(false);
 							Ext.getCmp('PostDate').setVisible(false);
+							Ext.getCmp('approvedby_updt').setVisible(false);
+							Ext.getCmp('reviewedby_updt').setVisible(false);
+							Ext.getCmp('apprvdreviwer_btn').setVisible(false);
 						}
 
 						//var v = Ext.getCmp('category').getValue();
@@ -656,8 +788,8 @@ Ext.onReady(function(){
 							},
 							success: function (response){
 								MerchandiseTransStore.load({params: { 
-										view: 1
-									 }});
+									view: 1
+								}});
 								GLItemsStore.load();
 								GetTotalBalance();								
 							}
@@ -690,7 +822,7 @@ Ext.onReady(function(){
 
 	Ext.define('GLListingModel', {
 	    extend: 'Ext.data.Model',
-	    fields: ['code_id', 'description', 'debit', 'credit', 'actualprice', 'line', 'class_id', 'memo', 'person_type_id', 'person_id', 'branch_id', 'person_name', 'mcode', 'master_file', 'mastertype', 'master_file_type','line_item']
+	    fields: ['code_id', 'description', 'debit', 'credit', 'actualprice', 'line', 'class_id', 'memo', 'person_type_id', 'person_id', 'branch_id', 'person_name', 'mcode', 'master_file', 'mastertype', 'master_file_type','line_item', 'suggest_entry', 'suggest_description']
 	});
 
 	var GLItemsStore = Ext.create('Ext.data.Store', {
@@ -739,8 +871,8 @@ Ext.onReady(function(){
 		fields 	: 	['id','namecaption'],
 		data 	: 	[{"id":"99","namecaption":"Not Applicable"},
 					{"id":"2","namecaption":"Customer"},
-                    {"id":"3","namecaption":"Supplier"}
-                    //{"id":"6","namecaption":"Employee"}
+                    {"id":"3","namecaption":"Supplier"},
+                    {"id":"4","namecaption":"Branch"}
                     ],
         autoLoad: true
 	});
@@ -771,7 +903,7 @@ Ext.onReady(function(){
 		{xtype: 'rownumberer'},
 		{header:'#', dataIndex:'line_item', sortable:true, width:50, align:'center', hidden: true},
 		{header:'#', dataIndex:'line', sortable:true, width:30, align:'center', hidden: true},
-		{header:'Account Code', dataIndex:'code_id', sortable:true, width:100, align:'center', hidden: false, 
+		{header:'Account Code', dataIndex:'code_id', sortable:true, width:90, align:'center', hidden: false, 
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				return '<span style="color:blue; font-weight:bold;">' + value + '</span>';
 			}
@@ -821,7 +953,7 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Masterfile', dataIndex:'master_file', sortable:true, width:120,hidden: false},
+		{header:'Masterfile', dataIndex:'master_file', sortable:true, width:115,hidden: false},
 		{header:'Debit', dataIndex:'debit', sortable:true, width:80, hidden: false, align:'right',
 			editor:{
 				field:{
@@ -863,7 +995,7 @@ Ext.onReady(function(){
 			}
 		},
 		{header:'Actual Price', dataIndex:'actualprice', sortable:true, width:80, hidden: true, align:'right'},
-		{header:'Memo', dataIndex:'memo', sortable:true, width:150, renderer: columnWrap,hidden: false,
+		{header:'Memo', dataIndex:'memo', sortable:true, width:145, renderer: columnWrap,hidden: false,
 			editor:{
 				field:{
 					xtype:'textfield',
@@ -873,9 +1005,122 @@ Ext.onReady(function(){
 				}
 			}
 		},
-		{header:'Action',xtype:'actioncolumn', align:'center', width:40,
+		{header:'Suggested Code', dataIndex:'suggest_entry', sortable:true, width:50, renderer: columnWrap,hidden: true},
+		{header:'Suggested Entry', dataIndex:'suggest_description', sortable:true, width:100, renderer: columnWrap,hidden: false},
+		{header:'Action',xtype:'actioncolumn', align:'center', width:60,
 			items:[{
-					icon:'../js/ext4/examples/shared/icons/report_go.png',
+					icon:'../js/ext4/examples/shared/icons/report_add.png',
+					tooltip:'Add Suggested Entry',
+					id:'suggestedentry',					
+					handler: function(grid, rowIndex, colIndex){
+						var record = GLItemsStore.getAt(rowIndex);
+						var id = record.get('line');
+						var account_code = record.get('code_id');				
+						var person_type_id = record.get('person_type_id');						
+						var master_file = record.get('master_file');	
+						var suggest_entry = record.get('suggest_entry');	
+											
+						if(!editsuggestwindow){
+							var editsuggestwindow = Ext.create('Ext.Window',{
+                               	width: 500,
+                                layout:'fit',
+								modal: true,
+								closeAction:'destroy',
+								items:[{
+                                    xtype:'form',
+									id:'updatesuggest_form',
+									url  : '?action=updatesuggest',
+									layout:'anchor',
+									method:'POST',
+                                    defaults 	: {
+                    					msgTarget 	: 'side',
+                    					border      : false,
+                                        padding: '5 5 0 5',
+                    					anchor		: '100%'
+                    				},
+                                    items:[{
+											xtype:'textfield',
+											value: id,
+											name:'line_no',
+											hidden: true										
+										},{
+											xtype:'combo',
+											fieldLabel:'Chart of Account',
+											name:'suggestetry_add',
+											id:'suggestetry_add',
+											anchor:'100%',
+											labelWidth:115,
+											typeAhead: true,
+											anyMatch: true,
+											required: true,
+											triggerAction: 'all',
+											store: coasuggestlistingStore,
+											queryMode: 'local',
+											displayField  : 'account_name',
+											valueField    : 'account_code',
+											hiddenName: 'account_code',
+											value:suggest_entry,
+											listeners:{
+												change: function(combo, value,index){
+													return decodeHtmlEntity(combo.getRawValue());
+												}
+											} 
+										}
+									],
+                                    buttons:[{
+                                        text:'Save',
+										id:'btnUpdateSug',
+										handler: function(){
+											var updatesuggest_form = Ext.getCmp('updatesuggest_form').getForm();
+											var suggestentry = Ext.getCmp('suggestetry_add').getValue();
+											if(suggestentry==null){
+												Ext.MessageBox.alert('Error','Please Select Chart of Accounts');
+												return false;
+											}
+									
+											if(updatesuggest_form.isValid()) {
+												updatesuggest_form.submit({
+													waitMsg:'Updating Data...',
+													success : function (response) {
+														updatesuggest_form.reset();
+														editsuggestwindow.close();
+														GLItemsStore.load();
+														GetTotalBalance();														
+													},
+													failure : function (response) {
+														Ext.MessageBox.show({
+											                title: "Error Updating",
+											                msg: "Please fill the required fields correctly.",
+											                buttons: Ext.MessageBox.OK,
+											                icon: Ext.MessageBox.WARNING
+											            });
+													}
+												});
+											}	
+										}
+                                    },{
+                                        text:'Cancel',
+                                        handler: function(){
+                                            editsuggestwindow.close();
+											editsuggestwindow=null;
+                                        }
+                                    }]
+
+                                }]
+                            });
+                        }
+						//setSaveSuggestButtonHidden(account_code);						
+						Ext.getCmp('suggestetry_add').setValue(suggest_entry);
+						editsuggestwindow.setTitle('Add Suggested Entry');
+						editsuggestwindow.show();
+					},
+					getClass : function(value, meta, record, rowIx, ColIx, store) {
+	                    if(record.get('master_file_type') != 4) {
+                			return 'x-hidden-visibility';
+            			}	                    
+	                }
+				},{
+					icon:'../js/ext4/examples/shared/icons/report_edit.png',
 					tooltip:'Edit Masterfile',
 					hidden: false,
 					handler: function(grid, rowIndex, colIndex){
@@ -885,6 +1130,7 @@ Ext.onReady(function(){
 						var person_type_id = record.get('person_type_id');
 						var person_id = record.get('person_id');
 						var master_file = record.get('master_file');	
+						var description = record.get('description');							
 											
 						if(!editjewindow){
 							var editjewindow = Ext.create('Ext.Window',{
@@ -1026,30 +1272,10 @@ Ext.onReady(function(){
                                 }]
                             });
                         }
-						if(account_code ==104001) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104002) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104003) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104004) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104005) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104006) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104007) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104008) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104009) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else if(account_code == 104010) {
-							Ext.getCmp('btnUpdateM').setVisible(false);
-						}else{
-							Ext.getCmp('btnUpdateM').setVisible(true);
-						}
 
+						//setSaveButtonHidden(account_code);						
+						//setSaveButtonHidden1(description);
+												
 						MasterfileModel=Ext.getCmp('masterfile');
                         MasterfileModel.clearValue();
 						if( person_type_id===99){
@@ -1068,7 +1294,23 @@ Ext.onReady(function(){
 						Ext.getCmp('masterfile_type').setValue(person_type_id);
 						editjewindow.setTitle('Edit Masterfile Window');
 						editjewindow.show();
-					}
+					},
+					getClass : function(value, meta, record, rowIx, ColIx, store) {
+						var found = record.get('description');
+						const found_bc =	Boolean(found.match('^(.*)Branch Current'));	
+						const match_hoc =	Boolean(found.match('^(.*)Home Office Current'));
+						const match_merchandise =	Boolean(found.match('^(.*)Merchandise Inventory'));
+
+	                    if(found_bc == true) {
+                			return 'x-hidden-visibility';
+            			}	 
+						if(match_hoc == true) {
+                			return 'x-hidden-visibility';
+            			}		
+						if(match_merchandise == true) {
+                			return 'x-hidden-visibility';
+            			}					
+	                }
 				},{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
 					tooltip:'Delete',
@@ -1078,20 +1320,24 @@ Ext.onReady(function(){
 						var account_code = record.get('code_id');
 						var line_item = record.get('line_item');
 						
-						Ext.Ajax.request({
-							url : '?action=delete_gl_entry&line_id='+id+'&account_code='+account_code+'&line_item='+line_item,
-							method: 'POST',
-							success: function(response){
-								GLItemsStore.load();
-								MerchandiseTransStore.load({params: { 
-										view: 1
-									 }});
-								GLItemsStore.load();
-								GetTotalBalance();
-							},
-							failure: function(response){
+						Ext.MessageBox.confirm('Confirm', 'Do you want to Delete this entry?', function (btn, text) {
+							if (btn == 'yes') {
+								Ext.Ajax.request({
+									url : '?action=delete_gl_entry&line_id='+id+'&account_code='+account_code+'&line_item='+line_item,
+									method: 'POST',
+									success: function(response){
+										//GLItemsStore.load();
+										MerchandiseTransStore.load({params: { 
+											view: 1
+										}});
+										GLItemsStore.load();
+										GetTotalBalance();
+									},
+									failure: function(response){
+									}
+								});	
 							}
-						});	
+						});
 					}
 				}
 			]
@@ -1164,7 +1410,7 @@ Ext.onReady(function(){
 
 	var columnItemSerialView = [
 		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, renderer: columnWrap,hidden: true},
-		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
+		{header:'Model', dataIndex:'model', sortable:true, width:70, renderer: columnWrap,hidden: false},
 		{header:'Item Description', dataIndex:'item_description', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Color', dataIndex:'color', sortable:true, renderer: columnWrap,hidden: false},
 		{header:'Category', dataIndex:'category_id', sortable:true, width:100, renderer: columnWrap,hidden: true},
@@ -1193,6 +1439,8 @@ Ext.onReady(function(){
 		},
 		{header:'Engine No.', dataIndex:'lot_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
 		{header:'Chasis No.', dataIndex:'chasis_no', sortable:true, width:100,renderer: columnWrap, hidden: false},
+		{header:'Approver', dataIndex:'approver_by', sortable:true, width:80,renderer: columnWrap, hidden: false},
+		{header:'Reviewer', dataIndex:'reviewer_by', sortable:true, width:80,renderer: columnWrap, hidden: false},
 		{header:'Action',xtype:'actioncolumn', align:'center', width:40, hidden: true}
 	]
 
@@ -1241,6 +1489,22 @@ Ext.onReady(function(){
 		proxy : {
 			type: 'ajax',
 			url	: '?action=coa',
+			reader:{
+				type : 'json',
+				root : 'result',
+				totalProperty : 'total'
+			}
+		},
+		sorters: {property: 'class_id', direction: 'ASC'},
+		groupField: 'class_name'
+	});
+
+	var coasuggestlistingStore = Ext.create('Ext.data.Store', {
+		fields: ['account_code', 'account_name', 'name',{name:'class_id',type:'int'},'class_name'],
+		autoLoad: true,
+		proxy : {
+			type: 'ajax',
+			url	: '?action=coasuggest_entry',
 			reader:{
 				type : 'json',
 				root : 'result',
@@ -1555,6 +1819,9 @@ Ext.onReady(function(){
 										}
 
 										//Ext.getCmp('item_model').setValue(record.get('model'));
+										var masterfile_header = Ext.getCmp('masterfile_type_header').getValue();
+										var mastercode = Ext.getCmp('masterfile_header').getValue();
+										var mastercode_dtls = Ext.getCmp('masterfile_header').getRawValue();
 
 										var grid = Ext.getCmp('ItemSerialListing'); 
 										var selected = grid.getSelectionModel().getSelection();
@@ -1579,7 +1846,7 @@ Ext.onReady(function(){
 												serialised: record.get('serialised'),
 												inventory_account: record.get('inventory_account'),
 												masterfile: Ext.getCmp('masterfile_header').getRawValue(),
-												mcode: Ext.getCmp('masterfile_header').getValue()
+												mcode: Ext.getCmp('masterfile_header').getValue()												
 											};
 											gridRepoData.push(ObjItem);
 										});
@@ -1588,7 +1855,7 @@ Ext.onReady(function(){
 											Ext.MessageBox.alert('Error','Please Select Item..');
 											return false;
 										} else{
-											MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData)};
+											MerchandiseTransStore.proxy.extraParams = {DataOnGrid: Ext.encode(gridRepoData), masterfile_header, mastercode, mastercode_dtls};
 										}											
 
 										MerchandiseTransStore.load({
@@ -1653,6 +1920,7 @@ Ext.onReady(function(){
 		id:'mtgridje',
 		anchor:'100%',
 		forceFit: true,
+		layout:'fit',
 		store: GLItemsStore,
 		columns: columnJEModel,
 		height: 270,
@@ -1867,12 +2135,14 @@ Ext.onReady(function(){
 										var AdjDate = Ext.getCmp('AdjDate').getValue();	
 										var account_name = record.get('account_name');	
 
-						
+										var mastertype_header = Ext.getCmp('masterfile_type_header').getValue();
+															
 										Ext.Ajax.request({
 											url : '?action=AddGLItem&account_code='+account_code,
 											method: 'POST',
 											params:{
-												AdjDate:AdjDate											
+												AdjDate:AdjDate,
+												mastertype_header:mastertype_header									
 											},
 											success: function (response){
 												GLItemsStore.load();
@@ -2107,9 +2377,16 @@ Ext.onReady(function(){
 														select: function(cmb, rec, idx) {
 														MasterfileModel=Ext.getCmp('masterfile_header');
 								                        MasterfileModel.clearValue();
-														if( this.getValue()===99){
+														if( this.getValue()==99){
 															MasterfileModel.store.load();
+														}else if(this.getValue()==4) {
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="suggest_description"]')[0].show();
+															MasterfileModel.store.load({
+																params: { 'masterfile_type': this.getValue()
+																}
+															});
 														}else{
+															Ext.ComponentQuery.query('grid gridcolumn[dataIndex^="suggest_description"]')[0].hide();
 															MasterfileModel.store.load({
 																params: { 'masterfile_type': this.getValue()
 																}
@@ -2141,8 +2418,76 @@ Ext.onReady(function(){
 														return decodeHtmlEntity(combo.getRawValue());
 													}
 												} 	
-		                                    }
-										]
+		                                    }]
+										},{
+											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[{
+												xtype:'combo',
+												fieldLabel:'Approved By',
+												name:'approvedby',
+												id:'approvedby',
+												anchor:'100%',
+												typeAhead:true,
+												anyMatch:true,
+												labelWidth: 100,
+												width: 500,
+												forceSelection: true,
+                                                allowBlank: false,
+												queryMode:'local',
+												triggerAction: 'all',
+												displayField  : 'real_name',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+            									emptyText:'Select Approver',
+												store: Ext.create('Ext.data.Store',{
+            										fields: ['id', 'real_name'],
+                                            		autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=approvedby_user',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+            									})
+											},{
+												xtype:'combo',
+												fieldLabel:'Reviewed By',
+												name:'reviewedby',
+												id:'reviewedby',											
+												anchor:'100%',
+												typeAhead:true,
+												anyMatch:true,
+												labelWidth: 100,
+												width: 500,
+												forceSelection: true,
+                                                allowBlank: false,
+												queryMode:'local',
+												triggerAction: 'all',
+												displayField  : 'real_name',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+            									emptyText:'Select Reviewer',
+												store: Ext.create('Ext.data.Store',{
+            										fields: ['id', 'real_name'],
+                                            		autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=reviwedby_user',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+            									})
+											}]
 										},{
 											xtype:'fieldcontainer',
 											margin: '2 0 2 5',
@@ -2280,6 +2625,9 @@ Ext.onReady(function(){
 
 										var item_models = Ext.getCmp('item_model').getValue();
 
+										var approver = Ext.getCmp('approvedby').getValue();
+										var reviwer = Ext.getCmp('reviewedby').getValue();
+
 										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
 											if (btn == 'yes') {
 												if(FromStockLocation==null){
@@ -2295,6 +2643,16 @@ Ext.onReady(function(){
 												if(person_id==null){
 													setButtonDisabled(false);
 													Ext.MessageBox.alert('Error','Please select masterfile');
+													return false;
+												}
+												if(approver==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Select Approver');
+													return false;
+												}
+												if(reviwer==null){
+													setButtonDisabled(false);
+													Ext.MessageBox.alert('Error','Select Reviewer');
 													return false;
 												}
 												Ext.MessageBox.show({
@@ -2321,6 +2679,8 @@ Ext.onReady(function(){
 														person_id: person_id,
 														masterfile: masterfile,
 														item_models: item_models,
+														approver: approver,
+														reviwer: reviwer,
 														Dataongrid: Ext.encode(gridRepoData)
 													},
 													success: function(response){
@@ -2507,6 +2867,40 @@ function decodeHtmlEntity(str) {
 		return String.fromCharCode(dec);
 	});
 };
+/*function setSaveButtonHidden(account_code=0) {
+	if(account_code == 104001) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104002) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104003) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104004) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104005) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104006) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104007) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104008) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104009) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}else if(account_code == 104010) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}
+};*/
+/*function setSaveButtonHidden1(description) {
+	var found = escapeRegExp(description);
+	const match_found =	Boolean(found.match('^(.*)Branch Current'));	
+	const match_found_ho =	Boolean(found.match('^(.*)Home Office Current'));
+	if(match_found == true) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}
+	if(match_found_ho == true) {
+		Ext.getCmp('btnUpdateM').setVisible(false);
+	}
+};*/
 function GetUrlParamsType(){
 	let form_values = {}
 	let url_string = window.location.search.substring(1);
@@ -2527,3 +2921,6 @@ function GetUrlParamsType(){
 	Ext.getCmp('filter_type').setValue(filter_type);
 	Ext.getCmp('category').setValue(category_return);
 };
+/*function escapeRegExp(str) {
+	return str.replace(/[\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\&");
+}*/

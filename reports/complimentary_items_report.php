@@ -18,31 +18,33 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	include_once($path_to_root . "/includes/cost_and_pricing.inc");
 
 
-	function get_nameuser(){
-		$sql = "SELECT A.real_name 
-				FROM ".TB_PREF."users A 
-				WHERE A.role_id = '19'";
-		$result = db_query($sql, "could not get user ");
-		$ret = db_fetch($result);
-	
-		return $ret[0];
-	}
-
-	function get_nameuseraccounting(){
-		$sql = "SELECT A.real_name 
-				FROM ".TB_PREF."users A 
-				WHERE A.role_id = '12'";
-		$result = db_query($sql, "could not get user ");
-		$ret = db_fetch($result);
-	
-		return $ret[0];
-	}
-
 	function get_name_masterfile($reference){
 		$sql = "SELECT A.masterfile 
 				FROM ".TB_PREF."complimentary_items A 
 				WHERE A.reference = '$reference'";
 		$result = db_query($sql, "could not get masterfile ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
+
+	function get_name_approver($reference){
+		$sql = "SELECT B.real_name 
+				FROM ".TB_PREF."complimentary_items A 
+				LEFT JOIN users B ON B.id=A.approver_id
+				WHERE A.reference = '$reference'";
+		$result = db_query($sql, "could not get users name ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
+
+	function get_name_reviewer($reference){
+		$sql = "SELECT B.real_name 
+				FROM ".TB_PREF."complimentary_items A 
+				LEFT JOIN users B ON B.id=A.reviewer_id
+				WHERE A.reference = '$reference'";
+		$result = db_query($sql, "could not get users name ");
 		$ret = db_fetch($result);
 	
 		return $ret[0];
@@ -255,21 +257,21 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 </head>
 
 <?php
-function getreceipt($reference)
-{
-    
-    $sql = "SELECT smoves.*, loc.location_name, comments.memo_,smaster.units, smaster.description as sdescription, 
-		item_codes.description as dcolor, smaster.category_id
-	FROM ".TB_PREF."stock_moves smoves 
-	LEFT JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code
-    LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id
-    INNER JOIN ".TB_PREF."stock_master smaster ON smaster.stock_id = smoves.stock_id
-	LEFT JOIN ".TB_PREF."item_codes ON item_codes.item_code = smoves.color_code
-	
-	WHERE smoves.reference='$reference'";
-    
-    return db_query($sql,"No transactions were returned");
-}
+	function getreceipt($reference)
+	{
+		
+		$sql = "SELECT smoves.*, loc.location_name, comments.memo_,smaster.units, smaster.description as sdescription, 
+			item_codes.description as dcolor, smaster.category_id
+		FROM ".TB_PREF."stock_moves smoves 
+		LEFT JOIN ".TB_PREF."locations loc ON smoves.loc_code=loc.loc_code
+		LEFT JOIN ".TB_PREF."comments ON smoves.type=comments.type AND smoves.trans_no=comments.id
+		INNER JOIN ".TB_PREF."stock_master smaster ON smaster.stock_id = smoves.stock_id
+		LEFT JOIN ".TB_PREF."item_codes ON item_codes.item_code = smoves.color_code
+		
+		WHERE smoves.reference='$reference'";
+		
+		return db_query($sql,"No transactions were returned");
+	}
 
     $reference = $_GET['reference'];
     $sm_result = get_stock_moves_typetrans($reference);
@@ -299,6 +301,8 @@ function getreceipt($reference)
 	}	
 	
 	$name_masterfile = get_name_masterfile($reference);
+	$name_approver = get_name_approver($reference);	
+	$name_reviewer = get_name_reviewer($reference);
 ?>
 
 <?php
@@ -523,10 +527,10 @@ function getreceipt($reference)
 				<td align=left>__________________________________</td>
 			</tr>
 			<tr>
-				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $_SESSION["wa_current_user"]->name?>" > <?php echo $_SESSION["wa_current_user"]->name?></option></select></td>
-				<td class="footer_names"><select name="accountingname" id="accountingname"><option value="<?php echo get_nameuseraccounting() ?>" > <?php echo get_nameuseraccounting()?></option></select></td>
-				<td class="footer_names"><select name="managername" id="managername"><option value="<?php echo get_nameuser() ?>" > <?php echo get_nameuser()?></option></select></td>
-				<td class="footer_names"><select name="crrntname" id="crrntname"><option value="<?php echo $name_masterfile ?>" > <?php echo $name_masterfile ?></option></select></td>							
+				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name?></td>
+				<td class="footer_names"><?php echo $name_reviewer ?></td>
+				<td class="footer_names"><?php echo $name_approver ?></td>
+				<td class="footer_names"><?php echo $name_masterfile ?></td>							
 			</tr>
 			
 		</table>		

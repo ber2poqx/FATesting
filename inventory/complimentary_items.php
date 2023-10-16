@@ -48,9 +48,14 @@ if(!is_null($action) || !empty($action)){
             echo '({"AdjDate":"'.$_POST['AdjDate'].'","branchcode":"'.$brcode.'","reference":"'.$_POST['ref'].'"})';
             exit;
             break;
-        case 'AddItem';
+        case 'AddItem';          
             $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
-            $objDataGrid = json_decode($DataOnGrid, true);
+            $objDataGrid = json_decode($DataOnGrid, true);  
+            
+            $masterfile_type = $_REQUEST['masterfile_header'];
+            $masterfile_code = $_REQUEST['mastercode'];
+            $masterfile_dtls = $_REQUEST['mastercode_dtls'];
+           
             //var_dump($objDataGrid);
             foreach($objDataGrid as $value=>$data) 
             {
@@ -75,7 +80,7 @@ if(!is_null($action) || !empty($action)){
                 $brcode = $db_connections[user_company()]["branch_code"];
                 $_SESSION['transfer_items']->from_loc=$brcode;
                 $mcode = $data['mcode'];
-                $masterfile = $data['masterfile'];
+                $masterfile = $data['masterfile'];                             
 
                 if($lot_no == ''){
                     $qty = 0;
@@ -88,14 +93,14 @@ if(!is_null($action) || !empty($action)){
 
                     if($serialised) {
                        $standard_cost=Get_System_Cost_serialised($model, $lot_no, $type_out, $transno_out);
-                       $line_item = count($_SESSION['transfer_items']->line_items);
+                       $line_item = count($_SESSION['transfer_items']->line_items);                      
 
                        $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
                         '0000-00-00', $lot_no, $chasis_no, $color, $item_code, null, $type_out, $transno_out,'', 'new', '', '', '',
                         $line_item_header, null, $currentqty);
-
-                       $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
-                       $sdescription.' '.$color, '', '', $AdjDate, $mcode, $masterfile, 0, null, null, 99, $line_item_header);
+                       
+                        $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
+                        $sdescription.' '.$color, '', '', $AdjDate, $mcode, $masterfile, 0, null, null, $masterfile_type, $line_item_header);                           
                     }else{
                         $standard_cost=Get_System_Cost($model, $type_out, $transno_out);
                         $line_item = count($_SESSION['transfer_items']->line_items);
@@ -103,11 +108,21 @@ if(!is_null($action) || !empty($action)){
                         $_SESSION['transfer_items']->add_to_cart($line_item, $model, $qty, $standard_cost, $sdescription, $rr_date, 
                         '0000-00-00', null, null, $color, $item_code, null, $type_out, $transno_out, '', 'new', '', '', '',
                         $line_item_header, null, $currentqty);
-
+                       
                         $_SESSION['transfer_items']->add_gl_item($inventory_account, '', '', -($standard_cost * $qty), 
-                        $sdescription.' '.$color, '', '', $AdjDate, $mcode, $masterfile, 0, null, null, 99, $line_item_header);
+                        $sdescription.' '.$color, '', '', $AdjDate, $mcode, $masterfile, 0, null, null, $masterfile_type, $line_item_header);                          
                     }
                 } 
+            }
+
+            if(!isset($_REQUEST['view'])){
+                if($masterfile_type == 4) {
+                    $line_item_header = rand();
+                    $accs = $db_connections[Get_db_coy($masterfile_code)]["gl_account"];
+
+                    $_SESSION['transfer_items']->add_gl_item($accs, '', '', 0, $sdescription.' '.$color, '', '', $AdjDate, $mcode, 
+                        $masterfile, 0, null, null, $masterfile_type, $line_item_header);
+                }
             }
             display_transfer_items_serial_compli($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             exit;
@@ -149,7 +164,8 @@ if(!is_null($action) || !empty($action)){
         case 'AddGLItem';
             $account_code=$_REQUEST['account_code'];
             $trans_date=sql2date($_REQUEST['AdjDate']);
-            $_SESSION['transfer_items']->add_gl_item($account_code,'','', '0', '', '', '', $trans_date,null,null,0);
+            $mastertype_header=$_REQUEST['mastertype_header'];
+            $_SESSION['transfer_items']->add_gl_item($account_code, '', '', 0, '', '', '', $trans_date, null, null, 0, null, null, $mastertype_header);          
             display_gl_complimentaryitems($_SESSION['transfer_items']);
             exit;
             break;
@@ -160,7 +176,7 @@ if(!is_null($action) || !empty($action)){
         case 'delete_gl_entry';
             $id=$_REQUEST['line_id'];
             $line_item=$_REQUEST['line_item'];
-            $_SESSION['transfer_items']->remove_gl_item($id);
+            $_SESSION['transfer_items']->remove_gl_line_item($line_item);
             $_SESSION['transfer_items']->remove_from_cart_line($line_item);
             //$array_rec = removeElementWithValue($_SESSION['transfer_items']->line_item, "line_item", $line_item);
             display_gl_complimentaryitems($_SESSION['transfer_items']);
@@ -178,34 +194,43 @@ if(!is_null($action) || !empty($action)){
             $account_code=$_REQUEST['account_code'];
             
             $type = is_subledger_account($account_code);
-            //if ($type){
-              
-                
-            if($masterfile_type==2)
-                    $sql = "SELECT DISTINCT d.debtor_no as id, d.debtor_ref as ref, d.name AS name, 'Customer' as mastertype FROM "
-                        .TB_PREF."debtors_master d,"
-                            .TB_PREF."cust_branch c	WHERE d.debtor_no=c.debtor_no AND NOT d.inactive ORDER BY name asc";
-            elseif($masterfile_type==3) 
-                    $sql = "SELECT supplier_id as id, supp_ref as ref, supp_name as name, 'Supplier' as mastertype FROM "
-                                    .TB_PREF."suppliers s
-		              WHERE NOT s.inactive ORDER BY name asc";
-            elseif($masterfile_type==6){
-                $sql = "SELECT s.id, s.user_id as ref, s.real_name as name, 'Employee' as mastertype FROM "
-                    .TB_PREF."users s
-		              WHERE NOT s.inactive ORDER BY name asc";
-            }
-                                    
-            $result = db_query($sql, "could not get all Serial Items");
-            $total = db_num_rows($result);
-            while ($myrow = db_fetch($result))
+            if ($masterfile_type==4)
             {
-                
-                $group_array[] = array('id'=>$myrow["id"],
-                    'namecaption' => htmlentities($myrow["name"]),
-                    'ref' => $myrow["ref"],
-                    'mastertype' => $myrow["mastertype"]
-                );
-                
+                $coy = user_company();
+                for ($i = 0; $i < count($db_connections); $i++)
+                {
+                    if($i!=$coy){
+                        $group_array[] = array('id'=>$db_connections[$i]["branch_code"],
+                            'namecaption' => $db_connections[$i]["name"],
+                            'branch_id' => $i
+                        );
+                    }                           
+                }          
+            }else{                              
+                if($masterfile_type==2)
+                        $sql = "SELECT DISTINCT d.debtor_no as id, d.debtor_ref as ref, d.name AS name, 'Customer' as mastertype FROM "
+                            .TB_PREF."debtors_master d,"
+                                .TB_PREF."cust_branch c	WHERE d.debtor_no=c.debtor_no AND NOT d.inactive ORDER BY name asc";
+                elseif($masterfile_type==3) 
+                        $sql = "SELECT supplier_id as id, supp_ref as ref, supp_name as name, 'Supplier' as mastertype FROM "
+                                        .TB_PREF."suppliers s
+                        WHERE NOT s.inactive ORDER BY name asc";
+                elseif($masterfile_type==6){
+                    $sql = "SELECT s.id, s.user_id as ref, s.real_name as name, 'Employee' as mastertype FROM "
+                        .TB_PREF."users s
+                        WHERE NOT s.inactive ORDER BY name asc";
+                }
+                                        
+                $result = db_query($sql, "could not get all Serial Items");
+                $total = db_num_rows($result);
+                while ($myrow = db_fetch($result))
+                {               
+                    $group_array[] = array('id'=>$myrow["id"],
+                        'namecaption' => htmlentities($myrow["name"]),
+                        'ref' => $myrow["ref"],
+                        'mastertype' => $myrow["mastertype"]
+                    );               
+                }
             }
                                     
             $jsonresult = json_encode($group_array);
@@ -221,25 +246,40 @@ if(!is_null($action) || !empty($action)){
             $_POST['person_id']=$_REQUEST['masterfile'];
             $_POST['person_type_id']=$_REQUEST['masterfile_type'];
             $amount = input_num('AmountDebit');
+           
             if ($_POST['person_type_id']==2)
             {
                 $sql1 = "SELECT d.debtor_no as ref, branch.branch_code as id, d.name FROM ".TB_PREF."cust_branch branch
-			     LEFT JOIN ".TB_PREF."debtors_master d ON branch.debtor_no = d.debtor_no
-		          WHERE d.debtor_no=".db_escape($_POST['person_id']);
+                LEFT JOIN ".TB_PREF."debtors_master d ON branch.debtor_no = d.debtor_no
+                WHERE d.debtor_no=".db_escape($_POST['person_id']);
             }elseif($_POST['person_type_id']==3){
                 $sql1 = "SELECT supplier_id as ref, supp_name as name, '' as id
-			     FROM ".TB_PREF."suppliers supp
-			     WHERE supplier_id=".db_escape($_POST['person_id']);
+                FROM ".TB_PREF."suppliers supp
+                WHERE supplier_id=".db_escape($_POST['person_id']);
             }elseif($_POST['person_type_id']==6){
                 $sql1 = "SELECT u.user_id as ref, u.real_name as name, u.id
-			     FROM ".TB_PREF."users u
-			     WHERE u.id=".db_escape($_POST['person_id']);
+                FROM ".TB_PREF."users u
+                WHERE u.id=".db_escape($_POST['person_id']);
             }
-		    $result1 = db_query($sql1, 'cannot retrieve counterparty name');
-		    $rowresult = db_fetch($result1);
-		    $_SESSION['transfer_items']->update_gl_masterfile($_POST['Index'], $rowresult['ref'], $rowresult['name']);
-		    display_gl_complimentaryitems($_SESSION['transfer_items'], $_POST['person_type_id']);
-                
+            $result1 = db_query($sql1, 'cannot retrieve counterparty name');
+            $rowresult = db_fetch($result1);
+
+            if ($_POST['person_type_id']==4) {
+                $mcode = $_POST['person_id'];
+                $mfile = get_db_location_name($_POST['person_id']);
+            }else{
+                $mcode = $rowresult['ref'];
+                $mfile = $rowresult['name'];
+            }
+            $_SESSION['transfer_items']->update_gl_masterfile($_POST['Index'], $mcode, $mfile);
+		    display_gl_complimentaryitems($_SESSION['transfer_items'], $_POST['person_type_id']);                
+            exit;
+            break;
+        case 'updatesuggest';
+            $_POST['Index'] = $_REQUEST['line_no'];
+            $_POST['account'] = $_REQUEST['suggestetry_add'];          
+		    $_SESSION['transfer_items']->update_gl_suggested_entry($_POST['Index'], $_POST['account']);
+		    display_gl_complimentaryitems($_SESSION['transfer_items'], $_POST['person_type_id']);                
             exit;
             break;
         case 'SaveTransfer';
@@ -260,6 +300,10 @@ if(!is_null($action) || !empty($action)){
 
             $total_rrdate = $_SESSION['transfer_items']->check_qty_avail_by_rrdate($_POST['AdjDate']);
             $brcode = $db_connections[user_company()]["branch_code"];
+
+            $prepared_by = get_user_id_autoincrement($_SESSION["wa_current_user"]->name);
+            $approver = $_POST['approver'];
+            $reviwer = $_POST['reviwer'];
 
             $Dataongrid = stripslashes(html_entity_decode($_POST['Dataongrid']));
             $objDataGrid = json_decode($Dataongrid, true);
@@ -347,21 +391,26 @@ if(!is_null($action) || !empty($action)){
                     
                 }elseif($totaldebit==$totalcredit /*&& ($totaldebit!=0 || $totalcredit!=0)*/ && $isError != 1){
                     //$_POST['ref']=$Refs->get_next(ST_COMPLIMENTARYITEM, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                    $trans_no = add_stock_Complimentary_Items($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, $masterfile);
+                    $trans_no = add_stock_Complimentary_Items($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'],$catcode, $person_type, $person_id_header, 
+                        $masterfile, $prepared_by, $approver, $reviwer);
                     
 
                     $totalline=count($objDataGrid);
                     //$total_gl = 0;
                     foreach($_SESSION['transfer_items']->gl_items as $gl)
-                    {
+                    {   
+                        if ($gl->sug_mcode == '') {
+                            $suggestEntry = 0;
+                        }else{
+                            $suggestEntry = $gl->sug_mcode;
+                        }
                         if (!isset($gl->date))
                             $gl->date = $_SESSION['transfer_items']->tran_date;
                             
                         /*$total += add_gl_trans($_SESSION['transfer_items']->trans_type, $trans_no, $gl->date, $gl->code_id,'','', $gl->reference, $gl->amount,null,$gl->person_type_id, $gl->person_id,'',0,$rowresult['id'],$masterfile);*/
 
                         $total += add_adj_gl_complimentary($_SESSION['transfer_items']->trans_type, $trans_no, $gl->code_id, $gl->reference, $gl->amount,
-                        $gl->mcode, $gl->master_file, $_POST['ref']);
-                            
+                        $gl->mcode, $gl->master_file, $_POST['ref'], '', '', '', '', '', '', $suggestEntry);                          
                     }            
                     new_doc_date($AdjDate);
                     $_SESSION['transfer_items']->clear_items();
@@ -459,9 +508,9 @@ if(!is_null($action) || !empty($action)){
             $brcode = $db_connections[user_company()]["branch_code"];
             //echo "ID:".$serialise_id;
             //add_to_order_new($_SESSION['transfer_items'], $model, $serialise_id);
-            $_SESSION['transfer_items']->remove_from_cart($line_item);
-            $_SESSION['transfer_items']->remove_gl_line_item($line_item);
+            //$_SESSION['transfer_items']->remove_from_cart($line_item);
             $_SESSION['transfer_items']->remove_from_cart_line($line_item);
+            $_SESSION['transfer_items']->remove_gl_line_item($line_item);
             
             display_transfer_items_serial_compli($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
             //echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
@@ -555,7 +604,8 @@ if(!is_null($action) || !empty($action)){
             //$total_result = get_all_stockmoves($start,$end,$querystr,$catcode,$branchcode,true,$reference);
             
             $sql = "SELECT move.trans_no, move.stock_id, move.reference, move.lot_no, move.chassis_no, move.qty, 
-            move.category_id, move.standard_cost, code.description, items.id, master.description AS description_item
+            move.category_id, move.standard_cost, code.description, items.id, items.prepared_by, items.approver_id, 
+            items.reviewer_id, master.description AS description_item
             FROM ".TB_PREF."stock_adjustment move 
             LEFT JOIN ".TB_PREF."item_codes code ON code.item_code = move.color_code
             LEFT JOIN ".TB_PREF."complimentary_items items ON items.reference = move.reference
@@ -589,7 +639,10 @@ if(!is_null($action) || !empty($action)){
                     'lot_no' => $myrow["lot_no"],
                     'chasis_no' => $myrow["chassis_no"],
                     'standard_cost' => $myrow["standard_cost"],
-                    'subtotal_cost' => $myrow["standard_cost"] * -$myrow["qty"]
+                    'subtotal_cost' => $myrow["standard_cost"] * -$myrow["qty"],
+                    'prepared_by' => get_user_name($myrow["prepared_by"], false),
+                    'approver_by' => get_user_name($myrow["approver_id"], false),
+                    'reviewer_by' => get_user_name($myrow["reviewer_id"], false)
                 );
             }
             $jsonresult = json_encode($group_array);
@@ -739,7 +792,10 @@ if(!is_null($action) || !empty($action)){
                     'category_name' => $myrow["category_name"],
                     'qty' => number_format(abs($myrow["total_item"]),2),
                     'status' => $myrow["compli_status"],
-                    'postdate' => $postdate
+                    'postdate' => $postdate,
+                    'prepared_by' => $myrow["prepared_by"],
+                    'approved_by' => $myrow["approver_id"],
+                    'reviewed_by' => $myrow["reviewer_id"]
                 );    
             }
             
@@ -888,8 +944,26 @@ if(!is_null($action) || !empty($action)){
             }
             
             $jsonresult = json_encode($group_array);
-            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';           
+            exit;
+            break;
+        case 'coasuggest_entry':          
+            $_POST['class_type']=$_REQUEST['class_type'];
+            $_POST['description']=isset($_REQUEST['query'])?$_REQUEST['query']:$_REQUEST['description'];
+            $result = get_chart_accounts_search_new(get_post("class_type"),get_post("description"), true);
+            $total = db_num_rows($result);
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('account_code'=>$myrow["account_code"],
+                    'account_name' => $myrow["account_name"],
+                    'name' => $myrow["name"],
+                    'class_id' => $myrow["class_id"],
+                    'class_name' => $myrow["class_name"]
+                );               
+            }
             
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';           
             exit;
             break;
         case 'coa_classtype';
@@ -939,21 +1013,51 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'UserRoleId_apprv':
             
-            $user_role = check_user_role($_SESSION["wa_current_user"]->username);
-            $user_name = $_SESSION["wa_current_user"]->username;
+            $user_id = get_user_id_autoincrement($_SESSION["wa_current_user"]->name);
+            $user_name = $_SESSION["wa_current_user"]->name;
 
-            $sql = "SELECT A.role_id, B.admin_branches_canreview, B.admin_branches_canapprove 
+           
+            $group_array[] = array('user_id'=>$user_id,                  
+                'user_name'=>$user_name); 
+            
+            $jsonresult = json_encode($group_array);
+            echo '({"user_name":"'.$user_name.'","result":'.$jsonresult.'})';
+            exit;
+            break;
+        case 'approvedby_user':
+            $branchcode = $db_connections[user_company()]["branch_code"];
+            
+            $sql = "SELECT A.id, A.real_name
                 FROM ".TB_PREF."users A
                 LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
-                WHERE user_id = '$user_name'";
+                WHERE admin_branches_canapprove != 0 AND admin_branches_branchcode='".$branchcode."'";
             
-            $result = db_query($sql, "could not get all Serial Items");
+            $result = db_query($sql, "could not get all users");
 
             while ($myrow = db_fetch($result))
             {
-                $group_array[] = array('role_id'=>$myrow["role_id"],
-                    'can_post'=>$myrow["admin_branches_canreview"],
-                    'can_apprvd'=>$myrow["admin_branches_canapprove"]); 
+                $group_array[] = array('id'=>$myrow["id"],                  
+                    'real_name'=>$myrow["real_name"]); 
+            }
+
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            exit;
+            break;
+        case 'reviwedby_user':
+            $branchcode = $db_connections[user_company()]["branch_code"];
+
+            $sql = "SELECT A.id, A.real_name
+                FROM ".TB_PREF."users A
+                LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
+                WHERE admin_branches_canreview != 0 AND admin_branches_branchcode='".$branchcode."'";
+            
+            $result = db_query($sql, "could not get all users");
+
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('id'=>$myrow["id"],                  
+                    'real_name'=>$myrow["real_name"]); 
             }
 
             $jsonresult = json_encode($group_array);
@@ -998,6 +1102,19 @@ if(!is_null($action) || !empty($action)){
                     update_stock_adjustment_status_disaaproved($myrow["reference"], $myrow["type"]);
                     update_compli_item_status_disaaproved($myrow["reference"]);
                 }
+            }
+            echo '({"total":"'.$total.'","ApprovalStatus":"'.$approval_value.'"})';
+            exit;
+            break;
+        case 'updateapprvd_revwd':
+            $reference = (isset($_POST['reference']) ? $_POST['reference'] : $_GET['reference']);
+            $approved_val = (isset($_POST['approver_user']) ? $_POST['approver_user'] : $_GET['approver_user']);
+            $reviewed_val = (isset($_POST['reviewer_user']) ? $_POST['reviewer_user'] : $_GET['reviewer_user']);
+            $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
+
+            $total=0;
+            if($approval_value=='yes'){              
+                update_compli_item_apprvd_revwd($reference, $approved_val, $reviewed_val);
             }
             echo '({"total":"'.$total.'","ApprovalStatus":"'.$approval_value.'"})';
             exit;
@@ -1051,11 +1168,32 @@ if(!is_null($action) || !empty($action)){
                     $result1 = get_transaction_from_stock_adjusment_gl(ST_COMPLIMENTARYITEM, $trans_no, $reference);
 
                     $totalgl = db_num_rows($result1);
+                    $brcode = $db_connections[user_company()]["branch_code"];
+                    $prepared_by = $_SESSION["wa_current_user"]->name;
                     while ($myrow1 = db_fetch($result1))
                     {
-                        //$date = sql2date($myrow1["tran_date"]);
                         add_gl_trans(ST_COMPLIMENTARYITEM, $myrow1["sa_trans_no"], $PostDate, $myrow1["account"], '', '', $myrow1["memo_"], $myrow1["amount"], null, null, 
                             null, '', 0, $myrow1["mcode"], $myrow1["master_file"]);
+
+                        if ($myrow1["person_type"]==4) {
+                            add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["account"], $myrow1["mcode"], $myrow1["master_file"], $PostDated, $myrow1["sa_reference"],
+                            $myrow1["amount"], $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $brcode);
+                            
+                            if ($myrow1["amount"] > 0) {                                
+                                $master_file = get_db_location_name($brcode);
+                                $mcode = $brcode;
+                            }else{                               
+                                $master_file = $myrow1["master_file"];
+                                $mcode = $myrow1["mcode"];
+                            }                           
+                            if ($myrow1["suggest_entry"] != 0) {
+                                $accs = $myrow1["suggest_entry"];
+                            }else{
+                                $accs = $myrow1["account"];
+                            }
+                            add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $accs, $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
+                            ($myrow1["amount"]*-1), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
+                        }
                     }
                     add_audit_trail(ST_COMPLIMENTARYITEM, $trans_no, $PostDate,'');           
                 }
@@ -1295,8 +1433,8 @@ function display_gl_complimentaryitems(&$order)
            $mastertype='Customer'; 
         }elseif($item->master_file_type==3){
             $mastertype='Supplier';
-        }elseif($item->master_file_type==6){
-            $mastertype='Employee';
+        }elseif($item->master_file_type==4){
+            $mastertype='Branch';
         }
         $group_array[] = array('code_id'=>$item->code_id,
             'description'=>$item->description,
@@ -1315,7 +1453,9 @@ function display_gl_complimentaryitems(&$order)
             'mastertype' => is_null($mastertype)?'':$mastertype,
             'master_file_type'=>$item->master_file_type,
             'line_item' => $item->line_item,
-            'trans_date' => $item->date
+            'trans_date' => $item->date,
+            'suggest_entry' => $item->sug_mcode,
+            'suggest_description' => is_null($item->sug_mcode)?'':get_suggestentry_description($item->sug_mcode)
         );
         
         
@@ -1325,6 +1465,13 @@ function display_gl_complimentaryitems(&$order)
     echo '({"success":"true","result":'.$jsonresult.'})';
 }
 
+function get_suggestentry_description($account){
+	$sql = "SELECT account_name FROM ".TB_PREF."chart_master WHERE account_code='".$account."'";
+	$result = db_query($sql, "could not get user ");
+	$ret = db_fetch($result);
+
+	return $ret[0];
+}
 //-----------------------------------------------------------------------------------------------
 
 
