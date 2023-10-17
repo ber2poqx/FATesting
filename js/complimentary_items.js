@@ -569,7 +569,7 @@ Ext.onReady(function(){
 						}
 						windowItemSerialList.show();	
 					}
-				},{
+				},'',{
 					icon: '../js/ext4/examples/shared/icons/printer.png',
 					tooltip: 'Complimentary Report',
 					handler: function(grid, rowIndex, colIndex) {
