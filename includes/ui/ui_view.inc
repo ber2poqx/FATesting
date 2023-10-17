@@ -228,6 +228,8 @@ function printable_receipts_and_vouchers($type, $trans_no, $label="",
 		$viewer .= "prnt_official_receipt.php?reference=$trans_no";
 	elseif ($type == Delivery_receipt)
 		$viewer .= "prnt_delivery_receipt.php?trans_no=$trans_no";
+	elseif ($type == Delivery_receipt_main_unit)
+		$viewer .= "prnt_delivery_receipt_main_unit.php?trans_no=$trans_no";
 	elseif ($type == Cash_SI)
 		$viewer .= "prnt_cash_SalesInvoice.php?SI_num=$trans_no";
 	elseif ($type == Cash_SI_serialized)

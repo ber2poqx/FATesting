@@ -107,6 +107,7 @@ function edit_link($row) {
 }
 
 function prt_link($row) {
+	global $systypes_array;
 	$link = '';
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
@@ -117,11 +118,16 @@ function prt_link($row) {
 		if ($row['type'] == ST_CUSTPAYMENT || $row['type'] == ST_BANKDEPOSIT) {
 			$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Receipt"), true, ST_CUSTPAYMENT, ICON_PRINT);
 		}
+		if($row['Note'] == 'MAIN UNIT') {
+
+			$link = printable_receipts_and_vouchers(Delivery_receipt_main_unit, $row["trans_no"], _("Print DR main unit"), ICON_PRINT);
+		}
+		if($row['Note'] == 'FREE ITEM') {
+
+			$link = printable_receipts_and_vouchers(Delivery_receipt, $row["trans_no"], _("Print DR free items"), ICON_PRINT);
+		}
   		elseif ($row['type'] == ST_BANKPAYMENT) {
 			$link = '';
-		}
-		else if($row['type'] == ST_CUSTDELIVERY) {			
-			$link = printable_receipts_and_vouchers(Delivery_receipt, $row["trans_no"], _("Print Delivery receipt"), ICON_PRINT);
 		}		
  		else {
 			if ($row['type'] != ST_CUSTDELIVERY) {
