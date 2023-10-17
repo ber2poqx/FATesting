@@ -2518,6 +2518,14 @@ Ext.onReady(function(){
 											name:'suggest_blocking',
 											hidden: true
 										},{
+											xtype:'textfield',
+											fieldLabel:'Branch Code',
+											readOnly: true,
+											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
+											id:'branchcode_block',
+											name:'branchcode_block',
+											hidden: false
+										},{
 											xtype:'fieldcontainer',
 											layout:'hbox',
 											margin: '2 0 2 5',
@@ -2644,6 +2652,7 @@ Ext.onReady(function(){
 										var approver = Ext.getCmp('approvedby').getValue();
 										var reviwer = Ext.getCmp('reviewedby').getValue(); 
 										var suggest_blocking = Ext.getCmp('suggest_blocking').getValue();
+										var branchcode_blocking = Ext.getCmp('branchcode_block').getValue();
 
 										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
 											if (btn == 'yes') {
@@ -2673,11 +2682,13 @@ Ext.onReady(function(){
 													return false;
 												}
 												if (person_type == 4) {
-													if (suggest_blocking=='') {
-														setButtonDisabled(false);
-														Ext.MessageBox.alert('Error','Please select suggested entry');
-														return false;
-													}													
+													if (branchcode_blocking != person_id) {																											
+														if (suggest_blocking=='') {
+															setButtonDisabled(false);
+															Ext.MessageBox.alert('Error','Please select suggested entry');
+															return false;
+														}	
+													}												
 												}
 												Ext.MessageBox.show({
 													msg: 'Saving Transaction, please wait...',
@@ -2763,6 +2774,7 @@ Ext.onReady(function(){
 					
 					windowNewTransfer.show();
 					GetUrlParamsType();	
+					getbranchcode_for_blocking();
 				},
 				scale	: 'small'
 			},{
@@ -2863,7 +2875,24 @@ Ext.onReady(function(){
 		}
 	});
 });
+function getbranchcode_for_blocking() {
+	Ext.Ajax.request({
+		url : '?action=getConfigbranchcode',
+		method: 'GET',
+		success: function (response){
+			Ext.MessageBox.hide();
+			var jsonData = Ext.JSON.decode(response.responseText);
+			var branchcode = jsonData.branchcode;
 
+			Ext.getCmp('branchcode_block').setValue(branchcode);			
+		},
+		failure: function (response){
+			Ext.MessageBox.hide();
+			var jsonData = Ext.JSON.decode(response.responseText);
+			Ext.MessageBox.alert('Error','Error Processing');
+		}
+	});
+}
 function GetTotalBalance(){
 	Ext.Ajax.request({
 		url : '?action=getTotalBalance',

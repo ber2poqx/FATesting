@@ -55,6 +55,7 @@ if(!is_null($action) || !empty($action)){
             $masterfile_type = $_REQUEST['masterfile_header'];
             $masterfile_code = $_REQUEST['mastercode'];
             $masterfile_dtls = $_REQUEST['mastercode_dtls'];
+            $branchcode = $db_connections[user_company()]["branch_code"];
            
             //var_dump($objDataGrid);
             foreach($objDataGrid as $value=>$data) 
@@ -117,11 +118,13 @@ if(!is_null($action) || !empty($action)){
 
             if(!isset($_REQUEST['view'])){
                 if($masterfile_type == 4) {
-                    $line_item_header = rand();
-                    $accs = $db_connections[Get_db_coy($masterfile_code)]["gl_account"];
+                    if ($masterfile_code != $branchcode) {                                           
+                        $line_item_header = rand();
+                        $accs = $db_connections[Get_db_coy($masterfile_code)]["gl_account"];
 
-                    $_SESSION['transfer_items']->add_gl_item($accs, '', '', 0, $sdescription.' '.$color, '', '', $AdjDate, $mcode, 
-                        $masterfile, 0, null, null, $masterfile_type, $line_item_header);
+                        $_SESSION['transfer_items']->add_gl_item($accs, '', '', 0, $sdescription.' '.$color, '', '', $AdjDate, $mcode, 
+                            $masterfile, 0, null, null, $masterfile_type, $line_item_header);
+                    }
                 }
             }
             display_transfer_items_serial_compli($_SESSION['transfer_items'],$brcode,$AdjDate,$serialise_id);
@@ -199,12 +202,12 @@ if(!is_null($action) || !empty($action)){
                 $coy = user_company();
                 for ($i = 0; $i < count($db_connections); $i++)
                 {
-                    if($i!=$coy){
+                    //if($i!=$coy){
                         $group_array[] = array('id'=>$db_connections[$i]["branch_code"],
                             'namecaption' => $db_connections[$i]["name"],
                             'branch_id' => $i
                         );
-                    }                           
+                    //}                           
                 }          
             }else{                              
                 if($masterfile_type==2)
@@ -522,7 +525,12 @@ if(!is_null($action) || !empty($action)){
             echo '({"branchcode":"'.$brcode.'","branch_name":"'.$brname.'"})';
             exit;
             break;
-        
+        case 'getConfigbranchcode':
+            $brcode = $db_connections[user_company()]["branch_code"];
+            $brname = $db_connections[user_company()]["name"];
+            echo '({"branchcode":"'.$brcode.'","branch_name":"'.$brname.'"})';
+            exit;
+            break;
         case 'serial_items':
             $start = (integer) (isset($_POST['start']) ? $_POST['start'] : $_GET['start']);
             $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
@@ -1178,16 +1186,18 @@ if(!is_null($action) || !empty($action)){
                         if ($myrow1["person_type"]==4) {
                             add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["account"], $myrow1["mcode"], $myrow1["master_file"], $PostDated, $myrow1["sa_reference"],
                             $myrow1["amount"], $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $brcode);
-                                                                              
+                                                                                                                                              
                             if ($myrow1["suggest_entry"] != 0) {                              
                                 $master_file = get_db_location_name($brcode);
                                 $mcode = $brcode;
-                            
-                                add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["account"], $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
-                                ($myrow1["amount"]*-1), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
+                                
+                                if ($myrow1["mcode"] != $brcode) {                                
+                                    add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["account"], $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
+                                    ($myrow1["amount"]*-1), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
 
-                                add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["suggest_entry"], $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
-                                ($myrow1["amount"]), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
+                                    add_gl_to_bankInterbranch($brcode, $myrow1["mcode"], $myrow1["suggest_entry"], $mcode, $master_file, $PostDated, $myrow1["sa_reference"],
+                                    ($myrow1["amount"]), $myrow1["memo_"], '', '', '', $myrow1["sa_trans_no"], $myrow1["sa_adj_type"], $myrow1["mcode"]);
+                                }
                             }
                         }
                     }
