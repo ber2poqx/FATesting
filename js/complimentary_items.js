@@ -1309,15 +1309,17 @@ Ext.onReady(function(){
 						const match_hoc = Boolean(found.match('^(.*)Home Office Current'));
 						const match_merchandise = Boolean(found.match('^(.*)Merchandise Inventory'));
 
-	                    if(found_bc == true) {
-                			return 'x-hidden-visibility';
-            			}	 
-						if(match_hoc == true) {
-                			return 'x-hidden-visibility';
-            			}		
+						if(record.get('master_file_type') == 4) {                			
+							if(found_bc == true) {
+								return 'x-hidden-visibility';
+							}	 
+							if(match_hoc == true) {
+								return 'x-hidden-visibility';
+							}										
+						}	
 						if(match_merchandise == true) {
-                			return 'x-hidden-visibility';
-            			}					
+							return 'x-hidden-visibility';
+						}			
 	                }
 				},{
 					icon:'../js/ext4/examples/shared/icons/cancel.png',
