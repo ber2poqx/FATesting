@@ -2524,7 +2524,7 @@ Ext.onReady(function(){
 											fieldStyle: 'font-weight: bold; color: #003168;text-align: right;',
 											id:'branchcode_block',
 											name:'branchcode_block',
-											hidden: false
+											hidden: true
 										},{
 											xtype:'fieldcontainer',
 											layout:'hbox',
