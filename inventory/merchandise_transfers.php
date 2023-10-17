@@ -159,6 +159,9 @@ if(!is_null($action) || !empty($action)){
             $qty = stripslashes(html_entity_decode($_POST['qty']));
             $objDataGrid = json_decode($qty, true);
             $approval_value = (isset($_POST['value']) ? $_POST['value'] : $_GET['value']);
+          
+            $approver = $_POST['approver'];
+            $reviwer = $_POST['reviwer'];
 
             if($approval_value=='yes'){
                 $message="";
@@ -217,7 +220,8 @@ if(!is_null($action) || !empty($action)){
                     $catcode = $_POST['catcode'];
                     $rsdno = strtoupper($_POST['rsdno']);
                     $_POST['ref']=$Refs->get_next(ST_MERCHANDISETRANSFER, null, array('date'=>$AdjDate, 'location'=> get_post('FromStockLocation')));
-                    $trans_no = add_stock_merchandise_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], $_POST['memo_'], $catcode, $rsdno, $_POST['servedby']);
+                    $trans_no = add_stock_merchandise_transfer($_SESSION['transfer_items']->line_items, $_POST['FromStockLocation'], $_POST['ToStockLocation'], 
+                        $AdjDate, $_POST['ref'], $_POST['memo_'], $catcode, $rsdno, $_POST['servedby'], $approver, $reviwer);
                     //new_doc_date($AdjDate);
                     //$_SESSION['transfer_items']->clear_items();
                     //unset($_SESSION['transfer_items']);
@@ -234,6 +238,9 @@ if(!is_null($action) || !empty($action)){
 
             $message="";
             $AdjDate = sql2date($_POST['AdjDate']);
+
+            $approver = $_POST['approver'];
+            $reviwer = $_POST['reviwer'];
             
             $counteritem=$_SESSION['transfer_items']->count_items();
                           
@@ -299,7 +306,7 @@ if(!is_null($action) || !empty($action)){
                               
                 $totalline=count($objDataGrid);
             
-                $trans_no = add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $brcode, $AdjDate, $br_reference, $remarks, $catcode,$mt_reference, $servedby);
+                $trans_no = add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $brcode, $AdjDate, $br_reference, $remarks, $catcode,$mt_reference, $servedby, $approver, $reviwer);
 
                 $_SESSION['transfer_items']->clear_items();
                 unset($_SESSION['transfer_items']);
@@ -457,13 +464,13 @@ if(!is_null($action) || !empty($action)){
 
             echo '({"TotalCost":"'.number_format2($totalcost,2).'"})';
             exit;
-        break;
+            break;
         case 'getTotalBalance';
             $totalcost=$_SESSION['transfer_items']->rr_manual_items_total_cost();
 
             echo '({"TotalCost":"'.number_format2($totalcost,2).'"})';
             exit;
-        break;
+            break;
         case 'ManualupdateData';
             $arrayremove = array("[","]");
             $onlyconsonants = str_replace($arrayremove, "", html_entity_decode($_REQUEST['dataManualUpdate']));
@@ -472,7 +479,7 @@ if(!is_null($action) || !empty($action)){
         
             echo '({"success":true,"Update":"","id":"'.$filter['id'].'","qty":"'.$filter['qty'].'","standard_cost":"'.$filter['standard_cost'].'","lot_no":"'.$filter['lot_no'].'","chasis_no":"'.$filter['chasis_no'].'"})';
             exit;
-        break;
+            break;
         case 'save_rrbr';
             
             set_global_connection();
@@ -491,6 +498,8 @@ if(!is_null($action) || !empty($action)){
                     $AdjDate = sql2date($data['trans_date']);
                     $MTreference = $data['MTreference'];
                     $from_loc_code = $data['from_loc_code'];
+                    $approver = $data['approver'];
+                    $reviewer = $data['reviewer'];
 
                     $line_item = $data['line_item'];
                     $model = $data['model'];
@@ -530,7 +539,7 @@ if(!is_null($action) || !empty($action)){
                     //$trans_no = add_stock_rrBranch($_SESSION['transfer_items']->line_items,$from_loc_code, $_POST['ToStockLocation'], $AdjDate, $_POST['ref'], '', $catcode, $MTreference);
 
                     $trans_no = add_stock_rrBranch($objDataGrid, $from_loc_code, $brcode, $AdjDate, $reference, '', $catcode, 
-                    $MTreference);
+                    $MTreference, $approver, $reviewer);
 
                     $_SESSION['transfer_items']->clear_items();
                     unset($_SESSION['transfer_items']);
@@ -969,7 +978,9 @@ if(!is_null($action) || !empty($action)){
                     'status_msg'=>$status_msg,
                     'status'=>$myrow["mt_header_status"],
                     'type_rr'=>$myrow["mt_type"],
-                    'post_date' => sql2date($myrow["post_date"])
+                    'post_date' => sql2date($myrow["post_date"]),
+                    'approver'=>$myrow["approved_by"],
+                    'reviewer'=>$myrow["reviewed_by"]
                 );                
             }
             
@@ -1049,6 +1060,46 @@ if(!is_null($action) || !empty($action)){
                 }  
             }
             
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            exit;
+            break;
+        case 'approvedby_user':
+            $branchcode = $db_connections[user_company()]["branch_code"];
+            
+            $sql = "SELECT A.id, A.real_name
+                FROM ".TB_PREF."users A
+                LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
+                WHERE admin_branches_canapprove != 0 AND admin_branches_branchcode='".$branchcode."'";
+            
+            $result = db_query($sql, "could not get all users");
+
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('id'=>$myrow["id"],                  
+                    'real_name'=>$myrow["real_name"]); 
+            }
+
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            exit;
+            break;
+        case 'reviwedby_user':
+            $branchcode = $db_connections[user_company()]["branch_code"];
+
+            $sql = "SELECT A.id, A.real_name
+                FROM ".TB_PREF."users A
+                LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
+                WHERE admin_branches_canreview != 0 AND admin_branches_branchcode='".$branchcode."'";
+            
+            $result = db_query($sql, "could not get all users");
+
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('id'=>$myrow["id"],                  
+                    'real_name'=>$myrow["real_name"]); 
+            }
+
             $jsonresult = json_encode($group_array);
             echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
         exit;

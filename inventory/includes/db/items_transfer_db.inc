@@ -10,14 +10,14 @@
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
 //-------------------------------------------------------------------------------------------------------------
-function add_stock_merchandise_transfer($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null)
+function add_stock_merchandise_transfer($Items, $location_from, $location_to, $date_, $reference, $memo_,$catcode=0, $rsdno=null, $servedby=null, $approver=0, $reviewer=0)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     $company_prefs = get_company_prefs();
     
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('Items', 'location_from', 'location_to','date_', 'reference', 'memo_','catcode','rsdno','servedby'), $args);
+    $args = (object)array_combine(array('Items', 'location_from', 'location_to','date_', 'reference', 'memo_', 'catcode', 'rsdno', 'servedby', 'approver', 'reviewer'), $args);
     $args->trans_no = 0;
     hook_db_prewrite($args, ST_MERCHANDISETRANSFER);
     
@@ -37,12 +37,12 @@ function add_stock_merchandise_transfer($Items, $location_from, $location_to, $d
 
     $coy_target_branches_status = get_coy_target_branch($location_to);
     
-    $mt_header_id_local = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_from);
+    $mt_header_id_local = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,$approver,$reviewer,$location_from);
     if(!empty($company_prefs["deployment_status"])){
-        $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_to);
+        $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,0,0,$location_to);
     }elseif($company_prefs["deployment_status"] == '') {
         if($coy_target_branches_status == '') {
-            $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby, $location_to);
+            $mt_header_id_target = add_mt_header($date_,$reference,$location_from,$location_to,$catcode,$memo_,$rsdno,$servedby,0,0,$location_to);
         }
     }
 
@@ -204,14 +204,14 @@ function add_stock_merchandise_transfer_manual($Items, $location_from, $location
 }
 
 
-function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, $reference, $memo_,$catcode=0,$mtreference)
+function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, $reference, $memo_, $catcode=0, $mtreference, $approver=0, $reviewer=0)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     $company_prefs = get_company_prefs();
 
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('objDataGrid', 'location_from', 'branch_code','date_', 'reference', 'memo_','catcode','mtreference'), $args);
+    $args = (object)array_combine(array('objDataGrid', 'location_from', 'branch_code', 'date_', 'reference', 'memo_', 'catcode', 'mtreference', 'approver', 'reviewer'), $args);
     $args->trans_no = 0;
     hook_db_prewrite($args,ST_RRBRANCH);
     
@@ -236,12 +236,12 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
     include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
     add_js_ufile($path_to_root.'/js/merchandise_transfers_in.js');
 
-    update_mt_header($reference,$mtreference,$Postdate,$branch_code);
+    update_mt_header($reference, $mtreference, $Postdate, $approver, $reviewer, 1, $branch_code);
     if(!empty($company_prefs["deployment_status"])){
-        update_mt_header($reference,$mtreference,$Postdate,$location_from);
+        update_mt_header($reference, $mtreference, $Postdate, 0, 0, 0, $location_from);
     }elseif($company_prefs["deployment_status"] == '') {
         if($coy_target_branches_status == '') {
-            update_mt_header($reference,$mtreference,$Postdate,$location_from);
+            update_mt_header($reference, $mtreference, $Postdate, 0, 0, 0, $location_from);
         }
     }
     $DataOnGrid = stripslashes(html_entity_decode($_REQUEST['DataOnGrid']));
@@ -319,14 +319,13 @@ function add_stock_rrBranch($objDataGrid, $location_from, $branch_code, $date_, 
 }
 
 //--Added by Robert--08/25/2022--//
-function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_code, $date_, $br_reference, $memo_,$catcode=0,$mt_reference, 
-    $servedby)
+function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_code, $date_, $br_reference, $memo_,$catcode=0,$mt_reference, $servedby, $approver=0, $reviewer=0)
 {
     global $SysPrefs, $path_to_root, $Refs, $db_connections;
     
     begin_transaction();
     $args = func_get_args();
-    $args = (object)array_combine(array('objDataGrid', 'FromStockLocation', 'branch_code','date_', 'br_reference', 'memo_','catcode','mt_reference', 'servedby'), $args);
+    $args = (object)array_combine(array('objDataGrid', 'FromStockLocation', 'branch_code','date_', 'br_reference', 'memo_','catcode','mt_reference', 'servedby', 'approver', 'reviewer'), $args);
     $args->trans_no = 0;
     hook_db_prewrite($args,ST_RRBRANCH);
     
@@ -353,7 +352,7 @@ function add_stock_rrBranch_manual($objDataGrid, $FromStockLocation, $branch_cod
     $coy_target_branches = get_coy_target_branch($FromStockLocation);
     if($coy_target_branches != 1) {
         $mt_header_id_local_manual = add_mt_header_manual($date_, $mt_reference, $br_reference, $FromStockLocation, $branch_code, 
-        $catcode, $memo_, $servedby);
+        $catcode, $memo_, $servedby, $approver, $reviewer);
     }
 
     foreach ($objDataGrid as $item)
@@ -565,7 +564,7 @@ function add_item_location_transfer($Items, $location_from, $location_to, $date_
     return $transfer_id;
 }
 //Added by Herald - 02/03/2021
-function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $targetdb){
+function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_id=0, $comments, $rsdno, $servedby, $approver=0, $reviewer=0, $targetdb){
     //global $def_coy;
     //set_global_connection($def_coy);
 
@@ -574,7 +573,13 @@ function add_mt_header($transdate, $reference, $fromlocation, $tolocation, $cat_
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_rsd, mt_header_servedby) VALUES ('$trans_date', ".db_escape($reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($rsdno).", ".db_escape($servedby).")";
+    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, 
+                mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, 
+                mt_header_comments, mt_header_rsd, mt_header_servedby, approved_by, reviewed_by) 
+            VALUES ('$trans_date', ".db_escape($reference).", 
+                ".db_escape($fromlocation).", ".db_escape($tolocation).", 
+                '".$cat_id."', ".db_escape($comments).", ".db_escape($rsdno).", 
+                ".db_escape($servedby).", ".db_escape($approver).", ".db_escape($reviewer).")";
                 
     db_query($sql, "The MT Header record cannot be inserted");
                 
@@ -600,14 +605,18 @@ function get_coy_target_branch($targetdb){
 }
 
 //Added by Robert - 08/25/2022
-function add_mt_header_manual($transdate, $mt_reference, $br_reference, $fromlocation, $tolocation, $cat_id=0, $comments, $servedby){
+function add_mt_header_manual($transdate, $mt_reference, $br_reference, $fromlocation, $tolocation, $cat_id=0, $comments, $servedby, $approver=0, $reviewer=0){
     //$db_coy = Get_db_coy($targetdb);
     set_global_connection();
     
     $trans_date = date2sql($transdate);
     
-    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby, mt_type, post_date) VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($servedby).", '1', 
-        '$trans_date')";
+    $sql = "INSERT INTO ".TB_PREF."mt_header (mt_header_date, mt_header_reference, mt_header_rrbranch_reference, 
+                mt_header_fromlocation, mt_header_tolocation, mt_header_category_id, mt_header_comments, mt_header_servedby, 
+                mt_type, post_date, approved_by, reviewed_by) 
+            VALUES ('$trans_date', ".db_escape($mt_reference).", ".db_escape($br_reference).", ".db_escape($fromlocation).", 
+                ".db_escape($tolocation).", '".$cat_id."', ".db_escape($comments).", ".db_escape($servedby).", '1', '$trans_date',
+                ".db_escape($approver).", ".db_escape($reviewer).")";
                 
     db_query($sql, "The MT Header record cannot be inserted");
                 
@@ -660,12 +669,16 @@ function add_complimentary_header($transdate, $reference, $fromlocation, $cat_id
     return $dbid;
 }
 //Added by Herald - 03/18/2021 - to update the MT header for the RR Reference
-function update_mt_header($reference, $mtreference, $postdate, $targetdb){
+function update_mt_header($reference, $mtreference, $postdate, $approver=0, $reviewer=0, $updateAllowed=0, $targetdb){
     $db_coy = Get_db_coy($targetdb);
     set_global_connection($db_coy);
     
-    $sql = "UPDATE ".TB_PREF."mt_header SET mt_header_rrbranch_reference=".db_escape($reference).", post_date=".db_escape($postdate)."
-    WHERE mt_header_reference= ".db_escape($mtreference);
+    $sql = "UPDATE ".TB_PREF."mt_header SET mt_header_rrbranch_reference=".db_escape($reference).", post_date=".db_escape($postdate);
+
+    if ($updateAllowed == 1){
+        $sql .= ",approved_by=".db_escape($approver).", reviewed_by=".db_escape($reviewer); 
+    }
+    $sql .= " WHERE mt_header_reference= ".db_escape($mtreference);
     
     db_query($sql, "The MT Header record cannot be inserted");
     

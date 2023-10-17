@@ -1089,7 +1089,7 @@ Ext.onReady(function(){
 													forceSelection: true,
 													allowBlank: false,
 													required: true,
-													width:785,
+													width:820,
 													hiddenName: 'loc_code',
 													typeAhead: true,
 													readOnly: false,
@@ -1149,6 +1149,7 @@ Ext.onReady(function(){
                     									forceSelection: true,
                                                         allowBlank: false,
                     									required: true,
+														width: 300,
                     									hiddenName: 'category_id',
                     									typeAhead: true,
                     									emptyText:'Select Category',
@@ -1191,7 +1192,7 @@ Ext.onReady(function(){
 														fieldLabel:'Trans Date',
 														name:'trans_date',
 														id:'AdjDate',
-														width: 232,
+														width: 237,
 														labelWidth: 80,
                     									fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
 														listeners:{
@@ -1217,16 +1218,83 @@ Ext.onReady(function(){
 													id:'servedby',
 													fieldLabel:'Served By',
 													labelWidth:80,
-													width: 278,
+													width: 283,
                     								fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;',
 													readOnly: true
 												}]
 											},{
 												xtype:'fieldcontainer',
-												width:507,
 												layout:'hbox',
 												margin: '2 0 2 5',
-												layout:'fit',
+												items:[{																								
+													xtype:'combo',
+													fieldLabel:'Approved By',
+													name:'approvedby',
+													id:'approvedby',
+													anchor:'100%',
+													typeAhead:true,
+													anyMatch:true,
+													labelWidth: 100,
+													width: 410,
+													forceSelection: true,
+													allowBlank: false,
+													queryMode:'local',
+													triggerAction: 'all',
+													displayField  : 'real_name',
+													valueField    : 'id',
+													hiddenName: 'id',
+													fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+													emptyText:'Select Approver',
+													store: Ext.create('Ext.data.Store',{
+														fields: ['id', 'real_name'],
+														autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=approvedby_user',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+													})
+												},{
+													xtype:'combo',
+													fieldLabel:'Reviewed By',
+													name:'reviewedby',
+													id:'reviewedby',											
+													anchor:'100%',
+													typeAhead:true,
+													anyMatch:true,
+													labelWidth: 100,
+													width: 410,
+													forceSelection: true,
+													allowBlank: false,
+													queryMode:'local',
+													triggerAction: 'all',
+													displayField  : 'real_name',
+													valueField    : 'id',
+													hiddenName: 'id',
+													fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+													emptyText:'Select Reviewer',
+													store: Ext.create('Ext.data.Store',{
+														fields: ['id', 'real_name'],
+														autoLoad: true,
+														proxy: {
+															type:'ajax',
+															url: '?action=reviwedby_user',
+															reader:{
+																type : 'json',
+																root : 'result',
+																totalProperty : 'total'
+															}
+														}
+													})
+												}]										
+											},{
+												xtype:'fieldcontainer',											
+												layout:'hbox',
+												margin: '2 0 2 5',
 												items:[{
 													xtype:'textfield',
 													name:'rsdno',
@@ -1234,22 +1302,19 @@ Ext.onReady(function(){
 													fieldLabel:'RSD #',
 													fieldStyle : 'background-color: white; color:blue; font-weight:bold;',
 													allowBlank: false,
-													hidden:false	
-												}]										
-											},{
-												xtype:'fieldcontainer',
-												width:785,
-												layout:'hbox',
-												margin: '2 0 2 5',
-												layout:'fit',
-												items:[{
+													hidden:false,
+													width: 410,
+													labelWidth: 100
+												},{
 													xtype:'textareafield',
 													fieldLabel:'Memo',
                     								fieldStyle : 'background-color: white; color:black; font-weight:bold;',
 													name:'memo',
 													id:'memo',
 													grow: true,
-													anchor:'100%'
+													anchor:'100%',
+													width:410,
+													labelWidth: 100
 												}]
 											}
 										]	
@@ -1290,33 +1355,9 @@ Ext.onReady(function(){
 						                    		setButtonDisabled(true);
 											        var gridData = MerchandiseTransStore.getRange();
 													var gridRepoData = [];
-													//var HaveErrors = 0;
-													//var $message;
-
+													
 													count = 0;
-
-													/*Ext.each(gridData, function(item) {
-														if(item.get('qty') > item.get('currentqty')){
-															//alert("Sorry,");
-															//Ext.Msg.alert("Error","Agoy - Sorry, Quantity you entered");
-															//return false;
-															 $message = "Agoy - Sorry, Quantity you entered";
-															 $HaveErrors = 1;
-														}
-														/*if(item.get('qty') > item.get('currentqty')){
-															$message = "'Error','Agoy - Sorry, Quantity you entered' + item.get('qty') + "is Greater than Available Quantity On Hand:" + item.get('currentqty');
-															HaveErrors = 1;
-														}*/
-														/*if($HaveErrors == 1){
-															Ext.Msg.show({
-																title: 'Error!',
-																msg: '<font color="red">' + $message + '</font>',
-																buttons: Ext.Msg.OK,
-																icon: Ext.MessageBox.ERROR
-															});
-														}
-													});*/
-				
+																	
 													Ext.each(gridData, function(item) {
 														var ObjItem = {							
 															qty: item.get('qty'),
@@ -1334,6 +1375,8 @@ Ext.onReady(function(){
 													var rsdno = Ext.getCmp('rsdno').getValue();
 													var servedby = Ext.getCmp('servedby').getValue();
 													var memo_ = Ext.getCmp('memo').getValue();
+													var approver = Ext.getCmp('approvedby').getValue();
+													var reviwer = Ext.getCmp('reviewedby').getValue(); 
 													if(ToStockLocation==null){
 														setButtonDisabled(false);
 														Ext.MessageBox.alert('Error','Select Branch to Transfer Location');
@@ -1349,13 +1392,17 @@ Ext.onReady(function(){
 														Ext.MessageBox.alert('Error','RSD cannot be empty.');
 														return false;
 													}
-													/*var counteritem =countitem(); 
-													if(counteritem<=0){
-														Ext.MessageBox.alert('Error','Select Item '+counteritem);
+													if(approver==null){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','Select Approver');
 														return false;
-														
-													}*/
-													
+													}
+													if(reviwer==null){
+														setButtonDisabled(false);
+														Ext.MessageBox.alert('Error','Select Reviewer');
+														return false;
+													}
+																										
 													Ext.MessageBox.show({
 														msg: 'Saving Transaction, please wait...',
 														progressText: 'Saving...',
@@ -1377,6 +1424,8 @@ Ext.onReady(function(){
 															memo_: memo_,
 															rsdno: rsdno,
 															servedby:servedby,
+															approver:approver,
+															reviwer:reviwer,
 															qty: Ext.encode(gridRepoData),
 															value:btn
 														},

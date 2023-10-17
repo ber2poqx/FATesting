@@ -68,7 +68,9 @@ Ext.onReady(function(){
 			{name:'status',mapping:'status'},
 			{name:'delivery_date',mapping:'delivery_date'},
 			{name:'type_rr',mapping:'type_rr'},
-			{name:'post_date',mapping:'post_date'}
+			{name:'post_date',mapping:'post_date'},
+			{name:'approver',mapping:'approver'},
+			{name:'reviewer',mapping:'reviewer'}
 		]
 	});
 
@@ -212,6 +214,8 @@ Ext.onReady(function(){
 						rrbrreference = record.get('rrbrreference');
 						post_date = record.get('post_date');
 						status_msg = record.get('status_msg');
+						approver = record.get('approver');
+						reviewer = record.get('reviewer');
 						//var RRBRReference;			
                         
 						if(!windowItemSerialList){
@@ -227,7 +231,7 @@ Ext.onReady(function(){
 										
 									}
 								}
-							});	
+							});								
 
 							Ext.Ajax.request({
 								url : '?action=receive_header',
@@ -251,7 +255,9 @@ Ext.onReady(function(){
 									}
 									Ext.getCmp('RRBranchReference').setValue(reference);
 									Ext.getCmp('RRBRCategory').setValue(category);
-						
+									Ext.getCmp('approvedby').setValue(approver);
+									Ext.getCmp('reviewedby').setValue(reviewer);
+															
 									//Ext.MessageBox.alert('Success!',"Process complete"+branchcode);
 									//window.open('?action=downloadfile&pathfile='+pathfile);
 								},
@@ -260,7 +266,6 @@ Ext.onReady(function(){
 									Ext.MessageBox.alert('Error','Error Processing');
 								}
 							});
-
 
 							// Selection model
 							var selModel1 = Ext.create('Ext.selection.CheckboxModel', {
@@ -382,6 +387,75 @@ Ext.onReady(function(){
 										labelWidth: 120,
 										hidden: true
 									}]
+								},{
+									xtype:'fieldcontainer',
+									layout:'hbox',
+									margin: '2 0 2 5',
+									items:[{																								
+										xtype:'combo',
+										fieldLabel:'Approved By',
+										name:'approvedby',
+										id:'approvedby',
+										anchor:'100%',
+										typeAhead:true,
+										anyMatch:true,
+										labelWidth: 100,
+										width: 421,
+										forceSelection: true,
+										allowBlank: false,
+										queryMode:'local',
+										triggerAction: 'all',
+										displayField  : 'real_name',
+										valueField    : 'id',
+										hiddenName: 'id',
+										fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+										emptyText:'Select Approver',
+										store: Ext.create('Ext.data.Store',{
+											fields: ['id', 'real_name'],
+											autoLoad: true,
+											proxy: {
+												type:'ajax',
+												url: '?action=approvedby_user',
+												reader:{
+													type : 'json',
+													root : 'result',
+													totalProperty : 'total'
+												}
+											}
+										})
+									},{
+										xtype:'combo',
+										fieldLabel:'Reviewed By',
+										name:'reviewedby',
+										id:'reviewedby',											
+										anchor:'100%',
+										typeAhead:true,
+										anyMatch:true,
+										labelWidth: 100,
+										width: 422,
+										forceSelection: true,
+										allowBlank: false,
+										queryMode:'local',
+										triggerAction: 'all',
+										displayField  : 'real_name',
+										valueField    : 'id',
+										hiddenName: 'id',
+										fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+										emptyText:'Select Reviewer',
+										store: Ext.create('Ext.data.Store',{
+											fields: ['id', 'real_name'],
+											autoLoad: true,
+											proxy: {
+												type:'ajax',
+												url: '?action=reviwedby_user',
+												reader:{
+													type : 'json',
+													root : 'result',
+													totalProperty : 'total'
+												}
+											}
+										})
+									}]
 								}],
 								bbar : {
 									xtype : 'pagingtoolbar',
@@ -428,7 +502,8 @@ Ext.onReady(function(){
 												var ObjItem = {
 													RRBRReference: Ext.getCmp('RRBranchReference').getValue(),
 													from_loc_code: Ext.getCmp('from_loc_code').getValue(),
-													from_loc_code: Ext.getCmp('from_loc_code').getValue(),
+													approver: Ext.getCmp('approvedby').getValue(),
+													reviewer: Ext.getCmp('reviewedby').getValue(),
 													trans_date: Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
 													MTreference: record.get('reference'),	
 													catcode: record.get('category_id'),
@@ -449,12 +524,23 @@ Ext.onReady(function(){
 												gridRepoData.push(ObjItem);
 											});
 
+											var approver = Ext.getCmp('approvedby').getValue();
+											var reviwer = Ext.getCmp('reviewedby').getValue(); 
+
 											//trans_dates: Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
 
 											//Ext.Date.format(Ext.getCmp('AdjDate').getValue(),"Y-m-d"),
 											
 											Ext.MessageBox.confirm('Confirm', 'Do you want to Process this record?', function (btn, text) {
 												if (btn == 'yes') {
+													if(approver==null){
+														Ext.MessageBox.alert('Error','Select Approver');
+														return false;
+													}
+													if(reviwer==null){
+														Ext.MessageBox.alert('Error','Select Reviewer');
+														return false;
+													}
 
 													Ext.MessageBox.show({
 														msg: 'Saving Transaction, please wait...',
@@ -530,7 +616,7 @@ Ext.onReady(function(){
                         //edit_insurance_win.show();
 						//window.location.replace('serial_details.php?serialid='+id);
 					}
-				},{
+				},'',{
 					icon: '../js/ext4/examples/shared/icons/printer.png',
 					tooltip: 'View Receiving Report',
 					handler: function(grid, rowIndex, colIndex) {
@@ -1935,7 +2021,7 @@ Ext.onReady(function(){
 													forceSelection: true,
 													allowBlank: false,
 													required: true,
-													width:785,
+													width:820,
 													hiddenName: 'loc_code',
 													typeAhead: true,
 													anyMatch: true,
@@ -1967,70 +2053,142 @@ Ext.onReady(function(){
 											layout:'hbox',
 											margin: '2 0 2 5',
 											items:[{
-													xtype:'combobox',
-													fieldLabel:'Category',
-													name:'category',
-													id:'category',
-													queryModel:'local',
-													triggerAction:'all',
-													displayField  : 'description',
-													valueField    : 'category_id',
-													editable      : true,
-													forceSelection: true,
-													allowBlank: false,
-													//labelWidth: 80,
-													required: true,
-													hiddenName: 'category_id',
-													typeAhead: true,
-													emptyText:'Select Category',
-													fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
-													selectOnFocus:true,
-													store: Ext.create('Ext.data.Store',{
-														fields: ['category_id', 'description'],
-														autoLoad: true,
-														proxy: {
-															type:'ajax',
-															url: '?action=category',
-															reader:{
-																type : 'json',
-																root : 'result',
-																totalProperty : 'total'
-															}
-														}
-													}),
-													listeners:{
-														select: function(cmb, rec, idx){
-															var v = this.getValue();
-															var mtgridcol = Ext.getCmp('gridMT');
-															var mtgridcolNon = Ext.getCmp('gridMTNonSerialize');
-															
-															if(v=='14'){
-																mtgridcol.show();
-																mtgridcolNon.hide();																	
-															}else{
-																mtgridcol.hide();
-																mtgridcolNon.show();																	
-															}																
+												xtype:'combobox',
+												fieldLabel:'Category',
+												name:'category',
+												id:'category',
+												queryModel:'local',
+												triggerAction:'all',
+												displayField  : 'description',
+												valueField    : 'category_id',
+												editable      : true,
+												forceSelection: true,
+												allowBlank: false,
+												//labelWidth: 80,
+												required: true,
+												width: 300,
+												hiddenName: 'category_id',
+												typeAhead: true,
+												emptyText:'Select Category',
+												fieldStyle : 'background-color: #F2F3F4; color:green; font-weight:bold;',
+												selectOnFocus:true,
+												store: Ext.create('Ext.data.Store',{
+													fields: ['category_id', 'description'],
+													autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=category',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
 														}
 													}
-												},{
-													xtype:'datefield',
-													fieldLabel:'Trans Date',
-													name:'trans_date',
-													labelWidth: 80,
-													id:'AdjDate',
-													fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'/*,
-													value: new Date()*/
+												}),
+												listeners:{
+													select: function(cmb, rec, idx){
+														var v = this.getValue();
+														var mtgridcol = Ext.getCmp('gridMT');
+														var mtgridcolNon = Ext.getCmp('gridMTNonSerialize');
+														
+														if(v=='14'){
+															mtgridcol.show();
+															mtgridcolNon.hide();																	
+														}else{
+															mtgridcol.hide();
+															mtgridcolNon.show();																	
+														}																
+													}
+												}
+											},{
+												xtype:'datefield',
+												fieldLabel:'Trans Date',
+												name:'trans_date',
+												labelWidth: 80,
+												width: 237,
+												id:'AdjDate',
+												fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'/*,
+												value: new Date()*/
 											},{
 												xtype:'textfield',
 												name:'mtreferencemanual',
 												id:'mtreferencemanual',
 												labelWidth: 80,
+												width:283,
 												fieldLabel:'MT Ref No.',
 												fieldStyle : 'background-color: #F2F3F4; color:black; font-weight:bold;'
 											}]
 										},{
 											xtype:'fieldcontainer',
+											layout:'hbox',
+											margin: '2 0 2 5',
+											items:[{											
+												xtype:'combo',
+												fieldLabel:'Approved By',
+												name:'approvedby',
+												id:'approvedby',
+												anchor:'100%',
+												typeAhead:true,
+												anyMatch:true,
+												labelWidth: 100,
+												width: 410,
+												forceSelection: true,
+												allowBlank: false,
+												queryMode:'local',
+												triggerAction: 'all',
+												displayField  : 'real_name',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+												emptyText:'Select Approver',
+												store: Ext.create('Ext.data.Store',{
+													fields: ['id', 'real_name'],
+													autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=approvedby_user',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+												})
+											},{
+												xtype:'combo',
+												fieldLabel:'Reviewed By',
+												name:'reviewedby',
+												id:'reviewedby',											
+												anchor:'100%',
+												typeAhead:true,
+												anyMatch:true,
+												labelWidth: 100,
+												width: 410,
+												forceSelection: true,
+												allowBlank: false,
+												queryMode:'local',
+												triggerAction: 'all',
+												displayField  : 'real_name',
+												valueField    : 'id',
+												hiddenName: 'id',
+												fieldStyle: 'background-color: #F2F3F4; color: green; font-weight: bold;',
+												emptyText:'Select Reviewer',
+												store: Ext.create('Ext.data.Store',{
+													fields: ['id', 'real_name'],
+													autoLoad: true,
+													proxy: {
+														type:'ajax',
+														url: '?action=reviwedby_user',
+														reader:{
+															type : 'json',
+															root : 'result',
+															totalProperty : 'total'
+														}
+													}
+												})
+											}]
+										},{
+											xtype:'fieldcontainer',											
 											layout:'hbox',
 											margin: '2 0 2 5',
 											items:[{
@@ -2039,22 +2197,17 @@ Ext.onReady(function(){
 												id:'reference',
 												fieldLabel:'RR Ref No.',
 												readOnly: true,
-												width:362,
+												width:410,
 												fieldStyle : 'background-color: #F2F3F4; color:blue; font-weight:bold;'
-											}]
-										},{
-											xtype:'fieldcontainer',
-											width:785,
-											layout:'hbox',
-											margin: '2 0 2 5',
-											layout:'fit',
-											items:[{
+											},{
 												xtype:'textareafield',
 												fieldLabel:'Remarks',
 												name:'memo',
 												id:'memo',
 												grow: true,
-												anchor:'100%'
+												anchor:'100%',
+												width:410,
+												labelWidth: 100
 											}]
 										}
 									]	
@@ -2129,6 +2282,8 @@ Ext.onReady(function(){
 										var br_reference = Ext.getCmp('reference').getValue();
 										var mt_reference = Ext.getCmp('mtreferencemanual').getValue();
 										var remarks = Ext.getCmp('memo').getValue();
+										var approver = Ext.getCmp('approvedby').getValue();
+										var reviwer = Ext.getCmp('reviewedby').getValue(); 
 
 										Ext.MessageBox.confirm('Confirm', 'Do you want to Process this transaction?', function (btn, text) {
 											if (btn == 'yes') {
@@ -2142,6 +2297,14 @@ Ext.onReady(function(){
 												}
 												if(catcode==null || catcode==''){
 													Ext.MessageBox.alert('Error','Category field should not be empty.');
+													return false;
+												}
+												if(approver==null){
+													Ext.MessageBox.alert('Error','Select Approver');
+													return false;
+												}
+												if(reviwer==null){
+													Ext.MessageBox.alert('Error','Select Reviewer');
 													return false;
 												}
 											
@@ -2166,6 +2329,8 @@ Ext.onReady(function(){
 														remarks: remarks,
 														br_reference: br_reference,
 														mt_reference: mt_reference,
+														approver:approver,
+														reviwer:reviwer,
 														DataOnGrid: Ext.encode(gridRepoData) 
 													},
 													success: function(response){

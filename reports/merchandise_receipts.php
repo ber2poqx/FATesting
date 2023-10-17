@@ -16,7 +16,29 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 	include_once($path_to_root . "/inventory/includes/inventory_db.inc");
 	include_once($path_to_root . "/modules/serial_items/includes/modules_db.inc");
 	include_once($path_to_root . "/includes/cost_and_pricing.inc");
+
+
+	function get_name_approver_mt($reference){
+		$sql = "SELECT B.real_name 
+				FROM ".TB_PREF."mt_header A 
+				LEFT JOIN users B ON B.id=A.approved_by
+				WHERE A.mt_header_reference = '$reference'";
+		$result = db_query($sql, "could not get users name ");
+		$ret = db_fetch($result);
 	
+		return $ret[0];
+	}
+
+	function get_name_reviewer_mt($reference){
+		$sql = "SELECT B.real_name 
+				FROM ".TB_PREF."mt_header A 
+				LEFT JOIN users B ON B.id=A.reviewed_by
+				WHERE A.mt_header_reference = '$reference'";
+		$result = db_query($sql, "could not get users name ");
+		$ret = db_fetch($result);
+	
+		return $ret[0];
+	}
 ?>
 
 <!DOCTYPE html>
@@ -228,6 +250,9 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 			$headertype_new_repo = '';
 		}
 	}
+
+	$name_approver = get_name_approver_mt($reference);	
+	$name_reviewer = get_name_reviewer_mt($reference);
 ?>
 
 <?php
@@ -454,8 +479,8 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				<th style="text-align: left; padding-left: 15px;">Released By:</th>
 				<th style="text-align: left; padding-left: 15px;">Received By:</th>
 			</tr>
-			<tr><td>.</td></tr>
-			<tr><td>.</td></tr>
+			<tr><td></td></tr>
+			<tr><td></td></tr>
 			<tr style="height: 1px;">
 				<td align=left>__________________________</td>
 				<td align=left>__________________________</td>
@@ -463,9 +488,10 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 				<td align=left>__________________________</td>
 			</tr>
 			<tr>
-				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name?></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic;"></td>
-				<td class="footer_names"><input type="text" style="border: 0px; text-align: center; font-size: 11px; font-family: century gothic;"></td>							
+				<td class="footer_names"><?php echo $_SESSION["wa_current_user"]->name ?></td>
+				<td class="footer_names"><?php echo $name_approver ?></td>
+				<td class="footer_names"><?php echo $mt_header_servedby ?></td>
+				<td class="footer_names"><?php echo $mt_header_tolocation ?></td>
 			</tr>
 			
 		</table>		
