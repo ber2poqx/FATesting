@@ -157,9 +157,13 @@ Ext.onReady(function(){
 							MTItemListingStore.load();
 							GlCompliEntyStore.load();	
 							UserRoleIdStore.load();
+							UserCanpostStore.load();
 							
 							var robert = UserRoleIdStore.getAt(0);
 							user_id = robert.get('user_id');
+
+							var robert_canpost = UserCanpostStore.getAt(0);
+							can_post = robert_canpost.get('can_post');
 
 							var windowItemSerialList = Ext.create('Ext.Window',{
 								title:'Item Details / Gl Entry Details',
@@ -499,7 +503,7 @@ Ext.onReady(function(){
 							});	
 						}	
 												
-						if(user_id == prepared) {
+						if(user_id == prepared || (can_post == 1)) {
 							Ext.getCmp('approved_btn').setVisible(false);
 							Ext.getCmp('disapproved_btn').setVisible(false);
 							if(record.get('status') == 'Approved') {
@@ -1300,7 +1304,7 @@ Ext.onReady(function(){
 	});
 
 	var UserRoleIdStore = Ext.create('Ext.data.Store', {
-		fields: ['role_id'],
+		fields: ['user_id', 'user_name'],
 		autoLoad: false,
 		pageSize: itemsPerPage,
 		proxy : {
@@ -1313,7 +1317,20 @@ Ext.onReady(function(){
 			}
 		}
 	});
-
+	var UserCanpostStore = Ext.create('Ext.data.Store', {
+		fields: ['role_id', 'can_post'],
+		autoLoad: false,
+		pageSize: itemsPerPage,
+		proxy : {
+			type: 'ajax',
+			url	: '?action=user_canPost',
+			reader:{
+				type : 'json',
+				root : 'result',
+				totalProperty : 'total'
+			}
+		}
+	});
 	var columnItemSerialView = [
 		{header:'ID', dataIndex:'trans_no', sortable:true, width:60, renderer: columnWrap,hidden: true},
 		{header:'Model', dataIndex:'model', sortable:true, width:60, renderer: columnWrap,hidden: false},
@@ -2694,6 +2711,7 @@ Ext.onReady(function(){
 			}
 
 			UserRoleIdStore.load();
+			UserCanpostStore.load();
 		},
 		failure: function (response){
 			Ext.MessageBox.hide();

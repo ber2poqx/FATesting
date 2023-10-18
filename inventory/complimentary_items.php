@@ -1032,6 +1032,28 @@ if(!is_null($action) || !empty($action)){
             echo '({"user_name":"'.$user_name.'","result":'.$jsonresult.'})';
             exit;
             break;
+        case 'user_canPost':
+            $user_role = check_user_role($_SESSION["wa_current_user"]->username);
+            $user_name = $_SESSION["wa_current_user"]->username;
+            $branchcode = $db_connections[user_company()]["branch_code"];
+            
+            $sql = "SELECT A.role_id, B.admin_branches_canrequest 
+                FROM ".TB_PREF."users A
+                LEFT JOIN admin_branches_access B ON B.admin_branches_admin_id = A.id
+                WHERE A.user_id = '$user_name' AND B.admin_branches_branchcode='".$branchcode."'";
+            
+            $result = db_query($sql, "could not get all users");
+
+            while ($myrow = db_fetch($result))
+            {
+                $group_array[] = array('role_id'=>$myrow["role_id"],
+                    'can_post'=>$myrow["admin_branches_canrequest"]); 
+            }
+
+            $jsonresult = json_encode($group_array);
+            echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
+            exit;
+            break;
         case 'approvedby_user':
             $branchcode = $db_connections[user_company()]["branch_code"];
             
