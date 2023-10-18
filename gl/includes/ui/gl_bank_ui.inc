@@ -172,8 +172,8 @@ function display_bank_header(&$order) {
 			label_row(_("Disbursement #: &nbsp;"), auto_disburse_no());
 			hidden('receipt_no', auto_disburse_no());
 		}else{
-			label_row(_("Remit #: &nbsp;"), auto_disburse_remit_no());
-			hidden('receipt_no', auto_disburse_remit_no());
+			label_row(_("Remit #: &nbsp;"), "remit-".auto_disburse_remit_no());
+			hidden('receipt_no', "remit-".auto_disburse_remit_no());
 		}
 	}
 	
