@@ -21,7 +21,7 @@
 function add_bank_trans($type, $trans_no, $bank_act, $ref, $date_, $amount, $person_type_id, $person_id, $cashier_id = 0,
 	$pay_type = null, $check_date = '0000-00-00', $check_no = 0, $bank_branch = null, $masterfile = 0, $receipt_no = 0, 
 	$prepared_by = null, $checked_by = null, $approved_by = null, $module_type = null, 
-	$currency = "", $err_msg = "", $open_bal = 0, $company_id = '', $rate = 0, $isotherentry = 0, $invoice_type=0, $status = "")
+	$currency = "", $err_msg = "", $open_bal = 0, $company_id = '', $rate = 0, $isotherentry = 0, $invoice_type=0, $status = "", $dibursement_doc_type=0)
 {
 	//Added by spyrax10
 	$checksql = $checkval = '';
@@ -75,12 +75,13 @@ function add_bank_trans($type, $trans_no, $bank_act, $ref, $date_, $amount, $per
 	//Modified by spyrax10 23 Feb 2022 (opening_balance column added)
 	$sql = "INSERT INTO ".TB_PREF."bank_trans (type, trans_no, bank_act, ref, trans_date, amount, person_type_id, person_id,
 					cashier_user_id, pay_type, prepared_by, checked_by, approved_by, masterfile, receipt_no, 
-					opening_balance, isotherentry, masterfile_type, status".$checksql.") ";
+					opening_balance, isotherentry, masterfile_type, status".$checksql.", dibursement_doc_type) ";
 
 	$sql .= "VALUES ($type, $trans_no, '$bank_act', ".db_escape($ref).", '$sqlDate', ".db_escape($amount_bank). ", ".db_escape($person_type_id).",
 		".db_escape($person_id).", ".db_escape($cashier_id).", ".db_escape($pay_type).", ".db_escape($prepared_by). ",
 		".db_escape($checked_by).", ".db_escape($approved_by).", ".db_escape($masterfile).", ".db_escape($receipt_no). ",
-		".db_escape($open_bal).", ".db_escape($isotherentry).", ".db_escape($invoice_type).",".db_escape($status). $checkval.")";
+		".db_escape($open_bal).", ".db_escape($isotherentry).", ".db_escape($invoice_type).",".db_escape($status). $checkval.", 
+		".db_escape($dibursement_doc_type). ")";
 	//
 
 	if ($err_msg == "")
@@ -374,6 +375,24 @@ function auto_disburse_no() {
 	$receipt_no = sprintf("%06s", $trans_no);
 
 	return $receipt_no;
+}
+/*Added by Albert 10/18/2023*/
+function auto_disburse_remit_no() {
+
+	$trans_type = ST_BANKPAYMENT;
+
+	$sql = "SELECT	max(A.receipt_no)
+		FROM " . TB_PREF . "bank_trans A 
+		WHERE A.dibursement_doc_type = 1 AND A.type = " . db_escape($trans_type);
+
+	$result = db_query($sql, "Cant get gl reference! (spyrax10)");
+    set_global_connection();
+	$row = db_fetch_row($result);
+	$dibursement_remit_no = $row[0] + 1;
+	
+	$remit_no = sprintf("%06s", $dibursement_remit_no);
+
+	return $remit_no;
 }
 
 function _systype_name($type)

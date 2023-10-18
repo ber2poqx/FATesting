@@ -465,7 +465,8 @@ if (isset($_POST['Process']) && !check_trans()) {
 		get_post('other_entry_id') ?  get_post('othr_entry_pay_amount'): 0,
 		get_post('other_entry_id') ?  get_post('othr_entry_check_date'): null,
 		get_post('other_entry_id') ?  get_post('othr_entry_check_no'): null,
-		get_post('other_entry_id') ?  get_post('othr_entry_bank_branch'): null
+		get_post('other_entry_id') ?  get_post('othr_entry_bank_branch'): null,
+		($_SESSION['pay_items']->trans_type = ST_BANKDEPOSIT) ? 0 : get_post('docType')
 	);
 
 	$trans_type = $trans[0];

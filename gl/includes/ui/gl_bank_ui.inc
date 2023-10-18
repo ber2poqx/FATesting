@@ -161,8 +161,20 @@ function display_bank_header(&$order) {
 		text_row(_("Receipts #: &nbsp;"), 'receipt_no', null, 28, 28);
 	}
 	else {
-		label_row(_("Disbursement #: &nbsp;"), auto_disburse_no());
-		hidden('receipt_no', auto_disburse_no());
+		value_type_list(_("doc. type:"), 'docType', 
+    		array(
+        		'Disbursement Entry', 
+        		'Disbursement Remit Entry'
+    		), 'label', null, true, '', true
+		);
+
+		if(get_post('docType')== 0){
+			label_row(_("Disbursement #: &nbsp;"), auto_disburse_no());
+			hidden('receipt_no', auto_disburse_no());
+		}else{
+			label_row(_("Remit #: &nbsp;"), auto_disburse_remit_no());
+			hidden('receipt_no', auto_disburse_remit_no());
+		}
 	}
 	
 	//Modified by spyrax10
@@ -188,7 +200,7 @@ function display_bank_header(&$order) {
 	/*Added by Albert*/
 	if ($order->trans_type == ST_BANKDEPOSIT) {
 		Other_Entry_type(_("Other Entry:"),'other_entry_id', null, true);
-	}
+	}	
 	//
 		
 	//-----------------------------------------//

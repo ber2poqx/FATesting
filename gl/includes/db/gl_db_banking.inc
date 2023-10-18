@@ -580,7 +580,8 @@ function write_bank_transaction(
 	$othr_entry_pay_amount = 0,
 	$othr_entry_check_date = null,
 	$othr_entry_check_no = null,
-	$othr_entry_bank_branch = null
+	$othr_entry_bank_branch = null,
+	$dibursement_doc_type = 0
 	// 
 ) {
 	global $Refs, $SysPrefs;
@@ -779,7 +780,8 @@ function write_bank_transaction(
 			0,
 			0,
 			0,
-			$status
+			$status,
+			$dibursement_doc_type
 			// 
 		);
 	}
