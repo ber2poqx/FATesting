@@ -108,6 +108,7 @@ function edit_link($row) {
 
 function prt_link($row) {
 	global $systypes_array;
+	$type_name = $systypes_array[$row['type']];
 	$link = '';
 	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
 
@@ -118,14 +119,16 @@ function prt_link($row) {
 		if ($row['type'] == ST_CUSTPAYMENT || $row['type'] == ST_BANKDEPOSIT) {
 			$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Receipt"), true, ST_CUSTPAYMENT, ICON_PRINT);
 		}
-		if($row['Note'] == 'MAIN UNIT') {
+		/*if($type_name=='')
+		{
 
-			$link = printable_receipts_and_vouchers(Delivery_receipt_main_unit, $row["trans_no"], _("Print DR main unit"), ICON_PRINT);
-		}
-		if($row['Note'] == 'FREE ITEM') {
-
-			$link = printable_receipts_and_vouchers(Delivery_receipt, $row["trans_no"], _("Print DR free items"), ICON_PRINT);
-		}
+		}*/
+		else if ($row['type'] == ST_CUSTDELIVERY)
+		{
+			if($row['Note'] == 'MAIN UNIT') {
+				$link = printable_receipts_and_vouchers(Delivery_receipt_main_unit, $row["trans_no"],  _("Print DR Main Unit"), ICON_PRINT);
+			}
+		}			
   		elseif ($row['type'] == ST_BANKPAYMENT) {
 			$link = '';
 		}		
@@ -134,6 +137,25 @@ function prt_link($row) {
  				$link = print_document_link($row['trans_no']."-".$row['type'], _("Print Invoice"), true, $row['type'], ICON_PRINT);
 	 		}
 		}
+	}
+  	
+ 	return $link;
+}
+function prt_freeitem($row) {
+	global $systypes_array;
+	$type_name = $systypes_array[$type];
+	$link = '';
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
+
+	if ($void_entry['void_status'] == "Voided") {
+		$link = '';
+	}
+	else if ($row['type'] == ST_CUSTDELIVERY)
+	{
+		$link = printable_receipts_and_vouchers(Delivery_receipt, $row["trans_no"], _("Print DR free items"), ICON_PRINT);
+	}
+	else {
+		
 	}
   	
  	return $link;
@@ -284,7 +306,8 @@ $cols = array(
 		array('insert'=>true, 'fun'=>'gl_view'),
 		array('insert'=>true, 'fun'=>'edit_link'),
 		//array('insert'=>true, 'fun'=>'credit_link'),
-		array('insert'=>true, 'fun'=>'prt_link')
+		array('insert'=>true, 'fun'=>'prt_link'),
+		array('insert'=>true, 'fun'=>'prt_freeitem')
 	);
 
 

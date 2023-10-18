@@ -104,22 +104,54 @@ if (!isset($path_to_root) || isset($_GET['path_to_root']) || isset($_POST['path_
 
 <?php
 	//$trans_no = "1";
-	$trans_no = $_REQUEST['trans_no']; 
+	$trans_no = $_REQUEST['trans_no'];
 
-	$trans_result = get_salesinvoice_trans($trans_no,$trans_type = ST_CUSTDELIVERY);
+	function get_detailed_unit($itemcode)
+	{
+		set_global_connection();
+
+		$sql = "SELECT CONCAT(IFNULL(sc.description,'no category'), ' - ', IFNULL(ib.name,'no brand')) AS `brand`, CONCAT(ic.item_code,' - ',ic.description) AS `model`, IFNULL(dtd.color_code,ic.description) AS `color`, sc.description as `cat_code`
+				FROM " . TB_PREF . "`item_codes` ic
+					LEFT JOIN " . TB_PREF . "`item_brand` ib ON ic.brand = ib.id
+					LEFT JOIN " . TB_PREF . "`stock_category` sc ON ic.category_id = sc.category_id
+					LEFT JOIN " . TB_PREF . "`debtor_trans_details` dtd ON ic.stock_id = dtd.stock_id
+				WHERE ic.item_code = '$itemcode'"; 	
+
+		return db_query($sql, "No transactions were returned");
+	}
+	
+
+
+	
+
+	$trans_result = get_salesinvoice_trans_serialized($trans_no,$trans_type = ST_CUSTDELIVERY);
 	
 	$myrow=db_fetch($trans_result);
 
+	$itemcode = $myrow["stock_id"];
+	$color_code = $myrow["color_code"];
+	
+	//$si_result = get_salesinvoice_trans_serialized($trans_no,$trans_type = ST_SALESINVOICE);	
+	//$myrow=db_fetch($si_result);
+
+	$ic_result = get_detailed_unit($itemcode);
+	$ic_row = db_fetch($ic_result); //returns: brand, model & color
+
+	$color_result = get_detailed_unit($color_code);
+	$color_row = db_fetch($color_result); //color
+
+	$qty = $myrow["Qty"];
+	$brand = $ic_row["brand"];
+	$model = $ic_row["model"];
+	$serial = $myrow["serial"];
+	$chassis = $myrow["chassis"];
+	$color = $color_row["color"];
+	$cat_code = $ic_row["cat_code"];
 	$sold_to = $myrow["Soldto"];
 	$address = $myrow["Address"];
 	$date = date('m/d/Y', strtotime($myrow["Date"]));
 	$terms = $myrow["Terms"];
-	$qty = $myrow["Qty"];
-	$unit = $myrow["Unit"];
-	$article = $myrow["Article"];
-	$unit_price = $myrow["UnitCost"];
-	$unit_total = 0;
-	$grandTotal = 0;
+
 		
 ?>
 <!-- 
@@ -178,7 +210,7 @@ prnt_cash_SalesInvoice
 
 			<table class="line1">
 				<?php						  
-					  
+					/*
 				  	$result = get_salesinvoice_trans($trans_no,$trans_type = ST_CUSTDELIVERY);				
 					// if (db_num_rows($result) > 0 && db_num_rows($result) <= 5)
 					if (db_num_rows($result) <= 9)
@@ -200,7 +232,36 @@ prnt_cash_SalesInvoice
 						display_note(_("Number of items exceeded receipt lines."), 1, 2);
 					}
 					else
-					display_note(_("There are no line items on this dispatch."), 1, 2);										
+					display_note(_("There are no line items on this dispatch."), 1, 2);		
+					*/
+
+					echo '<tr >'; // 1st ROW
+					echo '<td align=left style="padding-left: 0px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">'.$qty.'  Brand : '.($brand).'</td>'; // QTY & BRAND
+					echo '</tr>';		
+					
+					echo '<tr >'; // 2nd ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Model : '.($model).'</td>'; // MODEL
+					echo '</tr>';
+
+					echo '<tr >'; // 3rd ROW
+					if($cat_code == "MOTORCYCLE")
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Engine # : '.($serial).'</td>'; // MC ENGINE #
+					}
+					else 
+					{
+						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Serial # : '.($serial).'</td>'; // SERIAL #
+					}					
+					echo '</tr>';
+
+					echo '<tr >'; // 4th ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Chassis # : '.($chassis).'</td>'; // MC CHASSIS #	
+					echo '</tr>';
+
+					echo '<tr >'; // 5th ROW
+					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Color : '.($color).'</td>'; // MC COLOR	
+					echo '</tr>';
+
 				?>
 			</table>	
 
