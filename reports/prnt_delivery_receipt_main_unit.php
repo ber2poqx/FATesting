@@ -236,30 +236,30 @@ prnt_cash_SalesInvoice
 					*/
 
 					echo '<tr >'; // 1st ROW
-					echo '<td align=left style="padding-left: 0px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">'.$qty.'  Brand : '.($brand).'</td>'; // QTY & BRAND
+					echo '<td align=left style="padding-left: 30px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">'.$qty.'  Brand : '.($brand).'</td>'; // QTY & BRAND
 					echo '</tr>';		
 					
 					echo '<tr >'; // 2nd ROW
-					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Model : '.($model).'</td>'; // MODEL
+					echo '<td align=left style="padding-left: 45px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Model : '.($model).'</td>'; // MODEL
 					echo '</tr>';
 
 					echo '<tr >'; // 3rd ROW
 					if($cat_code == "MOTORCYCLE")
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Engine # : '.($serial).'</td>'; // MC ENGINE #
+						echo '<td align=left style="padding-left: 45px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Engine # : '.($serial).'</td>'; // MC ENGINE #
 					}
 					else 
 					{
-						echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Serial # : '.($serial).'</td>'; // SERIAL #
+						echo '<td align=left style="padding-left: 45px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Serial # : '.($serial).'</td>'; // SERIAL #
 					}					
 					echo '</tr>';
 
 					echo '<tr >'; // 4th ROW
-					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Chassis # : '.($chassis).'</td>'; // MC CHASSIS #	
+					echo '<td align=left style="padding-left: 45px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Chassis # : '.($chassis).'</td>'; // MC CHASSIS #	
 					echo '</tr>';
 
 					echo '<tr >'; // 5th ROW
-					echo '<td align=left style="padding-left: 15px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Color : '.($color).'</td>'; // MC COLOR	
+					echo '<td align=left style="padding-left: 45px; width: 12.1cm; text-align: left; padding-bottom: 0.10cm;">Color : '.($color).'</td>'; // MC COLOR	
 					echo '</tr>';
 
 				?>
