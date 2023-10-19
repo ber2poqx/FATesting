@@ -426,13 +426,9 @@ if(!is_null($action) || !empty($action)){
             break;
         case 'receive_header';
             $brcode = $db_connections[user_company()]["branch_code"];
-            $from_loc = $_POST['from_loc'];
-            $MTReference = $_POST['MTreference'];
-            handle_new_order(ST_RRBRANCH);
-            $AdjDate = sql2date($_POST['AdjDate']);
-            $_POST['ref']=$Refs->get_next(ST_RRBRANCH, null, array('date'=>$_POST['AdjDate'], 'location'=> $brcode));
-            
-            echo '({"AdjDate":"'.$_POST['AdjDate'].'","branchcode":"'.$brcode.'","from_loc":"'.$from_loc.'","RRBRReference":"'.$_POST['ref'].'","MTreference":"'.$MTReference.'"})';
+            $aprroved = $_POST['aprroved'];
+            $reviwed = $_POST['reviwed'];
+            echo '({"branchcode":"'.$brcode.'","approved":"'.$aprroved.'","reviewed":"'.$reviwed.'"})';
             exit;
             break;
         case 'receive';

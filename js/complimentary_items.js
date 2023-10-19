@@ -145,6 +145,7 @@ Ext.onReady(function(){
                         catcode = record.get('category_id');
                         prepared = record.get('prepared_by');
                         aprroved = record.get('approved_by');                        
+                        reviwed = record.get('reviewed_by');                        
 
 						if(!windowItemSerialList){
 							MTItemListingStore.proxy.extraParams = {
@@ -167,6 +168,24 @@ Ext.onReady(function(){
 							
 							var robert_canpost = UserCanpostStore.getAt(0);
 							can_post = robert_canpost.get('can_post');
+
+							Ext.Ajax.request({
+								url : '?action=receive_header',
+								method: 'POST',
+								params : {
+									aprroved : aprroved,
+									reviwed: reviwed									
+  								},
+								success: function (response){
+									var jsonData = Ext.JSON.decode(response.responseText);									
+									Ext.getCmp('approvedby_updt').setValue(aprroved);
+									Ext.getCmp('reviewedby_updt').setValue(reviwed);
+																							
+								},
+								failure: function (response){									
+									Ext.MessageBox.alert('Error','Error Processing');
+								}
+							});
 							
 							var windowItemSerialList = Ext.create('Ext.Window',{
 								title:'Item Details / Gl Entry Details',
