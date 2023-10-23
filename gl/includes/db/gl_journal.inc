@@ -108,7 +108,8 @@ function write_journal_entries(&$cart, $interbranch = false)
 	$rebate_tot = $penalty_tot = 0;
 
 	$date_ = $cart->tran_date;
-	$ref   = $cart->reference;
+	// $ref   = $cart->reference;
+	$ref = $Refs->get_next(ST_JOURNAL, null, null);
 	$memo_ = $cart->memo_;
 	$trans_type = $cart->trans_type;
 	$new = $cart->order_id == 0;
