@@ -585,6 +585,8 @@ function write_bank_transaction(
 	// 
 ) {
 	global $Refs, $SysPrefs;
+	/*Added by Albert address error reference multiple user transac on the same time*/
+	$ref = $Refs->get_next($trans_type, null, null);
 
 	// we can only handle type 1 (payment)and type 2 (deposit)
 	if ($trans_type != ST_BANKPAYMENT && $trans_type != ST_BANKDEPOSIT)
