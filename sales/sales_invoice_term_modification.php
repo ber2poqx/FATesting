@@ -139,6 +139,32 @@ function print_sales_invoice_receipt($row)
 		}
 	}
 }
+function sales_ct_approval($row) {
+	$link = '';
+	$void_entry = get_voided_entry($row['type'], $row['trans_no']);
+
+	if ($void_entry['void_status'] == "Voided") {
+		$link = '';
+	}
+	else {
+		if ($_SESSION["wa_current_user"]->can_access_page('SA_SALES_CT_APPROVAL')) {
+
+			$link = ($row["status"] == "Close" || $row["status"] == "Closed" || $row["status"] == "fully-paid")  ? '' :  
+	
+			pager_link(
+				'Change Term Approval',
+				"/sales/sales_invoice_ct_approval.php?CTNumber=" . $row["trans_no"],
+				ICON_DOC
+			);
+		}
+		else {
+			$link = null;
+		}
+	}
+
+	
+	return $link;
+}
 function cancel_link($row)
 {
 	return pager_link(
@@ -160,7 +186,7 @@ $sql = get_sales_invoices_ct($_POST['search_val'], $_POST['pay_type_id']);
 $cols = array(
 	_("Trans #") => array('fun' => 'trans_view', 'ord' => '', 'align' => 'right'),
 	_("Customer"),
-	_("Status"),
+	_("Status") => array('insert' => true, 'fun' => 'sales_ct_approval'),
 	_("Category") => array('fun' => 'category_name'),
 	_("Sales Invoice CT #"),
 	_("SI Ref #"),

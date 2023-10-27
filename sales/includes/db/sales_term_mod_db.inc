@@ -681,3 +681,19 @@ function get_termode_serial_no($lot_no)
 
 	return $row[0];
 }
+function update_change_term_status(&$so_obj)
+{
+	begin_transaction();
+	hook_db_prewrite($so_obj, ST_SITERMMOD);
+
+	/*Update the sales order draft status */
+	$sql = "UPDATE " . TB_PREF . "debtor_trans SET status =" .db_escape($so_obj->status).",approval_remarks=" . db_escape($so_obj->approval_remarks);
+	$sql .= " WHERE type = ".ST_SITERMMOD."  AND  order_ = " . $so_obj->trans_no;
+	db_query($sql, "The debtor_trans restructured_status could not be updated");
+
+	add_audit_trail($so_obj->trans_type, $so_obj->trans_no, Today(), _("Update CT Status."));
+	hook_db_postwrite($so_obj, ST_SITERMMOD);
+	commit_transaction();
+
+	return "Successfully Approved!";
+}

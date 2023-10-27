@@ -119,7 +119,9 @@ function write_customer_trans(
 		if($fullpayment){
 			$status = "Closed";
 		}
-
+		if($trans_type == ST_SITERMMOD && $fullpayment==0){
+			$status = "Draft";
+		}
 		$sql = 
 		"INSERT INTO " . TB_PREF . "debtor_trans (
 			trans_no, type, debtor_no, branch_code, tran_date, due_date,
