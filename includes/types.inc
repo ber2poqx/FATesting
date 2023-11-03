@@ -70,6 +70,7 @@ define('ST_REQUESTSTOCKDELIVER', 61);
 //for lending added by progjr on 3-13-2021
 define('ST_ARINVCINSTLITM', 70);
 define('ST_RRREPO', 80);
+define('ST_INTLRDEM', 85);
 
 // Don't include these defines in the $systypes_array.
 // They are used for documents only.

@@ -63,6 +63,7 @@ $refline_options = array(
 	
 	ST_ARINVCINSTLITM => array('date', 'customer', 'branch', 'user', 'pos', 'branchcode'),
 	ST_RRREPO => array('date', 'customer', 'user', 'branchcode'),
+	ST_INTLRDEM => array('date', 'customer', 'user', 'branchcode'),
 );
 
 $refline_placeholders = array(

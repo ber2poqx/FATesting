@@ -551,8 +551,8 @@ $security_areas =array(
 
 	'SA_GRNREPO' => array(SS_REPO|1, _("Receiving Report Repo")),
 	'SA_TEMPREPOINQRY' => array(SS_REPO|2, _("Temporary Repo Lending inquiry")),
-
 	'SA_REPOREPRICE' => array(SS_REPO|3, _("Repossess Item Pricing")),
+	'SA_INTLRDEM' => array(SS_REPO|4, _("Installment Redemption")),
 
 );
 
