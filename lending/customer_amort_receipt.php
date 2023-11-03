@@ -1289,8 +1289,8 @@ if(isset($_GET['submit']))
                                                 $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null,
                                                 $discount_downpayment, $discount_downpayment2, $_POST['transtype'], $_POST['paylocation'], $_POST['total_otheramount']);
 
-                //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
-                add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount'] + check_isempty($dp_discount)), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
+                //add_cust_allocation(($_POST['tenderd_amount'] + $_POST['total_otheramount']), ST_CUSTPAYMENT, $payment_no, $_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername'], $_POST['trans_date']);
                 update_debtor_trans_allocation($_POST['transtype'], $_POST['InvoiceNo'], $_POST['customername']);
                 
                 //add other entry to bank trans table
