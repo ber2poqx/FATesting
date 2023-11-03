@@ -60,7 +60,9 @@ class lending_app extends application
 		$this->add_rapp_function(0, _("Temporary Repo Accounts &Inquiry"),
 			"repossess/inquiry/temporary_repo_accounts.php?", 'SA_TEMPREPOINQRY', MENU_TRANSACTION); 
 		$this->add_rapp_function(0, _("Receiving Report &Repo"),
-			"repossess/manage/repo_accounts.php?rtype=REPO", 'SA_GRNREPO', MENU_TRANSACTION); 
+			"repossess/manage/repo_accounts.php?rtype=REPO", 'SA_GRNREPO', MENU_TRANSACTION);
+		$this->add_rapp_function(0, _("Installment Redemption"),
+			"repossess/manage/redemption.php", 'SA_INTLRDEM', MENU_TRANSACTION); 
 			
 		$this->add_module(_("Inquiries and Reports"));
 		//$this->add_lapp_function(1, _("Payment Allocation"),
