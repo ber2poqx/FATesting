@@ -126,6 +126,21 @@ function get_counterparty_name($trans_type, $trans_no, $full=true)
 			." AND trans.supplier_id=supp.supplier_id";
 			break;
 
+		case ST_RRREPO :
+			$sql = "SELECT b.debtor_no, b.name 
+					FROM ".TB_PREF."repo_accounts a 
+						INNER JOIN ".TB_PREF."debtors_master b ON b.debtor_no = a.debtor_no 
+					WHERE a.id = ".db_escape($trans_no)." AND a.type = ".db_escape($trans_type);
+			break;
+
+		case ST_INTLRDEM :
+			$sql = "SELECT c.debtor_no, c.name
+					from ".TB_PREF."repo_redemption a 
+						INNER JOIN ".TB_PREF."repo_accounts b ON b.id = a.repo_id
+						INNER JOIN ".TB_PREF."debtors_master c on c.debtor_no = b.debtor_no
+					where a.id = ".db_escape($trans_no)." AND a.type = ".db_escape($trans_type);
+			break;
+
 		case ST_JOURNAL:	// FIXME - this one can have multiply counterparties of various types depending on person_type_id
 
 		default: 
@@ -263,7 +278,8 @@ function get_systype_db_info($type)
 
 		/*added by progjr for lending on 03-15-2021*/
 		case     ST_ARINVCINSTLITM : return array(TB_PREF."debtor_trans", "type", "trans_no", "reference", "tran_date");
-		case     ST_RRREPO : return array(TB_PREF."repo_accounts", null, "id", "reference_no", null);
+		case     ST_RRREPO : return array(TB_PREF."repo_accounts", "type", "id", "reference_no", "trans_date");
+		case     ST_INTLRDEM : return array(TB_PREF."repo_redemption", "type", "id", "reference_no", "trans_date");
 	}
 
 	display_db_error("invalid type ($type) sent to get_systype_db_info", "", true);

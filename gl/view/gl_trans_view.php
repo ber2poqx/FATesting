@@ -194,6 +194,7 @@ function _gl_details() {
 	$payments = $_GET['type_id'] == ST_CUSTPAYMENT;
 	$rrepo = $_GET['type_id'] == ST_RRREPO;
 	$arlending = $_GET['type_id'] == ST_ARINVCINSTLITM;
+	$redem = $_GET['type_id'] == ST_INTLRDEM;
 
 	$dim = get_company_pref('use_dimension');
 
@@ -300,8 +301,8 @@ function _gl_details() {
 		}
 		//Added by Albert
 		//modify jr 03/21/22
-		//removed $arlending para ang masterfile name sa customer as requested by maam helen on july 05-2023
-		else if ($termmode|| $restructured || $payments || $rrepo) { // || $arlending
+		//removed $arlending on july 05-2023
+		else if ($termmode|| $restructured || $payments || $rrepo || $redem) { // || $arlending
 			label_cell($myrow['mcode'] != null ? $myrow['mcode'] : 
 			get_subaccount_code($_GET['type_id'],$_GET['trans_no']));
 			label_cell($myrow['master_file'] != null ? $myrow['master_file'] : 
