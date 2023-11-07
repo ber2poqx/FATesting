@@ -105,7 +105,7 @@ if(isset($_GET['get_repoStock']))
 }
 if(isset($_GET['get_Item_details']))
 {
-    $result = get_repo_item_detials($_GET['repo_id'], $_GET['branch']);
+    $result = get_repo_item_detials_odb($_GET['repo_id'], $_GET['branch']);
     $total = DB_num_rows($result);
     while ($myrow = db_fetch($result)) {
         $status_array[] = array('stock_id'=>$myrow["stock_id"],

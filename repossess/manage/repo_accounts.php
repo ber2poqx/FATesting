@@ -763,6 +763,8 @@ if(isset($_GET['submit']))
             update_debtor_trans_to_repo("REPO", $_POST['repo_date'], $_POST['InvoiceNo'], $_POST['transtype']);
         }
 
+        add_audit_trail(ST_RRREPO, $repo_id, $_POST['repo_date']);
+
         $dsplymsg = _("Repo transaction has been successfully entered...");
 
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
