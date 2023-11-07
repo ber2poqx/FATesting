@@ -58,6 +58,26 @@ function add_repo_item($trans_no, $repo_id, $stock_id, $description, $qty, $unit
 	return $repo_item_id;
 }
 
+function add_repo_redemption($type, $repo_id, $reference_no, $trans_date_, $comments)
+{
+	global $Refs;
+	$trans_date = date2sql($trans_date_);
+
+	$sql = "INSERT INTO ".TB_PREF."repo_redemption (
+					type, repo_id, reference_no, trans_date, comments
+				) VALUES (
+					".db_escape($type).", ".db_escape($repo_id).", ".db_escape($reference_no).", ".db_escape($trans_date).", ".db_escape($comments)."
+				)";
+
+	db_query($sql, "The installment redemption record cannot be inserted");
+	$redem_id = db_insert_id();
+
+	add_audit_trail(ST_INTLRDEM, $redem_id, $trans_date_);
+	$Refs->save(ST_INTLRDEM, $redem_id, $reference_no);
+
+	return $redem_id;
+}
+
 function update_repo_reprice_stock_move($amount, $trans_id, $trans_no, $stock_id, $def_loc)
 {
 	$db_coy = Get_db_coy($def_loc);
@@ -380,7 +400,7 @@ function get_repo_stocks($category_id, $def_loc, $start, $limit, $search, $showa
 	return $result;
 }
 
-function get_repo_item_detials($trans_no, $def_loc)
+function get_repo_item_detials_odb($trans_no, $def_loc)
 {
 	$db_coy = Get_db_coy($def_loc);
     set_global_connection($db_coy);
@@ -718,4 +738,95 @@ function update_repoprice_history($repo_id, $stock_id, $module)
 			AND module_type = ".db_escape($module);
 	
 	return db_query($sql, "could not update price history status ");
+}
+
+function get_repo_customer($debtor_no = 0)
+{
+	if($debtor_no != 0){
+		$sWhere = "AND B.debtor_no = ".db_escape($debtor_no);
+	}
+	$sql = "SELECT B.debtor_no, B.debtor_ref, B.name
+			FROM ".TB_PREF."repo_accounts A
+				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no 
+			WHERE A.is_redem = 0 AND A.type=80 ".$sWhere;
+
+	return db_query($sql, "could not get customer info because");
+}
+
+function get_repo_debtor_accounts($debtor_no)
+{
+	$sql = "SELECT A.*, B.description cat_desc, C.reference invoice_ref, C.tran_date invoice_date
+		FROM ".TB_PREF."repo_accounts A
+			INNER JOIN ".TB_PREF."stock_category B ON B.category_id  = A.category_id
+			INNER JOIN ".TB_PREF."debtor_trans C ON C.trans_no = A.ar_trans_no AND C.type = A.ar_trans_type
+		WHERE A.debtor_no = ".db_escape($debtor_no)."
+		ORDER BY A.trans_date DESC";
+		//echo $sql;
+	return db_query($sql, "could not get all customer repo accounts");
+}
+
+function get_repo_item_detials($trans_no)
+{
+	$sql = "SELECT A.*
+		FROM ".TB_PREF."repo_item_details A 
+		WHERE A.repo_id = ".db_escape($trans_no);
+	
+	return db_query($sql, "could not get repo item details");
+}
+
+function delete_repo_alloc($type, $repo_id, $amnt)
+{
+	$sql="DELETE FROM ".TB_PREF."cust_allocations 
+		  WHERE trans_no_from = ".db_escape($repo_id)
+				." AND trans_type_from = ".db_escape($type)
+				." AND amt = ".db_escape($amnt);
+	return db_query($sql,"could not delete repo allocation");
+}
+
+function update_redem_account($trans_no, $trans_type)
+{
+	$sql = "UPDATE ".TB_PREF."debtor_trans 
+				SET module_type = '', repo_date = '0000-00-00', status = 'part-paid'	
+			WHERE trans_no = ".db_escape($trans_no)."
+				AND type =".db_escape($trans_type);
+
+	return db_query($sql, "could not update debtor trans info");	
+}
+
+function update__redem_repo_account($repo_id, $ar_trans_no)
+{
+	$sql = "UPDATE ".TB_PREF."repo_accounts SET is_redem = 1 WHERE id = ".db_escape($repo_id). " AND ar_trans_no = ".db_escape($ar_trans_no);
+
+	return db_query($sql, "could not update repo accounts status");
+}
+
+function update__redem_repo_account_details($repo_id, $ar_trans_no)
+{
+	$sql = "UPDATE ".TB_PREF."repo_item_details SET status = 2 WHERE repo_id = ".db_escape($repo_id). " AND ar_trans_no = ".db_escape($ar_trans_no);
+
+	return db_query($sql, "could not update repo accounts details");
+}
+
+function get_demption_info($start, $limit, $search)
+{
+	if($search != ''){
+		$sWhere .= " WHERE (c.name LIKE '%".$search."%' OR a.reference_no LIKE '%".$search."%' OR a.trans_date LIKE '%".$search."%' OR a.comments LIKE '%".$search."%') ";
+	}
+	$sql = "SELECT a.id redem_no, a.type redem_type, a.reference_no redem_ref, a.trans_date redem_date, a.comments redem_comment, b.*, c.debtor_ref, c.name, d.description category
+		FROM ".TB_PREF."repo_redemption a
+			INNER JOIN ".TB_PREF."repo_accounts b on b.id = a.repo_id
+			INNER JOIN ".TB_PREF."debtors_master c on c.debtor_no = b.debtor_no
+			LEFT JOIN ".TB_PREF."stock_category d ON d.category_id = b.category_id
+		".$sWhere."
+		ORDER BY a.trans_date DESC";
+
+		$sqllimit = $sql ." limit $start, $limit";
+
+		if($showall){
+			$result = db_query($sql, "could not get all redemption records");
+		}else{
+			$result = db_query($sqllimit, "could not get all redemption records");
+		}
+
+	return $result;
 }
