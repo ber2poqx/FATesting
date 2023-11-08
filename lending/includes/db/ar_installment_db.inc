@@ -182,6 +182,7 @@ function get_ar_ledger_entries($type, $trans_no)
 					ELSE 0
 				END AS credit,
 				CASE WHEN B.type = ".ST_RRREPO." THEN (SELECT Z.reference_no FROM ".TB_PREF."repo_accounts Z WHERE Z.id = B.type_no)
+				     WHEN B.type = 85 THEN (SELECT Z.reference_no FROM repo_redemption Z WHERE Z.id = B.type_no)
 					ELSE (SELECT Z.reference FROM ".TB_PREF."debtor_trans Z WHERE Z.trans_no = B.type_no AND Z.type = B.type)
 				END AS ref_no
 			FROM ".TB_PREF."debtor_trans A
