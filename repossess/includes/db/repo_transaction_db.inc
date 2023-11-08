@@ -744,11 +744,13 @@ function get_repo_customer($debtor_no = 0)
 {
 	if($debtor_no != 0){
 		$sWhere = "AND B.debtor_no = ".db_escape($debtor_no);
+	}else{
+		$sWhere = "AND A.is_redem = 0 ";
 	}
 	$sql = "SELECT B.debtor_no, B.debtor_ref, B.name
 			FROM ".TB_PREF."repo_accounts A
 				INNER JOIN ".TB_PREF."debtors_master B ON B.debtor_no = A.debtor_no 
-			WHERE A.is_redem = 0 AND A.type=80 ".$sWhere;
+			WHERE A.type=80 ".$sWhere;
 
 	return db_query($sql, "could not get customer info because");
 }

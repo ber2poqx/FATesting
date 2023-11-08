@@ -250,7 +250,7 @@ Ext.onReady(function(){
 					CustomerStore.load();
 					RepoAccntStore.proxy.extraParams = {debtor_no: records.get('debtor_no')};
 					RepoAccntStore.load();
-					RepoitemStore.proxy.extraParams = {repo_id: records.get('id')};
+					RepoitemStore.proxy.extraParams = {repo_id: records.get('repo_id')};
 					RepoitemStore.load();
 
 					Ext.getCmp('btnsave').setVisible(false);
