@@ -190,6 +190,7 @@ $security_areas =array(
 	'SA_POSTPRICE' => array(SS_SALES_C|23, _("Post Price")), //Added by Albert 09/15/2022
 	'SA_PRICE_ACCOUNTING_APPROVAL' => array(SS_SALES_C|24, _("Price Accounting Approval")), //Added by Albert 09/15/2022
 	'SA_PRICE_UPLOAD_VIEW' => array(SS_SALES_C|25, _("Price Upload View")), //Added by Albert 09/15/2022
+	'SA_WARRANTY_MONITORING' => array(SS_SALES_C|26, _("Warranty Monitoring Changes")), // Added by Prog6	(10/18/2023)
 
 	'SA_SALESTRANSVIEW' => array(SS_SALES|1,  _("Sales Transactions View")),
 	'SA_CUSTOMER' => array(SS_SALES|2,  _("Sales Customer and Branches Changes")),
