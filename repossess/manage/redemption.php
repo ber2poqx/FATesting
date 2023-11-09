@@ -337,8 +337,10 @@ if(isset($_GET['submit']))
 
         $redem_id = add_repo_redemption(ST_INTLRDEM, $_POST['RepoNo'], $reference, $_POST['trans_date'], $_POST['remarks']);
 
-        add_stock_move(ST_INTLRDEM, $item_row['stock_id'], $redem_id, $loc_code, $_POST['trans_date'], $_POST['reference_no'], -$quantity, $_POST['unrecovrd_cost'],
-                        0, $serial, $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "repo");
+        $item_row = db_fetch(get_repo_item_detials($_GET['repo_id']));
+
+        add_stock_move(ST_INTLRDEM, $item_row['stock_id'], $redem_id, $loc_code, $_POST['trans_date'], $_POST['reference_no'], -$item_row['qty'], $_POST['unrecovrd_cost'],
+                        0, $item_row['serial_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "item redem");
 
             //item serialize
             //add_item_serialise(ST_INTLRDEM, $item_row['color_code'], $repo_id, $loc_code, $_POST['reference_no'], $quantity, $serial, $repo_item_id, $item_row['chassis_no'], $item_row['description'], '');

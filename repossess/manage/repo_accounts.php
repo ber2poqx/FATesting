@@ -352,6 +352,7 @@ if(isset($_GET['get_repodetails']))
                                'gpm'=>$myrow["gpm"],
                                'transfer_id'=>$myrow["transfer_id"],
                                'accu_amount'=>$myrow["accu_amount"],
+                               'is_redem'=>$myrow["is_redem"]
                             );
     }
     $jsonresult = json_encode($status_array);
