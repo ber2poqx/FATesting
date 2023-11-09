@@ -286,12 +286,23 @@ class BoxReports
 				return array_selector($name, $def, $sel);
 
 				//Added by Prog6 =================================
+				case 'EXCEL_ONLY_DESTINATION':
 				case 'PDFDESTINATION':
-					$sel = array(_("PDF/Printer"), "Excel");
-					$def = 0;
-					//if (user_def_print_destination() == 1)
-					//	$def = 1;
-					return array_selector($name, $def, $sel);
+					if ($type == 'EXCEL_ONLY_DESTINATION')
+					{
+						$sel = array(_("EXPORT TO EXCEL"));
+						$def = 1;
+						return array_selector($name, $def, $sel);
+					}  
+					else if($type == 'PDFDESTINATION')
+					{
+						$sel = array(_("PDF/Printer"));
+						$def = 0;
+						//if (user_def_print_destination() == 1)
+						//	$def = 1;
+						return array_selector($name, $def, $sel);
+					}
+						
 				//================================================
 				case 'SELECTMONTHS':
 					return value_type_list(null, $name, 
@@ -320,7 +331,7 @@ class BoxReports
 
 				//Added by Prog6 =================================
 				case 'LANDSCAPE':
-					$sel = array(_("Portrait"), _("Landscape"));
+					$sel = array(_("Landscape"));
 					$def = 1;
 					//if (user_def_print_orientation() == 1)
 					//	$def = 1;
@@ -623,11 +634,14 @@ class BoxReports
 
 				case 'SUPPLIERS_LIST_FOR_REPORT':
 				case 'SUPPLIERS_NO_FILTER_FOR_REPORT':
+				case 'SUPPLIERS_SELECT':
 				case 'SUPPLIERS_FOR_REPORT':
 					if ($type == 'SUPPLIERS_NO_FILTER_FOR_REPORT')
 						return supplier_list($name, null, _("No Supplier Filter"));
 					else if ($type == 'SUPPLIERS_LIST_FOR_REPORT')
 						return supplier_list($name, null, _("All Supplier"));
+					else if ($type == 'SUPPLIERS_SELECT')
+						return supplier_list($name, null, _("Must Select Supplier"));
 					else
 						return supplier_list($name);
 

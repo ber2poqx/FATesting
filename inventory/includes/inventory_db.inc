@@ -312,7 +312,7 @@ function get_salesinvoice_trans_serialized($trans_no, $trans_type)
 			LEFT JOIN " . TB_PREF . "sales_orders SO ON dt.order_ = SO.order_no
 			LEFT JOIN " . TB_PREF . "salesman SMAN ON SO.salesman_id = SMAN.salesman_code
 		WHERE 
-			dtd.debtor_trans_no = '" . $trans_no . "' AND dtd.quantity > 0 AND dt.type = '" . $trans_type . "'
+			dtd.debtor_trans_no = '" . $trans_no . "' AND dtd.quantity > 0 AND dt.type = '" . $trans_type . "' AND dtd.item_type = 'Regular'
 		LIMIT 1"; 	
 
 	// if ($trans_type != 1) {

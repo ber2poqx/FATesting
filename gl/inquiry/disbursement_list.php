@@ -100,8 +100,7 @@ function print_debit_advice($row)
     else //Normal Entry
     {
         //return printable_receipts_and_vouchers(Debit_advice, $row["trans_no"], _("Print Debit Advice"), ICON_PRINT);
-    }
-    
+    }    
 }
 
 
