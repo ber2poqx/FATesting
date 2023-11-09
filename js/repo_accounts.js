@@ -68,7 +68,8 @@ Ext.onReady(function(){
 			{name:'comments', mapping:'comments'},
 			{name:'gpm', mapping:'gpm'},
 			{name:'transfer_id', mapping:'transfer_id'},
-			{name:'accu_amount', mapping:'accu_amount'}
+			{name:'accu_amount', mapping:'accu_amount'},
+			{name:'is_redem', mapping:'is_redem'}
 		]
     });
     Ext.define('CustomersModel',{
@@ -1647,6 +1648,30 @@ Ext.onReady(function(){
 				doRefresh : function(){
 					RepoDetailsStore.load();
 					
+				}
+			},
+			viewConfig: {
+				listeners: {
+					refresh: function(view) {
+						// get all grid view nodes
+						var nodes = view.getNodes();
+						
+						for (var i = 0; i < nodes.length; i++) {
+							var node = nodes[i];
+							var record = view.getRecord(node);
+							// get all td elements
+							var cells = Ext.get(node).query('td');
+							// set bacground color to all row td elements
+							for(var j = 0; j < cells.length; j++) {
+								if(record.get('is_redem') != 0){
+									//alert(record.get('is_redem'));
+									//Ext.fly(cells[j]).setStyle('color', "#264933");
+									Ext.fly(cells[j]).setStyle('font-weight', 'bold');
+									Ext.fly(cells[j]).setStyle('background-color', "#e7fbff ");
+								}
+							}
+						}
+					}
 				}
 			}
 		}]
