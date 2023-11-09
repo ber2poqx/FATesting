@@ -331,6 +331,19 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
 		)
 	);
 	//=================================================================
+
+	//Created by Prog6 (10/18/2023) ================================================
+	$reports->addReport(RC_CUSTOMER, 133, _('&Warranty Monitoring'),
+		array(	
+			_('Start Date') => 'DATEBEGINM',
+			_('End Date') => 'DATEENDM',
+			_('Supplier') => 'SUPPLIERS_SELECT',
+			_('Comments') => 'TEXTBOX',
+			_('Paper Orientation') => 'LANDSCAPE',
+			_('Destination') => 'EXCEL_ONLY_DESTINATION'
+		)
+	);
+	//=================================================================
 	
 	//Created by Prog6 (03/02/2023) ===================================
 	$reports->addReport(RC_CUSTOMER, 125, _('Sales Summary Report - &REPO'),
