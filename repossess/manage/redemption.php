@@ -337,7 +337,7 @@ if(isset($_GET['submit']))
 
         $redem_id = add_repo_redemption(ST_INTLRDEM, $_POST['RepoNo'], $reference, $_POST['trans_date'], $_POST['remarks']);
 
-        $item_row = db_fetch(get_repo_item_detials($_GET['repo_id']));
+        $item_row = db_fetch(get_repo_item_detials($_POST['RepoNo']));
 
         add_stock_move(ST_INTLRDEM, $item_row['stock_id'], $redem_id, $loc_code, $_POST['trans_date'], $_POST['reference_no'], -$item_row['qty'], $_POST['unrecovrd_cost'],
                         0, $item_row['serial_no'], $item_row['chassis_no'], $_POST['category'], $item_row['color_code'], 0, 0, "item redem");

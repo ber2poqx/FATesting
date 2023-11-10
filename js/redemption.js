@@ -377,6 +377,12 @@ Ext.onReady(function(){
 		handler: function(){
 			submit_form.getForm().reset();
 			
+			CustomerStore.proxy.extraParams = {debtor_no: 0};
+			CustomerStore.load();
+
+			Ext.getCmp('btnsave').setVisible(true);
+			Ext.getCmp('btncancel').setText('Cancel');
+
 			submit_window.show();
 			submit_window.setTitle('Installment Redemption - Add');
 			submit_window.setPosition(330,140);
