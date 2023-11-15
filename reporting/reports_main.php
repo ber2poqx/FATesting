@@ -326,7 +326,6 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
 			_('Model') => 'ITEMS_P',
 			//_('Months_term') => 'PO',
 			_('Comments') => 'TEXTBOX',
-			_('Paper Orientation') => 'LANDSCAPE',
 			_('Destination') => 'PDFDESTINATION'
 		)
 	);
