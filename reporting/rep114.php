@@ -172,15 +172,14 @@ function print_sales_summary_report()
 	$item_model = $_POST['PARAM_6'];
 	//$months_term = $_POST['PARAM_7'];
 	$comments = $_POST['PARAM_7'];
-	$orientation = $_POST['PARAM_8'];
-	$destination = $_POST['PARAM_9'];
+	$destination = $_POST['PARAM_8'];
 
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
 	else
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
 				
-	$orientation = ($orientation ? 'L' : 'P');
+	$orientation = 'L';
 	
     $dec = user_price_dec();
 	
