@@ -231,7 +231,9 @@ if(isset($_GET['get_schedule']))
 
                     $MonthNo = CalculateMonthsPastDue($_GET['transdate'], $myrow["date_due"], $payAppliedInfo['date_paid']);
                     if($MonthNo != 0){
-                        $Penalty = CalculatePenalty($_GET['transdate'], $myrow["date_due"], $payAppliedInfo['date_paid'], $_GET['transNo'], $myrow["amortization_amount"], $TotalBalance, $MonthNo, 'PASTDUE', false);
+                        $TotalBalance = check_ar_balance($_GET['transNo'], $_GET['transtype']);
+                        //$Penalty = CalculatePenalty($_GET['transdate'], $myrow["date_due"], $payAppliedInfo['date_paid'], $_GET['transNo'], $myrow["amortization_amount"], $TotalBalance, $MonthNo, 'PASTDUE', false);
+                        $Penalty = CalculatePenalty($_GET['transdate'], $myrow['maturity_date'], $myrow["amortization_amount"], $TotalBalance, $MonthNo, 'PASTDUE', false);
                         //echo "x1> ".$Penalty;
                     }
                 }else{

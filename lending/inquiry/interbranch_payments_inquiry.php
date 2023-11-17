@@ -335,8 +335,9 @@ if(isset($_GET['get_aloc']))
         if(date('Y-m-d', strtotime($schedrow['maturity_date'])) < date('Y-m-d', strtotime($_GET['transdate']))){
             $MonthNo = CalculateMonthsPastDue($_GET['transdate'], $schedrow["date_due"], $payAppliedInfo['date_paid']);
             if($MonthNo != 0){
-                $TotalBalance = $TotalRunBal;
-                $Penalty = CalculatePenalty($_GET['transdate'], $schedrow["date_due"], $payAppliedInfo['date_paid'], $_GET['transNo'], $schedrow["amortization_amount"], $TotalBalance, $MonthNo, 'PASTDUE', false);
+                $TotalBalance = check_ar_balance($_GET['transNo'], $_GET['transtype']);
+                //$Penalty = CalculatePenalty($_GET['transdate'], $schedrow["date_due"], $payAppliedInfo['date_paid'], $_GET['transNo'], $schedrow["amortization_amount"], $TotalBalance, $MonthNo, 'PASTDUE', false);
+                $Penalty = CalculatePenalty($_GET['transdate'], $schedrow['maturity_date'], $schedrow["amortization_amount"], $TotalBalance, $MonthNo, 'PASTDUE', false);
             }
         }else{
             $MonthNo = CalcMonthsDue_pnlty($_GET['transdate'], $schedrow["date_due"], $schedrow["maturity_date"]);

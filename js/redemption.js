@@ -282,6 +282,7 @@ Ext.onReady(function(){
 					Ext.getCmp('remarks').setValue(records.get('comments'));
 					//Ext.getCmp('customername').setWidth(390);
 					Ext.getCmp('customername').setValue(records.get('debtor_no'));
+					console.log(records.get('debtor_no'));
 
 					submit_window.setTitle('Installment Redemption - Reference No. :'+ records.get('reference_no'));
 					submit_window.show();
@@ -298,7 +299,7 @@ Ext.onReady(function(){
 		}
 	];
 	var Item_view = [
-		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120},
+		{header:'<b>Item Code</b>', dataIndex:'stock_id', width:120, editor: 'textfield'},
 		{header:'<b>Description</b>', dataIndex:'description', width:140,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
