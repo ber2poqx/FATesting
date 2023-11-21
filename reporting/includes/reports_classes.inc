@@ -634,14 +634,14 @@ class BoxReports
 
 				case 'SUPPLIERS_LIST_FOR_REPORT':
 				case 'SUPPLIERS_NO_FILTER_FOR_REPORT':
-				case 'SUPPLIERS_SELECT':
+				case 'MC_SUPPLIERS_SELECT':
 				case 'SUPPLIERS_FOR_REPORT':
 					if ($type == 'SUPPLIERS_NO_FILTER_FOR_REPORT')
 						return supplier_list($name, null, _("No Supplier Filter"));
 					else if ($type == 'SUPPLIERS_LIST_FOR_REPORT')
 						return supplier_list($name, null, _("All Supplier"));
-					else if ($type == 'SUPPLIERS_SELECT')
-						return supplier_list($name, null, _("Must Select Supplier"));
+					else if ($type == 'MC_SUPPLIERS_SELECT')
+						return supplier_list($name, null, false,false,false,false,false,14,true);
 					else
 						return supplier_list($name);
 
@@ -690,7 +690,7 @@ class BoxReports
 				case 'USERS':
 					$sql = "SELECT id, user_id FROM ".TB_PREF."users";
 					return combo_input($name, '', $sql, 'id', 'user_id',array('spec_option'=>_("No Users Filter"),'spec_id'=>ALL_NUMERIC));
-
+									
 				case 'ACCOUNTTAGS':
 				case 'DIMENSIONTAGS':
 					if ($type == 'ACCOUNTTAGS')

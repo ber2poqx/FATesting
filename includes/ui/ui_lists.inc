@@ -578,7 +578,7 @@ function add_edit_combo($type)
 
 //Modified by spyrax10
 function supplier_list($name, $selected_id=null, $spec_option=false, $submit_on_change=false,
-	$all=false, $editkey = false, $mod = false, $category_id = null)
+	$all=false, $editkey = false, $mod = false, $category_id = null, $forWrtyMntr=false)
 {
 	global $SysPrefs;
 	if (!empty($SysPrefs->prefs['shortname_name_in_list']))
@@ -588,13 +588,13 @@ function supplier_list($name, $selected_id=null, $spec_option=false, $submit_on_
 		$sql = "SELECT SUP.supplier_id, SUP.supp_ref, SUP.curr_code, SUP.inactive 
 			FROM ".TB_PREF."suppliers SUP";
 
-	if ($mod && $category_id != null) {
+	if ($mod && $category_id != null || $forWrtyMntr==true) {
 		$sql .= " LEFT JOIN ".TB_PREF."purch_data PD ON SUP.supplier_id = PD.supplier_id 
 			LEFT JOIN ".TB_PREF."stock_master SM ON PD.stock_id = SM.stock_id
 			WHERE SM.category_id = ".db_escape($category_id);
 		
 		$sql .= " GROUP BY PD.supplier_id";
-	}
+	}	
 
 	if ($mod = false) {
 		$mode = get_company_pref('no_supplier_list');

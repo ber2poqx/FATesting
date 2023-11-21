@@ -29,16 +29,73 @@ include_once($path_to_root . "/inventory/includes/db/items_category_db.inc");
 
 print_warranty_monitoring_report();
 
-function getTransactions()
+function Headers_data()
+{
+	
+}
+
+function getTransactions($from, $to, $supplier, $type)
 {
 	$from = date2sql($from);
 	$to = date2sql($to);
 	
-	$sql = "";
+	$sql = "SELECT DISTINCT dtd.lot_no as `serial`
+				, sup.supplier_id as supp_id
+				, sup.supp_name
+				, ib.name as supp_ref
+				, dtd.debtor_trans_no
+				, dtd.debtor_trans_type
+				, dtd.stock_id
+				, dtd.description as stock_desc
+				, dtd.src_id
+				, dtd.chassis_no as chassis
+				, dtd.color_code as model
+				, dt.trans_no
+				, dt.type
+				, dt.debtor_no
+				, dt.branch_code
+				, dt.tran_date
+				, dt.order_ as SO_num1
+				, dt.reference
+				, so.order_no as SO_num2
+				, so.waranty_code
+				, so.fsc_series
+				, stype.name as SalesType
+				, dm.name
+				, dm.address
+				, dm.barangay
+				, dm.province
+				, munzip.municipality
+				, munzip.zipcode
+				, crmp.phone
+				, dm.gender
+				, dm.status
+				, dm.age as `birthdate`
+				, TIMESTAMPDIFF(year,dm.age, now()) as `age`
+			FROM ".TB_PREF."`debtor_trans` dt
+				LEFT JOIN ".TB_PREF."`sales_orders` so on dt.order_ = so.order_no
+				LEFT JOIN ".TB_PREF."`debtor_trans_details` dtd ON dt.trans_no = dtd.debtor_trans_no AND dt.type = dtd.debtor_trans_type
+				LEFT JOIN ".TB_PREF."`item_codes` ic ON dtd.stock_id = ic.stock_id
+				LEFT JOIN ".TB_PREF."`item_brand` ib ON ic.brand = ib.id
+				LEFT JOIN ".TB_PREF."`debtors_master` dm ON dt.debtor_no = dm.debtor_no
+				LEFT JOIN ".TB_PREF."`municipality_zipcode` munzip ON dm.municipality = munzip.muni_code
+				LEFT JOIN ".TB_PREF."`crm_persons` crmp ON dm.debtor_ref = crmp.ref
+				LEFT JOIN ".TB_PREF."`suppliers` sup ON ib.name = sup.supp_ref
+				LEFT JOIN ".TB_PREF."`sales_type` stype ON so.so_type = stype.id
+			WHERE dt.type = '$type' AND so.category_id = '14' AND dt.tran_date BETWEEN '$from' AND '$to' AND sup.supplier_id = '$supplier'";
 
 
 	return db_query($sql,"No transactions were returned");
 }
+
+function get_supplier_ref($supplier)
+{
+	$sql = "SELECT * FROM ".TB_PREF."`suppliers` WHERE supplier_id = '$supplier'";
+
+	return db_query($sql,"No transactions were returned");
+}
+
+
 
 function print_warranty_monitoring_report()
 {
@@ -51,53 +108,67 @@ function print_warranty_monitoring_report()
 	$orientation = $_POST['PARAM_4'];
 	$destination = $_POST['PARAM_5'];
 
+	$myrow_1 = get_company_prefs();
+	$Company = $myrow_1['coy_name'];
+
+	/*
 	if ($destination)
 		include_once($path_to_root . "/reporting/includes/excel_report.inc");
 	else
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
+	*/
+
+	include_once($path_to_root . "/reporting/includes/excel_report.inc");
 				
-	$orientation = ($orientation ? 'L' : 'P');
+	//$orientation = ($orientation ? 'L' : 'P');
+	$orientation =  'L';
 	
     $dec = user_price_dec();
+
+	$sup_res = get_supplier_ref($supplier);
+	$sup_details = db_fetch($sup_res);
+	$sup_name_ref = $sup_details["supp_ref"];
+	$sup_name_ful = $sup_details["supp_name"];
+	//$Branch_current = $_SESSION["wa_current_user"]->company;	
+	$Branch_current = $Company;
+	$Branch = $db_connections[user_company()]["name"];
 	
 	$params = array(0 => $comments,
 		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
-		2 => array('text' => _('Supplier'), 'from' => $cat, 'to' => ''));
+		2 => array('text' => _('Supplier'), 'from' => $sup_name_ful, 'to' => ''));
+			
+		
+	//Headers_data();
+	if(strtoupper($sup_name_ref)=="SUZUKI")
+	{
+		########################################################################################	
+			
+		$cols = array(0,   100,			 200,  	     300,           400, 		
+			500,          600,         700,              800,            900,         1000,      1100,   		
+			1200,              1300);
 
-	//              brand    cat      sub-cat   date       SIno.
-	$cols = array(0,      30,     80,  	     105,      140, 
+		$headers = array(
+			_('#'), 
+			_('Dealer Code'),
+			_('Name'), 
+			_('Address'),
+			_('Contact No.'),
+			_('Invoice'),
+			_('Invoice Date'),
+			_('Model Name'),
+			_('Engine #'),
+			_('Frame #'),
+			_('Branch'),
+			_('EW Code'),
+			_('Sales Type')
+			);
 
-	//       name     model     serial     chassis    type       term      qty
-		195,      255,       315,       375,       425,     445,     455,   
+		$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
+		'left', 'left', 'left', 'left');
+		#################################################################################################
+	}
 
-	//      LCP     Cost     gross		DP		lending_sale	 discount1   discount2	 Net_Sales		 Agent
-		465,    495,     530,     560,	590,	       625,       650,         670,         705,      0);
-
-	$headers = array(
-		_('#'), 
-		_('Frame No.'),
-		_('Engine No.'), 
-		_('Invoice #'),
-		_('Sold Date'),
-		_('Sold To'),
-		_('Address'),
-		_('Contact No.'),
-		_('Birthdate'),
-		_('Gender'),
-		_('Age'),
-		_('Contact Person'),
-		_('Qty'),
-		_('Model'),
-		_('WRC/EW Code'),
-		_('FSC Series'),
-		_('Branch'),
-		_('Sales Type'),
-		);
-
-	$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
-	'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
-
-	$rep = new FrontReport(_('Warranty Monitoring')., "WarrantyMonitoringReport", "legal", 9, $orientation);
+	$rep = new FrontReport(_('Warranty Monitoring - ').$sup_name_ref, _('Warranty Monitoring - ').$sup_name_ref, "legal", 9, $orientation);
 
     if ($orientation == 'L')
     	recalculate_cols($cols);
@@ -109,127 +180,36 @@ function print_warranty_monitoring_report()
     $rep->SetHeaderType('PO_Header');
 	$rep->NewPage();
 
-	$Tot_qty=0;
-	$Tot_lcp=0;
-	$Tot_ucost = 0;
-	$Tot_gross = 0;
-	$Tot_dp = 0;
-	$Tot_lend = 0;
-	$row_gross = 0;
-	$row_dp = 0;
-	$row_unitcost = 0;
-	$Tot_discount1 = 0;	
-	$Tot_discount2 = 0;
-	$Tot_netsales = 0;
-	$row_total_lcp = 0;
-	$row_total_discount1 = 0;
-	$row_total_discount2 = 0;
-	$lending_sales = 0;
-	$res = getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type, $item_model);
+	$counter = 0;
+	$res = getTransactions($from, $to, $supplier, $type = ST_SALESINVOICE);
 
-	While ($GRNs = db_fetch($res))
+	if(strtoupper($sup_name_ref)=="SUZUKI")
 	{
-		if($GRNs['Type']=='CASH')
+		While ($GRNs = db_fetch($res))
 		{
-			$row_gross = $GRNs['Qty']*$GRNs['Unit_price'];
+			$counter = $counter + 1;
+			//$dec2 = get_qty_dec($GRNs['Model']);
+
+			$rep->NewLine();
+			$rep->TextCol(0, 1, $counter);
+			$rep->TextCol(1, 2, _('-'));
+			$rep->TextCol(2, 3, $GRNs['name']);
+			$rep->TextCol(3, 4, $GRNs['address']);
+			$rep->TextCol(4, 5, $GRNs['phone']);
+			$rep->TextCol(5, 6, $GRNs['reference']);
+			$rep->TextCol(6, 7, $GRNs['tran_date']);
+			$rep->TextCol(7, 8, $GRNs['model']);
+			$rep->TextCol(8, 9, $GRNs['serial']);
+			$rep->TextCol(9, 10, $GRNs['chassis']);
+			$rep->TextCol(10, 11, $Branch_current);
+			$rep->TextCol(11, 12, $GRNs['waranty_code']);
+			$rep->TextCol(12, 13, $GRNs['SalesType']);
+
+			$rep->NewLine(0, 1);
 		}
-		else 
-		{			
-			$row_gross = $GRNs['Qty']*$GRNs['grossAmnt'];
-		}
-				
-		$row_unitcost = $GRNs['UnitCost']*$GRNs['Qty'];
-		$row_total_lcp = $GRNs['LCP'] * $GRNs['Qty'];
-		$row_total_discount1 = $GRNs['discount1'] * $GRNs['Qty'];
-		$row_total_discount2 = $GRNs['discount2'] * $GRNs['Qty'];
-		$row_dp = $GRNs['dp_amount'];
-
-		if($GRNs['category_id'] == '18'/*others*/ || $GRNs['category_id'] == '22'/*sp-appl*/ || $GRNs['category_id'] == '23'/*sp-gen*/ || $GRNs['category_id'] == '24'/*sp-rep*/ )
-		{
-			$lending_sales = $row_gross;
-		}
-		else if($GRNs['category_id'] == '17'/*promo item*/ && $GRNs['Serial'] == '')
-		{
-			$lending_sales = $row_gross;
-		}
-		else
-		{
-			$lending_sales = $GRNs['ar_amount'];
-		}
-		
-		$row_netsales = $row_gross - $row_total_discount1 - $row_total_discount2;
-
-		$dec2 = get_qty_dec($GRNs['Model']);
-
-		$rep->NewLine();
-		$rep->TextCol(0, 1, $GRNs['Brand']);
-		$rep->TextCol(1, 2, $GRNs['Category']);
-		$rep->TextCol(2, 3, $GRNs['Subcategory']);
-		$rep->TextCol(3, 4, sql2date($GRNs['Date']));
-		$rep->TextCol(4, 5, $GRNs['Invoice']);
-		$rep->TextCol(5, 6, $GRNs['Name']);
-		$rep->TextCol(6, 7, $GRNs['Model']);
-		$rep->TextCol(7, 8, $GRNs['Serial']);
-		$rep->TextCol(8, 9, $GRNs['Chassis']);
-		$rep->TextCol(9, 10, $GRNs['Type']);
-		$rep->TextCol(10, 11, $GRNs['Term']);
-		$rep->TextCol(11, 12, $GRNs['Qty']);
-		$rep->AmountCol2(12, 13, $row_unitcost);
-		$rep->AmountCol2(13, 14, $row_total_lcp);				
-		$rep->AmountCol2(14, 15, $row_gross);				
-		$rep->AmountCol2(15, 16, $row_dp);
-		$rep->AmountCol2(16, 17, $lending_sales);
-		$rep->AmountCol2(17, 18, $row_total_discount1);
-		$rep->AmountCol2(18, 19, $row_total_discount2);
-		$rep->AmountCol2(19, 20, $row_netsales);
-		$rep->TextCol(20, 21, $GRNs['SalesAgent']);
-
-		$qty = $GRNs['Qty'];
-		$Tot_qty += $qty;
-
-		$lcp = $row_total_lcp;
-		$Tot_lcp += $lcp;
-
-		$ucost = $row_unitcost;
-		$Tot_ucost += $ucost;
-
-		$grossAmnt = $row_gross;
-		$Tot_gross += $grossAmnt;
-
-		$Tot_dp += $row_dp;
-
-		$lendSale = $lending_sales;
-		$Tot_lend += $lendSale;
-
-		$discount1 = $row_total_discount1;
-		$Tot_discount1 += $discount1;
-		$discount2 = $row_total_discount2;
-		$Tot_discount2 += $discount2;
-
-		$netSales = $row_netsales;
-		$Tot_netsales += $netSales;
-
-		$rep->NewLine(0, 1);
 	}
+	
 
-	$rep->NewLine();
-	$rep->Line($rep->row - 2);
-
-	$rep->NewLine();
-	$rep->Font('bold');
-	$rep->fontSize -= 1;	
-	$rep->TextCol(0, 11, _('Total'));
-	$rep->AmountCol(11, 12, $Tot_qty);
-	$rep->AmountCol(12, 13, $Tot_ucost, $dec);
-	$rep->AmountCol(13, 14, $Tot_lcp, $dec);
-	$rep->AmountCol(14, 15, $Tot_gross, $dec);
-	$rep->AmountCol(15, 16, $Tot_dp, $dec);
-	$rep->AmountCol(16, 17, $Tot_lend, $dec);
-	$rep->AmountCol(17, 18, $Tot_discount1, $dec);
-	$rep->AmountCol(18, 19, $Tot_discount2, $dec);
-	$rep->AmountCol(19, 20, $Tot_netsales, $dec);
-
-	$rep->Line($rep->row - 2);
 	//$rep->SetFooterType('compFooter');
 	$rep->fontSize -= 2;
     $rep->End();

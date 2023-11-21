@@ -336,7 +336,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_TAX_REP')) {
 		array(	
 			_('Start Date') => 'DATEBEGINM',
 			_('End Date') => 'DATEENDM',
-			_('Supplier') => 'SUPPLIERS_SELECT',
+			_('Supplier') => 'MC_SUPPLIERS_SELECT',
 			_('Comments') => 'TEXTBOX',
 			_('Paper Orientation') => 'LANDSCAPE',
 			_('Destination') => 'EXCEL_ONLY_DESTINATION'
