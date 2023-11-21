@@ -109,7 +109,8 @@ function print_warranty_monitoring_report()
 	$destination = $_POST['PARAM_5'];
 
 	$myrow_1 = get_company_prefs();
-	$Company = $myrow_1['coy_name'];
+	$br_name = $myrow_1['coy_name'];
+	$br_code = $myrow_1['branch_code'];
 
 	/*
 	if ($destination)
@@ -130,8 +131,8 @@ function print_warranty_monitoring_report()
 	$sup_name_ref = $sup_details["supp_ref"];
 	$sup_name_ful = $sup_details["supp_name"];
 	//$Branch_current = $_SESSION["wa_current_user"]->company;	
-	$Branch_current = $Company;
-	$Branch = $db_connections[user_company()]["name"];
+	$Branch_current = $br_name;
+	//$Branch = $db_connections[user_company()]["name"];
 	
 	$params = array(0 => $comments,
 		1 => array('text' => _('Period'),'from' => $from, 'to' => $to),
@@ -167,6 +168,150 @@ function print_warranty_monitoring_report()
 		'left', 'left', 'left', 'left');
 		#################################################################################################
 	}
+	else if(strtoupper($sup_name_ref)=="KAWASAKI")
+	{
+		########################################################################################	
+			
+		$cols = array(0,   100,			 200,  	     300,           400, 		
+			500,          600,         700,              800,            900,         1000,      1100,   		
+			1200,              1300);
+
+		$headers = array(
+			_('#'), 
+			_('WRC Number'),
+			_('Engine #'), 
+			_('Name'),
+			_('Address'),
+			_('Province'),
+			_('Contact No.'),
+			_('Purchase Date'),
+			_('Purchase Location'),
+			_('Filler'),
+			_('Filler'),
+			_('Age'),
+			_('Gender')
+			);
+
+		$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
+		'left', 'left', 'left', 'left');
+		#################################################################################################
+	}
+	else if(strtoupper($sup_name_ref)=="HONDA")
+	{
+		########################################################################################	
+			
+		$cols = array(0,   100,			 200,  	     300,           400, 		
+			500,          600,         700,              800,            900,         1000,      1100,   		
+			1200,              1300, 1400,1500,1600,1700,1800);
+
+		$headers = array(
+			_('#'), 
+			_('Dealer Code'),
+			_('Name'), 
+			_('Zipcode'),
+			_('Barangay'),
+			_('Municipality/City'),
+			_('Province'),
+			_('Contact No.'),
+			_('Invoice No.'),
+			_('Invoice Date'),
+			_('Model Name'),
+			_('Engine #'),
+			_('Frame #'),
+			_('Branch Code'),
+			_('Branch Name'),
+			_('WRC/EW Code'),
+			_('FSC Series'),
+			_('Extended Warranty Code')
+			);
+
+		$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
+		'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
+		#################################################################################################
+	}
+	else if(strtoupper($sup_name_ref)=="YAMAHA")
+	{
+		########################################################################################	
+			
+		$cols = array(0,   100,			 200,  	     300,           400, 		
+			500,          600,         700,              800,            900,         1000,      1100,   		
+			1200,              1300, 1400,1500,1600,1700,1800,1900,2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,3000,3100,3200);
+
+		$headers = array(
+			_('#'), 
+			_('Frame No.'),
+			_('Engine No.'), 
+			_('Dealers Code'),
+			_('Invoice No.'),
+			_('Type of Unit'),
+			_('Sold Date'),
+			_('Mechanic Name'),
+			_('Control No.'),
+			_('Owner Type'),
+			_('Owner - Full Name'),
+			_('Company Name'),
+			_('Contact Person'),
+			_('Birthdate Date'),
+			_('Gender'),
+			_('Occupation'),
+			_('Civil Status'),
+			_('Address St./No.'),
+			_('Address Brgy./Subd'),
+			_('ZIP/Postal Code'),
+			_('Municipality/CIty'),
+			_('State/Province'),
+			_('Contact OK'),
+			_('Mobile No.'),
+			_('Drivers License No.'),
+			_('Email Address'),
+			_('Customer Usage Type'),
+			_('Reason of Purchase'),
+			_('Purchasing Type'),
+			_('Previous Units Brand'),
+			_('Previous Units Name'),
+			_('Comment')
+			);
+
+		$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
+		'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
+		#################################################################################################
+	}
+	else
+	{
+		################################## OTHER BRANDS #############################################	
+			
+		$cols = array(0,   100,			 200,  	     300,           400, 		
+			500,          600,         700,              800,            900,         1000,      1100,   		
+			1200,              1300, 1400,1500,1600,1700,1800);
+
+		$headers = array(
+			_('#'), 
+			_('Dealer Code'),
+			_('Name'), 
+			_('Zipcode'),
+			_('Barangay'),
+			_('Municipality/City'),
+			_('Province'),
+			_('Contact No.'),
+			_('Invoice No.'),
+			_('Invoice Date'),
+			_('Model Name'),
+			_('Engine #'),
+			_('Frame #'),
+			_('Branch Code'),
+			_('Branch Name'),
+			_('WRC/EW Code'),
+			_('FSC Series'),
+			_('Extended Warranty Code')
+			);
+
+		$aligns = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 
+		'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
+		#################################################################################################
+
+	}
+
+
 
 	$rep = new FrontReport(_('Warranty Monitoring - ').$sup_name_ref, _('Warranty Monitoring - ').$sup_name_ref, "legal", 9, $orientation);
 
@@ -208,7 +353,137 @@ function print_warranty_monitoring_report()
 			$rep->NewLine(0, 1);
 		}
 	}
-	
+	else if(strtoupper($sup_name_ref)=="KAWASAKI")
+	{
+		While ($GRNs = db_fetch($res))
+		{
+			$counter = $counter + 1;
+			//$dec2 = get_qty_dec($GRNs['Model']);
+
+			$rep->NewLine();
+			$rep->TextCol(0, 1, $counter);
+			$rep->TextCol(1, 2, $GRNs['waranty_code']);
+			$rep->TextCol(2, 3, $GRNs['serial']);
+			$rep->TextCol(3, 4, $GRNs['name']);
+			$rep->TextCol(4, 5, $GRNs['address']);
+			$rep->TextCol(5, 6, $GRNs['province']);
+			$rep->TextCol(6, 7, $GRNs['phone']);
+			$rep->TextCol(7, 8, $GRNs['tran_date']);
+			$rep->TextCol(8, 9, $Branch_current);
+			$rep->TextCol(9, 10, _('--:--'));
+			$rep->TextCol(10, 11, _('--:--'));
+			$rep->TextCol(11, 12, $GRNs['age']);
+			$rep->TextCol(12, 13, $GRNs['gender']);
+
+			$rep->NewLine(0, 1);
+		}
+	}
+	else if(strtoupper($sup_name_ref)=="HONDA")
+	{
+		While ($GRNs = db_fetch($res))
+		{
+			$counter = $counter + 1;
+			//$dec2 = get_qty_dec($GRNs['Model']);
+
+			$rep->NewLine();
+			$rep->TextCol(0, 1, $counter);
+			$rep->TextCol(1, 2, _('-'));
+			$rep->TextCol(2, 3, $GRNs['name']);
+			$rep->TextCol(3, 4, $GRNs['zipcode']);
+			$rep->TextCol(4, 5, $GRNs['barangay']);
+			$rep->TextCol(5, 6, $GRNs['municipality']);
+			$rep->TextCol(6, 7, $GRNs['province']);
+			$rep->TextCol(7, 8, $GRNs['phone']);
+			$rep->TextCol(8, 9, $GRNs['reference']);
+			$rep->TextCol(9, 10, $GRNs['tran_date']);
+			$rep->TextCol(10, 11, $GRNs['model']);
+			$rep->TextCol(11, 12, $GRNs['serial']);
+			$rep->TextCol(12, 13, $GRNs['chassis']);
+			$rep->TextCol(13, 14, $br_code);
+			$rep->TextCol(14, 15, $br_name);
+			$rep->TextCol(15, 16, $GRNs['waranty_code']);
+			$rep->TextCol(16, 17, $GRNs['fsc_series']);
+			$rep->TextCol(17, 18, $GRNs['waranty_code']);
+
+			$rep->NewLine(0, 1);
+		}
+	}
+	else if(strtoupper($sup_name_ref)=="YAMAHA")
+	{
+		While ($GRNs = db_fetch($res))
+		{
+			$counter = $counter + 1;
+			//$dec2 = get_qty_dec($GRNs['Model']);
+
+			$rep->NewLine();
+			$rep->TextCol(0, 1, $counter);
+			$rep->TextCol(1, 2, $GRNs['chassis']);
+			$rep->TextCol(2, 3, $GRNs['serial']);
+			$rep->TextCol(3, 4, _('-'));
+			$rep->TextCol(4, 5, $GRNs['reference']);
+			$rep->TextCol(5, 6, _('-'));
+			$rep->TextCol(6, 7, $GRNs['tran_date']);
+			$rep->TextCol(7, 8, _('-'));
+			$rep->TextCol(8, 9, _('-'));
+			$rep->TextCol(9, 10, _('-'));
+			$rep->TextCol(10, 11, $GRNs['name']);
+			$rep->TextCol(11, 12, _('-'));
+			$rep->TextCol(12, 13, _('-'));
+			$rep->TextCol(13, 14, $GRNs['birthdate']);
+			$rep->TextCol(14, 15, $GRNs['gender']);
+			$rep->TextCol(15, 16, _('-'));
+			$rep->TextCol(16, 17, _('-'));
+			$rep->TextCol(17, 18, _('-'));
+			$rep->TextCol(18, 19, $GRNs['barangay']);
+			$rep->TextCol(19, 20, $GRNs['zipcode']);
+			$rep->TextCol(20, 21, $GRNs['municipality']);
+			$rep->TextCol(21, 22, $GRNs['province']);
+			$rep->TextCol(22, 23, _('-'));
+			$rep->TextCol(23, 24, $GRNs['phone']);
+			$rep->TextCol(24, 25, _('-'));
+			$rep->TextCol(25, 26, _('-'));
+			$rep->TextCol(26, 27, _('-'));
+			$rep->TextCol(27, 28, _('-'));
+			$rep->TextCol(28, 29, _('-'));
+			$rep->TextCol(29, 30, _('-'));
+			$rep->TextCol(30, 31, _('-'));
+			$rep->TextCol(31, 32, _('-'));
+
+			$rep->NewLine(0, 1);
+		}
+	}
+	else
+	{
+		############################### OTHER BRANDS ##########################################
+		While ($GRNs = db_fetch($res))
+		{
+			$counter = $counter + 1;
+			//$dec2 = get_qty_dec($GRNs['Model']);
+
+			$rep->NewLine();
+			$rep->TextCol(0, 1, $counter);
+			$rep->TextCol(1, 2, _('-'));
+			$rep->TextCol(2, 3, $GRNs['name']);
+			$rep->TextCol(3, 4, $GRNs['zipcode']);
+			$rep->TextCol(4, 5, $GRNs['barangay']);
+			$rep->TextCol(5, 6, $GRNs['municipality']);
+			$rep->TextCol(6, 7, $GRNs['province']);
+			$rep->TextCol(7, 8, $GRNs['phone']);
+			$rep->TextCol(8, 9, $GRNs['reference']);
+			$rep->TextCol(9, 10, $GRNs['tran_date']);
+			$rep->TextCol(10, 11, $GRNs['model']);
+			$rep->TextCol(11, 12, $GRNs['serial']);
+			$rep->TextCol(12, 13, $GRNs['chassis']);
+			$rep->TextCol(13, 14, $br_code);
+			$rep->TextCol(14, 15, $br_name);
+			$rep->TextCol(15, 16, $GRNs['waranty_code']);
+			$rep->TextCol(16, 17, $GRNs['fsc_series']);
+			$rep->TextCol(17, 18, $GRNs['waranty_code']);
+
+			$rep->NewLine(0, 1);
+		}
+		###############################################################################
+	}
 
 	//$rep->SetFooterType('compFooter');
 	$rep->fontSize -= 2;
