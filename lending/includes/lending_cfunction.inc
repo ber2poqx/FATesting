@@ -303,10 +303,10 @@ function check_transdate($due_date, $trans_date)
 
     if ($date_due > $date_trans) {
         //echo 'greater than';
-        $value = 1;
+        $value = 0; //1;
     }else{
         //echo 'Less than';
-        $value = 0;
+        $value = 1; //0;
     }
 
     return $value;

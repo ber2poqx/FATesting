@@ -1526,8 +1526,8 @@ if(isset($_GET['submit']))
                     
                     $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername'], check_isempty($BranchNo['branch_code']), $_POST['trans_date'], $_POST['ref_no'],
                                                 ($_POST['tenderd_amount'] + $_POST['total_otheramount']), 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], $_POST['collectType'], $_POST['moduletype']);
-
-                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], ($_POST['tenderd_amount'] + $_POST['total_otheramount']), PT_CUSTOMER, $_POST['customername'],
+                    //($_POST['tenderd_amount'] + $_POST['total_otheramount'])
+                    add_bank_trans(ST_CUSTPAYMENT, $payment_no, $_POST['intobankacct'], $_POST['ref_no'], $_POST['trans_date'], $_POST['tenderd_amount'], PT_CUSTOMER, $_POST['customername'],
                                     $_POST['cashier'], $_POST['pay_type'], $_POST['check_date'], $_POST['check_no'], $_POST['bank_branch'], $_POST['InvoiceNo'], $_POST['receipt_no'], $_POST['preparedby'], null, null, null, null, null, 0, null, 0, 0, $_POST['transtype']);
                     
                     add_comments(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $_POST['remarks']);
