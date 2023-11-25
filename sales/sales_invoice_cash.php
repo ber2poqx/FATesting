@@ -899,8 +899,8 @@ function handle_update_item()
 			$_POST['serialeng_no'],
 			$_POST['chassis_no'],
 			$_POST['color_desc'],
-			floor(input_num('discount1')),
-			input_num('discount2'),
+			round2(input_num('discount1'),2),
+			round2(input_num('discount2'),2),
 			input_num('lcp_price'),
 			$_POST['smi'],
 			$_POST['incentives']
