@@ -179,7 +179,7 @@ function print_sales_summary_report()
 	else
 		include_once($path_to_root . "/reporting/includes/pdf_report.inc");
 				
-	$orientation = ($orientation ? 'L' : 'P');
+	$orientation = 'L';
 	
     $dec = user_price_dec();
 	
