@@ -446,7 +446,7 @@ Ext.onReady(function(){
 
 					//Ext.getCmp('syspk').setValue(records.get('id'));
 					Ext.getCmp('moduletype').setValue('NTFA-INTERB');
-					Ext.getCmp('branch_inb').setValue(records.get('branch_code_from'));
+					Ext.getCmp('frombranch').setValue(records.get('branch_code_from'));
 					Ext.getCmp('customercode').setValue(records.get('debtor_ref'));
 					Ext.getCmp('customername').setValue(records.get('debtor_id'));
 					//Ext.getCmp('InvoiceNo').setValue(records.get('branch_code_from'));
@@ -552,13 +552,41 @@ Ext.onReady(function(){
 			fieldLabel: 'pay location',
 			hidden: true
 		},{
+			xtype: 'textfield',
+			id: 'totalrebate',
+			name: 'totalrebate',
+			fieldLabel: 'total rebate',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'totalpenalty',
+			name: 'totalpenalty',
+			fieldLabel: 'total penalty',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'manualpenalty',
+			name: 'manualpenalty',
+			fieldLabel: 'manual penalty',
+			allowBlank: false,
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'manualrebate',
+			name: 'manualrebate',
+			fieldLabel: 'manualrebate',
+			allowBlank: false,
+			hidden: true
+		},{
 			xtype: 'fieldcontainer',
 			layout: 'hbox',
 			margin: '2 0 2 5',
 			items:[{
 				xtype: 'combobox',
-				id: 'branch_inb',
-				name: 'branch_inb',
+				id: 'frombranch',
+				name: 'frombranch',
 				fieldLabel: 'From Branch ',
 				allowBlank: false,
 				store : FromBranchstore,
@@ -675,6 +703,8 @@ Ext.onReady(function(){
 						Getreference();
 						Ext.getCmp('transtype').setValue(record.get('type'));
 						Ext.getCmp('paylocation').setValue(record.get('paylocation'));
+						Ext.getCmp('totalrebate').setValue(0);
+						Ext.getCmp('totalpenalty').setValue(0);
 
 						AllocationStore.proxy.extraParams = {transNo: record.get('id'), debtor_no: Ext.getCmp('customername').getValue(), transtype: record.get('type'), transdate: Ext.getCmp('trans_date').getValue(), pay_type: Ext.getCmp('paymentType2').getValue(), payloc: Ext.getCmp('paylocation').getValue()};
 						AllocationStore.load();
@@ -852,7 +882,38 @@ Ext.onReady(function(){
 				store:	SIitemStore,
 				columns: Item_view,
 				columnLines: true
-			}]
+			}],
+			tabBar: {
+				items: [{
+					xtype: 'tbfill'
+				},{
+					xtype: 'button',
+					text: '',
+					padding: '3px',
+					margin: '2px 2px 6px 2px',
+					icon: '../../js/ext4/examples/shared/icons/calculator_edit.png',
+					tooltip: 'Click to add your manual rebate/penalty calculation',
+					style : {
+						'color': 'blue',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#052b59',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						'border': 'none',
+						//'border-radius':'10px'
+					},
+					handler: function(){
+						//Ext.getCmp('manualpenalty').setValue(0);
+						//Ext.getCmp('manualrebate').setValue(0);
+						Ext.getCmp('m_penalty').setValue(Ext.getCmp('manualpenalty').getValue());
+						Ext.getCmp('m_rebate').setValue(Ext.getCmp('manualrebate').getValue());
+						Ext.getCmp('m_penalty').focus(false, 200);
+						Penalty_win.show();
+						Penalty_win.setPosition(700,100);
+					}
+				}]
+			}
 		}]
 	});
 	var submit_window = Ext.create('Ext.Window',{
@@ -983,6 +1044,9 @@ Ext.onReady(function(){
 			Ext.getCmp('paymentType2').setValue('amort')
 			GetCashierPrep();
 
+			Ext.getCmp('manualpenalty').setValue(0);
+			Ext.getCmp('manualrebate').setValue(0);
+
 			submit_window.show();
 			submit_window.setTitle('Inter-Branch Entry - Add');
 			submit_window.setPosition(320,23);
@@ -1031,6 +1095,88 @@ Ext.onReady(function(){
 		}]
 	});
 
+	var Penalty_win = new Ext.create('Ext.Window',{
+		id: 'Penalty_win',
+		//width: 840,
+		//height: 400,
+		scale: 'small',
+		resizable: false,
+		closeAction:'hide',
+		//closable:true,
+		modal: true,
+		//layout:'fit',
+		plain 	: true,
+		title: 'Manual Penalty/Rebate',
+		items: [{
+			xtype: 'numericfield',
+			id: 'm_penalty',
+			name: 'm_penalty',
+			fieldLabel: 'Penalty Amount ',
+			allowBlank:false,
+			useThousandSeparator: true,
+			labelWidth: 123,
+			width: 275,
+			margin: '2 0 2 5',
+			thousandSeparator: ',',
+			minValue: 0,
+			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+			listeners: {
+				change: function(object, value) {
+					if(value != 0){
+						Ext.getCmp('manualpenalty').setValue(value);
+						Ext.getCmp('totalpenalty').setValue(value);
+	
+						if(Ext.getCmp('InvoiceNo').getValue() != null){
+							var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();
+	
+							if(Ext.getCmp('tenderd_amount').getValue() != 0) {
+								GridRecords.set("penalty",value);
+							}
+						}
+					}
+				}
+			}
+		},{
+			xtype: 'numericfield',
+			id: 'm_rebate',
+			name: 'm_rebate',
+			fieldLabel: 'Rebate Amount ',
+			allowBlank:false,
+			useThousandSeparator: true,
+			labelWidth: 123,
+			width: 275,
+			margin: '2 0 2 5',
+			thousandSeparator: ',',
+			minValue: 0,
+			fieldStyle: 'font-weight: bold;color: #008000; text-align: right; background-color: #F2F3F4;',
+			listeners: {
+				change: function(object, value) {
+					if(value != 0){
+						Ext.getCmp('manualrebate').setValue(value);
+						Ext.getCmp('totalrebate').setValue(value);
+	
+						if(Ext.getCmp('InvoiceNo').getValue() != null){
+							var ItemModel = Ext.getCmp('AllocTabGrid').getSelectionModel();
+							var GridRecords = ItemModel.getLastSelected();
+	
+							if(Ext.getCmp('tenderd_amount').getValue() != 0){
+								GridRecords.set("rebate",value);
+							}
+						}
+					}
+				}
+			}
+		}],
+		buttons:[{
+			text:'<b>Ok</b>',
+			icon: '../js/ext4/examples/shared/icons/disk.png',
+			handler:function(){
+				Penalty_win.close();
+			}
+		}]
+	});
+
 	function Getreference(){
 		Ext.Ajax.request({
 			url : '?getReference=paysalone',
@@ -1042,6 +1188,9 @@ Ext.onReady(function(){
 			}
 		});
 	};
+
+
+
 	function GetCashierPrep(){
 		Ext.Ajax.request({
 			url : '?get_cashierPrep=zHun',
@@ -1053,4 +1202,5 @@ Ext.onReady(function(){
 			}
 		});
 	};
+	
 });

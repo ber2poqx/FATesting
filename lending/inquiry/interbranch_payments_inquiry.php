@@ -823,7 +823,7 @@ if(isset($_GET['submit']))
     return;
 }
 
-//------------------------------------------alone with you :> ------------------------------------
+//------------------------------------------interbranch not FA:> ------------------------------------
 
 if(isset($_GET['getFrbranch'])){
     global $db_connections;
@@ -931,6 +931,10 @@ if(isset($_GET['submit_inbpaysalone']))
         $InputError = 1;
         $dsplymsg = _('Invoice number must not be empty.');
     }
+    if (empty($_POST['frombranch'])) {
+        $InputError = 1;
+        $dsplymsg = _('Branch must not be empty.');
+    }
     if (empty($_POST['total_amount'])) {
         $InputError = 1;
         $dsplymsg = _('Total amount must not be empty.');
@@ -958,6 +962,10 @@ if(isset($_GET['submit_inbpaysalone']))
     if (empty($_POST['preparedby'])) {
         $InputError = 1;
         $dsplymsg = _('Prepared by must not be empty.');
+    }
+    if(($_POST['tenderd_amount'] + $_POST['manualrebate']) < $_POST['manualpenalty']){
+        $InputError = 1;
+        $dsplymsg = _('Tendered amount must be greater than or equal to Penalty');
     }
 
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
@@ -1114,9 +1122,16 @@ if(isset($_GET['submit_inbpaysalone']))
                 $dsplymsg = _("Down-payment has been successfully entered...");
     
             }else{
-                $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = 0;
+                $GLPenalty = $GLRebate = $GLtotal = $partialpay = $allocatedAmount = $manualrebate = $manualpenalty = 0;
                 $partialpay = $partialpayment;
                 $tenderd_amount = $_POST['tenderd_amount'];
+
+                if($_POST['manualpenalty'] != 0){
+                    $manualpenalty = $_POST['manualpenalty'];
+                }
+                if($_POST['manualrebate'] != 0){
+                    $manualrebate = $_POST['manualrebate'];
+                }
 
                 $branch_data = get_branch_accounts($BranchNo['branch_code']);
 
@@ -1134,98 +1149,116 @@ if(isset($_GET['submit_inbpaysalone']))
                 $result = get_loan_schedule($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
                 while ($myrow = db_fetch($result)) {
                     if($tenderd_amount > 0){
-                        if($total_penalty > 0){
-                            //penalty
-                            if($penaltyBal != 0){
-                                $tenderd_amount -= $myrow["penalty_balance"];
-                                $total_penalty -= $myrow["penalty_balance"];
-    
-                                if($tenderd_amount > 0){
-                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $myrow["penalty_balance"], 0, 0, $trans_date, $payment_no);
-                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
-                                    
-                                    $penaltyBal = 0;
-                                    $GLPenalty += $myrow["penalty_balance"];
-                                }else{
-                                    $nextPenaltyBal = ($myrow["penalty_balance"] - $_POST['tenderd_amount']);
-                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $_POST['tenderd_amount'], 0, 0, $trans_date, $payment_no);
-                                    update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", $nextPenaltyBal, "partial");
-                                    
-                                    $penaltyBal = $nextPenaltyBal;
-                                    $nextPenaltyBal = $tenderd_amount = 0;
-                                    $GLPenalty += $_POST['tenderd_amount'];
-                                }
-    
-                            }else{
-    
-                                if($tenderd_amount > $total_penalty){
-                                    $tenderd_amount -= $total_penalty;
-                                    $bal_penalty = $total_penalty;
-    
-                                    //set penalty status paid in table schedule
-                                    $pnty_result = get_loan_schedule_penalty($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
-                                    while ($pntyrow = db_fetch($pnty_result)){
-                                        $MonthNo = CalcMonthsDue_pnlty($_POST['trans_date'], $pntyrow["date_due"], $maturity_date);
-                                        if($MonthNo != 0){
-                                            $penalty = per_Penalty($MonthNo, ($pntyrow["principal_due"]- $partialpay));
-                                            
-                                            if($penalty > 0){
-                                                add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $penalty, 0, 0, $trans_date, $payment_no);
-                                                update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
-                                                $total_penalty -= $penalty;
-                                                $GLPenalty += $penalty;
-                                                $partialpay = 0;
-                                            }
-                                        }
-                                        if($total_penalty <= 0){
-                                            $total_penalty = $penalty = 0;
-                                            break;
-                                        }
+                        if($manualpenalty != 0){
+                            $tenderd_amount -= $manualpenalty;
+
+                            $pnty_result = get_loan_schedule_penalty($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
+                            $pntyrow = db_fetch($pnty_result);
+
+                            add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $manualpenalty, 0, 0, $trans_date, $payment_no);
+                            update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
+
+                            $GLPenalty = $manualpenalty;
+                            $penaltyBal = $penalty = $bal_penalty = $total_penalty = $manualpenalty = 0;
+
+                        }else{
+                            if($total_penalty > 0){
+                                //penalty
+                                if($penaltyBal != 0){
+                                    $tenderd_amount -= $myrow["penalty_balance"];
+                                    $total_penalty -= $myrow["penalty_balance"];
+        
+                                    if($tenderd_amount > 0){
+                                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $myrow["penalty_balance"], 0, 0, $trans_date, $payment_no);
+                                        update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
+                                        
+                                        $penaltyBal = 0;
+                                        $GLPenalty += $myrow["penalty_balance"];
+                                    }else{
+                                        $nextPenaltyBal = ($myrow["penalty_balance"] - $_POST['tenderd_amount']);
+                                        add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $myrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $_POST['tenderd_amount'], 0, 0, $trans_date, $payment_no);
+                                        update_loan_schedule($myrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", $nextPenaltyBal, "partial");
+                                        
+                                        $penaltyBal = $nextPenaltyBal;
+                                        $nextPenaltyBal = $tenderd_amount = 0;
+                                        $GLPenalty += $_POST['tenderd_amount'];
                                     }
-                                    $bal_penalty = $total_penalty = 0;
+        
                                 }else{
-                                    //dako ang $total_penalty kaysa $tenderd_amount
-                                    $total_penalty -= $tenderd_amount;
-                                    $bal_tenderd_amount = $tenderd_amount;
-    
-                                    //set penalty status paid in table schedule
-                                    $pnty_result = get_loan_schedule_penalty($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
-                                    while ($pntyrow = db_fetch($pnty_result)){
-                                        $MonthNo = CalcMonthsDue_pnlty($_POST['trans_date'], $pntyrow["date_due"], $maturity_date);
-                                        if($MonthNo != 0){
-                                            $penalty = per_Penalty($MonthNo, ($pntyrow["principal_due"] - $partialpay));
-                                            $bal_tenderd_amount -= $penalty;
-    
-                                            if($bal_tenderd_amount >= 0){
-                                                add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $penalty, 0, 0, $trans_date, $payment_no);
-                                                update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
-                                                $tenderd_amount -= $penalty;
-                                                $GLPenalty += $penalty;
-                                                $partialpay = 0;
-                                            }else{
-                                                $nextPenaltyBal = ($penalty - $tenderd_amount);
-                                                add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $tenderd_amount, 0, 0, $trans_date, $payment_no);
-                                                update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", $nextPenaltyBal, "partial");
+        
+                                    if($tenderd_amount > $total_penalty){
+                                        $tenderd_amount -= $total_penalty;
+                                        $bal_penalty = $total_penalty;
+        
+                                        //set penalty status paid in table schedule
+                                        $pnty_result = get_loan_schedule_penalty($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
+                                        while ($pntyrow = db_fetch($pnty_result)){
+                                            $MonthNo = CalcMonthsDue_pnlty($_POST['trans_date'], $pntyrow["date_due"], $maturity_date);
+                                            if($MonthNo != 0){
+                                                $penalty = per_Penalty($MonthNo, ($pntyrow["principal_due"]- $partialpay));
                                                 
-                                                $GLPenalty += $tenderd_amount;
-                                                $tenderd_amount = $bal_tenderd_amount = $penalty = $partialpay = 0;
-    
+                                                if($penalty > 0){
+                                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $penalty, 0, 0, $trans_date, $payment_no);
+                                                    update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
+                                                    $total_penalty -= $penalty;
+                                                    $GLPenalty += $penalty;
+                                                    $partialpay = 0;
+                                                }
                                             }
-                                            if($tenderd_amount <= 0){
-                                                $tenderd_amount = $bal_tenderd_amount = $penalty = $partialpay = 0;
+                                            if($total_penalty <= 0){
+                                                $total_penalty = $penalty = 0;
                                                 break;
                                             }
                                         }
+                                        $bal_penalty = $total_penalty = 0;
+                                    }else{
+                                        //dako ang $total_penalty kaysa $tenderd_amount
+                                        $total_penalty -= $tenderd_amount;
+                                        $bal_tenderd_amount = $tenderd_amount;
+        
+                                        //set penalty status paid in table schedule
+                                        $pnty_result = get_loan_schedule_penalty($_POST['InvoiceNo'], $_POST['customername'], $_POST['transtype']);
+                                        while ($pntyrow = db_fetch($pnty_result)){
+                                            $MonthNo = CalcMonthsDue_pnlty($_POST['trans_date'], $pntyrow["date_due"], $maturity_date);
+                                            if($MonthNo != 0){
+                                                $penalty = per_Penalty($MonthNo, ($pntyrow["principal_due"] - $partialpay));
+                                                $bal_tenderd_amount -= $penalty;
+        
+                                                if($bal_tenderd_amount >= 0){
+                                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $penalty, 0, 0, $trans_date, $payment_no);
+                                                    update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", 0, "paid");
+                                                    $tenderd_amount -= $penalty;
+                                                    $GLPenalty += $penalty;
+                                                    $partialpay = 0;
+                                                }else{
+                                                    $nextPenaltyBal = ($penalty - $tenderd_amount);
+                                                    add_loan_ledger($_POST['InvoiceNo'], $_POST['customername'], $pntyrow["loansched_id"], $_POST['transtype'], ST_CUSTPAYMENT, 0, $tenderd_amount, 0, 0, $trans_date, $payment_no);
+                                                    update_loan_schedule($pntyrow["loansched_id"], $_POST['customername'], $_POST['InvoiceNo'], $_POST['transtype'], "unpaid", $nextPenaltyBal, "partial");
+                                                    
+                                                    $GLPenalty += $tenderd_amount;
+                                                    $tenderd_amount = $bal_tenderd_amount = $penalty = $partialpay = 0;
+        
+                                                }
+                                                if($tenderd_amount <= 0){
+                                                    $tenderd_amount = $bal_tenderd_amount = $penalty = $partialpay = 0;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        $tenderd_amount = 0;
                                     }
-                                    $tenderd_amount = 0;
                                 }
                             }
                         }
                         //no more penalty
                         if($tenderd_amount > 0){
                             //check if maka kuha ba ug rebate
-                            $RebateAmount = GetRebate($_POST['trans_date'], $myrow["date_due"], $debtor_loans["rebate"]);
-    
+                            if($manualrebate != 0){
+                                $RebateAmount = $manualrebate;
+                                $manualrebate = 0;
+                            }else{
+                                $RebateAmount = GetRebate($_POST['trans_date'], $myrow["date_due"], $debtor_loans["rebate"]);
+                            }
                             if($myrow["status"] == "partial"){
                                 $thismonthAmort = ($myrow["principal_due"] - $partialpayment);
     

@@ -93,8 +93,11 @@ function add_loan_ledger($trans_no, $debtor_no, $loansched_id, $typeto, $typefro
 	}else{
 
 		$sql = "UPDATE ".TB_PREF."debtor_loan_ledger SET
-			payment_applied=".db_escape($payment_applied)."
-			WHERE id = ".db_escape($ledger_id["id"]);
+			payment_applied=".db_escape($payment_applied);
+			if($rebate != 0){
+				$sql .= ", rebate =" .db_escape($rebate);
+			}
+			$sql .= "WHERE id = ".db_escape($ledger_id["id"]);
 
 		$ErrMsg = _('Could not update loan ledger because ');
 	}
