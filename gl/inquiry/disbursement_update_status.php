@@ -49,7 +49,7 @@ function update_disbursement_status(&$bp_obj)
 
 	/*Update the sales order draft status */
 	$sql = "UPDATE " . TB_PREF . "bank_trans SET status=" . db_escape($bp_obj->status);
-	$sql .= " WHERE trans_no = " . $bp_obj->order_id;
+	$sql .= " WHERE type = ".ST_BANKPAYMENT." and  trans_no = " . $bp_obj->order_id;
 	db_query($sql, "The sales order could not be updated");
 
 	add_audit_trail(ST_BANKPAYMENT, $bp_obj->order_id, Today(), _("Update Status."));

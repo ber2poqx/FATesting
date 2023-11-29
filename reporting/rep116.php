@@ -114,14 +114,14 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 	$date = date2sql($from);
 	//modified by Albert fix amount 03/04/2023
 	$sql = "SELECT SUM(A.amount) + Case when $bank_id = 1 Then IFNULL((SELECT sum(z.amount) 
-	FROM ".TB_PREF."remittance z WHERE z.remit_to =".db_escape($cashier)." AND z.remit_stat = 'Approved' AND z.remit_date = '$date'), 0) else 0 end, 
+	FROM ".TB_PREF."remittance z WHERE z.remit_to =".db_escape($cashier)." AND z.remit_stat = 'Approved' AND z.remit_date <= '$date'), 0) else 0 end, 
 	A.cashier_user_id, D.account_type, A.trans_date
 		FROM ".TB_PREF."bank_trans A 
 			LEFT JOIN ".TB_PREF."users B ON B.id = A.cashier_user_id
 			LEFT JOIN  ".TB_PREF."voided C ON A.type = C.type AND A.trans_no = C.id AND C.void_status = 'Voided' 
 			LEFT JOIN ".TB_PREF."bank_accounts D ON A.bank_act = D.ID
 
-		WHERE A.type <> 0 AND ISNULL(C.void_id) And A.status <> 'Draft' AND
+		WHERE A.type <> 0 AND ISNULL(C.void_id) And  (A.status != 'Disapproved' and A.status != 'Draft') AND
 		(CASE WHEN (SELECT remit_date FROM ".TB_PREF."remittance z where z.remit_num = A.remit_no and z.remit_stat ='Approved' And z.remit_date > '$date') > A.trans_date THEN 'OPEN' else A.remit_stat end) <> 'Approved'";
 
 	if ($bank_id != '') {
@@ -135,7 +135,7 @@ function get_breakdown_balance($bank_id = '', $from, $cashier = '') {
 	$sql .= " AND A.trans_date <= '$date' ";
 	
 	$result = db_query($sql, "get_breakdown_balance()");
-	$row = db_fetch_row($result); 
+	$row = db_fetch_row($result);
 	return $row[0];
 
 }

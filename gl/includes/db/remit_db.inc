@@ -31,7 +31,7 @@ function _bank_transactions($from_date = null, $cashier = '', $report = true,
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type and a.trans_date = c.date_
 				LEFT JOIN ".TB_PREF."users D ON D.id = A.cashier_user_id
                 LEFT JOIN ".TB_PREF."debtor_trans E ON A.type = E.type and A.trans_no = E.trans_no
-                WHERE opening_balance = 0  AND A.status <> 'Draft'";
+                WHERE opening_balance = 0  AND (A.status != 'Disapproved' and A.status != 'Draft')";
 
     if ($report) {
         $sql .= " AND A.type IN (" . ST_BANKDEPOSIT . ", " . ST_CUSTPAYMENT . ")";
