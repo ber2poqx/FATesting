@@ -405,16 +405,16 @@ Ext.onReady(function(){
 	var InterB_Payment_Header = [
 		new Ext.grid.RowNumberer(),
 		{header:'<b>Date</b>', dataIndex:'trans_date', sortable:true, width:80, renderer: Ext.util.Format.dateRenderer('m-d-Y')},
-		{header:'<b>From Branch</b>', dataIndex:'branch_name', sortable:true, width:182,
+		{header:'<b>From Branch</b>', dataIndex:'branch_name', sortable:true, width:220,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
 			}
 		},
-		{header:'<b>Customer Name</b>', dataIndex:'debtor_name', sortable:true, width:210},
-		{header:'<b>Doc. Ref. No.</b>', dataIndex:'ref_no', sortable:true, width:120},
+		{header:'<b>Customer Name</b>', dataIndex:'debtor_name', sortable:true, width:230},
+		{header:'<b>Reference No.</b>', dataIndex:'ref_no', sortable:true, width:160},
 		{header:'<b>OR Ref. No.</b>', dataIndex:'or_ref_no', sortable:true, width:120},
-		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:180,
+		{header:'<b>Remarks</b>', dataIndex:'remarks', sortable:true, width:280,
 			renderer: function(value, metaData, record, rowIdx, colIdx, store) {
 				metaData.tdAttr = 'data-qtip="' + value + '"';
 				return value;
@@ -426,7 +426,7 @@ Ext.onReady(function(){
 				return value;
 			}
 		},
-		{header:'<b>Amount</b>', dataIndex:'amount', sortable:true, width:90,
+		{header:'<b>Amount</b>', dataIndex:'amount', sortable:true, width:92,
 			renderer: Ext.util.Format.Currency = function(value){
 				return '<span style="color:green;font-weight:bold;">' + Ext.util.Format.number(value, '0,000.00') +'</span>';
 			}
@@ -1069,7 +1069,7 @@ Ext.onReady(function(){
         renderTo: 'ext-form',
 		id: 'builder_panel',
         frame: false,
-		width: 1250,
+		width: 1450,
 		tbar: tbar,
 		items: [{
 			xtype: 'grid',
@@ -1188,8 +1188,6 @@ Ext.onReady(function(){
 			}
 		});
 	};
-
-
 
 	function GetCashierPrep(){
 		Ext.Ajax.request({
