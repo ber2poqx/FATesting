@@ -248,4 +248,14 @@ function pr_reference_exist($reference)
 	$row = db_fetch_row($result);
 	return $row[0];
 }
+function get_stock_category_RR($category_id)
+{
+	set_global_connection();
+
+	$sql = "SELECT category_id FROM stock_category A 
+		WHERE A.category_id in (18,22,23,24) AND A.category_id=" . db_escape($category_id);
+	$result = db_query($sql, "Can't get RR Stock Category! ");
+	$row = db_fetch_row($result);
+	return $row[0];
+}
 
