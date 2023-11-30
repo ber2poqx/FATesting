@@ -180,7 +180,8 @@ function get_notfa_interb($branch=null, $query=null, $start, $limit, $showall=0)
 		FROM ".TB_PREF."interbranch_trans A 
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_ref = A.debtor_ref
 				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.transno_to_branch
-		WHERE A.type = 3 ".$sWhere;
+		WHERE A.type = 3 ".$sWhere."
+		ORDER BY A.trans_date DESC, A.ref_no DESC";
 
 	$sqllimit = $sql ." limit $start, $limit";
 
