@@ -110,17 +110,21 @@ function display_po_receive_items()
             }
             /*Modified by Albert 05/04/2022*/
             $date_defined = Get_Policy_Cost_last_date_updated($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
-            if (date2sql(get_post('DefaultReceivedDate')) < Get_Policy_Cost_Effectivity_Date($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id)){
-               
-                $price = Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined);
+            if(!get_post("price")){
+                if (date2sql(get_post('DefaultReceivedDate')) < Get_Policy_Cost_Effectivity_Date($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id)){
+                
+                    $price = Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined);
+                }else{
+                    $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                }
             }else{
-                $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                $price = get_post("price");
             }
             /*End by Albert*/
                if ($price == "")
                 $price = 0;
-            $ln_itm->price = $price;
-            $ln_itm->standard_cost = $price;
+            $ln_itm->price = round($price, 2);
+            $ln_itm->standard_cost = round($price, 2);
             $line_total = ($ln_itm->receive_qty * $ln_itm->price);
             $total += $line_total;
 
@@ -452,19 +456,21 @@ function serial_summary_po_receive_items()
                 if (!isset($_POST['Update']) && !isset($_POST['ProcessGoodsReceived']) && $ln_itm->receive_qty == 0) {   //If no quantites yet input default the balance to be received
                     $ln_itm->receive_qty = $qty_outstanding;
                 }
-                /*Modified by Albert 05/04/2022*/
+                /*Modified by Albert 11/30/2023*/
                 $date_defined = Get_Policy_Cost_last_date_updated($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
-                if (date2sql($_SESSION['PO']->orig_order_date) < Get_Policy_Cost_Effectivity_Date($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id)){
+                if(!get_stock_category_RR($_SESSION['PO']->category_id)){
+                    if (date2sql($_SESSION['PO']->orig_order_date) < Get_Policy_Cost_Effectivity_Date($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id)){
             
-                    $price = Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined);
-                }else{
-                    $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                        $price = Get_Previous_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id, $date_defined);
+                    }else{
+                        $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
+                    }
+                    /*END by Albert*/
+                    if ($price == "")
+                        $price = 0;
+                    $ln_itm->price = $price;
+                    $ln_itm->standard_cost = $price;
                 }
-                /*END by Albert*/
-                if ($price == "")
-                    $price = 0;
-                $ln_itm->price = $price;
-                $ln_itm->standard_cost = $price;
                 $line_total = ($ln_itm->receive_qty * $ln_itm->price);
                 $total += $line_total;
 
@@ -727,7 +733,7 @@ if (isset($_POST['ProcessGoodsReceivedWithSerial'])) {
     $grn_no = add_grn_new($grn);
     unset($_SESSION['PO']->line_items);
     unset($_SESSION['PO']);
-    meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id");
+    meta_forward($_SERVER['PHP_SELF'], "AddedID=$grn_no&category=$grn->category_id"); 
     //
 
 }

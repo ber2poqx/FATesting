@@ -78,13 +78,15 @@ function add_grn_new(&$po, $is_consign = false)
 			/*Need to get the standard cost as it is now so we can process GL jorunals later*/
 			//			   	$order_line->standard_cost = get_unit_cost($order_line->stock_id);
 			/*Modified by Albert*/
-			$date_defined = Get_Policy_Cost_last_date_updated($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id);
-            if (date2sql($date_) < Get_Policy_Cost_Effectivity_Date($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id)){
-                
-                $order_line->standard_cost = Get_Previous_Policy_Cost($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id, $date_defined);
-            }else{
-                $order_line->standard_cost = Get_Policy_Cost($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id);
-            }
+			if(!get_stock_category_RR($po->category_id)){
+				$date_defined = Get_Policy_Cost_last_date_updated($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id);
+				if (date2sql($date_) < Get_Policy_Cost_Effectivity_Date($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id)){
+					
+					$order_line->standard_cost = Get_Previous_Policy_Cost($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id, $date_defined);
+				}else{
+					$order_line->standard_cost = Get_Policy_Cost($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id);
+				}
+			}
 			/*END by Albert*/
 			// $order_line->standard_cost = Get_Policy_Cost($po->Location, $po->category_id, $order_line->stock_id, $po->supplier_id); //Updated by Herald 03/02/2021
 			//}
