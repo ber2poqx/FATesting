@@ -863,7 +863,9 @@ if(isset($_GET['get_notfa_interb']))
     $limit = (integer) (isset($_POST['limit']) ? $_POST['limit'] : $_GET['limit']);
 
     $result = get_notfa_interb($_GET['branch'], $_GET['query'], $start, $limit);
-    $total = DB_num_rows($result);
+    $total_result = get_notfa_interb($_GET['branch'], $_GET['query'], $start, $limit, 1);
+    $total = DB_num_rows($total_result);
+
     while ($myrow = db_fetch($result)) {
         $branch = get_branch_info($myrow['branch_code_from']);
         $status_array[] = array('id'=>$myrow['transno_to_branch'],

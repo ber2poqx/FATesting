@@ -164,7 +164,7 @@ function get_interB_transNo_from($id)
 	return db_fetch($result);
 }
 
-function get_notfa_interb($branch=null, $query=null)
+function get_notfa_interb($branch=null, $query=null, $start, $limit, $showall=0)
 {
 	$sWhere = "";
 	if(!empty($branch) && $branch != "zHun"){
@@ -181,8 +181,16 @@ function get_notfa_interb($branch=null, $query=null)
 				LEFT JOIN ".TB_PREF."debtors_master B ON B.debtor_ref = A.debtor_ref
 				INNER JOIN ".TB_PREF."bank_trans C ON C.trans_no = A.transno_to_branch
 		WHERE A.type = 3 ".$sWhere;
-	
-	return db_query($sql, "could not get inter-branch payment");
+
+	$sqllimit = $sql ." limit $start, $limit";
+
+	if($showall == 1){
+		$result = db_query($sql, "could not get inter-branch payment");
+	}else{
+		$result = db_query($sqllimit, "could not get inter-branch payment");
+	}
+	return $result;
+
 }
 
 function interbranch_notfa_add($branch_code_from, $branch_code_to, $debtor_ref, $name, $trans_date, $ref_no, $amount, $remarks, $prepared_by,
