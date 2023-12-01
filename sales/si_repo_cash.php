@@ -422,6 +422,11 @@ function can_process()
 		display_error(_("Invoice total amount cannot be less than zero."));
 	return false;
 	}
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICEREPO && reference_exist(get_post('document_ref'))) {
+		display_error(_("Reference # is already exist!"));
+		set_focus('document_ref');
+		return false;
+	}
 
 	if (!is_date($_POST['OrderDate'])) {
 		display_error(_("The entered date is invalid."));

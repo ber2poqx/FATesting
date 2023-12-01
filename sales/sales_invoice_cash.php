@@ -710,6 +710,12 @@ function can_process()
 		return false;
 	}
 
+	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && reference_exist(get_post('document_ref'))) {
+		display_error(_("Reference # is already exist!"));
+		set_focus('document_ref');
+		return false;
+	}
+
 	if ($_SESSION['Items']->trans_type == ST_SALESINVOICE && get_post('category') == 14 && 
 		str_contains_val(get_post('dr_ref'), getCompDet('branch_code'))) {
 		display_error(_("Invalid Delivery Reference Format! Please refer to your Delivery Invoice..."));
