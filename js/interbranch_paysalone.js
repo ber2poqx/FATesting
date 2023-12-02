@@ -175,7 +175,7 @@ Ext.onReady(function(){
 	var qqinterb_store = Ext.create('Ext.data.Store', {
 		model: 'interb_paymnt_model',
 		autoLoad : true,
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_notfa_interb=xx',
 			type: 'ajax',
@@ -1085,7 +1085,7 @@ Ext.onReady(function(){
 				xtype : 'pagingtoolbar',
 				hidden: false,
 				store : qqinterb_store,
-				//pageSize : itemsPerPage,
+				pageSize : itemsPerPage,
 				displayInfo : false,
 				emptyMsg: "No records to display",
 				doRefresh : function(){

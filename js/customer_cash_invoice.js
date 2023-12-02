@@ -366,7 +366,7 @@ Ext.onReady(function() {
 		model: 'interBModel',
 		name : 'DPitemStore',
 		method : 'POST',
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_DownPaymnt=xx',
 			type: 'ajax',
@@ -380,7 +380,7 @@ Ext.onReady(function() {
 	var RecptViewStore_inb = Ext.create('Ext.data.Store', {
 		model: 'interBModel',
 		//autoLoad : true,
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_interb_view=interb',
 			type: 'ajax',
@@ -395,7 +395,7 @@ Ext.onReady(function() {
 	var allocCash_store = Ext.create('Ext.data.Store', {
 		model: 'AllocCashModel',
 		method : 'POST',
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_alocCash=xx',
 			type: 'ajax',
@@ -409,7 +409,7 @@ Ext.onReady(function() {
 	var allocCash_store_view = Ext.create('Ext.data.Store', {
 		model: 'AllocCashModel',
 		method : 'POST',
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_alocCash_view=xx',
 			type: 'ajax',
@@ -424,7 +424,7 @@ Ext.onReady(function() {
 		model: 'item_delailsModel',
 		name : 'SIitemStore',
 		method : 'POST',
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_Item_details=xx',
 			type: 'ajax',
@@ -439,7 +439,7 @@ Ext.onReady(function() {
 		model: 'OtherEntryModel',
 		name : 'OtherEntryStore',
 		method : 'POST',
-		pageSize: itemsPerPage, // items per page
+		//pageSize: itemsPerPage, // items per page
 		proxy: {
 			url: '?get_OtherEntryPay=xx',
 			type: 'ajax',
