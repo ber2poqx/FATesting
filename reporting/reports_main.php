@@ -1471,7 +1471,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 			/*_('GL Title') => 'GL_ACCOUNTS', 			
 			_('Name') => 'CUSTOMERS_LIST',*/
 			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'PDFDESTINATION'
+			_('Destination') => 'DESTINATION'
 		)
 	);
 
@@ -1483,7 +1483,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 			_('GL Title') => 'GL_ACCOUNTS_NO_FILTER', /**/			
 			_('Name') => 'CUSTOMERS_LIST',
 			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'PDFDESTINATION'
+			_('Destination') => 'DESTINATION'
 		)
 	);
 	//=================================================================
@@ -1495,7 +1495,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 			_('End Date') => 'DATEENDM',
 			_('GL Title') => 'GL_ACCOUNTS',
 			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'PDFDESTINATION'
+			_('Destination') => 'DESTINATION'
 		)
 	);
 	//=================================================================
@@ -1507,7 +1507,7 @@ if ($_SESSION["wa_current_user"]->can_access_page('SA_SL_REP')) {
 			_('End Date') => 'DATE',
 			_('Masterfile Name') => 'CUSTOMER_SL',
 			_('Comments') => 'TEXTBOX',
-			_('Destination') => 'PDFDESTINATION'
+			_('Destination') => 'DESTINATION'
 		)
 	);
 	//=================================================================
