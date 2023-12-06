@@ -219,7 +219,7 @@ function print_SL_summary_particulars()
 
 	$aligns = array('left', 'left', 'center', 'left', 'left', 'left', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('SL Summary (Particulars) - per Transaction'), "SalesSummaryReport", "letter", 9, $orientation = "L");
+	$rep = new FrontReport(_('SL Summary (Particulars) - per Transaction'), "SLsummaryPerTransaction", "letter", 9, $orientation = "L");
 
     if ($orientation == 'L')
     	recalculate_cols($cols);

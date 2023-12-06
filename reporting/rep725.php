@@ -152,7 +152,7 @@ function print_SL_summary_per_customer()
 
 	$aligns = array('left', 'right', 'right', 'right');
 
-	$rep = new FrontReport(_('SL Summary per Account'), "SalesSummaryReport", "letter", 9, $orientation);
+	$rep = new FrontReport(_('SL Summary per Account'), "SLperAccount", "letter", 9, $orientation);
 
     //if ($orientation == 'L')
     //	recalculate_cols($cols);
