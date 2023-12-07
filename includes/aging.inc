@@ -92,9 +92,10 @@ function get_customer_loansched($trans_no, $trans_type = ST_SALESINVOICE, $debto
 }
 
 function invoice_type_status($trans_no, $debtor_no, $end_date) {
-
+//modify on Dec. 07, 2023 for repo installment redemption - JR
     $sql = "SELECT 
                 CASE 
+                    WHEN IFNULL(REPO.is_redem, 0) = 1 THEN 'new'
                     WHEN DATE_FORMAT('$end_date', '%Y-%m') = DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'repo'
                     WHEN DATE_FORMAT('$end_date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
                     WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
@@ -102,7 +103,7 @@ function invoice_type_status($trans_no, $debtor_no, $end_date) {
 
             FROM ".TB_PREF."debtor_loans DL 
                 LEFT JOIN (
-                    SELECT A.ar_trans_no, A.debtor_no, A.repo_date
+                    SELECT A.ar_trans_no, A.debtor_no, A.repo_date, A.is_redem
                     FROM ".TB_PREF."repo_accounts A
                 ) REPO ON DL.trans_no = REPO.ar_trans_no AND DL.debtor_no = REPO.debtor_no
 
@@ -1180,7 +1181,7 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
             ELSE IF(DL.invoice_type = 'new', $sales_invoice, $sales_invoice_repo) END) = CPAY.trans_type_to
 
         LEFT JOIN (
-            SELECT A.ar_trans_no, A.debtor_no, A.repo_date FROM ".TB_PREF."repo_accounts A
+            SELECT A.ar_trans_no, A.debtor_no, A.repo_date, A.is_redem FROM ".TB_PREF."repo_accounts A
         ) REPO ON (CASE
                 WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(CT.term_mod_date, '%Y-%m') THEN CT.trans_no
                 WHEN DATE_FORMAT('$date', '%Y-%m') >= DATE_FORMAT(RT.term_mod_date, '%Y-%m') THEN RT.trans_no
@@ -1208,11 +1209,12 @@ function get_AR_transactions($endDate, $cust_id = '', $group = 0, $filter = '', 
     }
     
     //
-    
+    //modify on Dec. 07, 2023 for repo installment redemption - JR
     $sql .= 
     " AND (CASE 
 	        WHEN DATE_FORMAT('$date', '%Y-%m') < DATE_FORMAT(REPO.repo_date, '%Y-%m') THEN 'new'
             WHEN IFNULL(REPO.repo_date, '') = ''  THEN 'new'
+            WHEN IFNULL(REPO.is_redem, 0) = 1 THEN 'new' 
         ELSE 'repo' END
     ) = 'new' ";
 
