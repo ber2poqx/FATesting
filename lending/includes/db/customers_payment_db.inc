@@ -360,7 +360,7 @@ function get_debtor_alloc($trans_no, $debtor_no, $type)
 function get_debtor_payment_info($type, $module_type, $start, $limit, $search, $tagtrans=0, $showall=false, $beg=0, $cashier='')
 {
 	if($search != ''){
-		$sWhere .= " AND (B.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%' OR C.receipt_no LIKE '%".$search."%') ";
+		$sWhere .= " AND (B.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%' OR C.receipt_no LIKE '%".$search."%' OR A.module_type LIKE '%".$search."%') ";
 	}
 	if($tagtrans != 0){
 		$sWhere .= " AND A.trans_no = ".db_escape($tagtrans);

@@ -142,14 +142,13 @@ if(isset($_GET['submit']))
 
     $invoice_trans_no = $banktrans_info['masterfile'];
     $invoice_trans_type = $banktrans_info['masterfile_type'];
-
-    if($invoice_trans_type == 0){
-        $InputError = 1;
-        $dsplymsg = _('Error. 0 trans type');
-    }
-
     switch ($module_type) {
         case 'CI-CASH':
+            if($invoice_trans_type == 0){
+                $InputError = 1;
+                $dsplymsg = _('Error. 0 trans type / Invoices created not found...');
+            }
+
             if ($InputError != 1){
                 //delete cust allocation
                 if($invoice_trans_no != 0){
@@ -201,6 +200,12 @@ if(isset($_GET['submit']))
         case 'CR-ADJ':
         //case 'ALCN-ADJ':
         case 'CR-AMORT':
+
+            if($invoice_trans_type == 0){
+                $InputError = 1;
+                $dsplymsg = _('Error. 0 trans type / Invoices created not found...');
+            }
+
             //check kung last payment ba sa ledger
             $loaninfo = get_loan_ledger_payment_per_transno($_GET['trans_type'], $_GET['trans_no']);
             $loanrow = db_fetch($loaninfo);
@@ -276,8 +281,27 @@ if(isset($_GET['submit']))
         case 'CR-INTERB':
             
             if ($InputError != 1){
-                //$dsplymsg = _("Payment was successfully voided.");
-                //echo '({"success":"true","message":"'.$dsplymsg.'"})';
+
+                //get gltrans to reverse entry
+                $result = get_gl_trans_void($_GET['trans_type'], $_GET['trans_no']);
+                while ($myrow = db_fetch($result)) {
+                    if($myrow["amount"] < 0){
+                        $amount = abs($myrow["amount"]);
+                    }else{
+                        $amount = -$myrow["amount"];
+                    }
+                    //reverse gl
+                    add_gl_trans($myrow["type"], $myrow["type_no"], $trans_date, $myrow["account"], 0, 0, $myrow["memo_"].'-Cancelled', $amount,  null, $myrow["person_type_id"], $myrow["person_id"], "", 0, null, null, 0, $myrow["loan_trans_no"]);
+                    update_gl_trans_void($myrow["counter"], $_GET['trans_type'], $_GET['trans_no'], $_GET['void_id']);
+                }
+                //update debtor trans
+                update_debtor_trans_void($_GET['trans_type'], $_GET['trans_no'], 'Cancelled');
+                update_void($_GET['void_id'], $_GET['trans_no'], 'Voided', $_GET['note']);
+        
+                // only add an entry if it's actually been voided
+                add_audit_trail($_GET['trans_type'], $_GET['trans_no'], sql2date(date('Y-m-d', strtotime(Today()))), _("Voided.")."\n".$_GET['note']);
+                $dsplymsg = _("Payment was successfully voided.");
+                echo '({"success":"true","message":"'.$dsplymsg.'"})';
             }else{
                 echo '({"failure":"false","message":"'.$dsplymsg.'"})';
             }
