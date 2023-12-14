@@ -27,6 +27,7 @@ Ext.onReady(function(){
         extend: 'Ext.data.Model',
         fields: [
 			{name:'id', mapping:'id'},
+			{name:'transtype', mapping:'transtype'},
 			{name:'branch_code_from', mapping:'branch_code_from'},
 			{name:'branch_name', mapping:'branch_name'},
 			{name:'branch_gl_code', mapping:'branch_gl_code'},
@@ -40,7 +41,8 @@ Ext.onReady(function(){
 			{name:'prepared_by', mapping:'prepared_by'},
 			{name:'or_ref_no', mapping:'or_ref_no'},
 			{name:'approved_by', mapping:'approved_by'},
-			{name:'type', mapping:'type'}
+			{name:'type', mapping:'type'},
+			{name:'void_stat', mapping:'void_stat'}
 		]
 	});
 	var fstatusStore = Ext.create('Ext.data.Store',{
@@ -444,7 +446,8 @@ Ext.onReady(function(){
 					ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_id')};
 					ARInvoiceStore.load();
 
-					//Ext.getCmp('syspk').setValue(records.get('id'));
+					Ext.getCmp('v_syspk').setValue(records.get('id'));
+					Ext.getCmp('v_transtype').setValue(records.get('transtype'));
 					Ext.getCmp('moduletype').setValue('NTFA-INTERB');
 					Ext.getCmp('frombranch').setValue(records.get('branch_code_from'));
 					Ext.getCmp('customercode').setValue(records.get('debtor_ref'));
@@ -461,6 +464,13 @@ Ext.onReady(function(){
 					
 					//GetCashierPrep();
 					Ext.getCmp('btnsave').setDisabled(true);
+					Ext.getCmp('btn_manualrp').setVisible(false);
+
+					if(records.get('void_stat') != null){
+						Ext.getCmp('btnVoidCR').setVisible(false);
+					}else{
+						Ext.getCmp('btnVoidCR').setVisible(true);
+					}
 
 					submit_window.setTitle('Inter-Branch Payment Details');
 					submit_window.show();
@@ -492,6 +502,18 @@ Ext.onReady(function(){
 		defaultType: 'field',
 		defaults: {msgTarget: 'under', labelWidth: 125, anchor: '-5'}, //msgTarget: 'side', labelAlign: 'top'
 		items: [{
+			xtype: 'textfield',
+			id: 'v_syspk',
+			name: 'v_syspk',
+			fieldLabel: 'syspk',
+			hidden: true
+		},{
+			xtype: 'textfield',
+			id: 'v_transtype',
+			name: 'v_transtype',
+			fieldLabel: 'transtype',
+			hidden: true
+		},{
 			xtype: 'textfield',
 			id: 'moduletype',
 			name: 'moduletype',
@@ -888,6 +910,7 @@ Ext.onReady(function(){
 					xtype: 'tbfill'
 				},{
 					xtype: 'button',
+					id: 'btn_manualrp',
 					text: '',
 					padding: '3px',
 					margin: '2px 2px 6px 2px',
@@ -911,6 +934,69 @@ Ext.onReady(function(){
 						Ext.getCmp('m_penalty').focus(false, 200);
 						Penalty_win.show();
 						Penalty_win.setPosition(700,100);
+					}
+				},{
+					xtype: 'button',
+					id: 'btnVoidCR',
+					text: 'Void',
+					padding: '3px',
+					margin: '2px 2px 6px 2px',
+					icon: '../../js/ext4/examples/shared/icons/ipod_cast_delete.png',
+					tooltip: 'Void Transaction',
+					style : {
+						'color': 'black',
+						'font-size': '30px',
+						'font-weight': 'bold',
+						'background-color': '#f71d04',
+						'position': 'absolute',
+						'box-shadow': '0px 0px 2px 2px rgb(0,0,0)',
+						//'border': 'none',
+						'border-radius':'3px'
+					},
+					handler: function(){
+						Ext.MessageBox.confirm('Confirmation:', 'Are you sure you wish to void this transaction?', function (btn, text) {
+							if (btn == 'yes') {
+								Ext.MessageBox.prompt('Void Receipt', 'Reason for Void:', function(btn, text){
+									if (btn == 'ok'){
+										Ext.Ajax.request({
+											url : '?submitVoid=payment&syspk='+Ext.getCmp('v_syspk').getValue()+'&systype='+Ext.getCmp('v_transtype').getValue()+'&reason='+text,
+											//waitMsg: 'Saving downpayment. please wait...',
+											method:'POST',
+											//async:false,
+											success: function (response) {
+												var result = Ext.JSON.decode(response.responseText);
+												qqinterb_store.load();
+												if (result.success == "true") {
+													Ext.Msg.show({
+														title: 'Void Transaction: Success!',
+														msg: '<font color="green">' + result.message + '</font>',
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.INFORMATION
+													});
+												}
+												else {
+													Ext.Msg.show({
+														title: 'Void Transaction: Failed!',
+														msg: result.message,
+														buttons: Ext.Msg.OK,
+														icon: Ext.MessageBox.ERROR
+													});
+												}
+												submit_window.close();
+											},
+											failure: function () {
+												Ext.Msg.show({
+													title: 'Void Transaction: Failed!',
+													msg: result.message,
+													buttons: Ext.Msg.OK,
+													icon: Ext.MessageBox.ERROR
+												});
+											}
+										});
+									}
+								});
+							}
+						});
 					}
 				}]
 			}
@@ -1047,6 +1133,9 @@ Ext.onReady(function(){
 			Ext.getCmp('manualpenalty').setValue(0);
 			Ext.getCmp('manualrebate').setValue(0);
 
+			Ext.getCmp('btn_manualrp').setVisible(true);
+			Ext.getCmp('btnVoidCR').setVisible(false);
+
 			submit_window.show();
 			submit_window.setTitle('Inter-Branch Entry - Add');
 			submit_window.setPosition(320,23);
@@ -1090,6 +1179,29 @@ Ext.onReady(function(){
 				emptyMsg: "No records to display",
 				doRefresh : function(){
 					qqinterb_store.load();
+				}
+			},
+			viewConfig: {
+				listeners: {
+					refresh: function(view) {
+						var nodes = view.getNodes();
+						
+						for (var i = 0; i < nodes.length; i++) {
+							var node = nodes[i];
+							var record = view.getRecord(node);
+							
+							var cells = Ext.get(node).query('td');  
+							for(var j = 0; j < cells.length; j++) {
+								if(record.get('void_stat') == "Draft"){
+									Ext.fly(cells[j]).setStyle('background-color', "#f8cbcb");
+									Ext.fly(cells[j]).setStyle('color', "#b2afaf");
+								}else if(record.get('void_stat') == "Voided"){
+									Ext.fly(cells[j]).setStyle('background-color', "#716e6e");
+									Ext.fly(cells[j]).setStyle('color', "#b2afaf");
+								}
+							}
+						}
+					}
 				}
 			}
 		}]

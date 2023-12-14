@@ -869,6 +869,7 @@ if(isset($_GET['get_notfa_interb']))
     while ($myrow = db_fetch($result)) {
         $branch = get_branch_info($myrow['branch_code_from']);
         $status_array[] = array('id'=>$myrow['transno_to_branch'],
+                                'transtype'=>$myrow['trantype_to_branch'],
                                 'branch_code_from'=>$myrow['branch_code_from'],
                                 'branch_name'=>array_column($branch, 'name'),
                                 'branch_gl_code'=>array_column($branch, 'gl_account'),
@@ -882,7 +883,8 @@ if(isset($_GET['get_notfa_interb']))
                                 'prepared_by'=>$myrow['prepared_by'],
                                 'or_ref_no'=>$myrow['receipt_no'],
                                 'approved_by'=>$myrow['approved_by'],
-                                'type'=>$myrow['type']
+                                'type'=>$myrow['type'],
+                                'void_stat'=>$myrow['void_status']
                             );
      }
     $jsonresult = json_encode($status_array);
@@ -1408,6 +1410,44 @@ if(isset($_GET['submit_inbpaysalone']))
     return;
 }
 
+//void payments transaction
+if(isset($_GET['submitVoid']))
+{
+    $InputError = 0;
+    if (empty($_GET['syspk'])){
+        $InputError = 1;
+        $dsplymsg = _('Error encountered when voiding transaction. Please reload the page and try again. Thank you...');
+    }
+    //check data
+	if(check_voided_payments_exist($_GET['systype'], $_GET['syspk'])){
+        $InputError = 1;
+        $dsplymsg = _("This payment has already been voided.");
+    }
+
+    if ($InputError !=1)
+    {
+
+        $info = get_debtor_trans_all($_GET['systype'], $_GET['syspk']);
+		$trans_no = add_voided_entry(
+                        $_GET['systype'], 
+                        $_GET['syspk'], 
+                        sql2date(date('Y-m-d', strtotime(Today()))), 
+                        $_GET['reason'], 
+                        user_company(),
+                        $info['reference'],
+                        '',
+                        'Draft',
+                        '0',
+                        $_SESSION["wa_current_user"]->user
+		            );
+
+        $dsplymsg = _("Your request has been submitted successfully.");
+        echo '({"success":"true","message":"'.$dsplymsg.'"})';
+    }else{
+        echo '({"failure":"false","message":"'.$dsplymsg.'"})';
+    }
+    return;
+}
 //------------------------------------------- inter b for lending ---------------------------------
 
 if(isset($_GET['get_interBPaymnt']))

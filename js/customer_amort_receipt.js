@@ -4375,8 +4375,10 @@ Ext.onReady(function() {
 								//console.log(cells[j]);
 								if(record.get('status') == "Draft"){
 									Ext.fly(cells[j]).setStyle('background-color', "#f8cbcb");
+									Ext.fly(cells[j]).setStyle('color', "#b2afaf");
 								}else if(record.get('status') == "Voided"){
 									Ext.fly(cells[j]).setStyle('background-color', "#716e6e");
+									Ext.fly(cells[j]).setStyle('color', "#b2afaf");
 								}
 							}
 							//Ext.getCmp('changeterm');
