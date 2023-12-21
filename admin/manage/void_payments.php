@@ -200,6 +200,7 @@ if(isset($_GET['submit']))
         case 'CR-ADJ':
         //case 'ALCN-ADJ':
         case 'CR-AMORT':
+            $counter = 0;
 
             if($invoice_trans_type == 0){
                 $InputError = 1;
@@ -230,12 +231,17 @@ if(isset($_GET['submit']))
                     $invoice_trans_no = $myrow["trans_no"];
                     $invoice_trans_type = $myrow["trans_type"];
         
-                    if($myrow["payment_applied"] = $myrow["principal_due"]){
-                        //update schedule status to partial
-                        update_loan_sched_void($myrow["id"], $myrow["debtor_no"], $myrow["trans_no"], 'unpaid');
+                    //update schedule status to partial/unpaid
+                    if($myrow["payment_applied"] != $myrow["principal_due"]) {
+                        if($counter  == 0){
+                            update_loan_sched_void($myrow["id"], $myrow["debtor_no"], $myrow["trans_no"], 'partial');
+                        }else{
+                            update_loan_sched_void($myrow["id"], $myrow["debtor_no"], $myrow["trans_no"], 'unpaid');
+                        }
                     }else{
-                        update_loan_sched_void($myrow["id"], $myrow["debtor_no"], $myrow["trans_no"], 'partial');
+                        update_loan_sched_void($myrow["id"], $myrow["debtor_no"], $myrow["trans_no"], 'unpaid');
                     }
+                    $counter = 1;
                 }
         
                 if($invoice_trans_no != 0 && $invoice_trans_type != 0){
