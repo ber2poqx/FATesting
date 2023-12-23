@@ -1212,7 +1212,8 @@ function new_installment_computation()
 		// }else{
 		// 	$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
 		// }
-		$_POST['months_paid'] = $terms;
+		// $_POST['months_paid'] = $terms;
+		$_POST['months_paid'] = count_months_paid($_POST['document_ref']);
 
 	}else{
 		if($db_branch_type == 'LENDING'){
