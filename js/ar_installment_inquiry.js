@@ -661,7 +661,7 @@ Ext.onReady(function(){
 					xtype: 'panel',
 					id: 'mpanel',
 					//width: 500,
-					height: 613,
+					height: 711,
 					layout: 'border',
 					items: [{
 						xtype: 'panel',
@@ -1170,7 +1170,7 @@ Ext.onReady(function(){
 								loadMask: true,
 								store: EntryLedgertore,
 								columns: EntryLedgerHeader,
-								height: 275,
+								height: 375,
 								columnLines: true,
 								features: [{
 									ftype: 'summary'
@@ -1195,7 +1195,7 @@ Ext.onReady(function(){
 								loadMask: true,
 								store: AmortLedgertore,
 								columns: AmortLedgerHeader,
-								height: 275,
+								height: 375,
 								columnLines: true,
 								features: [{
 									ftype: 'summary'
@@ -1230,7 +1230,7 @@ Ext.onReady(function(){
 								loadMask: true,
 								store: AmortSchedstore,
 								columns: AmortSchedcolModel,
-								height: 275,
+								height: 375,
 								columnLines: true,
 								bbar : {
 									xtype : 'pagingtoolbar',
@@ -1262,7 +1262,7 @@ Ext.onReady(function(){
 								loadMask: true,
 								store: Entriestore,
 								columns: EntriescolModel,
-								height: 275,
+								height: 375,
 								columnLines: true,
 								features: [{
 									ftype: 'summary'
@@ -1297,7 +1297,7 @@ Ext.onReady(function(){
 								loadMask: true,
 								store: deferdtore,
 								columns: EntryLedgerHeader,
-								height: 275,
+								height: 375,
 								columnLines: true,
 								features: [{
 									ftype: 'summary'
@@ -1324,7 +1324,7 @@ Ext.onReady(function(){
 								store:	SIitemStore,
 								columns: Item_view,
 								plugins: [cellEditing],
-								height: 275,
+								height: 375,
 								columnLines: true,
 								bbar : {
 									xtype : 'pagingtoolbar',
@@ -1363,7 +1363,7 @@ Ext.onReady(function(){
 								xtype: 'panel',
 								title: 'More Info...',
 								iconCls: 'x-fa fa-html5',
-								height: 275,
+								height: 375,
 								width: 400,
 								bodyPadding: 12,
 								items: [{
