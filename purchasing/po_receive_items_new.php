@@ -116,8 +116,9 @@ function display_po_receive_items()
                 $price = Get_Policy_Cost($branch_code, $_SESSION['PO']->category_id, $ln_itm->stock_id, $_SESSION['PO']->supplier_id);
             }
             /*End by Albert*/
-            if ($price == "")
+            if ($price == ""){
                 $price = 0;
+            }
             if(!get_stock_category_RR($_SESSION['PO']->category_id)){
                 $ln_itm->price = floatval($price);
                 $ln_itm->standard_cost = floatval($price);
@@ -156,7 +157,7 @@ function display_po_receive_items()
             else
                 label_cell(number_format2($ln_itm->receive_qty, $dec), "align=right");
 
-            if ($_SESSION['PO']->category_id == 18 || $_SESSION['PO']->category_id == 22 || $_SESSION['PO']->category_id == 23 ||$_SESSION['PO']->category_id == 24 ){
+            if(get_stock_category_RR($_SESSION['PO']->category_id)){
                 text_cells(null, $ln_itm->line_no. 'price', $ln_itm->price, 30, 50);
             }else{
                 amount_decimal_cell($ln_itm->price);
@@ -778,7 +779,9 @@ if (isset($_POST['Update']) || isset($_POST['ProcessGoodsReceived'])) {
                 $_POST['DefaultReceivedDate'] = new_doc_date();
 
             $_SESSION['PO']->line_items[$line->line_no]->receive_qty = input_num($line->line_no);
-            $_SESSION['PO']->line_items[$line->line_no]->price = floatval($_POST[$line->line_no . "price"]);
+            if(get_stock_category_RR($_SESSION['PO']->category_id)){
+                $_SESSION['PO']->line_items[$line->line_no]->price = floatval($_POST[$line->line_no . "price"]);
+            }
             //if(isset($_POST[$line->stock_id . "color_code"]) && strlen($_POST[$line->line_no . "color_code"]) > 0){
             if ($_SESSION['PO']->category_id == 14)
                 $_SESSION['PO']->line_items[$line->line_no]->color_code = $_POST[$line->line_no . "color_code"];
