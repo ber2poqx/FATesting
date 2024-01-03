@@ -1060,6 +1060,7 @@ function closed_sales_order_status($so_obj)
 {
 	begin_transaction();
 	hook_db_prewrite($so_obj, ST_SALESORDER);
+	set_global_connection();
 
 	/*Update the sales order draft status */
 	$sql = "UPDATE " . TB_PREF . "sales_orders SET status=" . db_escape($so_obj->status);
