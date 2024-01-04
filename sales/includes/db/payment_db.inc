@@ -186,7 +186,9 @@ function write_customer_payment($trans_no, $customer_id, $branch_id, $bank_accou
 
 	//modify for other entry gcash
 	if($otherentry_amount != 0){
-		$bank_amount -= $otherentry_amount;
+		//$bank_amount -= $otherentry_amount;
+		$bank_amount = $amount;
+		$charge = 0;
 	}
 
 	add_bank_trans(ST_CUSTPAYMENT, $payment_no, $bank_account, $ref, $date_, $bank_amount - $charge, PT_CUSTOMER, $customer_id,
