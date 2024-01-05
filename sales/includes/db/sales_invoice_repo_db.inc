@@ -516,7 +516,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 	if ($invoice->amortization > 0) {
 		if (($entry_amount + $charge_shipping) != 0) {
 			$ar_account = $branch_data["receivables_account"];
-			if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
+			if ($invoice->months_term > 0 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
 				$ar_account = $company_data["ar_reg_current_account"];
 				
 				/*Added by Albert*/

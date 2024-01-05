@@ -520,7 +520,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		if ($invoice->amortization > 0 ) {
 			if (($entry_amount + $charge_shipping) != 0) {
 				$ar_account = $branch_data["receivables_account"];
-				if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id))
+				if ($invoice->months_term > 0 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id)){
 					$ar_account = $company_data["ar_reg_current_account"];
 
 					/*Added by Albert*/
@@ -530,14 +530,14 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 					}else{
 						$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
 					}
-					
+				}
 				// addressed to fix employee entry
 				if (check_employee_customer($invoice->customer_id)) {
 					$ar_account = $company_data['isa_employee'];
 					$amount = $invoice->ar_amount;
 				}
 				/**/
-					
+
 				$total += add_gl_trans_customer(
 					ST_SALESINVOICE,
 					$invoice_no,
