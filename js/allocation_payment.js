@@ -56,7 +56,8 @@ Ext.onReady(function(){
 			{name:'payment_type_v', mapping:'payment_type_v'},
 			{name:'collect_type', mapping:'collect_type'},
 			{name:'cashier', mapping:'cashier'},
-			{name:'cashier_name', mapping:'cashier_name'}
+			{name:'cashier_name', mapping:'cashier_name'},
+			{name:'status', mapping:'status'}
 		]
 	});
 	Ext.define('view_ledger',{
@@ -2371,6 +2372,28 @@ Ext.onReady(function(){
 				doRefresh : function(){
 					done_allocate_store.load();
 					
+				}
+			},
+			viewConfig: {
+				listeners: {
+					refresh: function(view) {
+						// get all grid view nodes
+						var nodes = view.getNodes();
+						
+						for (var i = 0; i < nodes.length; i++) {
+							var node = nodes[i];
+							var record = view.getRecord(node);
+							var cells = Ext.get(node).query('td');
+
+							for(var j = 0; j < cells.length; j++) {
+								if(record.get('status') == "Draft"){
+									Ext.fly(cells[j]).setStyle('background-color', "#f8cbcb");
+								}else if(record.get('status') == "Voided"){
+									Ext.fly(cells[j]).setStyle('background-color', "#716e6e");
+								}
+							}
+						}
+					}
 				}
 			}
 		}]

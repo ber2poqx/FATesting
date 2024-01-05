@@ -198,7 +198,7 @@ if(isset($_GET['submit']))
         case 'ALCN-INTERB':
         case 'ALCN-DP':
         case 'CR-ADJ':
-        //case 'ALCN-ADJ':
+        case 'ALCN-ADJ':
         case 'CR-AMORT':
             $counter = 0;
 
