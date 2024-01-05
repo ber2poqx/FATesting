@@ -209,10 +209,10 @@ function is_date_in_fiscalyear($date, $convert=false)
 	$begin = sql2date($myrow['begin']);
 	$end = sql2date($myrow['end']);
 
-	if (date1_greater_date2($begin, $date2) || date1_greater_date2($date2, $end))
+/*	if (date1_greater_date2($begin, $date2) || date1_greater_date2($date2, $end))
 	{
 		return 0;
-	}
+	}*/
 	return 1;
 }
 
