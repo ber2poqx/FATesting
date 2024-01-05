@@ -52,7 +52,7 @@ function get_current_fiscalyear()
 	$year = get_company_pref('f_year');
 
 	$sql = "SELECT * FROM ".TB_PREF."fiscal_year WHERE id=".db_escape($year);
-	display_error($sql);
+	
 	$result = db_query($sql, "could not get current fiscal year");
 
 	return db_fetch($result);
