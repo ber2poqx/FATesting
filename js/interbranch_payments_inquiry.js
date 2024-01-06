@@ -246,6 +246,19 @@ Ext.onReady(function(){
 			direction : 'ASC'
 		}]
 	});
+	var PaymentTypeStore = Ext.create('Ext.data.Store', {
+		fields: ['id','name'],
+		proxy: {
+			url: '?get_PaymentType=00',
+			type: 'ajax',
+			reader: {
+				type: 'json',
+				root: 'result',
+				totalProperty  : 'total'
+			}
+		},
+		simpleSortMode : true
+	});
 
 	//---------------------------------------------------------------------------------------
 	var AllocationHeader = [
@@ -395,13 +408,16 @@ Ext.onReady(function(){
 				handler: function(grid, rowIndex, colIndex) {
 					var records = qqinterb_store.getAt(rowIndex);
 
-					CustomerStore.proxy.extraParams = {debtor_id: records.get('debtor_id'), name: records.get('debtor_name')};
+					//CustomerStore.proxy.extraParams = {debtor_id: records.get('debtor_id'), name: records.get('debtor_name')};
 					CustomerStore.load();
 					ARInvoiceStore.proxy.extraParams = {debtor_id: records.get('debtor_id')};
 					ARInvoiceStore.load();
 
 					AllocationStore.proxy.extraParams = {transNo: 0};
 					AllocationStore.load();
+
+					PaymentTypeStore.proxy.extraParams = {type: "amort"};
+					PaymentTypeStore.load();
 
 					submit_form.getForm().reset();
 					
@@ -417,7 +433,7 @@ Ext.onReady(function(){
 					Ext.getCmp('customercode').setValue(records.get('debtor_ref'));
 					Ext.getCmp('customername').setValue(records.get('debtor_id'));
 					Ext.getCmp('debit_acct').setValue(records.get('branch_gl_code'));
-					Ext.getCmp('paymentType').setValue('alloc')
+					//Ext.getCmp('paymentType').setValue('alloc')
 					Ext.getCmp('collectType').setValue(0)
 					Ext.getCmp('tenderd_amount').setValue(records.get('amount'));
 					Ext.getCmp('trans_date').setValue(records.get('trans_date'));
@@ -497,13 +513,13 @@ Ext.onReady(function(){
 			fieldLabel: 'collectType',
 			allowBlank: false,
 			hidden: true
-		},{
+/*		},{
 			xtype: 'textfield',
 			id: 'paymentType',
 			name: 'paymentType',
 			fieldLabel: 'paymentType',
 			allowBlank: false,
-			hidden: true
+			//hidden: true*/
 		},{
 			xtype: 'textfield',
 			id: 'islending',
@@ -646,19 +662,21 @@ Ext.onReady(function(){
 				margin: '0 280 0 0',
 				fieldStyle: 'font-weight: bold; color: #210a04;'
 			},{
-				xtype: 'numericfield',
-				id: 'tenderd_amount',
-				name: 'tenderd_amount',
-				fieldLabel: 'Allocate Amount ',
-				allowBlank:false,
-				useThousandSeparator: true,
-				readOnly: true,
-				labelWidth: 115,
+				xtype: 'combobox',
+				id: 'paymentType',
+				name: 'paymentType',
+				fieldLabel: 'Payment type ',
+				store: PaymentTypeStore,
+				displayField: 'name',
+				valueField: 'id',
+				queryMode: 'local',
 				width: 255,
 				margin: '0 0 2 0',
-				thousandSeparator: ',',
-				minValue: 0,
-				fieldStyle: 'font-weight: bold;color: red; text-align: right; background-color: #F2F4F4;'
+				allowBlank: false,
+				forceSelection: true,
+				selectOnFocus:true,
+				editable: false,
+				fieldStyle: 'font-weight: bold; color: #210a04;'
 			}]
 		},{
 			xtype: 'fieldcontainer',
@@ -676,6 +694,20 @@ Ext.onReady(function(){
 				width: 560,
 				hidden: false,
 				fieldStyle: 'font-weight: bold; color: #210a04;'
+			},{
+				xtype: 'numericfield',
+				id: 'tenderd_amount',
+				name: 'tenderd_amount',
+				fieldLabel: 'Allocate Amount ',
+				allowBlank:false,
+				useThousandSeparator: true,
+				readOnly: true,
+				labelWidth: 115,
+				width: 255,
+				margin: '0 0 2 0',
+				thousandSeparator: ',',
+				minValue: 0,
+				fieldStyle: 'font-weight: bold;color: red; text-align: right; background-color: #F2F4F4;'
 			}]
 		},{
 			xtype: 'tabpanel',
