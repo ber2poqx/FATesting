@@ -175,7 +175,10 @@ Ext.onReady(function(){
 		fields: ['id','name'],
 		//autoLoad: true,
 		data : 	[
-			{"id":"other","name":"Other Payment"}
+			{"id":"down","name":"Down Payment"},
+			{"id":"amort","name":"Amort Payment"},
+			{"id":"other","name":"Other Payment"},
+			{"id":"adjmt","name":"Adjustment"}
         ]
 	});
 	var CollectionTypeStore = Ext.create('Ext.data.Store', {
@@ -2072,19 +2075,41 @@ Ext.onReady(function(){
 					width: 540,
 					hidden: false
 				},{
-					xtype: 'numericfield',
-					id: 'total_cred_wv',
-					name: 'total_cred_wv',
-					fieldLabel: 'Total Amount ',
-					allowBlank:false,
-					useThousandSeparator: true,
-					readOnly: true,
-					labelWidth: 105,
-					width: 280,
-					thousandSeparator: ',',
-					minValue: 0,
-					margin: '0 0 2 0',
-					fieldStyle: 'font-weight: bold;color: red; text-align: right;'
+					xtype: 'fieldcontainer',
+					layout: 'vbox',
+					margin: '0 0 0 0',
+					items:[{
+						xtype: 'combobox',
+						id: 'paymentType',
+						name: 'paymentType',
+						fieldLabel: 'Payment type ',
+						store: PaymentTypeStore,
+						displayField: 'name',
+						valueField: 'id',
+						queryMode: 'local',
+						labelWidth: 105,
+						width: 280,
+						margin: '0 0 2 0',
+						allowBlank: false,
+						forceSelection: true,
+						selectOnFocus:true,
+						editable: false,
+						fieldStyle: 'font-weight: bold; color: #210a04;'
+					},{
+						xtype: 'numericfield',
+						id: 'total_cred_wv',
+						name: 'total_cred_wv',
+						fieldLabel: 'Total Amount ',
+						allowBlank:false,
+						useThousandSeparator: true,
+						readOnly: true,
+						labelWidth: 105,
+						width: 280,
+						thousandSeparator: ',',
+						minValue: 0,
+						margin: '0 0 2 0',
+						fieldStyle: 'font-weight: bold;color: red; text-align: right;'
+					}]
 				}]
 			},{
 				xtype: 'tabpanel',

@@ -1221,7 +1221,10 @@ if(isset($_GET['submitAdj']))
         $InputError = 1;
         $dsplymsg = _('Prepared by must not be empty.');
     }
-
+    if (empty($_POST['paymentType'])) {
+        $InputError = 1;
+        $dsplymsg = _('Payment type must not be empty.');
+    }
 
     $DataOnGrid = stripslashes(html_entity_decode($_POST['DataOnGrid']));
     $objDataGrid = json_decode($DataOnGrid, true);
@@ -1253,7 +1256,7 @@ if(isset($_GET['submitAdj']))
         $company_prefs = get_company_prefs();
 
         $payment_no = write_customer_trans(ST_CUSTPAYMENT, 0, $_POST['customername_wv'], check_isempty($BranchNo['branch_code']), $_POST['trans_date_wv'], $_POST['ref_no_wv'],
-                                    $_POST['total_cred_wv'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, 'amort', 1, "ALCN-ADJ");
+                                    $_POST['total_cred_wv'], 0 , 0, 0, 0, 0, 0, 0, null, 0, 0, 0, 0, null, 0, 0, 0, $_POST['paymentType'], 1, "ALCN-ADJ");
 
 
         add_bank_trans(ST_CUSTPAYMENT, $payment_no, 0, $_POST['ref_no_wv'], $_POST['trans_date_wv'], $_POST['total_cred_wv'], PT_CUSTOMER, $_POST['customername_wv'],
