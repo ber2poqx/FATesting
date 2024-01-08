@@ -54,9 +54,10 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 				INNER JOIN ".TB_PREF."debtors_master D ON D.debtor_no = A.debtor_no
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = B.category_id
 				LEFT JOIN ".TB_PREF."repo_accounts Z ON Z.ar_trans_no = A.trans_no AND Z.ar_trans_type = A.type
+				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
 			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.") 
 				AND A.payment_terms != 0 "
-				.$sWhere."
+				.$sWhere." AND K.void_status IS NULL
                 
 			UNION ALL
 
@@ -73,9 +74,10 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 				LEFT JOIN ".TB_PREF."comments C ON C.id = A.trans_no AND C.type = A.type
 				INNER JOIN ".TB_PREF."stock_category E ON E.category_id = TM.category_id
 				LEFT JOIN ".TB_PREF."repo_accounts Z ON Z.ar_trans_no = A.trans_no AND Z.ar_trans_type = A.type
+				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
 			WHERE (A.type = ".ST_SITERMMOD.")
 				AND A.payment_terms != 0 AND TM.term_mode_fullpayment != 1 "
-				.$sWhere."
+				.$sWhere." AND K.void_status IS NULL
 			ORDER BY tran_date DESC";
 			
 	$sqllimit = $sql ." limit $start, $limit";
