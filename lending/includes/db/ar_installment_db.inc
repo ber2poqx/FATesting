@@ -57,7 +57,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
 			WHERE (A.type = ".ST_SALESINVOICE." OR A.type =".ST_ARINVCINSTLITM." OR A.type =".ST_SALESINVOICEREPO.") 
 				AND A.payment_terms != 0 "
-				.$sWhere."
+				.$sWhere." AND K.void_status IS NULL
                 
 			UNION ALL
 
@@ -77,7 +77,7 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 				LEFT JOIN ".TB_PREF."voided K ON K.id = A.trans_no AND K.type = A.type
 			WHERE (A.type = ".ST_SITERMMOD.")
 				AND A.payment_terms != 0 AND TM.term_mode_fullpayment != 1 "
-				.$sWhere."
+				.$sWhere." AND K.void_status IS NULL
 			ORDER BY tran_date DESC";
 			
 	$sqllimit = $sql ." limit $start, $limit";
