@@ -206,7 +206,7 @@ function get_next_trans_no ($trans_type){
 }
 
 //Added by spyrax10
-function get_max_trans_no($trans_type){
+function get_max_trans_no($trans_type, $delivery = 0){ //modified by albert 1/9/2024
 
 	$st = get_systype_db_info($trans_type);
 
@@ -218,11 +218,14 @@ function get_max_trans_no($trans_type){
 	$sql1 = "SELECT MAX(`$st[2]`) as last_no FROM $st[0]";
 	if ($st[1] != null)
 		 $sql1 .= " WHERE `$st[1]`=".db_escape($trans_type);
+	if($delivery == 0){
+		// check also in voided transactions (some transactions like location transfer are removed completely)
+		$sql2 = "SELECT MAX(`id`) as last_no FROM ".TB_PREF."voided WHERE `type`=".db_escape($trans_type);
 
-	// check also in voided transactions (some transactions like location transfer are removed completely)
-	$sql2 = "SELECT MAX(`id`) as last_no FROM ".TB_PREF."voided WHERE `type`=".db_escape($trans_type);
-
-	$sql = "SELECT max(last_no) last_no FROM ($sql1 UNION $sql2) a";
+		$sql = "SELECT max(last_no) last_no FROM ($sql1 UNION $sql2) a";
+	}else{
+		$sql = "SELECT max(last_no) last_no FROM $sql1 a";
+	}
     $result = db_query($sql,"The next transaction number for $trans_type could not be retrieved");
     $myrow = db_fetch_row($result);
 
