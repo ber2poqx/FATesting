@@ -67,9 +67,14 @@ if(isset($_GET['get_Customer']))
     while ($myrow = db_fetch($result)) {
         if($myrow["debtor_no"] == $_GET['debtor_id'] || $myrow["name"] == $_GET['name']){
             $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
-                'debtor_ref'=>$myrow["debtor_ref"],
-                'name'=>$myrow["name"]
-            );
+                                        'debtor_ref'=>$myrow["debtor_ref"],
+                                        'name'=>$myrow["name"]
+                                    );
+        }else{
+            $status_array[] = array('debtor_no'=>$myrow["debtor_no"],
+                                        'debtor_ref'=>$myrow["debtor_ref"],
+                                        'name'=>$myrow["name"]
+                                    );
         }
     }
     $jsonresult = json_encode($status_array);
@@ -1117,6 +1122,20 @@ if(isset($_GET['submit_inbpaysalone']))
                     if ($_POST['tenderd_amount'] != 0)	{
                         /* Now Credit Debtors account with receipts + discounts */
                         $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $debtors_account, 0, 0, -$_POST['tenderd_amount'], $_POST['customername'], "Cannot insert a GL transaction for the debtors account credit", 0, null, null, 0, $_POST['InvoiceNo']);
+                    }
+
+                    if($grossPM != 0){
+                        $dgp_account = $company_record["dgp_account"];
+                        $rgp_account = $company_record["rgp_account"];
+    
+                        if($ar_balance == 0){
+                            $DeferdAmt = get_deferdBal($_POST['InvoiceNo'], $dgp_account);
+                        }else{
+                            $DeferdAmt = ($_POST['tenderd_amount'] + $dp_discount) * $grossPM;
+                        }
+    
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $dgp_account, 0, 0, $DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the DGP account debit", 0, null, null, 0, $_POST['InvoiceNo']);
+                        $GLtotal += add_gl_trans_customer(ST_CUSTPAYMENT, $payment_no, $_POST['trans_date'], $rgp_account, 0, 0, -$DeferdAmt, $_POST['customername'], "Cannot insert a GL transaction for the RGP account credit", 0, null, null, 0, $_POST['InvoiceNo']);
                     }
                 }
 
