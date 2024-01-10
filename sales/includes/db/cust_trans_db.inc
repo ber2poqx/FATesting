@@ -96,6 +96,11 @@ function write_customer_trans(
 					get_max_trans_no(ST_SITERMMOD), get_max_trans_no(ST_RESTRUCTURED),get_max_trans_no(ST_ARINVCINSTLITM)
 				);
 				$trans_no =  $max_num + 1;
+			/*Added by albert 1/9/2024*/
+			}else if($trans_type == ST_CUSTDELIVERY){
+				$max_num = max(get_max_trans_no(ST_CUSTDELIVERY), 1);
+				$trans_no =  $max_num + 1;
+			/**/
 			}
 			else if ($trans_type == ST_JOURNAL) {
 				$trans_no = get_max_trans_no(ST_JOURNAL);
