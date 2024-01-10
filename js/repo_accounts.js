@@ -1438,7 +1438,7 @@ Ext.onReady(function(){
 							labelAlign:	'top',
 							allowBlank: false,
 							margin: '0 0 0 2',
-							maxLength: 254,
+							//maxLength: 254,
 							width: 515,
 							hidden: false
 						}]
