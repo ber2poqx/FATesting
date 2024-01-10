@@ -255,6 +255,9 @@ function check_page_security($page_security)
 			: _("Please remove \$security_groups and \$security_headings arrays from config.php file!");
 	} elseif (!$SysPrefs->db_ok && !$_SESSION["wa_current_user"]->can_access('SA_SOFTWAREUPGRADE')) 
 	{
+		display_error("1".$SysPrefs->db_ok);
+		display_error("2".$_SESSION["wa_current_user"]->can_access('SA_SOFTWAREUPGRADE'));
+
 		$msg = _('Access to application has been blocked until database upgrade is completed by system administrator.');
 	}
 	
