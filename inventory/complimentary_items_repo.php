@@ -418,7 +418,7 @@ if(!is_null($action) || !empty($action)){
                     $demand_qty = get_demand_qty($myrow["model"], $branchcode);
                     $demand_qty += get_demand_asm_qty($myrow["model"], $branchcode);
                     $qty=get_qoh_on_date_new($myrow["type_out"], $myrow["transno_out"], $myrow["model"], $branchcode, null, $myrow["serialise_lot_no"]);
-                    $qty-=$demand_qty;
+                    //$qty-=$demand_qty;
                 }
                 if($qty>0){
                     $serialise_id = get_serialise_id($myrow["serialise_item_code"],$myrow["serialise_lot_no"]);
