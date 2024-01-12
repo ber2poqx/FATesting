@@ -9,7 +9,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
     See the License here <http://www.gnu.org/licenses/gpl-3.0.html>.
 ***********************************************************************/
-function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=false, $showall=false, $showlendingacc=false)
+function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=0, $showall=false, $showlendingacc=false)
 {
 	global $db_connections;
 	$sWhere = "";
@@ -19,7 +19,11 @@ function get_ar_installment($InvType='new', $start, $limit, $search, $showZeroB=
 	if($search != ''){
 		$sWhere .= " AND (D.name LIKE '%".$search."%' OR A.reference LIKE '%".$search."%') ";
 	}
-	if (!$showZeroB) $sWhere .= " AND (A.status != 'fully-paid' AND A.status != 'Closed')";
+	
+	if ($showZeroB == 0){
+		$sWhere .= " AND (A.status != 'fully-paid' AND A.status != 'Closed')";
+	}
+	
 	if($showlendingacc){
 		$sWhere .= " AND B.payment_location = 'Lending' ";
 	}else{
