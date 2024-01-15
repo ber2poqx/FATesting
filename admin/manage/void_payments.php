@@ -139,7 +139,6 @@ if(isset($_GET['submit']))
     //$trans_date = sql2date(date('Y-m-d', strtotime(Today()))); //modify as maam helen requested to follow the transaction date 
     $trans_date = sql2date($info["tran_date"]);
     $debtor_no = $info["debtor_no"];
-    $debtor_status = $info['status'];
 
     $invoice_trans_no = $banktrans_info['masterfile'];
     $invoice_trans_type = $banktrans_info['masterfile_type'];
@@ -269,9 +268,12 @@ if(isset($_GET['submit']))
                     //re-allocate payment to
                     update_debtor_trans_allocation($invoice_trans_type, $invoice_trans_no, $debtor_no);  
                 }
+
                 //update status if full payment
-                if($debtor_status == "fully-paid") {
+                $info = get_debtor_trans_all($invoice_trans_type, $invoice_trans_no);
+                if($info["status"] == "fully-paid") {
                     update_status_debtor_loans($invoice_trans_no, $debtor_no, "part-paid");
+                    update_status_debtor_trans($invoice_trans_no, $debtor_no, $invoice_trans_type, "part-paid");
                 }
         
                 //update debtor trans

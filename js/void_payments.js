@@ -315,6 +315,7 @@ Ext.onReady(function(){
 										success: function (response){
 											var result = Ext.JSON.decode(response.responseText);
 											//reference = result.reference;
+											Entriestore.load();
 											Ext.Msg.show({
 												title: 'Success!',
 												msg: '<font color="green">'+ result.message +'</font>',
