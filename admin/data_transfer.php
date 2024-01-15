@@ -94,7 +94,10 @@ if(isset($_GET['get_datadesc'])){
     $status_array[] = array('id'=>"user",
         'description'=>"Users"
     );
-   
+    $status_array[] = array('id'=>"collectiontype",
+        'description'=>"Collection Type"
+    );
+
     $total = count($status_array);
     $jsonresult = json_encode($status_array);
     echo '({"total":"'.$total.'","result":'.$jsonresult.'})';
@@ -754,6 +757,36 @@ if(isset($_GET['submit'])){
             }             
            add_to_datalogs($currentdate, $remarks, $user_name);
            $dsplymsg = _("Credit/Sales Incentive Setup has been successfully entered...");
+
+        }elseif ($_POST['datadesc'] == "collectiontype") {
+            $branchcode = (isset($_POST['branch']) ? $_POST['branch'] : $_GET['branch']);
+            $user_name = $_SESSION["wa_current_user"]->username;
+            $currentdate = date('Y-m-d');
+            $remarks = 'Classification' . '  -  ' . 'Filter Date: ' . date('Y-m-d',strtotime($_POST['date_from'])) . ' - ' . date('Y-m-d',strtotime($_POST['date_to']));
+            
+            if (is_array($branchcode) || is_object($branchcode))
+            {
+                foreach($branchcode as $value=>$data)
+                {
+                    $result = get_classification_to_transfer();
+                    while ($myrow = db_fetch($result)) {
+                        $counter = 0;
+
+                        $checkclass = check_class($myrow["id"], $data);
+                        while ($checkrow = db_fetch($checkclass)) {
+                            $counter++;
+                        }
+
+                        if ($counter > 0) {
+                            update_to_collectiontype($myrow["collect_id"], $myrow["collection"], $myrow["inactive"], $data);
+                        }else{
+                            add_to_collectiontype($myrow["collect_id"], $myrow["collection"], $myrow["inactive"], $data);
+                        }
+                    }
+                }
+            }
+           add_to_datalogs($currentdate, $remarks, $user_name);
+           $dsplymsg = _("Collection type has been successfully transferred...");
         }
         echo '({"success":"true","message":"'.$dsplymsg.'"})';
     }else{

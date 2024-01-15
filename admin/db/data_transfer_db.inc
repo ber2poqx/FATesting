@@ -1844,3 +1844,45 @@ function check_data_exist($branchcode, $branchname, $brpolicyid, $brcategoryid, 
 				
 	return db_query($sql, "could not get branch policy ");
 }
+
+//collectiontype
+function get_collectiontype_to_transfer()
+{
+	set_global_connection();
+	$sql = "SELECT A.* FROM ".TB_PREF."collection_types A";
+
+	$result = db_query($sql, "could not get collection type");
+
+    return $result;
+}
+
+function update_to_collectiontype($id, $name, $inactive, $targetbranch2)
+{
+	$db_coy2 = Get_db_coy($targetbranch2);
+	set_global_connection($db_coy2);
+
+	$sql = "UPDATE ".TB_PREF."collection_types
+			SET collection = ".db_escape($name)."
+				,inactive = ".db_escape($inactive)."
+			WHERE collect_id = ".db_escape($id);
+
+	db_query($sql, "could not update collection type");
+}
+
+function add_to_collectiontype($id, $name, $inactive, $targetbranch1)
+{
+	$db_coy1 = Get_db_coy($targetbranch1);
+	set_global_connection($db_coy1);
+
+	$sql = "INSERT INTO ".TB_PREF."item_importer (
+		collect_id
+		,collection
+		,inactive
+	) VALUES (
+		".db_escape($id)."
+		,".db_escape($name)."
+		,".db_escape($inactive)."
+	)";
+	$MessageError = _('Could not insert collection type because');
+	db_query($sql, $MessageError);
+}
