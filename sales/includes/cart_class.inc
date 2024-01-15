@@ -397,6 +397,11 @@ class Cart
 			($this->trans_type == ST_SALESINVOICEREPO || $this->trans_type == ST_CUSTDELIVERY )
 			) && !$this->is_prepaid() && $opening_balances == 0) {
 			// this is direct document - first add parent
+
+			/*Added by Albert 1/15/2024*/
+			$this->reference = $Refs->get_next($this->trans_type, null, $this->document_date);
+			$this->dr_ref = $Refs->get_next(ST_CUSTDELIVERY, null, $this->document_date);
+			/**/
 			$ref = $this->reference;
 			$date = $this->document_date;
 			$due_date = $this->due_date;

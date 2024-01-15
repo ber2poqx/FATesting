@@ -113,8 +113,6 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	//
 	$outstanding_ar_amount = $entry_amount - $invoice->dp_amount; // added by albert
 	/*Added by Albert 1/9/2024*/
-	$reference =  $Refs->get_next(ST_SALESINVOICE, null, $date_);
-
 	$ar_balance_less_discount = round2($entry_amount - get_total_discount($sales_order), 2);
 	$invoice_no = write_customer_trans(
 		ST_SALESINVOICE,
@@ -122,7 +120,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 		$invoice->customer_id,
 		$invoice->Branch,
 		$date_,
-		$reference,
+		$invoice->reference,
 		$opening_balances == 0  ? $ar_balance_less_discount : $entry_amount,
 		0,
 		$items_added_tax,
@@ -151,9 +149,9 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	add_debtor_loans(
 		$invoice_no,
 		$invoice->customer_id,
-		$reference,
+		$invoice->reference,
 		$invoice->dr_ref,
-		$reference,
+		$invoice->reference,
 		$date_,
 		$company_data["branch_code"],
 		$invoice->invoice_type,
@@ -652,7 +650,7 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 	add_comments(ST_SALESINVOICE, $invoice_no, $date_, $invoice->Comments);
 
 	if ($trans_no == 0) {
-		$Refs->save(ST_SALESINVOICE, $invoice_no, $reference, null, $invoice->fixed_asset);
+		$Refs->save(ST_SALESINVOICE, $invoice_no, $invoice->reference, null, $invoice->fixed_asset);
 		if ($invoice->payment_terms['cash_sale'] && $invoice->pos['pos_account']) {
 			$amount = $items_total + $items_added_tax + $invoice->freight_cost
 				+ $freight_added_tax;

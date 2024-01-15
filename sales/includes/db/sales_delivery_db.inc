@@ -46,7 +46,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 		$tax_total +=  $taxitem['Value'];
 	}
 	/*Added by Albert 1/9/2024*/
-	$reference =  $Refs->get_next(ST_CUSTDELIVERY, null, $delivery->document_date);
+	// $reference =  $Refs->get_next(ST_CUSTDELIVERY, null, $delivery->document_date);
 	set_global_connection();
 	/* Insert/update the debtor_trans */
 	$delivery_no = write_customer_trans(
@@ -55,7 +55,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 		$delivery->customer_id,
 		$delivery->Branch,
 		$delivery->document_date,
-		$reference,
+		$delivery->reference,
 		$delivery_items_total,
 		0,
 		$delivery->tax_included ? 0 : $tax_total - $freight_tax,
@@ -404,7 +404,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 	add_comments(ST_CUSTDELIVERY, $delivery_no, $delivery->document_date, $delivery->Comments);
 
 	if ($trans_no == 0) {
-		$Refs->save(ST_CUSTDELIVERY, $delivery_no, $reference);
+		$Refs->save(ST_CUSTDELIVERY, $delivery_no, $delivery->reference);
 	}
 	hook_db_postwrite($delivery, ST_CUSTDELIVERY);
 	commit_transaction();
