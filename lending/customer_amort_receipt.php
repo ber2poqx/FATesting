@@ -237,7 +237,7 @@ if(isset($_GET['get_schedule']))
 
         if($myrow['status'] != 'paid'){
             //check if can avail rebate
-            if($_GET['colltype'] != 2){
+            if($_GET['colltype'] != 2 && $_GET['colltype'] != 6 ){
                 $RebateAmount = GetRebate($_GET['transdate'], $myrow["date_due"], $myrow["rebate"]);
 
                 if($myrow["remarks"] == 'pastdue'){
@@ -464,7 +464,7 @@ if(isset($_GET['get_aloc']))
             }
         
             //check if can avail rebate
-            if($_GET['colltype'] != 2){
+            if($_GET['colltype'] != 2 && $_GET['colltype'] != 6 ){
                 $RebateAmount = GetRebate($_GET['transdate'], $schedrow["date_due"], $schedrow["rebate"]);
                 
                 if($schedrow["remarks"] == 'pastdue'){
