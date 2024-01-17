@@ -145,7 +145,7 @@ function getTransactions($from, $to, $cat_id, $brand_code, $cust_id, $sales_type
 		}
 		else
 		{
-			$sql .= " AND dl2.months_term BETWEEN '0' AND '3' ";
+			$sql .= " AND dl2.months_term BETWEEN '1' AND '3' ";
 		}
 	}
 		
