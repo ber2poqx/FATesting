@@ -26,7 +26,7 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 					,inactive
 					,date_epic
 			) VALUES (
-			        ".db_escape($stock_id)."
+			        ".db_escape(trim($stock_id))."
 					,".db_escape($amount)."
 				   	,".db_escape($prcecost_id)."
 				   	,".db_escape($supplier_id)."
@@ -48,7 +48,7 @@ function add_pricehistory($stock_id, $amount, $prcecost_id, $supplier_id, $plcyc
 function update_pricehistory($stock_id, $supplier_id, $plcycashprc_id, $plcyprice_id, $plcycost_id, $plcysrp_id, $incentive_id, $module)
 {
 	$sql = "UPDATE ".TB_PREF."price_cost_archive SET inactive = 1
-		WHERE stock_id = ".db_escape($stock_id). " 
+		WHERE stock_id = ".db_escape(trim($stock_id)). " 
 			AND supplier_id = ".db_escape($supplier_id)."
 			AND plcycashprice_id = ".db_escape($plcycashprc_id)."
 			AND plcyprice_id = ".db_escape($plcyprice_id)."
@@ -83,7 +83,7 @@ function Get_Policy_Cost($branchCode, $categoryID, $stockID, $supplierID)
 			WHERE B.module_type = 'CSTPLCY'
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND A.supplier_id = ".db_escape($supplierID);
 
 	$result = db_query($sql, "The supplier cost for the selected branch and item could not be retrieved");
@@ -106,7 +106,7 @@ function Get_Policy_SRP($branchCode, $categoryID, $stockID, $supplierID)
 			WHERE B.module_type = 'SRPPLCY'
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND A.supplier_id = ".db_escape($supplierID);
 
 	$result = db_query($sql, "The standard cost for the selected branch and item could not be retrieved");
@@ -129,7 +129,7 @@ function Get_Policy_CashPrice($branchCode, $categoryID, $stockID)
 			WHERE B.module_type = 'CSHPRCPLCY'
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID);
+    			AND A.stock_id = ".db_escape(trim($stockID));
 
 	$result = db_query($sql, "The cash price for the selected branch and item could not be retrieved");
 	$row = db_fetch_row($result);
@@ -143,7 +143,6 @@ function Get_Policy_Installment_Price($branchCode, $categoryID, $stockID)
 {
     global $def_coy;
     set_global_connection($def_coy);
-	
 	$sql = "SELECT A.price 
 			FROM ".TB_PREF."prices A 
 				INNER JOIN ".TB_PREF."branch_policy B ON B.plcyprice_id = A.sales_type_id
@@ -151,12 +150,11 @@ function Get_Policy_Installment_Price($branchCode, $categoryID, $stockID)
 			WHERE B.module_type = 'PRCPLCY'
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID);
+    			AND A.stock_id = ".db_escape(trim($stockID));
 
 	$result = db_query($sql, "The LCP for the selected branch and item could not be retrieved");
 	$row = db_fetch_row($result);
 	$price = $row[0];
-	display_error($sql);
 
 	set_global_connection();
 	if($price <> null){
@@ -183,7 +181,7 @@ function Get_Item_Incentive_Price($categoryID, $stockID, $moduleType)
                 INNER JOIN ".TB_PREF."sales_incentive_type C ON C.id = A.incentive_type_id
 			WHERE C.module_type = ".db_escape($moduleType)."
 				AND B.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID);
+    			AND A.stock_id = ".db_escape(trim($stockID));
 
 	$result = db_query($sql, "The incentive price for selected item could not be retrieved");
 	$row = db_fetch_row($result);
@@ -197,7 +195,7 @@ function Get_System_Cost($stockID,$type_out=0,$transno_out=0){
     set_global_connection();
     $sql = "SELECT A.standard_cost 
 			FROM ".TB_PREF."stock_moves A WHERE A.type_out = ".db_escape($type_out)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND A.transno_out = ".db_escape($transno_out);
     
     $result = db_query($sql, "The standard cost for the selected item could not be retrieved");
@@ -213,7 +211,7 @@ function Get_System_Cost_serialised($stockID, $lot_no, $type_out=0,$transno_out=
     set_global_connection();
     $sql = "SELECT A.standard_cost 
 			FROM ".TB_PREF."stock_moves A WHERE A.type_out = ".db_escape($type_out)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
     			AND A.lot_no = ".db_escape($lot_no)."
 				AND A.transno_out = ".db_escape($transno_out);
     
@@ -232,7 +230,7 @@ function Get_Sales_Discount1($stockID){
 	/* */
     $sql = "SELECT A.sales_discount1 
 			FROM ".TB_PREF."item_discount A 
-			WHERE A.stock_id = ".db_escape($stockID);
+			WHERE A.stock_id = ".db_escape(trim($stockID));
     
     $result = db_query($sql, "The sales discount1 for the selected item could not be retrieved");
     $row = db_fetch_row($result);
@@ -249,7 +247,7 @@ function Get_Sales_Discount2($stockID){
 	/* */
     $sql = "SELECT A.sales_discount2 
 			FROM ".TB_PREF."item_discount A 
-			WHERE A.stock_id = ".db_escape($stockID);
+			WHERE A.stock_id = ".db_escape(trim($stockID));
     
     $result = db_query($sql, "The sales discount2 for the selected item could not be retrieved");
     $row = db_fetch_row($result);
@@ -266,7 +264,7 @@ function Get_DP_Discount1($stockID){
 	/* */
     $sql = "SELECT A.dp_discount1 
 			FROM ".TB_PREF."item_discount A 
-			WHERE A.stock_id = ".db_escape($stockID);
+			WHERE A.stock_id = ".db_escape(trim($stockID));
     
     $result = db_query($sql, "The dp discount1 for the selected item could not be retrieved");
     $row = db_fetch_row($result);
@@ -283,7 +281,7 @@ function Get_DP_Discount2($stockID){
 	/* */
     $sql = "SELECT A.dp_discount2 
 			FROM ".TB_PREF."item_discount A 
-			WHERE A.stock_id = ".db_escape($stockID);
+			WHERE A.stock_id = ".db_escape(trim($stockID));
     
     $result = db_query($sql, "The dp discount2 for the selected item could not be retrieved");
     $row = db_fetch_row($result);
@@ -297,7 +295,7 @@ function Get_AP_Support_Price($stockID, $apsupptype_id, $category_id){
     set_global_connection();
     $sql = "SELECT A.price 
 			FROM ".TB_PREF."item_apsupport_price A 
-			WHERE A.supplier_id = ".db_escape($stockID)."
+			WHERE A.supplier_id = ".db_escape(trim($stockID))."
 				AND A.apsupport_type_id = ".db_escape($apsupptype_id)."
 				AND A.category_id = ".db_escape($category_id);
     
@@ -323,7 +321,7 @@ function Get_Previous_Policy_Installment_Price($branchCode, $categoryID, $stockI
 				AND D.inactive = 1
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND D.date_defined = ".db_escape($last_date_updated);
 	$sql.= "order by D.id desc";
 	$result = db_query($sql, "The LCP for the selected branch and item could not be retrieved");
@@ -348,7 +346,7 @@ function Get_Previous_Policy_CashPrice($branchCode, $categoryID, $stockID, $last
 				AND D.inactive = 1
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND D.date_defined = ".db_escape($last_date_updated);
 	$sql.= "order by D.id desc";
 	$result = db_query($sql, "The cash price for the selected branch and item could not be retrieved");
@@ -374,7 +372,7 @@ function Get_Previous_Policy_SRP($branchCode, $categoryID, $stockID, $supplierID
 				AND D.inactive = 1
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND A.supplier_id = ".db_escape($supplierID)."
 				AND D.date_defined = ".db_escape($last_date_updated);
 	$sql.= "order by D.id desc";
@@ -399,7 +397,7 @@ function Get_Previous_Policy_Cost($branchCode, $categoryID, $stockID, $supplierI
 				AND D.inactive = 1
 				AND B.branch_code = ".db_escape($branchCode)."
 				AND C.category_id = ".db_escape($categoryID)."
-    			AND A.stock_id = ".db_escape($stockID)."
+    			AND A.stock_id = ".db_escape(trim($stockID))."
 				AND A.supplier_id = ".db_escape($supplierID)."
 				And D.date_defined = ".db_escape($date_defined);
 	$sql.= "order by D.id desc";
@@ -468,7 +466,7 @@ function add_price_list_upload($stock_id, $amount, $prcecost_id, $supplier_id, $
 					,date_epic
 					,status
 			) VALUES (
-			        ".db_escape($stock_id)."
+			        ".db_escape(trim($stock_id))."
 					,".db_escape($amount)."
 				   	,".db_escape($prcecost_id)."
 				   	,".db_escape($supplier_id)."
