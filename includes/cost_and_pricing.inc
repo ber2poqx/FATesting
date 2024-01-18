@@ -156,6 +156,7 @@ function Get_Policy_Installment_Price($branchCode, $categoryID, $stockID)
 	$result = db_query($sql, "The LCP for the selected branch and item could not be retrieved");
 	$row = db_fetch_row($result);
 	$price = $row[0];
+	display_error($sql);
 
 	set_global_connection();
 	if($price <> null){
