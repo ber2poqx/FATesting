@@ -58,7 +58,6 @@ function remit_to($row) {
 }
 
 function remit_stat($row) {
-    display_error($_SESSION["wa_current_user"]->can_access_page('SA_REMIT'));
     if ($_SESSION["wa_current_user"]->can_access_page('SA_REMIT')) {
         return $row['remit_stat'] == "Draft"
             && $row['remit_to'] == $_SESSION["wa_current_user"]->user ? pager_link($row['remit_stat'],
