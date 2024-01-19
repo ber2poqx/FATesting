@@ -191,11 +191,11 @@ if (isset($_POST['ReconcileAll'])) {
 						$row = db_fetch(get_gl_trans('', '', '', $trans_id));
 						$ref_no = $row['type_no'];
 						//get the debit amount
-						if($row['amount'] > 0){
+						if($row['balance_due'] > 0){
 							if($credit_amount < 0){
-								$credit_amount = $credit_amount + $row['amount'];
+								$credit_amount = $credit_amount + $row['balance_due'];
 							}else{
-								$credit_amount = $row['amount'];
+								$credit_amount = $row['balance_due'];
 
 							}
 							if(get_gl_check_list() >= 0){
