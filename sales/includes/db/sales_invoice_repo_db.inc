@@ -364,7 +364,7 @@ function write_sales_invoice_repo(&$invoice, $opening_balances = 0, $warranty_co
 	} /*end of delivery_line loop */
 
 	if ($invoice->amortization > 0 ) {
-		if ($invoice->months_term >= 1 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id)){
+		if ($invoice->months_term > 0 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id)){
 			$sales_account = $category_gl_code['dflt_regular_sales_act'];
 		}
 		if ($invoice->months_term >= 4 && !check_employee_customer($invoice->customer_id)){
