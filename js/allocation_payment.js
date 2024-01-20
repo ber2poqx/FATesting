@@ -2080,8 +2080,8 @@ Ext.onReady(function(){
 					margin: '0 0 0 0',
 					items:[{
 						xtype: 'combobox',
-						id: 'paymentType',
-						name: 'paymentType',
+						id: 'paymentType_wv',
+						name: 'paymentType_wv',
 						fieldLabel: 'Payment type ',
 						store: PaymentTypeStore,
 						displayField: 'name',
@@ -2264,7 +2264,7 @@ Ext.onReady(function(){
 				done_allocate_store.load();
 			}
 		}
-	}, '-', {
+/*	}, '-', {
 		text:'<b>Allocate Down-Payment</b>',
 		tooltip: 'Allocate Down-payment',
 		icon: '../js/ext4/examples/shared/icons/money_add.png',
@@ -2291,7 +2291,7 @@ Ext.onReady(function(){
 			submit_window_ADP.show();
 			submit_window_ADP.setTitle('Allocate Down-Payment Entry - Add');
 			submit_window_ADP.setPosition(320,23);
-		}
+		}*/
 	}, '-', {
 		text:'<b>Allocate Inter-branch Payment</b>',
 		tooltip: 'Allocate Inter-branch Payment',
