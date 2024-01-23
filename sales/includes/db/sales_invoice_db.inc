@@ -522,14 +522,13 @@ function write_sales_invoice(&$invoice, $opening_balances = 0, $warranty_code = 
 				$ar_account = $branch_data["receivables_account"];
 				if ($invoice->months_term > 0 && $invoice->months_term <= 3 && !check_employee_customer($invoice->customer_id)){
 					$ar_account = $company_data["ar_reg_current_account"];
-
-					/*Added by Albert*/
-					if ($invoice->payment_location == "Lending"){
-						$ar_account = $company_data["ar_cash_sales_account"];
-						$amount = $entry_amount;
-					}else{
-						$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
-					}
+				}
+				/*Added by Albert*/
+				if ($invoice->payment_location == "Lending"){
+					$ar_account = $company_data["ar_cash_sales_account"];
+					$amount = $entry_amount;
+				}else{
+					$amount = (($entry_amount - $cash_discount) + $charge_shipping) * $prepaid_factor;
 				}
 				// addressed to fix employee entry
 				if (check_employee_customer($invoice->customer_id)) {

@@ -154,8 +154,14 @@ function get_max_recon_no(){
 	return $row[0];
 
 }
-
-
+function recon_view($row){
+	$link =  viewer_link(
+		$row["reconcile_no"],
+		"/gl/view/recon_view.php?recon_no=" . $row["reconcile_no"],
+		$row["reconcile_no"]
+	);
+return $link;
+}
 
 $id = find_submit('_rec_');
 if ($id != -1) {
@@ -183,7 +189,6 @@ if (isset($_POST['ReconcileAll'])) {
 				$credit_amount = $credit_data['amount'];
 				$credit_ref_no = $data['type_no'];
 				$credit_ref_type = $data['type'];
-
 
 			
 				foreach($_POST['last'] as $trans_id => $value){
@@ -307,19 +312,35 @@ $sql = get_gl_transactions_list(
 	get_post('masterfile'),
 	get_post('recon_type_id')
 );
+	if(get_post('recon_type_id') == 1){
 
 	$cols =
-	array(
+		array(
 		_("Type") => array('fun'=>'systype_name', 'ord'=>''),
+		_("recon #")=> array('fun'=>'recon_view', 'ord'=>''),
+		_("Account"),
 		_("#"),
 		_("Transaction Date"),
 		_("Reconcilation Date"),
 		_("Masterfile"),
 		_("Reference"),
 		_("Amount"),
-		_("Balance Due"),
-		"X"=>array('insert'=>true, 'fun'=>'rec_checkbox')
+		_("Balance Due")
 	   );
+	}else{
+		$cols =
+			array(
+				_("Type") => array('fun'=>'systype_name', 'ord'=>''),
+				_("#"),
+				_("Transaction Date"),
+				_("Reconcilation Date"),
+				_("Masterfile"),
+				_("Reference"),
+				_("Amount"),
+				_("Balance Due"),
+				"X"=>array('insert'=>true, 'fun'=>'rec_checkbox')
+			);
+	}
 	$table =& new_db_pager('trans_tbl', $sql, $cols);
 
 	$table->width = "80%";
@@ -328,7 +349,9 @@ $sql = get_gl_transactions_list(
 br(1);
 echo '<center>';
 //submit_center_first('Reconcile', _("Reconcile"), true, '', null);
-submit_center_first('ReconcileAll', _("Reconcile All"), '', 'default');
+if(get_post('recon_type_id') != 1){
+	submit_center_first('ReconcileAll', _("Reconcile All"), '', 'default');
+}
 echo '</center>';
 end_form();
 

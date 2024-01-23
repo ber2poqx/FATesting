@@ -494,7 +494,8 @@ $security_areas =array(
 	//
 
 	/*Added by Albert 06/29/2023*/
-	'SA_DISBURMENT_UPDATE_STATUS'=> array(SS_GL_C|22, _("Disbursement Update Status")),
+	'SA_DISBURMENT_UPDATE_STATUS'=> array(SS_GL|22, _("Disbursement Update Status")),
+	'SA_RECONVIEW' => array(SS_GL|23, _("Reconcilation View")),
 	/**/
 
 	//Modified by spyrax10 20 Jun 2022
@@ -521,7 +522,6 @@ $security_areas =array(
 
 	//Added by AJE 09/11/2023
 	'SA_RGP_REP' => array(SS_GL_A|21, _("RGP Reports")),
-
 	//Added by spyrax10 25 Mar 2022
 	'SA_REMIT' => array(SS_GL_B|1, _("Remittance Entry")),
 	'SA_REMIT_DRAFT' => array(SS_GL_B|2, _("Remittance Entry Approval")),

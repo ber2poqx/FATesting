@@ -875,98 +875,132 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 
     $from = date2sql($from_date);
     $to = date2sql($to_date);
+	if($recon_type == 1)
+	{
 
-    $sql = "SELECT gl.type, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
-			IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
-			gl.mcode, gl.ischecked
+		$sql= "SELECT * from (SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 	
+		gl.mcode, gl.ischecked
+		FROM reconcile_accounts recon 
+		LEFT JOIN bank_trans bt ON recon.credit_ref_no = bt.trans_no AND recon.credit_ref_type = bt.type
+		LEFT JOIN stock_moves st ON recon.credit_ref_no = st.trans_no AND recon.credit_ref_type = st.type
+		INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.credit_ref_type AND recon.credit_ref_no = gl.type_no
+		LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no";
+	
 
-            
-			FROM ".TB_PREF."gl_trans gl
-			INNER JOIN ".TB_PREF."chart_master coa ON coa.account_code = gl.account
+		$sql.= " UNION ";
+		
+		$sql.= "SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
+		gl.mcode, gl.ischecked
+		FROM reconcile_accounts recon 
+		LEFT JOIN bank_trans bt ON recon.type_no = bt.trans_no AND recon.type = bt.type
+		LEFT JOIN stock_moves st ON recon.type_no = st.trans_no AND recon.type = st.type
+		INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.type AND recon.type_no = gl.type_no
+		LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no ) a";
+		
+		$sql .= " WHERE  a.tran_date >= '$from' AND a.tran_date <= '$to'
+		AND a.amount <> 0"; 
 
-            LEFT JOIN ".TB_PREF."voided v ON gl.type_no = v.id AND v.type = gl.type
-				AND v.void_status = 'Voided'
-
-            LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
-            LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE."
-            LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
-
-            LEFT JOIN ".TB_PREF."suppliers sup ON st.supplier_id=sup.supplier_id
-            LEFT JOIN ".TB_PREF."suppliers sup2 ON grn.supplier_id = sup2.supplier_id
-            LEFT JOIN ".TB_PREF."cust_branch branch ON dt.branch_code=branch.branch_code
-            LEFT JOIN ".TB_PREF."debtors_master debt ON dt.debtor_no=debt.debtor_no
-
-            LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
-                AND (bt.person_id != '' AND !ISNULL(bt.person_id))
-
-            LEFT JOIN ".TB_PREF."journal j ON j.type = gl.type AND j.trans_no = gl.type_no
-            LEFT JOIN ".TB_PREF."audit_trail a ON a.type = gl.type AND a.trans_no = gl.type_no AND NOT ISNULL(gl_seq)
-            LEFT JOIN ".TB_PREF."users u ON a.user = u.id
-            LEFT JOIN ".TB_PREF."comments c ON c.id = gl.type_no AND c.type = gl.type
-
-            LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no 
-			LEFT JOIN ".TB_PREF."reconcile_accounts recon ON recon.type = gl.type AND recon.type_no = gl.type_no";
-			
-    $sql .= " WHERE ISNULL(v.date_) AND gl.tran_date >= '$from' AND gl.tran_date <= '$to'
-        	AND gl.amount <> 0"; 
-
-    if ($trans_no > 0) {
-		$sql .= " AND gl.type_no LIKE ".db_escape('%'.$trans_no);	
+		if ($account != null) {
+			$sql .= " AND a.account = ".db_escape($account);
+		}
+		$sql .= " ORDER BY a.reconcile_no ASC";
+		
 	}
+	else
+	{
 
-    if ($account != null) {
-		$sql .= " AND gl.account = ".db_escape($account);
-	}
+		$sql = "SELECT gl.type, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
+				IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
+				gl.mcode, gl.ischecked
 
-    if ($dimension != 0) {
-		$sql .= " AND gl.dimension_id = ".($dimension<0 ? 0 : db_escape($dimension));
-	}
+				
+				FROM ".TB_PREF."gl_trans gl
+				INNER JOIN ".TB_PREF."chart_master coa ON coa.account_code = gl.account
 
-    if ($dimension2 != 0) {
-		$sql .= " AND gl.dimension2_id = ".($dimension2<0 ? 0 : db_escape($dimension2));
-	}
+				LEFT JOIN ".TB_PREF."voided v ON gl.type_no = v.id AND v.type = gl.type
+					AND v.void_status = 'Voided'
 
-    if ($filter_type != null) {
-		$sql .= " AND gl.type IN (" . $filter_type .")";
-	}
+				LEFT JOIN ".TB_PREF."supp_trans st ON gl.type_no=st.trans_no AND st.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=st.supplier_id)
+				LEFT JOIN ".TB_PREF."grn_batch grn ON grn.id=gl.type_no AND gl.type=".ST_SUPPRECEIVE."
+				LEFT JOIN ".TB_PREF."debtor_trans dt ON gl.type_no=dt.trans_no AND dt.type=gl.type AND (gl.type!=".ST_JOURNAL." OR gl.person_id=dt.debtor_no)
 
-    if ($amount_min != null) {
-		$sql .= " AND ABS(gl.amount) >= ABS(".db_escape($amount_min).")";	
-	}
-    
-    if ($amount_max != null) {
-		$sql .= " AND ABS(gl.amount) <= ABS(".db_escape($amount_max).")";
-	}
+				LEFT JOIN ".TB_PREF."suppliers sup ON st.supplier_id=sup.supplier_id
+				LEFT JOIN ".TB_PREF."suppliers sup2 ON grn.supplier_id = sup2.supplier_id
+				LEFT JOIN ".TB_PREF."cust_branch branch ON dt.branch_code=branch.branch_code
+				LEFT JOIN ".TB_PREF."debtors_master debt ON dt.debtor_no=debt.debtor_no
 
-    if ($memo) {
-		$sql .= " AND (gl.memo_ LIKE ". db_escape("%$memo%") . " OR c.memo_ LIKE " . db_escape("%$memo%") . ")";
-	}
-	if ($master_file) {
-		$sql .= " AND gl.master_file LIKE ". db_escape("%$master_file%");
-	}
+				LEFT JOIN ".TB_PREF."bank_trans bt ON bt.type=gl.type AND bt.trans_no=gl.type_no AND bt.amount!=0
+					AND (bt.person_id != '' AND !ISNULL(bt.person_id))
 
-	if($recon_type == 1){
-		$sql .= " AND ((gl.type = recon.type AND recon.type_no = gl.type_no) Or (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no)) ";
-	}
-	if($recon_type == 0){
-		$sql .= " AND gl.counter not in (SELECT counter FROM ".TB_PREF."gl_trans gl
-		LEFT JOIN ".TB_PREF."reconcile_accounts recon ON ((recon.type = gl.type AND recon.type_no = gl.type_no) OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))
-		where  ((gl.type = recon.type AND recon.type_no = gl.type_no) 
-		OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))) ";
-	}
+				LEFT JOIN ".TB_PREF."journal j ON j.type = gl.type AND j.trans_no = gl.type_no
+				LEFT JOIN ".TB_PREF."audit_trail a ON a.type = gl.type AND a.trans_no = gl.type_no AND NOT ISNULL(gl_seq)
+				LEFT JOIN ".TB_PREF."users u ON a.user = u.id
+				LEFT JOIN ".TB_PREF."comments c ON c.id = gl.type_no AND c.type = gl.type
 
-    $sql .= " GROUP BY counter";
+				LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no 
+				LEFT JOIN ".TB_PREF."reconcile_accounts recon ON recon.type = gl.type AND recon.type_no = gl.type_no";
+				
+		$sql .= " WHERE ISNULL(v.date_) AND gl.tran_date >= '$from' AND gl.tran_date <= '$to'
+				AND gl.amount <> 0"; 
 
-    $sql .= " HAVING TRUE";
+		if ($trans_no > 0) {
+			$sql .= " AND gl.type_no LIKE ".db_escape('%'.$trans_no);	
+		}
 
-    if ($person_type != 0) {
-		$sql .= " AND person_type_id=".db_escape($person_type); 	
+		if ($account != null) {
+			$sql .= " AND gl.account = ".db_escape($account);
+		}
+
+		if ($dimension != 0) {
+			$sql .= " AND gl.dimension_id = ".($dimension<0 ? 0 : db_escape($dimension));
+		}
+
+		if ($dimension2 != 0) {
+			$sql .= " AND gl.dimension2_id = ".($dimension2<0 ? 0 : db_escape($dimension2));
+		}
+
+		if ($filter_type != null) {
+			$sql .= " AND gl.type IN (" . $filter_type .")";
+		}
+
+		if ($amount_min != null) {
+			$sql .= " AND ABS(gl.amount) >= ABS(".db_escape($amount_min).")";	
+		}
+		
+		if ($amount_max != null) {
+			$sql .= " AND ABS(gl.amount) <= ABS(".db_escape($amount_max).")";
+		}
+
+		if ($memo) {
+			$sql .= " AND (gl.memo_ LIKE ". db_escape("%$memo%") . " OR c.memo_ LIKE " . db_escape("%$memo%") . ")";
+		}
+		if ($master_file) {
+			$sql .= " AND gl.master_file LIKE ". db_escape("%$master_file%");
+		}
+
+		if($recon_type == 1){
+			$sql .= " AND ((gl.type = recon.type AND recon.type_no = gl.type_no) Or (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no)) ";
+		}
+		if($recon_type == 0){
+			$sql .= " AND gl.counter not in (SELECT counter FROM ".TB_PREF."gl_trans gl
+			LEFT JOIN ".TB_PREF."reconcile_accounts recon ON ((recon.type = gl.type AND recon.type_no = gl.type_no) OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))
+			where  ((gl.type = recon.type AND recon.type_no = gl.type_no) 
+			OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))) ";
+		}
+
+		$sql .= " GROUP BY counter";
+
+		$sql .= " HAVING TRUE";
+
+		if ($person_type != 0) {
+			$sql .= " AND person_type_id=".db_escape($person_type); 	
+		}
+		if ($person_id != 0) {
+			$sql .= " AND person_id=".db_escape($person_id); 
+		}
+
+		$sql .= " ORDER BY tran_date, counter";
 	}
-    if ($person_id != 0) {
-		$sql .= " AND person_id=".db_escape($person_id); 
-	}
-
-    $sql .= " ORDER BY tran_date, counter";
 
     return $sql;
 }
@@ -981,4 +1015,39 @@ function get_gl_trans_amount($counter = '') {
 	}
 
 	return db_query($sql, "The gl transactions could not be retrieved");
+}
+
+function recon_data_details($recon_no){
+	
+	set_global_connection();
+	$sql = "SELECT * from (SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, ref.reference, gl.amount, gl.balance_due,  gl.counter, 	
+	gl.mcode, gl.ischecked, gl.memo_, gl.master_file
+	FROM reconcile_accounts recon 
+	LEFT JOIN bank_trans bt ON recon.credit_ref_no = bt.trans_no AND recon.credit_ref_type = bt.type
+	LEFT JOIN stock_moves st ON recon.credit_ref_no = st.trans_no AND recon.credit_ref_type = st.type
+	INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.credit_ref_type AND recon.credit_ref_no = gl.type_no
+	LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no";
+
+	$sql.= " UNION ";
+	
+	$sql.= "SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
+	gl.mcode, gl.ischecked, gl.memo_, gl.master_file
+	FROM reconcile_accounts recon 
+	LEFT JOIN bank_trans bt ON recon.type_no = bt.trans_no AND recon.type = bt.type
+	LEFT JOIN stock_moves st ON recon.type_no = st.trans_no AND recon.type = st.type
+	INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.type AND recon.type_no = gl.type_no
+	LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no ) a WHERE a.reconcile_no =".db_escape($recon_no);
+
+	return db_query($sql, "The recon transactions could not be retrieved");
+}
+function recon_data($recon_no){
+	
+	set_global_connection();
+	$sql = "SELECT recon.*, cm.account_name
+	FROM reconcile_accounts recon 
+	LEFT JOIN ".TB_PREF."refs ref ON ref.type = recon.type AND ref.id = recon.type_no 
+	LEFT JOIN chart_master cm ON  cm.account_code = recon.account 
+	WHERE recon.reconcile_no =".db_escape($recon_no);
+
+	return db_query($sql, "The recon transactions could not be retrieved");
 }
