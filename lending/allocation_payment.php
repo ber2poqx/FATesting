@@ -1221,7 +1221,7 @@ if(isset($_GET['submitAdj']))
         $InputError = 1;
         $dsplymsg = _('Prepared by must not be empty.');
     }
-    if (empty($_POST['paymentType'])) {
+    if (empty($_POST['paymentType_wv'])) {
         $InputError = 1;
         $dsplymsg = _('Payment type must not be empty.');
     }
