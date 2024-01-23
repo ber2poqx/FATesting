@@ -289,8 +289,8 @@ ref_cells(_("Memo:"), 'Memo', '',null, _('Enter memo fragment or leave empty'));
 small_amount_cells(_("Amount min:"), 'amount_min', null, " ");
 small_amount_cells(_("Amount max:"), 'amount_max', null, " ");
 reconciled_type(_("Recon Type:"), 'recon_type', null, true);
+amount_type(_("Amount type:"), 'amount_type', null, true);
 submit_cells('Show',_("Show"),'','', 'default');
-
 end_row();
 end_table();
 echo "<hr>";
@@ -310,7 +310,8 @@ $sql = get_gl_transactions_list(
 	input_num('amount_max'), null, null,
 	get_post('Memo'),
 	get_post('masterfile'),
-	get_post('recon_type_id')
+	get_post('recon_type_id'),
+	get_post('amount_type')
 );
 	if(get_post('recon_type_id') == 1){
 

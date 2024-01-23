@@ -867,7 +867,7 @@ function get_gl_total($type = '', $trans_no = 0) {
 //Added by Albert 12/22/2022
 function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
     $account=null, $dimension=0, $dimension2=0, $filter_type=null,
-        $amount_min=null, $amount_max=null, $person_type=null, $person_id=null, $memo='', $master_file='', $recon_type = 0)
+        $amount_min=null, $amount_max=null, $person_type=null, $person_id=null, $memo='', $master_file='', $recon_type = 0, $amount_type = 0)
 {
     global $SysPrefs;
 	
@@ -878,24 +878,30 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 	if($recon_type == 1)
 	{
 
-		$sql= "SELECT * from (SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 	
-		gl.mcode, gl.ischecked
-		FROM reconcile_accounts recon 
-		LEFT JOIN bank_trans bt ON recon.credit_ref_no = bt.trans_no AND recon.credit_ref_type = bt.type
-		LEFT JOIN stock_moves st ON recon.credit_ref_no = st.trans_no AND recon.credit_ref_type = st.type
-		INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.credit_ref_type AND recon.credit_ref_no = gl.type_no
-		LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no";
+		$sql= "SELECT * from ( ";
+		//SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 	
+		// gl.mcode, gl.ischecked
+		// FROM reconcile_accounts recon 
+		// LEFT JOIN bank_trans bt ON recon.credit_ref_no = bt.trans_no AND recon.credit_ref_type = bt.type
+		// LEFT JOIN stock_moves st ON recon.credit_ref_no = st.trans_no AND recon.credit_ref_type = st.type
+		// INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.credit_ref_type AND recon.credit_ref_no = gl.type_no
+		// LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no";
 	
 
-		$sql.= " UNION ";
+		// $sql.= " UNION ";
 		
-		$sql.= "SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
+		$sql.= "SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date,
+		CASE WHEN gl.type = ".ST_INVADJUST." THEN gl.master_file ELSE
+		IFNULL((SELECT  b.name FROM ".TB_PREF."gl_trans a INNER JOIN ".TB_PREF."debtors_master b ON b.debtor_no = a.person_type_id
+		where a.type = gl.type and a.type_no = gl.type_no limit 1),'') END as master_file, 
+		ref.reference, gl.amount, gl.balance_due,  gl.counter, 
 		gl.mcode, gl.ischecked
-		FROM reconcile_accounts recon 
-		LEFT JOIN bank_trans bt ON recon.type_no = bt.trans_no AND recon.type = bt.type
-		LEFT JOIN stock_moves st ON recon.type_no = st.trans_no AND recon.type = st.type
-		INNER JOIN gl_trans gl ON recon.account = gl.account AND gl.type = recon.type AND recon.type_no = gl.type_no
-		LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no ) a";
+		FROM ".TB_PREF."reconcile_accounts recon 
+		LEFT JOIN ".TB_PREF."bank_trans bt ON recon.type_no = bt.trans_no AND recon.type = bt.type
+		LEFT JOIN ".TB_PREF."stock_moves st ON recon.type_no = st.trans_no AND recon.type = st.type
+		INNER JOIN ".TB_PREF."gl_trans gl ON recon.account = gl.account AND gl.type = recon.type AND recon.type_no = gl.type_no
+		LEFT JOIN ".TB_PREF."refs ref ON ref.type = gl.type AND ref.id = gl.type_no";
+		$sql .= " ) a";
 		
 		$sql .= " WHERE  a.tran_date >= '$from' AND a.tran_date <= '$to'
 		AND a.amount <> 0"; 
@@ -903,13 +909,19 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 		if ($account != null) {
 			$sql .= " AND a.account = ".db_escape($account);
 		}
+		if ($amount_type == 1) {
+			$sql .= " AND a.balance_due > 0";
+		}
 		$sql .= " ORDER BY a.reconcile_no ASC";
-		
 	}
 	else
 	{
 
-		$sql = "SELECT gl.type, gl.type_no, gl.tran_date, recon.reconcile_date, gl.master_file, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
+		$sql = "SELECT gl.type, gl.type_no, gl.tran_date, recon.reconcile_date, 
+				CASE WHEN gl.type = ".ST_INVADJUST." THEN gl.master_file ELSE
+				IFNULL((SELECT  b.name FROM ".TB_PREF."gl_trans a INNER JOIN ".TB_PREF."debtors_master b ON b.debtor_no = a.person_type_id
+ 				where a.type = gl.type and a.type_no =gl.type_no limit 1),'') END as master_file, 
+				ref.reference, gl.amount, gl.balance_due,  gl.counter, 
 				IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
 				gl.mcode, gl.ischecked
 
@@ -947,6 +959,9 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 			$sql .= " AND gl.type_no LIKE ".db_escape('%'.$trans_no);	
 		}
 
+		if ($amount_type == 1) {
+			$sql .= " AND gl.balance_due > 0";
+		}	
 		if ($account != null) {
 			$sql .= " AND gl.account = ".db_escape($account);
 		}
@@ -1021,7 +1036,10 @@ function recon_data_details($recon_no){
 	
 	set_global_connection();
 	$sql = "SELECT * from (SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, ref.reference, gl.amount, gl.balance_due,  gl.counter, 	
-	gl.mcode, gl.ischecked, gl.memo_, gl.master_file
+	gl.mcode, gl.ischecked, gl.memo_, 
+	CASE WHEN gl.type = ".ST_INVADJUST." THEN gl.master_file ELSE
+		IFNULL((SELECT  b.name FROM ".TB_PREF."gl_trans a INNER JOIN ".TB_PREF."debtors_master b ON b.debtor_no = a.person_type_id
+		where a.type = gl.type and a.type_no = gl.type_no limit 1),'') END as master_file
 	FROM reconcile_accounts recon 
 	LEFT JOIN bank_trans bt ON recon.credit_ref_no = bt.trans_no AND recon.credit_ref_type = bt.type
 	LEFT JOIN stock_moves st ON recon.credit_ref_no = st.trans_no AND recon.credit_ref_type = st.type
@@ -1031,7 +1049,10 @@ function recon_data_details($recon_no){
 	$sql.= " UNION ";
 	
 	$sql.= "SELECT gl.type, recon.reconcile_no, gl.account, gl.type_no, gl.tran_date, recon.reconcile_date, ref.reference, gl.amount, gl.balance_due,  gl.counter, 
-	gl.mcode, gl.ischecked, gl.memo_, gl.master_file
+	gl.mcode, gl.ischecked, gl.memo_, 
+	CASE WHEN gl.type = ".ST_INVADJUST." THEN gl.master_file ELSE
+		IFNULL((SELECT  b.name FROM ".TB_PREF."gl_trans a INNER JOIN ".TB_PREF."debtors_master b ON b.debtor_no = a.person_type_id
+		where a.type = gl.type and a.type_no = gl.type_no limit 1),'') END as master_file
 	FROM reconcile_accounts recon 
 	LEFT JOIN bank_trans bt ON recon.type_no = bt.trans_no AND recon.type = bt.type
 	LEFT JOIN stock_moves st ON recon.type_no = st.trans_no AND recon.type = st.type
