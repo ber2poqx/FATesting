@@ -274,7 +274,7 @@ start_form();
 start_table(TABLESTYLE_NOBORDER);
 start_row();
 gl_all_accounts_list_cells(_("Account:"), 'bank_account', null, false, false, _("All Accounts"), true);
-ref_cells(_("Masterfile:"), 'masterfile', '',null, _('Enter Masterfile fragment or leave empty'));
+customer_list_cells(_("&nbsp; Select Masterfile: "), 'masterfile_id', null, true, true, false, true);
 
 date_cells(_("From:"), 'TransFromDate', '', null, -user_transaction_days());
 date_cells(_("To:"), 'TransToDate');
@@ -300,19 +300,19 @@ if (!isset($_POST['bank_account']))
     $_POST['bank_account'] = "";
 
 	$_POST['recon_type_id'] = get_post('recon_type');
-$sql = get_gl_transactions_list(
-	get_post('TransFromDate'), 
-	get_post('TransToDate'), -1,
-	get_post("bank_account"), 
-	0, 
-	0, null,
-	input_num('amount_min'), 
-	input_num('amount_max'), null, null,
-	get_post('Memo'),
-	get_post('masterfile'),
-	get_post('recon_type_id'),
-	get_post('amount_type')
-);
+	$sql = get_gl_transactions_list(
+		get_post('TransFromDate'), 
+		get_post('TransToDate'), -1,
+		get_post("bank_account"), 
+		0, 
+		0, null,
+		input_num('amount_min'), 
+		input_num('amount_max'), null, get_post('masterfile_id'),
+		get_post('Memo'),
+		'',
+		get_post('recon_type_id'),
+		get_post('amount_type')
+	);
 	if(get_post('recon_type_id') == 1){
 
 	$cols =
@@ -329,6 +329,7 @@ $sql = get_gl_transactions_list(
 		_("Balance Due")
 	   );
 	}else{
+		display_error("hai");
 		$cols =
 			array(
 				_("Type") => array('fun'=>'systype_name', 'ord'=>''),

@@ -896,7 +896,10 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 		where b.debtor_no = CAST(gl.person_id AS CHAR(10000) CHARACTER SET utf8) 
 		or b.debtor_no = CAST(bt.person_id AS CHAR(10000) CHARACTER SET utf8)), gl.master_file) END as master_file,
 		IFNULL(IFNULL(ref.reference, bt.ref), dt.reference) as reference, gl.amount, gl.balance_due,  gl.counter, 
-		gl.mcode, gl.ischecked
+		gl.mcode, gl.ischecked,
+		IFNULL((SELECT b.debtor_no FROM debtors_master b 
+		where b.debtor_no = CAST(gl.person_id AS CHAR(10000) CHARACTER SET utf8) 
+		or b.debtor_no = CAST(bt.person_id AS CHAR(10000) CHARACTER SET utf8)), 0) as debtor_no
 		FROM ".TB_PREF."reconcile_accounts recon 
 		LEFT JOIN ".TB_PREF."bank_trans bt ON recon.type_no = bt.trans_no AND recon.type = bt.type
 		LEFT JOIN ".TB_PREF."stock_moves st ON recon.type_no = st.trans_no AND recon.type = st.type
@@ -906,7 +909,7 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 		$sql .= " ) a";
 		
 		$sql .= " WHERE  a.tran_date >= '$from' AND a.tran_date <= '$to'
-		AND a.amount <> 0"; 
+		AND a.amount <> 0 AND type not in (10,13,57) "; 
 
 		if ($account != null) {
 			$sql .= " AND a.account = ".db_escape($account);
@@ -914,11 +917,14 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 		if ($amount_type == 1) {
 			$sql .= " AND a.balance_due > 0";
 		}
+
+		if ($person_id != null) {
+			$sql .= " AND a.debtor_no = ". db_escape($person_id);
+		}
 		$sql .= " ORDER BY a.reconcile_no ASC";
 	}
 	else
 	{
-
 		$sql = "SELECT gl.type, gl.type_no, gl.tran_date, recon.reconcile_date, 
 				CASE WHEN gl.type = ".ST_INVADJUST." THEN gl.master_file ELSE
 				IFNULL((SELECT b.name FROM debtors_master b 
@@ -926,9 +932,11 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 				or b.debtor_no = CAST(bt.person_id AS CHAR(10000) CHARACTER SET utf8)), gl.master_file) END as master_file,  
 				IFNULL(IFNULL(ref.reference, bt.ref), dt.reference) as reference, gl.amount, gl.balance_due,  gl.counter, 
 				IFNULL(IFNULL(sup.supp_name, debt.name), bt.person_id) as person_name,
-				gl.mcode, gl.ischecked
+				gl.mcode, gl.ischecked,
+				IFNULL((SELECT b.debtor_no FROM debtors_master b 
+				where b.debtor_no = CAST(gl.person_id AS CHAR(10000) CHARACTER SET utf8) 
+				or b.debtor_no = CAST(bt.person_id AS CHAR(10000) CHARACTER SET utf8)), 0) as debtor_no
 
-				
 				FROM ".TB_PREF."gl_trans gl
 				INNER JOIN ".TB_PREF."chart_master coa ON coa.account_code = gl.account
 
@@ -956,7 +964,7 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 				LEFT JOIN ".TB_PREF."reconcile_accounts recon ON recon.type = gl.type AND recon.type_no = gl.type_no";
 				
 		$sql .= " WHERE ISNULL(v.date_) AND gl.tran_date >= '$from' AND gl.tran_date <= '$to'
-				AND gl.amount <> 0"; 
+				AND gl.amount <> 0 AND gl.type not in (10,13,57) "; 
 
 		if ($trans_no > 0) {
 			$sql .= " AND gl.type_no LIKE ".db_escape('%'.$trans_no);	
@@ -988,12 +996,8 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 		if ($amount_max != null) {
 			$sql .= " AND ABS(gl.amount) <= ABS(".db_escape($amount_max).")";
 		}
-
 		if ($memo) {
 			$sql .= " AND (gl.memo_ LIKE ". db_escape("%$memo%") . " OR c.memo_ LIKE " . db_escape("%$memo%") . ")";
-		}
-		if ($master_file) {
-			$sql .= " AND gl.master_file LIKE ". db_escape("%$master_file%");
 		}
 
 		if($recon_type == 1){
@@ -1005,21 +1009,13 @@ function get_gl_transactions_list($from_date, $to_date, $trans_no=0,
 			where  ((gl.type = recon.type AND recon.type_no = gl.type_no) 
 			OR (gl.type = recon.credit_ref_type and gl.type_no = recon.credit_ref_no))) ";
 		}
-
+		if ($person_id != null) {
+			$sql .= " AND IFNULL(dt.debtor_no, CAST(bt.person_id AS CHAR(10000) CHARACTER SET utf8)) = ". db_escape($person_id);
+		}
 		$sql .= " GROUP BY counter";
-
-		$sql .= " HAVING TRUE";
-
-		if ($person_type != 0) {
-			$sql .= " AND person_type_id=".db_escape($person_type); 	
-		}
-		if ($person_id != 0) {
-			$sql .= " AND person_id=".db_escape($person_id); 
-		}
 
 		$sql .= " ORDER BY tran_date, counter";
 	}
-
     return $sql;
 }
 function get_gl_trans_amount($counter = '') {
