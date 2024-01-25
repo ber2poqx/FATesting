@@ -1161,7 +1161,7 @@ function get_so_repo_status($lot_no)
 	sorder.status
 	FROM sales_orders sorder
 	INNER JOIN sales_order_details line  ON sorder.order_no = line.order_no AND sorder.trans_type = line.trans_type
-	LEFT JOIN debtor_trans dt ON sorder.order_no = dt.order_
+	LEFT JOIN debtor_trans dt ON sorder.order_no = dt.order_ and dt.type = ".ST_SALESINVOICE."
 	WHERE sorder.so_item_type = 'repo'AND dt.status !='Cancelled'";
 	$sql .= " AND line.lot_no =" . db_escape($lot_no);
 	/*modified by Albert*/
