@@ -884,9 +884,25 @@ function installment_computation()
 
 	$amort_wo_rebate = $sum_of_interest_charge_and_atbf / $terms;
 
-	$amort = round($amort_wo_rebate + $rebate);
+	//modified by Albert 01/25/2024 
+	if ($terms < 1 && $terms > 0) {
 
-	$total_amount = $amort * $terms + floatval($_POST['down_pay']);
+		$amort = round(floatval($amount_to_be_finance));
+		$total_amount = floatval($_POST['lcp_amount']);
+
+		$_POST['total_amount'] = $total_amount;
+		$_POST['ar_amount'] = $total_amount;
+		$_POST['due_amort'] = $amort;
+
+	}else{
+		$amort = round($amort_wo_rebate + $rebate);
+
+		$total_amount = $amort * $terms + floatval($_POST['down_pay']);
+		$_POST['total_amount'] = $total_amount;
+		$_POST['ar_amount'] = $total_amount;
+		$_POST['due_amort'] = $amort;
+	}
+	/**/
 	$_POST['total_amount'] = $total_amount;
 	$_POST['ar_amount'] = $total_amount;
 	$_POST['due_amort'] = $amort;
