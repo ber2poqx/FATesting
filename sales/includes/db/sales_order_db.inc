@@ -1168,7 +1168,6 @@ function get_so_repo_status($lot_no)
 	$sql .= " GROUP BY line.lot_no, sorder.order_no";
 	$sql .= " ORDER BY sorder.order_no DESC LIMIT 1";
 	//
-	display_error($sql);
 	$result = db_query($sql, "Can't Get Status!!!");
 	
 	if (db_num_rows($result) == 1) {
