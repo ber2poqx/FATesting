@@ -122,6 +122,8 @@ function display_po_receive_items()
             if(!get_stock_category_RR($_SESSION['PO']->category_id)){
                 $ln_itm->price = floatval($price);
                 $ln_itm->standard_cost = floatval($price);
+            }else{
+                $ln_itm->standard_cost = floatval($ln_itm->price);
             }
             $line_total = ($ln_itm->receive_qty * $ln_itm->price);
             $total += $line_total;
@@ -468,6 +470,8 @@ function serial_summary_po_receive_items()
                         $price = 0;
                     $ln_itm->price = $price;
                     $ln_itm->standard_cost = $price;
+                }else{
+                    $ln_itm->standard_cost = $ln_itm->price;
                 }
                 $line_total = ($ln_itm->receive_qty * $ln_itm->price);
                 $total += $line_total;
