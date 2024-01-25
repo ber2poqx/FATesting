@@ -18,6 +18,7 @@ function write_sales_delivery(&$delivery, $bo_policy)
 	global $Refs;
 
 	$trans_no = $delivery->trans_no;
+	display_error($sql);
 	if (is_array($trans_no)) $trans_no = key($trans_no);
 
 	begin_transaction();
@@ -45,8 +46,6 @@ function write_sales_delivery(&$delivery, $bo_policy)
 		$taxitem['Value'] =  round2($taxitem['Value'], user_price_dec());
 		$tax_total +=  $taxitem['Value'];
 	}
-	/*Added by Albert 1/9/2024*/
-	// $reference =  $Refs->get_next(ST_CUSTDELIVERY, null, $delivery->document_date);
 	set_global_connection();
 	/* Insert/update the debtor_trans */
 	$delivery_no = write_customer_trans(
@@ -480,8 +479,8 @@ function get_serial_no($lot_no)
 /* Added by Ronelle  */
 function get_available_items($stock_id, $location, $date, $serial_no = "", $chassis_no = "") {
 	
-	//original Query commented by Albert 26 june 2023 fix error in delivery
-	/*$sql = 
+	//Modified by Albert 26 june 2023
+	$sql = 
 	"SELECT x1.trans_id, x1.trans_no, x1.type, x1.stock_id,
 		x1.qty as InQty, x1.OutQty as OutQty,
 		(x1.qty - x1.OutQty) as qoh, x1.category_id, x1.standard_cost, x1.tran_date
@@ -511,26 +510,8 @@ function get_available_items($stock_id, $location, $date, $serial_no = "", $chas
 		$sql .= " AND a.chassis_no = " . db_escape($chassis_no);
 	}
 	
-	$sql .= ") x1 WHERE x1.qty > x1.OutQty";*/
+	$sql .= ") x1 WHERE x1.qty > x1.OutQty";
 
-	//Modified by Albert 12 july 2023
-	$sql = 
-	"SELECT x1.trans_id, x1.trans_no, x1.type, x1.stock_id,
-	X1.qoh, x1.category_id, x1.standard_cost, x1.tran_date
-	FROM (SELECT SUM(qty) as qoh, a.standard_cost, a.trans_id, a.trans_no, a.stock_id, 
-	a.type, a.category_id, a.tran_date FROM stock_moves a 
-	WHERE a.loc_code = " . db_escape($location) ." AND a.tran_date < NOW() 
-	AND a.stock_id = " . db_escape($stock_id);
-	if ($serial_no != "") {  
-		$sql .= " AND a.lot_no = " . db_escape($serial_no);
-	}
-
-	if ($chassis_no != "") {
-		$sql .= " AND a.chassis_no = " . db_escape($chassis_no);
-	}
-
-	$sql .= " GROUP BY type_out, transno_out, standard_cost";
-	$sql .= ") x1 WHERE x1.qoh > 0";
 	$result = db_query($sql, "retrieve available items failed");
 	return $result;
 }
