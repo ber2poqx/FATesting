@@ -224,12 +224,16 @@ value_type_list(_("Entry Type: "), 'interbranch',
         0 => 'Normal Entry' 
     ), '', null, true, _('All Entry Types'), true
 );
+
+
+
 end_row();
 end_table();
 
 start_table(TABLESTYLE_NOBORDER);
 start_row();
-
+//added new select-dropdown
+sl_list_gl_cells(_('Select Master File:'), 'mcode', null, _("Select MCode"), true);
 date_cells(_("From:"), 'from_date', '', null, -user_transaction_days());
 date_cells(_("To:"), 'to_date');
 
@@ -260,7 +264,8 @@ $sql = get_journal_transactions(
     get_post('doc_ref'),
     get_post('from_date'), 
     get_post('to_date'),
-    get_post('interbranch')
+    get_post('interbranch'),
+    get_post('mcode'),
 );
 
 $cols = array(

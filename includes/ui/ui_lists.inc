@@ -729,13 +729,14 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 
 	set_global_connection();
 	
+	//changed debtor_ref to debtor_no 
 	if (!empty($SysPrefs->prefs['shortname_name_in_list'])) {
 		if ($send_type != null) {
 			if ($send_type == 1) {
 				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers";
 			}
 			else if ($send_type == 2) {
-				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master";
+				$sql = "SELECT debtor_no as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master";
 			}
 			else if ($send_type == 3) {
 
@@ -755,7 +756,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 		}
 		else {
-			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master
+			$sql = "SELECT debtor_no as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master
 				UNION
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers ";
 
@@ -779,7 +780,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 				$sql = "SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers";
 			}
 			else if ($send_type == 2) {
-				$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master";
+				$sql = "SELECT debtor_no as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master";
 			}
 			else if ($send_type == 3) {
 				for ($i = 0; $i < count($db_connections); $i++) {	
@@ -798,7 +799,7 @@ function sl_list_gl($name, $selected_id=null, $spec_option=false, $submit_on_cha
 			}
 		}
 		else {
-			$sql = "SELECT debtor_ref as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master
+			$sql = "SELECT debtor_no as ref, CONCAT(debtor_ref, ' - ', name) as ref_label FROM ".TB_PREF."debtors_master
 				UNION
 				SELECT supplier_id as ref, CONCAT(supp_ref, ' - ', supp_name) as ref_label FROM ".TB_PREF."suppliers ";
 

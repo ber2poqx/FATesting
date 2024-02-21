@@ -621,19 +621,26 @@ function get_max_bank_trans($trans_type) {
 }
 
 function get_journal_transactions($reference = '', $doc_ref = '', $from_date = null, $to_date = null, 
-	$interbranch = '', $trans_no = '') {
+	$interbranch = '',  $masterfile = '') {
 
 	set_global_connection();
 
 	$sql = "SELECT JOR.* 
 		FROM " . TB_PREF . "journal JOR ";
-	
+
 	if ($interbranch != '') {
 		$sql .= " LEFT JOIN (
 			SELECT GL.* FROM " . TB_PREF . "gl_trans GL GROUP BY GL.type, GL.type_no
 		) GL ON JOR.trans_no = GL.type_no AND JOR.type = GL.type";
 	} 
 
+	//added new masterfile query
+	if ($masterfile != '') {
+		$sql .= " LEFT JOIN (
+			SELECT GL.* FROM " . TB_PREF . "gl_trans GL
+			) GL ON JOR.trans_no = GL.type_no AND JOR.type = GL.type";
+	}
+	
 	$sql .= " WHERE JOR.type = " . ST_JOURNAL . " ";
 
 	if ($reference != '') {
@@ -648,6 +655,10 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date = n
 		$sql .= " AND GL.interbranch = " .db_escape($interbranch);
 	}
 
+	if($masterfile != '') {
+		$sql .=" AND GL.mcode =" .db_escape($masterfile);
+	}
+	
 	if ($trans_no != '') {
 		$sql .= " AND JOR.trans_no = " .db_escape($trans_no);
 	}
@@ -661,6 +672,11 @@ function get_journal_transactions($reference = '', $doc_ref = '', $from_date = n
 		$sql .= " GROUP BY GL.type, GL.type_no";
 	}
 
+	if($masterfile != '') {
+		$sql .=" GROUP BY GL.type, GL.type_no";
+	}
+
+	
 	$sql .= " ORDER BY JOR.tran_date DESC, JOR.trans_no DESC";
 
 	return $sql;
